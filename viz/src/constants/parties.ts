@@ -63,15 +63,31 @@ function blendHex(hex1: string, hex2: string, w1 = 0.65): string {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-/** Returns color for a party code, blending if composite (e.g. "CON/STY") */
+/** Returns color for a party code, blending if composite.
+ * Handles three formats:
+ *   "CON/STY"  — blended (~50/50), 65/35 visual blend
+ *   "STY_ctr"  — light fusion (80/20), 85/15 visual blend toward primary
+ *   "CON"      — pure party, exact party color
+ */
 export function getBlendColor(code: string): string {
   if (!code) return '#6b7280';
   if (BLEND_OVERRIDES[code]) return BLEND_OVERRIDES[code];
-  const parts = code.split('/');
-  if (parts.length === 1) return PARTY_COLORS[parts[0]] ?? '#6b7280';
-  const c1 = PARTY_COLORS[parts[0]] ?? '#6b7280';
-  const c2 = PARTY_COLORS[parts[1]] ?? '#6b7280';
-  return blendHex(c1, c2);
+  if (code.includes('/')) {
+    const parts = code.split('/');
+    const c1 = PARTY_COLORS[parts[0]] ?? '#6b7280';
+    const c2 = PARTY_COLORS[parts[1]] ?? '#6b7280';
+    return blendHex(c1, c2);
+  }
+  // Light fusion: underscore with lowercase suffix (e.g. STY_ctr, CON_ref)
+  if (code.includes('_')) {
+    const [base, lean] = code.split('_', 2);
+    if (lean === lean.toLowerCase() && PARTY_COLORS[base]) {
+      const c1 = PARTY_COLORS[base];
+      const c2 = PARTY_COLORS[lean.toUpperCase()] ?? c1;
+      return blendHex(c1, c2, 0.85);
+    }
+  }
+  return PARTY_COLORS[code] ?? '#6b7280';
 }
 
 /** Given a senator_code like "CON/STY" or "CON", return the primary party code */

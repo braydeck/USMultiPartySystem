@@ -12,9 +12,13 @@ const DOMAINS = [
   'Immigration',
   'Police & Guns',
   'Abortion',
+  'Environment & Climate',
+  'Healthcare & Housing',
+  'Civil Liberties',
   'Elections & Trust',
   'Racial & Gender',
   'Religion',
+  'Demographics',
 ];
 
 interface VarEntry {
@@ -87,7 +91,15 @@ export function CompareTab({ clusters, blendProfiles }: Props) {
   const domainVars = getVarsForDomain(activeDomain);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-1">Party Comparison</h2>
+        <p className="text-slate-500 text-sm">
+          Compare up to 3 parties side-by-side across 7 policy domains. Only positions
+          where parties diverge are shown — sorted by largest gap first.
+        </p>
+      </div>
+
       {/* Party selector */}
       <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="text-sm font-semibold text-slate-700 mb-3">Select up to 3 parties to compare</div>
@@ -157,7 +169,7 @@ export function CompareTab({ clusters, blendProfiles }: Props) {
                   onClick={() => setActiveDomain(d)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                     activeDomain === d
-                      ? 'bg-slate-800 text-white'
+                      ? 'bg-indigo-600 text-white'
                       : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >

@@ -54,7 +54,7 @@ export function PresidentialMap({ stateWinners }: Props) {
             onClick={() => setMapView(v)}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               mapView === v
-                ? 'bg-teal-600 text-white'
+                ? 'bg-indigo-600 text-white'
                 : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
             }`}
           >
@@ -110,7 +110,7 @@ export function PresidentialMap({ stateWinners }: Props) {
                     stroke={winner ? getBlendColor(winner) + '66' : '#cbd5e1'}
                     strokeWidth={1}
                     style={{
-                      default: { outline: 'none' },
+                      default: { outline: 'none', cursor: entry ? 'pointer' : 'default' },
                       hover:   { outline: 'none', opacity: 0.85 },
                       pressed: { outline: 'none' },
                     }}

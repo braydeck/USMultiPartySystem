@@ -4,39 +4,47 @@ import type { VoteModelRow } from '../../types';
 interface Props {
   houseRows: VoteModelRow[];
   senateRows: VoteModelRow[];
-  pipeline: 'blended' | 'raw';
+  pipeline: 'blended' | 'raw' | 'lightFusion';
   senateMethod: 'condorcet' | 'irv';
 }
 
 const SENATE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
-  'blended+condorcet': 'condMixedProbPass',
-  'blended+irv':       'irvMixedProbPass',
-  'raw+condorcet':     'condPureProbPass',
-  'raw+irv':           'irvPureProbPass',
+  'blended+condorcet':     'condMixedProbPass',
+  'blended+irv':           'irvMixedProbPass',
+  'raw+condorcet':         'condPureProbPass',
+  'raw+irv':               'irvPureProbPass',
+  'lightFusion+condorcet': 'condLFProbPass',
+  'lightFusion+irv':       'irvLFProbPass',
 };
 
 const SENATE_VERDICT_FIELD: Record<string, keyof VoteModelRow> = {
-  'blended+condorcet': 'condMixedVerdict',
-  'blended+irv':       'irvMixedVerdict',
-  'raw+condorcet':     'condPureVerdict',
-  'raw+irv':           'irvPureVerdict',
+  'blended+condorcet':     'condMixedVerdict',
+  'blended+irv':           'irvMixedVerdict',
+  'raw+condorcet':         'condPureVerdict',
+  'raw+irv':               'irvPureVerdict',
+  'lightFusion+condorcet': 'condLFVerdict',
+  'lightFusion+irv':       'irvLFVerdict',
 };
 
 // President is determined by both pipeline AND senate method:
 // blended+irv → CON/SD (IRV winner), blended+condorcet → SD/CON (Condorcet winner)
-// raw+irv → STY, raw+condorcet → STY (same president in pure scenario)
+// raw → STY, lightFusion → STY_ctr (wins both IRV and Condorcet)
 const PRES_SIGNS_FIELD: Record<string, keyof VoteModelRow> = {
-  'blended+irv':       'presMixedSigns',
-  'blended+condorcet': 'presMixedCondSigns',
-  'raw+irv':           'presPureSigns',
-  'raw+condorcet':     'presPureSigns',
+  'blended+irv':           'presMixedSigns',
+  'blended+condorcet':     'presMixedCondSigns',
+  'raw+irv':               'presPureSigns',
+  'raw+condorcet':         'presPureSigns',
+  'lightFusion+condorcet': 'presLFSigns',
+  'lightFusion+irv':       'presLFSigns',
 };
 
 const PRES_LABEL: Record<string, string> = {
-  'blended+irv':       'CON/SD',
-  'blended+condorcet': 'SD/CON',
-  'raw+irv':           'STY',
-  'raw+condorcet':     'STY',
+  'blended+irv':           'CON/SD',
+  'blended+condorcet':     'SD/CON',
+  'raw+irv':               'STY',
+  'raw+condorcet':         'STY',
+  'lightFusion+condorcet': 'STY_ctr',
+  'lightFusion+irv':       'STY_ctr',
 };
 
 function ProbBar({ prob }: { prob: number }) {

@@ -10,6 +10,7 @@ export interface ParliamentSegment {
 interface Props {
   segments: ParliamentSegment[];  // pre-sorted by fVal ascending
   factor: string;
+  globalRange?: [number, number]; // fixed min/max across all scenarios for stable category labels
 }
 
 function computeRings(total: number, innerR: number, ringGap: number): number[] {
@@ -27,7 +28,7 @@ function computeRings(total: number, innerR: number, ringGap: number): number[] 
 const CAT_LABELS = ['Very Low', 'Low', 'Medium', 'High', 'Very High'] as const;
 const N_CATS = 5;
 
-export function ParliamentChart({ segments, factor }: Props) {
+export function ParliamentChart({ segments, factor, globalRange }: Props) {
   const INNER_R = 60;
   const RING_GAP = 15;
 
@@ -71,10 +72,10 @@ export function ParliamentChart({ segments, factor }: Props) {
       }
     }
 
-    // Category dividers at equal intervals of actual fVal range
+    // Category dividers — use globalRange for stable absolute labels, fallback to scenario range
     const fVals = segments.map(s => s.fVal);
-    const minF = Math.min(...fVals);
-    const maxF = Math.max(...fVals);
+    const minF = globalRange ? globalRange[0] : Math.min(...fVals);
+    const maxF = globalRange ? globalRange[1] : Math.max(...fVals);
     const fStep = (maxF - minF) / N_CATS;
 
     const allDividers: { arcFrac: number; value: number }[] = [];
@@ -118,6 +119,9 @@ export function ParliamentChart({ segments, factor }: Props) {
   const factorLabel = FACTOR_LABELS[factor] ?? factor;
   const minVal = segments[0]?.fVal ?? 0;
   const maxVal = segments[segments.length - 1]?.fVal ?? 1;
+  // Show global anchor endpoints if provided, otherwise show scenario range
+  const arcMinLabel = globalRange ? globalRange[0].toFixed(2) : minVal.toFixed(2);
+  const arcMaxLabel = globalRange ? globalRange[1].toFixed(2) : maxVal.toFixed(2);
 
   return (
     <div>
@@ -191,8 +195,8 @@ export function ParliamentChart({ segments, factor }: Props) {
           })}
 
           {/* Min/max value at arc ends */}
-          <text x={-outerR - 6} y={4} textAnchor="end" fontSize={7} fill="#94a3b8">{minVal.toFixed(2)}</text>
-          <text x={outerR + 6} y={4} textAnchor="start" fontSize={7} fill="#94a3b8">{maxVal.toFixed(2)}</text>
+          <text x={-outerR - 6} y={4} textAnchor="end" fontSize={7} fill="#94a3b8">{arcMinLabel}</text>
+          <text x={outerR + 6} y={4} textAnchor="start" fontSize={7} fill="#94a3b8">{arcMaxLabel}</text>
         </g>
 
         {/* Bottom axis label */}

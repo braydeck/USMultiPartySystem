@@ -40,7 +40,7 @@ export function SenateMap({ seats }: Props) {
                     stroke="#cbd5e1"
                     strokeWidth={1}
                     style={{
-                      default: { outline: 'none' },
+                      default: { outline: 'none', cursor: seat ? 'pointer' : 'default' },
                       hover:   { outline: 'none', opacity: 0.8 },
                       pressed: { outline: 'none' },
                     }}

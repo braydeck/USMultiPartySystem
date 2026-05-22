@@ -47,7 +47,7 @@ export function QuizTab({ questions, clusters, houseVotes }: Props) {
     const cluster = clusters.find(c => c.id === result.clusterId);
     if (!cluster) return null;
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div>
           <h2 className="text-2xl font-bold text-slate-900 mb-1">Your Political Profile</h2>
           <p className="text-slate-500 text-sm">Based on your quiz answers, here's which party you align with most.</p>
@@ -67,7 +67,7 @@ export function QuizTab({ questions, clusters, houseVotes }: Props) {
   const hasAnswer = answers[current] !== undefined;
 
   return (
-    <div className="space-y-6 max-w-xl mx-auto">
+    <div className="space-y-8 max-w-xl mx-auto">
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">Who Are You?</h2>
         <p className="text-slate-500 text-sm">
@@ -97,7 +97,7 @@ export function QuizTab({ questions, clusters, houseVotes }: Props) {
         <button
           onClick={handleNext}
           disabled={!hasAnswer}
-          className="px-5 py-2 rounded bg-teal-600 text-white font-medium disabled:opacity-40 hover:bg-teal-500 transition-colors"
+          className="px-5 py-2 rounded bg-indigo-600 text-white font-medium disabled:opacity-40 hover:bg-indigo-500 transition-colors"
         >
           {current === questions.length - 1 ? 'See Results' : 'Next'}
         </button>

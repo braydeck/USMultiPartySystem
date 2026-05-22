@@ -58,7 +58,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
                 onClick={() => setHouseView(v)}
                 className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                   houseView === v
-                    ? 'bg-slate-700 text-white'
+                    ? 'bg-indigo-600 text-white'
                     : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                 }`}
               >
@@ -83,7 +83,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
               title={FACTOR_LABELS[f]}
               className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                 parliamentFactor === f
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-indigo-600 text-white'
                   : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
               }`}
             >

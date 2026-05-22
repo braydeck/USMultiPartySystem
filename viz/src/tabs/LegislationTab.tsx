@@ -8,12 +8,13 @@ interface Props {
   senateVotes: VoteModelRow[];
 }
 
-type Pipeline = 'blended' | 'raw';
+type Pipeline = 'blended' | 'raw' | 'lightFusion';
 type Method = 'condorcet' | 'irv';
 
 const PIPELINE_LABELS: Record<Pipeline, string> = {
   blended: 'Blended',
   raw: 'Raw',
+  lightFusion: 'Light Fusion',
 };
 
 const METHOD_LABELS: Record<Method, string> = {
@@ -35,8 +36,8 @@ export function LegislationTab({ houseVotes, senateVotes }: Props) {
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
           <span className="text-xs text-slate-600 uppercase tracking-widest">Pipeline</span>
           <div className="flex gap-1">
             {(Object.keys(PIPELINE_LABELS) as Pipeline[]).map(p => (
@@ -45,7 +46,7 @@ export function LegislationTab({ houseVotes, senateVotes }: Props) {
                 onClick={() => setPipeline(p)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                   pipeline === p
-                    ? 'bg-amber-600 text-white'
+                    ? 'bg-indigo-600 text-white'
                     : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                 }`}
               >
@@ -55,7 +56,7 @@ export function LegislationTab({ houseVotes, senateVotes }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2">
           <span className="text-xs text-slate-600 uppercase tracking-widest">Senate Method</span>
           <div className="flex gap-1">
             {(Object.keys(METHOD_LABELS) as Method[]).map(m => (
@@ -64,7 +65,7 @@ export function LegislationTab({ houseVotes, senateVotes }: Props) {
                 onClick={() => setMethod(m)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                   method === m
-                    ? 'bg-teal-600 text-white'
+                    ? 'bg-indigo-600 text-white'
                     : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                 }`}
               >

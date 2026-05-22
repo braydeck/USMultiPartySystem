@@ -10,19 +10,21 @@ import { PresidentialComparison } from '../components/presidential/PresidentialC
 interface Props {
   mixed: PresidentialElection;
   pure:  PresidentialElection;
+  lightFusion: PresidentialElection;
   clusters: ClusterProfile[];
   blendProfiles: BlendProfile[];
   senateVotes: VoteModelRow[];
 }
 
 const PRES_LABELS: Record<PresidentialScenario, string> = {
-  mixed: 'Blended (CON/SD · SD/CON)',
-  pure:  'Raw (STY)',
+  mixed:       'Blended (CON/SD · SD/CON)',
+  pure:        'Raw (STY)',
+  lightFusion: 'Light Fusion (STY_ctr)',
 };
 
-export function PresidentialTab({ mixed, pure, clusters, blendProfiles, senateVotes }: Props) {
+export function PresidentialTab({ mixed, pure, lightFusion, clusters, blendProfiles, senateVotes }: Props) {
   const [scenario, setScenario] = useState<PresidentialScenario>('mixed');
-  const data = scenario === 'mixed' ? mixed : pure;
+  const data = scenario === 'mixed' ? mixed : scenario === 'pure' ? pure : lightFusion;
 
   return (
     <div className="space-y-8">
@@ -42,7 +44,7 @@ export function PresidentialTab({ mixed, pure, clusters, blendProfiles, senateVo
             onClick={() => setScenario(s)}
             className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
               scenario === s
-                ? 'bg-teal-600 text-white'
+                ? 'bg-indigo-600 text-white'
                 : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
             }`}
           >
@@ -56,7 +58,7 @@ export function PresidentialTab({ mixed, pure, clusters, blendProfiles, senateVo
 
       {/* State map with IRV/Plurality toggle */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-widest mb-1">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
           State Results
         </h3>
         <p className="text-xs text-slate-500 mb-3">
@@ -67,7 +69,7 @@ export function PresidentialTab({ mixed, pure, clusters, blendProfiles, senateVo
 
       {/* IRV vote flow Sankey */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-widest mb-1">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
           IRV Vote Flow
         </h3>
         <p className="text-xs text-slate-500 mb-3">
@@ -78,8 +80,8 @@ export function PresidentialTab({ mixed, pure, clusters, blendProfiles, senateVo
 
       {/* Three-way presidential comparison */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-widest mb-1">
-          Presidential Policy Comparison — CON/SD · SD/CON · STY
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+          Presidential Policy Comparison — CON/SD · SD/CON · STY · STY_ctr
         </h3>
         <p className="text-xs text-slate-500 mb-4">
           How likely each potential president would sign or veto major legislation.
@@ -92,7 +94,7 @@ export function PresidentialTab({ mixed, pure, clusters, blendProfiles, senateVo
       {/* IRV rounds + Condorcet table */}
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-widest mb-3">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
             IRV Rounds Detail
           </h3>
           <p className="text-xs text-slate-500 mb-3">
@@ -102,7 +104,7 @@ export function PresidentialTab({ mixed, pure, clusters, blendProfiles, senateVo
         </div>
 
         <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-widest mb-3">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
             Head-to-Head Matchups (Condorcet)
           </h3>
           <p className="text-xs text-slate-500 mb-3">

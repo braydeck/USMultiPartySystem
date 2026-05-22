@@ -31,8 +31,8 @@ export interface SenateSeat {
   secondaryCluster: string;
 }
 
-export type SenateScenario = 'condMixed' | 'irvMixed' | 'condPure' | 'irvPure';
-export type PresidentialScenario = 'mixed' | 'pure';
+export type SenateScenario = 'condMixed' | 'irvMixed' | 'condPure' | 'irvPure' | 'condLF' | 'irvLF';
+export type PresidentialScenario = 'mixed' | 'pure' | 'lightFusion';
 
 export interface VoteModelRow {
   variable: string;
@@ -52,6 +52,14 @@ export interface VoteModelRow {
   condPureVerdict?: string;
   irvPureProbPass?: number;
   irvPureVerdict?: string;
+  // Light Fusion senate scenarios
+  condLFProbPass?: number;
+  condLFVerdict?: string;
+  irvLFProbPass?: number;
+  irvLFVerdict?: string;
+  // LF president (STY_ctr)
+  presLFSigns?: string;
+  presLFPct?: number;
   // Presidential sign + support %
   presMixedSigns?: string;      // CON/SD (IRV winner)
   presMixedPct?: number;
@@ -155,6 +163,7 @@ export interface BlendVariable {
 export interface BlendProfile {
   code: string;
   isPure?: boolean;
+  isLightFusion?: boolean;
   seatsCond: number;
   seatsIRV: number;
   F1: number;
@@ -224,6 +233,7 @@ export interface PrimarySankeyLink {
   source: string;
   target: string;
   value: number;
+  type?: string; // "continuation" | "elimination" | "surplus"
 }
 
 export interface PrimarySankeyData {

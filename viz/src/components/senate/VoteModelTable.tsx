@@ -11,10 +11,12 @@ const SCENARIO_FIELDS: Record<SenateScenario, {
   verdict: keyof VoteModelRow;
   signs: keyof VoteModelRow;
 }> = {
-  condMixed: { prob: 'condMixedProbPass', verdict: 'condMixedVerdict', signs: 'presMixedSigns' },
-  irvMixed:  { prob: 'irvMixedProbPass',  verdict: 'irvMixedVerdict',  signs: 'presMixedSigns' },
-  condPure:  { prob: 'condPureProbPass',  verdict: 'condPureVerdict',  signs: 'presPureSigns'  },
-  irvPure:   { prob: 'irvPureProbPass',   verdict: 'irvPureVerdict',   signs: 'presPureSigns'  },
+  condMixed: { prob: 'condMixedProbPass', verdict: 'condMixedVerdict', signs: 'presMixedSigns'     },
+  irvMixed:  { prob: 'irvMixedProbPass',  verdict: 'irvMixedVerdict',  signs: 'presMixedSigns'     },
+  condPure:  { prob: 'condPureProbPass',  verdict: 'condPureVerdict',  signs: 'presPureSigns'      },
+  irvPure:   { prob: 'irvPureProbPass',   verdict: 'irvPureVerdict',   signs: 'presPureSigns'      },
+  condLF:    { prob: 'condLFProbPass',    verdict: 'condLFVerdict',    signs: 'presLFSigns'        },
+  irvLF:     { prob: 'irvLFProbPass',     verdict: 'irvLFVerdict',     signs: 'presLFSigns'        },
 };
 
 function VerdictBadge({ verdict }: { verdict: string }) {

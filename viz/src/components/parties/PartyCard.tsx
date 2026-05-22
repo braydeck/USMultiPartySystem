@@ -53,7 +53,9 @@ export function PartyCard({ cluster }: Props) {
             <ul className="space-y-1">
               {positions.map((pos, i) => (
                 <li key={i} className="text-xs text-slate-700 flex items-start gap-1.5">
+                  <span className="sr-only">{pos.direction === 'supports' ? 'Supports:' : 'Opposes:'}</span>
                   <span
+                    aria-hidden="true"
                     className="mt-0.5 shrink-0"
                     style={{ color: pos.direction === 'supports' ? '#22c55e' : '#ef4444' }}
                   >

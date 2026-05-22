@@ -39,7 +39,9 @@ export function MiniPartyCard({ code, seats, votePct, positions }: Props) {
           <ul className="space-y-0.5">
             {topPositions.map((pos, i) => (
               <li key={i} className="text-xs text-slate-600 flex items-start gap-1 leading-tight">
+                <span className="sr-only">{pos.direction === 'supports' ? 'Supports:' : 'Opposes:'}</span>
                 <span
+                  aria-hidden="true"
                   className="shrink-0 mt-0.5"
                   style={{ color: pos.direction === 'supports' ? '#22c55e' : '#ef4444', fontSize: 9 }}
                 >

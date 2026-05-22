@@ -10,7 +10,7 @@ interface Props {
 
 type SortFactor = 'F1' | 'F2' | 'F3' | 'F4' | 'F5';
 
-export function BlendedPartiesTab({ profiles }: Props) {
+export function LightFusionTab({ profiles }: Props) {
   const [sortFactor, setSortFactor] = useState<SortFactor>('F5');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
@@ -23,21 +23,22 @@ export function BlendedPartiesTab({ profiles }: Props) {
     }
   }
 
-  const blended = [...profiles.filter(p => !p.isPure)]
+  const lfProfiles = [...profiles.filter(p => p.isLightFusion)]
     .sort((a, b) => {
-      const diff = (a as any)[sortFactor] - (b as any)[sortFactor];
+      const diff = (a as unknown as Record<string, number>)[sortFactor] - (b as unknown as Record<string, number>)[sortFactor];
       return sortDir === 'asc' ? diff : -diff;
     });
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-1">Blended Parties</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-1">Light Fusion Candidates</h2>
         <p className="text-slate-500 text-sm max-w-2xl">
-          Most Senate races are won by candidates who straddle two parties, attracting
-          cross-coalition voters. These "blended" senators share the ideological DNA of
-          both component parties but sit in a distinct position on every policy axis.
-          Counts show seats won under Condorcet (C) and IRV (I) methods.
+          Light fusion candidates run as one party but draw 80% of their identity from their
+          base coalition and 20% from an adjacent one. Unlike blended senators (who genuinely
+          straddle two parties), light fusion candidates maintain a clear home party while
+          appealing to neighboring voters. These 16 candidates competed in the presidential
+          primary alongside the 9 core parties.
         </p>
       </div>
 
@@ -68,7 +69,7 @@ export function BlendedPartiesTab({ profiles }: Props) {
           Ideological Constellation
         </h3>
         <IdeologicalConstellation
-          nodes={profiles.map(p => ({
+          nodes={lfProfiles.map(p => ({
             id: p.code, label: p.code,
             seats: p.seatsCond + p.seatsIRV,
             F1: p.F1, F2: p.F2, F3: p.F3, F4: p.F4, F5: p.F5,
@@ -77,7 +78,7 @@ export function BlendedPartiesTab({ profiles }: Props) {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {blended.map(p => (
+        {lfProfiles.map(p => (
           <BlendCard key={p.code} profile={p} />
         ))}
       </div>

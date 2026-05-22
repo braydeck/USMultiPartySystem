@@ -59,7 +59,7 @@ export function HouseMap({ stateMap }: Props) {
                     stroke="#cbd5e1"
                     strokeWidth={0.8}
                     style={{
-                      default: { outline: 'none' },
+                      default: { outline: 'none', cursor: entry ? 'pointer' : 'default' },
                       hover:   { outline: 'none', opacity: 0.8 },
                       pressed: { outline: 'none' },
                     }}

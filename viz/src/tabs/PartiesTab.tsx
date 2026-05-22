@@ -31,7 +31,7 @@ export function PartiesTab({ clusters }: Props) {
     });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">The 9 Parties</h2>
         <p className="text-slate-500 text-sm">
@@ -54,7 +54,10 @@ export function PartiesTab({ clusters }: Props) {
                 : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
             }`}
           >
-            {FACTOR_LABELS[f]} {sortFactor === f ? (sortDir === 'desc' ? '↓' : '↑') : ''}
+            {FACTOR_LABELS[f]}{' '}
+            {sortFactor === f
+              ? (sortDir === 'desc' ? '↓' : '↑')
+              : <span className="text-slate-300">↕</span>}
           </button>
         ))}
       </div>

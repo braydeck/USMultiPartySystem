@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { SenateSeat, VoteModelRow, SenateScenario, BlendProfile, ConstellationNode } from '../types';
 import { SenateMap } from '../components/senate/SenateMap';
 import { VoteModelTable } from '../components/senate/VoteModelTable';
@@ -9,23 +9,25 @@ import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { FACTOR_LABELS } from '../constants/parties';
 
 interface Props {
-  condorcetMixed: SenateSeat[];
-  irvMixed:       SenateSeat[];
-  condorcetPure:  SenateSeat[];
-  irvPure:        SenateSeat[];
-  voteModel:      VoteModelRow[];
-  blendProfiles:  BlendProfile[];
+  condorcetMixed:     SenateSeat[];
+  irvMixed:           SenateSeat[];
+  condorcetPure:      SenateSeat[];
+  irvPure:            SenateSeat[];
+  condorcetLightFusion: SenateSeat[];
+  irvLightFusion:     SenateSeat[];
+  voteModel:          VoteModelRow[];
+  blendProfiles:      BlendProfile[];
 }
 
-const SCENARIO_LABELS: Record<SenateScenario, string> = {
-  condMixed: 'Blended · Condorcet',
-  irvMixed:  'Blended · IRV',
-  condPure:  'Raw · Condorcet',
-  irvPure:   'Raw · IRV',
-};
+const SCENARIO_GROUPS = [
+  { label: 'Blended',      scenarios: ['condMixed', 'irvMixed']  as SenateScenario[] },
+  { label: 'Raw',          scenarios: ['condPure',  'irvPure']   as SenateScenario[] },
+  { label: 'Light Fusion', scenarios: ['condLF',    'irvLF']     as SenateScenario[] },
+];
 
-
-export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure, voteModel, blendProfiles }: Props) {
+export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure,
+                             condorcetLightFusion, irvLightFusion,
+                             voteModel, blendProfiles }: Props) {
   const [scenario, setScenario] = useState<SenateScenario>('condMixed');
   const [parliamentFactor, setParliamentFactor] = useState('F5');
 
@@ -34,6 +36,8 @@ export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure, vo
     irvMixed,
     condPure:  condorcetPure,
     irvPure,
+    condLF:    condorcetLightFusion,
+    irvLF:     irvLightFusion,
   };
   const activeSeats = SEAT_MAP[scenario];
 
@@ -45,6 +49,12 @@ export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure, vo
   const miniCardCodes = Object.entries(seatCounts)
     .sort((a, b) => b[1] - a[1])
     .map(([code]) => code);
+
+  // Global factor range across all blend profiles — stable category labels regardless of scenario
+  const globalRange = useMemo((): [number, number] => {
+    const vals = blendProfiles.map(p => (p as unknown as Record<string, number>)[parliamentFactor] ?? 0);
+    return [Math.min(...vals), Math.max(...vals)];
+  }, [blendProfiles, parliamentFactor]);
 
   // Derive parliament chart segments
   const blendByCode = Object.fromEntries(blendProfiles.map(p => [p.code, p]));
@@ -76,19 +86,26 @@ export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure, vo
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {(Object.keys(SCENARIO_LABELS) as SenateScenario[]).map(s => (
-          <button
-            key={s}
-            onClick={() => setScenario(s)}
-            className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-              scenario === s
-                ? 'bg-teal-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
-          >
-            {SCENARIO_LABELS[s]}
-          </button>
+      <div className="flex flex-wrap gap-4">
+        {SCENARIO_GROUPS.map(group => (
+          <div key={group.label} className="flex flex-col gap-1">
+            <span className="text-xs text-slate-400 uppercase tracking-widest">{group.label}</span>
+            <div className="flex gap-1">
+              {group.scenarios.map(s => (
+                <button
+                  key={s}
+                  onClick={() => setScenario(s)}
+                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                    scenario === s
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                  }`}
+                >
+                  {s.startsWith('cond') ? 'Condorcet' : 'IRV'}
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
 
@@ -103,7 +120,7 @@ export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure, vo
               title={FACTOR_LABELS[f]}
               className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                 parliamentFactor === f
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-indigo-600 text-white'
                   : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
               }`}
             >
@@ -114,6 +131,7 @@ export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure, vo
         <ParliamentChart
           segments={parliamentSegments}
           factor={parliamentFactor}
+          globalRange={globalRange}
         />
       </div>
 

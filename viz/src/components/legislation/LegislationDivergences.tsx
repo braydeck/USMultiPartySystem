@@ -9,9 +9,12 @@ interface Props {
 const SCENARIOS = [
   { key: 'condMixed', label: 'Blended\nCondorcet', verdictField: 'condMixedVerdict' as keyof VoteModelRow, presField: 'presMixedCondSigns' as keyof VoteModelRow, presCode: 'SD/CON' },
   { key: 'irvMixed',  label: 'Blended\nIRV',       verdictField: 'irvMixedVerdict'  as keyof VoteModelRow, presField: 'presMixedSigns'     as keyof VoteModelRow, presCode: 'CON/SD' },
-  { key: 'condPure',  label: 'Raw\nCondorcet',      verdictField: 'condPureVerdict'  as keyof VoteModelRow, presField: 'presPureSigns'       as keyof VoteModelRow, presCode: 'STY' },
-  { key: 'irvPure',   label: 'Raw\nIRV',            verdictField: 'irvPureVerdict'   as keyof VoteModelRow, presField: 'presPureSigns'       as keyof VoteModelRow, presCode: 'STY' },
+  { key: 'condPure',  label: 'Raw\nCondorcet',      verdictField: 'condPureVerdict'  as keyof VoteModelRow, presField: 'presPureSigns'       as keyof VoteModelRow, presCode: 'STY'    },
+  { key: 'irvPure',   label: 'Raw\nIRV',            verdictField: 'irvPureVerdict'   as keyof VoteModelRow, presField: 'presPureSigns'       as keyof VoteModelRow, presCode: 'STY'    },
+  { key: 'condLF',    label: 'LF\nCondorcet',       verdictField: 'condLFVerdict'    as keyof VoteModelRow, presField: 'presLFSigns'         as keyof VoteModelRow, presCode: 'STY_ctr'},
+  { key: 'irvLF',     label: 'LF\nIRV',             verdictField: 'irvLFVerdict'     as keyof VoteModelRow, presField: 'presLFSigns'         as keyof VoteModelRow, presCode: 'STY_ctr'},
 ] as const;
+
 
 function VerdictCell({ verdict }: { verdict: string | undefined }) {
   if (!verdict || verdict === '—') return <span className="text-slate-300 text-xs">—</span>;
@@ -82,7 +85,7 @@ export function LegislationDivergences({ senateVotes }: Props) {
       </div>
 
       {/* Column headers */}
-      <div className="hidden md:grid grid-cols-[1fr_repeat(4,_auto)_auto] gap-x-2 px-4 py-1.5 text-xs text-slate-500 border-b border-slate-100">
+      <div className="hidden md:grid grid-cols-[1fr_repeat(6,_auto)_auto] gap-x-2 px-4 py-1.5 text-xs text-slate-500 border-b border-slate-100">
         <div>Bill</div>
         {SCENARIOS.map(s => (
           <div key={s.key} className="w-20 text-center whitespace-pre-line leading-tight">{s.label}</div>
@@ -94,7 +97,7 @@ export function LegislationDivergences({ senateVotes }: Props) {
         {(divergentBills as unknown as { row: VoteModelRow; verdicts: (string|undefined)[]; presSigns: (string|undefined)[]; hasSplit: boolean; presHasSplit: boolean }[]).map(({ row, verdicts, presSigns, hasSplit }) => (
           <div
             key={row.variable}
-            className={`flex flex-col md:grid md:grid-cols-[1fr_repeat(4,_auto)_auto] gap-x-2 items-start md:items-center px-4 py-2.5 ${
+            className={`flex flex-col md:grid md:grid-cols-[1fr_repeat(6,_auto)_auto] gap-x-2 items-start md:items-center px-4 py-2.5 ${
               hasSplit ? 'bg-amber-50/50' : 'bg-white'
             }`}
           >

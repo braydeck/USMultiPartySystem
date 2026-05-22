@@ -7,9 +7,10 @@ interface Props {
 }
 
 const PRESIDENTS = [
-  { key: 'irv',       code: 'CON/SD', signField: 'presMixedSigns',     pctField: 'presMixedPct',     label: 'CON/SD (IRV)' },
-  { key: 'condorcet', code: 'SD/CON', signField: 'presMixedCondSigns', pctField: 'presMixedCondPct', label: 'SD/CON (Condorcet)' },
-  { key: 'pure',      code: 'STY',    signField: 'presPureSigns',       pctField: 'presPurePct',      label: 'STY (Raw)' },
+  { key: 'irv',       code: 'CON/SD',  signField: 'presMixedSigns',     pctField: 'presMixedPct',     label: 'CON/SD (IRV)'       },
+  { key: 'condorcet', code: 'SD/CON',  signField: 'presMixedCondSigns', pctField: 'presMixedCondPct', label: 'SD/CON (Condorcet)' },
+  { key: 'pure',      code: 'STY',     signField: 'presPureSigns',       pctField: 'presPurePct',      label: 'STY (Raw)'          },
+  { key: 'lfCtr',     code: 'STY_ctr', signField: 'presLFSigns',         pctField: 'presLFPct',        label: 'STY_ctr (LF)'       },
 ] as const;
 
 function SignBadge({ sign, pct }: { sign: string; pct?: number }) {
@@ -91,7 +92,7 @@ export function PresidentialComparison({ rows }: Props) {
       </div>
 
       {/* Header */}
-      <div className="hidden md:grid grid-cols-[1fr_repeat(3,140px)] gap-2 px-3 py-2 border-b border-slate-200 mb-1">
+      <div className="hidden md:grid grid-cols-[1fr_repeat(4,130px)] gap-2 px-3 py-2 border-b border-slate-200 mb-1">
         <div className="text-xs font-semibold text-slate-600 uppercase tracking-widest">Bill</div>
         {PRESIDENTS.map(p => (
           <div key={p.key} className="text-center">
@@ -112,7 +113,7 @@ export function PresidentialComparison({ rows }: Props) {
           return (
             <div
               key={r.variable}
-              className={`flex flex-col md:grid md:grid-cols-[1fr_repeat(3,140px)] gap-2 items-start md:items-center px-3 py-2.5 rounded text-sm ${
+              className={`flex flex-col md:grid md:grid-cols-[1fr_repeat(4,130px)] gap-2 items-start md:items-center px-3 py-2.5 rounded text-sm ${
                 isHighlighted
                   ? 'bg-amber-50 border border-amber-200'
                   : 'bg-white border border-slate-100'

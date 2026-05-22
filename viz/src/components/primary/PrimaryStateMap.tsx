@@ -82,7 +82,7 @@ export function PrimaryStateMap({ stateWinners, stage }: Props) {
                     stroke={stroke}
                     strokeWidth={0.8}
                     style={{
-                      default: { outline: 'none' },
+                      default: { outline: 'none', cursor: entry ? 'pointer' : 'default' },
                       hover:   { outline: 'none', opacity: 0.85 },
                       pressed: { outline: 'none' },
                     }}
