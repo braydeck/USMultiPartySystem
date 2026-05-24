@@ -259,6 +259,36 @@ def winnow(
 
     finalists = set(elected)
 
+    # Any candidates still in active were never formally eliminated (STV loop exited
+    # once quota filled all seats).  Eliminate them now so transfers are recorded.
+    while active:
+        all_remaining  = active | finalists
+        cleanup_fsc    = first_surviving_choice(ballots_arr, all_remaining)
+        cleanup_totals = compute_vote_totals(cleanup_fsc, ballot_weights, active)
+        loser          = min(active, key=lambda c: (cleanup_totals.get(c, 0.0), c))
+        loser_votes    = cleanup_totals.get(loser, 0.0)
+        eliminated_this_round.append(loser)
+        active.discard(loser)
+        transfer_targets_cl: dict[str, float] = defaultdict(float)
+        for i in range(len(cleanup_fsc)):
+            if cleanup_fsc[i] == loser:
+                for ranked_code in ballots_arr[i]:
+                    if ranked_code in (active | finalists):
+                        transfer_targets_cl[ranked_code] += ballot_weights[i]
+                        break
+        for dest, votes in sorted(transfer_targets_cl.items(), key=lambda x: -x[1]):
+            transfer_rows.append({
+                "eliminated_code":         loser,
+                "eliminated_name":         CAND_NAMES[loser],
+                "winnowing_point":         label,
+                "transfer_type":           "elimination",
+                "dest_code":               dest,
+                "dest_name":               CAND_NAMES.get(dest, dest),
+                "transferred_votes":       round(votes, 4),
+                "pct_of_eliminated_total": round(votes / loser_votes * 100, 2)
+                                           if loser_votes > 0 else 0.0,
+            })
+
     # Final vote totals for output (ballot_weights reflect all surplus transfers)
     if finalists:
         final_fsc    = first_surviving_choice(ballots_arr, finalists)

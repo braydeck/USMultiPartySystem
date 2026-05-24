@@ -64,7 +64,8 @@ MIN_RESPONDENTS      = 10     # skip state if fewer than this many CES responden
 # centroids per w_primary / w_secondary). Voters score candidates by Gaussian
 # proximity to their own factor scores: score = exp(-‖v - c‖² / (2 σ²)).
 FACTOR_COLS    = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
-POSITIONAL_SIGMA = 1.5
+POSITIONAL_SIGMA = 0.35
+FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -292,7 +293,7 @@ def score_candidates(voter_factors: np.ndarray,
     cand_positions = np.stack([candidate_position(c, cluster_centroids) for c in candidates])
     # (N, 1, 5) - (1, M, 5) -> (N, M, 5) -> (N, M)
     diff = voter_factors[:, None, :] - cand_positions[None, :, :]
-    dist_sq = (diff ** 2).sum(axis=2)
+    dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
     return np.exp(-dist_sq / (2.0 * sigma ** 2))
 
 

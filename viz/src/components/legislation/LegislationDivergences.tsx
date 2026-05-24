@@ -1,75 +1,106 @@
 import { useMemo } from 'react';
-import type { VoteModelRow } from '../../types';
+import type { VoteModelRow, PresidentialElection } from '../../types';
 import { getBlendColor } from '../../constants/parties';
+import { getBayesianLabel, getDirection, VerdictBadge, VERDICT_STYLE, type VerdictLabel } from './UnifiedBillTable';
 
 interface Props {
+  houseVotes: VoteModelRow[];
   senateVotes: VoteModelRow[];
+  fdElection: PresidentialElection;
+  rawMultiElection: PresidentialElection;
+  senateMethod: 'condorcet' | 'irv';
 }
 
-const SCENARIOS = [
-  { key: 'condRawMulti', label: 'Raw Multi\nCondorcet', verdictField: 'condRawMultiVerdict' as keyof VoteModelRow, presField: 'presRawMultiCondSigns' as keyof VoteModelRow, presCode: 'CTR_1'    },
-  { key: 'irvRawMulti',  label: 'Raw Multi\nIRV',       verdictField: 'irvRawMultiVerdict'  as keyof VoteModelRow, presField: 'presRawMultiIRVSigns'  as keyof VoteModelRow, presCode: 'SD_1'     },
-  { key: 'condPure',     label: 'Raw\nCondorcet',       verdictField: 'condPureVerdict'     as keyof VoteModelRow, presField: 'presPureSigns'          as keyof VoteModelRow, presCode: 'SD'       },
-  { key: 'irvPure',      label: 'Raw\nIRV',             verdictField: 'irvPureVerdict'      as keyof VoteModelRow, presField: 'presPureSigns'          as keyof VoteModelRow, presCode: 'SD'       },
-  { key: 'condFD',       label: 'FD\nCondorcet',        verdictField: 'condFDVerdict'       as keyof VoteModelRow, presField: 'presFDCondSigns'        as keyof VoteModelRow, presCode: 'CTR_lo_pc' },
-  { key: 'irvFD',        label: 'FD\nIRV',              verdictField: 'irvFDVerdict'        as keyof VoteModelRow, presField: 'presFDIRVSigns'         as keyof VoteModelRow, presCode: 'SD_lo_pc'  },
-] as const;
+const SENATE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
+  'rawMulti+condorcet':  'condRawMultiProbPass',
+  'rawMulti+irv':        'irvRawMultiProbPass',
+  'factorDev+condorcet': 'condFDProbPass',
+  'factorDev+irv':       'irvFDProbPass',
+};
 
+const PRES_SIGN_FIELD: Record<string, keyof VoteModelRow> = {
+  'rawMulti+condorcet':  'presRawMultiCondSigns',
+  'rawMulti+irv':        'presRawMultiIRVSigns',
+  'factorDev+condorcet': 'presFDCondSigns',
+  'factorDev+irv':       'presFDIRVSigns',
+};
 
-function VerdictCell({ verdict }: { verdict: string | undefined }) {
-  if (!verdict || verdict === '—') return <span className="text-slate-300 text-xs">—</span>;
-  const cls =
-    verdict === 'PASS'     ? 'bg-green-50 text-green-700 border-green-300' :
-    verdict === 'FAIL'     ? 'bg-red-50 text-red-700 border-red-300' :
-                             'bg-yellow-50 text-yellow-700 border-yellow-300';
+function PresCell({ signs, winner }: { signs: string | undefined; winner: string }) {
+  if (!signs) return <span className="text-slate-300 text-xs">—</span>;
+  const color = getBlendColor(winner);
   return (
-    <span className={`text-xs font-bold px-1.5 py-0.5 rounded border whitespace-nowrap ${cls}`}>
-      {verdict}
-    </span>
+    <div className="flex flex-col items-center gap-0.5">
+      <span
+        className="text-xs font-semibold px-1.5 py-0.5 rounded border whitespace-nowrap"
+        style={
+          signs === 'SIGN'
+            ? { backgroundColor: color + '18', color, borderColor: color + '55' }
+            : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
+        }
+      >
+        {signs === 'SIGN' ? '✓' : '✗'}
+      </span>
+      <span className="text-xs font-mono text-slate-400 truncate max-w-[72px]" title={winner}>{winner}</span>
+    </div>
   );
 }
 
-function PresCell({ signs, code }: { signs: string | undefined; code: string }) {
-  if (!signs || signs === '—') return <span className="text-slate-300 text-xs">—</span>;
-  const color = getBlendColor(code);
-  return (
-    <span
-      className="text-xs font-semibold px-1.5 py-0.5 rounded border whitespace-nowrap"
-      style={
-        signs === 'SIGN'
-          ? { backgroundColor: color + '18', color, borderColor: color + '55' }
-          : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
-      }
-    >
-      {signs === 'SIGN' ? '✓' : '✗'} {code}
-    </span>
-  );
-}
+export function LegislationDivergences({ houseVotes, senateVotes, fdElection, rawMultiElection, senateMethod }: Props) {
+  const rmWinner = senateMethod === 'condorcet' ? rawMultiElection.condorcetWinner : rawMultiElection.irvWinner;
+  const fdWinner = senateMethod === 'condorcet' ? fdElection.condorcetWinner       : fdElection.irvWinner;
 
-export function LegislationDivergences({ senateVotes }: Props) {
+  const rmCombo = `rawMulti+${senateMethod}`;
+  const fdCombo = `factorDev+${senateMethod}`;
+
+  const houseByVar = useMemo(
+    () => Object.fromEntries(houseVotes.map(r => [r.variable, r])),
+    [houseVotes],
+  );
+
   const divergentBills = useMemo(() => {
     return senateVotes
       .map(row => {
-        const verdicts = SCENARIOS.map(s => row[s.verdictField] as string | undefined);
-        const unique = new Set(verdicts.filter(Boolean));
-        const hasSplit = unique.size > 1 && unique.has('PASS') && unique.has('FAIL');
+        const hr = houseByVar[row.variable];
 
-        const presSigns = SCENARIOS.map(s => row[s.presField] as string | undefined);
-        const presUnique = new Set(presSigns.filter(Boolean));
-        const presHasSplit = presUnique.size > 1;
+        const houseRMLabel  = getBayesianLabel([hr?.houseRawMultiProbPass]);
+        const houseFDLabel  = getBayesianLabel([hr?.houseFDProbPass]);
+        const senateRMLabel = getBayesianLabel([row[SENATE_PROB_FIELD[rmCombo]] as number | undefined]);
+        const senateFDLabel = getBayesianLabel([row[SENATE_PROB_FIELD[fdCombo]] as number | undefined]);
+        const rmPresSign    = row[PRES_SIGN_FIELD[rmCombo]] as string | undefined;
+        const fdPresSign    = row[PRES_SIGN_FIELD[fdCombo]] as string | undefined;
 
-        if (!hasSplit && !presHasSplit) return null;
+        const hRMDir  = getDirection(houseRMLabel);
+        const hFDDir  = getDirection(houseFDLabel);
+        const sRMDir  = getDirection(senateRMLabel);
+        const sFDDir  = getDirection(senateFDLabel);
 
-        // Score: senate split is 2pts, pres split is 1pt, more disagreements = higher priority
-        const senatePasses = verdicts.filter(v => v === 'PASS').length;
-        const scenarioDiff = Math.abs(senatePasses - (SCENARIOS.length - senatePasses));
-        const score = (hasSplit ? 2 : 0) + (presHasSplit ? 1 : 0) + (SCENARIOS.length - scenarioDiff);
+        const senateSplit  = sRMDir !== 'uncertain' && sFDDir !== 'uncertain' && sRMDir !== sFDDir;
+        const houseSplit   = hRMDir !== 'uncertain' && hFDDir !== 'uncertain' && hRMDir !== hFDDir;
+        const houseSenateSplit =
+          (hRMDir !== 'uncertain' && sRMDir !== 'uncertain' && hRMDir !== sRMDir) ||
+          (hFDDir !== 'uncertain' && sFDDir !== 'uncertain' && hFDDir !== sFDDir);
+        const presSplit    = !!(rmPresSign && fdPresSign && rmPresSign !== fdPresSign);
 
-        return { row, verdicts, presSigns, hasSplit, presHasSplit, score };
+        if (!senateSplit && !houseSplit && !houseSenateSplit && !presSplit) return null;
+
+        const score = (senateSplit ? 3 : 0) + (houseSenateSplit ? 2 : 0) + (houseSplit ? 1 : 0) + (presSplit ? 1 : 0);
+        return { row, houseRMLabel, houseFDLabel, senateRMLabel, senateFDLabel, rmPresSign, fdPresSign, senateSplit, houseSplit, houseSenateSplit, score };
       })
       .filter(Boolean)
-      .sort((a, b) => b!.score - a!.score) as NonNullable<ReturnType<typeof senateVotes['map']>[number]>[];
-  }, [senateVotes]);
+      .sort((a, b) => b!.score - a!.score) as {
+        row: VoteModelRow;
+        houseRMLabel: VerdictLabel | '';
+        houseFDLabel: VerdictLabel | '';
+        senateRMLabel: VerdictLabel | '';
+        senateFDLabel: VerdictLabel | '';
+        rmPresSign: string | undefined;
+        fdPresSign: string | undefined;
+        senateSplit: boolean;
+        houseSplit: boolean;
+        houseSenateSplit: boolean;
+        score: number;
+      }[];
+  }, [senateVotes, houseByVar, rmCombo, fdCombo]);
 
   if (divergentBills.length === 0) return null;
 
@@ -80,48 +111,38 @@ export function LegislationDivergences({ senateVotes }: Props) {
           Scenario Divergences — {divergentBills.length} bill{divergentBills.length !== 1 ? 's' : ''} with different outcomes
         </h3>
         <p className="text-xs text-amber-700 mt-0.5">
-          These bills pass under some scenarios but fail under others. Amber = senate split; pres column shows which presidents would sign.
+          Bills where House, Raw Multi, and Factor Dev point in different directions, or presidents disagree.
         </p>
       </div>
 
-      {/* Column headers */}
-      <div className="hidden md:grid grid-cols-[1fr_repeat(6,_auto)_auto] gap-x-2 px-4 py-1.5 text-xs text-slate-500 border-b border-slate-100">
+      <div className="hidden md:grid grid-cols-[1fr_100px_100px_100px_100px_56px_56px] gap-x-2 px-4 py-2 text-xs text-slate-500 border-b border-slate-100 uppercase tracking-widest">
         <div>Bill</div>
-        {SCENARIOS.map(s => (
-          <div key={s.key} className="w-20 text-center whitespace-pre-line leading-tight">{s.label}</div>
-        ))}
-        <div className="w-24 text-center">Presidents</div>
+        <div className="text-center">House RM</div>
+        <div className="text-center">House FD</div>
+        <div className="text-center">Senate RM</div>
+        <div className="text-center">Senate FD</div>
+        <div className="text-center" style={{ color: getBlendColor(rmWinner) }} title={rmWinner}>RM Pres</div>
+        <div className="text-center" style={{ color: getBlendColor(fdWinner) }} title={fdWinner}>FD Pres</div>
       </div>
 
       <div className="divide-y divide-slate-100">
-        {(divergentBills as unknown as { row: VoteModelRow; verdicts: (string|undefined)[]; presSigns: (string|undefined)[]; hasSplit: boolean; presHasSplit: boolean }[]).map(({ row, verdicts, presSigns, hasSplit }) => (
+        {divergentBills.map(({ row, houseRMLabel, houseFDLabel, senateRMLabel, senateFDLabel, rmPresSign, fdPresSign, senateSplit, houseSplit, houseSenateSplit }) => (
           <div
             key={row.variable}
-            className={`flex flex-col md:grid md:grid-cols-[1fr_repeat(6,_auto)_auto] gap-x-2 items-start md:items-center px-4 py-2.5 ${
-              hasSplit ? 'bg-amber-50/50' : 'bg-white'
+            className={`flex flex-col md:grid md:grid-cols-[1fr_100px_100px_100px_100px_56px_56px] gap-x-2 items-start md:items-center px-4 py-2.5 ${
+              senateSplit || houseSplit || houseSenateSplit ? 'bg-amber-50/40' : 'bg-white'
             }`}
           >
             <div className="min-w-0 mb-1 md:mb-0">
               <span className="text-sm text-slate-800">{row.question}</span>
-              <span className="text-xs text-slate-500 ml-2">{row.domain}</span>
+              <span className="text-xs text-slate-400 ml-2">{row.domain}</span>
             </div>
-            {SCENARIOS.map((s, i) => (
-              <div key={s.key} className="w-20 text-center">
-                <VerdictCell verdict={verdicts[i]} />
-              </div>
-            ))}
-            <div className="w-24 flex flex-wrap gap-1 justify-center">
-              {/* Deduplicate: only show unique pres/sign combos */}
-              {SCENARIOS.reduce<{ code: string; signs: string | undefined }[]>((acc, s, i) => {
-                const signs = presSigns[i];
-                if (!acc.find(x => x.code === s.presCode && x.signs === signs)) {
-                  acc.push({ code: s.presCode, signs });
-                }
-                return acc;
-              }, []).map(({ code, signs }) => (
-                <PresCell key={code} signs={signs} code={code} />
-              ))}
-            </div>
+            <div className="flex justify-center"><VerdictBadge label={houseRMLabel} /></div>
+            <div className="flex justify-center"><VerdictBadge label={houseFDLabel} /></div>
+            <div className="flex justify-center"><VerdictBadge label={senateRMLabel} /></div>
+            <div className="flex justify-center"><VerdictBadge label={senateFDLabel} /></div>
+            <div className="flex justify-center"><PresCell signs={rmPresSign} winner={rmWinner} /></div>
+            <div className="flex justify-center"><PresCell signs={fdPresSign} winner={fdWinner} /></div>
           </div>
         ))}
       </div>

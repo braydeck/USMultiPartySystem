@@ -6,10 +6,9 @@ run_pure_multi_primary.py
 
 Candidates
 ----------
-Three largest parties (CON, SD, STY) field 3 candidates each (labeled _1/_2/_3).
-All other parties field 2 (_1/_2).  Candidates from the same party share a
-factor-space centroid; ballot ordering is governed by Plackett-Luce with
-prominence weights (0.40/0.35/0.25 or 0.60/0.40) — see generate_pure_multi_ballots.py.
+All 9 parties field 3 candidates each (labeled _1/_2/_3). Candidates from the
+same party share a factor-space centroid; ballot ordering is governed by
+Plackett-Luce with prominence weights (0.40/0.35/0.25) — see generate_pure_multi_ballots.py.
 
 Winnowing schedule
 ------------------
@@ -19,7 +18,7 @@ Winnowing schedule
   Phase 4: + Pod B+D    →  5 finalists  (→ Ranked Pairs winner)
 
 The tighter targets (9/7 vs 10/8 in the FD primary) reflect the smaller initial
-field: 21 candidates vs 37.
+field: 27 candidates vs 37.
 
 Outputs
 -------
@@ -71,17 +70,17 @@ for fips in POD_C_BENCH: STATE_POD[fips] = {"pod": "C",      "bench": True,  "re
 for fips in POD_D_MAIN:  STATE_POD[fips] = {"pod": "D",      "bench": False, "retail_2028": False}
 for fips in POD_D_BENCH: STATE_POD[fips] = {"pod": "D",      "bench": True,  "retail_2028": False}
 
-# 21 candidates — must match generate_pure_multi_ballots.py exactly
+# 27 candidates — must match generate_pure_multi_ballots.py exactly
 CANDIDATES = [
     {"code": "CON_1", "party": "CON"}, {"code": "CON_2", "party": "CON"}, {"code": "CON_3", "party": "CON"},
     {"code": "SD_1",  "party": "SD"},  {"code": "SD_2",  "party": "SD"},  {"code": "SD_3",  "party": "SD"},
     {"code": "STY_1", "party": "STY"}, {"code": "STY_2", "party": "STY"}, {"code": "STY_3", "party": "STY"},
-    {"code": "NAT_1", "party": "NAT"}, {"code": "NAT_2", "party": "NAT"},
-    {"code": "LIB_1", "party": "LIB"}, {"code": "LIB_2", "party": "LIB"},
-    {"code": "REF_1", "party": "REF"}, {"code": "REF_2", "party": "REF"},
-    {"code": "CTR_1", "party": "CTR"}, {"code": "CTR_2", "party": "CTR"},
-    {"code": "DSA_1", "party": "DSA"}, {"code": "DSA_2", "party": "DSA"},
-    {"code": "PRG_1", "party": "PRG"}, {"code": "PRG_2", "party": "PRG"},
+    {"code": "NAT_1", "party": "NAT"}, {"code": "NAT_2", "party": "NAT"}, {"code": "NAT_3", "party": "NAT"},
+    {"code": "LIB_1", "party": "LIB"}, {"code": "LIB_2", "party": "LIB"}, {"code": "LIB_3", "party": "LIB"},
+    {"code": "REF_1", "party": "REF"}, {"code": "REF_2", "party": "REF"}, {"code": "REF_3", "party": "REF"},
+    {"code": "CTR_1", "party": "CTR"}, {"code": "CTR_2", "party": "CTR"}, {"code": "CTR_3", "party": "CTR"},
+    {"code": "DSA_1", "party": "DSA"}, {"code": "DSA_2", "party": "DSA"}, {"code": "DSA_3", "party": "DSA"},
+    {"code": "PRG_1", "party": "PRG"}, {"code": "PRG_2", "party": "PRG"}, {"code": "PRG_3", "party": "PRG"},
 ]
 CAND_CODES   = [c["code"]  for c in CANDIDATES]
 CAND_PARTY   = {c["code"]: c["party"] for c in CANDIDATES}
@@ -368,7 +367,7 @@ def main():
     thin = "-" * 70
 
     print(sep)
-    print("PURE MULTI PRESIDENTIAL PRIMARY 2028  —  21 intra-party candidates")
+    print("PURE MULTI PRESIDENTIAL PRIMARY 2028  —  27 intra-party candidates")
     print(sep)
 
     # ── Load ballots ──────────────────────────────────────────────────────────
@@ -392,18 +391,12 @@ def main():
     fc_counts = {}
     for code in fc:
         fc_counts[code] = fc_counts.get(code, 0) + 1
-    for party in ["CON", "SD", "STY"]:
+    for party in ["CON", "SD", "STY", "NAT", "LIB", "REF", "CTR", "DSA", "PRG"]:
         codes  = [f"{party}_{i}" for i in (1, 2, 3)]
         totals = [fc_counts.get(c, 0) for c in codes]
         pt     = sum(totals)
         splits = " / ".join(f"{v/pt*100:.1f}%" for v in totals) if pt else "—"
         print(f"  {party}: {splits}  (target: 40.0% / 35.0% / 25.0%)")
-    for party in ["NAT", "LIB", "REF", "CTR", "DSA", "PRG"]:
-        codes  = [f"{party}_1", f"{party}_2"]
-        totals = [fc_counts.get(c, 0) for c in codes]
-        pt     = sum(totals)
-        splits = " / ".join(f"{v/pt*100:.1f}%" for v in totals) if pt else "—"
-        print(f"  {party}: {splits}  (target: 60.0% / 40.0%)")
 
     def pod_mask(pods: list) -> np.ndarray:
         mask = np.zeros(N, dtype=bool)

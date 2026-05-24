@@ -8,11 +8,13 @@ import { HouseGridChart } from '../components/house/HouseGridChart';
 import { MiniPartyCard } from '../components/shared/MiniPartyCard';
 import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
+import { RepresentationGap } from '../components/house/RepresentationGap';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { PARTY_NAMES, CLUSTER_TO_PARTY, FACTOR_LABELS } from '../constants/parties';
 
 interface Props {
   seats: HouseSeat[];
+  seatsProbBased: HouseSeat[];
   coalitions: CoalitionProfile[];
   transfers: TransferMatrix;
   voteModel: VoteModelRow[];
@@ -21,7 +23,7 @@ interface Props {
   fdHouseSeats: FDHouseSeat[];
 }
 
-export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats }: Props) {
+export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats }: Props) {
   const clusterByParty = Object.fromEntries(clusters.map(c => [c.party, c]));
   const totalSeats = seats.reduce((s, r) => s + r.national, 0);
   const [scenario, setScenario] = useState<'rawMulti' | 'factorDev'>('rawMulti');
@@ -133,6 +135,12 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
             segments={parliamentSegments}
             factor={parliamentFactor}
           />
+        </div>
+      )}
+
+      {scenario === 'rawMulti' && (
+        <div className="bg-white rounded-xl p-4 border border-slate-200">
+          <RepresentationGap seats={seats} seatsProbBased={seatsProbBased} />
         </div>
       )}
 

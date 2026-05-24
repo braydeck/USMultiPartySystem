@@ -2,19 +2,18 @@
 """
 generate_pure_multi_ballots.py
 -------------------------------
-Generate ranked ballots for 21 intra-party multi-candidates using
+Generate ranked ballots for 27 intra-party multi-candidates using
 Plackett-Luce sampling.
 
 Candidate design
 ----------------
-The three largest parties (CON, SD, STY) field 3 candidates each;
-all other parties field 2. Candidates from the same party share the
-same factor-space centroid, so cross-party ordering is identical to
-the 9-party pure simulation. Within-party ordering is governed by a
-"prominence weight" that scales each candidate's Plackett-Luce score:
+All 9 parties field 3 candidates each. Candidates from the same party
+share the same factor-space centroid, so cross-party ordering is
+identical to the 9-party pure simulation. Within-party ordering is
+governed by a "prominence weight" that scales each candidate's
+Plackett-Luce score:
 
-  3-candidate parties: _1 = 0.40, _2 = 0.35, _3 = 0.25
-  2-candidate parties: _1 = 0.60, _2 = 0.40
+  All parties: _1 = 0.40, _2 = 0.35, _3 = 0.25
 
 Because all same-party candidates sit at the same centroid, their
 Gaussian proximity scores (with σ=0.35) are equal. The prominence
@@ -76,24 +75,30 @@ CANDIDATES = [
     {"code": "STY_1", "party": "STY", "cluster": 2, "prominence": 0.40},
     {"code": "STY_2", "party": "STY", "cluster": 2, "prominence": 0.35},
     {"code": "STY_3", "party": "STY", "cluster": 2, "prominence": 0.25},
-    # ── NAT: 2 candidates ──
-    {"code": "NAT_1", "party": "NAT", "cluster": 3, "prominence": 0.60},
-    {"code": "NAT_2", "party": "NAT", "cluster": 3, "prominence": 0.40},
-    # ── LIB: 2 candidates ──
-    {"code": "LIB_1", "party": "LIB", "cluster": 4, "prominence": 0.60},
-    {"code": "LIB_2", "party": "LIB", "cluster": 4, "prominence": 0.40},
-    # ── REF: 2 candidates ──
-    {"code": "REF_1", "party": "REF", "cluster": 5, "prominence": 0.60},
-    {"code": "REF_2", "party": "REF", "cluster": 5, "prominence": 0.40},
-    # ── CTR: 2 candidates ──
-    {"code": "CTR_1", "party": "CTR", "cluster": 6, "prominence": 0.60},
-    {"code": "CTR_2", "party": "CTR", "cluster": 6, "prominence": 0.40},
-    # ── DSA: 2 candidates ──
-    {"code": "DSA_1", "party": "DSA", "cluster": 8, "prominence": 0.60},
-    {"code": "DSA_2", "party": "DSA", "cluster": 8, "prominence": 0.40},
-    # ── PRG: 2 candidates ──
-    {"code": "PRG_1", "party": "PRG", "cluster": 9, "prominence": 0.60},
-    {"code": "PRG_2", "party": "PRG", "cluster": 9, "prominence": 0.40},
+    # ── NAT: 3 candidates ──
+    {"code": "NAT_1", "party": "NAT", "cluster": 3, "prominence": 0.40},
+    {"code": "NAT_2", "party": "NAT", "cluster": 3, "prominence": 0.35},
+    {"code": "NAT_3", "party": "NAT", "cluster": 3, "prominence": 0.25},
+    # ── LIB: 3 candidates ──
+    {"code": "LIB_1", "party": "LIB", "cluster": 4, "prominence": 0.40},
+    {"code": "LIB_2", "party": "LIB", "cluster": 4, "prominence": 0.35},
+    {"code": "LIB_3", "party": "LIB", "cluster": 4, "prominence": 0.25},
+    # ── REF: 3 candidates ──
+    {"code": "REF_1", "party": "REF", "cluster": 5, "prominence": 0.40},
+    {"code": "REF_2", "party": "REF", "cluster": 5, "prominence": 0.35},
+    {"code": "REF_3", "party": "REF", "cluster": 5, "prominence": 0.25},
+    # ── CTR: 3 candidates ──
+    {"code": "CTR_1", "party": "CTR", "cluster": 6, "prominence": 0.40},
+    {"code": "CTR_2", "party": "CTR", "cluster": 6, "prominence": 0.35},
+    {"code": "CTR_3", "party": "CTR", "cluster": 6, "prominence": 0.25},
+    # ── DSA: 3 candidates ──
+    {"code": "DSA_1", "party": "DSA", "cluster": 8, "prominence": 0.40},
+    {"code": "DSA_2", "party": "DSA", "cluster": 8, "prominence": 0.35},
+    {"code": "DSA_3", "party": "DSA", "cluster": 8, "prominence": 0.25},
+    # ── PRG: 3 candidates ──
+    {"code": "PRG_1", "party": "PRG", "cluster": 9, "prominence": 0.40},
+    {"code": "PRG_2", "party": "PRG", "cluster": 9, "prominence": 0.35},
+    {"code": "PRG_3", "party": "PRG", "cluster": 9, "prominence": 0.25},
 ]
 
 N_CANDIDATES = len(CANDIDATES)
@@ -114,22 +119,27 @@ def compute_cluster_centroids(efa_df: pd.DataFrame, typology_df: pd.DataFrame) -
     return centroids
 
 
+def compute_candidate_scores_prob(prob_matrix: np.ndarray) -> np.ndarray:
+    """prob_cluster_k × prominence. Returns (N, N_CANDIDATES).
+
+    Each voter's soft cluster membership probabilities are used directly as
+    cross-party affinities, replacing Gaussian proximity. Within-party ordering
+    is still governed by prominence weights (0.40/0.35/0.25), so STY_1 always
+    ranks ahead of STY_2 for any voter who prefers STY.
+    """
+    prominence = np.array([c["prominence"] for c in CANDIDATES])
+    scores = np.zeros((len(prob_matrix), N_CANDIDATES))
+    for j, cand in enumerate(CANDIDATES):
+        scores[:, j] = prob_matrix[:, cand["cluster"]] * prominence[j]
+    return scores
+
+
 def compute_candidate_scores(voter_factors: np.ndarray,
                               cluster_centroids: np.ndarray,
                               sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
-    """
-    Gaussian proximity × prominence weight.
+    """Gaussian proximity × prominence weight. Returns (N, N_CANDIDATES).
 
-    Same-party candidates share a centroid, so their Gaussian proximity
-    scores are equal for every voter. Multiplying by prominence weight
-    breaks the tie: CON_1 gets 0.40×proximity, CON_2 gets 0.35×proximity,
-    CON_3 gets 0.25×proximity. Sequential Plackett-Luce sampling from
-    these scores produces:
-      · first-choice split = 40 / 35 / 25 among CON voters
-      · within-party 2nd-rank transfers proportional to remaining weights
-      · cross-party ranks identical to the 9-party pure simulation
-
-    Returns (N, 21) score matrix.
+    Kept for reference. The canonical pipeline now uses compute_candidate_scores_prob().
     """
     positions   = np.array([cluster_centroids[c["cluster"]] for c in CANDIDATES])  # (21, 5)
     prominence  = np.array([c["prominence"] for c in CANDIDATES])                  # (21,)
@@ -140,14 +150,44 @@ def compute_candidate_scores(voter_factors: np.ndarray,
 
 
 def generate_ballots(scores: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """Plackett-Luce sampling. Returns (N, 21) int8 array of candidate indices."""
+    """Plackett-Luce sampling with within-party prominence ordering.
+
+    The first same-party candidate on each ballot is determined by Plackett-Luce
+    (weighted by prominence × proximity). Remaining same-party candidates always
+    follow in strict prominence order (_1 before _2 before _3), ensuring
+    cross-party transfers respect the prominence hierarchy.
+    Returns (N, N_CANDIDATES) int8 array of candidate indices.
+    """
     N       = len(scores)
     EPSILON = 1e-10
     ballots = np.zeros((N, N_CANDIDATES), dtype=np.int8)
+
+    # Party groups in prominence order (CANDIDATES list is ordered 0.40 > 0.35 > 0.25)
+    party_groups: dict[str, list[int]] = {}
+    for idx, cand in enumerate(CANDIDATES):
+        party = cand["party"]
+        if party not in party_groups:
+            party_groups[party] = []
+        party_groups[party].append(idx)
+    multi_parties = [idxs for idxs in party_groups.values() if len(idxs) > 1]
+
     for i in range(N):
         probs = scores[i] + EPSILON
         probs /= probs.sum()
-        ballots[i] = rng.choice(N_CANDIDATES, size=N_CANDIDATES, replace=False, p=probs)
+        ballot = rng.choice(N_CANDIDATES, size=N_CANDIDATES, replace=False, p=probs)
+
+        # Fix within-party ordering: first same-party candidate stays at its sampled position;
+        # remaining same-party candidates fill subsequent positions in strict prominence order.
+        rank_of = {int(ballot[r]): r for r in range(N_CANDIDATES)}
+        for party_idxs in multi_parties:
+            positions  = sorted(rank_of[idx] for idx in party_idxs)
+            first_cand = int(ballot[positions[0]])
+            remaining  = [idx for idx in party_idxs if idx != first_cand]
+            for k, pos in enumerate(positions[1:]):
+                ballot[pos] = remaining[k]
+
+        ballots[i] = ballot
+
     return ballots
 
 
@@ -209,8 +249,8 @@ def main():
     print("\nComputing cluster centroids…")
     cluster_centroids = compute_cluster_centroids(efa, typology)
 
-    print(f"\nComputing candidate scores (positional, σ={POSITIONAL_SIGMA})…")
-    scores = compute_candidate_scores(voter_factors, cluster_centroids)
+    print("\nComputing candidate scores (prob-cluster)…")
+    scores = compute_candidate_scores_prob(prob_matrix)
 
     print(f"\nGenerating {N:,} ranked ballots (Plackett-Luce, seed=42)…")
     ballots    = generate_ballots(scores, rng)
@@ -223,21 +263,14 @@ def main():
     table     = pd.concat([fc_counts, fc_pct], axis=1).sort_values("n", ascending=False)
     print(table.to_string())
 
-    print("\nWithin-party first-choice splits (verify 40/35/25 and 60/40):")
-    for party in ["CON", "SD", "STY"]:
+    print("\nWithin-party first-choice splits (verify 40/35/25):")
+    for party in ["CON", "SD", "STY", "NAT", "LIB", "REF", "CTR", "DSA", "PRG"]:
         codes = [f"{party}_{i}" for i in (1, 2, 3)]
         totals = {c: fc_counts.get(c, 0) for c in codes}
         party_total = sum(totals.values())
         if party_total > 0:
             splits = " / ".join(f"{v/party_total*100:.1f}%" for v in totals.values())
             print(f"  {party}: {splits}  (target: 40.0% / 35.0% / 25.0%)")
-    for party in ["NAT", "LIB", "REF", "CTR", "DSA", "PRG"]:
-        codes = [f"{party}_1", f"{party}_2"]
-        totals = {c: fc_counts.get(c, 0) for c in codes}
-        party_total = sum(totals.values())
-        if party_total > 0:
-            splits = " / ".join(f"{v/party_total*100:.1f}%" for v in totals.values())
-            print(f"  {party}: {splits}  (target: 60.0% / 40.0%)")
 
     # ── Save ───────────────────────────────────────────────────────────────────
     ballot_out = OUTPUT_DIR / "presidential_ballots.csv"

@@ -45,6 +45,12 @@ export interface VoteModelRow {
   // House State STV (9-party, 873 seats)
   houseStvProbPass?: number;
   houseStvVerdict?: string;
+  // House Raw Multi (pure_multi, 873 seats)
+  houseRawMultiProbPass?: number;
+  houseRawMultiVerdict?: string;
+  // House Factor Dev (FD candidates, 873 seats)
+  houseFDProbPass?: number;
+  houseFDVerdict?: string;
   // Pure senate scenarios
   condPureProbPass?: number;
   condPureVerdict?: string;
@@ -85,6 +91,7 @@ export interface HouseSeat {
   rural: number;
   national: number;
   pctNational: number;
+  pctPopulation: number;
 }
 
 export interface CoalitionProfile {

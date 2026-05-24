@@ -21,6 +21,21 @@ CLUSTER_TO_PARTY = {
     "4": "LIB", "5": "REF", "6": "CTR", "8": "DSA", "9": "PRG",
 }
 
+# Weighted national population shares per cluster (excluding C7/Blue Dogs, normalized to 100%)
+# Derived from: np.average(prob_cluster_k, weights=commonpostweight) across all CES respondents,
+# then dividing each 9-party share by the 9-party total (94.74%) so they sum to exactly 100%.
+NATIONAL_POP_SHARES = {
+    0: 18.73,   # CON
+    1: 15.63,   # SD
+    2: 15.04,   # STY
+    3:  9.19,   # NAT
+    4:  9.30,   # LIB
+    5: 11.01,   # REF
+    6:  9.87,   # CTR
+    8:  6.27,   # DSA
+    9:  4.96,   # PRG
+}
+
 # Map platonic candidate short codes to party abbreviations
 CANDIDATE_TO_PARTY = {
     "RH": "CON", "MW": "SD", "MRJ": "STY", "BE": "NAT",
@@ -525,21 +540,44 @@ def build_senate_vote_model():
 
 # ---------- houseSeats.json ----------
 def build_house_seats():
-    rows = read_csv(OUTPUTS / "No_C7_canonical" / "stv_seat_summary.csv")
+    rows = read_csv(OUTPUTS / "pure_multi" / "house" / "stv_seat_summary.csv")
     out = []
     for r in rows:
         if int(r["party"]) == 7:  # skip Blue Dogs (C7 — merged into adjacent clusters)
             continue
+        cluster = int(r["party"])
         out.append({
-            "party": int(r["party"]),
+            "party": cluster,
             "partyName": r["party_name"],
             "urban": int(r["URBAN"]),
             "suburban": int(r["SUBURBAN"]),
             "rural": int(r["RURAL"]),
             "national": int(r["NATIONAL"]),
             "pctNational": float(r["pct_national"]),
+            "pctPopulation": NATIONAL_POP_SHARES.get(cluster, 0.0),
         })
     write_json(out, "houseSeats.json")
+
+
+def build_house_seats_gauss():
+    """Gaussian reference run — reads the _gauss suffix file."""
+    rows = read_csv(OUTPUTS / "pure_multi" / "house" / "stv_seat_summary_gauss.csv")
+    out = []
+    for r in rows:
+        if int(r["party"]) == 7:
+            continue
+        cluster = int(r["party"])
+        out.append({
+            "party": cluster,
+            "partyName": r["party_name"],
+            "urban": int(r["URBAN"]),
+            "suburban": int(r["SUBURBAN"]),
+            "rural": int(r["RURAL"]),
+            "national": int(r["NATIONAL"]),
+            "pctNational": float(r["pct_national"]),
+            "pctPopulation": NATIONAL_POP_SHARES.get(cluster, 0.0),
+        })
+    write_json(out, "houseSeatsProbBased.json")
 
 
 # ---------- houseVoteModel.json ----------
@@ -563,10 +601,36 @@ def build_house_vote_model():
     stv_majority = total_stv // 2 + 1
     stv_results = _lf_prob_pass(stv_seat_counts, cluster_by_var_h, majority=stv_majority)
 
+    # Raw Multi house seats (pure_multi — integer cluster id -> party code)
+    _cluster_to_party = {v: k for k, v in _PURE_CLUSTER.items()}
+    rm_house_seats: dict = {}
+    rm_house_total = 0
+    for r in read_csv(PURE_MULTI_DIR / "house" / "stv_seat_summary.csv"):
+        cluster = int(r["party"])
+        if cluster == 7:
+            continue
+        code = _cluster_to_party.get(cluster, str(cluster))
+        rm_house_seats[code] = rm_house_seats.get(code, 0) + int(r["NATIONAL"])
+        rm_house_total += int(r["NATIONAL"])
+    rm_house_majority = rm_house_total // 2 + 1
+    rm_house_results = _lf_prob_pass(rm_house_seats, cluster_by_var_h, majority=rm_house_majority)
+
+    # FD house seats (factor_deviation — party column is already a code, group by base party)
+    fd_house_seats: dict = {}
+    fd_house_total = 0
+    for r in read_csv(FD_DIR / "house" / "stv_seat_summary.csv"):
+        code = r["party"]
+        fd_house_seats[code] = fd_house_seats.get(code, 0) + int(r["NATIONAL"])
+        fd_house_total += int(r["NATIONAL"])
+    fd_house_majority = fd_house_total // 2 + 1
+    fd_house_results = _lf_prob_pass(fd_house_seats, cluster_by_var_h, majority=fd_house_majority)
+
     out = []
     for r in rows:
         var = r["variable"]
         stv = stv_results.get(var, {"prob_pass": 0.0, "verdict": "N/A"})
+        rm  = rm_house_results.get(var, {"prob_pass": 0.0, "verdict": "N/A"})
+        fd  = fd_house_results.get(var, {"prob_pass": 0.0, "verdict": "N/A"})
         out.append({
             "variable": var,
             "domain": r["domain"],
@@ -574,8 +638,12 @@ def build_house_vote_model():
             "overallPct": float(r["overall_pct"]),
             "probPass": float(r["house_prob_pass"]),
             "verdict": r["house_verdict"],
-            "houseStvProbPass": stv["prob_pass"],
-            "houseStvVerdict":  stv["verdict"],
+            "houseStvProbPass":      stv["prob_pass"],
+            "houseStvVerdict":       stv["verdict"],
+            "houseRawMultiProbPass": rm["prob_pass"],
+            "houseRawMultiVerdict":  rm["verdict"],
+            "houseFDProbPass":       fd["prob_pass"],
+            "houseFDVerdict":        fd["verdict"],
         })
     write_json(out, "houseVoteModel.json")
 
@@ -583,7 +651,7 @@ def build_house_vote_model():
 # ---------- houseStateMap.json ----------
 def build_house_state_map():
     """Aggregate house STV results by state to find plurality party per state."""
-    rows = read_csv(OUTPUTS / "No_C7_canonical" / "stv_results_by_district.csv")
+    rows = read_csv(OUTPUTS / "pure_multi" / "house" / "stv_results_by_district.csv")
     pod_rows = read_csv(OUTPUTS / "state_pod_assignments.csv")
     abbr_by_fips = {r["state_fips"].zfill(2): r["state_abbr"] for r in pod_rows}
 
@@ -3114,4 +3182,5 @@ if __name__ == "__main__":
     build_pure_multi_primary_sankey()
     build_pure_multi_senate()
     build_raw_multi_presidential_election()
+    build_house_seats_gauss()
     print("Done.")

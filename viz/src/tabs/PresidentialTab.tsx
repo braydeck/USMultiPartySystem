@@ -30,7 +30,7 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, fdProfiles, sen
         <h2 className="text-2xl font-bold text-slate-900 mb-1">2028 Presidential General Election</h2>
         <p className="text-slate-500 text-sm">
           General election results using IRV and Condorcet methods. Raw Multi uses 5 finalists
-          from the 21-candidate intra-party primary — SD_1 wins IRV, CTR_1 wins Condorcet. Factor Dev
+          from the 27-candidate intra-party primary — SD_1 wins IRV, CTR_1 wins Condorcet. Factor Dev
           uses 71 axis-deviation candidates.
         </p>
       </div>
@@ -86,7 +86,7 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, fdProfiles, sen
           Amber rows highlight where the presidents disagree. % = fraction of the president&apos;s
           voter coalition that supports the bill.
         </p>
-        <PresidentialComparison rows={senateVotes} />
+        <PresidentialComparison rows={senateVotes} factorDev={factorDev} rawMulti={rawMulti} />
       </div>
 
       {/* IRV rounds + Condorcet table */}

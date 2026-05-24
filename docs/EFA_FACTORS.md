@@ -8,6 +8,58 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
 **Files:** `Claude/analysis/efa/efa_loadings_k5_final.csv`, `Claude/analysis/efa/efa_phi_k5_final.csv`
 
 ---
+  ---
+  Exact Population Shares
+
+  ┌──────────────────────┬──────────┬────────────┐
+  │        Party         │ Weighted │ Unweighted │
+  ├──────────────────────┼──────────┼────────────┤
+  │ CON (Conservative)   │ 17.74%   │ 17.36%     │
+  ├──────────────────────┼──────────┼────────────┤
+  │ SD (Social Democrat) │ 14.81%   │ 16.07%     │
+  ├──────────────────────┼──────────┼────────────┤
+  │ STY (Solidarity)     │ 14.25%   │ 11.68%     │
+  ├──────────────────────┼──────────┼────────────┤
+  │ REF (Reform)         │ 10.43%   │ 8.76%      │
+  ├──────────────────────┼──────────┼────────────┤
+  │ CTR (Centrist)       │ 9.35%    │ 8.52%      │
+  ├──────────────────────┼──────────┼────────────┤
+  │ LIB (Liberal)        │ 8.81%    │ 11.50%     │
+  ├──────────────────────┼──────────┼────────────┤
+  │ NAT (Nationalist)    │ 8.71%    │ 8.20%      │
+  ├──────────────────────┼──────────┼────────────┤
+  │ DSA (Dem. Socialist) │ 5.94%    │ 5.83%      │
+  ├──────────────────────┼──────────┼────────────┤Z
+  │ PRG (Progressive)    │ 4.70%    │ 5.67%      │
+  ├──────────────────────┼──────────┼────────────┤
+  │ C7 (Blue Dogs)       │ 5.26%    │ 6.42%      │
+  └──────────────────────┴──────────┴────────────┘
+  ---                                                                                                           
+  Factor Rankings by Discriminating Power (η²)                                                                  
+                                               
+  η² = fraction of each factor's total variance explained by cluster membership. A B/W ratio above 1 means      
+  clusters are more spread out than the within-cluster noise — the factor genuinely sorts people into parties.
+                                               
+  ┌───────────────────────┬───────┬─────────┬──────────────────────────────────────────────────────────────┐
+  │        Factor         │  η²   │  B/W    │                        Interpretation                        │
+  │                       │       │  ratio  │                                                              │
+  ├───────────────────────┼───────┼─────────┼──────────────────────────────────────────────────────────────┤
+  │ F5 Populist           │ 0.736 │ 1.67    │ Strongest partisan sorter — clusters are 1.7× wider apart    │
+  │ Conservatism          │       │         │ than the within-cluster spread                               │
+  ├───────────────────────┼───────┼─────────┼──────────────────────────────────────────────────────────────┤
+  │ F1 Security & Order   │ 0.701 │ 1.53    │ Nearly as strong — the main left/right axis                  │
+  ├───────────────────────┼───────┼─────────┼──────────────────────────────────────────────────────────────┤
+  │ F2 Electoral          │ 0.375 │ 0.775   │ Cross-cutting: within-cluster noise (σ=0.664) is larger than │
+  │ Skepticism            │       │         │  between-cluster spread (σ=0.514)                            │
+  ├───────────────────────┼───────┼─────────┼──────────────────────────────────────────────────────────────┤
+  │ F4 Religious          │ 0.305 │ 0.663   │ Moderate — some party sorting, substantial within-cluster    │
+  │ Traditionalism        │       │         │ noise                                                        │
+  ├───────────────────────┼───────┼─────────┼──────────────────────────────────────────────────────────────┤
+  │ F3 Govt Distrust      │ 0.057 │ 0.246   │ Essentially nothing — confirmed by the EFA docs ("all types  │
+  │                       │       │         │ Medium")                                                     │
+  └───────────────────────┴───────┴─────────┴──────────────────────────────────────────────────────────────┘
+
+  The η²-derived weights relative to F1 are: F1=1.0, F2=0.54, F3=0.08, F4=0.44, F5=1.05.
 
 ## Factor Names & Orientation
 
@@ -68,7 +120,7 @@ Key relationships:
 | CC24_421_1 | +0.726 | US elections NOT run fairly |
 | CC24_424 | +0.380 | Low trust in state government |
 | CC24_423 | +0.240 | Low trust in federal government |
-| CC24_440c | +0.209 | Conservative racial/cultural attitudes item |
+| CC24_440c | +0.209 | Women seek to gain power by getting control over men |
 | CC24_341a | +0.202 | Support extending 2017 Trump tax cuts |
 
 **Note:** F2 is near-orthogonal to partisan ID (Cramér's V ≈ 0.15). STY (Solidarity), REF (Reform), and DSA all score High on F2 despite being ideologically opposed on F1 and F5 — electoral skepticism cuts across the left-right divide.
@@ -82,8 +134,8 @@ Key relationships:
 | CC24_340e | −0.319 | Oppose continuing post-9/11 surveillance programs |
 | CC24_323a | +0.270 | Oppose granting legal status to undocumented immigrants |
 | CC24_323d | +0.225 | Oppose Dreamer pathway to citizenship |
-| CC24_440c | −0.219 | Progressive racial/cultural attitudes |
-| CC24_440b | −0.208 | Progressive racial attitudes (disagree problems are rare) |
+| CC24_440c | −0.219 | Women seek to gain power by getting control over men |
+| CC24_440b | −0.208 | Racial problems in the U.S. are rare, isolated situations |
 | CC24_303 | +0.203 | Perceive prices as higher (inflation sensitivity) |
 
 **Critical note:** CC24_423 and CC24_424 load on BOTH F2 and F3. The distinction is: F2 = specifically about *election* integrity; F3 = general *institutional* trust. F3 has an unusual ideological mix that doesn't map cleanly to left-right.

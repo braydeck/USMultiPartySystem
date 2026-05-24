@@ -1,0 +1,473 @@
+#!/usr/bin/env python3
+"""
+run_pure_multi_house_stv.py
+----------------------------
+House STV per district using state-proportional intra-party candidate pools.
+
+Reuses district assignments and density tiers from the canonical ballot checkpoint.
+For each state, builds a variable-length candidate pool based on that state's
+cluster shares (same thresholds as run_pure_multi_senate.py):
+  >= 12% share → 3 candidates (prominence 0.40 / 0.35 / 0.25)
+  >=  5% share → 2 candidates (prominence 0.60 / 0.40)
+  >=  1% share → 1 candidate  (prominence 1.00)
+  <   1% share → 0 candidates (party doesn't run in that state)
+
+All districts within a state share the same candidate pool; voters are
+assigned to districts by density tier (URBAN / SUBURBAN / RURAL) as stored
+in the canonical checkpoint.
+
+Outputs to data/outputs/pure_multi/house/:
+  stv_seat_summary.csv        — seat counts by party × density tier
+                                (format matches No_C7_canonical/stv_seat_summary.csv)
+  stv_results_by_district.csv — per-district elected party names
+                                (elected_k values are base party codes, not candidate codes)
+"""
+
+import numpy as np
+import pandas as pd
+from pathlib import Path
+
+BASE_DIR        = Path(__file__).parent.parent.parent
+CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
+APPORTIONMENT   = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
+EFA_PATH        = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
+TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
+STATE_PROFILES  = BASE_DIR / "data" / "outputs" / "pure_multi" / "state_candidate_profiles.csv"
+OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "pure_multi" / "house"
+
+# ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
+POSITIONAL_SIGMA = 0.35
+FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1–F5
+FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
+
+# ── State-proportional pool thresholds ────────────────────────────────────────
+THRESH_3 = 0.12   # >= 12% share → 3 candidates
+THRESH_2 = 0.05   # >=  5% share → 2 candidates
+THRESH_1 = 0.01   # >=  1% share → 1 candidate
+                  # <   1% share → 0 candidates
+
+PROMINENCE_3 = [0.40, 0.35, 0.25]
+PROMINENCE_2 = [0.60, 0.40]
+PROMINENCE_1 = [1.00]
+
+# ── Party → cluster index (C7/BLB excluded) ───────────────────────────────────
+PARTY_CLUSTER = {
+    "CON": 0,
+    "SD":  1,
+    "STY": 2,
+    "NAT": 3,
+    "LIB": 4,
+    "REF": 5,
+    "CTR": 6,
+    "DSA": 8,
+    "PRG": 9,
+}
+
+PARTY_LABELS = {
+    0: "Conservative", 1: "Social Democrat", 2: "Solidarity",
+    3: "Nationalist",  4: "Liberal",         5: "Reform",
+    6: "Center",       8: "DSA",             9: "Progressive",
+}
+
+MIN_RESPONDENTS = 5
+
+
+# ── Per-state candidate pool ───────────────────────────────────────────────────
+
+def build_state_candidates(cluster_shares: dict) -> list:
+    """Build state-specific candidate list based on cluster shares.
+
+    Returns a list of dicts: {code, party, cluster, prominence}.
+    """
+    candidates = []
+    for party, cluster_idx in PARTY_CLUSTER.items():
+        share = cluster_shares.get(f"prob_cluster_{cluster_idx}", 0.0)
+        if share >= THRESH_3:
+            prominences = PROMINENCE_3
+        elif share >= THRESH_2:
+            prominences = PROMINENCE_2
+        elif share >= THRESH_1:
+            prominences = PROMINENCE_1
+        else:
+            continue
+        for i, prom in enumerate(prominences, start=1):
+            candidates.append({
+                "code":       f"{party}_{i}",
+                "party":      party,
+                "cluster":    cluster_idx,
+                "prominence": prom,
+            })
+    return candidates
+
+
+# ── Ballot generation ─────────────────────────────────────────────────────────
+
+def compute_cluster_centroids(efa_df: pd.DataFrame, typology_df: pd.DataFrame) -> np.ndarray:
+    """Weighted mean of FS_F1–FS_F5 per cluster (0–9). Returns (10, 5)."""
+    weights   = efa_df["commonpostweight"].values
+    clusters  = typology_df["cluster"].values.astype(int)
+    centroids = np.zeros((10, 5), dtype=np.float64)
+    for k in range(10):
+        mask = clusters == k
+        w_k  = weights[mask]
+        if w_k.sum() > 0:
+            for f, col in enumerate(FACTOR_COLS):
+                centroids[k, f] = np.average(efa_df[col].values[mask], weights=w_k)
+    return centroids
+
+
+def compute_candidate_scores(voter_factors: np.ndarray,
+                              cluster_centroids: np.ndarray,
+                              candidates: list) -> np.ndarray:
+    """Gaussian proximity × prominence weight. Returns (N, n_cands) score matrix."""
+    positions  = np.array([cluster_centroids[c["cluster"]] for c in candidates])
+    prominence = np.array([c["prominence"] for c in candidates])
+    diff       = voter_factors[:, None, :] - positions[None, :, :]
+    dist_sq    = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
+    proximity  = np.exp(-dist_sq / (2.0 * POSITIONAL_SIGMA ** 2))
+    return proximity * prominence[None, :]
+
+
+def compute_candidate_scores_prob(prob_matrix: np.ndarray, candidates: list) -> np.ndarray:
+    """prob_cluster_k × prominence. Returns (N, n_cands)."""
+    n_cands = len(candidates)
+    scores  = np.zeros((len(prob_matrix), n_cands))
+    for j, cand in enumerate(candidates):
+        scores[:, j] = prob_matrix[:, cand["cluster"]] * cand["prominence"]
+    return scores
+
+
+def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
+                     candidates: list) -> np.ndarray:
+    """Plackett-Luce sampling with within-party prominence ordering.
+
+    Returns (N, n_cands) object array of candidate code strings.
+    """
+    N       = len(scores)
+    n_cands = len(candidates)
+    EPSILON = 1e-10
+
+    cand_codes = [c["code"] for c in candidates]
+
+    party_groups: dict = {}
+    for idx, cand in enumerate(candidates):
+        party = cand["party"]
+        if party not in party_groups:
+            party_groups[party] = []
+        party_groups[party].append(idx)
+    multi_parties = [idxs for idxs in party_groups.values() if len(idxs) > 1]
+
+    ballots = np.empty((N, n_cands), dtype=object)
+
+    for i in range(N):
+        probs = scores[i] + EPSILON
+        probs /= probs.sum()
+        ballot = rng.choice(n_cands, size=n_cands, replace=False, p=probs)
+
+        rank_of = {int(ballot[r]): r for r in range(n_cands)}
+        for party_idxs in multi_parties:
+            positions  = sorted(rank_of[idx] for idx in party_idxs)
+            first_cand = int(ballot[positions[0]])
+            remaining  = [idx for idx in party_idxs if idx != first_cand]
+            for k, pos in enumerate(positions[1:]):
+                ballot[pos] = remaining[k]
+
+        ballots[i] = [cand_codes[int(idx)] for idx in ballot]
+
+    return ballots
+
+
+# ── STV engine (Gregory fractional surplus) ───────────────────────────────────
+
+def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarray:
+    N      = len(ballots_arr)
+    result = np.empty(N, dtype=object)
+    for i in range(N):
+        result[i] = "__exhausted__"
+        for code in ballots_arr[i]:
+            if code in active_set:
+                result[i] = code
+                break
+    return result
+
+
+def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
+            cand_codes: list, n_seats: int) -> list:
+    """Gregory fractional STV; returns elected candidate codes in election order."""
+    active      = set(cand_codes)
+    ballot_wts  = weights.astype(float).copy()
+    total_votes = float(weights.sum())
+    quota       = total_votes / (n_seats + 1) + 1
+    elected: list = []
+
+    while len(elected) < n_seats and active:
+        remaining = n_seats - len(elected)
+        if len(active) <= remaining:
+            elected.extend(sorted(active))
+            active.clear()
+            break
+
+        fsc    = first_surviving_choice(ballots_arr, active)
+        totals = {c: 0.0 for c in active}
+        for code, w in zip(fsc, ballot_wts):
+            if code in totals:
+                totals[code] += w
+
+        over_quota = sorted(
+            [c for c in active if totals[c] >= quota],
+            key=lambda c: (-totals[c], c),
+        )
+        if over_quota:
+            winner = over_quota[0]
+            sf     = (totals[winner] - quota) / totals[winner]
+            elected.append(winner)
+            for i in range(len(fsc)):
+                if fsc[i] == winner:
+                    ballot_wts[i] *= sf
+            active.discard(winner)
+        else:
+            active.discard(min(active, key=lambda c: (totals[c], c)))
+
+    return elected
+
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+def main():
+    rng      = np.random.default_rng(42)
+    rng_prob = np.random.default_rng(43)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    sep  = "=" * 70
+    thin = "-" * 70
+
+    print(sep)
+    print("PURE MULTI HOUSE STV  —  state-proportional candidate pools")
+    print(sep)
+
+    # ── Load data ──────────────────────────────────────────────────────────────
+    print("\nLoading EFA factor scores…")
+    efa           = pd.read_csv(EFA_PATH)
+    typology      = pd.read_csv(TYPOLOGY_PATH)
+    assert len(efa) == len(typology), f"Row mismatch: {len(efa)} vs {len(typology)}"
+    voter_factors = efa[FACTOR_COLS].values.astype(np.float64)
+    weights       = efa["commonpostweight"].values.astype(np.float64)
+
+    print("Loading district assignments from canonical checkpoint…")
+    checkpoint    = pd.read_parquet(CHECKPOINT_PATH, columns=["district_id", "density_tier"])
+    assert len(checkpoint) == len(efa), \
+        f"Row count mismatch: checkpoint={len(checkpoint)}, efa={len(efa)}"
+    district_ids  = checkpoint["district_id"].values
+    print(f"  {len(efa):,} respondents in {checkpoint['district_id'].nunique()} districts")
+
+    print("Loading district apportionment…")
+    apportion_df = pd.read_csv(APPORTIONMENT)
+    dist_seats   = dict(zip(apportion_df["district_id"], apportion_df["seat_count"]))
+    dist_state   = dict(zip(apportion_df["district_id"], apportion_df["state_fips"]))
+    dist_abbr    = dict(zip(apportion_df["district_id"], apportion_df["state_abbr"]))
+    dist_tier    = dict(zip(apportion_df["district_id"], apportion_df["density_tier"]))
+
+    print("Loading state profiles…")
+    state_profiles = pd.read_csv(STATE_PROFILES).set_index("state_fips")
+
+    print("Computing cluster centroids…")
+    cluster_centroids = compute_cluster_centroids(efa, typology)
+    prob_matrix       = typology[PROB_COLS].values.astype(np.float64)
+
+    # ── Build per-state candidate pools ───────────────────────────────────────
+    print("Building per-state candidate pools…")
+    unique_fips = apportion_df["state_fips"].unique()
+    state_candidates: dict = {}
+    for fips in unique_fips:
+        fips_int = int(fips)
+        if fips_int in state_profiles.index:
+            row = state_profiles.loc[fips_int]
+            shares = {f"prob_cluster_{k}": float(row.get(f"prob_cluster_{k}", 0.0))
+                      for k in range(10)}
+        else:
+            shares = {f"prob_cluster_{k}": 0.05 for k in range(10)}
+        state_candidates[fips_int] = build_state_candidates(shares)
+
+    pool_sizes = {fips: len(cands) for fips, cands in state_candidates.items()}
+    print(f"  Pool sizes: min={min(pool_sizes.values())}  "
+          f"median={sorted(pool_sizes.values())[len(pool_sizes)//2]}  "
+          f"max={max(pool_sizes.values())} candidates")
+
+    # ── District STV loop ──────────────────────────────────────────────────────
+    all_dids = apportion_df["district_id"].tolist()
+    print(f"\nRunning STV for {len(all_dids)} districts…")
+    print(f"  {'District':<10}  {'St':<4}  {'Tier':<10}  {'N':>5}  {'Seats':>5}  "
+          f"{'Cands':>5}  Elected")
+    print(f"  {thin}")
+
+    district_results: list = []
+    tier_counts: dict = {party: {"URBAN": 0, "SUBURBAN": 0, "RURAL": 0}
+                         for party in PARTY_CLUSTER}
+    tier_counts_prob: dict = {party: {"URBAN": 0, "SUBURBAN": 0, "RURAL": 0}
+                              for party in PARTY_CLUSTER}
+    district_results_prob: list = []
+    n_processed = 0
+    n_skipped   = 0
+
+    for did in all_dids:
+        mask      = district_ids == did
+        N_dist    = int(mask.sum())
+        n_seats   = dist_seats.get(did, 5)
+        fips      = int(dist_state.get(did, 0))
+        abbr      = dist_abbr.get(did, "??")
+        tier      = dist_tier.get(did, "SUBURBAN")
+
+        if N_dist < MIN_RESPONDENTS:
+            n_skipped += 1
+            print(f"  {did:<10}  {abbr:<4}  {tier:<10}  SKIPPED (N={N_dist})")
+            continue
+
+        candidates = state_candidates.get(fips, [])
+        if not candidates:
+            n_skipped += 1
+            print(f"  {did:<10}  {abbr:<4}  SKIPPED (no candidates for FIPS {fips})")
+            continue
+
+        cand_codes  = [c["code"] for c in candidates]
+        n_seats_eff = min(n_seats, len(candidates))
+
+        d_factors = voter_factors[mask]
+        d_weights = weights[mask]
+        scores    = compute_candidate_scores(d_factors, cluster_centroids, candidates)
+        ballots   = generate_ballots(scores, rng, candidates)
+        elected   = run_stv(ballots, d_weights, cand_codes, n_seats_eff)
+
+        # Tally by base party (strip _N suffix)
+        elected_parties = [code.rsplit("_", 1)[0] for code in elected]
+        for party in elected_parties:
+            if party in tier_counts and tier in tier_counts[party]:
+                tier_counts[party][tier] += 1
+
+        district_results.append({
+            "district_id":   did,
+            "state_fips":    fips,
+            "state_abbr":    abbr,
+            "density_tier":  tier,
+            "seat_count":    n_seats_eff,
+            "n_respondents": N_dist,
+            "n_candidates":  len(candidates),
+            "elected":       elected_parties,
+        })
+
+        # ── Prob-cluster scoring variant ───────────────────────────────────────
+        d_prob_matrix  = prob_matrix[mask]
+        prob_scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
+        prob_ballots   = generate_ballots(prob_scores, rng_prob, candidates)
+        prob_elected   = run_stv(prob_ballots, d_weights, cand_codes, n_seats_eff)
+
+        prob_elected_parties = [code.rsplit("_", 1)[0] for code in prob_elected]
+        for party in prob_elected_parties:
+            if party in tier_counts_prob and tier in tier_counts_prob[party]:
+                tier_counts_prob[party][tier] += 1
+
+        district_results_prob.append({
+            "district_id":   did,
+            "state_fips":    fips,
+            "state_abbr":    abbr,
+            "density_tier":  tier,
+            "seat_count":    n_seats_eff,
+            "n_respondents": N_dist,
+            "n_candidates":  len(candidates),
+            "elected":       prob_elected_parties,
+        })
+        n_processed += 1
+
+        if n_processed <= 10 or n_processed % 30 == 0:
+            elec_str = ", ".join(elected_parties[:5])
+            if len(elected_parties) > 5:
+                elec_str += f" +{len(elected_parties)-5}"
+            print(f"  {did:<10}  {abbr:<4}  {tier:<10}  {N_dist:>5}  "
+                  f"{n_seats_eff:>5}  {len(candidates):>5}  {elec_str}")
+
+    print(f"\n  Processed: {n_processed} districts  |  Skipped: {n_skipped}")
+
+    # ── Save per-district results ──────────────────────────────────────────────
+    def _dist_rows(results):
+        rows = []
+        for r in results:
+            row = {
+                "district_id":   r["district_id"],
+                "state_fips":    r["state_fips"],
+                "state_abbr":    r["state_abbr"],
+                "density_tier":  r["density_tier"],
+                "seat_count":    r["seat_count"],
+                "n_respondents": r["n_respondents"],
+                "n_candidates":  r["n_candidates"],
+            }
+            for k, party in enumerate(r["elected"]):
+                row[f"elected_{k}"] = party
+            rows.append(row)
+        return rows
+
+    # prob → canonical; gaussian → reference
+    dist_df_prob = pd.DataFrame(_dist_rows(district_results_prob)).sort_values(["state_fips", "district_id"])
+    dist_df_prob.to_csv(OUTPUT_DIR / "stv_results_by_district.csv", index=False)
+    print(f"\nSaved stv_results_by_district.csv (prob — canonical)  ({len(dist_df_prob)} districts)")
+
+    dist_df = pd.DataFrame(_dist_rows(district_results)).sort_values(["state_fips", "district_id"])
+    dist_df.to_csv(OUTPUT_DIR / "stv_results_by_district_gauss.csv", index=False)
+    print(f"Saved stv_results_by_district_gauss.csv  ({len(dist_df)} districts)")
+
+    # ── Seat summary (format matches No_C7_canonical/stv_seat_summary.csv) ────
+    def _build_summary(tc_dict):
+        total = sum(tc["URBAN"] + tc["SUBURBAN"] + tc["RURAL"] for tc in tc_dict.values())
+        rows = []
+        for party, cluster_idx in PARTY_CLUSTER.items():
+            tc    = tc_dict[party]
+            urban = tc["URBAN"]
+            sub   = tc["SUBURBAN"]
+            rural = tc["RURAL"]
+            t     = urban + sub + rural
+            if t == 0:
+                continue
+            rows.append({
+                "party":        cluster_idx,
+                "party_name":   PARTY_LABELS.get(cluster_idx, party),
+                "URBAN":        urban,
+                "SUBURBAN":     sub,
+                "RURAL":        rural,
+                "NATIONAL":     t,
+                "pct_national": round(t / total * 100, 2) if total else 0.0,
+            })
+        return pd.DataFrame(rows).sort_values("NATIONAL", ascending=False), total
+
+    # prob → canonical; gaussian → reference
+    summary_df_prob, total_seats_prob = _build_summary(tier_counts_prob)
+    summary_df_prob.to_csv(OUTPUT_DIR / "stv_seat_summary.csv", index=False)
+    print(f"Saved stv_seat_summary.csv (prob — canonical)  ({len(summary_df_prob)} parties with seats)")
+
+    summary_df, total_seats = _build_summary(tier_counts)
+    summary_df.to_csv(OUTPUT_DIR / "stv_seat_summary_gauss.csv", index=False)
+    print(f"Saved stv_seat_summary_gauss.csv  ({len(summary_df)} parties with seats)")
+
+    # ── Summary table ──────────────────────────────────────────────────────────
+    print(f"\n{sep}")
+    print("PURE MULTI HOUSE — SEAT SUMMARY BY PARTY (prob-cluster, canonical)")
+    print(sep)
+    print(f"\n  {'Party':<6}  {'URBAN':>6}  {'SUBURBAN':>8}  {'RURAL':>6}  "
+          f"{'TOTAL':>6}  {'%':>6}")
+    print(f"  {thin}")
+    for _, row in summary_df_prob.iterrows():
+        pct = row["NATIONAL"] / total_seats_prob * 100 if total_seats_prob else 0
+        print(f"  {str(row['party_name'])[:6]:<6}  {int(row['URBAN']):>6}  "
+              f"{int(row['SUBURBAN']):>8}  {int(row['RURAL']):>6}  "
+              f"{int(row['NATIONAL']):>6}  {pct:>5.1f}%")
+    print(f"  {'TOTAL':<6}  "
+          f"{sum(int(r['URBAN']) for _, r in summary_df_prob.iterrows()):>6}  "
+          f"{sum(int(r['SUBURBAN']) for _, r in summary_df_prob.iterrows()):>8}  "
+          f"{sum(int(r['RURAL']) for _, r in summary_df_prob.iterrows()):>6}  "
+          f"{int(total_seats_prob):>6}  100.0%")
+
+    print(f"\n{sep}")
+    print("Pure multi house STV complete.")
+    print(sep)
+
+
+if __name__ == "__main__":
+    main()

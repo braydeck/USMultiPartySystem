@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
-import type { VoteModelRow } from '../../types';
+import type { VoteModelRow, PresidentialElection } from '../../types';
 import { getBlendColor } from '../../constants/parties';
 
 interface Props {
   rows: VoteModelRow[];
+  factorDev: PresidentialElection;
+  rawMulti: PresidentialElection;
 }
 
 interface PresidentEntry {
@@ -13,16 +15,6 @@ interface PresidentEntry {
   pctField: string;
   label: string;
 }
-
-const IRV_PRESIDENTS: PresidentEntry[] = [
-  { key: 'fd',       code: 'SD_lo_pc', signField: 'presFDIRVSigns',       pctField: 'presFDIRVPct',       label: 'Factor Dev' },
-  { key: 'rawMulti', code: 'SD_1',     signField: 'presRawMultiIRVSigns', pctField: 'presRawMultiIRVPct', label: 'Raw Multi'  },
-];
-
-const COND_PRESIDENTS: PresidentEntry[] = [
-  { key: 'fd',       code: 'CTR_lo_pc', signField: 'presFDCondSigns',       pctField: 'presFDCondPct',       label: 'Factor Dev' },
-  { key: 'rawMulti', code: 'CTR_1',     signField: 'presRawMultiCondSigns', pctField: 'presRawMultiCondPct', label: 'Raw Multi'  },
-];
 
 function SignBadge({ sign, pct }: { sign: string; pct?: number }) {
   const signs = sign === 'SIGN';
@@ -40,10 +32,19 @@ function SignBadge({ sign, pct }: { sign: string; pct?: number }) {
   );
 }
 
-export function PresidentialComparison({ rows }: Props) {
+export function PresidentialComparison({ rows, factorDev, rawMulti }: Props) {
   const [domain, setDomain] = useState('All');
   const [showOnly, setShowOnly] = useState<'all' | 'differs'>('differs');
   const [method, setMethod] = useState<'irv' | 'condorcet'>('irv');
+
+  const IRV_PRESIDENTS: PresidentEntry[] = [
+    { key: 'fd',       code: factorDev.irvWinner,  signField: 'presFDIRVSigns',       pctField: 'presFDIRVPct',       label: 'Factor Dev' },
+    { key: 'rawMulti', code: rawMulti.irvWinner,   signField: 'presRawMultiIRVSigns', pctField: 'presRawMultiIRVPct', label: 'Raw Multi'  },
+  ];
+  const COND_PRESIDENTS: PresidentEntry[] = [
+    { key: 'fd',       code: factorDev.condorcetWinner,  signField: 'presFDCondSigns',       pctField: 'presFDCondPct',       label: 'Factor Dev' },
+    { key: 'rawMulti', code: rawMulti.condorcetWinner,   signField: 'presRawMultiCondSigns', pctField: 'presRawMultiCondPct', label: 'Raw Multi'  },
+  ];
 
   const presidents = method === 'irv' ? IRV_PRESIDENTS : COND_PRESIDENTS;
 

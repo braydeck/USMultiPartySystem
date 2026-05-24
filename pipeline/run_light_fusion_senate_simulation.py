@@ -42,7 +42,8 @@ PURE_NAMES = set(PARTY_ABBR.values())  # {"CON", "SD", "STY", ...}
 
 STV_SURVIVORS   = 5
 MIN_RESPONDENTS = 10
-POSITIONAL_SIGMA = 1.5
+POSITIONAL_SIGMA = 0.35
+FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",
@@ -77,7 +78,7 @@ def score_candidates(voter_factors: np.ndarray,
                      sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
     """(N, M) Gaussian proximity scores in 5-D factor space."""
     diff = voter_factors[:, None, :] - cand_positions[None, :, :]
-    return np.exp(-(diff ** 2).sum(axis=2) / (2.0 * sigma ** 2))
+    return np.exp(-((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2) / (2.0 * sigma ** 2))
 
 
 def generate_ballots(scores: np.ndarray,

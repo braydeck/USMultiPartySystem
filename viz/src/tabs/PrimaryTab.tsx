@@ -21,12 +21,12 @@ type Pipeline = 'factorDev' | 'rawMulti';
 
 const PIPELINE_LABELS: Record<Pipeline, string> = {
   factorDev: 'Factor Dev (37 candidates)',
-  rawMulti:  'Raw Multi (21 candidates)',
+  rawMulti:  'Raw Multi (27 candidates)',
 };
 
 const PIPELINE_DESC: Record<Pipeline, string> = {
   factorDev: '9 base parties + 28 axis-deviation variants (SO, AE, PC) at ±25% of inter-party SD. Candidates deviate on individual factor axes rather than blending toward a neighbor.',
-  rawMulti:  '9 parties with multiple intra-party candidates. CON, SD, STY each field 3 candidates (40/35/25 first-choice split); all others field 2 (60/40). Within-party transfers flow proportionally.',
+  rawMulti:  'All 9 parties field 3 intra-party candidates each (40/35/25 first-choice split). Same-party candidates share an identical factor-space position; prominence determines ballot ordering.',
 };
 
 export function PrimaryTab({
@@ -35,7 +35,7 @@ export function PrimaryTab({
   clusters,
 }: Props) {
   const clusterByParty = Object.fromEntries(clusters.map(c => [c.party, c]));
-  const [pipeline, setPipeline] = useState<Pipeline>('factorDev');
+  const [pipeline, setPipeline] = useState<Pipeline>('rawMulti');
   const [stageIdx, setStageIdx] = useState(0);
 
   const data: FDPrimaryData =
@@ -75,7 +75,7 @@ export function PrimaryTab({
       {/* Pipeline toggle */}
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2">
-          {(['factorDev', 'rawMulti'] as Pipeline[]).map(p => (
+          {(['rawMulti', 'factorDev'] as Pipeline[]).map(p => (
             <button
               key={p}
               onClick={() => { setPipeline(p); setStageIdx(0); }}
@@ -126,7 +126,8 @@ export function PrimaryTab({
           .filter(c => ['surviving', 'elected', 'active'].includes(c.stages[stage]?.status ?? ''))
           .sort((a, b) => a.F5 - b.F5)
           .map(c => {
-            const positions = clusterByParty[c.code]?.keyPositions ?? [];
+            const baseParty = c.code.split('_')[0];
+            const positions = clusterByParty[baseParty]?.keyPositions ?? [];
             return (
               <MiniPartyCard
                 key={c.code}

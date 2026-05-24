@@ -21,6 +21,7 @@ BASE_DIR        = Path(__file__).parent.parent
 CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT   = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
+TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation" / "house"
 
@@ -29,18 +30,30 @@ CAND_FACTOR_COLS  = [
     "F1_security_order", "F2_electoral_skepticism", "F3_government_distrust",
     "F4_religious_traditionalism", "F5_populist_conservatism",
 ]
+PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
 POSITIONAL_SIGMA = 0.35
 FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
 MIN_RESPONDENTS  = 5
 
+PARTY_CLUSTER = {
+    "CON": 0, "SD": 1, "STY": 2, "NAT": 3, "LIB": 4,
+    "REF": 5, "CTR": 6, "DSA": 8, "PRG": 9,
+}
+
 
 # ── Ballot generation ────────────────────────────────────────────────────────
 
-def score_candidates(voter_factors: np.ndarray,
-                     cand_positions: np.ndarray,
-                     sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
-    diff = voter_factors[:, None, :] - cand_positions[None, :, :]
-    return np.exp(-((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2) / (2.0 * sigma ** 2))
+def score_candidates_hybrid(voter_factors:  np.ndarray,
+                            prob_matrix:    np.ndarray,
+                            cand_positions: np.ndarray,
+                            cand_clusters:  np.ndarray,
+                            sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
+    """Hybrid: prob_cluster_k × Gaussian proximity. See generate_factor_deviation_ballots.py."""
+    diff     = voter_factors[:, None, :] - cand_positions[None, :, :]
+    dist_sq  = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
+    gaussian = np.exp(-dist_sq / (2.0 * sigma ** 2))
+    prob     = prob_matrix[:, cand_clusters]
+    return prob * gaussian
 
 
 def generate_ballots(scores: np.ndarray,
@@ -139,6 +152,11 @@ def main():
     voter_factors = efa[VOTER_FACTOR_COLS].values.astype(np.float64)
     weights       = efa["commonpostweight"].values.astype(np.float64)
 
+    print("Loading typology cluster probabilities…")
+    typology    = pd.read_csv(TYPOLOGY_PATH)
+    assert len(typology) == len(efa), f"Row mismatch: {len(typology)} vs {len(efa)}"
+    prob_matrix = typology[PROB_COLS].values.astype(np.float64)
+
     print("Loading district assignments from canonical checkpoint…")
     checkpoint    = pd.read_parquet(CHECKPOINT_PATH)
     assert len(checkpoint) == len(efa), "Row count mismatch between EFA scores and checkpoint"
@@ -158,6 +176,7 @@ def main():
     cand_codes     = cand_df["candidate_code"].tolist()
     cand_arr       = np.array(cand_codes, dtype=object)
     cand_positions = cand_df[CAND_FACTOR_COLS].values.astype(np.float64)
+    cand_clusters  = cand_df["party"].map(PARTY_CLUSTER).values.astype(int)
     cand_meta      = {row["candidate_code"]: {"party": row["party"], "axis": row["axis"],
                                                "direction": row["direction"]}
                       for _, row in cand_df.iterrows()}
@@ -187,10 +206,10 @@ def main():
             print(f"  {did:<10}  {state_abbr:<4}  SKIPPED (N={N_dist})")
             continue
 
-        # Score and generate ballots
+        # Score and generate ballots (hybrid: prob × Gaussian)
         d_factors = voter_factors[mask]
         d_weights = weights[mask]
-        scores    = score_candidates(d_factors, cand_positions)
+        scores    = score_candidates_hybrid(d_factors, prob_matrix[mask], cand_positions, cand_clusters)
         ballots   = generate_ballots(scores, cand_arr, rng)
 
         # STV

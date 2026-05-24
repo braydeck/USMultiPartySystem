@@ -2,16 +2,18 @@
 """
 run_pure_multi_senate.py
 --------------------------
-State-by-state senate simulation using the 21-candidate pure/raw multi-candidate pool.
+State-by-state senate simulation with state-proportional candidate pools.
 
 For each state:
-  1. Filter the pre-generated global ballots to state respondents
-  2. Run STV (Gregory) elimination → 5 finalists
-  3. Run Ranked Pairs Condorcet → 1 senator  (senate_composition.csv)
-  4. Run IRV → 1 senator  (senate_irv_composition.csv)
+  1. Read cluster shares from state_candidate_profiles.csv
+  2. Build a state-specific candidate pool (variable count based on thresholds)
+  3. Generate per-state Plackett-Luce ballots using the same proximity/prominence
+     logic as generate_pure_multi_ballots.py
+  4. Run STV (Gregory) elimination → 5 finalists
+  5. Run Ranked Pairs Condorcet → 1 senator  (senate_composition.csv)
+  6. Run IRV → 1 senator  (senate_irv_composition.csv)
 
-No per-state ballot re-generation needed — the global Plackett-Luce ballots
-already reflect each respondent's factor-space preferences over all 21 candidates.
+Presidential primary/general are unaffected — they use the global 27-candidate pool.
 
 Outputs to data/outputs/pure_multi/senate/:
   senate_composition.csv         — Condorcet (Ranked Pairs) winner per state
@@ -23,12 +25,41 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from itertools import combinations
-from collections import defaultdict
 
-BASE_DIR     = Path(__file__).parent.parent.parent
-BALLOTS_PATH = BASE_DIR / "data" / "outputs" / "pure_multi" / "presidential_ballots.csv"
-EFA_PATH     = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / "pure_multi" / "senate"
+BASE_DIR       = Path(__file__).parent.parent.parent
+TYPOLOGY_PATH  = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
+EFA_PATH       = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
+STATE_PROFILES = BASE_DIR / "data" / "outputs" / "pure_multi" / "state_candidate_profiles.csv"
+OUTPUT_DIR     = BASE_DIR / "data" / "outputs" / "pure_multi" / "senate"
+
+# ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
+POSITIONAL_SIGMA = 0.35
+FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1–F5
+FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
+
+# ── State-proportional pool thresholds ────────────────────────────────────────
+THRESH_3 = 0.12   # >= 12% share → 3 candidates  (0.40 / 0.35 / 0.25)
+THRESH_2 = 0.05   # >=  5% share → 2 candidates  (0.60 / 0.40)
+THRESH_1 = 0.01   # >=  1% share → 1 candidate   (1.00)
+                  # <   1% share → 0 candidates (party doesn't run)
+
+PROMINENCE_3 = [0.40, 0.35, 0.25]
+PROMINENCE_2 = [0.60, 0.40]
+PROMINENCE_1 = [1.00]
+
+# ── Party → cluster index (C7/BLB excluded) ───────────────────────────────────
+PARTY_CLUSTER = {
+    "CON": 0,
+    "SD":  1,
+    "STY": 2,
+    "NAT": 3,
+    "LIB": 4,
+    "REF": 5,
+    "CTR": 6,
+    "DSA": 8,
+    "PRG": 9,
+}
 
 STV_SURVIVORS   = 5
 MIN_RESPONDENTS = 10
@@ -44,44 +75,133 @@ FIPS_TO_ABBR = {
     55:"WI", 56:"WY", 72:"PR",
 }
 
-# 21 candidates — must match generate_pure_multi_ballots.py exactly
-CANDIDATES = [
-    {"code": "CON_1", "party": "CON", "cluster": 0},
-    {"code": "CON_2", "party": "CON", "cluster": 0},
-    {"code": "CON_3", "party": "CON", "cluster": 0},
-    {"code": "SD_1",  "party": "SD",  "cluster": 1},
-    {"code": "SD_2",  "party": "SD",  "cluster": 1},
-    {"code": "SD_3",  "party": "SD",  "cluster": 1},
-    {"code": "STY_1", "party": "STY", "cluster": 2},
-    {"code": "STY_2", "party": "STY", "cluster": 2},
-    {"code": "STY_3", "party": "STY", "cluster": 2},
-    {"code": "NAT_1", "party": "NAT", "cluster": 3},
-    {"code": "NAT_2", "party": "NAT", "cluster": 3},
-    {"code": "LIB_1", "party": "LIB", "cluster": 4},
-    {"code": "LIB_2", "party": "LIB", "cluster": 4},
-    {"code": "REF_1", "party": "REF", "cluster": 5},
-    {"code": "REF_2", "party": "REF", "cluster": 5},
-    {"code": "CTR_1", "party": "CTR", "cluster": 6},
-    {"code": "CTR_2", "party": "CTR", "cluster": 6},
-    {"code": "DSA_1", "party": "DSA", "cluster": 8},
-    {"code": "DSA_2", "party": "DSA", "cluster": 8},
-    {"code": "PRG_1", "party": "PRG", "cluster": 9},
-    {"code": "PRG_2", "party": "PRG", "cluster": 9},
-]
-CAND_CODES   = [c["code"]    for c in CANDIDATES]
-CAND_PARTY   = {c["code"]: c["party"]   for c in CANDIDATES}
-CAND_CLUSTER = {c["code"]: c["cluster"] for c in CANDIDATES}
-N_CANDIDATES = len(CANDIDATES)
-
 
 def party_of(code: str) -> str:
-    return CAND_PARTY.get(code, code.rsplit("_", 1)[0])
+    return code.rsplit("_", 1)[0]
+
+
+# ── Per-state candidate pool ───────────────────────────────────────────────────
+
+def build_state_candidates(cluster_shares: dict) -> list:
+    """Build state-specific candidate list based on cluster shares.
+
+    Returns a list of dicts: {code, party, cluster, prominence}.
+    Candidates are ordered by party (PARTY_CLUSTER key order), then by
+    prominence descending within each party.
+    """
+    candidates = []
+    for party, cluster_idx in PARTY_CLUSTER.items():
+        share = cluster_shares.get(f"prob_cluster_{cluster_idx}", 0.0)
+        if share >= THRESH_3:
+            prominences = PROMINENCE_3
+        elif share >= THRESH_2:
+            prominences = PROMINENCE_2
+        elif share >= THRESH_1:
+            prominences = PROMINENCE_1
+        else:
+            continue  # party doesn't run in this state
+        for i, prom in enumerate(prominences, start=1):
+            candidates.append({
+                "code":       f"{party}_{i}",
+                "party":      party,
+                "cluster":    cluster_idx,
+                "prominence": prom,
+            })
+    return candidates
+
+
+# ── Ballot generation (adapted from generate_pure_multi_ballots.py) ────────────
+
+def compute_cluster_centroids(efa_df: pd.DataFrame, typology_df: pd.DataFrame) -> np.ndarray:
+    """Weighted mean of FS_F1–FS_F5 per cluster (0–9). Returns (10, 5)."""
+    weights   = efa_df["commonpostweight"].values
+    clusters  = typology_df["cluster"].values.astype(int)
+    centroids = np.zeros((10, 5), dtype=np.float64)
+    for k in range(10):
+        mask = clusters == k
+        w_k  = weights[mask]
+        if w_k.sum() > 0:
+            for f, col in enumerate(FACTOR_COLS):
+                centroids[k, f] = np.average(efa_df[col].values[mask], weights=w_k)
+    return centroids
+
+
+def compute_candidate_scores(voter_factors: np.ndarray,
+                              cluster_centroids: np.ndarray,
+                              candidates: list) -> np.ndarray:
+    """Gaussian proximity × prominence weight.
+
+    Returns (N, n_cands) score matrix.
+    """
+    positions  = np.array([cluster_centroids[c["cluster"]] for c in candidates])  # (n_cands, 5)
+    prominence = np.array([c["prominence"] for c in candidates])                  # (n_cands,)
+    diff       = voter_factors[:, None, :] - positions[None, :, :]                # (N, n_cands, 5)
+    dist_sq    = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)                       # (N, n_cands)
+    proximity  = np.exp(-dist_sq / (2.0 * POSITIONAL_SIGMA ** 2))                # (N, n_cands)
+    return proximity * prominence[None, :]                                         # (N, n_cands)
+
+
+def compute_candidate_scores_prob(prob_matrix: np.ndarray, candidates: list) -> np.ndarray:
+    """prob_cluster_k × prominence. Returns (N, n_cands)."""
+    n_cands = len(candidates)
+    scores  = np.zeros((len(prob_matrix), n_cands))
+    for j, cand in enumerate(candidates):
+        scores[:, j] = prob_matrix[:, cand["cluster"]] * cand["prominence"]
+    return scores
+
+
+def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
+                     candidates: list) -> np.ndarray:
+    """Plackett-Luce sampling with within-party prominence ordering.
+
+    The first same-party candidate position is determined by Plackett-Luce
+    (weighted by prominence × proximity). Remaining same-party candidates
+    always follow in strict prominence order (_1 before _2 before _3).
+
+    Returns (N, n_cands) object array of candidate code strings.
+    """
+    N       = len(scores)
+    n_cands = len(candidates)
+    EPSILON = 1e-10
+
+    cand_codes = [c["code"] for c in candidates]
+
+    # Build party groups in prominence order (candidates list is ordered high→low)
+    party_groups: dict = {}
+    for idx, cand in enumerate(candidates):
+        party = cand["party"]
+        if party not in party_groups:
+            party_groups[party] = []
+        party_groups[party].append(idx)
+    multi_parties = [idxs for idxs in party_groups.values() if len(idxs) > 1]
+
+    ballots = np.empty((N, n_cands), dtype=object)
+
+    for i in range(N):
+        probs = scores[i] + EPSILON
+        probs /= probs.sum()
+        ballot = rng.choice(n_cands, size=n_cands, replace=False, p=probs)
+
+        # Fix within-party ordering: first same-party candidate stays at its
+        # sampled position; remaining same-party candidates fill subsequent
+        # positions in strict prominence order.
+        rank_of = {int(ballot[r]): r for r in range(n_cands)}
+        for party_idxs in multi_parties:
+            positions  = sorted(rank_of[idx] for idx in party_idxs)
+            first_cand = int(ballot[positions[0]])
+            remaining  = [idx for idx in party_idxs if idx != first_cand]
+            for k, pos in enumerate(positions[1:]):
+                ballot[pos] = remaining[k]
+
+        ballots[i] = [cand_codes[int(idx)] for idx in ballot]
+
+    return ballots
 
 
 # ── STV helpers ───────────────────────────────────────────────────────────────
 
 def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarray:
-    N = len(ballots_arr)
+    N      = len(ballots_arr)
     result = np.empty(N, dtype=object)
     for i in range(N):
         result[i] = "__exhausted__"
@@ -245,7 +365,8 @@ def irv_winner(ballots_arr: np.ndarray, weights: np.ndarray,
 
 def make_comp_row(state_fips: int, state_abbr: str, senator_code: str,
                   finalists: list, ballots_arr: np.ndarray,
-                  weights: np.ndarray) -> dict:
+                  weights: np.ndarray, candidates: list) -> dict:
+    cand_cluster = {c["code"]: c["cluster"] for c in candidates}
     fsc    = first_surviving_choice(ballots_arr, set(finalists))
     totals = compute_vote_totals(fsc, weights, set(finalists))
     total  = weights.sum()
@@ -257,10 +378,10 @@ def make_comp_row(state_fips: int, state_abbr: str, senator_code: str,
         "senator_label":              senator_code,
         "senator_party":              party,
         "senator_type":               "pure",
-        "primary_cluster":            str(CAND_CLUSTER.get(senator_code, -1)),
+        "primary_cluster":            str(cand_cluster.get(senator_code, -1)),
         "secondary_cluster":          "",
         "total_weighted_respondents": round(float(total), 2),
-        "n_candidates_in_race":       N_CANDIDATES,
+        "n_candidates_in_race":       len(candidates),
         "n_finalists":                len(finalists),
     }
     for code in finalists:
@@ -272,51 +393,74 @@ def make_comp_row(state_fips: int, state_abbr: str, senator_code: str,
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    rng      = np.random.default_rng(42)
+    rng_prob = np.random.default_rng(43)
 
     print("=" * 65)
-    print("PURE MULTI SENATE SIMULATION  —  21 intra-party candidates")
+    print("PURE MULTI SENATE SIMULATION  —  state-proportional candidate pools")
     print("=" * 65)
 
-    # Load global ballots
-    print("\nLoading global ballots…")
-    ballot_df   = pd.read_csv(BALLOTS_PATH, index_col="respondent_id")
-    N           = len(ballot_df)
-    rank_cols   = [f"rank_{k+1}" for k in range(N_CANDIDATES)]
-    ballots_arr = ballot_df[rank_cols].values
-    print(f"  {N:,} ballots × {N_CANDIDATES} candidates")
+    print("\nLoading EFA scores + typology…")
+    efa      = pd.read_csv(EFA_PATH)
+    typology = pd.read_csv(TYPOLOGY_PATH)
+    assert len(efa) == len(typology), f"Row mismatch: {len(efa)} vs {len(typology)}"
 
-    # Load EFA scores for state + weights
-    print("Loading EFA scores…")
-    efa        = pd.read_csv(EFA_PATH)
-    inputstate = efa["inputstate"].values.astype(int)
-    weights    = efa["commonpostweight"].values.astype(float)
-    assert len(efa) == N, f"Row count mismatch: {N} vs {len(efa)}"
+    inputstate    = efa["inputstate"].values.astype(int)
+    weights       = efa["commonpostweight"].values.astype(float)
+    voter_factors = efa[FACTOR_COLS].values.astype(np.float64)
+
+    print("Computing cluster centroids…")
+    cluster_centroids = compute_cluster_centroids(efa, typology)
+    prob_matrix       = typology[PROB_COLS].values.astype(np.float64)
+
+    print("Loading state profiles…")
+    state_profiles = pd.read_csv(STATE_PROFILES).set_index("state_fips")
 
     all_states = sorted(s for s in np.unique(inputstate) if s != 72)
 
-    all_condorcet:   list = []
-    comp_rows_cond:  list = []
-    comp_rows_irv:   list = []
+    all_condorcet:  list = []
+    comp_rows_cond: list = []
+    comp_rows_irv:  list = []
+
+    all_condorcet_prob:  list = []
+    comp_rows_cond_prob: list = []
+    comp_rows_irv_prob:  list = []
 
     print(f"\nRunning senate elections for {len(all_states)} states/DC…\n")
-    print(f"  {'St':4s}  {'N':>5s}  {'Finalists':<40s}  Cond → IRV")
-    print(f"  {'-'*75}")
+    print(f"  {'St':4s}  {'N':>5s}  {'Cands':>5s}  {'Finalists':<42s}  Cond → IRV")
+    print(f"  {'-'*85}")
 
     for state_fips in all_states:
         mask       = inputstate == state_fips
         state_abbr = FIPS_TO_ABBR.get(int(state_fips), f"FIPS{state_fips}")
-        n_resp     = mask.sum()
+        n_resp     = int(mask.sum())
 
         if n_resp < MIN_RESPONDENTS:
             print(f"  {state_abbr:4s}  SKIPPED (N={n_resp})")
             continue
 
-        state_ballots = ballots_arr[mask]
-        state_weights = weights[mask]
+        # Build state-specific candidate pool from cluster shares
+        if int(state_fips) in state_profiles.index:
+            row_shares = state_profiles.loc[int(state_fips)]
+            cluster_shares = {f"prob_cluster_{k}": float(row_shares.get(f"prob_cluster_{k}", 0.0))
+                              for k in range(10)}
+        else:
+            # Fallback: give every party a token presence (1 candidate each)
+            cluster_shares = {f"prob_cluster_{k}": 0.05 for k in range(10)}
+
+        candidates = build_state_candidates(cluster_shares)
+        cand_codes = [c["code"] for c in candidates]
+        n_cands    = len(candidates)
+
+        # Generate state-specific ballots
+        state_voter_factors = voter_factors[mask]
+        state_weights       = weights[mask]
+        scores              = compute_candidate_scores(state_voter_factors, cluster_centroids, candidates)
+        state_ballots       = generate_ballots(scores, rng, candidates)
 
         # STV → finalists
-        finalists = winnow_stv(state_ballots, state_weights,
-                               set(CAND_CODES), STV_SURVIVORS)
+        n_survivors = min(STV_SURVIVORS, n_cands)
+        finalists     = winnow_stv(state_ballots, state_weights, set(cand_codes), n_survivors)
         finalist_list = sorted(finalists)
 
         # Ranked Pairs
@@ -324,61 +468,109 @@ def main():
             cond_winner = finalist_list[0] if finalist_list else "none"
             matchups    = []
         else:
-            raw_matchups              = build_matchups(state_ballots, state_weights, finalist_list)
-            cond_winner, matchups     = ranked_pairs_winner(raw_matchups, finalist_list)
+            raw_matchups          = build_matchups(state_ballots, state_weights, finalist_list)
+            cond_winner, matchups = ranked_pairs_winner(raw_matchups, finalist_list)
 
         # IRV
         irv_win = irv_winner(state_ballots, state_weights, finalist_list)
 
-        # Matchups — annotate with state
         for m in matchups:
             m["state_fips"] = int(state_fips)
             m["state_abbr"] = state_abbr
         all_condorcet.extend(matchups)
 
-        # Composition rows
         comp_rows_cond.append(
             make_comp_row(state_fips, state_abbr, cond_winner,
-                          finalist_list, state_ballots, state_weights)
+                          finalist_list, state_ballots, state_weights, candidates)
         )
         comp_rows_irv.append(
             make_comp_row(state_fips, state_abbr, irv_win,
-                          finalist_list, state_ballots, state_weights)
+                          finalist_list, state_ballots, state_weights, candidates)
+        )
+
+        # ── Prob-cluster scoring variant ───────────────────────────────────────
+        state_prob_matrix  = prob_matrix[mask]
+        prob_scores        = compute_candidate_scores_prob(state_prob_matrix, candidates)
+        prob_ballots       = generate_ballots(prob_scores, rng_prob, candidates)
+
+        prob_finalists     = winnow_stv(prob_ballots, state_weights, set(cand_codes), n_survivors)
+        prob_finalist_list = sorted(prob_finalists)
+
+        if len(prob_finalist_list) < 2:
+            prob_cond_winner = prob_finalist_list[0] if prob_finalist_list else "none"
+            prob_matchups    = []
+        else:
+            prob_raw_matchups               = build_matchups(prob_ballots, state_weights, prob_finalist_list)
+            prob_cond_winner, prob_matchups = ranked_pairs_winner(prob_raw_matchups, prob_finalist_list)
+
+        prob_irv_win = irv_winner(prob_ballots, state_weights, prob_finalist_list)
+
+        for m in prob_matchups:
+            m["state_fips"] = int(state_fips)
+            m["state_abbr"] = state_abbr
+        all_condorcet_prob.extend(prob_matchups)
+
+        comp_rows_cond_prob.append(
+            make_comp_row(state_fips, state_abbr, prob_cond_winner,
+                          prob_finalist_list, prob_ballots, state_weights, candidates)
+        )
+        comp_rows_irv_prob.append(
+            make_comp_row(state_fips, state_abbr, prob_irv_win,
+                          prob_finalist_list, prob_ballots, state_weights, candidates)
         )
 
         finalists_str = ", ".join(finalist_list)
-        if len(finalists_str) > 40:
-            finalists_str = finalists_str[:37] + "…"
-        print(f"  {state_abbr:4s}  {n_resp:>5d}  {finalists_str:<40s}  "
-              f"{cond_winner} → {irv_win}")
+        if len(finalists_str) > 42:
+            finalists_str = finalists_str[:39] + "…"
+        print(f"  {state_abbr:4s}  {n_resp:>5d}  {n_cands:>5d}  {finalists_str:<42s}  "
+              f"Gauss: {cond_winner}→{irv_win}  Prob: {prob_cond_winner}→{prob_irv_win}")
 
     # ── Save outputs ──────────────────────────────────────────────────────────
     print(f"\nSaving to {OUTPUT_DIR} …")
 
+    col_order = ["state_fips", "state_abbr", "candidate_a", "candidate_b",
+                 "votes_a_beats_b", "votes_b_beats_a",
+                 "margin", "margin_pct", "locked", "lock_order", "rp_winner_overall"]
+
+    # ── Prob-scoring: canonical outputs ───────────────────────────────────────
+    cond_df_prob = pd.DataFrame(comp_rows_cond_prob).sort_values("state_fips").reset_index(drop=True)
+    irv_df_prob  = pd.DataFrame(comp_rows_irv_prob).sort_values("state_fips").reset_index(drop=True)
+
+    cond_df_prob.to_csv(OUTPUT_DIR / "senate_composition.csv", index=False)
+    irv_df_prob.to_csv(OUTPUT_DIR / "senate_irv_composition.csv", index=False)
+    print(f"  senate_composition.csv (prob):       {len(cond_df_prob)} rows")
+    print(f"  senate_irv_composition.csv (prob):   {len(irv_df_prob)} rows")
+
+    if all_condorcet_prob:
+        cond_results_prob_df = pd.DataFrame(all_condorcet_prob)
+        cond_results_prob_df = cond_results_prob_df[[c for c in col_order if c in cond_results_prob_df.columns]]
+        cond_results_prob_df.to_csv(OUTPUT_DIR / "senate_condorcet_results.csv", index=False)
+        print(f"  senate_condorcet_results.csv (prob): {len(cond_results_prob_df)} rows")
+
+    # ── Gaussian: reference outputs ────────────────────────────────────────────
     cond_df = pd.DataFrame(comp_rows_cond).sort_values("state_fips").reset_index(drop=True)
     irv_df  = pd.DataFrame(comp_rows_irv).sort_values("state_fips").reset_index(drop=True)
 
-    cond_df.to_csv(OUTPUT_DIR / "senate_composition.csv", index=False)
-    irv_df.to_csv(OUTPUT_DIR / "senate_irv_composition.csv", index=False)
-    print(f"  senate_composition.csv:       {len(cond_df)} rows")
-    print(f"  senate_irv_composition.csv:   {len(irv_df)} rows")
+    cond_df.to_csv(OUTPUT_DIR / "senate_composition_gauss.csv", index=False)
+    irv_df.to_csv(OUTPUT_DIR / "senate_irv_composition_gauss.csv", index=False)
+    print(f"  senate_composition_gauss.csv:        {len(cond_df)} rows")
+    print(f"  senate_irv_composition_gauss.csv:    {len(irv_df)} rows")
 
     if all_condorcet:
         cond_results_df = pd.DataFrame(all_condorcet)
-        cond_col_order  = ["state_fips", "state_abbr", "candidate_a", "candidate_b",
-                           "votes_a_beats_b", "votes_b_beats_a",
-                           "margin", "margin_pct", "locked", "lock_order", "rp_winner_overall"]
-        cond_results_df = cond_results_df[[c for c in cond_col_order if c in cond_results_df.columns]]
-        cond_results_df.to_csv(OUTPUT_DIR / "senate_condorcet_results.csv", index=False)
-        print(f"  senate_condorcet_results.csv: {len(cond_results_df)} rows")
+        cond_results_df = cond_results_df[[c for c in col_order if c in cond_results_df.columns]]
+        cond_results_df.to_csv(OUTPUT_DIR / "senate_condorcet_results_gauss.csv", index=False)
+        print(f"  senate_condorcet_results_gauss.csv:  {len(cond_results_df)} rows")
 
     # ── National summary ──────────────────────────────────────────────────────
-    for label, df in [("CONDORCET", cond_df), ("IRV", irv_df)]:
+    for label, df in [("CONDORCET (prob — canonical)", cond_df_prob),
+                      ("IRV (prob — canonical)", irv_df_prob),
+                      ("CONDORCET (gauss — reference)", cond_df),
+                      ("IRV (gauss — reference)", irv_df)]:
         print(f"\n{'='*55}")
         print(f"NATIONAL SENATE  ({label})  —  {len(df)} states")
         print(f"{'='*55}")
 
-        # By individual senator code
         code_counts  = df["senator_code"].value_counts()
         party_counts = df["senator_party"].value_counts()
         total        = len(df)

@@ -123,8 +123,9 @@ def run_condorcet(ballots: np.ndarray, weights: np.ndarray,
                     elif code == b: b_pos = rank
                 if a_pos < b_pos:
                     votes_a += w
-                else:
+                elif b_pos < a_pos:
                     votes_b += w
+                # else: absent from ballot — skip (exhausted)
             total      = votes_a + votes_b
             winner     = a if votes_a > votes_b else b
             margin     = abs(votes_a - votes_b)

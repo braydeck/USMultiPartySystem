@@ -10,6 +10,7 @@ import { CompareTab } from './tabs/CompareTab';
 
 import senateVoteModelData from './data/senateVoteModel.json';
 import houseSeatsData from './data/houseSeats.json';
+import houseSeatsProbBasedData from './data/houseSeatsProbBased.json';
 import houseVoteModelData from './data/houseVoteModel.json';
 import houseStateMapData from './data/houseStateMap.json';
 import coalitionProfilesData from './data/coalitionProfiles.json';
@@ -119,6 +120,7 @@ export default function App() {
         {tab === 'house' && (
           <HouseTab
             seats={houseSeatsData as HouseSeat[]}
+            seatsProbBased={houseSeatsProbBasedData as HouseSeat[]}
             coalitions={coalitionProfilesData as CoalitionProfile[]}
             transfers={transferMatrixData as unknown as TransferMatrix}
             voteModel={houseVoteModelData as VoteModelRow[]}
@@ -131,6 +133,8 @@ export default function App() {
           <LegislationTab
             houseVotes={houseVoteModelData as VoteModelRow[]}
             senateVotes={senateVoteModelData as VoteModelRow[]}
+            fdElection={fdPresidentialElectionData as unknown as PresidentialElection}
+            rawMultiElection={rawMultiPresidentialElectionData as unknown as PresidentialElection}
           />
         )}
         {tab === 'compare' && (
@@ -152,7 +156,7 @@ export default function App() {
       </main>
 
       <footer className="border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
-        Built on CES 2024 survey data · 10-party STV simulation · 873 House seats · 50 Senate seats
+        Built on CES 2024 survey data · 10-party STV simulation · 873 House seats · 51 Senate seats
       </footer>
     </div>
   );

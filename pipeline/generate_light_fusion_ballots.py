@@ -27,7 +27,8 @@ OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "light_fusion"
 PROB_COLS   = [f"prob_cluster_{k}" for k in range(10)]
 FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 
-POSITIONAL_SIGMA = 1.5
+POSITIONAL_SIGMA = 0.35
+FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",
@@ -112,7 +113,7 @@ def compute_candidate_scores(voter_factors: np.ndarray,
     """Gaussian proximity score: exp(-||voter - cand||² / (2σ²))."""
     cand_positions = np.stack([candidate_position(c, cluster_centroids) for c in CANDIDATES])
     diff    = voter_factors[:, None, :] - cand_positions[None, :, :]
-    dist_sq = (diff ** 2).sum(axis=2)
+    dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
     return np.exp(-dist_sq / (2.0 * sigma ** 2))
 
 

@@ -2,7 +2,7 @@
 """
 run_pure_multi_presidential.py
 -------------------------------
-Presidential general election for the 21-candidate Raw Multi pipeline.
+Presidential general election for the 27-candidate Raw Multi pipeline.
 
 Reads finalists dynamically from the primary output (After_Pod_BD, surviving),
 then runs national IRV, per-state IRV, and Ranked Pairs (Condorcet) using the
@@ -40,7 +40,7 @@ FIPS_TO_ABBR = {
 
 def extract_finalist_ballots(ballots_arr: np.ndarray, finalist_set: set,
                               n_finalists: int) -> np.ndarray:
-    """Project full 21-candidate ballots to finalist-only ordering."""
+    """Project full ballots to finalist-only ordering."""
     N = len(ballots_arr)
     out = np.empty((N, n_finalists), dtype=object)
     for i in range(N):
@@ -188,7 +188,7 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     print("=" * 65)
-    print("RAW MULTI PRESIDENTIAL GENERAL  —  21-candidate pool")
+    print("RAW MULTI PRESIDENTIAL GENERAL  —  27-candidate pool")
     print("=" * 65)
 
     # Load finalists from primary output
@@ -207,7 +207,7 @@ def main():
     ballots_df  = pd.read_csv(BALLOTS_PATH, index_col="respondent_id")
     efa         = pd.read_csv(EFA_PATH)
     N           = len(ballots_df)
-    rank_cols   = [f"rank_{k+1}" for k in range(21)]
+    rank_cols   = [f for f in ballots_df.columns if f.startswith("rank_")]
     ballots_arr = ballots_df[rank_cols].values
     weights     = efa["commonpostweight"].values.astype(float)
     state_fips  = efa["inputstate"].values.astype(int)

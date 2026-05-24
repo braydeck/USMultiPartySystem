@@ -10,7 +10,8 @@ interface Props {
 
 export function IRVRoundsChart({ rounds, irvWinner }: Props) {
   const [selectedRound, setSelectedRound] = useState(rounds.length - 1);
-  const round = rounds[selectedRound];
+  const safeSelected = Math.min(selectedRound, rounds.length - 1);
+  const round = rounds[safeSelected];
 
   const data = [...round.candidates].sort((a, b) => b.pct - a.pct);
 

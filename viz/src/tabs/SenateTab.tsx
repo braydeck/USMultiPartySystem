@@ -22,7 +22,7 @@ interface Props {
 export function SenateTab({ condorcetFD, irvFD,
                              condorcetRawMulti, irvRawMulti,
                              voteModel, clusters, fdProfiles }: Props) {
-  const [pipeline, setPipeline] = useState<'factorDev' | 'rawMulti'>('factorDev');
+  const [pipeline, setPipeline] = useState<'factorDev' | 'rawMulti'>('rawMulti');
   const [method, setMethod] = useState<'condorcet' | 'irv'>('condorcet');
   const [parliamentFactor, setParliamentFactor] = useState('F5');
 
@@ -128,7 +128,7 @@ export function SenateTab({ condorcetFD, irvFD,
         <h2 className="text-2xl font-bold text-slate-900 mb-1">Senate</h2>
         <p className="text-slate-500 text-sm">
           State-level senate simulation. Factor Dev uses 71 axis-deviation candidates;
-          Raw Multi uses 21 intra-party candidates. Condorcet selects the head-to-head
+          Raw Multi uses 27 intra-party candidates. Condorcet selects the head-to-head
           winner; IRV uses instant runoff elimination.
         </p>
       </div>
@@ -137,7 +137,7 @@ export function SenateTab({ condorcetFD, irvFD,
         <div className="flex flex-col gap-1">
           <span className="text-xs text-slate-400 uppercase tracking-widest">Scenario</span>
           <div className="flex gap-1">
-            {(['factorDev', 'rawMulti'] as const).map(p => (
+            {(['rawMulti', 'factorDev'] as const).map(p => (
               <button
                 key={p}
                 onClick={() => setPipeline(p)}
@@ -206,9 +206,11 @@ export function SenateTab({ condorcetFD, irvFD,
       <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
         {miniCardCodes.map(code => {
           const fdKP = fdProfiles[code]?.keyPositions?.slice(0, 2);
+          const baseCode = code.split('_')[0];
+          const clusterKP = (clusterByParty[code] ?? clusterByParty[baseCode])?.keyPositions?.slice(0, 2);
           const positions = fdKP
             ? fdKP.map(p => ({ question: p.question, pct: p.value, direction: (p.diff > 0 ? 'supports' : 'opposes') as 'supports' | 'opposes', diffPp: p.diff }))
-            : clusterByParty[code]?.keyPositions?.slice(0, 2);
+            : clusterKP;
           return (
             <MiniPartyCard
               key={code}

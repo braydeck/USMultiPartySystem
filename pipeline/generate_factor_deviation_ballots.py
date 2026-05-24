@@ -25,10 +25,18 @@ from pathlib import Path
 BASE_DIR        = Path(__file__).parent.parent
 CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
+TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation"
 
 # Voter factor score columns — raw (not residualized); same space as candidate centroids
 VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+PROB_COLS         = [f"prob_cluster_{k}" for k in range(10)]
+
+# Party → cluster index (C7/BLB excluded)
+PARTY_CLUSTER = {
+    "CON": 0, "SD": 1, "STY": 2, "NAT": 3, "LIB": 4,
+    "REF": 5, "CTR": 6, "DSA": 8, "PRG": 9,
+}
 
 # Corresponding columns in the candidate CSV
 CAND_FACTOR_COLS = [
@@ -54,15 +62,35 @@ FIPS_TO_ABBR = {
 }
 
 
+def compute_candidate_scores_hybrid(voter_factors: np.ndarray,
+                                    prob_matrix:   np.ndarray,
+                                    cand_positions: np.ndarray,
+                                    cand_clusters:  np.ndarray,
+                                    sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
+    """Hybrid scorer: prob_cluster_k × Gaussian proximity.
+
+    Cross-party ordering is driven by the voter's soft cluster membership
+    (prob_cluster_k), replacing centroid-snapping. Within-party variant
+    ordering is still driven by Gaussian proximity to each variant's actual
+    factor position, preserving the FD experiment's positional differentiation.
+
+    voter_factors:  (N, 5)
+    prob_matrix:    (N, 10)  — soft cluster membership probabilities
+    cand_positions: (C, 5)   — each FD candidate's factor position
+    cand_clusters:  (C,)     — base party cluster index per candidate
+    Returns:        (N, C)
+    """
+    diff    = voter_factors[:, None, :] - cand_positions[None, :, :]   # (N, C, 5)
+    dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)               # (N, C)
+    gaussian = np.exp(-dist_sq / (2.0 * sigma ** 2))                   # (N, C)
+    prob     = prob_matrix[:, cand_clusters]                            # (N, C)
+    return prob * gaussian
+
+
 def compute_candidate_scores(voter_factors: np.ndarray,
                               cand_positions: np.ndarray,
                               sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
-    """Gaussian proximity score: exp(-||voter - cand||² / (2σ²)).
-
-    voter_factors:  (N, 5)
-    cand_positions: (C, 5)
-    Returns:        (N, C)
-    """
+    """Gaussian-only scorer. Kept for reference; canonical pipeline uses hybrid."""
     diff    = voter_factors[:, None, :] - cand_positions[None, :, :]
     dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
     return np.exp(-dist_sq / (2.0 * sigma ** 2))
@@ -141,7 +169,7 @@ def main():
         vals = cand_positions[:, i]
         print(f"    {col:<35}  min={vals.min():+.4f}  max={vals.max():+.4f}")
 
-    # ── Load voter factor scores ──────────────────────────────────────────────
+    # ── Load voter factor scores + typology ──────────────────────────────────
     print(f"\n{thin}")
     print("Loading EFA factor scores…")
     efa           = pd.read_csv(EFA_SCORES_PATH)
@@ -150,12 +178,19 @@ def main():
     inputstate    = efa["inputstate"].values
     N             = len(efa)
     print(f"  {N:,} respondents  |  total weight: {weights.sum():,.1f}")
-    print(f"  NaN in voter factors: {np.isnan(voter_factors).sum()}")
 
-    # ── Compute proximity scores ──────────────────────────────────────────────
+    print("Loading typology cluster probabilities…")
+    typology    = pd.read_csv(TYPOLOGY_PATH)
+    assert len(typology) == N, f"Row mismatch: typology={len(typology)}, efa={N}"
+    prob_matrix = typology[PROB_COLS].values.astype(np.float64)
+
+    # Map each FD candidate to its base party cluster index
+    cand_clusters = cand_df["party"].map(PARTY_CLUSTER).values.astype(int)
+
+    # ── Compute hybrid scores ─────────────────────────────────────────────────
     print(f"\n{thin}")
-    print(f"Computing candidate scores (Gaussian, σ={POSITIONAL_SIGMA})…")
-    scores = compute_candidate_scores(voter_factors, cand_positions)
+    print(f"Computing candidate scores (hybrid: prob × Gaussian, σ={POSITIONAL_SIGMA})…")
+    scores = compute_candidate_scores_hybrid(voter_factors, prob_matrix, cand_positions, cand_clusters)
     print(f"  Scores shape: {scores.shape}")
     print(f"  Score range:  min={scores.min():.6f}  max={scores.max():.6f}  mean={scores.mean():.6f}")
 
