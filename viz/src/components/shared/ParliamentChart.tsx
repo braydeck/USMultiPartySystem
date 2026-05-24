@@ -99,6 +99,23 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
       .map((f, i) => zoneHasSeats[i] ? { label: CAT_LABELS[i], midFrac: (f + zoneEdges[i + 1]) / 2 } : null)
       .filter(Boolean) as { label: string; midFrac: number }[];
 
+    // Guarantee at least one dot for every segment with seats.
+    // Small segments (< 1 dot-width of the arc) can be skipped by the
+    // evenly-spaced loop above; add a single dot at their arc midpoint
+    // on the outermost ring so they always appear in the chart.
+    const outerRingR = INNER_R + RING_GAP * (nRings - 1);
+    for (const cf of cumFracs) {
+      if (cf.end - cf.start > 0 && !groupedDots[cf.code]?.length) {
+        const midFrac = (cf.start + cf.end) / 2;
+        const angle = Math.PI - midFrac * Math.PI;
+        if (!groupedDots[cf.code]) groupedDots[cf.code] = [];
+        groupedDots[cf.code].push({
+          cx: outerRingR * Math.cos(angle),
+          cy: -outerRingR * Math.sin(angle),
+        });
+      }
+    }
+
     return { groupedDots, nRings, dotSize, dividers, catMidFracs };
   }, [segments]);
 

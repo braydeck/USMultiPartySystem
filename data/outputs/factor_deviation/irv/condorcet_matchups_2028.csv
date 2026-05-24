@@ -1,0 +1,11 @@
+candidate_a,candidate_b,votes_a_beats_b,votes_b_beats_a,winner,margin,margin_pct,condorcet_winner
+CON_lo_pc,CTR_lo_pc,20840.8479,24790.2944,CTR_lo_pc,3949.4464,8.655,CTR_lo_pc
+CON_lo_pc,PRG,29864.1935,15766.9488,CON_lo_pc,14097.2447,30.894,CTR_lo_pc
+CON_lo_pc,REF_lo_ae,29228.403,16402.7393,CON_lo_pc,12825.6637,28.107,CTR_lo_pc
+CON_lo_pc,SD_hi_ae,23169.6293,22461.5129,CON_lo_pc,708.1164,1.552,CTR_lo_pc
+CTR_lo_pc,PRG,32283.946,13347.1963,CTR_lo_pc,18936.7497,41.5,CTR_lo_pc
+CTR_lo_pc,REF_lo_ae,28864.0226,16767.1196,CTR_lo_pc,12096.903,26.51,CTR_lo_pc
+CTR_lo_pc,SD_hi_ae,24447.6857,21183.4566,CTR_lo_pc,3264.2292,7.154,CTR_lo_pc
+PRG,REF_lo_ae,19354.0549,26277.0874,REF_lo_ae,6923.0325,15.172,CTR_lo_pc
+PRG,SD_hi_ae,10058.0715,35573.0708,SD_hi_ae,25514.9994,55.916,CTR_lo_pc
+REF_lo_ae,SD_hi_ae,18799.2701,26831.8721,SD_hi_ae,8032.602,17.603,CTR_lo_pc

@@ -1,43 +1,41 @@
 import { useState, useMemo } from 'react';
-import type { SenateSeat, VoteModelRow, SenateScenario, BlendProfile, ConstellationNode } from '../types';
+import type { SenateSeat, VoteModelRow, SenateScenario, ClusterProfile, ConstellationNode, FDSenateSeat, FDHouseSeat, FDCandidateProfile } from '../types';
 import { SenateMap } from '../components/senate/SenateMap';
 import { VoteModelTable } from '../components/senate/VoteModelTable';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { MiniPartyCard } from '../components/shared/MiniPartyCard';
 import { ParliamentChart } from '../components/shared/ParliamentChart';
+import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { FACTOR_LABELS } from '../constants/parties';
 
 interface Props {
-  condorcetMixed:     SenateSeat[];
-  irvMixed:           SenateSeat[];
-  condorcetPure:      SenateSeat[];
-  irvPure:            SenateSeat[];
-  condorcetLightFusion: SenateSeat[];
-  irvLightFusion:     SenateSeat[];
-  voteModel:          VoteModelRow[];
-  blendProfiles:      BlendProfile[];
+  condorcetFD:       FDSenateSeat[];
+  irvFD:             FDSenateSeat[];
+  condorcetRawMulti: FDSenateSeat[];
+  irvRawMulti:       FDSenateSeat[];
+  voteModel:         VoteModelRow[];
+  clusters:          ClusterProfile[];
+  fdProfiles:        Record<string, FDCandidateProfile>;
 }
 
-const SCENARIO_GROUPS = [
-  { label: 'Blended',      scenarios: ['condMixed', 'irvMixed']  as SenateScenario[] },
-  { label: 'Raw',          scenarios: ['condPure',  'irvPure']   as SenateScenario[] },
-  { label: 'Light Fusion', scenarios: ['condLF',    'irvLF']     as SenateScenario[] },
-];
-
-export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure,
-                             condorcetLightFusion, irvLightFusion,
-                             voteModel, blendProfiles }: Props) {
-  const [scenario, setScenario] = useState<SenateScenario>('condMixed');
+export function SenateTab({ condorcetFD, irvFD,
+                             condorcetRawMulti, irvRawMulti,
+                             voteModel, clusters, fdProfiles }: Props) {
+  const [pipeline, setPipeline] = useState<'factorDev' | 'rawMulti'>('factorDev');
+  const [method, setMethod] = useState<'condorcet' | 'irv'>('condorcet');
   const [parliamentFactor, setParliamentFactor] = useState('F5');
 
+  const scenario: SenateScenario =
+    pipeline === 'factorDev'
+      ? (method === 'condorcet' ? 'condFD' : 'irvFD')
+      : (method === 'condorcet' ? 'condRawMulti' : 'irvRawMulti');
+
   const SEAT_MAP: Record<SenateScenario, SenateSeat[]> = {
-    condMixed: condorcetMixed,
-    irvMixed,
-    condPure:  condorcetPure,
-    irvPure,
-    condLF:    condorcetLightFusion,
-    irvLF:     irvLightFusion,
+    condFD:       condorcetFD        as unknown as SenateSeat[],
+    irvFD:        irvFD              as unknown as SenateSeat[],
+    condRawMulti: condorcetRawMulti  as unknown as SenateSeat[],
+    irvRawMulti:  irvRawMulti        as unknown as SenateSeat[],
   };
   const activeSeats = SEAT_MAP[scenario];
 
@@ -50,63 +48,128 @@ export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure,
     .sort((a, b) => b[1] - a[1])
     .map(([code]) => code);
 
-  // Global factor range across all blend profiles — stable category labels regardless of scenario
-  const globalRange = useMemo((): [number, number] => {
-    const vals = blendProfiles.map(p => (p as unknown as Record<string, number>)[parliamentFactor] ?? 0);
-    return [Math.min(...vals), Math.max(...vals)];
-  }, [blendProfiles, parliamentFactor]);
+  // Factor score lookup: FD codes from fdProfiles, party codes from clusters,
+  // raw multi codes (e.g. "CTR_1") by stripping the _N suffix to get base party.
+  const clusterByParty = useMemo(
+    () => Object.fromEntries(clusters.map(c => [c.party, c])),
+    [clusters]
+  );
+  function getFactorScore(code: string, factor: string): number {
+    const fd = fdProfiles[code];
+    if (fd) return (fd as unknown as Record<string, number>)[factor] ?? 0;
+    const cl = clusterByParty[code];
+    if (cl) return (cl as unknown as Record<string, number>)[factor] ?? 0;
+    // Raw multi codes: "CTR_1" → base party "CTR"
+    const base = code.split('_')[0];
+    const baseCl = clusterByParty[base];
+    if (baseCl) return (baseCl as unknown as Record<string, number>)[factor] ?? 0;
+    return 0;
+  }
 
-  // Derive parliament chart segments
-  const blendByCode = Object.fromEntries(blendProfiles.map(p => [p.code, p]));
+  // Global factor range — union of all clusters + all fdProfiles for stable absolute ordering
+  const globalRange = useMemo((): [number, number] => {
+    const vals = [
+      ...clusters.map(c => (c as unknown as Record<string, number>)[parliamentFactor] ?? 0),
+      ...Object.values(fdProfiles).map(p => (p as unknown as Record<string, number>)[parliamentFactor] ?? 0),
+    ];
+    return vals.length > 0 ? [Math.min(...vals), Math.max(...vals)] : [-2, 2];
+  }, [clusters, fdProfiles, parliamentFactor]);
+
+  // Parliament chart segments — absolute factor scores; tiny epsilon offset for _N
+  // variants ensures same-party multi-candidates occupy distinct arc positions.
   const parliamentSegments: ParliamentSegment[] = Object.entries(seatCounts)
     .map(([code, seats]) => {
-      const bp = blendByCode[code];
-      const fVal = (bp as unknown as Record<string, number>)?.[parliamentFactor] ?? 0;
-      return { code, seats, fVal };
+      const base = getFactorScore(code, parliamentFactor);
+      const nSuffix = parseInt(code.split('_').pop() ?? '') || 0;
+      return { code, seats, fVal: base + (nSuffix > 0 ? (nSuffix - 1) * 0.001 : 0) };
     })
     .sort((a, b) => a.fVal - b.fVal);
+
+  // Variant seat data for PartyVariantBar (FD and Raw Multi scenarios)
+  const fdVariantSeats = useMemo((): FDHouseSeat[] => {
+    const multiScenarios: SenateScenario[] = ['condFD', 'irvFD', 'condRawMulti', 'irvRawMulti'];
+    if (!multiScenarios.includes(scenario)) return [];
+    const fdSeats =
+      scenario === 'condFD'       ? condorcetFD :
+      scenario === 'irvFD'        ? irvFD :
+      scenario === 'condRawMulti' ? condorcetRawMulti :
+                                    irvRawMulti;
+    const countByCode: Record<string, FDHouseSeat> = {};
+    for (const seat of fdSeats) {
+      const key = seat.senatorCode;
+      if (!countByCode[key]) {
+        countByCode[key] = {
+          code: seat.senatorCode,
+          party: seat.senatorParty,
+          axis: seat.senatorAxis,
+          direction: seat.senatorDir,
+          urban: 0, suburban: 0, rural: 0,
+          national: 0, pctNational: 0,
+        };
+      }
+      countByCode[key].national += 1;
+    }
+    return Object.values(countByCode);
+  }, [condorcetFD, irvFD, condorcetRawMulti, irvRawMulti, scenario]);
+
   const constellationNodes: ConstellationNode[] = Object.entries(seatCounts)
-    .map(([code, seats]) => {
-      const bp = blendByCode[code];
-      return {
-        id: code, label: code, seats,
-        F1: bp?.F1 ?? 0, F2: bp?.F2 ?? 0, F3: bp?.F3 ?? 0,
-        F4: bp?.F4 ?? 0, F5: bp?.F5 ?? 0,
-      };
-    });
+    .map(([code, seats]) => ({
+      id: code, label: code, seats,
+      F1: getFactorScore(code, 'F1'),
+      F2: getFactorScore(code, 'F2'),
+      F3: getFactorScore(code, 'F3'),
+      F4: getFactorScore(code, 'F4'),
+      F5: getFactorScore(code, 'F5'),
+    }));
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">Senate</h2>
         <p className="text-slate-500 text-sm">
-          State-level senate simulation. Blended scenarios include coalition candidates;
-          raw scenarios use only the 9 core party types. Condorcet selects the head-to-head
+          State-level senate simulation. Factor Dev uses 71 axis-deviation candidates;
+          Raw Multi uses 21 intra-party candidates. Condorcet selects the head-to-head
           winner; IRV uses instant runoff elimination.
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        {SCENARIO_GROUPS.map(group => (
-          <div key={group.label} className="flex flex-col gap-1">
-            <span className="text-xs text-slate-400 uppercase tracking-widest">{group.label}</span>
-            <div className="flex gap-1">
-              {group.scenarios.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setScenario(s)}
-                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    scenario === s
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                  }`}
-                >
-                  {s.startsWith('cond') ? 'Condorcet' : 'IRV'}
-                </button>
-              ))}
-            </div>
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-slate-400 uppercase tracking-widest">Scenario</span>
+          <div className="flex gap-1">
+            {(['factorDev', 'rawMulti'] as const).map(p => (
+              <button
+                key={p}
+                onClick={() => setPipeline(p)}
+                className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                  pipeline === p
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                }`}
+              >
+                {p === 'factorDev' ? 'Factor Dev' : 'Raw Multi'}
+              </button>
+            ))}
           </div>
-        ))}
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-slate-400 uppercase tracking-widest">Method</span>
+          <div className="flex gap-1">
+            {(['condorcet', 'irv'] as const).map(m => (
+              <button
+                key={m}
+                onClick={() => setMethod(m)}
+                className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                  method === m
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                }`}
+              >
+                {m === 'condorcet' ? 'Condorcet' : 'IRV'}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Parliament fan chart replaces SeatSummary */}
@@ -141,15 +204,34 @@ export function SenateTab({ condorcetMixed, irvMixed, condorcetPure, irvPure,
 
       {/* Mini party cards below map */}
       <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
-        {miniCardCodes.map(code => (
-          <MiniPartyCard
-            key={code}
-            code={code}
-            seats={seatCounts[code]}
-            positions={blendByCode[code]?.keyPositions?.slice(0, 2)}
-          />
-        ))}
+        {miniCardCodes.map(code => {
+          const fdKP = fdProfiles[code]?.keyPositions?.slice(0, 2);
+          const positions = fdKP
+            ? fdKP.map(p => ({ question: p.question, pct: p.value, direction: (p.diff > 0 ? 'supports' : 'opposes') as 'supports' | 'opposes', diffPp: p.diff }))
+            : clusterByParty[code]?.keyPositions?.slice(0, 2);
+          return (
+            <MiniPartyCard
+              key={code}
+              code={code}
+              seats={seatCounts[code]}
+              positions={positions}
+            />
+          );
+        })}
       </div>
+
+      {/* Factor Dev variant bar — visible for FD scenarios */}
+      {fdVariantSeats.length > 0 && (
+        <div className="bg-white rounded-xl p-4 border border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            Senate Seats by Variant
+          </h3>
+          <p className="text-xs text-slate-500 mb-3">
+            Full color = base; lighter = hi axis deviation; darker = lo axis deviation.
+          </p>
+          <PartyVariantBar seats={fdVariantSeats} totalLabel="51 senate seats" />
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl p-4 border border-slate-200">

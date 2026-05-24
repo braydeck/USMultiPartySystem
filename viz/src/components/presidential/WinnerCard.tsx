@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import type { PresidentialElection, ClusterProfile, BlendProfile } from '../../types';
+import type { PresidentialElection, ClusterProfile, FDCandidateProfile } from '../../types';
 import { getBlendColor, PARTY_NAMES } from '../../constants/parties';
 
 interface Props {
   data: PresidentialElection;
   clusters: ClusterProfile[];
-  blendProfiles: BlendProfile[];
+  fdProfiles: Record<string, FDCandidateProfile>;
 }
 
 interface SharedDiff {
@@ -27,12 +27,18 @@ interface CandidateInfo {
 function getVariables(
   code: string,
   clusters: ClusterProfile[],
-  blendProfiles: BlendProfile[],
+  fdProfiles: Record<string, FDCandidateProfile>,
 ): Record<string, { pct: number; question: string }> {
   const cluster = clusters.find(c => c.party === code);
   if (cluster) return cluster.variables;
-  const bp = blendProfiles.find(p => p.code === code);
-  if (bp?.variables) return bp.variables;
+  const fd = fdProfiles[code];
+  if (fd?.variables) return fd.variables as Record<string, { pct: number; question: string }>;
+  // Raw Multi variant: strip _N suffix and retry (e.g. "SD_1" → "SD")
+  const baseCode = code.replace(/_\d+$/, '');
+  if (baseCode !== code) {
+    const baseCluster = clusters.find(c => c.party === baseCode);
+    if (baseCluster) return baseCluster.variables;
+  }
   return {};
 }
 
@@ -40,12 +46,12 @@ function computeSharedDiffs(
   codeA: string,
   codeB: string,
   clusters: ClusterProfile[],
-  blendProfiles: BlendProfile[],
+  fdProfiles: Record<string, FDCandidateProfile>,
   minGap = 25,
   maxResults = 6,
 ): SharedDiff[] {
-  const varsA = getVariables(codeA, clusters, blendProfiles);
-  const varsB = getVariables(codeB, clusters, blendProfiles);
+  const varsA = getVariables(codeA, clusters, fdProfiles);
+  const varsB = getVariables(codeB, clusters, fdProfiles);
   const diffs: SharedDiff[] = [];
   for (const [key, vA] of Object.entries(varsA)) {
     const vB = varsB[key];
@@ -63,12 +69,13 @@ function buildInfo(
   otherCode: string,
   data: PresidentialElection,
   clusters: ClusterProfile[],
-  blendProfiles: BlendProfile[],
+  fdProfiles: Record<string, FDCandidateProfile>,
   isFinalRound: boolean,
 ): CandidateInfo {
-  const cluster = clusters.find(c => c.party === code);
-  const bp = blendProfiles.find(p => p.code === code);
-  const partyName = cluster?.partyName ?? bp?.code ?? PARTY_NAMES[code] ?? code;
+  const cluster = clusters.find(c => c.party === code)
+               ?? clusters.find(c => c.party === code.replace(/_\d+$/, ''));
+  const fd = fdProfiles[code];
+  const partyName = cluster?.partyName ?? fd?.code ?? PARTY_NAMES[code] ?? code;
   const color = getBlendColor(code);
 
   const finalRound = data.irvRounds[data.irvRounds.length - 1];
@@ -187,14 +194,14 @@ function CandidateCard({
   );
 }
 
-export function WinnerCard({ data, clusters, blendProfiles }: Props) {
+export function WinnerCard({ data, clusters, fdProfiles }: Props) {
   const [minGap, setMinGap] = useState(25);
 
-  const irvInfo = buildInfo(data.irvWinner, data.condorcetWinner, data, clusters, blendProfiles, true);
-  const condInfo = buildInfo(data.condorcetWinner, data.irvWinner, data, clusters, blendProfiles, false);
+  const irvInfo = buildInfo(data.irvWinner, data.condorcetWinner, data, clusters, fdProfiles, true);
+  const condInfo = buildInfo(data.condorcetWinner, data.irvWinner, data, clusters, fdProfiles, false);
 
   // Compute cross-candidate diffs (pctA = IRV winner, pctB = Condorcet winner)
-  const sharedDiffs = computeSharedDiffs(data.irvWinner, data.condorcetWinner, clusters, blendProfiles, minGap);
+  const sharedDiffs = computeSharedDiffs(data.irvWinner, data.condorcetWinner, clusters, fdProfiles, minGap);
 
   const sameWinner = data.irvWinner === data.condorcetWinner;
 

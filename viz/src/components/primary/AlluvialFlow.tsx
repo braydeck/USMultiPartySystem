@@ -12,7 +12,7 @@ interface AlluvialLink {
   source: string;
   target: string;
   value: number;
-  type?: string; // "continuation" | "elimination" | "surplus"
+  type?: string; // "continuation" | "elimination" | "surplus" | "exhausted"
 }
 
 interface AlluvialData {
@@ -127,6 +127,7 @@ export default function AlluvialFlow({ data, height = 540, highlightStage }: All
       color: string;
       opacity: number;
       isElimination: boolean;
+      isExhausted: boolean;
       sourceLabel: string;
       targetLabel: string;
       value: number;
@@ -174,13 +175,15 @@ export default function AlluvialFlow({ data, height = 540, highlightStage }: All
       ].join(' ');
 
       const isElim = link.type === 'elimination';
+      const isExhausted = link.type === 'exhausted';
       const color = getBlendColor(srcNode.label);
 
       ribbons.push({
         d,
         color,
-        opacity: isElim ? 0.55 : 0.35,
+        opacity: (isElim || isExhausted) ? 0.55 : 0.35,
         isElimination: isElim,
+        isExhausted,
         sourceLabel: srcNode.label,
         targetLabel: tgtNode.label,
         value: link.value,
@@ -202,12 +205,14 @@ export default function AlluvialFlow({ data, height = 540, highlightStage }: All
     });
   };
 
-  const handleRibbonHover = (e: React.MouseEvent, r: { sourceLabel: string; targetLabel: string; value: number; isElimination: boolean }) => {
+  const handleRibbonHover = (e: React.MouseEvent, r: { sourceLabel: string; targetLabel: string; value: number; isElimination: boolean; isExhausted: boolean }) => {
     const rect = svgRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const label = r.isElimination
-      ? `${r.sourceLabel} eliminated → ${r.targetLabel}`
-      : `${r.sourceLabel} continues`;
+    const label = r.isExhausted
+      ? `${r.sourceLabel} → exhausted (no next pref)`
+      : r.isElimination
+        ? `${r.sourceLabel} eliminated → ${r.targetLabel}`
+        : `${r.sourceLabel} continues`;
     setTooltip({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top - 10,

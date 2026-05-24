@@ -1,0 +1,394 @@
+#!/usr/bin/env python3
+"""
+run_fd_senate_simulation.py
+-----------------------------
+State-by-state senate simulation using 71 factor-deviation candidates.
+
+For each state:
+  1. Score all 71 FD candidates via Gaussian proximity (σ=1.5) against
+     each respondent's 5-D factor position
+  2. Generate Plackett-Luce ranked ballots
+  3. STV elimination → 5 finalists
+  4. Ranked Pairs Condorcet → 1 senator  (senate_composition.csv)
+  5. IRV → 1 senator  (senate_irv_composition.csv)
+
+Outputs to data/outputs/factor_deviation/senate/:
+  senate_composition.csv         — Condorcet winners per state
+  senate_irv_composition.csv     — IRV winners per state
+  senate_condorcet_results.csv   — Ranked Pairs matchup detail
+"""
+
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from itertools import combinations
+
+BASE_DIR        = Path(__file__).parent.parent
+EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
+CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
+OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation" / "senate"
+
+VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+CAND_FACTOR_COLS  = [
+    "F1_security_order", "F2_electoral_skepticism", "F3_government_distrust",
+    "F4_religious_traditionalism", "F5_populist_conservatism",
+]
+
+STV_SURVIVORS    = 5
+MIN_RESPONDENTS  = 10
+POSITIONAL_SIGMA = 0.35
+FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
+
+FIPS_TO_ABBR = {
+     1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",
+    10:"DE", 11:"DC", 12:"FL", 13:"GA", 15:"HI", 16:"ID", 17:"IL",
+    18:"IN", 19:"IA", 20:"KS", 21:"KY", 22:"LA", 23:"ME", 24:"MD",
+    25:"MA", 26:"MI", 27:"MN", 28:"MS", 29:"MO", 30:"MT", 31:"NE",
+    32:"NV", 33:"NH", 34:"NJ", 35:"NM", 36:"NY", 37:"NC", 38:"ND",
+    39:"OH", 40:"OK", 41:"OR", 42:"PA", 44:"RI", 45:"SC", 46:"SD",
+    47:"TN", 48:"TX", 49:"UT", 50:"VT", 51:"VA", 53:"WA", 54:"WV",
+    55:"WI", 56:"WY", 72:"PR",
+}
+
+
+# ── Ballot generation ────────────────────────────────────────────────────────
+
+def score_candidates(voter_factors: np.ndarray,
+                     cand_positions: np.ndarray,
+                     sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
+    diff = voter_factors[:, None, :] - cand_positions[None, :, :]
+    return np.exp(-((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2) / (2.0 * sigma ** 2))
+
+
+def generate_ballots(scores: np.ndarray,
+                     cand_codes: list,
+                     rng: np.random.Generator) -> np.ndarray:
+    N, M     = scores.shape
+    EPSILON  = 1e-10
+    ballots  = np.empty((N, M), dtype=object)
+    cand_arr = np.array(cand_codes, dtype=object)
+    for i in range(N):
+        probs  = scores[i] + EPSILON
+        probs /= probs.sum()
+        ballots[i] = cand_arr[rng.choice(M, size=M, replace=False, p=probs)]
+    return ballots
+
+
+# ── STV engine ───────────────────────────────────────────────────────────────
+
+def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarray:
+    N, M   = ballots_arr.shape
+    result = np.empty(N, dtype=object)
+    for i in range(N):
+        result[i] = "__exhausted__"
+        for j in range(M):
+            if ballots_arr[i, j] in active_set:
+                result[i] = ballots_arr[i, j]
+                break
+    return result
+
+
+def compute_vote_totals(fsc: np.ndarray, weights: np.ndarray, active_set: set) -> dict:
+    totals = {c: 0.0 for c in active_set}
+    for code, w in zip(fsc, weights):
+        if code in totals:
+            totals[code] += w
+    return totals
+
+
+def droop_quota(total_votes: float, n_survivors: int) -> float:
+    return total_votes / (n_survivors + 1) + 1
+
+
+def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
+               active_set: set, target: int) -> set:
+    active      = set(active_set)
+    ballot_wts  = weights.astype(float).copy()
+    total_votes = float(weights.sum())
+    quota       = droop_quota(total_votes, target)
+    elected: list = []
+
+    while len(elected) < target and active:
+        remaining = target - len(elected)
+        if len(active) <= remaining:
+            elected.extend(sorted(active))
+            active.clear()
+            break
+
+        fsc    = first_surviving_choice(ballots_arr, active)
+        totals = compute_vote_totals(fsc, ballot_wts, active)
+
+        over_quota = sorted(
+            [c for c in active if totals[c] >= quota],
+            key=lambda c: (-totals[c], c),
+        )
+        if over_quota:
+            winner         = over_quota[0]
+            surplus_factor = (totals[winner] - quota) / totals[winner]
+            elected.append(winner)
+            for i in range(len(fsc)):
+                if fsc[i] == winner:
+                    ballot_wts[i] *= surplus_factor
+            active.discard(winner)
+        else:
+            loser = min(active, key=lambda c: (totals[c], c))
+            active.discard(loser)
+
+    return set(elected)
+
+
+# ── Condorcet / Ranked Pairs ─────────────────────────────────────────────────
+
+def build_matchups(ballots_arr: np.ndarray, weights: np.ndarray,
+                   finalists: list) -> list:
+    M = ballots_arr.shape[1]
+    finalist_ranks = {}
+    for code in finalists:
+        ranks = np.full(len(ballots_arr), M + 1)
+        for j in range(M):
+            ranks[ballots_arr[:, j] == code] = j
+        finalist_ranks[code] = ranks
+
+    matchups = []
+    for a, b in combinations(finalists, 2):
+        ra, rb = finalist_ranks[a], finalist_ranks[b]
+        matchups.append({
+            "candidate_a":     a,
+            "candidate_b":     b,
+            "votes_a_beats_b": float(weights[ra < rb].sum()),
+            "votes_b_beats_a": float(weights[rb < ra].sum()),
+        })
+    return matchups
+
+
+def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
+    if not matchups or len(candidates) < 2:
+        return (candidates[0] if candidates else "none"), matchups
+
+    total_v = max(m["votes_a_beats_b"] + m["votes_b_beats_a"] for m in matchups)
+    defeats = []
+    for idx, m in enumerate(matchups):
+        a, b   = m["candidate_a"], m["candidate_b"]
+        va, vb = m["votes_a_beats_b"], m["votes_b_beats_a"]
+        w, l, margin = (a, b, va - vb) if va >= vb else (b, a, vb - va)
+        defeats.append({"winner": w, "loser": l, "margin": margin,
+                        "margin_pct": margin / total_v * 100 if total_v else 0,
+                        "orig_idx": idx})
+    defeats.sort(key=lambda x: (-x["margin"], x["winner"]))
+
+    def creates_cycle(locked, new_w, new_l):
+        reachable, frontier = set(), {new_l}
+        while frontier:
+            node = frontier.pop()
+            if node == new_w:
+                return True
+            if node in reachable:
+                continue
+            reachable.add(node)
+            for w, l in locked:
+                if w == node and l not in reachable:
+                    frontier.add(l)
+        return False
+
+    locked_edges, lock_meta = [], {d["orig_idx"]: {"lock_order": None, "locked": False}
+                                   for d in defeats}
+    for order, defeat in enumerate(defeats, start=1):
+        idx = defeat["orig_idx"]
+        lock_meta[idx]["lock_order"] = order
+        if not creates_cycle(locked_edges, defeat["winner"], defeat["loser"]):
+            locked_edges.append((defeat["winner"], defeat["loser"]))
+            lock_meta[idx]["locked"] = True
+
+    losers     = {l for _, l in locked_edges}
+    undefeated = [c for c in candidates if c not in losers]
+    rp_winner  = undefeated[0] if undefeated else "none"
+
+    for d in defeats:
+        idx = d["orig_idx"]
+        matchups[idx].update({
+            "margin":          round(d["margin"], 2),
+            "margin_pct":      round(d["margin_pct"], 4),
+            "lock_order":      lock_meta[idx]["lock_order"],
+            "locked":          lock_meta[idx]["locked"],
+            "rp_winner_overall": rp_winner,
+        })
+    return rp_winner, matchups
+
+
+# ── IRV ──────────────────────────────────────────────────────────────────────
+
+def run_irv(ballots_arr: np.ndarray, weights: np.ndarray,
+            candidates: list) -> str:
+    active  = set(candidates)
+    total_w = float(weights.sum())
+    while len(active) > 1:
+        fsc    = first_surviving_choice(ballots_arr, active)
+        totals = compute_vote_totals(fsc, weights, active)
+        if any(v > total_w / 2 for v in totals.values()):
+            break
+        loser = min(active, key=lambda c: (totals[c], c))
+        active.discard(loser)
+    if not active:
+        return "none"
+    fsc    = first_surviving_choice(ballots_arr, active)
+    totals = compute_vote_totals(fsc, weights, active)
+    return max(active, key=lambda c: totals.get(c, 0))
+
+
+# ── Main ─────────────────────────────────────────────────────────────────────
+
+def main():
+    rng = np.random.default_rng(42)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    sep  = "=" * 70
+    thin = "-" * 70
+
+    print(sep)
+    print("FD SENATE SIMULATION  —  71 factor-deviation candidates")
+    print(sep)
+
+    # ── Load data ─────────────────────────────────────────────────────────────
+    print("\nLoading EFA factor scores…")
+    efa           = pd.read_csv(EFA_SCORES_PATH)
+    voter_factors = efa[VOTER_FACTOR_COLS].values.astype(np.float64)
+    inputstate    = efa["inputstate"].values.astype(int)
+    weights       = efa["commonpostweight"].values.astype(np.float64)
+    print(f"  {len(efa):,} respondents")
+
+    print("Loading FD candidates…")
+    cand_df       = pd.read_csv(CANDIDATES_PATH)
+    cand_codes    = cand_df["candidate_code"].tolist()
+    cand_positions = cand_df[CAND_FACTOR_COLS].values.astype(np.float64)
+    cand_meta     = {row["candidate_code"]: {"party": row["party"], "axis": row["axis"],
+                                              "direction": row["direction"]}
+                     for _, row in cand_df.iterrows()}
+    M = len(cand_codes)
+    print(f"  {M} candidates across {cand_df['party'].nunique()} parties")
+
+    # ── State loop ────────────────────────────────────────────────────────────
+    all_states = sorted(np.unique(inputstate))
+    run_states = [s for s in all_states if s != 72]
+    print(f"\nRunning senate elections for {len(run_states)} states/DC…")
+    print(f"\n  {'St':<4}  {'N':>5}  {'Finalists (5)':<70}  Cond  IRV")
+    print(f"  {thin}")
+
+    all_condorcet:    list = []
+    cond_composition: list = []
+    irv_composition:  list = []
+
+    for state_fips in run_states:
+        mask          = inputstate == state_fips
+        state_factors = voter_factors[mask]
+        state_weights = weights[mask]
+        abbr          = FIPS_TO_ABBR.get(int(state_fips), f"FIPS{state_fips}")
+        N_state       = int(mask.sum())
+
+        if N_state < MIN_RESPONDENTS:
+            print(f"  {abbr:<4}  SKIPPED (N={N_state})")
+            continue
+
+        # Ballots
+        scores  = score_candidates(state_factors, cand_positions)
+        ballots = generate_ballots(scores, cand_codes, rng)
+
+        # STV → 5 finalists
+        target        = min(STV_SURVIVORS, M)
+        finalists     = winnow_stv(ballots, state_weights, set(cand_codes), target)
+        finalist_list = sorted(finalists)
+
+        # Condorcet / Ranked Pairs
+        if len(finalist_list) >= 2:
+            raw_matchups          = build_matchups(ballots, state_weights, finalist_list)
+            rp_winner, matchups   = ranked_pairs_winner(raw_matchups, finalist_list)
+        else:
+            rp_winner = finalist_list[0] if finalist_list else "none"
+            matchups  = []
+
+        # IRV from full ballots
+        irv_winner = run_irv(ballots, state_weights, cand_codes)
+
+        # Annotate matchups
+        for m in matchups:
+            m["state_fips"] = int(state_fips)
+            m["state_abbr"] = abbr
+        all_condorcet.extend(matchups)
+
+        # First-choice shares
+        fsc_full  = first_surviving_choice(ballots, set(cand_codes))
+        totals_fc = compute_vote_totals(fsc_full, state_weights, set(cand_codes))
+        total_w   = float(state_weights.sum())
+
+        base_row = {
+            "state_fips":                 int(state_fips),
+            "state_abbr":                 abbr,
+            "total_weighted_respondents": round(total_w, 2),
+            "n_finalists":                len(finalist_list),
+        }
+        for code in cand_codes:
+            base_row[f"fc_pct_{code}"] = round(totals_fc.get(code, 0.0) / total_w * 100, 3)
+
+        def winner_row(base, winner_code):
+            meta = cand_meta.get(winner_code, {"party": "?", "axis": "?", "direction": "?"})
+            return {**base,
+                    "senator_code":  winner_code,
+                    "senator_party": meta["party"],
+                    "senator_axis":  meta["axis"],
+                    "senator_dir":   meta["direction"]}
+
+        cond_composition.append(winner_row(base_row, rp_winner))
+        irv_composition.append(winner_row(base_row, irv_winner))
+
+        fin_str = ", ".join(finalist_list)
+        if len(fin_str) > 70:
+            fin_str = fin_str[:67] + "…"
+        print(f"  {abbr:<4}  {N_state:>5d}  {fin_str:<70}  {rp_winner:<22}  {irv_winner}")
+
+    # ── Save outputs ──────────────────────────────────────────────────────────
+    print(f"\nSaving to {OUTPUT_DIR.relative_to(BASE_DIR)} …")
+
+    base_cols = ["state_fips", "state_abbr", "senator_code", "senator_party",
+                 "senator_axis", "senator_dir", "total_weighted_respondents", "n_finalists"]
+    fc_cols   = sorted(c for c in cond_composition[0] if c.startswith("fc_pct_"))
+
+    cond_df = pd.DataFrame(cond_composition).sort_values("state_fips")
+    cond_df = cond_df[base_cols + fc_cols]
+    cond_df.to_csv(OUTPUT_DIR / "senate_composition.csv", index=False)
+    print(f"  senate_composition.csv:       {len(cond_df)} rows")
+
+    irv_df = pd.DataFrame(irv_composition).sort_values("state_fips")
+    irv_df = irv_df[base_cols + fc_cols]
+    irv_df.to_csv(OUTPUT_DIR / "senate_irv_composition.csv", index=False)
+    print(f"  senate_irv_composition.csv:   {len(irv_df)} rows")
+
+    if all_condorcet:
+        cond_res_df = pd.DataFrame(all_condorcet)
+        cond_res_df.to_csv(OUTPUT_DIR / "senate_condorcet_results.csv", index=False)
+        print(f"  senate_condorcet_results.csv: {len(cond_res_df)} rows")
+
+    # ── Summary ───────────────────────────────────────────────────────────────
+    print(f"\n{sep}")
+    print("FD SENATE — CONDORCET COMPOSITION")
+    print(sep)
+    cc = cond_df["senator_party"].value_counts()
+    for party, n in cc.items():
+        # Show breakdown by axis/direction
+        sub = cond_df[cond_df["senator_party"] == party]["senator_code"].value_counts().head(3)
+        variants = ", ".join(f"{c}({n_})" for c, n_ in sub.items())
+        print(f"  {party:<6}  {n:2d} seats  [{variants}]")
+
+    print(f"\nFD SENATE — IRV COMPOSITION")
+    print(thin)
+    ic = irv_df["senator_party"].value_counts()
+    for party, n in ic.items():
+        sub = irv_df[irv_df["senator_party"] == party]["senator_code"].value_counts().head(3)
+        variants = ", ".join(f"{c}({n_})" for c, n_ in sub.items())
+        print(f"  {party:<6}  {n:2d} seats  [{variants}]")
+
+    print(f"\n{sep}")
+    print("FD senate simulation complete.")
+    print(sep)
+
+
+if __name__ == "__main__":
+    main()

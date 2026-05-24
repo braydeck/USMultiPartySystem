@@ -4,30 +4,10 @@ import { SenateTab } from './tabs/SenateTab';
 import { HouseTab } from './tabs/HouseTab';
 import { QuizTab } from './tabs/QuizTab';
 import { PartiesTab } from './tabs/PartiesTab';
-import { BlendedPartiesTab } from './tabs/BlendedPartiesTab';
 import { PresidentialTab } from './tabs/PresidentialTab';
 import { LegislationTab } from './tabs/LegislationTab';
 import { CompareTab } from './tabs/CompareTab';
-import { LightFusionTab } from './tabs/LightFusionTab';
 
-import primaryData from './data/primary.json';
-import primaryStateWinnersData from './data/primaryStateWinners.json';
-import presidentialElectionData from './data/presidentialElection.json';
-import presidentialElectionPureData from './data/presidentialElectionPure.json';
-import presidentialElectionLightFusionData from './data/presidentialElectionLightFusion.json';
-import primarySankeyData from './data/primarySankey.json';
-import primaryRawData from './data/primaryRaw.json';
-import primaryStateWinnersRawData from './data/primaryStateWinnersRaw.json';
-import primarySankeyRawData from './data/primarySankeyRaw.json';
-import primaryLightFusionData from './data/primaryLightFusion.json';
-import primaryStateWinnersLightFusionData from './data/primaryStateWinnersLightFusion.json';
-import primarySankeyLightFusionData from './data/primarySankeyLightFusion.json';
-import senateCondorcetData from './data/senateCondorcet.json';
-import senateIRVData from './data/senateIRV.json';
-import senateCondorcetPureData from './data/senateCondorcetPure.json';
-import senateIRVPureData from './data/senateIRVPure.json';
-import senateCondorcetLightFusionData from './data/senateCondorcetLightFusion.json';
-import senateIRVLightFusionData from './data/senateIRVLightFusion.json';
 import senateVoteModelData from './data/senateVoteModel.json';
 import houseSeatsData from './data/houseSeats.json';
 import houseVoteModelData from './data/houseVoteModel.json';
@@ -35,27 +15,39 @@ import houseStateMapData from './data/houseStateMap.json';
 import coalitionProfilesData from './data/coalitionProfiles.json';
 import transferMatrixData from './data/transferMatrix.json';
 import clusterProfilesData from './data/clusterProfiles.json';
-import blendProfilesData from './data/blendProfiles.json';
 import quizQuestionsData from './data/quizQuestions.json';
+import fdSenateCondorcetData from './data/fdSenateCondorcet.json';
+import fdSenateIRVData from './data/fdSenateIRV.json';
+import pureMultiSenateCondorcetData from './data/pureMultiSenateCondorcet.json';
+import pureMultiSenateIRVData from './data/pureMultiSenateIRV.json';
+import fdHouseSeatsData from './data/fdHouseSeats.json';
+import fdPrimaryData from './data/fdPrimary.json';
+import fdPrimaryStateWinnersData from './data/fdPrimaryStateWinners.json';
+import fdPrimarySankeyData from './data/fdPrimarySankey.json';
+import fdPresidentialElectionData from './data/fdPresidentialElection.json';
+import rawMultiPresidentialElectionData from './data/rawMultiPresidentialElection.json';
+import fdProfilesData from './data/fdProfiles.json';
+import pureMultiPrimaryData from './data/pureMultiPrimary.json';
+import pureMultiPrimaryStateWinnersData from './data/pureMultiPrimaryStateWinners.json';
+import pureMultiPrimarySankeyData from './data/pureMultiPrimarySankey.json';
 
 import type {
-  PrimaryData, PrimaryStateWinner, SenateSeat, VoteModelRow, HouseSeat,
+  PrimaryStateWinner, VoteModelRow, HouseSeat,
   HouseStateEntry, CoalitionProfile, TransferMatrix, ClusterProfile,
-  QuizQuestion, BlendProfile, PresidentialElection,
+  QuizQuestion, PresidentialElection,
   PrimarySankeyData,
+  FDSenateSeat, FDHouseSeat, FDPrimaryData, FDCandidateProfile,
 } from './types';
 
 const TABS = [
-  { id: 'primary',        label: 'Presidential Primary' },
-  { id: 'presidential',   label: 'Presidential General' },
-  { id: 'senate',         label: 'Senate' },
-  { id: 'house',          label: 'House' },
-  { id: 'legislation',    label: 'Legislation' },
-  { id: 'compare',        label: 'Compare' },
-  { id: 'lightFusion',    label: 'Light Fusion' },
-  { id: 'blends',         label: 'Blended Parties' },
-  { id: 'parties',        label: 'Parties' },
-  { id: 'quiz',           label: 'Who Are You?' },
+  { id: 'primary',      label: 'Presidential Primary' },
+  { id: 'presidential', label: 'Presidential General' },
+  { id: 'senate',       label: 'Senate' },
+  { id: 'house',        label: 'House' },
+  { id: 'legislation',  label: 'Legislation' },
+  { id: 'compare',      label: 'Compare' },
+  { id: 'parties',      label: 'Parties' },
+  { id: 'quiz',         label: 'Who Are You?' },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -95,39 +87,33 @@ export default function App() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {tab === 'primary' && (
           <PrimaryTab
-            blended={primaryData as unknown as PrimaryData}
-            blendedStateWinners={primaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
-            blendedSankey={primarySankeyData as unknown as PrimarySankeyData}
-            raw={primaryRawData as unknown as PrimaryData}
-            rawStateWinners={primaryStateWinnersRawData as unknown as Record<string, PrimaryStateWinner>}
-            rawSankey={primarySankeyRawData as unknown as PrimarySankeyData}
-            lightFusion={primaryLightFusionData as unknown as PrimaryData}
-            lightFusionStateWinners={primaryStateWinnersLightFusionData as unknown as Record<string, PrimaryStateWinner>}
-            lightFusionSankey={primarySankeyLightFusionData as unknown as PrimarySankeyData}
-            blendProfiles={blendProfilesData as unknown as BlendProfile[]}
+            factorDev={fdPrimaryData as unknown as FDPrimaryData}
+            factorDevStateWinners={fdPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
+            factorDevSankey={fdPrimarySankeyData as unknown as PrimarySankeyData}
+            pureMulti={pureMultiPrimaryData as unknown as FDPrimaryData}
+            pureMultiStateWinners={pureMultiPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
+            pureMultiSankey={pureMultiPrimarySankeyData as unknown as PrimarySankeyData}
             clusters={clusterProfilesData as ClusterProfile[]}
           />
         )}
         {tab === 'presidential' && (
           <PresidentialTab
-            mixed={presidentialElectionData as unknown as PresidentialElection}
-            pure={presidentialElectionPureData as unknown as PresidentialElection}
-            lightFusion={presidentialElectionLightFusionData as unknown as PresidentialElection}
+            factorDev={fdPresidentialElectionData as unknown as PresidentialElection}
+            rawMulti={rawMultiPresidentialElectionData as unknown as PresidentialElection}
             clusters={clusterProfilesData as ClusterProfile[]}
-            blendProfiles={blendProfilesData as unknown as BlendProfile[]}
+            fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
             senateVotes={senateVoteModelData as VoteModelRow[]}
           />
         )}
         {tab === 'senate' && (
           <SenateTab
-            condorcetMixed={senateCondorcetData as SenateSeat[]}
-            irvMixed={senateIRVData as SenateSeat[]}
-            condorcetPure={senateCondorcetPureData as SenateSeat[]}
-            irvPure={senateIRVPureData as SenateSeat[]}
-            condorcetLightFusion={senateCondorcetLightFusionData as SenateSeat[]}
-            irvLightFusion={senateIRVLightFusionData as SenateSeat[]}
+            condorcetFD={fdSenateCondorcetData as unknown as FDSenateSeat[]}
+            irvFD={fdSenateIRVData as unknown as FDSenateSeat[]}
+            condorcetRawMulti={pureMultiSenateCondorcetData as unknown as FDSenateSeat[]}
+            irvRawMulti={pureMultiSenateIRVData as unknown as FDSenateSeat[]}
             voteModel={senateVoteModelData as VoteModelRow[]}
-            blendProfiles={blendProfilesData as unknown as BlendProfile[]}
+            clusters={clusterProfilesData as ClusterProfile[]}
+            fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
           />
         )}
         {tab === 'house' && (
@@ -138,6 +124,7 @@ export default function App() {
             voteModel={houseVoteModelData as VoteModelRow[]}
             stateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
             clusters={clusterProfilesData as ClusterProfile[]}
+            fdHouseSeats={fdHouseSeatsData as unknown as FDHouseSeat[]}
           />
         )}
         {tab === 'legislation' && (
@@ -149,14 +136,8 @@ export default function App() {
         {tab === 'compare' && (
           <CompareTab
             clusters={clusterProfilesData as ClusterProfile[]}
-            blendProfiles={blendProfilesData as unknown as BlendProfile[]}
+            fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
           />
-        )}
-        {tab === 'lightFusion' && (
-          <LightFusionTab profiles={blendProfilesData as unknown as BlendProfile[]} />
-        )}
-        {tab === 'blends' && (
-          <BlendedPartiesTab profiles={blendProfilesData as unknown as BlendProfile[]} />
         )}
         {tab === 'parties' && (
           <PartiesTab clusters={clusterProfilesData as ClusterProfile[]} />

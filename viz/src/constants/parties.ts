@@ -90,6 +90,32 @@ export function getBlendColor(code: string): string {
   return PARTY_COLORS[code] ?? '#6b7280';
 }
 
+/** Lighten a hex color by mixing toward white at the given amount (0–1) */
+export function lightenHex(hex: string, amount = 0.35): string {
+  const [r, g, b] = hexToRgb(hex);
+  const r2 = Math.round(r + (255 - r) * amount);
+  const g2 = Math.round(g + (255 - g) * amount);
+  const b2 = Math.round(b + (255 - b) * amount);
+  return `#${r2.toString(16).padStart(2, '0')}${g2.toString(16).padStart(2, '0')}${b2.toString(16).padStart(2, '0')}`;
+}
+
+/** Darken a hex color by mixing toward black at the given amount (0–1) */
+export function darkenHex(hex: string, amount = 0.20): string {
+  const [r, g, b] = hexToRgb(hex);
+  const r2 = Math.round(r * (1 - amount));
+  const g2 = Math.round(g * (1 - amount));
+  const b2 = Math.round(b * (1 - amount));
+  return `#${r2.toString(16).padStart(2, '0')}${g2.toString(16).padStart(2, '0')}${b2.toString(16).padStart(2, '0')}`;
+}
+
+/** Color for an FD candidate: base = full party color, hi = lightened, lo = darkened */
+export function getFDColor(party: string, direction: 'base' | 'hi' | 'lo'): string {
+  const base = PARTY_COLORS[party] ?? '#6b7280';
+  if (direction === 'hi') return lightenHex(base, 0.35);
+  if (direction === 'lo') return darkenHex(base, 0.20);
+  return base;
+}
+
 /** Given a senator_code like "CON/STY" or "CON", return the primary party code */
 export function getPrimaryParty(code: string): string {
   if (!code) return '';
@@ -107,4 +133,48 @@ export const FACTOR_LABELS: Record<string, string> = {
   F3: 'Government Distrust',
   F4: 'Religious Traditionalism',
   F5: 'Populist Conservatism',
+};
+
+export const FACTOR_SHORT: Record<string, string> = {
+  F1: 'SO',
+  F2: 'ES',
+  F3: 'GD',
+  F4: 'RT',
+  F5: 'PC',
+};
+
+// Variable → primary EFA factor (highest absolute loading > 0.3, from efa_loadings_k5_final.csv)
+// Items marked * are content-based assignments (not in the 24-item EFA set)
+// Note: F3 primary items (CC24_423, CC24_424 — trust questions) are not in the policy dataset
+export const VAR_FACTOR: Record<string, string> = {
+  // F1 – Security & Order
+  CC24_321d:         'F1',  // loading +0.734
+  CC24_323b:         'F1',  // loading +0.705
+  CC24_340f:         'F1',  // loading +0.664
+  CC24_321e:         'F1',  // loading +0.653
+  CC24_340e:         'F1',  // loading +0.493
+  // F2 – Electoral Skepticism (likert5 stored as _agree variants)
+  CC24_421_1_agree:  'F2',  // loading +0.726
+  CC24_421_2_agree:  'F2',  // loading +0.901
+  // F3 – Government Distrust
+  CC24_423:          'F3',  // loading +0.663 (low trust in federal government)
+  CC24_424:          'F3',  // loading +0.476 (low trust in state government)
+  // F4 – Religious Traditionalism
+  pew_churatd:       'F4',  // loading +0.688 (church attendance)
+  CC24_325:          'F4',  // loading +0.688 (abortion weeks — continuous; may not appear in compare)
+  CC24_340c:         'F4',  // loading +0.651 (same-sex marriage)
+  CC24_340b:         'F4',  // loading +0.489 (abortion access)
+  CC24_324b:         'F4',  // loading +0.297 F4 vs +0.268 F1
+  CC24_444a:         'F4',  // * gender transition surgery
+  CC24_444b:         'F4',  // * parental consent name/pronoun
+  CC24_444c:         'F4',  // * abortion-inducing drugs by mail
+  CC24_444d:         'F4',  // * travel for abortion
+  // F5 – Populist Conservatism (negative loadings mean high F5 → conservative response)
+  CC24_440b_agree:   'F5',  // loading −0.616 (racial problems are rare)
+  CC24_321b:         'F5',  // loading −0.557 (concealed carry)
+  CC24_323d:         'F5',  // loading −0.540 (Dreamers pathway)
+  CC24_341c:         'F5',  // loading −0.534 (allow $400k+ tax rates to rise)
+  CC24_323a:         'F5',  // loading −0.520 (legal status for undocumented)
+  CC24_440c_agree:   'F5',  // loading −0.437 (women seek power over men)
+  CC24_341d:         'F5',  // loading −0.365 (infrastructure spending)
 };

@@ -4,47 +4,36 @@ import type { VoteModelRow } from '../../types';
 interface Props {
   houseRows: VoteModelRow[];
   senateRows: VoteModelRow[];
-  pipeline: 'blended' | 'raw' | 'lightFusion';
+  pipeline: 'rawMulti' | 'factorDev';
   senateMethod: 'condorcet' | 'irv';
 }
 
 const SENATE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
-  'blended+condorcet':     'condMixedProbPass',
-  'blended+irv':           'irvMixedProbPass',
-  'raw+condorcet':         'condPureProbPass',
-  'raw+irv':               'irvPureProbPass',
-  'lightFusion+condorcet': 'condLFProbPass',
-  'lightFusion+irv':       'irvLFProbPass',
+  'rawMulti+condorcet':  'condRawMultiProbPass',
+  'rawMulti+irv':        'irvRawMultiProbPass',
+  'factorDev+condorcet': 'condFDProbPass',
+  'factorDev+irv':       'irvFDProbPass',
 };
 
 const SENATE_VERDICT_FIELD: Record<string, keyof VoteModelRow> = {
-  'blended+condorcet':     'condMixedVerdict',
-  'blended+irv':           'irvMixedVerdict',
-  'raw+condorcet':         'condPureVerdict',
-  'raw+irv':               'irvPureVerdict',
-  'lightFusion+condorcet': 'condLFVerdict',
-  'lightFusion+irv':       'irvLFVerdict',
+  'rawMulti+condorcet':  'condRawMultiVerdict',
+  'rawMulti+irv':        'irvRawMultiVerdict',
+  'factorDev+condorcet': 'condFDVerdict',
+  'factorDev+irv':       'irvFDVerdict',
 };
 
-// President is determined by both pipeline AND senate method:
-// blended+irv → CON/SD (IRV winner), blended+condorcet → SD/CON (Condorcet winner)
-// raw → STY, lightFusion → STY_ctr (wins both IRV and Condorcet)
 const PRES_SIGNS_FIELD: Record<string, keyof VoteModelRow> = {
-  'blended+irv':           'presMixedSigns',
-  'blended+condorcet':     'presMixedCondSigns',
-  'raw+irv':               'presPureSigns',
-  'raw+condorcet':         'presPureSigns',
-  'lightFusion+condorcet': 'presLFSigns',
-  'lightFusion+irv':       'presLFSigns',
+  'rawMulti+condorcet':  'presRawMultiCondSigns',
+  'rawMulti+irv':        'presRawMultiIRVSigns',
+  'factorDev+condorcet': 'presFDCondSigns',
+  'factorDev+irv':       'presFDIRVSigns',
 };
 
 const PRES_LABEL: Record<string, string> = {
-  'blended+irv':           'CON/SD',
-  'blended+condorcet':     'SD/CON',
-  'raw+irv':               'STY',
-  'raw+condorcet':         'STY',
-  'lightFusion+condorcet': 'STY_ctr',
-  'lightFusion+irv':       'STY_ctr',
+  'rawMulti+condorcet':  'CTR_1',
+  'rawMulti+irv':        'SD_1',
+  'factorDev+condorcet': 'CTR_lo_pc',
+  'factorDev+irv':       'SD_lo_pc',
 };
 
 function ProbBar({ prob }: { prob: number }) {
@@ -134,6 +123,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
           if (!ref) return null;
 
           const hVerdict = hr?.verdict ?? '—';
+          const hProb    = hr?.probPass ?? 0;
           const sVerdict = (sr?.[senateVerdictField] as string | undefined) ?? '—';
           const signs = (sr?.[presSignsField] as string | undefined) ?? '—';
           const disagrees = hVerdict !== '—' && sVerdict !== '—' && hVerdict !== sVerdict;
@@ -152,7 +142,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
 
               {/* House */}
               <div className="w-24 mt-1 md:mt-0">
-                {hr ? <ProbBar prob={hr.probPass!} /> : <span className="text-slate-300 text-xs">—</span>}
+                {hr ? <ProbBar prob={hProb} /> : <span className="text-slate-300 text-xs">—</span>}
               </div>
               <div className="w-14">
                 {hVerdict !== '—' ? <VerdictBadge verdict={hVerdict} /> : <span className="text-slate-300 text-xs">—</span>}

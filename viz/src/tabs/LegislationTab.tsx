@@ -8,13 +8,12 @@ interface Props {
   senateVotes: VoteModelRow[];
 }
 
-type Pipeline = 'blended' | 'raw' | 'lightFusion';
+type Pipeline = 'rawMulti' | 'factorDev';
 type Method = 'condorcet' | 'irv';
 
 const PIPELINE_LABELS: Record<Pipeline, string> = {
-  blended: 'Blended',
-  raw: 'Raw',
-  lightFusion: 'Light Fusion',
+  rawMulti:  'Raw Multi',
+  factorDev: 'Factor Dev',
 };
 
 const METHOD_LABELS: Record<Method, string> = {
@@ -23,7 +22,7 @@ const METHOD_LABELS: Record<Method, string> = {
 };
 
 export function LegislationTab({ houseVotes, senateVotes }: Props) {
-  const [pipeline, setPipeline] = useState<Pipeline>('blended');
+  const [pipeline, setPipeline] = useState<Pipeline>('rawMulti');
   const [method, setMethod] = useState<Method>('condorcet');
 
   return (
@@ -32,7 +31,7 @@ export function LegislationTab({ houseVotes, senateVotes }: Props) {
         <h2 className="text-2xl font-bold text-slate-900 mb-1">Legislation</h2>
         <p className="text-slate-500 text-sm">
           Probability of passage across both chambers and the presidency. Use the toggles
-          to switch between blended/raw party composition and senate voting method.
+          to switch between Factor Dev/raw party composition and senate voting method.
         </p>
       </div>
 
@@ -74,6 +73,7 @@ export function LegislationTab({ houseVotes, senateVotes }: Props) {
             ))}
           </div>
         </div>
+
       </div>
 
       <LegislationDivergences senateVotes={senateVotes} />

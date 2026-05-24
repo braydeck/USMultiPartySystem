@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { PresidentialElection, PresidentialScenario, ClusterProfile, BlendProfile, VoteModelRow } from '../types';
+import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile } from '../types';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { CondorcetTable } from '../components/presidential/CondorcetTable';
 import { IRVRoundsChart } from '../components/presidential/IRVRoundsChart';
@@ -8,37 +8,35 @@ import { WinnerCard } from '../components/presidential/WinnerCard';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
 
 interface Props {
-  mixed: PresidentialElection;
-  pure:  PresidentialElection;
-  lightFusion: PresidentialElection;
-  clusters: ClusterProfile[];
-  blendProfiles: BlendProfile[];
+  factorDev: PresidentialElection;
+  rawMulti:  PresidentialElection;
+  clusters:  ClusterProfile[];
+  fdProfiles: Record<string, FDCandidateProfile>;
   senateVotes: VoteModelRow[];
 }
 
 const PRES_LABELS: Record<PresidentialScenario, string> = {
-  mixed:       'Blended (CON/SD · SD/CON)',
-  pure:        'Raw (STY)',
-  lightFusion: 'Light Fusion (STY_ctr)',
+  rawMulti:  'Raw Multi',
+  factorDev: 'Factor Dev',
 };
 
-export function PresidentialTab({ mixed, pure, lightFusion, clusters, blendProfiles, senateVotes }: Props) {
-  const [scenario, setScenario] = useState<PresidentialScenario>('mixed');
-  const data = scenario === 'mixed' ? mixed : scenario === 'pure' ? pure : lightFusion;
+export function PresidentialTab({ factorDev, rawMulti, clusters, fdProfiles, senateVotes }: Props) {
+  const [scenario, setScenario] = useState<PresidentialScenario>('rawMulti');
+  const data = scenario === 'rawMulti' ? rawMulti : factorDev;
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">2028 Presidential General Election</h2>
         <p className="text-slate-500 text-sm">
-          General election results using IRV and Condorcet methods. Blended scenario
-          has CON/SD winning via IRV and SD/CON winning via Condorcet — compare how the
-          method changes the outcome. Raw scenario uses only the 9 core party types.
+          General election results using IRV and Condorcet methods. Raw Multi uses 5 finalists
+          from the 21-candidate intra-party primary — SD_1 wins IRV, CTR_1 wins Condorcet. Factor Dev
+          uses 71 axis-deviation candidates.
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {(Object.keys(PRES_LABELS) as PresidentialScenario[]).map(s => (
+        {(['rawMulti', 'factorDev'] as PresidentialScenario[]).map(s => (
           <button
             key={s}
             onClick={() => setScenario(s)}
@@ -54,7 +52,7 @@ export function PresidentialTab({ mixed, pure, lightFusion, clusters, blendProfi
       </div>
 
       {/* Dual winner comparison cards */}
-      <WinnerCard data={data} clusters={clusters} blendProfiles={blendProfiles} />
+      <WinnerCard data={data} clusters={clusters} fdProfiles={fdProfiles} />
 
       {/* State map with IRV/Plurality toggle */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
@@ -81,7 +79,7 @@ export function PresidentialTab({ mixed, pure, lightFusion, clusters, blendProfi
       {/* Three-way presidential comparison */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
-          Presidential Policy Comparison — CON/SD · SD/CON · STY · STY_ctr
+          Presidential Policy Comparison — Factor Dev · Raw Multi
         </h3>
         <p className="text-xs text-slate-500 mb-4">
           How likely each potential president would sign or veto major legislation.

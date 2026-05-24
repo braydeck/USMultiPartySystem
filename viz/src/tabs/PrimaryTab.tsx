@@ -1,53 +1,58 @@
 import { useState } from 'react';
-import type { PrimaryData, PrimaryStateWinner, PrimarySankeyData, BlendProfile, ClusterProfile } from '../types';
+import type { PrimaryStateWinner, PrimarySankeyData, FDPrimaryData, ClusterProfile } from '../types';
 import { EliminationWaterfall } from '../components/primary/EliminationWaterfall';
 import { IdeologicalScatter } from '../components/primary/IdeologicalScatter';
 import { PrimaryStateMap } from '../components/primary/PrimaryStateMap';
 import AlluvialFlow from '../components/primary/AlluvialFlow';
 import { MiniPartyCard } from '../components/shared/MiniPartyCard';
+import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 
 interface Props {
-  blended: PrimaryData;
-  blendedStateWinners: Record<string, PrimaryStateWinner>;
-  blendedSankey: PrimarySankeyData;
-  raw: PrimaryData;
-  rawStateWinners: Record<string, PrimaryStateWinner>;
-  rawSankey: PrimarySankeyData;
-  lightFusion: PrimaryData;
-  lightFusionStateWinners: Record<string, PrimaryStateWinner>;
-  lightFusionSankey: PrimarySankeyData;
-  blendProfiles: BlendProfile[];
+  factorDev: FDPrimaryData;
+  factorDevStateWinners: Record<string, PrimaryStateWinner>;
+  factorDevSankey: PrimarySankeyData;
+  pureMulti: FDPrimaryData;
+  pureMultiStateWinners: Record<string, PrimaryStateWinner>;
+  pureMultiSankey: PrimarySankeyData;
   clusters: ClusterProfile[];
 }
 
-type Pipeline = 'blended' | 'light_fusion' | 'raw';
+type Pipeline = 'factorDev' | 'rawMulti';
 
 const PIPELINE_LABELS: Record<Pipeline, string> = {
-  blended:      'Blended (~20 candidates)',
-  light_fusion: 'Light Fusion (25 candidates)',
-  raw:          'Pure (9 parties)',
+  factorDev: 'Factor Dev (37 candidates)',
+  rawMulti:  'Raw Multi (21 candidates)',
 };
 
 const PIPELINE_DESC: Record<Pipeline, string> = {
-  blended:      'Senate-derived blended candidates representing coalition archetypes.',
-  light_fusion: '9 pure parties + 16 "slight deviant" variants at 80/20 — candidates who would still caucus with their primary party but lean slightly toward an adjacent one.',
-  raw:          'Only the 9 pure party archetypes. Note: some parties get very few first-choice votes in this scenario.',
+  factorDev: '9 base parties + 28 axis-deviation variants (SO, AE, PC) at ±25% of inter-party SD. Candidates deviate on individual factor axes rather than blending toward a neighbor.',
+  rawMulti:  '9 parties with multiple intra-party candidates. CON, SD, STY each field 3 candidates (40/35/25 first-choice split); all others field 2 (60/40). Within-party transfers flow proportionally.',
 };
 
 export function PrimaryTab({
-  blended, blendedStateWinners, blendedSankey,
-  raw, rawStateWinners, rawSankey,
-  lightFusion, lightFusionStateWinners, lightFusionSankey,
-  blendProfiles, clusters,
+  factorDev, factorDevStateWinners, factorDevSankey,
+  pureMulti, pureMultiStateWinners, pureMultiSankey,
+  clusters,
 }: Props) {
-  const blendByCode = Object.fromEntries(blendProfiles.map(p => [p.code, p]));
   const clusterByParty = Object.fromEntries(clusters.map(c => [c.party, c]));
-  const [pipeline, setPipeline] = useState<Pipeline>('light_fusion');
+  const [pipeline, setPipeline] = useState<Pipeline>('factorDev');
   const [stageIdx, setStageIdx] = useState(0);
 
-  const data = pipeline === 'blended' ? blended : pipeline === 'light_fusion' ? lightFusion : raw;
-  const stateWinners = pipeline === 'blended' ? blendedStateWinners : pipeline === 'light_fusion' ? lightFusionStateWinners : rawStateWinners;
-  const sankey = pipeline === 'blended' ? blendedSankey : pipeline === 'light_fusion' ? lightFusionSankey : rawSankey;
+  const data: FDPrimaryData =
+    pipeline === 'factorDev' ? factorDev : pureMulti;
+  const stateWinners = pipeline === 'factorDev' ? factorDevStateWinners : pureMultiStateWinners;
+  const sankey = pipeline === 'factorDev' ? factorDevSankey : pureMultiSankey;
+
+  // For PartyVariantBar: map candidates to FDHouseSeat-like shape using Retail stage vote share
+  const variantFirstChoice = data.candidates.map(c => ({
+    code: c.code,
+    party: (c as { party?: string }).party ?? c.code,
+    axis: (c as { axis?: string }).axis ?? 'base',
+    direction: (c as { direction?: string }).direction ?? 'base',
+    urban: 0, suburban: 0, rural: 0,
+    national: Math.round((c.stages['After_Retail_Six']?.votePct ?? 0) * 10),
+    pctNational: c.stages['After_Retail_Six']?.votePct ?? 0,
+  }));
 
   const stage = data.stagesOrder[stageIdx] ?? data.stagesOrder[0];
   const quota = data.quotaByStage[stage] ?? 0;
@@ -70,7 +75,7 @@ export function PrimaryTab({
       {/* Pipeline toggle */}
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2">
-          {(['light_fusion', 'blended', 'raw'] as Pipeline[]).map(p => (
+          {(['factorDev', 'rawMulti'] as Pipeline[]).map(p => (
             <button
               key={p}
               onClick={() => { setPipeline(p); setStageIdx(0); }}
@@ -104,7 +109,7 @@ export function PrimaryTab({
         ))}
       </div>
 
-      {/* State map — full width */}
+      {/* State map — full width (not shown for rawMulti: pod system, no per-state accumulation) */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
           State Winners by Stage
@@ -121,9 +126,7 @@ export function PrimaryTab({
           .filter(c => ['surviving', 'elected', 'active'].includes(c.stages[stage]?.status ?? ''))
           .sort((a, b) => a.F5 - b.F5)
           .map(c => {
-            const positions = blendByCode[c.code]?.keyPositions
-              ?? clusterByParty[c.code]?.keyPositions
-              ?? [];
+            const positions = clusterByParty[c.code]?.keyPositions ?? [];
             return (
               <MiniPartyCard
                 key={c.code}
@@ -208,6 +211,21 @@ export function PrimaryTab({
           })}
         </div>
       </div>
+
+      {/* Variant breakdown bar */}
+      {variantFirstChoice.length > 0 && (
+        <div className="bg-white rounded-xl p-4 border border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            First-Choice Distribution by{pipeline === 'factorDev' ? ' Variant' : ' Candidate'}
+          </h3>
+          <p className="text-xs text-slate-500 mb-3">
+            {pipeline === 'factorDev'
+              ? 'Scaled vote share after Retail + Bench States. Full color = base; lighter = hi axis; darker = lo axis.'
+              : 'Scaled vote share after Retail + Bench States. All candidates are base (no axis deviation).'}
+          </p>
+          <PartyVariantBar seats={variantFirstChoice} totalLabel="first-choice vote share (×10 = tenths of %)" />
+        </div>
+      )}
     </div>
   );
 }

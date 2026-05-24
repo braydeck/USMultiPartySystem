@@ -1,11 +1,10 @@
-party,party_name,URBAN,SUBURBAN,RURAL,NATIONAL,pct_national,pct_urban,pct_suburban,pct_rural
-1,Social Democrat,87,59,20,166,19.01,18.01,20.92,18.52
-0,Conservative,78,60,26,164,18.79,16.15,21.28,24.07
-2,Solidarity,86,55,19,160,18.33,17.81,19.5,17.59
-5,Reform,65,41,19,125,14.32,13.46,14.54,17.59
-6,Center,58,32,12,102,11.68,12.01,11.35,11.11
-4,Liberal,65,28,7,100,11.45,13.46,9.93,6.48
-8,DSA,24,2,0,26,2.98,4.97,0.71,0.0
-3,Nationalist,12,5,5,22,2.52,2.48,1.77,4.63
-9,Progressive,8,0,0,8,0.92,1.66,0.0,0.0
-7,Blue Dogs,0,0,0,0,0.0,0.0,0.0,0.0
+party,party_name,URBAN,SUBURBAN,RURAL,NATIONAL,pct_national
+0,Conservative,64,54,17,135,15.46
+6,Center,69,46,14,129,14.78
+1,Social Democrat,69,43,11,123,14.09
+4,Liberal,70,36,11,117,13.4
+5,Reform,45,25,14,84,9.62
+2,Solidarity,55,20,7,82,9.39
+3,Nationalist,23,37,14,74,8.48
+9,Progressive,48,23,3,74,8.48
+8,DSA,43,11,1,55,6.3

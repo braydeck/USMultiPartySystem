@@ -31,47 +31,50 @@ export interface SenateSeat {
   secondaryCluster: string;
 }
 
-export type SenateScenario = 'condMixed' | 'irvMixed' | 'condPure' | 'irvPure' | 'condLF' | 'irvLF';
-export type PresidentialScenario = 'mixed' | 'pure' | 'lightFusion';
+export type SenateScenario = 'condFD' | 'irvFD' | 'condRawMulti' | 'irvRawMulti';
+export type PresidentialScenario = 'factorDev' | 'rawMulti';
 
 export interface VoteModelRow {
   variable: string;
   domain: string;
   question: string;
   overallPct: number;
-  // House (houseVoteModel.json)
+  // House canonical (houseVoteModel.json)
   probPass?: number;
   verdict?: string;
-  // Mixed senate scenarios
-  condMixedProbPass?: number;
-  condMixedVerdict?: string;
-  irvMixedProbPass?: number;
-  irvMixedVerdict?: string;
+  // House State STV (9-party, 873 seats)
+  houseStvProbPass?: number;
+  houseStvVerdict?: string;
   // Pure senate scenarios
   condPureProbPass?: number;
   condPureVerdict?: string;
   irvPureProbPass?: number;
   irvPureVerdict?: string;
-  // Light Fusion senate scenarios
-  condLFProbPass?: number;
-  condLFVerdict?: string;
-  irvLFProbPass?: number;
-  irvLFVerdict?: string;
-  // LF president (STY_ctr)
-  presLFSigns?: string;
-  presLFPct?: number;
-  // Presidential sign + support %
-  presMixedSigns?: string;      // CON/SD (IRV winner)
-  presMixedPct?: number;
-  presMixedCondSigns?: string;  // SD/CON (Condorcet winner)
-  presMixedCondPct?: number;
-  presPureSigns?: string;       // STY (pure IRV winner)
+  // Factor Deviation senate scenarios
+  condFDProbPass?: number;
+  condFDVerdict?: string;
+  irvFDProbPass?: number;
+  irvFDVerdict?: string;
+  // FD president — separate for IRV and Condorcet winners
+  presFDSigns?: string;
+  presFDPct?: number;
+  presFDIRVSigns?: string;
+  presFDIRVPct?: number;
+  presFDCondSigns?: string;
+  presFDCondPct?: number;
+  // Raw/pure president (STY)
+  presPureSigns?: string;
   presPurePct?: number;
-  // Legacy aliases (UnifiedBillTable in LegislationTab)
-  condProbPass?: number;
-  condVerdict?: string;
-  irvProbPass?: number;
-  irvVerdict?: string;
+  // Raw Multi senate scenarios
+  condRawMultiProbPass?: number;
+  condRawMultiVerdict?:  string;
+  irvRawMultiProbPass?:  number;
+  irvRawMultiVerdict?:   string;
+  // Raw Multi president (SD_1 IRV, CTR_1 Condorcet)
+  presRawMultiIRVSigns?:  string;
+  presRawMultiIRVPct?:    number;
+  presRawMultiCondSigns?: string;
+  presRawMultiCondPct?:   number;
 }
 
 export interface HouseSeat {
@@ -247,4 +250,90 @@ export interface ConstellationNode {
   label: string;
   seats: number;
   F1: number; F2: number; F3: number; F4: number; F5: number;
+}
+
+// ── Factor Deviation types ─────────────────────────────────────────────────
+
+export interface FDSenateSeat {
+  stateFips: string;
+  stateAbbr: string;
+  senatorCode: string;
+  senatorParty: string;
+  senatorAxis: string;
+  senatorDir: string;
+  // SenateSeat-compatible fields
+  senatorLabel: string;
+  senatorType: string;
+  primaryCluster: string;
+  secondaryCluster: string;
+}
+
+export interface HouseSeatResult {
+  state: string;
+  stateFips: number;
+  totalSeats: number;
+  party: string;
+  seats: number;
+  voteShare: number;
+}
+
+export interface FDHouseSeat {
+  code: string;
+  party: string;
+  axis: string;
+  direction: string;
+  urban: number;
+  suburban: number;
+  rural: number;
+  national: number;
+  pctNational: number;
+}
+
+export interface FDKeyPosition {
+  variable: string;
+  question: string;
+  domain: string;
+  value: number;
+  overall: number;
+  diff: number;
+}
+
+export interface FDCandidateProfile {
+  code: string;
+  party: string;
+  axis: string;
+  direction: string;
+  F1: number;
+  F2: number;
+  F3: number;
+  F4: number;
+  F5: number;
+  keyPositions: FDKeyPosition[];
+  variables?: Record<string, BlendVariable>;
+}
+
+export interface FDPrimaryCandidate {
+  code: string;
+  name: string;
+  party: string;
+  axis: string;
+  direction: string;
+  F1: number;
+  F2: number;
+  F3: number;
+  F4: number;
+  F5: number;
+  stages: Record<string, {
+    voteTotal: number;
+    votePct: number;
+    status: string;
+    quotaThreshold: number;
+  }>;
+}
+
+export interface FDPrimaryData {
+  stagesOrder: string[];
+  stageLabels: Record<string, string>;
+  quotaByStage: Record<string, number>;
+  candidates: FDPrimaryCandidate[];
 }

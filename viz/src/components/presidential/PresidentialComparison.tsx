@@ -6,12 +6,23 @@ interface Props {
   rows: VoteModelRow[];
 }
 
-const PRESIDENTS = [
-  { key: 'irv',       code: 'CON/SD',  signField: 'presMixedSigns',     pctField: 'presMixedPct',     label: 'CON/SD (IRV)'       },
-  { key: 'condorcet', code: 'SD/CON',  signField: 'presMixedCondSigns', pctField: 'presMixedCondPct', label: 'SD/CON (Condorcet)' },
-  { key: 'pure',      code: 'STY',     signField: 'presPureSigns',       pctField: 'presPurePct',      label: 'STY (Raw)'          },
-  { key: 'lfCtr',     code: 'STY_ctr', signField: 'presLFSigns',         pctField: 'presLFPct',        label: 'STY_ctr (LF)'       },
-] as const;
+interface PresidentEntry {
+  key: string;
+  code: string;
+  signField: string;
+  pctField: string;
+  label: string;
+}
+
+const IRV_PRESIDENTS: PresidentEntry[] = [
+  { key: 'fd',       code: 'SD_lo_pc', signField: 'presFDIRVSigns',       pctField: 'presFDIRVPct',       label: 'Factor Dev' },
+  { key: 'rawMulti', code: 'SD_1',     signField: 'presRawMultiIRVSigns', pctField: 'presRawMultiIRVPct', label: 'Raw Multi'  },
+];
+
+const COND_PRESIDENTS: PresidentEntry[] = [
+  { key: 'fd',       code: 'CTR_lo_pc', signField: 'presFDCondSigns',       pctField: 'presFDCondPct',       label: 'Factor Dev' },
+  { key: 'rawMulti', code: 'CTR_1',     signField: 'presRawMultiCondSigns', pctField: 'presRawMultiCondPct', label: 'Raw Multi'  },
+];
 
 function SignBadge({ sign, pct }: { sign: string; pct?: number }) {
   const signs = sign === 'SIGN';
@@ -32,6 +43,9 @@ function SignBadge({ sign, pct }: { sign: string; pct?: number }) {
 export function PresidentialComparison({ rows }: Props) {
   const [domain, setDomain] = useState('All');
   const [showOnly, setShowOnly] = useState<'all' | 'differs'>('differs');
+  const [method, setMethod] = useState<'irv' | 'condorcet'>('irv');
+
+  const presidents = method === 'irv' ? IRV_PRESIDENTS : COND_PRESIDENTS;
 
   const domains = useMemo(() => {
     const d = new Set(rows.map(r => r.domain));
@@ -39,20 +53,22 @@ export function PresidentialComparison({ rows }: Props) {
   }, [rows]);
 
   // Score each row by disagreement magnitude
-  const scored = useMemo(() => rows.map(r => {
-    const signs = PRESIDENTS.map(p => (r as any)[p.signField] as string | undefined);
-    const pcts = PRESIDENTS.map(p => (r as any)[p.pctField] as number | undefined);
-    const defined = signs.filter(Boolean);
-    const disagreeCount = defined.length > 0
-      ? defined.filter(s => s !== defined[0]).length
-      : 0;
-    // Max pct spread as a secondary sort key
-    const validPcts = pcts.filter(p => p !== undefined) as number[];
-    const spread = validPcts.length > 1
-      ? Math.max(...validPcts) - Math.min(...validPcts)
-      : 0;
-    return { row: r, disagreeCount, spread };
-  }), [rows]);
+  const scored = useMemo(() => {
+    const pres = method === 'irv' ? IRV_PRESIDENTS : COND_PRESIDENTS;
+    return rows.map(r => {
+      const signs = pres.map(p => (r as any)[p.signField] as string | undefined);
+      const pcts = pres.map(p => (r as any)[p.pctField] as number | undefined);
+      const defined = signs.filter(Boolean);
+      const disagreeCount = defined.length > 0
+        ? defined.filter(s => s !== defined[0]).length
+        : 0;
+      const validPcts = pcts.filter(p => p !== undefined) as number[];
+      const spread = validPcts.length > 1
+        ? Math.max(...validPcts) - Math.min(...validPcts)
+        : 0;
+      return { row: r, disagreeCount, spread };
+    });
+  }, [rows, method]);
 
   const filtered = scored
     .filter(x => domain === 'All' || x.row.domain === domain)
@@ -64,12 +80,25 @@ export function PresidentialComparison({ rows }: Props) {
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="flex gap-1">
+          {(['irv', 'condorcet'] as const).map(m => (
+            <button
+              key={m}
+              onClick={() => setMethod(m)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                method === m ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+              }`}
+            >
+              {m === 'irv' ? 'IRV winners' : 'Condorcet winners'}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1">
           {(['all', 'differs'] as const).map(v => (
             <button
               key={v}
               onClick={() => setShowOnly(v)}
               className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                showOnly === v ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                showOnly === v ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
               }`}
             >
               {v === 'all' ? 'All bills' : 'Only where they differ'}
@@ -92,9 +121,9 @@ export function PresidentialComparison({ rows }: Props) {
       </div>
 
       {/* Header */}
-      <div className="hidden md:grid grid-cols-[1fr_repeat(4,130px)] gap-2 px-3 py-2 border-b border-slate-200 mb-1">
+      <div className="hidden md:grid grid-cols-[1fr_repeat(2,130px)] gap-2 px-3 py-2 border-b border-slate-200 mb-1">
         <div className="text-xs font-semibold text-slate-600 uppercase tracking-widest">Bill</div>
-        {PRESIDENTS.map(p => (
+        {presidents.map(p => (
           <div key={p.key} className="text-center">
             <div
               className="text-xs font-bold font-mono px-2 py-0.5 rounded mx-auto inline-block"
@@ -102,7 +131,7 @@ export function PresidentialComparison({ rows }: Props) {
             >
               {p.code}
             </div>
-            <div className="text-xs text-slate-500 mt-0.5">{p.key === 'irv' ? 'IRV' : p.key === 'condorcet' ? 'Condorcet' : 'Raw'}</div>
+            <div className="text-xs text-slate-500 mt-0.5">{p.label}</div>
           </div>
         ))}
       </div>
@@ -113,7 +142,7 @@ export function PresidentialComparison({ rows }: Props) {
           return (
             <div
               key={r.variable}
-              className={`flex flex-col md:grid md:grid-cols-[1fr_repeat(4,130px)] gap-2 items-start md:items-center px-3 py-2.5 rounded text-sm ${
+              className={`flex flex-col md:grid md:grid-cols-[1fr_repeat(2,130px)] gap-2 items-start md:items-center px-3 py-2.5 rounded text-sm ${
                 isHighlighted
                   ? 'bg-amber-50 border border-amber-200'
                   : 'bg-white border border-slate-100'
@@ -123,7 +152,7 @@ export function PresidentialComparison({ rows }: Props) {
                 <div className="text-slate-700 text-sm">{r.question}</div>
                 <div className="text-xs text-slate-500 mt-0.5">{r.domain}</div>
               </div>
-              {PRESIDENTS.map(p => {
+              {presidents.map(p => {
                 const sign = (r as any)[p.signField] as string | undefined;
                 const pct = (r as any)[p.pctField] as number | undefined;
                 return (

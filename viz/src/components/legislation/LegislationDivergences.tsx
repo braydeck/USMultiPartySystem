@@ -7,12 +7,12 @@ interface Props {
 }
 
 const SCENARIOS = [
-  { key: 'condMixed', label: 'Blended\nCondorcet', verdictField: 'condMixedVerdict' as keyof VoteModelRow, presField: 'presMixedCondSigns' as keyof VoteModelRow, presCode: 'SD/CON' },
-  { key: 'irvMixed',  label: 'Blended\nIRV',       verdictField: 'irvMixedVerdict'  as keyof VoteModelRow, presField: 'presMixedSigns'     as keyof VoteModelRow, presCode: 'CON/SD' },
-  { key: 'condPure',  label: 'Raw\nCondorcet',      verdictField: 'condPureVerdict'  as keyof VoteModelRow, presField: 'presPureSigns'       as keyof VoteModelRow, presCode: 'STY'    },
-  { key: 'irvPure',   label: 'Raw\nIRV',            verdictField: 'irvPureVerdict'   as keyof VoteModelRow, presField: 'presPureSigns'       as keyof VoteModelRow, presCode: 'STY'    },
-  { key: 'condLF',    label: 'LF\nCondorcet',       verdictField: 'condLFVerdict'    as keyof VoteModelRow, presField: 'presLFSigns'         as keyof VoteModelRow, presCode: 'STY_ctr'},
-  { key: 'irvLF',     label: 'LF\nIRV',             verdictField: 'irvLFVerdict'     as keyof VoteModelRow, presField: 'presLFSigns'         as keyof VoteModelRow, presCode: 'STY_ctr'},
+  { key: 'condRawMulti', label: 'Raw Multi\nCondorcet', verdictField: 'condRawMultiVerdict' as keyof VoteModelRow, presField: 'presRawMultiCondSigns' as keyof VoteModelRow, presCode: 'CTR_1'    },
+  { key: 'irvRawMulti',  label: 'Raw Multi\nIRV',       verdictField: 'irvRawMultiVerdict'  as keyof VoteModelRow, presField: 'presRawMultiIRVSigns'  as keyof VoteModelRow, presCode: 'SD_1'     },
+  { key: 'condPure',     label: 'Raw\nCondorcet',       verdictField: 'condPureVerdict'     as keyof VoteModelRow, presField: 'presPureSigns'          as keyof VoteModelRow, presCode: 'SD'       },
+  { key: 'irvPure',      label: 'Raw\nIRV',             verdictField: 'irvPureVerdict'      as keyof VoteModelRow, presField: 'presPureSigns'          as keyof VoteModelRow, presCode: 'SD'       },
+  { key: 'condFD',       label: 'FD\nCondorcet',        verdictField: 'condFDVerdict'       as keyof VoteModelRow, presField: 'presFDCondSigns'        as keyof VoteModelRow, presCode: 'CTR_lo_pc' },
+  { key: 'irvFD',        label: 'FD\nIRV',              verdictField: 'irvFDVerdict'        as keyof VoteModelRow, presField: 'presFDIRVSigns'         as keyof VoteModelRow, presCode: 'SD_lo_pc'  },
 ] as const;
 
 
