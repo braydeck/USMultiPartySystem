@@ -14,6 +14,7 @@ interface Props {
   pureMultiStateWinners: Record<string, PrimaryStateWinner>;
   pureMultiSankey: PrimarySankeyData;
   clusters: ClusterProfile[];
+  clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
 }
 
 type Pipeline = 'factorDev' | 'rawMulti';
@@ -31,7 +32,7 @@ const PIPELINE_DESC: Record<Pipeline, string> = {
 export function PrimaryTab({
   factorDev, factorDevStateWinners, factorDevSankey,
   pureMulti, pureMultiStateWinners, pureMultiSankey,
-  clusters,
+  clusters, clusterSpreads,
 }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -137,6 +138,7 @@ export function PrimaryTab({
             seats: c.seatsHouse,
             F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
           }))}
+          clusterSpreads={clusterSpreads}
         />
       </div>
 

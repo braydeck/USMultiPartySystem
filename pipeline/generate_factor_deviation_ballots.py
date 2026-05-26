@@ -66,25 +66,57 @@ def compute_candidate_scores_hybrid(voter_factors: np.ndarray,
                                     prob_matrix:   np.ndarray,
                                     cand_positions: np.ndarray,
                                     cand_clusters:  np.ndarray,
+                                    is_base:        np.ndarray,
                                     sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
-    """Hybrid scorer: prob_cluster_k × Gaussian proximity.
+    """Base catches core voters, variants capture loose voters.
 
-    Cross-party ordering is driven by the voter's soft cluster membership
-    (prob_cluster_k), replacing centroid-snapping. Within-party variant
-    ordering is still driven by Gaussian proximity to each variant's actual
-    factor position, preserving the FD experiment's positional differentiation.
+    Base candidates:   score = prob_cluster_k (pure GMM posterior)
+    Variant candidates: score = prob_cluster_k × Gaussian(variant) / Gaussian(base)
+
+    The ratio Gaussian(variant)/Gaussian(base) measures whether the variant
+    is closer or farther than base for each voter:
+      ratio > 1 → variant closer → marginal/loose voter picks variant
+      ratio < 1 → base closer → core voter stays with base
+
+    Cross-party: prob is tiny, so neither base nor variant can be first-preference.
+    Base never steals cross-party votes. Variants attract transfers when parties
+    are eliminated in STV — the real FD signal.
 
     voter_factors:  (N, 5)
-    prob_matrix:    (N, 10)  — soft cluster membership probabilities
-    cand_positions: (C, 5)   — each FD candidate's factor position
+    prob_matrix:    (N, 10)
+    cand_positions: (C, 5)
     cand_clusters:  (C,)     — base party cluster index per candidate
+    is_base:        (C,) bool — True for base candidates
     Returns:        (N, C)
     """
+    N, C = len(voter_factors), len(cand_positions)
+    prob = prob_matrix[:, cand_clusters]                               # (N, C)
+
+    # Gaussian proximity for all candidates
     diff    = voter_factors[:, None, :] - cand_positions[None, :, :]   # (N, C, 5)
     dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)               # (N, C)
-    gaussian = np.exp(-dist_sq / (2.0 * sigma ** 2))                   # (N, C)
-    prob     = prob_matrix[:, cand_clusters]                            # (N, C)
-    return prob * gaussian
+    gauss   = np.exp(-dist_sq / (2.0 * sigma ** 2))                    # (N, C)
+
+    # Find each party's base candidate index
+    base_idx = {}  # cluster_k → candidate index
+    for j in range(C):
+        if is_base[j]:
+            base_idx[cand_clusters[j]] = j
+
+    scores = np.empty((N, C), dtype=np.float64)
+    for j in range(C):
+        k = cand_clusters[j]
+        if is_base[j]:
+            # Base: pure GMM posterior
+            scores[:, j] = prob[:, j]
+        else:
+            # Variant: prob × (Gaussian_variant / Gaussian_base)
+            bi = base_idx.get(k, j)
+            gauss_base = gauss[:, bi]
+            gauss_base = np.where(gauss_base > 1e-10, gauss_base, 1e-10)
+            scores[:, j] = prob[:, j] * gauss[:, j] / gauss_base
+
+    return scores
 
 
 def compute_candidate_scores(voter_factors: np.ndarray,
@@ -186,11 +218,14 @@ def main():
 
     # Map each FD candidate to its base party cluster index
     cand_clusters = cand_df["party"].map(PARTY_CLUSTER).values.astype(int)
+    is_base       = (cand_df["axis"] == "base").values
 
     # ── Compute hybrid scores ─────────────────────────────────────────────────
     print(f"\n{thin}")
-    print(f"Computing candidate scores (hybrid: prob × Gaussian, σ={POSITIONAL_SIGMA})…")
-    scores = compute_candidate_scores_hybrid(voter_factors, prob_matrix, cand_positions, cand_clusters)
+    print(f"Computing candidate scores (base=GMM posterior, variants=prob×Gaussian, σ={POSITIONAL_SIGMA})…")
+    n_base = int(is_base.sum())
+    print(f"  {n_base} base candidates (pure GMM), {len(is_base) - n_base} variants (hybrid)")
+    scores = compute_candidate_scores_hybrid(voter_factors, prob_matrix, cand_positions, cand_clusters, is_base)
     print(f"  Scores shape: {scores.shape}")
     print(f"  Score range:  min={scores.min():.6f}  max={scores.max():.6f}  mean={scores.mean():.6f}")
 

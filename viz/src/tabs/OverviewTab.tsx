@@ -46,6 +46,7 @@ interface Props {
   fdProfiles: Record<string, FDCandidateProfile>;
   fptpStates: FPTPState[];
   stateMap: Record<string, HouseStateEntry>;
+  clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
 }
 
 // ── Reusable sub-components ────────────────────────────────────────────────
@@ -197,7 +198,7 @@ export function OverviewTab({
   rawMultiElection,
   rawMultiSenateCond, rawMultiSenateIRV,
   houseSeats, senateVotes, houseVotes,
-  clusters, fptpStates, stateMap,
+  clusters, fptpStates, stateMap, clusterSpreads,
 }: Props) {
   const condWinner = rawMultiElection.condorcetWinner; // e.g. "CTR_1"
   const irvWinner  = rawMultiElection.irvWinner;       // e.g. "SD_1"
@@ -343,6 +344,7 @@ export function OverviewTab({
             seats: c.seatsHouse,
             F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
           }))}
+          clusterSpreads={clusterSpreads}
         />
       </div>
 

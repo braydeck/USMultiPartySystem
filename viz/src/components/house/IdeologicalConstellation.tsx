@@ -1,11 +1,17 @@
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import type { ConstellationNode, TransferMatrix } from '../../types';
-import { getBlendColor, FACTOR_LABELS } from '../../constants/parties';
+import { getBlendColor, FACTOR_LABELS, PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+
+interface ClusterSpread {
+  party: string;
+  [key: string]: string | number;
+}
 
 interface Props {
   nodes: ConstellationNode[];
   transfers?: TransferMatrix;
+  clusterSpreads?: ClusterSpread[];
 }
 
 const THRESHOLD = 1.5;
@@ -43,21 +49,30 @@ function ControlSection({
   );
 }
 
-export function IdeologicalConstellation({ nodes: inputNodes, transfers }: Props) {
+export function IdeologicalConstellation({ nodes: inputNodes, transfers, clusterSpreads }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const W = 560, H = 460;
   const PAD_L = 52, PAD_R = 24, PAD_T = 30, PAD_B = 52;
 
-  const [xFactor, setXFactor] = useState('F1');
-  const [yFactor, setYFactor] = useState('F5');
-  const [sizeFactor, setSizeFactor] = useState('seats');
-  const [colorMode, setColorMode] = useState('party');
+  const [xFactor, setXFactor] = useState('F5');
+  const [yFactor, setYFactor] = useState('F1');
+  const [sizeFactor, setSizeFactor] = useState('F2');
+  const [colorMode, setColorMode] = useState('F4');
+  const [enabledParties, setEnabledParties] = useState<Set<string>>(() => new Set(F5_ORDER));
+
+  const toggleParty = (p: string) => {
+    setEnabledParties(prev => {
+      const next = new Set(prev);
+      if (next.has(p)) next.delete(p); else next.add(p);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    const nodes = inputNodes.map(n => ({ ...n }));
+    const nodes = inputNodes.filter(n => enabledParties.has(n.id)).map(n => ({ ...n }));
     if (nodes.length === 0) return;
 
     const getVal = (n: ConstellationNode, key: string): number => {
@@ -89,15 +104,24 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers }: Props
       ? d3.scaleSqrt().domain([0, sMax]).range([6, 42])
       : d3.scaleLinear().domain([sMin, sMax === sMin ? sMin + 1 : sMax]).range([6, 30]);
 
-    // Color scale
-    const cVals = nodes.map(n => getVal(n, colorMode === 'party' ? 'F1' : colorMode));
-    const cMin = d3.min(cVals) ?? 0;
+    // Color scale — per-factor data range so each factor uses the full cividis spectrum
+    const cVals = nodes.map(n => getVal(n, colorMode === 'party' ? 'F5' : colorMode));
+    const cMin = d3.min(cVals) ?? -1;
     const cMax = d3.max(cVals) ?? 1;
-    const cScale = d3.scaleSequential(d3.interpolateCividis).domain([cMin, cMax]);
+    const cScale = d3.scaleSequential(d3.interpolateCividis)
+      .domain([cMin, cMax === cMin ? cMin + 1 : cMax]);
 
     const getColor = (n: ConstellationNode) => {
       if (colorMode === 'party') return getBlendColor(n.id);
       return cScale(getVal(n, colorMode));
+    };
+
+    // Text color: white on dark cividis fills, dark on light fills
+    const getTextColor = (n: ConstellationNode, r: number) => {
+      if (r < 14) return '#334155';  // small bubble — always dark (label goes outside)
+      if (colorMode === 'party') return '#0f172a';
+      const hsl = d3.hsl(getColor(n));
+      return (hsl.l ?? 0.5) > 0.45 ? '#0f172a' : '#ffffff';
     };
 
     // --- Gridlines + tick labels ---
@@ -131,6 +155,48 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers }: Props
       .attr('text-anchor', 'end')
       .style('fill', '#cbd5e1').style('font-size', '9px')
       .text(d => d.toFixed(1));
+
+    // --- Penumbra ellipses (voter spread) ---
+    if (clusterSpreads) {
+      const penumbraG = svg.append('g').attr('class', 'penumbra');
+      for (const cs of clusterSpreads) {
+        if (!enabledParties.has(cs.party)) continue;
+        const color = PARTY_COLORS[cs.party] ?? '#6b7280';
+        const mx = Number(cs[`mean_${xFactor}`] ?? 0);
+        const my = Number(cs[`mean_${yFactor}`] ?? 0);
+        const sdx = Number(cs[`sd_${xFactor}`] ?? 0);
+        const sdy = Number(cs[`sd_${yFactor}`] ?? 0);
+        const covKey = `cov_${xFactor}_${yFactor}`;
+        const covKeyAlt = `cov_${yFactor}_${xFactor}`;
+        const cov = Number(cs[covKey] ?? cs[covKeyAlt] ?? 0);
+
+        const a = sdx * sdx, b = cov, dd = sdy * sdy;
+        const trace = a + dd;
+        const det = a * dd - b * b;
+        const disc = Math.sqrt(Math.max(0, trace * trace / 4 - det));
+        const lambda1 = trace / 2 + disc;
+        const lambda2 = Math.max(0.001, trace / 2 - disc);
+        const angle = b !== 0 ? Math.atan2(lambda1 - a, b) * (180 / Math.PI) : 0;
+
+        const SIGMA = 1.5;
+        const xDomain = xScale.domain();
+        const yDomain = yScale.domain();
+        const rx = Math.sqrt(lambda1) * SIGMA / (xDomain[1] - xDomain[0]) * (W - PAD_L - PAD_R);
+        const ry = Math.sqrt(lambda2) * SIGMA / (yDomain[1] - yDomain[0]) * (H - PAD_T - PAD_B);
+
+        penumbraG.append('ellipse')
+          .attr('cx', xScale(mx))
+          .attr('cy', yScale(my))
+          .attr('rx', rx)
+          .attr('ry', ry)
+          .attr('transform', `rotate(${-angle}, ${xScale(mx)}, ${yScale(my)})`)
+          .attr('fill', color)
+          .attr('fill-opacity', 0.06)
+          .attr('stroke', color)
+          .attr('stroke-opacity', 0.15)
+          .attr('stroke-width', 1);
+      }
+    }
 
     // --- Links ---
     const links: { source: string; target: string; value: number }[] = [];
@@ -198,16 +264,19 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers }: Props
         linkSel.attr('opacity', 0.5).attr('stroke', '#cbd5e1');
       });
 
-    // Labels
+    // Labels — offset above circle when bubble is too small to contain text
     svg.append('g')
       .selectAll('text')
       .data(nodes as any)
       .enter().append('text')
       .attr('x', (d: any) => d.x)
-      .attr('y', (d: any) => d.y + 4)
+      .attr('y', (d: any) => {
+        const r = rScale(getVal(d, sizeFactor));
+        return r < 14 ? d.y - r - 4 : d.y + 4;
+      })
       .attr('text-anchor', 'middle')
-      .style('fill', '#0f172a')
-      .style('font-size', '11px')
+      .style('fill', (d: any) => getTextColor(d, rScale(getVal(d, sizeFactor))))
+      .style('font-size', (d: any) => rScale(getVal(d, sizeFactor)) < 14 ? '9px' : '11px')
       .style('font-weight', '600')
       .style('pointer-events', 'none')
       .text((d: any) => d.id);
@@ -227,7 +296,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers }: Props
       .style('fill', '#94a3b8').style('font-size', '10px')
       .text(`← Low ${yLabel}   |   High →`);
 
-  }, [inputNodes, transfers, xFactor, yFactor, sizeFactor, colorMode]);
+  }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties]);
 
   const colorOptions = ['party', ...FACTORS] as const;
 
@@ -262,8 +331,27 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers }: Props
         </div>
       </div>
 
-      {/* SVG + footnote */}
+      {/* SVG + controls */}
       <div className="flex-1 min-w-0">
+        {/* Party toggles */}
+        <div className="flex flex-wrap gap-1 mb-2">
+          {F5_ORDER.map(p => {
+            const on = enabledParties.has(p);
+            const color = PARTY_COLORS[p];
+            return (
+              <button key={p} onClick={() => toggleParty(p)}
+                className="text-[10px] px-1.5 py-0.5 rounded border transition-all"
+                style={{
+                  borderColor: color,
+                  color: on ? 'white' : color,
+                  backgroundColor: on ? color : 'transparent',
+                  opacity: on ? 1 : 0.35,
+                }}>
+                {p}
+              </button>
+            );
+          })}
+        </div>
         <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto' }} />
         {transfers && (
           <p className="text-xs text-slate-500 mt-1 text-center">

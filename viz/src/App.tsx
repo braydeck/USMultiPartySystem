@@ -39,6 +39,10 @@ import countyTiersData from './data/countyTiers.json';
 import districtStvResultsData from './data/districtStvResults.json';
 import districtCountyMapData from './data/districtCountyMap.json';
 import houseTransfersData from './data/houseTransfers.json';
+import fdVariantAttractionData from './data/fdVariantAttraction.json';
+import fdCandidatePositionsData from './data/fdCandidatePositions.json';
+import clusterSpreadsData from './data/clusterSpreads.json';
+import fdAttractionDriversData from './data/fdAttractionDrivers.json';
 import rcvResultsData from './data/rcvResults.json';
 
 import type {
@@ -115,6 +119,7 @@ export default function App() {
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
             fptpStates={fptpDisproportionalityData as FPTPState[]}
             stateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
+            clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
           />
         )}
         {tab === 'primary' && (
@@ -126,6 +131,7 @@ export default function App() {
             pureMultiStateWinners={pureMultiPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
             pureMultiSankey={pureMultiPrimarySankeyData as unknown as PrimarySankeyData}
             clusters={clusterProfilesData as ClusterProfile[]}
+            clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
           />
         )}
         {tab === 'presidential' && (
@@ -146,6 +152,7 @@ export default function App() {
             voteModel={senateVoteModelData as VoteModelRow[]}
             clusters={clusterProfilesData as ClusterProfile[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
+            clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
           />
         )}
         {tab === 'house' && (
@@ -163,6 +170,10 @@ export default function App() {
             districtResults={districtStvResultsData as unknown as Record<string, DistrictResult[]>}
             districtCountyMap={districtCountyMapData as Record<string, string[]>}
             houseTransfers={houseTransfersData as { source: string; totalVoters: number; destinations: { party: string; pct: number }[] }[]}
+            fdVariantAttraction={fdVariantAttractionData as { variant: string; party: string; axis: string; direction: string; totalVoters: number; homePct: number; crossPct: number; sources: { party: string; pct: number }[] }[]}
+            fdCandidatePositions={fdCandidatePositionsData as { code: string; party: string; axis: string; direction: string; F1: number; F2: number; F3: number; F4: number; F5: number }[]}
+            clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
+            fdAttractionDrivers={fdAttractionDriversData as { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[]}
           />
         )}
         {tab === 'rcv' && (
@@ -186,7 +197,10 @@ export default function App() {
           />
         )}
         {tab === 'parties' && (
-          <PartiesTab clusters={clusterProfilesData as ClusterProfile[]} />
+          <PartiesTab
+            clusters={clusterProfilesData as ClusterProfile[]}
+            clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
+          />
         )}
         {tab === 'quiz' && (
           <QuizTab

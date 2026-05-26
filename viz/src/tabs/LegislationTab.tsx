@@ -27,18 +27,16 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
   const [pipeline, setPipeline] = useState<Pipeline>('rawMulti');
   const [method,   setMethod]   = useState<Method>('condorcet');
 
-  const presWinner = (() => {
-    const election = pipeline === 'rawMulti' ? rawMultiElection : fdElection;
-    return method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
-  })();
+  const election = pipeline === 'rawMulti' ? rawMultiElection : fdElection;
+  const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">Legislation</h2>
         <p className="text-slate-500 text-sm">
-          Probability of passage across House, Senate, and presidency. Amber rows highlight
-          where House and Senate point in opposite directions.
+          Probability of passage across House, Senate, and presidency. The divergences panel highlights
+          where the election method (Condorcet vs IRV) changes outcomes.
         </p>
       </div>
 
@@ -85,9 +83,8 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
       <LegislationDivergences
         houseVotes={houseVotes}
         senateVotes={senateVotes}
-        fdElection={fdElection}
-        rawMultiElection={rawMultiElection}
-        senateMethod={method}
+        election={election}
+        pipeline={pipeline}
       />
 
       <div className="bg-white rounded-xl p-4 border border-slate-200">

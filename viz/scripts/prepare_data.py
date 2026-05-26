@@ -609,6 +609,71 @@ def build_house_transfers():
     write_json(out, "houseTransfers.json")
 
 
+def build_fd_variant_attraction():
+    """For each FD variant, show where first-choice voters come from (home vs cross-party)."""
+    ballot_path = FD_DIR / "ballots.csv"
+    if not ballot_path.exists():
+        write_json([], "fdVariantAttraction.json")
+        return
+
+    ballot_rows = read_csv(str(ballot_path))
+    typology_rows = read_csv(str(Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"))
+
+    CLUSTER_TO_PARTY = {"0":"CON","1":"SD","2":"STY","3":"NAT","4":"LIB","5":"REF","6":"CTR","7":"C7","8":"DSA","9":"PRG"}
+
+    # variant → {source_party: weighted_count}
+    variant_sources: dict = {}
+    variant_totals: dict = {}
+
+    for i, br in enumerate(ballot_rows):
+        variant = br.get("rank_1", "")
+        cluster = typology_rows[i].get("cluster", "")
+        home = CLUSTER_TO_PARTY.get(str(cluster), "")
+        if home == "C7" or not home:
+            continue
+        w = float(typology_rows[i].get("commonpostweight", 1))
+        if variant not in variant_sources:
+            variant_sources[variant] = {}
+            variant_totals[variant] = 0.0
+        variant_sources[variant][home] = variant_sources[variant].get(home, 0.0) + w
+        variant_totals[variant] += w
+
+    out = []
+    for variant in sorted(variant_sources.keys()):
+        total = variant_totals[variant]
+        if total < 50:
+            continue
+        parts = variant.split("_")
+        party = parts[0]
+        if len(parts) == 3:
+            direction = parts[1]   # hi / lo
+            axis = parts[2]        # so / ae / pc / rt
+        else:
+            axis = "base"
+            direction = "base"
+
+        home_pct = variant_sources[variant].get(party, 0) / total * 100
+        sources = []
+        for src_party, w in sorted(variant_sources[variant].items(), key=lambda x: -x[1]):
+            pct = w / total * 100
+            if pct >= 2:
+                sources.append({"party": src_party, "pct": round(pct, 1)})
+
+        out.append({
+            "variant": variant,
+            "party": party,
+            "axis": axis,
+            "direction": direction,
+            "totalVoters": round(total, 0),
+            "homePct": round(home_pct, 1),
+            "crossPct": round(100 - home_pct, 1),
+            "sources": sources,
+        })
+
+    out.sort(key=lambda x: -x["crossPct"])
+    write_json(out, "fdVariantAttraction.json")
+
+
 def build_house_seats_gauss():
     """Gaussian reference run — reads the _gauss suffix file."""
     rows = read_csv(OUTPUTS / "pure_multi" / "house" / "stv_seat_summary_gauss.csv")
@@ -3521,6 +3586,7 @@ if __name__ == "__main__":
     build_senate_vote_model()
     build_house_seats()
     build_house_transfers()
+    build_fd_variant_attraction()
     build_house_vote_model()
     build_house_state_map()
     build_coalition_profiles()

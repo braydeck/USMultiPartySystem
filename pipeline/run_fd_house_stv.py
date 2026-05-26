@@ -47,13 +47,28 @@ def score_candidates_hybrid(voter_factors:  np.ndarray,
                             prob_matrix:    np.ndarray,
                             cand_positions: np.ndarray,
                             cand_clusters:  np.ndarray,
+                            is_base:        np.ndarray,
                             sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
-    """Hybrid: prob_cluster_k × Gaussian proximity. See generate_factor_deviation_ballots.py."""
-    diff     = voter_factors[:, None, :] - cand_positions[None, :, :]
-    dist_sq  = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
-    gaussian = np.exp(-dist_sq / (2.0 * sigma ** 2))
-    prob     = prob_matrix[:, cand_clusters]
-    return prob * gaussian
+    """Base = pure GMM posterior. Variants = prob × Gaussian(variant)/Gaussian(base)."""
+    N, C = len(voter_factors), len(cand_positions)
+    prob    = prob_matrix[:, cand_clusters]
+    diff    = voter_factors[:, None, :] - cand_positions[None, :, :]
+    dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
+    gauss   = np.exp(-dist_sq / (2.0 * sigma ** 2))
+    base_idx = {}
+    for j in range(C):
+        if is_base[j]:
+            base_idx[cand_clusters[j]] = j
+    scores = np.empty((N, C), dtype=np.float64)
+    for j in range(C):
+        k = cand_clusters[j]
+        if is_base[j]:
+            scores[:, j] = prob[:, j]
+        else:
+            bi = base_idx.get(k, j)
+            gb = np.where(gauss[:, bi] > 1e-10, gauss[:, bi], 1e-10)
+            scores[:, j] = prob[:, j] * gauss[:, j] / gb
+    return scores
 
 
 def generate_ballots(scores: np.ndarray,
@@ -177,6 +192,7 @@ def main():
     cand_arr       = np.array(cand_codes, dtype=object)
     cand_positions = cand_df[CAND_FACTOR_COLS].values.astype(np.float64)
     cand_clusters  = cand_df["party"].map(PARTY_CLUSTER).values.astype(int)
+    is_base        = (cand_df["axis"] == "base").values
     cand_meta      = {row["candidate_code"]: {"party": row["party"], "axis": row["axis"],
                                                "direction": row["direction"]}
                       for _, row in cand_df.iterrows()}
@@ -209,7 +225,7 @@ def main():
         # Score and generate ballots (hybrid: prob × Gaussian)
         d_factors = voter_factors[mask]
         d_weights = weights[mask]
-        scores    = score_candidates_hybrid(d_factors, prob_matrix[mask], cand_positions, cand_clusters)
+        scores    = score_candidates_hybrid(d_factors, prob_matrix[mask], cand_positions, cand_clusters, is_base)
         ballots   = generate_ballots(scores, cand_arr, rng)
 
         # STV

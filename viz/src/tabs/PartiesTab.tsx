@@ -6,11 +6,12 @@ import { PARTY_NAMES, FACTOR_LABELS } from '../constants/parties';
 
 interface Props {
   clusters: ClusterProfile[];
+  clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
 }
 
 type SortFactor = 'F1' | 'F2' | 'F3' | 'F4' | 'F5';
 
-export function PartiesTab({ clusters }: Props) {
+export function PartiesTab({ clusters, clusterSpreads }: Props) {
   const [sortFactor, setSortFactor] = useState<SortFactor>('F5');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
@@ -72,6 +73,7 @@ export function PartiesTab({ clusters }: Props) {
             id: c.party, label: PARTY_NAMES[c.party] ?? c.party,
             seats: c.seatsHouse, F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
           }))}
+          clusterSpreads={clusterSpreads}
         />
       </div>
 

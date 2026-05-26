@@ -17,11 +17,12 @@ interface Props {
   voteModel:         VoteModelRow[];
   clusters:          ClusterProfile[];
   fdProfiles:        Record<string, FDCandidateProfile>;
+  clusterSpreads:    { party: string; n: number; [key: string]: string | number }[];
 }
 
 export function SenateTab({ condorcetFD, irvFD,
                              condorcetRawMulti, irvRawMulti,
-                             voteModel, clusters, fdProfiles }: Props) {
+                             voteModel, clusters, fdProfiles, clusterSpreads }: Props) {
   const [pipeline, setPipeline] = useState<'factorDev' | 'rawMulti'>('rawMulti');
   const [method, setMethod] = useState<'condorcet' | 'irv'>('condorcet');
   const [parliamentFactor, setParliamentFactor] = useState('F5');
@@ -296,7 +297,7 @@ export function SenateTab({ condorcetFD, irvFD,
           <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
             Ideological Constellation
           </h3>
-          <IdeologicalConstellation nodes={constellationNodes} />
+          <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
         </div>
 
         <div className="bg-white rounded-xl p-4 border border-slate-200">

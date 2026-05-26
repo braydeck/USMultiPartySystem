@@ -58,10 +58,31 @@ FIPS_TO_ABBR = {
 # ── Ballot generation ────────────────────────────────────────────────────────
 
 def score_candidates(voter_factors: np.ndarray,
+                     prob_matrix: np.ndarray,
                      cand_positions: np.ndarray,
+                     cand_clusters: np.ndarray,
+                     is_base: np.ndarray,
                      sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
-    diff = voter_factors[:, None, :] - cand_positions[None, :, :]
-    return np.exp(-((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2) / (2.0 * sigma ** 2))
+    """Base = pure GMM posterior. Variants = prob × Gaussian(variant)/Gaussian(base)."""
+    N, C = len(voter_factors), len(cand_positions)
+    prob    = prob_matrix[:, cand_clusters]
+    diff    = voter_factors[:, None, :] - cand_positions[None, :, :]
+    dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
+    gauss   = np.exp(-dist_sq / (2.0 * sigma ** 2))
+    base_idx = {}
+    for j in range(C):
+        if is_base[j]:
+            base_idx[cand_clusters[j]] = j
+    scores = np.empty((N, C), dtype=np.float64)
+    for j in range(C):
+        k = cand_clusters[j]
+        if is_base[j]:
+            scores[:, j] = prob[:, j]
+        else:
+            bi = base_idx.get(k, j)
+            gb = np.where(gauss[:, bi] > 1e-10, gauss[:, bi], 1e-10)
+            scores[:, j] = prob[:, j] * gauss[:, j] / gb
+    return scores
 
 
 def generate_ballots(scores: np.ndarray,
