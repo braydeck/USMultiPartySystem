@@ -72,11 +72,11 @@ export function PartiesTab({ clusters, clusterSpreads }: Props) {
           nodes={sorted.map(c => ({
             id: c.party, label: c.party,
             seats: c.seatsHouse,
-            F1: ((c as any).pctile_F1 ?? 50),
-            F2: ((c as any).pctile_F2 ?? 50),
-            F3: ((c as any).pctile_F3 ?? 50),
-            F4: ((c as any).pctile_F4 ?? 50),
-            F5: ((c as any).pctile_F5 ?? 50),
+            F1: ((c as any).z_F1 ?? 0),
+            F2: ((c as any).z_F2 ?? 0),
+            F3: ((c as any).z_F3 ?? 0),
+            F4: ((c as any).z_F4 ?? 0),
+            F5: ((c as any).z_F5 ?? 0),
           }))}
           clusterSpreads={clusterSpreads}
         />

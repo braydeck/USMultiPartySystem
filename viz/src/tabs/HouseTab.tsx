@@ -85,11 +85,11 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
     return {
       id: party, label: party,
       seats: 'seatsHouse' in c ? (c as any).seatsHouse : 0,
-      F1: ((cp as any)?.pctile_F1 ?? 50),
-      F2: ((cp as any)?.pctile_F2 ?? 50),
-      F3: ((cp as any)?.pctile_F3 ?? 50),
-      F4: ((cp as any)?.pctile_F4 ?? 50),
-      F5: ((cp as any)?.pctile_F5 ?? 50),
+      F1: ((cp as any)?.z_F1 ?? 0),
+      F2: ((cp as any)?.z_F2 ?? 0),
+      F3: ((cp as any)?.z_F3 ?? 0),
+      F4: ((cp as any)?.z_F4 ?? 0),
+      F5: ((cp as any)?.z_F5 ?? 0),
     };
   };
 
@@ -276,7 +276,7 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
       <div>
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
         <p className="text-xs text-slate-500 mb-4">
-          Ordered left→right by Ideology (F5). Percentiles show each party&apos;s position relative to the average of all American voters surveyed.
+          Ordered left→right by Ideology (F5). Intensity labels show how far each party deviates from the average American voter.
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {orderedClusters.map(cluster => (

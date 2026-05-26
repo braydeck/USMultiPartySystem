@@ -57,13 +57,13 @@ export function SenateTab({ condorcetFD, irvFD,
   );
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   function getFactorScore(code: string, factor: string): number {
-    // Return percentile (0-100, 50 = avg voter) for constellation
-    const pKey = `pctile_${factor}`;
+    // Return z-score (SDs from population mean, 0 = average voter) for constellation
+    const zKey = `z_${factor}`;
     const cl = clusterByParty[code];
-    if (cl) { const p = (cl as any)[pKey]; if (p != null) return p; }
+    if (cl) { const z = (cl as any)[zKey]; if (z != null) return z; }
     const base = code.split('_')[0];
     const baseCl = clusterByParty[base];
-    if (baseCl) { const p = (baseCl as any)[pKey]; if (p != null) return p; }
+    if (baseCl) { const z = (baseCl as any)[zKey]; if (z != null) return z; }
     // Fallback to raw for FD variants (no percentile available)
     const fd = fdProfiles[code];
     if (fd) return (fd as unknown as Record<string, number>)[factor] ?? 50;
@@ -272,7 +272,7 @@ export function SenateTab({ condorcetFD, irvFD,
       <div>
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
         <p className="text-xs text-slate-500 mb-4">
-          Ordered left→right by Ideology (F5). Percentiles show each party&apos;s position relative to the average of all American voters surveyed.
+          Ordered left→right by Ideology (F5). Intensity labels show how far each party deviates from the average American voter.
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {orderedClusters.map(cluster => (
