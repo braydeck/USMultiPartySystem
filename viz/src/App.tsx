@@ -154,6 +154,9 @@ export default function App() {
             clusters={clusterProfilesData as ClusterProfile[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
             clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
+            houseTransfers={houseTransfersData as { source: string; totalVoters: number; destinations: { party: string; pct: number }[] }[]}
+            fdVariantAttraction={fdVariantAttractionData as { variant: string; party: string; axis: string; direction: string; totalVoters: number; homePct: number; crossPct: number; sources: { party: string; pct: number }[] }[]}
+            fdAttractionDrivers={fdAttractionDriversData as { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[]}
           />
         )}
         {tab === 'house' && (

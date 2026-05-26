@@ -8,6 +8,10 @@ import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { PARTY_COLORS, FACTOR_LABELS, PARTY_NAMES, F5_ORDER, getBlendColor } from '../constants/parties';
+import { TransferFlowChart } from '../components/house/TransferFlowChart';
+import { VariantImpactChart } from '../components/house/VariantImpactChart';
+import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
+import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 
 interface Props {
   condorcetFD:       FDSenateSeat[];
@@ -18,10 +22,14 @@ interface Props {
   clusters:          ClusterProfile[];
   fdProfiles:        Record<string, FDCandidateProfile>;
   clusterSpreads:    { party: string; n: number; [key: string]: string | number }[];
+  houseTransfers: { source: string; totalVoters: number; destinations: { party: string; pct: number }[] }[];
+  fdVariantAttraction: { variant: string; party: string; axis: string; direction: string; totalVoters: number; homePct: number; crossPct: number; sources: { party: string; pct: number }[] }[];
+  fdAttractionDrivers: { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[];
 }
 
 export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
-                             voteModel, clusters, fdProfiles, clusterSpreads }: Props) {
+                             voteModel, clusters, fdProfiles, clusterSpreads,
+                             houseTransfers, fdVariantAttraction, fdAttractionDrivers }: Props) {
   const [pipeline, setPipeline] = useState<'factorDev' | 'rawMulti'>('rawMulti');
   const [method, setMethod] = useState<'condorcet' | 'irv'>('condorcet');
   const [parliamentFactor, setParliamentFactor] = useState('F5');
@@ -267,6 +275,19 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
       </div>
 
+      {/* Vote Transfer Destinations */}
+      {houseTransfers.length > 0 && (
+        <div className="bg-white rounded-xl p-4 border border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            Vote Transfer Destinations
+          </h3>
+          <p className="text-xs text-slate-500 mb-4">
+            When a party is eliminated in STV/IRV, where do their voters&apos; ballots flow?
+          </p>
+          <TransferFlowChart data={houseTransfers} />
+        </div>
+      )}
+
       {/* Senate Vote Model */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-4">
@@ -277,6 +298,52 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         </p>
         <VoteModelTable rows={voteModel} scenario={scenario} />
       </div>
+
+      {/* FD Analysis section */}
+      {isFD && (
+        <>
+          <div className="border-t-2 border-violet-200 pt-6">
+            <h3 className="text-lg font-bold text-violet-800 mb-1">Factor Deviation Analysis — Senate</h3>
+            <p className="text-xs text-slate-500 mb-6">
+              How do ideological deviations affect senate composition under {method === 'condorcet' ? 'Condorcet' : 'IRV'}?
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 border border-slate-200">
+            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+              Variant Impact by Party
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Which ideological deviations win senate seats?
+            </p>
+            <VariantImpactChart seats={fdVariantSeats} />
+          </div>
+
+          {fdVariantAttraction.length > 0 && (
+            <div className="bg-white rounded-xl p-4 border border-slate-200">
+              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+                Variant Voter Attraction Sources
+              </h3>
+              <p className="text-xs text-slate-500 mb-4">
+                Incremental cross-party attraction for each deviation relative to the party base.
+              </p>
+              <VariantAttractionChart data={fdVariantAttraction} />
+            </div>
+          )}
+
+          {fdAttractionDrivers.length > 0 && (
+            <div className="bg-white rounded-xl p-4 border border-slate-200">
+              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+                Cross-Party Attraction Drivers
+              </h3>
+              <p className="text-xs text-slate-500 mb-3">
+                Which factors explain each variant&apos;s cross-party pull?
+              </p>
+              <AttractionDriverChart data={fdAttractionDrivers} />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
