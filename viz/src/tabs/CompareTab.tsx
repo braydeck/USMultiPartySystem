@@ -369,6 +369,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
   const [groupBy, setGroupBy] = useState<'category' | 'factor'>('category');
   const [showNatAvg, setShowNatAvg] = useState(true);
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>('strength');
+  const [divergeOnly, setDivergeOnly] = useState(false);
 
   // Build option list: pure parties in F5_ORDER, then FD candidates grouped by party
   const pureOptions = F5_ORDER
@@ -625,6 +626,12 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
               }`}>
               {showNatAvg ? '✓ National Avg' : 'National Avg'}
             </button>
+            <button onClick={() => setDivergeOnly(!divergeOnly)}
+              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                divergeOnly ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}>
+              {divergeOnly ? '✓ Divergences only' : 'Divergences only'}
+            </button>
 
             <label className="flex items-center gap-1.5 text-xs text-slate-500 whitespace-nowrap ml-auto">
               Highlight gap ≥
@@ -648,9 +655,11 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
           ) : (
             <div className="space-y-3">
               {sectionKeys.map(sectionKey => {
-                const vars = sectionVarMap[sectionKey] ?? [];
+                const allVars = sectionVarMap[sectionKey] ?? [];
+                const vars = divergeOnly ? allVars.filter(v => v.highlighted) : allVars;
+                if (vars.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
-                const highlightCount = vars.filter(v => v.highlighted).length;
+                const highlightCount = allVars.filter(v => v.highlighted).length;
 
                 return (
                   <div key={sectionKey} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
