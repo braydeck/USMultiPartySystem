@@ -3537,6 +3537,31 @@ def build_district_stv_results():
     write_json(by_state, "districtStvResults.json")
 
 
+def build_fd_district_stv_results():
+    """Group FD district-level STV results by state FIPS."""
+    path = FD_DIR / "house" / "stv_results_by_district.csv"
+    if not path.exists():
+        write_json({}, "fdDistrictStvResults.json")
+        return
+    rows = read_csv(path)
+    by_state: dict = {}
+    for r in rows:
+        state_fips = str(r["state_fips"]).zfill(2)
+        elected = [r[f"elected_{i}"] for i in range(9) if r.get(f"elected_{i}")]
+        # Map variant codes to base party for coloring
+        elected_parties = [e.split("_")[0] if "_" in e and not e.split("_")[1].isdigit() else e.split("_")[0] for e in elected]
+        entry = {
+            "districtId":  r["district_id"],
+            "densityTier": r["density_tier"],
+            "seatCount":   int(r["seat_count"]),
+            "elected":     elected_parties,
+            "electedFull": elected,
+            "nRespondents": int(r["n_respondents"]),
+        }
+        by_state.setdefault(state_fips, []).append(entry)
+    write_json(by_state, "fdDistrictStvResults.json")
+
+
 def build_district_county_map():
     """Map each district_id to its list of county FIPS5 strings."""
     path = Path(__file__).parent.parent.parent / "data" / "processed" / "county_to_district.csv"
@@ -3649,6 +3674,7 @@ if __name__ == "__main__":
     build_house_seats_gauss()
     build_fptp_disproportionality()
     build_district_stv_results()
+    build_fd_district_stv_results()
     build_district_county_map()
     build_county_tiers()
     build_rcv_results()

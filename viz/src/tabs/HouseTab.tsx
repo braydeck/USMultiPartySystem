@@ -7,7 +7,6 @@ import { HouseGridChart } from '../components/house/HouseGridChart';
 import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
-import { RepresentationGap } from '../components/house/RepresentationGap';
 import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
 import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
@@ -38,9 +37,10 @@ interface Props {
   fdCandidatePositions: { code: string; party: string; axis: string; direction: string; F1: number; F2: number; F3: number; F4: number; F5: number }[];
   clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
   fdAttractionDrivers: { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[];
+  fdDistrictResults: Record<string, DistrictResult[]>;
 }
 
-export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, countyTiers, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers }: Props) {
+export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, countyTiers, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const totalSeats = seats.reduce((s, r) => s + r.national, 0);
@@ -148,6 +148,19 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
         <ScenarioComparison rawMultiSeats={seats} fdSeats={fdSeatsAggregated} scenario={scenario} />
       </div>
 
+      {/* FD: Variant bar right after seat share */}
+      {scenario === 'factorDev' && (
+        <div className="bg-white rounded-xl p-4 border border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            Seats by Variant
+          </h3>
+          <p className="text-xs text-slate-500 mb-3">
+            {activeTotalSeats} seats stacked by axis variant. Full color = base; lighter = hi axis; darker = lo axis.
+          </p>
+          <PartyVariantBar seats={fdHouseSeats} totalLabel={`${activeTotalSeats} house seats`} />
+        </div>
+      )}
+
       {/* Seats by District Type */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
@@ -157,11 +170,6 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
           Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
         </p>
         <UrbSubRurChart seats={activeSeats} />
-      </div>
-
-      {/* Representation gap detail */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <RepresentationGap seats={activeSeats} />
       </div>
 
       {/* FPTP disproportionality */}
@@ -178,8 +186,11 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 2: COMPOSITION & GEOGRAPHY
+          SECTION 2: PARTIES & GEOGRAPHY
           ═══════════════════════════════════════════════════════════════════════ */}
+
+      {/* Nine-Party Profiles — above the map */}
+      <PartyProfileGrid clusters={orderedClusters} />
 
       {/* Chamber Composition */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
@@ -198,26 +209,24 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
         <ParliamentChart segments={parliamentSegments} factor={parliamentFactor} />
       </div>
 
-      {/* State Composition — Raw Multi only */}
-      {scenario === 'rawMulti' && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">State Composition</h3>
-            <div className="flex gap-1">
-              {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
-                <button key={v} onClick={() => setMapView(v)}
-                  className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                    mapView === v ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                  }`}>
-                  {label}
-                </button>
-              ))}
-            </div>
+      {/* State Composition — both views */}
+      <div className="bg-white rounded-xl p-4 border border-slate-200">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">State Composition</h3>
+          <div className="flex gap-1">
+            {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
+              <button key={v} onClick={() => setMapView(v)}
+                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                  mapView === v ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                }`}>
+                {label}
+              </button>
+            ))}
           </div>
-          {mapView === 'map' && <HouseMap districtResults={districtResults} districtCountyMap={districtCountyMap} />}
-          {mapView === 'grid' && <HouseGridChart stateMap={stateMap} districtResults={districtResults} />}
         </div>
-      )}
+        {mapView === 'map' && <HouseMap districtResults={scenario === 'factorDev' ? fdDistrictResults : districtResults} districtCountyMap={districtCountyMap} />}
+        {mapView === 'grid' && <HouseGridChart stateMap={stateMap} districtResults={scenario === 'factorDev' ? fdDistrictResults : districtResults} />}
+      </div>
 
       {/* Vote Transfer Destinations — Raw Multi only */}
       {scenario === 'rawMulti' && houseTransfers.length > 0 && (
@@ -272,9 +281,6 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
         <BillSimulator rows={voteModel} />
       </div>
 
-      {/* Nine-Party Profiles */}
-      <PartyProfileGrid clusters={orderedClusters} />
-
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <StateSeatsTable stateMap={stateMap} />
       </div>
@@ -290,17 +296,6 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
             <p className="text-xs text-slate-500 mb-6">
               How do ideological deviations from party baselines affect seat composition and cross-party attraction?
             </p>
-          </div>
-
-          {/* Variant bar */}
-          <div className="bg-white rounded-xl p-4 border border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
-              Seats by Variant
-            </h3>
-            <p className="text-xs text-slate-500 mb-3">
-              {activeTotalSeats} seats stacked by axis variant. Full color = base; lighter = hi axis; darker = lo axis.
-            </p>
-            <PartyVariantBar seats={fdHouseSeats} totalLabel={`${activeTotalSeats} house seats`} />
           </div>
 
           {/* Variant Impact */}

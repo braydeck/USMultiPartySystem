@@ -43,6 +43,7 @@ import fdVariantAttractionData from './data/fdVariantAttraction.json';
 import fdCandidatePositionsData from './data/fdCandidatePositions.json';
 import clusterSpreadsData from './data/clusterSpreads.json';
 import fdAttractionDriversData from './data/fdAttractionDrivers.json';
+import fdDistrictStvResultsData from './data/fdDistrictStvResults.json';
 import rcvResultsData from './data/rcvResults.json';
 
 import type {
@@ -174,6 +175,7 @@ export default function App() {
             fdCandidatePositions={fdCandidatePositionsData as { code: string; party: string; axis: string; direction: string; F1: number; F2: number; F3: number; F4: number; F5: number }[]}
             clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
             fdAttractionDrivers={fdAttractionDriversData as { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[]}
+            fdDistrictResults={fdDistrictStvResultsData as unknown as Record<string, DistrictResult[]>}
           />
         )}
         {tab === 'rcv' && (
