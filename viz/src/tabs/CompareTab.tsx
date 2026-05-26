@@ -175,10 +175,10 @@ function DotTrack({
         {/* National average marker */}
         {showNatAvg && overall != null && (
           <>
-            <line x1={`${toPos(overall)}%`} y1={POLICY_LINE_Y - 10}
-              x2={`${toPos(overall)}%`} y2={POLICY_LINE_Y + 10}
-              stroke="#059669" strokeWidth={2} />
-            <text x={`${toPos(overall)}%`} y={POLICY_H - 3}
+            <line x1={`${toPos(overall)}%`} y1={POLICY_LINE_Y - 12}
+              x2={`${toPos(overall)}%`} y2={POLICY_LINE_Y + 12}
+              stroke="#059669" strokeWidth={2.5} />
+            <text x={`${toPos(overall)}%`} y={8}
               textAnchor="middle" fontSize={8} fill="#059669" fontWeight="600">
               All Americans: {toDisp(overall)}
             </text>
