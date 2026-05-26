@@ -3,7 +3,8 @@ import { getBlendColor, FACTOR_POLES } from '../../constants/parties';
 
 const FACTOR_SHORT_LABEL: Record<string, string> = {
   F1: 'Security',
-  F2: 'Electoral',
+  F2: 'Elections',
+  F3: 'Establishment',
   F4: 'Religion',
   F5: 'Ideology',
 };
@@ -33,7 +34,7 @@ export function PartyProfileCard({ cluster }: Props) {
         <span className="text-xs text-slate-500">{cluster.seatsHouse}s</span>
       </div>
       <div className="px-4 py-3 space-y-2">
-        {(['F1', 'F2', 'F4', 'F5'] as const).map(f => {
+        {(['F1', 'F2', 'F3', 'F4', 'F5'] as const).map(f => {
           const pctile = (cluster as unknown as Record<string, number>)[`pctile_${f}`];
           const label = FACTOR_SHORT_LABEL[f];
 
@@ -51,16 +52,16 @@ export function PartyProfileCard({ cluster }: Props) {
                 <span className="text-slate-500 shrink-0">{label}</span>
                 <span className="font-medium" style={{ color: barColor }}>{desc}</span>
               </div>
-              {/* Diverging bar: 0 at center */}
+              {/* Diverging bar: 50th percentile at center, full width = 0-100 */}
               <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
                 {isHigh ? (
                   <div className="absolute top-0 h-full rounded-r-full"
-                    style={{ left: '50%', width: `${(pctile - 50)}%`, backgroundColor: barColor, opacity: 0.5 }} />
+                    style={{ left: '50%', width: `${pctile - 50}%`, backgroundColor: barColor, opacity: 0.5 }} />
                 ) : (
                   <div className="absolute top-0 h-full rounded-l-full"
-                    style={{ right: '50%', width: `${(50 - pctile)}%`, backgroundColor: barColor, opacity: 0.5 }} />
+                    style={{ left: `${pctile}%`, width: `${50 - pctile}%`, backgroundColor: barColor, opacity: 0.5 }} />
                 )}
-                <div className="absolute top-0 left-1/2 w-px h-full bg-slate-300" />
+                <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
               </div>
             </div>
           );

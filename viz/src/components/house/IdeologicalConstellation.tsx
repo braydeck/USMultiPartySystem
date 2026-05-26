@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import type { ConstellationNode, TransferMatrix } from '../../types';
-import { getBlendColor, FACTOR_LABELS, PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+import { getBlendColor, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER } from '../../constants/parties';
 
 interface ClusterSpread {
   party: string;
@@ -349,14 +349,18 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         .text(d.id);
     }
 
-    // Axis labels
-    const xLabel = xFactor === 'seats' ? 'Seats' : (FACTOR_LABELS[xFactor] ?? xFactor);
-    const yLabel = yFactor === 'seats' ? 'Seats' : (FACTOR_LABELS[yFactor] ?? yFactor);
+    // Axis labels using pole names
+    const xPoles = FACTOR_POLES[xFactor];
+    const yPoles = FACTOR_POLES[yFactor];
+    const xLabel = xFactor === 'seats' ? '← Fewer Seats | More →'
+      : xPoles ? `← ${xPoles.low}   |   ${xPoles.high} →` : xFactor;
+    const yLabel = yFactor === 'seats' ? '← Fewer Seats | More →'
+      : yPoles ? `← ${yPoles.low}   |   ${yPoles.high} →` : yFactor;
     svg.append('text')
       .attr('x', (PAD_L + W - PAD_R) / 2).attr('y', H - 4)
       .attr('text-anchor', 'middle')
       .style('fill', '#475569').style('font-size', '10px')
-      .text(`← Low ${xLabel}   |   High →`);
+      .text(xLabel);
     svg.append('text')
       .attr('transform', 'rotate(-90)')
       .attr('x', -(PAD_T + H - PAD_B) / 2).attr('y', 13)

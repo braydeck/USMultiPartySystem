@@ -59,9 +59,9 @@ export function PartyCard({ cluster }: Props) {
                       style={{ left: '50%', width: `${pctile - 50}%`, backgroundColor: barColor, opacity: 0.45 }} />
                   ) : (
                     <div className="absolute top-0 h-full rounded-l-full"
-                      style={{ right: '50%', width: `${50 - pctile}%`, backgroundColor: barColor, opacity: 0.45 }} />
+                      style={{ left: `${pctile}%`, width: `${50 - pctile}%`, backgroundColor: barColor, opacity: 0.45 }} />
                   )}
-                  <div className="absolute top-0 left-1/2 w-px h-full bg-slate-300" />
+                  <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
                 </div>
               </div>
             );

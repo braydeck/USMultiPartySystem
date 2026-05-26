@@ -145,8 +145,8 @@ export const FACTOR_SHORT: Record<string, string> = {
 
 export const FACTOR_POLES: Record<string, { low: string; high: string }> = {
   F1: { low: 'Civil Libertarian', high: 'Law & Order' },
-  F2: { low: 'Establishment',     high: 'Anti-Establishment' },
-  F3: { low: 'Institutionalist',  high: 'Anti-Government' },
+  F2: { low: 'Election Supporting', high: 'Election Skeptic' },
+  F3: { low: 'Pro-Establishment',   high: 'Anti-Establishment' },
   F4: { low: 'Secular',           high: 'Faith-Guided' },
   F5: { low: 'Progressive',       high: 'Conservative' },
 };
