@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { getBlendColor, F5_ORDER } from '../../constants/parties';
-import type { HouseStateEntry } from '../../types';
+import { useMemo, useState } from 'react';
+import { PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+import type { HouseStateEntry, DistrictResult } from '../../types';
 
 interface Props {
   stateMap: Record<string, HouseStateEntry>;
+  districtResults: Record<string, DistrictResult[]>;
 }
 
-// Geographic grid [row, col] — approximate US state positions in an 8×12 grid
+// Geographic grid [row, col]
 const STATE_GRID: Record<string, [number, number]> = {
   AK: [0,0],
   WA: [1,2], MT: [1,3], ND: [1,4], MN: [1,5], WI: [1,6], MI: [1,7], NY: [1,9], VT: [1,10], NH: [1,11], ME: [1,12],
@@ -17,7 +18,6 @@ const STATE_GRID: Record<string, [number, number]> = {
   HI: [6,1],            TX: [6,3], LA: [6,5],             GA: [6,7], FL: [6,8],
 };
 
-// Build FIPS → stateAbbr reverse lookup
 const FIPS_TO_ABBR: Record<string, string> = {
   '01':'AL','02':'AK','04':'AZ','05':'AR','06':'CA','08':'CO','09':'CT','10':'DE','11':'DC',
   '12':'FL','13':'GA','15':'HI','16':'ID','17':'IL','18':'IN','19':'IA','20':'KS','21':'KY',
@@ -27,109 +27,198 @@ const FIPS_TO_ABBR: Record<string, string> = {
   '50':'VT','51':'VA','53':'WA','54':'WV','55':'WI','56':'WY',
 };
 
-const CELL = 72;   // cell size in px
-const GAP  = 6;    // gap between cells
-const DOT  = 6;    // dot size in px
-const DOT_GAP = 1; // gap between dots
+const ABBR_TO_FIPS: Record<string, string> = Object.fromEntries(
+  Object.entries(FIPS_TO_ABBR).map(([fips, abbr]) => [abbr, fips])
+);
 
-export function HouseGridChart({ stateMap }: Props) {
+const TIER_ORDER = ['URBAN', 'SUBURBAN', 'RURAL'];
+
+// Seat square geometry
+const SQ      = 8;   // square side length
+const SQ_GAP  = 1;   // gap between squares in a row
+const DIST_GAP = 3;  // gap between district rows
+const LABEL_H = 11;  // state label height
+const PAD     = 3;   // cell padding
+const COL_GAP = 6;   // gap between grid columns
+const ROW_GAP = 6;   // gap between grid rows
+
+function cellWidth(maxDistSeats: number): number {
+  return maxDistSeats * (SQ + SQ_GAP) - SQ_GAP + PAD * 2;
+}
+function cellHeight(numDists: number): number {
+  return numDists * SQ + Math.max(0, numDists - 1) * DIST_GAP + LABEL_H + PAD * 2;
+}
+
+export function HouseGridChart({ stateMap, districtResults }: Props) {
+  const [activeParty, setActiveParty] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<string | null>(null);
 
-  // Build abbr → entry map
   const byAbbr: Record<string, HouseStateEntry> = {};
   for (const [fips, entry] of Object.entries(stateMap)) {
-    const abbr = FIPS_TO_ABBR[fips] ?? entry.stateAbbr;
-    byAbbr[abbr] = entry;
+    byAbbr[FIPS_TO_ABBR[fips] ?? entry.stateAbbr] = entry;
   }
 
-  // Determine grid bounds
+  // Pre-compute sorted districts and cell dimensions per state
+  const stateData = useMemo(() => {
+    const out: Record<string, { dists: DistrictResult[], cw: number, ch: number }> = {};
+    for (const abbr of Object.keys(STATE_GRID)) {
+      const fips  = ABBR_TO_FIPS[abbr];
+      const dists = [...((fips ? districtResults[fips] : undefined) ?? [])].sort(
+        (a, b) => TIER_ORDER.indexOf(a.densityTier) - TIER_ORDER.indexOf(b.densityTier)
+      );
+      const maxSeats = dists.length ? Math.max(...dists.map(d => d.seatCount)) : 1;
+      out[abbr] = {
+        dists,
+        cw: cellWidth(maxSeats),
+        ch: cellHeight(Math.max(1, dists.length)),
+      };
+    }
+    return out;
+  }, [districtResults]);
+
   const maxRow = Math.max(...Object.values(STATE_GRID).map(([r]) => r));
   const maxCol = Math.max(...Object.values(STATE_GRID).map(([, c]) => c));
 
-  const totalW = (maxCol + 1) * (CELL + GAP);
-  const totalH = (maxRow + 1) * (CELL + GAP + 14); // +14 for state label below
+  // Column widths = max cell width of states in each column
+  const colWidths: number[] = Array(maxCol + 1).fill(0);
+  for (const [abbr, [, col]] of Object.entries(STATE_GRID)) {
+    colWidths[col] = Math.max(colWidths[col], stateData[abbr]?.cw ?? 0);
+  }
+  // Column x-offsets
+  const colX: number[] = [];
+  let xAcc = 0;
+  for (let c = 0; c <= maxCol; c++) {
+    colX[c] = xAcc;
+    xAcc += colWidths[c] + COL_GAP;
+  }
 
-  const dotsPerRow = Math.floor(CELL / (DOT + DOT_GAP));
+  // Row heights = max cell height of states in each row
+  const rowHeights: number[] = Array(maxRow + 1).fill(0);
+  for (const [abbr, [row]] of Object.entries(STATE_GRID)) {
+    rowHeights[row] = Math.max(rowHeights[row], stateData[abbr]?.ch ?? 0);
+  }
+  // Row y-offsets
+  const rowY: number[] = [];
+  let yAcc = 0;
+  for (let r = 0; r <= maxRow; r++) {
+    rowY[r] = yAcc;
+    yAcc += rowHeights[r] + ROW_GAP;
+  }
+
+  const totalW = xAcc - COL_GAP;
+  const totalH = yAcc - ROW_GAP;
 
   return (
     <div>
+      {/* Party highlight filter */}
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        <span className="text-xs text-slate-400 self-center mr-1">Highlight:</span>
+        {F5_ORDER.map(p => (
+          <button
+            key={p}
+            onClick={() => setActiveParty(activeParty === p ? null : p)}
+            className="text-xs px-2 py-0.5 rounded border transition-all"
+            style={{
+              borderColor: PARTY_COLORS[p],
+              color: activeParty === p ? 'white' : PARTY_COLORS[p],
+              backgroundColor: activeParty === p ? PARTY_COLORS[p] : 'transparent',
+              opacity: activeParty && activeParty !== p ? 0.35 : 1,
+            }}
+          >
+            {p}
+          </button>
+        ))}
+        {activeParty && (
+          <button
+            onClick={() => setActiveParty(null)}
+            className="text-xs px-2 py-0.5 rounded border border-slate-300 text-slate-400"
+          >
+            clear
+          </button>
+        )}
+      </div>
+
       {tooltip && (
         <div className="text-sm text-slate-700 bg-white border border-slate-200 rounded px-3 py-1.5 shadow-sm mb-2 inline-block">
           {tooltip}
         </div>
       )}
+
       <div className="overflow-x-auto">
         <svg
           viewBox={`0 0 ${totalW} ${totalH}`}
-          style={{ width: '100%', minWidth: 720 }}
-          aria-label="House seat grid chart by state"
+          style={{ width: '100%', minWidth: 700 }}
         >
           {Object.entries(STATE_GRID).map(([abbr, [row, col]]) => {
+            const { dists, cw, ch } = stateData[abbr];
             const entry = byAbbr[abbr];
-            if (!entry) return null;
+            if (!entry && dists.length === 0) return null;
 
-            const cx = col * (CELL + GAP);
-            const cy = row * (CELL + GAP + 14);
+            // Center cell within its column/row slot
+            const cx = colX[col] + Math.floor((colWidths[col] - cw) / 2);
+            const cy = rowY[row] + Math.floor((rowHeights[row] - ch) / 2);
 
-            // Build ordered seat dots: sorted by F5_ORDER, then fill dots
-            const sortedParties = Object.entries(entry.seats).sort((a, b) => {
-              const rA = F5_ORDER.indexOf(a[0] as typeof F5_ORDER[number]);
-              const rB = F5_ORDER.indexOf(b[0] as typeof F5_ORDER[number]);
-              return (rA === -1 ? 99 : rA) - (rB === -1 ? 99 : rB);
-            });
-            const dots: string[] = [];
-            for (const [party, count] of sortedParties) {
-              for (let i = 0; i < count; i++) dots.push(party);
-            }
-
-            const pluralityColor = getBlendColor(entry.pluralityParty);
+            const pluralityParty = dists[0]?.elected[0] ?? entry?.pluralityParty ?? '';
+            const labelColor = activeParty
+              ? '#94a3b8'
+              : (PARTY_COLORS[pluralityParty] ?? '#64748b');
 
             return (
-              <g
-                key={abbr}
-                onMouseEnter={() => {
-                  const breakdown = sortedParties.map(([p, n]) => `${p}:${n}`).join(' · ');
-                  setTooltip(`${abbr} — ${entry.totalSeats} seats (${breakdown})`);
-                }}
-                onMouseLeave={() => setTooltip(null)}
-                style={{ cursor: 'pointer' }}
-              >
-                {/* State box background */}
+              <g key={abbr}>
+                {/* Cell background */}
                 <rect
-                  x={cx} y={cy} width={CELL} height={CELL}
-                  fill={pluralityColor + '0a'}
-                  stroke={pluralityColor + '55'}
-                  strokeWidth={1}
+                  x={cx} y={cy} width={cw} height={ch}
+                  fill={(PARTY_COLORS[pluralityParty] ?? '#64748b') + '08'}
+                  stroke={(PARTY_COLORS[pluralityParty] ?? '#64748b') + '22'}
+                  strokeWidth={0.8}
                   rx={2}
                 />
 
-                {/* Seat dots */}
-                {dots.map((party, i) => {
-                  const dotCol = i % dotsPerRow;
-                  const dotRow = Math.floor(i / dotsPerRow);
-                  const dx = cx + dotCol * (DOT + DOT_GAP) + 2;
-                  const dy = cy + dotRow * (DOT + DOT_GAP) + 2;
-                  if (dy + DOT > cy + CELL) return null; // clip if overflow
+                {/* District rows — one per district, sorted urban→suburban→rural */}
+                {dists.map((dist, di) => {
+                  const distY = cy + PAD + di * (SQ + DIST_GAP);
+                  // Sort seats by F5_ORDER for consistent left-to-right coloring
+                  const seats = [...dist.elected].sort(
+                    (a, b) => F5_ORDER.indexOf(a as typeof F5_ORDER[number]) - F5_ORDER.indexOf(b as typeof F5_ORDER[number])
+                  );
+                  const counts: Record<string, number> = {};
+                  for (const p of dist.elected) counts[p] = (counts[p] ?? 0) + 1;
+
                   return (
-                    <rect
-                      key={i}
-                      x={dx} y={dy}
-                      width={DOT} height={DOT}
-                      fill={getBlendColor(party)}
-                      opacity={0.85}
-                      rx={1}
-                    />
+                    <g
+                      key={dist.districtId}
+                      style={{ cursor: 'pointer' }}
+                      onMouseEnter={() => {
+                        const s = F5_ORDER.filter(p => counts[p])
+                          .map(p => `${p}:${counts[p]}`).join(' · ');
+                        setTooltip(`${abbr} ${dist.densityTier} (${dist.seatCount}s) — ${s}`);
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                    >
+                      {seats.map((party, si) => (
+                        <rect
+                          key={si}
+                          x={cx + PAD + si * (SQ + SQ_GAP)}
+                          y={distY}
+                          width={SQ}
+                          height={SQ}
+                          fill={PARTY_COLORS[party] ?? '#6b7280'}
+                          opacity={!activeParty || party === activeParty ? 0.88 : 0.06}
+                          rx={1}
+                        />
+                      ))}
+                    </g>
                   );
                 })}
 
                 {/* State abbreviation */}
                 <text
-                  x={cx + CELL / 2}
-                  y={cy + CELL + 11}
+                  x={cx + cw / 2}
+                  y={cy + ch - 2}
                   textAnchor="middle"
-                  fontSize={9}
+                  fontSize={8}
                   fontWeight={600}
-                  fill={pluralityColor}
+                  fill={labelColor}
                 >
                   {abbr}
                 </text>
@@ -139,7 +228,7 @@ export function HouseGridChart({ stateMap }: Props) {
         </svg>
       </div>
       <p className="text-xs text-slate-500 mt-2 text-center">
-        Each square = 1 House seat, colored by party. Ordered left-to-right by Populist Conservatism (F5). Hover for details.
+        Each square = one STV seat · rows = districts (urban → suburban → rural) · cell size ∝ state representation · click a party to see its geographic reach
       </p>
     </div>
   );

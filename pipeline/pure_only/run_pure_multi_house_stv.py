@@ -27,29 +27,47 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-BASE_DIR        = Path(__file__).parent.parent.parent
-CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
-APPORTIONMENT   = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
-EFA_PATH        = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
-STATE_PROFILES  = BASE_DIR / "data" / "outputs" / "pure_multi" / "state_candidate_profiles.csv"
-OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "pure_multi" / "house"
+BASE_DIR         = Path(__file__).parent.parent.parent
+CHECKPOINT_PATH  = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
+APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
+EFA_PATH         = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
+TYPOLOGY_PATH    = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
+OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "pure_multi" / "house"
+VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
+COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 
 # ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1–F5
+FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
 
-# ── State-proportional pool thresholds ────────────────────────────────────────
-THRESH_3 = 0.12   # >= 12% share → 3 candidates
-THRESH_2 = 0.05   # >=  5% share → 2 candidates
-THRESH_1 = 0.01   # >=  1% share → 1 candidate
-                  # <   1% share → 0 candidates
+# ── Droop-based candidate pool ────────────────────────────────────────────────
+# Prominence weights for k candidates (declining, reflecting name recognition)
+PROMINENCE_BY_K: dict[int, list[float]] = {
+    1: [1.00],
+    2: [0.60, 0.40],
+    3: [0.40, 0.35, 0.25],
+    4: [0.32, 0.28, 0.22, 0.18],
+    5: [0.28, 0.24, 0.20, 0.16, 0.12],
+}
 
-PROMINENCE_3 = [0.40, 0.35, 0.25]
-PROMINENCE_2 = [0.60, 0.40]
-PROMINENCE_1 = [1.00]
+
+MIN_SHARE = 0.00   # every party fields at least 1 candidate in every district
+
+def n_candidates_for_district(share: float, n_seats: int) -> int:
+    """Droop-based candidate count for one party in one district.
+
+    A party expecting to win k seats runs k+1 candidates (strategic overshoot),
+    capped at floor(n_seats/2)+1.  Below half a Droop quota the party still
+    runs 1 candidate if they have >=2% share (prevents seat shortfalls in small
+    or sparse districts).
+    """
+    droop = 1.0 / (n_seats + 1)
+    if share < droop / 2:
+        return 1 if share >= MIN_SHARE else 0
+    expected = int(share / droop)          # floor(share / droop)
+    return min(expected + 1, n_seats // 2 + 1)
 
 # ── Party → cluster index (C7/BLB excluded) ───────────────────────────────────
 PARTY_CLUSTER = {
@@ -73,24 +91,20 @@ PARTY_LABELS = {
 MIN_RESPONDENTS = 5
 
 
-# ── Per-state candidate pool ───────────────────────────────────────────────────
+# ── Per-district candidate pool ───────────────────────────────────────────────
 
-def build_state_candidates(cluster_shares: dict) -> list:
-    """Build state-specific candidate list based on cluster shares.
+def build_district_candidates(cluster_shares: dict, n_seats: int) -> list:
+    """Build district-specific candidate list using Droop-based quotas.
 
     Returns a list of dicts: {code, party, cluster, prominence}.
     """
     candidates = []
     for party, cluster_idx in PARTY_CLUSTER.items():
         share = cluster_shares.get(f"prob_cluster_{cluster_idx}", 0.0)
-        if share >= THRESH_3:
-            prominences = PROMINENCE_3
-        elif share >= THRESH_2:
-            prominences = PROMINENCE_2
-        elif share >= THRESH_1:
-            prominences = PROMINENCE_1
-        else:
+        k = n_candidates_for_district(share, n_seats)
+        if k == 0:
             continue
+        prominences = PROMINENCE_BY_K[k]
         for i, prom in enumerate(prominences, start=1):
             candidates.append({
                 "code":       f"{party}_{i}",
@@ -130,11 +144,12 @@ def compute_candidate_scores(voter_factors: np.ndarray,
 
 
 def compute_candidate_scores_prob(prob_matrix: np.ndarray, candidates: list) -> np.ndarray:
-    """prob_cluster_k × prominence. Returns (N, n_cands)."""
+    """Equal PL scores for same-party candidates (prob_cluster_k only).
+    Prominence ordering is applied after PL sampling in generate_ballots()."""
     n_cands = len(candidates)
     scores  = np.zeros((len(prob_matrix), n_cands))
     for j, cand in enumerate(candidates):
-        scores[:, j] = prob_matrix[:, cand["cluster"]] * cand["prominence"]
+        scores[:, j] = prob_matrix[:, cand["cluster"]]
     return scores
 
 
@@ -165,13 +180,13 @@ def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
         probs /= probs.sum()
         ballot = rng.choice(n_cands, size=n_cands, replace=False, p=probs)
 
+        # Assign prominence labels within each party's PL-determined positions.
+        # _1 gets the best position, _2 next, _3 worst.
         rank_of = {int(ballot[r]): r for r in range(n_cands)}
         for party_idxs in multi_parties:
-            positions  = sorted(rank_of[idx] for idx in party_idxs)
-            first_cand = int(ballot[positions[0]])
-            remaining  = [idx for idx in party_idxs if idx != first_cand]
-            for k, pos in enumerate(positions[1:]):
-                ballot[pos] = remaining[k]
+            positions = sorted(rank_of[idx] for idx in party_idxs)
+            for k, pos in enumerate(positions):
+                ballot[pos] = party_idxs[k]
 
         ballots[i] = [cand_codes[int(idx)] for idx in ballot]
 
@@ -254,13 +269,6 @@ def main():
     voter_factors = efa[FACTOR_COLS].values.astype(np.float64)
     weights       = efa["commonpostweight"].values.astype(np.float64)
 
-    print("Loading district assignments from canonical checkpoint…")
-    checkpoint    = pd.read_parquet(CHECKPOINT_PATH, columns=["district_id", "density_tier"])
-    assert len(checkpoint) == len(efa), \
-        f"Row count mismatch: checkpoint={len(checkpoint)}, efa={len(efa)}"
-    district_ids  = checkpoint["district_id"].values
-    print(f"  {len(efa):,} respondents in {checkpoint['district_id'].nunique()} districts")
-
     print("Loading district apportionment…")
     apportion_df = pd.read_csv(APPORTIONMENT)
     dist_seats   = dict(zip(apportion_df["district_id"], apportion_df["seat_count"]))
@@ -268,31 +276,53 @@ def main():
     dist_abbr    = dict(zip(apportion_df["district_id"], apportion_df["state_abbr"]))
     dist_tier    = dict(zip(apportion_df["district_id"], apportion_df["density_tier"]))
 
-    print("Loading state profiles…")
-    state_profiles = pd.read_csv(STATE_PROFILES).set_index("state_fips")
+    if VOTER_FIPS_PATH.exists() and COUNTY_DIST_PATH.exists():
+        print("Assigning voters to districts via county FIPS…")
+        voter_fips_df  = pd.read_csv(VOTER_FIPS_PATH, index_col=0)
+        county_fips    = pd.to_numeric(voter_fips_df["countyfips"], errors="coerce").fillna(0).astype(int)
+        voter_counties = county_fips.astype(str).str.zfill(5).values
+
+        county_dist_df = pd.read_csv(COUNTY_DIST_PATH)
+        county_to_dist = dict(zip(
+            county_dist_df["county_fips5"].astype(str).str.zfill(5),
+            county_dist_df["district_id"]
+        ))
+
+        state_fallback: dict = {}
+        for _, row in apportion_df.iterrows():
+            sfips = str(int(row["state_fips"])).zfill(2)
+            if sfips not in state_fallback:
+                state_fallback[sfips] = row["district_id"]
+
+        district_ids = np.empty(len(voter_counties), dtype=object)
+        for i, county in enumerate(voter_counties):
+            did = county_to_dist.get(county)
+            if did is None:
+                did = state_fallback.get(county[:2], "")
+            district_ids[i] = did
+        n_unique = len({d for d in district_ids if d})
+        print(f"  {len(efa):,} respondents assigned to {n_unique} districts")
+    else:
+        print("Geo files not found — falling back to canonical checkpoint…")
+        checkpoint   = pd.read_parquet(CHECKPOINT_PATH, columns=["district_id", "density_tier"])
+        assert len(checkpoint) == len(efa), \
+            f"Row count mismatch: checkpoint={len(checkpoint)}, efa={len(efa)}"
+        district_ids = checkpoint["district_id"].values
+        print(f"  {len(efa):,} respondents in {checkpoint['district_id'].nunique()} districts")
 
     print("Computing cluster centroids…")
     cluster_centroids = compute_cluster_centroids(efa, typology)
     prob_matrix       = typology[PROB_COLS].values.astype(np.float64)
 
-    # ── Build per-state candidate pools ───────────────────────────────────────
-    print("Building per-state candidate pools…")
-    unique_fips = apportion_df["state_fips"].unique()
-    state_candidates: dict = {}
-    for fips in unique_fips:
-        fips_int = int(fips)
-        if fips_int in state_profiles.index:
-            row = state_profiles.loc[fips_int]
-            shares = {f"prob_cluster_{k}": float(row.get(f"prob_cluster_{k}", 0.0))
-                      for k in range(10)}
-        else:
-            shares = {f"prob_cluster_{k}": 0.05 for k in range(10)}
-        state_candidates[fips_int] = build_state_candidates(shares)
-
-    pool_sizes = {fips: len(cands) for fips, cands in state_candidates.items()}
-    print(f"  Pool sizes: min={min(pool_sizes.values())}  "
-          f"median={sorted(pool_sizes.values())[len(pool_sizes)//2]}  "
-          f"max={max(pool_sizes.values())} candidates")
+    # ── Pre-compute state-level voter masks for fallback ──────────────────────
+    state_fips_of_voter = np.array([
+        did[:2] if isinstance(did, str) and len(did) >= 2 else ''
+        for did in district_ids
+    ])
+    state_voter_masks: dict = {}
+    for _, srow in apportion_df.drop_duplicates("state_fips").iterrows():
+        sfips_int = int(srow["state_fips"])
+        state_voter_masks[sfips_int] = state_fips_of_voter == str(sfips_int).zfill(2)
 
     # ── District STV loop ──────────────────────────────────────────────────────
     all_dids = apportion_df["district_id"].tolist()
@@ -319,22 +349,33 @@ def main():
         tier      = dist_tier.get(did, "SUBURBAN")
 
         if N_dist < MIN_RESPONDENTS:
-            n_skipped += 1
-            print(f"  {did:<10}  {abbr:<4}  {tier:<10}  SKIPPED (N={N_dist})")
-            continue
+            # Fall back to all state respondents rather than skipping
+            state_mask = state_voter_masks.get(fips, np.zeros(len(district_ids), dtype=bool))
+            N_state = int(state_mask.sum())
+            if N_state < MIN_RESPONDENTS:
+                n_skipped += 1
+                print(f"  {did:<10}  {abbr:<4}  {tier:<10}  SKIPPED (N={N_dist}, state N={N_state})")
+                continue
+            mask   = state_mask
+            N_dist = N_state
 
-        candidates = state_candidates.get(fips, [])
+        d_factors     = voter_factors[mask]
+        d_weights     = weights[mask]
+        d_prob_matrix = prob_matrix[mask]
+
+        # Build district-specific candidate pool using Droop-based thresholds
+        d_shares    = np.average(d_prob_matrix, weights=d_weights, axis=0)
+        shares_dict = {f"prob_cluster_{k}": float(d_shares[k]) for k in range(10)}
+        candidates  = build_district_candidates(shares_dict, n_seats)
         if not candidates:
             n_skipped += 1
-            print(f"  {did:<10}  {abbr:<4}  SKIPPED (no candidates for FIPS {fips})")
+            print(f"  {did:<10}  {abbr:<4}  {tier:<10}  SKIPPED (no candidates at district shares)")
             continue
 
         cand_codes  = [c["code"] for c in candidates]
         n_seats_eff = min(n_seats, len(candidates))
 
-        d_factors = voter_factors[mask]
-        d_weights = weights[mask]
-        scores    = compute_candidate_scores(d_factors, cluster_centroids, candidates)
+        scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
         ballots   = generate_ballots(scores, rng, candidates)
         elected   = run_stv(ballots, d_weights, cand_codes, n_seats_eff)
 
@@ -356,7 +397,6 @@ def main():
         })
 
         # ── Prob-cluster scoring variant ───────────────────────────────────────
-        d_prob_matrix  = prob_matrix[mask]
         prob_scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
         prob_ballots   = generate_ballots(prob_scores, rng_prob, candidates)
         prob_elected   = run_stv(prob_ballots, d_weights, cand_codes, n_seats_eff)

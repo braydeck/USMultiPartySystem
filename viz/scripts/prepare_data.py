@@ -21,9 +21,9 @@ CLUSTER_TO_PARTY = {
     "4": "LIB", "5": "REF", "6": "CTR", "8": "DSA", "9": "PRG",
 }
 
-# Weighted national population shares per cluster (excluding C7/Blue Dogs, normalized to 100%)
-# Derived from: np.average(prob_cluster_k, weights=commonpostweight) across all CES respondents,
-# then dividing each 9-party share by the 9-party total (94.74%) so they sum to exactly 100%.
+# Soft-weighted national population shares per cluster (excluding C7/Blue Dogs, renormalized to 100%)
+# Derived from: np.average(prob_cluster_k, weights=commonpostweight), then renormalized.
+# Matches the GMM posterior scoring used in ballot generation.
 NATIONAL_POP_SHARES = {
     0: 18.73,   # CON
     1: 15.63,   # SD
@@ -31,7 +31,7 @@ NATIONAL_POP_SHARES = {
     3:  9.19,   # NAT
     4:  9.30,   # LIB
     5: 11.01,   # REF
-    6:  9.87,   # CTR
+    6:  9.86,   # CTR
     8:  6.27,   # DSA
     9:  4.96,   # PRG
 }
@@ -559,6 +559,56 @@ def build_house_seats():
     write_json(out, "houseSeats.json")
 
 
+def build_house_transfers():
+    """Compute transfer preference matrix from party ballots."""
+    ballot_path = PURE_MULTI_DIR / "party_ballots.csv"
+    if not ballot_path.exists():
+        ballot_path = PURE_MULTI_DIR / "presidential_ballots.csv"
+    if not ballot_path.exists():
+        write_json([], "houseTransfers.json")
+        return
+
+    # Read ballots and weights using csv reader
+    ballot_rows = read_csv(str(ballot_path))
+    weight_rows = read_csv(str(Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"))
+
+    def base_party(code):
+        if "_" in code and code.rsplit("_", 1)[1].isdigit():
+            return code.rsplit("_", 1)[0]
+        return code
+
+    # Discover base party codes
+    base_codes = sorted(set(base_party(r["rank_1"]) for r in ballot_rows))
+
+    transfers = {src: {dst: 0.0 for dst in base_codes} for src in base_codes}
+    first_totals = {c: 0.0 for c in base_codes}
+
+    for i, br in enumerate(ballot_rows):
+        w = float(weight_rows[i]["commonpostweight"])
+        first  = base_party(br["rank_1"])
+        second = base_party(br["rank_2"])
+        first_totals[first] += w
+        transfers[first][second] += w
+
+    out = []
+    for src in base_codes:
+        total = first_totals[src] or 1.0
+        dests = []
+        for dst in base_codes:
+            if dst == src:
+                continue
+            pct = transfers[src][dst] / total * 100
+            if pct > 0.5:
+                dests.append({"party": dst, "pct": round(pct, 1)})
+        dests.sort(key=lambda x: -x["pct"])
+        out.append({
+            "source": src,
+            "totalVoters": round(first_totals[src], 0),
+            "destinations": dests,
+        })
+    write_json(out, "houseTransfers.json")
+
+
 def build_house_seats_gauss():
     """Gaussian reference run — reads the _gauss suffix file."""
     rows = read_csv(OUTPUTS / "pure_multi" / "house" / "stv_seat_summary_gauss.csv")
@@ -900,6 +950,155 @@ def collect_cluster_variables(rows):
                     }
                 except (ValueError, TypeError):
                     pass
+
+    # Phase 5: categorical_dist variables mapped to new demographic domains
+    CAT_INCLUSIONS = [
+        # (variable, stat_label, new_domain, new_question, synth_key)
+        # --- Household ---
+        ('marstat',   '% Married',        'Household', 'Married',                   'marstat_married'),
+        ('marstat',   '% Never married',  'Household', 'Never married',             'marstat_never'),
+        ('ownhome',   '% Own',            'Household', 'Owns home',                 'ownhome_own'),
+        ('ownhome',   '% Rent',           'Household', 'Rents home',                'ownhome_rent'),
+        ('urbancity', '% City',           'Household', 'Lives in: city',            'urbancity_city'),
+        ('urbancity', '% Suburb',         'Household', 'Lives in: suburb',          'urbancity_suburb'),
+        ('urbancity', '% Town',           'Household', 'Lives in: town/small city', 'urbancity_town'),
+        ('urbancity', '% Rural area',     'Household', 'Lives in: rural area',      'urbancity_rural'),
+        # --- Race & Ethnicity ---
+        ('race', '% White',                       'Race & Ethnicity', 'White',                           'race_white'),
+        ('race', '% Black',                       'Race & Ethnicity', 'Black',                           'race_black'),
+        ('race', '% Hispanic',                    'Race & Ethnicity', 'Hispanic',                        'race_hispanic'),
+        ('race', '% Asian',                       'Race & Ethnicity', 'Asian',                           'race_asian'),
+        ('race', '% Multiracial',                 'Race & Ethnicity', 'Multiracial',                     'race_multiracial'),
+        ('immstat', '% Immigrant, naturalized',   'Race & Ethnicity', 'Immigrant (naturalized citizen)', 'immstat_nat'),
+        ('immstat', '% Immigrant, not citizen',   'Race & Ethnicity', 'Immigrant (not yet a citizen)',   'immstat_nc'),
+        ('immstat', '% US-born, parent immigrant','Race & Ethnicity', 'US-born, parent was immigrant',   'immstat_parent'),
+        # --- Gender & Sexuality ---
+        ('gender4',   '% Man',                   'Gender & Sexuality', 'Identifies as man',              'gender4_man'),
+        ('gender4',   '% Woman',                 'Gender & Sexuality', 'Identifies as woman',            'gender4_woman'),
+        ('gender4',   '% Non-binary',            'Gender & Sexuality', 'Non-binary or other gender',     'gender4_nonbinary'),
+        ('sexuality', '% Heterosexual/straight', 'Gender & Sexuality', 'Heterosexual / straight',        'sexuality_het'),
+        ('sexuality', '% Lesbian/gay woman',     'Gender & Sexuality', 'Lesbian',                        'sexuality_lesbian'),
+        ('sexuality', '% Gay man',               'Gender & Sexuality', 'Gay man',                        'sexuality_gay'),
+        ('sexuality', '% Bisexual',              'Gender & Sexuality', 'Bisexual',                       'sexuality_bisexual'),
+        # --- Education ---
+        ('educ', '% No HS',         'Education', 'Less than high school',        'educ_no_hs'),
+        ('educ', '% HS grad',       'Education', 'High school graduate',         'educ_hs'),
+        ('educ', '% Some college',  'Education', 'Some college (no degree)',     'educ_some_college'),
+        ('educ', '% 2-year degree', 'Education', "Associate's degree (2-year)",  'educ_2yr'),
+        ('educ', '% 4-year degree', 'Education', "Bachelor's degree (4-year)",   'educ_4yr'),
+        ('educ', '% Post-grad',     'Education', 'Post-graduate degree',         'educ_postgrad'),
+        # --- Economics: employment ---
+        ('employ', '% Full-time',  'Economics', 'Employed full-time',   'employ_ft'),
+        ('employ', '% Part-time',  'Economics', 'Employed part-time',   'employ_pt'),
+        ('employ', '% Unemployed', 'Economics', 'Currently unemployed', 'employ_unemployed'),
+        ('employ', '% Retired',    'Economics', 'Retired',              'employ_retired'),
+        ('employ', '% Homemaker',  'Economics', 'Homemaker',            'employ_homemaker'),
+        # --- Economics: union membership ---
+        ('union',   '% Current member',   'Economics', 'Current union member',       'union_current'),
+        ('union',   '% Former member',    'Economics', 'Former union member',        'union_former'),
+        ('unionhh', '% Currently member', 'Economics', 'Household has union member', 'unionhh_current'),
+        # --- Voting History ---
+        ('presvote20post', '% Biden',        'Voting History', 'Voted Biden (2020)',  'vote20_biden'),
+        ('presvote20post', '% Trump',        'Voting History', 'Voted Trump (2020)',  'vote20_trump'),
+        ('presvote20post', '% Did not vote', 'Voting History', 'Did not vote (2020)', 'vote20_dnv'),
+        ('presvote16post', '% Did not vote', 'Voting History', 'Did not vote (2016)', 'vote16_dnv'),
+        # --- Other ---
+        ('gunown', '% No one in HH',    'Other', 'No gun in household',   'gunown_none'),
+        ('gunown', '% Personally owns', 'Other', 'Personally owns a gun', 'gunown_personal'),
+    ]
+
+    cat_lookup = {(r['variable'], r.get('stat_label', '')): r for r in rows}
+    for var, stat_lbl, domain, question, synth_key in CAT_INCLUSIONS:
+        r = cat_lookup.get((var, stat_lbl))
+        if not r:
+            continue
+        try:
+            overall = float(r.get('overall', 0) or 0)
+        except (ValueError, TypeError):
+            overall = 0
+        for cid in cluster_ids:
+            try:
+                val = float(r.get(f'c{cid}', 0) or 0)
+                result[cid][synth_key] = {
+                    'pct': round(val, 1),
+                    'question': question,
+                    'domain': domain,
+                    'diffPp': round(val - overall, 1),
+                }
+            except (ValueError, TypeError):
+                pass
+
+    # Phase 5b: income tier groupings from faminc_new ordinal distribution
+    INCOME_TIERS = [
+        ('income_under50k', 'Family income under $50k',
+         ['% <$10k', '% $10k\u201320k', '% $20k\u201330k', '% $30k\u201340k', '% $40k\u201350k']),
+        ('income_50k_100k', 'Family income $50k\u2013$100k',
+         ['% $50k\u201360k', '% $60k\u201370k', '% $70k\u201380k', '% $80k\u2013100k']),
+        ('income_over100k', 'Family income over $100k',
+         ['% $100k\u2013120k', '% $120k\u2013150k', '% $150k\u2013200k', '% $200k\u2013250k',
+          '% $250k\u2013350k', '% $350k\u2013500k', '% $500k+']),
+    ]
+    inc_rows = {r['stat_label']: r for r in rows if r['variable'] == 'faminc_new'}
+    for synth_key, question, labels in INCOME_TIERS:
+        matching = [inc_rows[lbl] for lbl in labels if lbl in inc_rows]
+        if not matching:
+            continue
+        try:
+            overall = sum(float(r.get('overall', 0) or 0) for r in matching)
+        except Exception:
+            overall = 0
+        for cid in cluster_ids:
+            try:
+                val = sum(float(r.get(f'c{cid}', 0) or 0) for r in matching)
+                result[cid][synth_key] = {
+                    'pct': round(val, 1),
+                    'question': question,
+                    'domain': 'Economics',
+                    'diffPp': round(val - overall, 1),
+                }
+            except Exception:
+                pass
+
+    # Phase 5c: remap existing binary variables to new domains
+    BINARY_REMAP = {
+        'gigwork':   ('Economics',       'Gig / freelance worker'),
+        'investor':  ('Economics',       'Owns stocks or mutual funds'),
+        'child18':   ('Household',       'Has children under 18'),
+        'CC24_323f': ('Taxes & Economy', 'Forgive up to $20k of student loan debt per person'),
+    }
+    for cid in cluster_ids:
+        for var, (new_domain, new_question) in BINARY_REMAP.items():
+            if var in result[cid]:
+                result[cid][var]['domain'] = new_domain
+                result[cid][var]['question'] = new_question
+
+    # Phase 6: continuous variables with custom axis scale
+    CONTINUOUS_VARS = [
+        # (variable, stat_label, synth_key, domain, question, maxVal, unit)
+        ('CC24_325', 'Median', 'CC24_325_median', 'Abortion',
+         'Median abortion cutoff (weeks)', 40, 'wks'),
+    ]
+    for var, stat_lbl, synth_key, domain, question, max_val, unit in CONTINUOUS_VARS:
+        r = cat_lookup.get((var, stat_lbl))
+        if not r:
+            continue
+        try:
+            overall = float(r.get('overall', 0) or 0)
+        except (ValueError, TypeError):
+            overall = 0
+        for cid in cluster_ids:
+            try:
+                val = float(r.get(f'c{cid}', 0) or 0)
+                result[cid][synth_key] = {
+                    'pct': round(val, 1),
+                    'question': question,
+                    'domain': domain,
+                    'diffPp': round(val - overall, 1),
+                    'maxVal': max_val,
+                    'unit': unit,
+                }
+            except (ValueError, TypeError):
+                pass
 
     return result
 
@@ -2532,24 +2731,25 @@ def build_fd_primary_state_winners():
     out = {}
     for r in state_rows:
         fips       = r["state_fips"].zfill(2)
-        winner     = r["winner_code"]
-        runner_up  = r["runner_up_code"]
-        r1_cols    = [k for k in r.keys() if k.startswith("r1_pct_")]
+        winner     = r.get("irv_winner", r.get("winner_code", ""))
+        runner_up  = r.get("irv_runner_up", r.get("runner_up_code", ""))
+        r1_cols    = [k for k in r.keys() if k.startswith("r1_pct_") or k.startswith("fc_pct_")]
         shares = {}
         for col in r1_cols:
-            code = col.replace("r1_pct_", "")
+            code = col.replace("r1_pct_", "").replace("fc_pct_", "")
             val  = float(r.get(col) or 0)
             if val > 0:
                 shares[code] = val
         total = sum(shares.values())
         if total > 0:
             shares = {k: round(v / total, 4) for k, v in shares.items()}
+        n_resp = int(float(r.get("n_respondents", 0) or r.get("total_weight", 0) or 0))
         out[fips] = {
             "stateAbbr":    r["state_abbr"],
             "winnerCode":   winner,
             "runnerUpCode": runner_up,
             "pod":          pod_by_fips.get(fips, "D"),
-            "nRespondents": int(r["n_respondents"]),
+            "nRespondents": n_resp,
             "shares":       shares,
         }
     write_json(out, "fdPrimaryStateWinners.json")
@@ -2566,24 +2766,25 @@ def build_pure_multi_primary_state_winners():
     out = {}
     for r in state_rows:
         fips       = r["state_fips"].zfill(2)
-        winner     = r["winner_code"]
-        runner_up  = r["runner_up_code"]
-        r1_cols    = [k for k in r.keys() if k.startswith("r1_pct_")]
+        winner     = r.get("irv_winner", r.get("winner_code", ""))
+        runner_up  = r.get("irv_runner_up", r.get("runner_up_code", ""))
+        r1_cols    = [k for k in r.keys() if k.startswith("r1_pct_") or k.startswith("fc_pct_")]
         shares = {}
         for col in r1_cols:
-            code = col.replace("r1_pct_", "")
+            code = col.replace("r1_pct_", "").replace("fc_pct_", "")
             val  = float(r.get(col) or 0)
             if val > 0:
                 shares[code] = val
         total = sum(shares.values())
         if total > 0:
             shares = {k: round(v / total, 4) for k, v in shares.items()}
+        n_resp = int(float(r.get("n_respondents", 0) or r.get("total_weight", 0) or 0))
         out[fips] = {
             "stateAbbr":    r["state_abbr"],
             "winnerCode":   winner,
             "runnerUpCode": runner_up,
             "pod":          pod_by_fips.get(fips, "D"),
-            "nRespondents": int(r["n_respondents"]),
+            "nRespondents": n_resp,
             "shares":       shares,
         }
     write_json(out, "pureMultiPrimaryStateWinners.json")
@@ -2811,16 +3012,17 @@ def build_raw_multi_presidential_election():
     for rnum in sorted(rounds_by_num.keys()):
         candidates = []
         for r in rounds_by_num[rnum]:
-            code      = r["candidate_code"]
-            eliminated = r["eliminated"].strip().lower() == "true"
-            winner     = r["winner"].strip().lower() == "true"
+            code       = r.get("candidate_code", r.get("candidate", ""))
+            status     = r.get("status", "surviving")
+            eliminated = (r.get("eliminated", "").strip().lower() == "true") or (status == "eliminated_this_round")
+            winner     = (r.get("winner", "").strip().lower() == "true") or (status == "winner")
             if winner and not eliminated:
                 irv_winner = code
             candidates.append({
                 "code":       code,
-                "name":       r["candidate_name"],
-                "pct":        round(float(r["vote_pct"]), 2),
-                "votes":      round(float(r["vote_total"]), 0),
+                "name":       r.get("candidate_name", r.get("party", code)),
+                "pct":        round(float(r.get("vote_pct", r.get("pct", 0)) or 0), 2),
+                "votes":      round(float(r.get("vote_total", r.get("votes", 0)) or 0), 0),
                 "eliminated": eliminated,
                 "winner":     winner,
             })
@@ -2830,16 +3032,19 @@ def build_raw_multi_presidential_election():
     condorcet_winner   = None
     cond_rows = read_csv(irv_dir / "condorcet_matchups_2028.csv")
     for r in cond_rows:
-        a       = r["candidate_a"]
-        b       = r["candidate_b"]
-        votes_a = float(r["votes_a_beats_b"])
-        votes_b = float(r["votes_b_beats_a"])
+        a       = r.get("candidate_a", r.get("a", ""))
+        b       = r.get("candidate_b", r.get("b", ""))
+        votes_a = float(r.get("votes_a_beats_b", r.get("votes_a", 0)) or 0)
+        votes_b = float(r.get("votes_b_beats_a", r.get("votes_b", 0)) or 0)
         total   = votes_a + votes_b
+        margin_pct = float(r.get("margin_pct", r.get("margin", 0)) or 0)
+        if total > 0 and "margin_pct" not in r:
+            margin_pct = (votes_a - votes_b) / total * 100
         condorcet_matchups.append({
             "candidateA": a,
             "candidateB": b,
             "aWinsPct":   round(votes_a / total * 100, 3) if total > 0 else 50.0,
-            "margin":     round(float(r["margin_pct"]), 3),
+            "margin":     round(margin_pct, 3),
             "winner":     a if votes_a >= votes_b else b,
         })
         if not condorcet_winner and r.get("condorcet_winner"):
@@ -2852,19 +3057,21 @@ def build_raw_multi_presidential_election():
     irv_state_winners = {}
     for r in state_rows:
         fips    = str(r["state_fips"]).zfill(2)
-        r1_cols = [k for k in r.keys() if k.startswith("r1_pct_")]
+        fc_cols = [k for k in r.keys() if k.startswith("r1_pct_") or k.startswith("fc_pct_")]
         shares  = {}
-        for col in r1_cols:
-            code = col.replace("r1_pct_", "")
+        for col in fc_cols:
+            code = col.replace("r1_pct_", "").replace("fc_pct_", "")
             val  = float(r.get(col) or 0)
             if val > 0:
                 shares[code] = val
         total = sum(shares.values())
+        winner = r.get("winner_code", r.get("irv_winner", ""))
+        n_resp = int(float(r.get("n_respondents", 0) or r.get("total_weight", 0) or 0))
         irv_state_winners[fips] = {
             "stateAbbr":    r["state_abbr"],
-            "winner":       r["winner_code"],
+            "winner":       winner,
             "pod":          pod_by_fips.get(fips, "D"),
-            "nRespondents": int(r["n_respondents"]),
+            "nRespondents": n_resp,
             "shares":       {k: round(v / total, 4) for k, v in shares.items()} if total > 0 else {},
         }
 
@@ -2965,28 +3172,34 @@ def build_pure_multi_primary():
         for r in centroids_rows
     }
 
-    stages_order = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
-    stage_labels = {
-        "After_Retail_Six": "Retail + Bench States",
-        "After_Pod_A":      "After Pod A (West)",
-        "After_Pod_C":      "After Pod C (South)",
-        "After_Pod_BD":     "After Pods B+D (Final)",
-    }
+    # Auto-detect stages from the CSV
+    all_stages = []
+    for row in rows:
+        s = row.get("winnowing_point", row.get("stage", ""))
+        if s and s not in all_stages:
+            all_stages.append(s)
+    # Filter to non-initial stages
+    stages_order = [s for s in all_stages if s != "Initial_Slate"]
+    stage_labels = {s: s.replace("_", " ").replace("After ", "") for s in stages_order}
 
     by_candidate   = defaultdict(dict)
     quota_by_stage = {}
     party_of_code  = {}
     for row in rows:
-        stage = row["winnowing_point"]
-        code  = row["candidate_code"]
-        party_of_code[code] = row.get("party_code", code.rsplit("_", 1)[0])
+        stage = row.get("winnowing_point", row.get("stage", ""))
+        code  = row.get("candidate_code", row.get("candidate", ""))
+        party_of_code[code] = row.get("party_code", row.get("party", code.rsplit("_", 1)[0]))
+        vote_pct = float(row.get("vote_pct", row.get("vote_share", 0)) or 0)
+        vote_total = float(row.get("vote_total", 0) or 0)
+        quota = float(row.get("quota_threshold", 0) or 0)
         by_candidate[code][stage] = {
-            "voteTotal":      float(row["vote_total"]),
-            "votePct":        traj_pcts.get((code, stage), float(row["vote_pct"])),
-            "status":         row["status"],
-            "quotaThreshold": float(row["quota_threshold"]),
+            "voteTotal":      vote_total,
+            "votePct":        traj_pcts.get((code, stage), vote_pct),
+            "status":         row.get("status", "surviving"),
+            "quotaThreshold": quota,
         }
-        quota_by_stage[stage] = float(row["quota_threshold"])
+        if quota > 0:
+            quota_by_stage[stage] = quota
 
     candidates = []
     for code, stages in by_candidate.items():
@@ -3016,118 +3229,132 @@ def build_pure_multi_primary():
 
 # ---------- pureMultiPrimarySankey.json ----------
 def build_pure_multi_primary_sankey():
-    """Sankey/alluvial data for the 21-candidate pure multi primary."""
-    diag_rows = read_csv(PURE_MULTI_DIR / "primary_diagnostics_2028.csv")
-    profiles  = read_csv(PURE_MULTI_DIR / "state_candidate_profiles.csv")
+    """Sankey/alluvial data from primary_results + primary_diagnostics CSVs."""
+    results_rows = read_csv(PURE_MULTI_DIR / "primary_results_2028.csv")
+    diag_rows    = read_csv(PURE_MULTI_DIR / "primary_diagnostics_2028.csv")
 
-    fc_totals: dict = {}
-    for row in profiles:
-        n = float(row.get("total_weighted_respondents") or 0)
-        for k, v in row.items():
-            if k.startswith("first_choice_"):
-                code = k.replace("first_choice_", "")
-                fc_totals[code] = fc_totals.get(code, 0) + n * float(v or 0)
-    total_fc = sum(fc_totals.values()) or 1
-    fc_pct   = {code: round(v / total_fc * 100, 3) for code, v in fc_totals.items()}
+    # Discover stages from results
+    all_stages = []
+    for r in results_rows:
+        s = r.get("winnowing_point", r.get("stage", ""))
+        if s and s not in all_stages:
+            all_stages.append(s)
+    initial_stage = all_stages[0] if all_stages else "Initial_Slate"
+    elim_stages   = [s for s in all_stages if s != initial_stage]
+    n_stages      = len(elim_stages)
 
-    stage_order  = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
-    stage_to_idx = {s: i + 1 for i, s in enumerate(stage_order)}
+    # Build per-stage candidate data {stage_idx: {code: {pct, status}}}
+    stage_to_idx = {s: i for i, s in enumerate([initial_stage] + elim_stages)}
+    candidates_at = {i: {} for i in range(len(all_stages))}
 
-    traj_rows   = [r for r in diag_rows if r.get("diagnostic") == "trajectories"]
-    active_at   = {i: [] for i in range(1, 5)}
-    vote_pct_at = {}
-    for r in traj_rows:
-        stage_idx = stage_to_idx.get(r.get("phase"))
-        if stage_idx is None:
-            continue
-        code = r["candidate_code"]
-        pct  = float(r.get("vote_pct") or 0)
-        if r.get("status") in ("active", "surviving", "elected") and pct > 0:
-            active_at[stage_idx].append(code)
-            vote_pct_at[(code, stage_idx)] = pct
+    for r in results_rows:
+        stage   = r.get("winnowing_point", r.get("stage", ""))
+        code    = r.get("candidate_code", r.get("candidate", ""))
+        pct     = float(r.get("vote_pct", r.get("vote_share", 0)) or 0)
+        status  = r.get("status", "surviving")
+        idx     = stage_to_idx.get(stage)
+        if idx is not None:
+            candidates_at[idx][code] = {"pct": pct, "status": status}
 
-    all_xfers = {i: {} for i in range(1, 5)}
+    # Build transfer flows per stage {stage_idx: {from_code: [(to_code, votes, type)]}}
+    transfers_at = {i: defaultdict(list) for i in range(1, len(all_stages))}
     for r in diag_rows:
-        if r.get("diagnostic") != "transfer_analysis":
-            continue
-        stage_idx = stage_to_idx.get(r.get("winnowing_point"))
-        if stage_idx is None:
+        stage  = r.get("winnowing_point", "")
+        idx    = stage_to_idx.get(stage)
+        if idx is None or idx == 0:
             continue
         e_code = r.get("eliminated_code", "")
         d_code = r.get("dest_code", "")
-        pct    = float(r.get("pct_of_eliminated_total") or 0)
+        votes  = float(r.get("transferred_votes", 0) or 0)
         xtype  = r.get("transfer_type", "elimination")
-        if e_code not in all_xfers[stage_idx]:
-            all_xfers[stage_idx][e_code] = []
-        all_xfers[stage_idx][e_code].append((d_code, pct, xtype))
+        if e_code and d_code:
+            transfers_at[idx][e_code].append((d_code, votes, xtype))
 
+    # Compute total votes for percentage normalization
+    total_votes = sum(c["pct"] for c in candidates_at[0].values()) or 100.0
+
+    # Build nodes
     nodes = []
-    for code, pct in sorted(fc_pct.items(), key=lambda x: -x[1]):
-        nodes.append({"id": f"{code}__0", "label": code, "stageIdx": 0, "pct": round(pct, 3)})
-    for stage_idx in range(1, 5):
-        for code in active_at[stage_idx]:
-            pct = vote_pct_at.get((code, stage_idx), 0)
-            nodes.append({"id": f"{code}__{stage_idx}", "label": code, "stageIdx": stage_idx, "pct": round(pct, 3)})
+    for code, info in sorted(candidates_at[0].items(), key=lambda x: -x[1]["pct"]):
+        if info["pct"] > 0:
+            nodes.append({"id": f"{code}__0", "label": code, "stageIdx": 0, "pct": round(info["pct"], 3)})
 
-    def _exhausted_votes(code, src_pct, dst_active_set, stage_xfers):
-        if code in dst_active_set:
-            return 0.0
-        xfer_sum = sum(p for _, p, _ in stage_xfers.get(code, []))
-        return src_pct * max(0.0, 1.0 - xfer_sum / 100)
+    for stage_idx in range(1, len(all_stages)):
+        for code, info in candidates_at[stage_idx].items():
+            if info["status"] in ("surviving", "elected", "active"):
+                pct = max(info["pct"], 0.1)  # minimum visibility for zero-vote survivors
+                nodes.append({"id": f"{code}__{stage_idx}", "label": code, "stageIdx": stage_idx, "pct": round(pct, 3)})
 
-    exhausted_at = {i: 0.0 for i in range(1, 5)}
-    for code, pct in fc_pct.items():
-        exhausted_at[1] += _exhausted_votes(code, pct, set(active_at[1]), all_xfers[1])
-    for dst_idx in range(2, 5):
-        da = set(active_at[dst_idx])
-        for code in active_at[dst_idx - 1]:
-            exhausted_at[dst_idx] += _exhausted_votes(code, vote_pct_at.get((code, dst_idx - 1), 0), da, all_xfers[dst_idx])
-    for stage_idx in range(1, 5):
-        if exhausted_at[stage_idx] > 0.01:
-            nodes.append({"id": f"exhausted__{stage_idx}", "label": "Exhausted", "stageIdx": stage_idx, "pct": round(exhausted_at[stage_idx], 3)})
+    # Add exhausted nodes where needed
+    for stage_idx in range(1, len(all_stages)):
+        prev_codes = set(candidates_at[stage_idx - 1].keys())
+        curr_surv  = {c for c, info in candidates_at[stage_idx].items()
+                      if info["status"] in ("surviving", "elected", "active")}
+        eliminated = prev_codes - curr_surv
+        if eliminated:
+            # Check if there's unaccounted vote flow
+            nodes.append({"id": f"exhausted__{stage_idx}", "label": "Exhausted", "stageIdx": stage_idx, "pct": 0})
 
     node_ids = {n["id"] for n in nodes}
     links    = []
 
-    def add_link(src_id, tgt_id, value, xfer_type="continuation"):
-        if src_id in node_ids and tgt_id in node_ids and value > 0.01:
-            links.append({"source": src_id, "target": tgt_id, "value": round(value, 3), "type": xfer_type})
+    def add_link(src, tgt, val, xtype="continuation"):
+        if src in node_ids and tgt in node_ids and val > 0.005:
+            links.append({"source": src, "target": tgt, "value": round(val, 3), "type": xtype})
 
-    def draw_links_for_code(code, src_id, src_pct, dst_idx, dst_active, stage_xfers):
-        xfers  = stage_xfers.get(code, [])
-        in_dst = code in dst_active
-        if in_dst:
-            surplus_out = sum(p for _, p, t in xfers if t == "surplus") / 100
-            retained    = src_pct * (1.0 - surplus_out)
-            add_link(src_id, f"{code}__{dst_idx}", retained, "continuation")
-            for dest_code, xfer_pct, _ in xfers:
-                add_link(src_id, f"{dest_code}__{dst_idx}", src_pct * xfer_pct / 100, "surplus")
-        else:
-            xfer_sum = sum(p for _, p, _ in xfers)
-            for dest_code, xfer_pct, _ in xfers:
-                add_link(src_id, f"{dest_code}__{dst_idx}", src_pct * xfer_pct / 100, "elimination")
-            exhausted = src_pct * max(0.0, 1.0 - xfer_sum / 100)
-            if exhausted > 0.01:
-                add_link(src_id, f"exhausted__{dst_idx}", exhausted, "exhausted")
+    # Build links between stages
+    for stage_idx in range(1, len(all_stages)):
+        prev = candidates_at[stage_idx - 1]
+        curr_surv = {c for c, info in candidates_at[stage_idx].items()
+                     if info["status"] in ("surviving", "elected", "active")}
+        xfers = transfers_at[stage_idx]
 
-    retail_active = set(active_at[1])
-    for code, pct in fc_pct.items():
-        draw_links_for_code(code, f"{code}__0", pct, 1, retail_active, all_xfers[1])
-    for dst_idx in range(2, 5):
-        src_idx    = dst_idx - 1
-        dst_active = set(active_at[dst_idx])
-        for code in active_at[src_idx]:
-            src_pct = vote_pct_at.get((code, src_idx), 0)
-            draw_links_for_code(code, f"{code}__{src_idx}", src_pct, dst_idx, dst_active, all_xfers[dst_idx])
+        # Total transferred per eliminated candidate (for percentage computation)
+        elim_totals = {}
+        for e_code, flows in xfers.items():
+            elim_totals[e_code] = sum(v for _, v, _ in flows) or 1.0
 
-    n_survivors = [len(fc_pct), len(active_at[1]), len(active_at[2]), len(active_at[3]), len(active_at[4])]
-    stage_labels = [
-        f"Initial Slate ({n_survivors[0]})",
-        f"After Retail ({n_survivors[1]})",
-        f"After Pod A ({n_survivors[2]})",
-        f"After Pod C ({n_survivors[3]})",
-        f"Final ({n_survivors[4]})",
+        for code, info in prev.items():
+            if info["status"] not in ("surviving", "elected", "active"):
+                continue
+            src_id  = f"{code}__{stage_idx - 1}"
+            src_pct = info["pct"]
+
+            if code in curr_surv:
+                # Survivor: continuation link + any surplus transfers out
+                surplus_flows = [(d, v, t) for d, v, t in xfers.get(code, []) if t == "surplus"]
+                surplus_total = sum(v for _, v, _ in surplus_flows)
+                elim_total    = elim_totals.get(code, 1.0)
+                surplus_pct   = (surplus_total / elim_total * src_pct) if surplus_flows else 0
+
+                add_link(src_id, f"{code}__{stage_idx}", src_pct - surplus_pct, "continuation")
+                for dest, vol, _ in surplus_flows:
+                    frac = vol / elim_total * src_pct
+                    add_link(src_id, f"{dest}__{stage_idx}", frac, "surplus")
+            else:
+                # Eliminated: distribute to destinations
+                flows = xfers.get(code, [])
+                elim_total = elim_totals.get(code, 1.0)
+                accounted = 0
+                for dest, vol, xtype in flows:
+                    frac = vol / elim_total * src_pct
+                    tgt = f"{dest}__{stage_idx}"
+                    if tgt in node_ids:
+                        add_link(src_id, tgt, frac, "elimination")
+                        accounted += frac
+                remaining = src_pct - accounted
+                if remaining > 0.01:
+                    add_link(src_id, f"exhausted__{stage_idx}", remaining, "exhausted")
+
+    # Stage labels
+    counts = [
+        sum(1 for info in candidates_at[i].values()
+            if info["status"] in ("surviving", "elected", "active"))
+        for i in range(len(all_stages))
     ]
+    stage_label_names = ["Initial Slate"] + [s.replace("_", " ").replace("After ", "") for s in elim_stages]
+    stage_labels = [f"{name} ({counts[i]})" for i, name in enumerate(stage_label_names)]
+
     write_json({"stageLabels": stage_labels, "nodes": nodes, "links": links}, "pureMultiPrimarySankey.json")
 
 
@@ -3159,10 +3386,141 @@ def build_pure_multi_senate():
     write_json(_extract(irv_rows),  "pureMultiSenateIRV.json")
 
 
+def build_fptp_disproportionality():
+    rows = read_csv(RESULTS / "post_recs" / "Current Congressional Inequality.csv")
+    out = []
+    for r in rows:
+        if not r.get("State"):
+            continue
+        try:
+            out.append({
+                "state": r["State"],
+                "totalSeats": int(r["Total Seats"]),
+                "gopFptpSeats": int(r["GOP FPTP Seats"]),
+                "demFptpSeats": int(r["DEM FPTP Seats"]),
+                "gopPrSeats": int(r["GOP PR Seats"]),
+                "demPrSeats": int(r["Dem PR Seast"]),
+                "gopVotePct": float(r["GOP Vote %"].rstrip("%")),
+                "demVotePct": float(r["DEM Vote %"].rstrip("%")),
+                "fptpSeatDiff": float(r["FPTP Seat Diff (pos = GOP, neg = DEM)"].rstrip("%")),
+            })
+        except (ValueError, KeyError):
+            pass
+    write_json(out, "fptpDisproportionality.json")
+
+
+def build_district_stv_results():
+    """Group district-level STV results by state FIPS for county tier map."""
+    path = OUTPUTS / "pure_multi" / "house" / "stv_results_by_district.csv"
+    if not path.exists():
+        print(f"  Skipping districtStvResults (not found: {path})")
+        write_json({}, "districtStvResults.json")
+        return
+    rows = read_csv(path)
+    by_state: dict = {}
+    for r in rows:
+        state_fips = str(r["state_fips"]).zfill(2)
+        elected = [r[f"elected_{i}"] for i in range(9) if r.get(f"elected_{i}")]
+        entry = {
+            "districtId":  r["district_id"],
+            "densityTier": r["density_tier"],
+            "seatCount":   int(r["seat_count"]),
+            "elected":     elected,
+            "nRespondents": int(r["n_respondents"]),
+        }
+        by_state.setdefault(state_fips, []).append(entry)
+    write_json(by_state, "districtStvResults.json")
+
+
+def build_district_county_map():
+    """Map each district_id to its list of county FIPS5 strings."""
+    path = Path(__file__).parent.parent.parent / "data" / "processed" / "county_to_district.csv"
+    if not path.exists():
+        print(f"  Skipping districtCountyMap (not found: {path})")
+        write_json({}, "districtCountyMap.json")
+        return
+    rows = read_csv(path)
+    result: dict = {}
+    for r in rows:
+        did   = r["district_id"]
+        fips5 = str(r["county_fips5"]).zfill(5)
+        result.setdefault(did, []).append(fips5)
+    write_json(result, "districtCountyMap.json")
+
+
+def build_county_tiers():
+    """Map county FIPS → density tier using CDC NCHS Urban-Rural Classification (2013).
+
+    Source: https://www.cdc.gov/nchs/data/data_acces_files/NCHSURCodes2013.xlsx
+    Save as data/raw/NCHSURCodes2013.xlsx
+
+    NCHS codes:
+      1 = Large Central Metro (≥1M CBSA, principal city county) → URBAN
+      2 = Large Fringe Metro (≥1M CBSA, outlying)              → URBAN
+      3 = Medium Metro (250k–999k CBSA)                        → SUBURBAN
+      4 = Small Metro (<250k CBSA)                             → SUBURBAN
+      5 = Micropolitan                                         → RURAL
+      6 = Noncore Rural                                        → RURAL
+    """
+    import openpyxl
+    raw_path = Path(__file__).parent.parent.parent / "data" / "raw" / "NCHSURCodes2013.xlsx"
+    if not raw_path.exists():
+        print(f"  Skipping countyTiers (not found: {raw_path})")
+        write_json({}, "countyTiers.json")
+        return
+
+    NCHS_TIER = {1:'URBAN', 2:'URBAN', 3:'SUBURBAN', 4:'SUBURBAN', 5:'RURAL', 6:'RURAL'}
+
+    wb = openpyxl.load_workbook(raw_path, read_only=True)
+    ws = wb.active
+    rows = list(ws.iter_rows(values_only=True))
+
+    tiers = {}
+    for row in rows[1:]:  # skip header
+        fips = row[0]
+        if fips is None:
+            continue
+        fips5 = str(int(fips)).zfill(5)
+        state = fips5[:2]
+        code = row[6]
+        if state in ('60', '66', '69', '72', '78'):
+            tiers[fips5] = 'RURAL'  # US territories not in NCHS
+        else:
+            tiers[fips5] = NCHS_TIER.get(code, 'RURAL')
+    write_json(tiers, "countyTiers.json")
+
+
+def build_rcv_results():
+    """Assemble processed RCV race JSONs into a single grouped file.
+
+    If data/outputs/rcv/ contains processed race JSONs (from process_rcv.py),
+    merges them into the output. Otherwise preserves the existing rcvResults.json
+    (which contains hardcoded summary data) unchanged.
+    """
+    rcv_dir = Path(__file__).parent.parent.parent / "data" / "outputs" / "rcv"
+    if not rcv_dir.exists() or not list(rcv_dir.glob("*.json")):
+        return  # Preserve existing hardcoded summary data
+
+    result: dict = {"AK": [], "ME": []}
+    for fpath in sorted(rcv_dir.glob("*.json")):
+        try:
+            with open(fpath) as f:
+                race = json.load(f)
+            state = race.get("state", "")
+            if state in result:
+                result[state].append(race)
+        except Exception:
+            pass
+    for state in result:
+        result[state].sort(key=lambda r: (-r.get("year", 0), r.get("office", "")))
+    write_json(result, "rcvResults.json")
+
+
 if __name__ == "__main__":
     print("Preparing data...")
     build_senate_vote_model()
     build_house_seats()
+    build_house_transfers()
     build_house_vote_model()
     build_house_state_map()
     build_coalition_profiles()
@@ -3183,4 +3541,9 @@ if __name__ == "__main__":
     build_pure_multi_senate()
     build_raw_multi_presidential_election()
     build_house_seats_gauss()
+    build_fptp_disproportionality()
+    build_district_stv_results()
+    build_district_county_map()
+    build_county_tiers()
+    build_rcv_results()
     print("Done.")

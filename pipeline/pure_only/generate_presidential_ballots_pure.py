@@ -67,7 +67,7 @@ CAND_IDX      = {c["code"]: i for i, c in enumerate(CANDIDATES)}
 
 FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
+FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 
 
 def compute_cluster_centroids(efa_df: pd.DataFrame, typology_df: pd.DataFrame) -> np.ndarray:
@@ -209,9 +209,11 @@ def main():
     print("\nComputing cluster centroids…")
     cluster_centroids = compute_cluster_centroids(efa, typology)
 
-    # ── Candidate scores (positional / Gaussian proximity) ────────────────────
-    print(f"\nComputing candidate scores (positional, σ={POSITIONAL_SIGMA})…")
-    scores = compute_candidate_scores(voter_factors, cluster_centroids)
+    # ── Candidate scores (GMM posterior — consistent with clustering) ────────
+    print("\nComputing candidate scores (GMM posterior)…")
+    scores = np.zeros((N, N_CANDIDATES))
+    for j, cand in enumerate(CANDIDATES):
+        scores[:, j] = prob_matrix[:, cand["primary"]]
     print(f"  scores matrix shape: {scores.shape}  min={scores.min():.4f}  max={scores.max():.4f}")
 
     # ── Plackett-Luce ballots ──────────────────────────────────────────────────

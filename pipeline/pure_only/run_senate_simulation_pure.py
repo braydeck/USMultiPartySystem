@@ -59,13 +59,8 @@ MAX_CANDIDATES       = 18     # hard cap on candidates per state
 STV_SURVIVORS        = 5      # STV primary winnows to this many finalists
 MIN_RESPONDENTS      = 10     # skip state if fewer than this many CES respondents
 
-# ── Positional scoring ────────────────────────────────────────────────────────
-# Candidates have positions in 5-D factor space (weighted blend of cluster
-# centroids per w_primary / w_secondary). Voters score candidates by Gaussian
-# proximity to their own factor scores: score = exp(-‖v - c‖² / (2 σ²)).
+# ── Factor columns (needed for centroid computation) ─────────────────────────
 FACTOR_COLS    = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
-POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -256,45 +251,28 @@ def generate_state_candidates(prob_matrix: np.ndarray,
 # 3 — Ballot generation (Plackett-Luce)
 # ═════════════════════════════════════════════════════════════════════════════
 
-def candidate_position(c: dict, cluster_centroids: np.ndarray) -> np.ndarray:
-    """Candidate's location in 5-D factor space.
+def score_candidates(prob_matrix: np.ndarray,
+                      candidates: list[dict]) -> np.ndarray:
+    """Build (N, M) score matrix from GMM posterior probabilities.
 
-    Pure candidate sits on its cluster centroid; coalition candidate sits at
-    w_primary * centroid_primary + w_secondary * centroid_secondary. A REF/STY
-    candidate at w_primary=0.7 is 30% of the way from REF toward STY in factor
-    space — a literal position, not a discount factor on cluster membership.
+    Pure candidates (secondary_cluster is None):
+        score[i, j] = prob_cluster[primary]
+    Coalition candidates (secondary_cluster is not None):
+        score[i, j] = w_primary * prob_cluster[primary]
+                     + w_secondary * prob_cluster[secondary]
+
+    Uses each voter's soft cluster-membership probabilities directly,
+    replacing the prior Gaussian proximity formulation.
     """
-    p = c["primary_cluster"]
-    pos = c["w_primary"] * cluster_centroids[p]
-    s = c["secondary_cluster"]
-    if s is not None:
-        pos = pos + c["w_secondary"] * cluster_centroids[int(s)]
-    return pos
-
-
-def score_candidates(voter_factors: np.ndarray,
-                      candidates: list[dict],
-                      cluster_centroids: np.ndarray,
-                      sigma: float = POSITIONAL_SIGMA) -> np.ndarray:
-    """Build (N, M) score matrix via Gaussian proximity in 5-D factor space.
-
-    score[i, j] = exp(-‖voter_factors[i] - cand_position[j]‖² / (2 σ²))
-
-    Replaces the prior cluster-membership formulation
-    (score = w_p · p_primary + w_s · p_secondary), which gave pure candidates
-    a 1.0 multiplier on their own cluster and made coalition candidates
-    structurally unable to compete for first-preference votes. Positional
-    scoring lets a voter near the STY centroid rank SD/STY and REF/STY
-    symmetrically based on actual factor-space proximity, not on a label
-    asymmetry hidden inside the score weights.
-    """
-    N = len(voter_factors)
+    N = len(prob_matrix)
     M = len(candidates)
-    cand_positions = np.stack([candidate_position(c, cluster_centroids) for c in candidates])
-    # (N, 1, 5) - (1, M, 5) -> (N, M, 5) -> (N, M)
-    diff = voter_factors[:, None, :] - cand_positions[None, :, :]
-    dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
-    return np.exp(-dist_sq / (2.0 * sigma ** 2))
+    scores = np.zeros((N, M))
+    for j, cand in enumerate(candidates):
+        s = prob_matrix[:, cand["primary_cluster"]] * cand["w_primary"]
+        if cand.get("secondary_cluster") is not None:
+            s += prob_matrix[:, int(cand["secondary_cluster"])] * cand["w_secondary"]
+        scores[:, j] = s
+    return scores
 
 
 def generate_state_ballots(scores: np.ndarray,
@@ -529,7 +507,6 @@ def ranked_pairs_winner(matchups: list[dict],
 
 def run_state_election(state_fips: int,
                         prob_matrix: np.ndarray,
-                        voter_factors: np.ndarray,
                         weights: np.ndarray,
                         cluster_centroids: np.ndarray,
                         rng: np.random.Generator) -> dict | None:
@@ -551,7 +528,7 @@ def run_state_election(state_fips: int,
     M = len(cands)
 
     # Score and ballot generation
-    scores  = score_candidates(voter_factors, cands, cluster_centroids)
+    scores  = score_candidates(prob_matrix, cands)
     ballots = generate_state_ballots(scores, cand_codes, rng)
 
     # STV primary
@@ -655,7 +632,6 @@ def main():
     assert len(typology) == len(efa), "Row count mismatch between typology and efa files"
 
     prob_matrix   = typology[PROB_COLS].values.astype(np.float64)
-    voter_factors = efa[FACTOR_COLS].values.astype(np.float64)
     inputstate    = efa["inputstate"].values.astype(int)
     weights       = efa["commonpostweight"].values.astype(np.float64)
 
@@ -685,11 +661,10 @@ def main():
     for state_fips in run_states:
         mask           = inputstate == state_fips
         state_probs    = prob_matrix[mask]
-        state_factors  = voter_factors[mask]
         state_weights  = weights[mask]
 
         result = run_state_election(
-            state_fips, state_probs, state_factors, state_weights, cluster_centroids, rng
+            state_fips, state_probs, state_weights, cluster_centroids, rng
         )
 
         abbr = FIPS_TO_ABBR.get(int(state_fips), f"FIPS{state_fips}")

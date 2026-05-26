@@ -7,6 +7,9 @@ import { PartiesTab } from './tabs/PartiesTab';
 import { PresidentialTab } from './tabs/PresidentialTab';
 import { LegislationTab } from './tabs/LegislationTab';
 import { CompareTab } from './tabs/CompareTab';
+import { AboutTab } from './tabs/AboutTab';
+import { OverviewTab } from './tabs/OverviewTab';
+import { RCVTab } from './tabs/RCVTab';
 
 import senateVoteModelData from './data/senateVoteModel.json';
 import houseSeatsData from './data/houseSeats.json';
@@ -31,20 +34,30 @@ import fdProfilesData from './data/fdProfiles.json';
 import pureMultiPrimaryData from './data/pureMultiPrimary.json';
 import pureMultiPrimaryStateWinnersData from './data/pureMultiPrimaryStateWinners.json';
 import pureMultiPrimarySankeyData from './data/pureMultiPrimarySankey.json';
+import fptpDisproportionalityData from './data/fptpDisproportionality.json';
+import countyTiersData from './data/countyTiers.json';
+import districtStvResultsData from './data/districtStvResults.json';
+import districtCountyMapData from './data/districtCountyMap.json';
+import houseTransfersData from './data/houseTransfers.json';
+import rcvResultsData from './data/rcvResults.json';
 
 import type {
   PrimaryStateWinner, VoteModelRow, HouseSeat,
   HouseStateEntry, CoalitionProfile, TransferMatrix, ClusterProfile,
   QuizQuestion, PresidentialElection,
   PrimarySankeyData,
-  FDSenateSeat, FDHouseSeat, FDPrimaryData, FDCandidateProfile,
+  FDSenateSeat, FDHouseSeat, FDPrimaryData, FDCandidateProfile, FPTPState,
+  DistrictResult, RCVData,
 } from './types';
 
 const TABS = [
+  { id: 'about',        label: 'What Is This?' },
+  { id: 'overview',     label: 'Overview' },
   { id: 'primary',      label: 'Presidential Primary' },
   { id: 'presidential', label: 'Presidential General' },
   { id: 'senate',       label: 'Senate' },
   { id: 'house',        label: 'House' },
+  { id: 'rcv',          label: 'RCV Case Studies' },
   { id: 'legislation',  label: 'Legislation' },
   { id: 'compare',      label: 'Compare' },
   { id: 'parties',      label: 'Parties' },
@@ -54,7 +67,7 @@ const TABS = [
 type TabId = typeof TABS[number]['id'];
 
 export default function App() {
-  const [tab, setTab] = useState<TabId>('primary');
+  const [tab, setTab] = useState<TabId>('about');
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -86,6 +99,24 @@ export default function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {tab === 'about' && <AboutTab />}
+        {tab === 'overview' && (
+          <OverviewTab
+            fdElection={fdPresidentialElectionData as unknown as PresidentialElection}
+            rawMultiElection={rawMultiPresidentialElectionData as unknown as PresidentialElection}
+            rawMultiSenateCond={pureMultiSenateCondorcetData as unknown as FDSenateSeat[]}
+            rawMultiSenateIRV={pureMultiSenateIRVData as unknown as FDSenateSeat[]}
+            fdSenateCond={fdSenateCondorcetData as unknown as FDSenateSeat[]}
+            fdSenateIRV={fdSenateIRVData as unknown as FDSenateSeat[]}
+            houseSeats={houseSeatsData as HouseSeat[]}
+            senateVotes={senateVoteModelData as VoteModelRow[]}
+            houseVotes={houseVoteModelData as VoteModelRow[]}
+            clusters={clusterProfilesData as ClusterProfile[]}
+            fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
+            fptpStates={fptpDisproportionalityData as FPTPState[]}
+            stateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
+          />
+        )}
         {tab === 'primary' && (
           <PrimaryTab
             factorDev={fdPrimaryData as unknown as FDPrimaryData}
@@ -127,6 +158,17 @@ export default function App() {
             stateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
             clusters={clusterProfilesData as ClusterProfile[]}
             fdHouseSeats={fdHouseSeatsData as unknown as FDHouseSeat[]}
+            fptpStates={fptpDisproportionalityData as FPTPState[]}
+            countyTiers={countyTiersData as Record<string, string>}
+            districtResults={districtStvResultsData as unknown as Record<string, DistrictResult[]>}
+            districtCountyMap={districtCountyMapData as Record<string, string[]>}
+            houseTransfers={houseTransfersData as { source: string; totalVoters: number; destinations: { party: string; pct: number }[] }[]}
+          />
+        )}
+        {tab === 'rcv' && (
+          <RCVTab
+            data={rcvResultsData as unknown as RCVData}
+            houseStateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
           />
         )}
         {tab === 'legislation' && (

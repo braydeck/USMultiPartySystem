@@ -37,7 +37,7 @@ from stv_config import STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT
 
 FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
+FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 MIN_RESPONDENTS  = 10
 
 CANDIDATES = [

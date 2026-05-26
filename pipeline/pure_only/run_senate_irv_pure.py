@@ -52,12 +52,8 @@ MAX_CANDIDATES       = 18
 STV_SURVIVORS        = 5
 MIN_RESPONDENTS      = 10
 
-# Positional scoring: candidates have positions in 5-D factor space, voters
-# score by Gaussian proximity to their own factor scores. See companion
-# documentation in run_senate_simulation.py:score_candidates.
+# ── Factor columns (needed for centroid computation) ─────────────────────────
 FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
-POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -190,21 +186,24 @@ def generate_state_candidates(prob_matrix, weights, cluster_centroids):
 # 3 — Ballot generation  (unchanged)
 # ═════════════════════════════════════════════════════════════════════════════
 
-def candidate_position(c, cluster_centroids):
-    p = c["primary_cluster"]
-    pos = c["w_primary"] * cluster_centroids[p]
-    s = c["secondary_cluster"]
-    if s is not None:
-        pos = pos + c["w_secondary"] * cluster_centroids[int(s)]
-    return pos
+def score_candidates(prob_matrix, candidates):
+    """GMM posterior probability scoring.
 
-
-def score_candidates(voter_factors, candidates, cluster_centroids, sigma=POSITIONAL_SIGMA):
-    """Gaussian proximity in 5-D factor space; see run_senate_simulation.py."""
-    cand_positions = np.stack([candidate_position(c, cluster_centroids) for c in candidates])
-    diff = voter_factors[:, None, :] - cand_positions[None, :, :]
-    dist_sq = ((diff ** 2) * FACTOR_WEIGHTS).sum(axis=2)
-    return np.exp(-dist_sq / (2.0 * sigma ** 2))
+    Pure candidates (secondary_cluster is None):
+        score[i, j] = prob_cluster[primary]
+    Coalition candidates (secondary_cluster is not None):
+        score[i, j] = w_primary * prob_cluster[primary]
+                     + w_secondary * prob_cluster[secondary]
+    """
+    N = len(prob_matrix)
+    M = len(candidates)
+    scores = np.zeros((N, M))
+    for j, cand in enumerate(candidates):
+        s = prob_matrix[:, cand["primary_cluster"]] * cand["w_primary"]
+        if cand.get("secondary_cluster") is not None:
+            s += prob_matrix[:, int(cand["secondary_cluster"])] * cand["w_secondary"]
+        scores[:, j] = s
+    return scores
 
 
 def generate_state_ballots(scores, cand_codes, rng):
@@ -365,7 +364,7 @@ def irv_winner(ballots_arr: np.ndarray, weights: np.ndarray,
 # 6 — Per-state election runner  (IRV variant)
 # ═════════════════════════════════════════════════════════════════════════════
 
-def run_state_election(state_fips, prob_matrix, voter_factors, weights, cluster_centroids, rng):
+def run_state_election(state_fips, prob_matrix, weights, cluster_centroids, rng):
     state_abbr = FIPS_TO_ABBR.get(int(state_fips), f"FIPS{int(state_fips)}")
     N = len(prob_matrix)
     if N < MIN_RESPONDENTS:
@@ -379,7 +378,7 @@ def run_state_election(state_fips, prob_matrix, voter_factors, weights, cluster_
     cand_names = {c["cand_code"]: c["cand_label"] for c in cands}
     M = len(cands)
 
-    scores  = score_candidates(voter_factors, cands, cluster_centroids)
+    scores  = score_candidates(prob_matrix, cands)
     ballots = generate_state_ballots(scores, cand_codes, rng)
 
     target = min(STV_SURVIVORS, M)

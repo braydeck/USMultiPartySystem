@@ -34,7 +34,7 @@ OUTPUT_DIR     = BASE_DIR / "data" / "outputs" / "pure_multi" / "senate"
 
 # ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1–F5
+FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
 
@@ -142,11 +142,12 @@ def compute_candidate_scores(voter_factors: np.ndarray,
 
 
 def compute_candidate_scores_prob(prob_matrix: np.ndarray, candidates: list) -> np.ndarray:
-    """prob_cluster_k × prominence. Returns (N, n_cands)."""
+    """Equal PL scores for same-party candidates (prob_cluster_k only).
+    Prominence ordering is applied after PL sampling in generate_ballots()."""
     n_cands = len(candidates)
     scores  = np.zeros((len(prob_matrix), n_cands))
     for j, cand in enumerate(candidates):
-        scores[:, j] = prob_matrix[:, cand["cluster"]] * cand["prominence"]
+        scores[:, j] = prob_matrix[:, cand["cluster"]]
     return scores
 
 
@@ -182,16 +183,12 @@ def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
         probs /= probs.sum()
         ballot = rng.choice(n_cands, size=n_cands, replace=False, p=probs)
 
-        # Fix within-party ordering: first same-party candidate stays at its
-        # sampled position; remaining same-party candidates fill subsequent
-        # positions in strict prominence order.
+        # Assign prominence labels within each party's PL-determined positions.
         rank_of = {int(ballot[r]): r for r in range(n_cands)}
         for party_idxs in multi_parties:
-            positions  = sorted(rank_of[idx] for idx in party_idxs)
-            first_cand = int(ballot[positions[0]])
-            remaining  = [idx for idx in party_idxs if idx != first_cand]
-            for k, pos in enumerate(positions[1:]):
-                ballot[pos] = remaining[k]
+            positions = sorted(rank_of[idx] for idx in party_idxs)
+            for k, pos in enumerate(positions):
+                ballot[pos] = party_idxs[k]
 
         ballots[i] = [cand_codes[int(idx)] for idx in ballot]
 
@@ -455,7 +452,8 @@ def main():
         # Generate state-specific ballots
         state_voter_factors = voter_factors[mask]
         state_weights       = weights[mask]
-        scores              = compute_candidate_scores(state_voter_factors, cluster_centroids, candidates)
+        state_prob_matrix   = prob_matrix[mask]
+        scores              = compute_candidate_scores_prob(state_prob_matrix, candidates)
         state_ballots       = generate_ballots(scores, rng, candidates)
 
         # STV → finalists
@@ -532,14 +530,14 @@ def main():
                  "votes_a_beats_b", "votes_b_beats_a",
                  "margin", "margin_pct", "locked", "lock_order", "rp_winner_overall"]
 
-    # ── Prob-scoring: canonical outputs ───────────────────────────────────────
-    cond_df_prob = pd.DataFrame(comp_rows_cond_prob).sort_values("state_fips").reset_index(drop=True)
-    irv_df_prob  = pd.DataFrame(comp_rows_irv_prob).sort_values("state_fips").reset_index(drop=True)
+    # ── Primary run: canonical outputs ──────────────────────────────────────
+    cond_df_primary = pd.DataFrame(comp_rows_cond).sort_values("state_fips").reset_index(drop=True)
+    irv_df_primary  = pd.DataFrame(comp_rows_irv).sort_values("state_fips").reset_index(drop=True)
 
-    cond_df_prob.to_csv(OUTPUT_DIR / "senate_composition.csv", index=False)
-    irv_df_prob.to_csv(OUTPUT_DIR / "senate_irv_composition.csv", index=False)
-    print(f"  senate_composition.csv (prob):       {len(cond_df_prob)} rows")
-    print(f"  senate_irv_composition.csv (prob):   {len(irv_df_prob)} rows")
+    cond_df_primary.to_csv(OUTPUT_DIR / "senate_composition.csv", index=False)
+    irv_df_primary.to_csv(OUTPUT_DIR / "senate_irv_composition.csv", index=False)
+    print(f"  senate_composition.csv:              {len(cond_df_primary)} rows")
+    print(f"  senate_irv_composition.csv:          {len(irv_df_primary)} rows")
 
     if all_condorcet_prob:
         cond_results_prob_df = pd.DataFrame(all_condorcet_prob)
@@ -563,8 +561,8 @@ def main():
         print(f"  senate_condorcet_results_gauss.csv:  {len(cond_results_df)} rows")
 
     # ── National summary ──────────────────────────────────────────────────────
-    for label, df in [("CONDORCET (prob — canonical)", cond_df_prob),
-                      ("IRV (prob — canonical)", irv_df_prob),
+    for label, df in [("CONDORCET (primary — canonical)", cond_df_primary),
+                      ("IRV (primary — canonical)", irv_df_primary),
                       ("CONDORCET (gauss — reference)", cond_df),
                       ("IRV (gauss — reference)", irv_df)]:
         print(f"\n{'='*55}")

@@ -43,7 +43,7 @@ PURE_NAMES = set(PARTY_ABBR.values())  # {"CON", "SD", "STY", ...}
 STV_SURVIVORS   = 5
 MIN_RESPONDENTS = 10
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
+FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",

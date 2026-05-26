@@ -3,11 +3,11 @@ import type { SenateSeat, VoteModelRow, SenateScenario, ClusterProfile, Constell
 import { SenateMap } from '../components/senate/SenateMap';
 import { VoteModelTable } from '../components/senate/VoteModelTable';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
-import { MiniPartyCard } from '../components/shared/MiniPartyCard';
 import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
+import { PartyProfileCard } from '../components/shared/PartyProfileCard';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { FACTOR_LABELS } from '../constants/parties';
+import { FACTOR_LABELS, PARTY_NAMES, F5_ORDER, getBlendColor } from '../constants/parties';
 
 interface Props {
   condorcetFD:       FDSenateSeat[];
@@ -54,6 +54,7 @@ export function SenateTab({ condorcetFD, irvFD,
     () => Object.fromEntries(clusters.map(c => [c.party, c])),
     [clusters]
   );
+  const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   function getFactorScore(code: string, factor: string): number {
     const fd = fdProfiles[code];
     if (fd) return (fd as unknown as Record<string, number>)[factor] ?? 0;
@@ -122,14 +123,30 @@ export function SenateTab({ condorcetFD, irvFD,
       F5: getFactorScore(code, 'F5'),
     }));
 
+  // Method sensitivity: seat counts by party for each method
+  const condSeats = pipeline === 'factorDev' ? condorcetFD : condorcetRawMulti;
+  const irvSeats  = pipeline === 'factorDev' ? irvFD       : irvRawMulti;
+
+  const countByParty = (seats: FDSenateSeat[]) => {
+    const counts: Record<string, number> = {};
+    for (const s of seats) {
+      const party = s.senatorParty ?? s.senatorCode.split('_')[0];
+      counts[party] = (counts[party] ?? 0) + 1;
+    }
+    return counts;
+  };
+  const condCounts = countByParty(condSeats);
+  const irvCounts  = countByParty(irvSeats);
+  const allParties = Array.from(new Set([...Object.keys(condCounts), ...Object.keys(irvCounts)]))
+    .sort((a, b) => (condCounts[b] ?? 0) - (condCounts[a] ?? 0));
+
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">Senate</h2>
         <p className="text-slate-500 text-sm">
-          State-level senate simulation. Factor Dev uses 71 axis-deviation candidates;
-          Raw Multi uses 27 intra-party candidates. Condorcet selects the head-to-head
-          winner; IRV uses instant runoff elimination.
+          Each state elects one senator via either Condorcet or IRV. The method choice matters:
+          Condorcet finds the most broadly acceptable candidate; IRV amplifies strong-base parties.
         </p>
       </div>
 
@@ -172,6 +189,52 @@ export function SenateTab({ condorcetFD, irvFD,
         </div>
       </div>
 
+      {/* Method sensitivity table */}
+      <div className="bg-white rounded-xl p-4 border border-slate-200">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+          Method Sensitivity
+        </h3>
+        <p className="text-xs text-slate-500 mb-3">
+          Condorcet picks broadly acceptable senators; IRV amplifies strong-base parties.
+          Green Δ = party gains seats under Condorcet (preferred method).
+        </p>
+        <div className="overflow-x-auto">
+          <table className="text-sm w-full">
+            <thead>
+              <tr className="text-xs text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                <th className="text-left pb-2 pr-4 font-medium">Party</th>
+                <th className="text-right pb-2 px-4 font-medium">Condorcet</th>
+                <th className="text-right pb-2 px-4 font-medium">IRV</th>
+                <th className="text-right pb-2 pl-4 font-medium">Δ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allParties.map(party => {
+                const cond = condCounts[party] ?? 0;
+                const irv  = irvCounts[party] ?? 0;
+                const delta = cond - irv;
+                const color = getBlendColor(party);
+                return (
+                  <tr key={party} className="border-b border-slate-50">
+                    <td className="py-1.5 pr-4">
+                      <span className="font-bold font-mono text-xs" style={{ color }}>{party}</span>
+                      <span className="ml-2 text-xs text-slate-500">{PARTY_NAMES[party] ?? ''}</span>
+                    </td>
+                    <td className="text-right px-4 font-mono font-semibold" style={{ color }}>{cond}</td>
+                    <td className="text-right px-4 font-mono text-slate-600">{irv}</td>
+                    <td className="text-right pl-4 font-mono font-bold" style={{
+                      color: delta > 0 ? '#15803d' : delta < 0 ? '#b91c1c' : '#94a3b8'
+                    }}>
+                      {delta > 0 ? `+${delta}` : delta === 0 ? '—' : delta}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Parliament fan chart replaces SeatSummary */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -202,24 +265,17 @@ export function SenateTab({ condorcetFD, irvFD,
         <SenateMap seats={activeSeats} />
       </div>
 
-      {/* Mini party cards below map */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
-        {miniCardCodes.map(code => {
-          const fdKP = fdProfiles[code]?.keyPositions?.slice(0, 2);
-          const baseCode = code.split('_')[0];
-          const clusterKP = (clusterByParty[code] ?? clusterByParty[baseCode])?.keyPositions?.slice(0, 2);
-          const positions = fdKP
-            ? fdKP.map(p => ({ question: p.question, pct: p.value, direction: (p.diff > 0 ? 'supports' : 'opposes') as 'supports' | 'opposes', diffPp: p.diff }))
-            : clusterKP;
-          return (
-            <MiniPartyCard
-              key={code}
-              code={code}
-              seats={seatCounts[code]}
-              positions={positions}
-            />
-          );
-        })}
+      {/* Nine-party profiles below map */}
+      <div>
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
+        <p className="text-xs text-slate-500 mb-4">
+          Ordered left→right by Ideology (F5). Each party&apos;s position across four discriminating dimensions.
+        </p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {orderedClusters.map(cluster => (
+            <PartyProfileCard key={cluster.party} cluster={cluster} />
+          ))}
+        </div>
       </div>
 
       {/* Factor Dev variant bar — visible for FD scenarios */}

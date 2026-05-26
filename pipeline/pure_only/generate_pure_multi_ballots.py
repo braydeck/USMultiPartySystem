@@ -45,7 +45,7 @@ OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "pure_multi"
 PROB_COLS  = [f"prob_cluster_{k}" for k in range(10)]
 FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based: F1 F2 F3 F4 F5
+FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",
@@ -120,17 +120,16 @@ def compute_cluster_centroids(efa_df: pd.DataFrame, typology_df: pd.DataFrame) -
 
 
 def compute_candidate_scores_prob(prob_matrix: np.ndarray) -> np.ndarray:
-    """prob_cluster_k × prominence. Returns (N, N_CANDIDATES).
+    """Equal PL scores for same-party candidates (prob_cluster_k only).
 
-    Each voter's soft cluster membership probabilities are used directly as
-    cross-party affinities, replacing Gaussian proximity. Within-party ordering
-    is still governed by prominence weights (0.40/0.35/0.25), so STY_1 always
-    ranks ahead of STY_2 for any voter who prefers STY.
+    All candidates from the same party get identical scores = the voter's
+    GMM posterior for that party. This ensures same-party candidates cluster
+    naturally in the PL draw. Prominence ordering is applied AFTER PL sampling
+    in generate_ballots(), not here.
     """
-    prominence = np.array([c["prominence"] for c in CANDIDATES])
     scores = np.zeros((len(prob_matrix), N_CANDIDATES))
     for j, cand in enumerate(CANDIDATES):
-        scores[:, j] = prob_matrix[:, cand["cluster"]] * prominence[j]
+        scores[:, j] = prob_matrix[:, cand["cluster"]]
     return scores
 
 
@@ -176,15 +175,16 @@ def generate_ballots(scores: np.ndarray, rng: np.random.Generator) -> np.ndarray
         probs /= probs.sum()
         ballot = rng.choice(N_CANDIDATES, size=N_CANDIDATES, replace=False, p=probs)
 
-        # Fix within-party ordering: first same-party candidate stays at its sampled position;
-        # remaining same-party candidates fill subsequent positions in strict prominence order.
+        # PL determined positions; now assign prominence labels within each
+        # party's slots. The positions stay where PL put them (so same-party
+        # candidates cluster naturally from equal scores), but _1 gets the
+        # best position, _2 the next, _3 the worst.
         rank_of = {int(ballot[r]): r for r in range(N_CANDIDATES)}
         for party_idxs in multi_parties:
-            positions  = sorted(rank_of[idx] for idx in party_idxs)
-            first_cand = int(ballot[positions[0]])
-            remaining  = [idx for idx in party_idxs if idx != first_cand]
-            for k, pos in enumerate(positions[1:]):
-                ballot[pos] = remaining[k]
+            positions = sorted(rank_of[idx] for idx in party_idxs)
+            # party_idxs is in prominence order (_1, _2, _3)
+            for k, pos in enumerate(positions):
+                ballot[pos] = party_idxs[k]
 
         ballots[i] = ballot
 

@@ -2,18 +2,20 @@
 """
 run_house_canonical.py
 ----------------------
-Canonical house election: sub-state density-tier districts, 9 pure parties,
-Gaussian proximity ballots, Gregory fractional STV.
+Canonical house election: geographically contiguous multi-member districts,
+9 pure parties, Gaussian proximity ballots, Gregory fractional STV.
 
-District size preference (per voter tier):
+District size preference:
   Urban: 7-seat preferred
   Suburban / Rural: 5-seat preferred
-  Absorbed sizes {6, 8, 9}: used when exact {5,7} partition is impossible
-  3-seat: last resort only
+  3-seat: last resort only (no absorbed 6/8/9-seat single districts)
   ≤4 total seats: single at-large district
 
+When data/processed/voter_county_fips.csv and county_to_district.csv exist,
+voters are assigned to districts via their actual county FIPS.  Falls back to
+the legacy tier-shuffle assignment if those files are absent.
+
 2020 Census apportionment counts are sourced from stv_config.STATE_POPS.
-Voter density tiers are sourced from the existing ballot checkpoint.
 Factor scores are loaded from efa_factor_scores.csv (NOT the checkpoint).
 
 Outputs to data/outputs/No_C7_canonical/:
@@ -30,14 +32,16 @@ BASE_DIR        = Path(__file__).parent.parent
 CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
-OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "No_C7_canonical"
+OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "No_C7_canonical"
+VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
+COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 
 sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT, STATE_URBAN_PCT
 
 FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.000, 0.535, 0.081, 0.436, 1.050])  # η²-based F1–F5
+FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 MIN_RESPONDENTS  = 5
 
 CANDIDATES = [
@@ -65,71 +69,32 @@ NAME_TO_CLUSTER = {c["name"]: c["cluster"] for c in CANDIDATES}
 
 def partition_seats(total: int) -> list:
     """
-    Partition total seats into district sizes.
+    Partition total seats into district sizes from {7, 6, 5, 4}.
 
-    Preference order:
-      - 7-seat (urban-friendly) and 5-seat (general): exact combination, maximizing 7s
-      - Absorbed sizes {6, 8, 9}: one non-standard district to avoid 3-seat districts
-      - 3-seat: last resort only
-      - ≤4 total seats: single at-large district of that size
+    Objective (lexicographic):
+      1. Minimize 4-seat districts
+      2. Maximize 7-seat districts
+      3. Minimize 6-seat districts
+    States with <=3 total seats get a single at-large district.
     """
-    if total <= 4:
+    if total <= 3:
         return [total]
 
-    # Phase 1: exact {7, 5} partition — iterate n7 descending to maximise 7-seat districts
+    best      = None
+    best_key  = None  # (n4, -n7, n6) — minimize lexicographically
     for n7 in range(total // 7, -1, -1):
-        rem = total - 7 * n7
-        if rem % 5 == 0:
-            return sorted([7] * n7 + [5] * (rem // 5), reverse=True)
-
-    # Phase 2: allow one absorbed district (size 6, 8, or 9) to eliminate 3-seat districts
-    # Score: (absorbed_size, -n7) — prefer smaller absorbed, then more 7-seat districts
-    best       = None
-    best_score = None
-
-    for absorbed in [6, 8, 9]:
-        rem = total - absorbed
-        if rem < 0:
-            continue
-        if rem == 0:
-            score = (absorbed, 0)
-            if best_score is None or score < best_score:
-                best_score = score
-                best = [absorbed]
-            continue
-        for n7 in range(rem // 7, -1, -1):
-            rem2 = rem - 7 * n7
-            if rem2 >= 0 and rem2 % 5 == 0:
-                n5 = rem2 // 5
-                score = (absorbed, -n7)
-                if best_score is None or score < best_score:
-                    best_score = score
-                    best = sorted([7] * n7 + [5] * n5 + [absorbed], reverse=True)
-                break  # descending n7 loop already maximises 7s for this absorbed size
-
-    if best:
-        return best
-
-    # Phase 3: 3-seat as last resort — minimise count, then maximise 7s
-    best_n3       = None
-    best_n7_saved = None
-    best_fallback = None
-
-    for n7 in range(total // 7 + 1):
-        rem = total - 7 * n7
-        for n5 in range(rem // 5 + 1):
-            rem2 = rem - 5 * n5
-            if rem2 == 0:
-                n3 = 0
-            elif rem2 % 3 == 0:
-                n3 = rem2 // 3
-            else:
-                continue
-            if best_n3 is None or (n3, -n7) < (best_n3, -best_n7_saved):
-                best_n3, best_n7_saved = n3, n7
-                best_fallback = [7] * n7 + [5] * n5 + [3] * n3
-
-    return sorted(best_fallback if best_fallback else [total], reverse=True)
+        rem7 = total - 7 * n7
+        for n6 in range(rem7 // 6, -1, -1):
+            rem76 = rem7 - 6 * n6
+            for n5 in range(rem76 // 5, -1, -1):
+                rem = rem76 - 5 * n5
+                if rem >= 0 and rem % 4 == 0:
+                    n4  = rem // 4
+                    key = (n4, -n7, n6)
+                    if best_key is None or key < best_key:
+                        best_key = key
+                        best     = [7]*n7 + [6]*n6 + [5]*n5 + [4]*n4
+    return sorted(best, reverse=True) if best else [total]
 
 
 def assign_density_tiers(district_sizes: list, fips: int) -> list:
@@ -234,6 +199,25 @@ def assign_voters_to_districts(apportion: pd.DataFrame,
                 end   = start + chunk if rank < n_dists - 1 else len(voter_idx)
                 voter_district[voter_idx[start:end]] = did
 
+    return voter_district
+
+
+def assign_voters_to_districts_geo(voter_counties: np.ndarray,
+                                    county_to_dist: dict,
+                                    inputstates: np.ndarray,
+                                    apportion: pd.DataFrame) -> np.ndarray:
+    """Assign each voter to a district via county FIPS lookup.
+    Voters in counties not in county_to_dist fall back to the first district
+    in their state.
+    """
+    state_fallback: dict = {}
+    for _, row in apportion.iterrows():
+        state_fallback.setdefault(int(row["state_fips"]), row["district_id"])
+
+    voter_district = np.empty(len(voter_counties), dtype=object)
+    for i, (county, state) in enumerate(zip(voter_counties, inputstates)):
+        did = county_to_dist.get(county)
+        voter_district[i] = did if did else state_fallback.get(int(state), "")
     return voter_district
 
 
@@ -364,6 +348,7 @@ def main():
     total_seats  = int(apportion["seat_count"].sum())
     n_districts  = len(apportion)
 
+    apportion.to_csv(OUTPUT_DIR / "district_apportionment.csv", index=False)
     print(f"  {apportion['state_fips'].nunique()} states  |  {n_districts} districts  |  {total_seats} seats")
     size_dist = apportion["seat_count"].value_counts().sort_index()
     for sz, cnt in size_dist.items():
@@ -374,7 +359,21 @@ def main():
 
     # ── Voter assignment ───────────────────────────────────────────────────────
     print("\nAssigning voters to districts…")
-    voter_district = assign_voters_to_districts(apportion, inputstates, density_tiers)
+    if VOTER_FIPS_PATH.exists() and COUNTY_DIST_PATH.exists():
+        print("  Using geographic county FIPS assignment…")
+        voter_fips_df  = pd.read_csv(VOTER_FIPS_PATH, index_col=0)
+        voter_counties = voter_fips_df["countyfips"].astype(str).str.zfill(5).values
+        county_dist_df = pd.read_csv(COUNTY_DIST_PATH)
+        county_to_dist = dict(zip(
+            county_dist_df["county_fips5"].astype(str).str.zfill(5),
+            county_dist_df["district_id"]
+        ))
+        voter_district = assign_voters_to_districts_geo(
+            voter_counties, county_to_dist, inputstates, apportion
+        )
+    else:
+        print("  Warning: geo files not found — falling back to tier-shuffle assignment")
+        voter_district = assign_voters_to_districts(apportion, inputstates, density_tiers)
     unassigned = (voter_district == "").sum()
     if unassigned:
         print(f"  Warning: {unassigned} voters unassigned — check state FIPS coverage")

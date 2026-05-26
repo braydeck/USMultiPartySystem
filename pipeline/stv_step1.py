@@ -25,49 +25,32 @@ def seats_for_state(fips: int) -> int:
 
 def partition_seats(total: int) -> list:
     """
-    Partition total seats into district sizes.
+    Partition total seats into district sizes from {7, 6, 5, 4}.
 
-    Rules:
-    - total <= 4: single at-large district of that size
-    - Otherwise: find combination of 5s, 7s, and 3s such that:
-        Primary objective:   minimize number of 3-seat districts
-        Secondary objective: minimize number of 7-seat districts
-    - 2-seat and 4-seat districts are ONLY for states with exactly 2 or 4 seats.
+    Objective (lexicographic):
+      1. Minimize 4-seat districts
+      2. Maximize 7-seat districts
+      3. Minimize 6-seat districts
+    States with <=3 total seats get a single at-large district.
     """
-    if total <= 4:
+    if total <= 3:
         return [total]
 
-    best_n3  = None
-    best_n7  = None
-    best     = None
-
-    for n7 in range(total // 7 + 1):
-        rem = total - 7 * n7
-        for n5 in range(rem // 5 + 1):
-            rem2 = rem - 5 * n5
-            if rem2 == 0:
-                n3 = 0
-            elif rem2 % 3 == 0:
-                n3 = rem2 // 3
-            else:
-                continue
-            # Primary: minimize n3; secondary: minimize n7
-            if best is None or (n3, n7) < (best_n3, best_n7):
-                best_n3, best_n7 = n3, n7
-                best = (n5, n7, n3)
-
-    if best is None:
-        # Fallback: should not happen for total >= 5, but guard anyway
-        # Break into 3s + leftover
-        n3 = total // 3
-        leftover = total % 3
-        sizes = [3] * n3
-        if leftover:
-            sizes.append(leftover)
-        return sorted(sizes, reverse=True)
-
-    n5, n7, n3 = best
-    return sorted([5] * n5 + [7] * n7 + [3] * n3, reverse=True)
+    best      = None
+    best_key  = None  # (n4, -n7, n6) — minimize lexicographically
+    for n7 in range(total // 7, -1, -1):
+        rem7 = total - 7 * n7
+        for n6 in range(rem7 // 6, -1, -1):
+            rem76 = rem7 - 6 * n6
+            for n5 in range(rem76 // 5, -1, -1):
+                rem = rem76 - 5 * n5
+                if rem >= 0 and rem % 4 == 0:
+                    n4  = rem // 4
+                    key = (n4, -n7, n6)
+                    if best_key is None or key < best_key:
+                        best_key = key
+                        best     = [7]*n7 + [6]*n6 + [5]*n5 + [4]*n4
+    return sorted(best, reverse=True) if best else [total]
 
 
 def assign_density_tiers(district_sizes: list, fips: int) -> list:
@@ -173,7 +156,7 @@ def run_apportionment() -> pd.DataFrame:
 
     # Verification
     assert df["seat_count"].sum() == total_seats, "Seat count mismatch after partition"
-    assert set(df["seat_count"].unique()).issubset({1, 2, 3, 4, 5, 7}), \
+    assert set(df["seat_count"].unique()).issubset({1, 2, 3, 4, 5, 6, 7}), \
         f"Unexpected district sizes: {set(df['seat_count'].unique())}"
     assert df["seat_count"].min() >= 1, "Seat count below 1"
 

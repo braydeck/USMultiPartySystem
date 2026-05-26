@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { PrimaryStateWinner, PrimarySankeyData, FDPrimaryData, ClusterProfile } from '../types';
-import { EliminationWaterfall } from '../components/primary/EliminationWaterfall';
-import { IdeologicalScatter } from '../components/primary/IdeologicalScatter';
 import { PrimaryStateMap } from '../components/primary/PrimaryStateMap';
 import AlluvialFlow from '../components/primary/AlluvialFlow';
-import { MiniPartyCard } from '../components/shared/MiniPartyCard';
-import { PartyVariantBar } from '../components/shared/PartyVariantBar';
+import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
+import { PartyProfileCard } from '../components/shared/PartyProfileCard';
+import { PARTY_NAMES, F5_ORDER } from '../constants/parties';
 
 interface Props {
   factorDev: FDPrimaryData;
@@ -34,7 +33,8 @@ export function PrimaryTab({
   pureMulti, pureMultiStateWinners, pureMultiSankey,
   clusters,
 }: Props) {
-  const clusterByParty = Object.fromEntries(clusters.map(c => [c.party, c]));
+  const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
+  const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const [pipeline, setPipeline] = useState<Pipeline>('rawMulti');
   const [stageIdx, setStageIdx] = useState(0);
 
@@ -43,18 +43,8 @@ export function PrimaryTab({
   const stateWinners = pipeline === 'factorDev' ? factorDevStateWinners : pureMultiStateWinners;
   const sankey = pipeline === 'factorDev' ? factorDevSankey : pureMultiSankey;
 
-  // For PartyVariantBar: map candidates to FDHouseSeat-like shape using Retail stage vote share
-  const variantFirstChoice = data.candidates.map(c => ({
-    code: c.code,
-    party: (c as { party?: string }).party ?? c.code,
-    axis: (c as { axis?: string }).axis ?? 'base',
-    direction: (c as { direction?: string }).direction ?? 'base',
-    urban: 0, suburban: 0, rural: 0,
-    national: Math.round((c.stages['After_Retail_Six']?.votePct ?? 0) * 10),
-    pctNational: c.stages['After_Retail_Six']?.votePct ?? 0,
-  }));
-
   const stage = data.stagesOrder[stageIdx] ?? data.stagesOrder[0];
+  const prevStage = stageIdx > 0 ? data.stagesOrder[stageIdx - 1] : null;
   const quota = data.quotaByStage[stage] ?? 0;
   const stageLabel = data.stageLabels[stage] ?? stage;
 
@@ -67,8 +57,8 @@ export function PrimaryTab({
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">2028 Presidential Primary</h2>
         <p className="text-slate-500 text-sm">
-          A 4-round STV simulation across regional pods — watch as candidates consolidate
-          from a crowded field to the final survivors. Quota = {quota.toFixed(0)} votes.
+          A 4-round STV simulation across regional pods — a crowded field collapses into a final set of survivors
+          through elimination rounds. Quota = {(quota * 100).toFixed(1)}%.
         </p>
       </div>
 
@@ -109,7 +99,7 @@ export function PrimaryTab({
         ))}
       </div>
 
-      {/* State map — full width (not shown for rawMulti: pod system, no per-state accumulation) */}
+      {/* State map — full width */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
           State Winners by Stage
@@ -120,54 +110,7 @@ export function PrimaryTab({
         <PrimaryStateMap stateWinners={stateWinners} stage={stage} />
       </div>
 
-      {/* Mini cards for active candidates */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
-        {activeCandidates
-          .filter(c => ['surviving', 'elected', 'active'].includes(c.stages[stage]?.status ?? ''))
-          .sort((a, b) => a.F5 - b.F5)
-          .map(c => {
-            const baseParty = c.code.split('_')[0];
-            const positions = clusterByParty[baseParty]?.keyPositions ?? [];
-            return (
-              <MiniPartyCard
-                key={c.code}
-                code={c.code}
-                votePct={c.stages[stage]?.votePct}
-                positions={positions}
-              />
-            );
-          })}
-      </div>
-
-      {/* Waterfall + scatter side by side */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
-            Pod Vote Share — {stageLabel}
-          </h3>
-          <p className="text-xs text-slate-500 mb-3">
-            First-choice % among votes cast in this pod&apos;s cumulative pool. Yellow = quota threshold. Red border = eliminated this round.
-          </p>
-          <EliminationWaterfall
-            candidates={activeCandidates}
-            stage={stage}
-            quota={quota}
-          />
-        </div>
-
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
-            Ideological Positions
-          </h3>
-          <p className="text-xs text-slate-500 mb-3">
-            Bubble size = vote share. Opacity = Religious Traditionalism (F4).
-            Outlined = eliminated.
-          </p>
-          <IdeologicalScatter candidates={activeCandidates} stage={stage} />
-        </div>
-      </div>
-
-      {/* Alluvial flow — vote transfer across stages */}
+      {/* Vote Transfer Flow — Sankey, full width, elevated */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
           Vote Transfer Flows
@@ -177,6 +120,36 @@ export function PrimaryTab({
           Hover blocks and ribbons for details.
         </p>
         <AlluvialFlow data={sankey} highlightStage={stageIdx + 1} />
+      </div>
+
+      {/* Ideological Constellation + Party Profiles */}
+      <div className="bg-white rounded-xl p-4 border border-slate-200">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+          Ideological Constellation
+        </h3>
+        <p className="text-xs text-slate-500 mb-4">
+          Drag axes to explore ideological dimensions. Bubble size = house seats. Links = transfer affinity.
+        </p>
+        <IdeologicalConstellation
+          nodes={clusters.filter(c => c.party).map(c => ({
+            id: c.party,
+            label: PARTY_NAMES[c.party] ?? c.party,
+            seats: c.seatsHouse,
+            F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
+          }))}
+        />
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
+        <p className="text-xs text-slate-500 mb-4">
+          Ordered left→right by Ideology (F5). Each party&apos;s position across four discriminating dimensions.
+        </p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {orderedClusters.map(cluster => (
+            <PartyProfileCard key={cluster.party} cluster={cluster} />
+          ))}
+        </div>
       </div>
 
       {/* Stage summary cards */}
@@ -212,21 +185,6 @@ export function PrimaryTab({
           })}
         </div>
       </div>
-
-      {/* Variant breakdown bar */}
-      {variantFirstChoice.length > 0 && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
-            First-Choice Distribution by{pipeline === 'factorDev' ? ' Variant' : ' Candidate'}
-          </h3>
-          <p className="text-xs text-slate-500 mb-3">
-            {pipeline === 'factorDev'
-              ? 'Scaled vote share after Retail + Bench States. Full color = base; lighter = hi axis; darker = lo axis.'
-              : 'Scaled vote share after Retail + Bench States. All candidates are base (no axis deviation).'}
-          </p>
-          <PartyVariantBar seats={variantFirstChoice} totalLabel="first-choice vote share (×10 = tenths of %)" />
-        </div>
-      )}
     </div>
   );
 }
