@@ -224,8 +224,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
               .attr('fill', zoneColor(z.side)).attr('opacity', zoneOpacity(z.label) * 0.6);
             if (z.label) {
               zoneG.append('text')
-                .attr('x', PAD_L + 4).attr('y', (y1 + y2) / 2 + 3)
-                .attr('text-anchor', 'start')
+                .attr('x', W - PAD_R - 4).attr('y', (y1 + y2) / 2 + 3)
+                .attr('text-anchor', 'end')
                 .style('fill', '#94a3b8').style('font-size', '8px').style('font-style', 'italic')
                 .text(z.label);
             }
