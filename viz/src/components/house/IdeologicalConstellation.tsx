@@ -202,7 +202,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             zoneG.append('rect')
               .attr('x', x1).attr('y', PAD_T).attr('width', x2 - x1).attr('height', H - PAD_T - PAD_B)
               .attr('fill', zoneColor(z.side)).attr('opacity', zoneOpacity(z.label));
-            if (z.label) {
+            if (z.label && (x2 - x1) > 40) {
               zoneG.append('text')
                 .attr('x', (x1 + x2) / 2).attr('y', PAD_T + 12)
                 .attr('text-anchor', 'middle')
@@ -222,7 +222,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             zoneG.append('rect')
               .attr('x', PAD_L).attr('y', y2).attr('width', W - PAD_L - PAD_R).attr('height', y1 - y2)
               .attr('fill', zoneColor(z.side)).attr('opacity', zoneOpacity(z.label) * 0.6);
-            if (z.label) {
+            if (z.label && (y1 - y2) > 20) {
               zoneG.append('text')
                 .attr('x', W - PAD_R - 4).attr('y', (y1 + y2) / 2 + 3)
                 .attr('text-anchor', 'end')
