@@ -937,6 +937,7 @@ def collect_cluster_variables(rows):
                     "question": "Weekly church attendance",
                     "domain": "Religion",
                     "diffPp": round(pct - overall_church, 1),
+                    "overall": round(overall_church, 1),
                 }
             except (ValueError, TypeError):
                 pass
@@ -984,6 +985,7 @@ def collect_cluster_variables(rows):
                     "question": question,
                     "domain": meta["domain"],
                     "diffPp": round(pct - overall, 1),
+                    "overall": round(overall, 1),
                 }
             except (ValueError, TypeError):
                 pass
@@ -1014,6 +1016,7 @@ def collect_cluster_variables(rows):
                         "question": label_q,
                         "domain": "Demographics",
                         "diffPp": round(val - overall, 1),
+                        "overall": round(overall, 1),
                     }
                 except (ValueError, TypeError):
                     pass
@@ -1091,6 +1094,7 @@ def collect_cluster_variables(rows):
                     'question': question,
                     'domain': domain,
                     'diffPp': round(val - overall, 1),
+                    'overall': round(overall, 1),
                 }
             except (ValueError, TypeError):
                 pass
@@ -1122,6 +1126,7 @@ def collect_cluster_variables(rows):
                     'question': question,
                     'domain': 'Economics',
                     'diffPp': round(val - overall, 1),
+                    'overall': round(overall, 1),
                 }
             except Exception:
                 pass
@@ -1161,6 +1166,7 @@ def collect_cluster_variables(rows):
                     'question': question,
                     'domain': domain,
                     'diffPp': round(val - overall, 1),
+                    'overall': round(overall, 1),
                     'maxVal': max_val,
                     'unit': unit,
                 }
