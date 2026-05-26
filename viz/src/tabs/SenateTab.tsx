@@ -66,13 +66,8 @@ export function SenateTab({ condorcetFD, irvFD,
     if (baseCl) { const p = (baseCl as any)[pKey]; if (p != null) return p; }
     // Fallback to raw for FD variants (no percentile available)
     const fd = fdProfiles[code];
-    if (fd) return (fd as unknown as Record<string, number>)[factor] ?? 0;
-    if (cl) return (cl as unknown as Record<string, number>)[factor] ?? 0;
-    // Raw multi codes: "CTR_1" → base party "CTR"
-    const base = code.split('_')[0];
-    const baseCl = clusterByParty[base];
-    if (baseCl) return (baseCl as unknown as Record<string, number>)[factor] ?? 0;
-    return 0;
+    if (fd) return (fd as unknown as Record<string, number>)[factor] ?? 50;
+    return 50;
   }
 
   // Global factor range — union of all clusters + all fdProfiles for stable absolute ordering
