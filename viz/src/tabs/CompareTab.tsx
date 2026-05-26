@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
-import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, FACTOR_SHORT, FACTOR_LABELS } from '../constants/parties';
+import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES } from '../constants/parties';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -291,13 +291,21 @@ function FactorDotRow({
         {/* Tier labels */}
         {!isPercentile ? (
           <>
-            <text x="3%"                     y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8">Strongly</text>
-            <text x={`${fvToPct(-1.25)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
-            <text x={`${fvToPct(-0.75)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
+            {/* Zone labels above the line, at zone boundaries */}
+            <text x={`${fvToPct(-1.5)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Strongly</text>
+            <text x={`${fvToPct(-1.0)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
+            <text x={`${fvToPct(-0.5)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
             <text x={`${fvToPct(0)}%`}       y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Centrist</text>
-            <text x={`${fvToPct(0.75)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
-            <text x={`${fvToPct(1.25)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
-            <text x="97%"                     y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="end">Strongly</text>
+            <text x={`${fvToPct(0.5)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
+            <text x={`${fvToPct(1.0)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
+            <text x={`${fvToPct(1.5)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Strongly</text>
+            {/* Pole labels at ends */}
+            <text x="1%"  y={FACTOR_H - 4} fontSize={8} fill="#2563eb" fontWeight="600">
+              ← {FACTOR_POLES[factor]?.low ?? ''}
+            </text>
+            <text x="99%" y={FACTOR_H - 4} fontSize={8} fill="#dc2626" fontWeight="600" textAnchor="end">
+              {FACTOR_POLES[factor]?.high ?? ''} →
+            </text>
           </>
         ) : (
           <>
