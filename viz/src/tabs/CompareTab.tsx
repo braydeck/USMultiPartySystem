@@ -367,7 +367,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
   const [activeFactors, setActiveFactors] = useState<Set<string>>(new Set());
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['Untagged']));
   const [groupBy, setGroupBy] = useState<'category' | 'factor'>('category');
-  const [showNatAvg, setShowNatAvg] = useState(false);
+  const [showNatAvg, setShowNatAvg] = useState(true);
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>('strength');
 
   // Build option list: pure parties in F5_ORDER, then FD candidates grouped by party
