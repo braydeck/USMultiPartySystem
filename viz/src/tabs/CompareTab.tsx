@@ -104,12 +104,10 @@ function getFactorScores(
   return null;
 }
 
-function factorTier(val: number): string {
-  if (val > 0.75)  return 'Very High';
-  if (val > 0.25)  return 'High';
-  if (val > -0.25) return 'Medium';
-  if (val > -0.75) return 'Low';
-  return 'Very Low';
+// Population SDs for raw→z conversion
+const POP_SD: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+function rawToZ(val: number, factor: string): number {
+  return val / (POP_SD[factor] || 1);
 }
 
 // ── Dot-on-track row for policy variables ─────────────────────────────────
@@ -216,10 +214,10 @@ function DotTrack({
 const FACTOR_LINE_Y = 33;
 const FACTOR_H      = 82;
 const FACTOR_DOT_R  = 6;
-const FACTOR_MIN    = -2;
-const FACTOR_MAX    =  2;
+const FACTOR_MIN    = -2.5;  // z-score range
+const FACTOR_MAX    =  2.5;
 const fvToPct = (v: number) => ((v - FACTOR_MIN) / (FACTOR_MAX - FACTOR_MIN)) * 100;
-const TIER_BOUNDS   = [-0.75, -0.25, 0, 0.25, 0.75];
+const TIER_BOUNDS   = [-2.0, -1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0];
 
 function FactorDotRow({
   factor, codes, clusters, fdProfiles,
@@ -230,8 +228,11 @@ function FactorDotRow({
   fdProfiles: Record<string, FDCandidateProfile>;
 }) {
   const scored = codes
-    .map(code => ({ code, val: getFactorScores(code, clusters, fdProfiles)?.[factor] }))
-    .filter((s): s is { code: string; val: number } => s.val !== undefined)
+    .map(code => {
+      const raw = getFactorScores(code, clusters, fdProfiles)?.[factor];
+      return raw !== undefined ? { code, val: rawToZ(raw, factor) } : null;
+    })
+    .filter((s): s is { code: string; val: number } => s !== null)
     .sort((a, b) => a.val - b.val);
 
   return (
@@ -253,11 +254,13 @@ function FactorDotRow({
         <line x1="1%" y1={FACTOR_LINE_Y} x2="99%" y2={FACTOR_LINE_Y}
           stroke="#e2e8f0" strokeWidth={1.5} />
         {/* Tier labels */}
-        <text x="1%"                       y={FACTOR_H - 4} fontSize={8} fill="#94a3b8">Very Low</text>
-        <text x={`${fvToPct(-0.5)}%`}      y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Low</text>
-        <text x={`${fvToPct(0)}%`}         y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Medium</text>
-        <text x={`${fvToPct(0.5)}%`}       y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">High</text>
-        <text x="99%"                       y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="end">Very High</text>
+        <text x="3%"                       y={FACTOR_H - 4} fontSize={8} fill="#94a3b8">Strongly</text>
+        <text x={`${fvToPct(-1.25)}%`}     y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
+        <text x={`${fvToPct(-0.75)}%`}     y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
+        <text x={`${fvToPct(0)}%`}         y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Centrist</text>
+        <text x={`${fvToPct(0.75)}%`}      y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
+        <text x={`${fvToPct(1.25)}%`}      y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
+        <text x="97%"                       y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="end">Strongly</text>
         {/* Dots + combined inline labels */}
         {scored.map((item, idx) => {
           const pct   = fvToPct(item.val);
@@ -273,7 +276,7 @@ function FactorDotRow({
                 fill={color} stroke="white" strokeWidth={2} />
               <text x={`${pct}%`} y={labelY} textAnchor={anchor}>
                 <tspan fontWeight="700" fontSize={11} fill={color}>{item.code}</tspan>
-                <tspan fontSize={10} fill="#475569"> {item.val >= 0 ? '+' : ''}{item.val.toFixed(2)}</tspan>
+                <tspan fontSize={10} fill="#475569"> {item.val >= 0 ? '+' : ''}{item.val.toFixed(1)}σ</tspan>
               </text>
             </g>
           );
@@ -479,7 +482,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Factor Scores</span>
-              <span className="text-xs text-slate-400 ml-3">Tiers: Very High &gt;+0.75 · High +0.25 · Medium ±0.25 · Low −0.25 · Very Low &lt;−0.75</span>
+              <span className="text-xs text-slate-400 ml-3">Scale: Strongly &gt;1.5σ · Moderately 1.0σ · Leans 0.5σ · Centrist &lt;0.5σ</span>
             </div>
             <div>
               {FACTORS.map(f => (
