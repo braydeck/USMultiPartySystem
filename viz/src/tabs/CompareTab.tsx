@@ -291,14 +291,20 @@ function FactorDotRow({
         {/* Tier labels */}
         {!isPercentile ? (
           <>
-            {/* Zone labels above the line, at zone boundaries */}
-            <text x={`${fvToPct(-1.5)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Strongly</text>
-            <text x={`${fvToPct(-1.0)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
-            <text x={`${fvToPct(-0.5)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
-            <text x={`${fvToPct(0)}%`}       y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Centrist</text>
-            <text x={`${fvToPct(0.5)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
-            <text x={`${fvToPct(1.0)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
-            <text x={`${fvToPct(1.5)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Strongly</text>
+            {/* Zone background shading */}
+            <rect x={`${fvToPct(-0.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(0.5) - fvToPct(-0.5)}%`} height={20} fill="#f1f5f9" rx={3} />
+            <rect x={`${fvToPct(0.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(1.0) - fvToPct(0.5)}%`} height={20} fill="#fef2f2" opacity={0.5} rx={2} />
+            <rect x={`${fvToPct(1.0)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(1.5) - fvToPct(1.0)}%`} height={20} fill="#fecaca" opacity={0.3} rx={2} />
+            <rect x={`${fvToPct(-1.0)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-0.5) - fvToPct(-1.0)}%`} height={20} fill="#eff6ff" opacity={0.5} rx={2} />
+            <rect x={`${fvToPct(-1.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-1.0) - fvToPct(-1.5)}%`} height={20} fill="#bfdbfe" opacity={0.3} rx={2} />
+            {/* Zone labels at zone CENTERS */}
+            <text x={`${fvToPct(-1.75)}%`}  y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Strongly</text>
+            <text x={`${fvToPct(-1.25)}%`}  y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Moderately</text>
+            <text x={`${fvToPct(-0.75)}%`}  y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Leans</text>
+            <text x={`${fvToPct(0)}%`}      y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Centrist</text>
+            <text x={`${fvToPct(0.75)}%`}   y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Leans</text>
+            <text x={`${fvToPct(1.25)}%`}   y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Moderately</text>
+            <text x={`${fvToPct(1.75)}%`}   y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Strongly</text>
             {/* Pole labels at ends */}
             <text x="1%"  y={FACTOR_H - 4} fontSize={8} fill="#2563eb" fontWeight="600">
               ← {FACTOR_POLES[factor]?.low ?? ''}
