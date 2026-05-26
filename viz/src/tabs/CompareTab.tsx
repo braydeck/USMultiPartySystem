@@ -36,11 +36,12 @@ interface VarEntry {
   key: string;
   question: string;
   pcts: Record<string, number>;
+  overall: number | null;
   maxGap: number;
   highlighted: boolean;
   factor: string | null;
-  maxVal: number;  // axis max (100 for %, custom for other scales)
-  unit: string;    // display unit ('', '%', 'wks', etc.)
+  maxVal: number;
+  unit: string;
 }
 
 // Natural ordering for demographic/structural sections
@@ -121,7 +122,7 @@ const ABOVE_Y       = POLICY_LINE_Y - DOT_R - 5;   // label baseline above dot
 const BELOW_Y       = POLICY_LINE_Y + DOT_R + 13;  // label baseline below dot
 
 function DotTrack({
-  question, factor, highlighted, pcts, codes, gap, maxVal = 100, unit = '%',
+  question, factor, highlighted, pcts, codes, gap, maxVal = 100, unit = '%', overall, showNatAvg,
 }: {
   question: string;
   factor: string | null;
@@ -131,6 +132,8 @@ function DotTrack({
   gap: number;
   maxVal?: number;
   unit?: string;
+  overall?: number | null;
+  showNatAvg?: boolean;
 }) {
   const toPos  = (v: number) => (v / maxVal) * 100;  // value → 0-100% position
   const toDisp = (v: number) => unit === '%' ? `${Math.round(v)}%` : `${v % 1 === 0 ? v : v.toFixed(1)} ${unit}`;
@@ -169,6 +172,18 @@ function DotTrack({
         {/* 50% reference line */}
         <line x1="50%" y1={3} x2="50%" y2={POLICY_LINE_Y + 5}
           stroke="#94a3b8" strokeWidth={1} strokeDasharray="3,2" />
+        {/* National average marker */}
+        {showNatAvg && overall != null && (
+          <>
+            <line x1={`${toPos(overall)}%`} y1={POLICY_LINE_Y - 10}
+              x2={`${toPos(overall)}%`} y2={POLICY_LINE_Y + 10}
+              stroke="#059669" strokeWidth={2} strokeDasharray="2,2" />
+            <text x={`${toPos(overall)}%`} y={POLICY_LINE_Y - 13}
+              textAnchor="middle" fontSize={8} fill="#059669" fontWeight="600">
+              Avg {toDisp(overall)}
+            </text>
+          </>
+        )}
         {/* Base track */}
         <line x1="1%" y1={POLICY_LINE_Y} x2="99%" y2={POLICY_LINE_Y}
           stroke="#e2e8f0" strokeWidth={1.5} />
@@ -298,6 +313,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
   const [activeFactors, setActiveFactors] = useState<Set<string>>(new Set());
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['Untagged']));
   const [groupBy, setGroupBy] = useState<'category' | 'factor'>('category');
+  const [showNatAvg, setShowNatAvg] = useState(false);
 
   // Build option list: pure parties in F5_ORDER, then FD candidates grouped by party
   const pureOptions = F5_ORDER
@@ -351,6 +367,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
       for (const [key, v] of Object.entries(vars)) {
         if (!varMap.has(key)) varMap.set(key, {
           question: v.question, domain: v.domain, pcts: {},
+          overall: (v as any).overall ?? null,
           maxVal: (v as unknown as Record<string, number>)['maxVal'] ?? 100,
           unit: (v as unknown as Record<string, string>)['unit'] ?? '%',
         });
@@ -374,8 +391,8 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
 
       if (!grouped[groupKey]) grouped[groupKey] = [];
       grouped[groupKey].push({
-        key, question: entry.question, pcts: entry.pcts, maxGap,
-        highlighted: maxGap >= minGap, factor,
+        key, question: entry.question, pcts: entry.pcts, overall: entry.overall,
+        maxGap, highlighted: maxGap >= minGap, factor,
         maxVal: entry.maxVal, unit: entry.unit,
       });
     }
@@ -533,6 +550,13 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
               </div>
             )}
 
+            <button onClick={() => setShowNatAvg(!showNatAvg)}
+              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                showNatAvg ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}>
+              {showNatAvg ? '✓ National Avg' : 'National Avg'}
+            </button>
+
             <label className="flex items-center gap-1.5 text-xs text-slate-500 whitespace-nowrap ml-auto">
               Highlight gap ≥
               <input
@@ -596,6 +620,8 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                               gap={v.maxGap}
                               maxVal={v.maxVal}
                               unit={v.unit}
+                              overall={v.overall}
+                              showNatAvg={showNatAvg}
                             />
                           </div>
                         ))}

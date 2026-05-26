@@ -857,6 +857,7 @@ def collect_cluster_variables(rows):
                     "question": r.get("question", var),
                     "domain": r.get("domain", ""),
                     "diffPp": round(val - overall, 1),
+                    "overall": round(overall, 1),
                 }
             except (ValueError, TypeError):
                 pass
@@ -901,6 +902,7 @@ def collect_cluster_variables(rows):
                     "question": meta["question"],
                     "domain": meta["domain"],
                     "diffPp": round(pct - overall_agree, 1),
+                    "overall": round(overall_agree, 1),
                 }
             except (ValueError, TypeError):
                 pass
@@ -1336,6 +1338,7 @@ def _extract_policy_vars(rows, get_val, max_vars=None):
                 "question": r.get("question", r["variable"]),
                 "domain": r.get("domain", ""),
                 "diffPp": round(val - overall, 1),
+                "overall": round(overall, 1),
             }
         except (ValueError, KeyError):
             pass
