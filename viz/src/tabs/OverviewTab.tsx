@@ -10,6 +10,7 @@ import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
+import { PartyProfileCard } from '../components/shared/PartyProfileCard';
 import { VerdictBadge, getBayesianLabel } from '../components/legislation/UnifiedBillTable';
 
 const FPTP_SENATE = { DEM: 47, GOP: 53 };
@@ -267,16 +268,14 @@ export function OverviewTab({
         </p>
 
         <div className="grid sm:grid-cols-2 gap-4">
-          <PresWinnerCard
-            method="Condorcet"
-            winner={condWinner}
-            cluster={clusterByParty[condParty]}
-          />
-          <PresWinnerCard
-            method="IRV"
-            winner={irvWinner}
-            cluster={clusterByParty[irvParty]}
-          />
+          <div>
+            <div className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">Condorcet Winner</div>
+            {clusterByParty[condParty] && <PartyProfileCard cluster={clusterByParty[condParty]} />}
+          </div>
+          <div>
+            <div className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">IRV Winner</div>
+            {clusterByParty[irvParty] && <PartyProfileCard cluster={clusterByParty[irvParty]} />}
+          </div>
         </div>
 
         {divergentBills.length > 0 && (
