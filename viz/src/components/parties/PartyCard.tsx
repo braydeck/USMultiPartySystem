@@ -44,6 +44,7 @@ export function PartyCard({ cluster }: Props) {
             const pctile = (cluster as unknown as Record<string, number>)[`pctile_${f}`];
             if (pctile == null) return null;
             const isHigh = pctile >= 50;
+            const magnitude = isHigh ? pctile : 100 - pctile;
             const desc = pctileDesc(f, pctile);
             const barColor = isHigh ? '#dc2626' : '#2563eb';
 

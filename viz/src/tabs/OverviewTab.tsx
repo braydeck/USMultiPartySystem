@@ -352,7 +352,7 @@ export function OverviewTab({
       <div>
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
         <p className="text-xs text-slate-500 mb-4">
-          Ordered left→right by Ideology (F5). Each party has a distinct position across four dimensions — Government Distrust (F3) is excluded as it shows near-zero variation between parties.
+          Ordered left→right by Ideology (F5). Percentiles show each party&apos;s position relative to the average of all American voters surveyed.
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {orderedClusters.map(cluster => (
