@@ -78,6 +78,21 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
     return map;
   }, [fdHouseSeats]);
 
+  // Helper: convert cluster to percentile-based constellation node
+  const clusterToNode = (c: CoalitionProfile | ClusterProfile) => {
+    const party = 'type' in c ? (c as CoalitionProfile).type : (c as ClusterProfile).party;
+    const cp = clusterByParty[party] ?? clusterByParty[party.split('_')[0]];
+    return {
+      id: party, label: party,
+      seats: 'seatsHouse' in c ? (c as any).seatsHouse : 0,
+      F1: ((cp as any)?.pctile_F1 ?? 50) - 50,
+      F2: ((cp as any)?.pctile_F2 ?? 50) - 50,
+      F3: ((cp as any)?.pctile_F3 ?? 50) - 50,
+      F4: ((cp as any)?.pctile_F4 ?? 50) - 50,
+      F5: ((cp as any)?.pctile_F5 ?? 50) - 50,
+    };
+  };
+
   const activeSeats = scenario === 'rawMulti' ? seats : fdSeatsAggregated;
   const activeTotalSeats = activeSeats.reduce((s, r) => s + r.national, 0);
 
@@ -240,10 +255,7 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
             }
             return coalitions
               .filter(c => c.seatsHouse > 0)
-              .map(c => ({
-                id: c.type, label: c.type,
-                seats: c.seatsHouse, F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
-              }));
+              .map(c => clusterToNode(c));
           })()}
           transfers={scenario === 'rawMulti' ? transfers : undefined}
           clusterSpreads={clusterSpreads}

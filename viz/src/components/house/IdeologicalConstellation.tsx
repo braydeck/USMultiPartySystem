@@ -93,19 +93,24 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     let xMin = d3.min(xVals) ?? -1, xMax = d3.max(xVals) ?? 1;
     let yMin = d3.min(yVals) ?? -1, yMax = d3.max(yVals) ?? 1;
 
-    // Expand domain to fit penumbra extents (mean ± 1σ)
+    // Expand domain to fit penumbra extents in percentile space
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
+      const POP_SD_DOM: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+      const r2p = (raw: number, f: string) => {
+        const sd = POP_SD_DOM[f] || 1;
+        return (1 / (1 + Math.exp(-1.7 * raw / sd))) * 100 - 50;
+      };
       for (const cs of clusterSpreads) {
         if (!enabledParties.has(cs.party)) continue;
-        const mx = Number(cs[`mean_${xFactor}`] ?? 0);
-        const my = Number(cs[`mean_${yFactor}`] ?? 0);
-        const sdx = Number(cs[`sd_${xFactor}`] ?? 0);
-        const sdy = Number(cs[`sd_${yFactor}`] ?? 0);
-        if (sdx && sdy) {
-          xMin = Math.min(xMin, mx - sdx);
-          xMax = Math.max(xMax, mx + sdx);
-          yMin = Math.min(yMin, my - sdy);
-          yMax = Math.max(yMax, my + sdy);
+        const rawMx = Number(cs[`mean_${xFactor}`] ?? 0);
+        const rawMy = Number(cs[`mean_${yFactor}`] ?? 0);
+        const rawSdx = Number(cs[`sd_${xFactor}`] ?? 0);
+        const rawSdy = Number(cs[`sd_${yFactor}`] ?? 0);
+        if (rawSdx && rawSdy) {
+          xMin = Math.min(xMin, r2p(rawMx - rawSdx, xFactor));
+          xMax = Math.max(xMax, r2p(rawMx + rawSdx, xFactor));
+          yMin = Math.min(yMin, r2p(rawMy - rawSdy, yFactor));
+          yMax = Math.max(yMax, r2p(rawMy + rawSdy, yFactor));
         }
       }
     }
@@ -158,20 +163,11 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     // Text color: always dark with white outline for readability
     const getTextColor = () => '#1e293b';
 
-    // --- Raw score → signed percentile from average ---
-    // Population SDs from EFA (computed from 45,707 voters)
-    const POP_SD: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
-    // Normal CDF approximation (logistic)
-    const normCdf = (z: number) => 1 / (1 + Math.exp(-1.7 * z));
-    const toPctile = (raw: number, factor: string) => {
-      const sd = POP_SD[factor];
-      if (!sd) return raw; // seats or unknown
-      return Math.round(normCdf(raw / sd) * 100 - 50); // signed distance from 50th
-    };
-    const fmtTick = (raw: number, factor: string) => {
-      if (factor === 'seats') return raw.toFixed(0);
-      const p = toPctile(raw, factor);
-      return p > 0 ? `+${p}` : `${p}`;
+    // Tick label formatter — values are already percentile distance from avg (0 = average voter)
+    const fmtTick = (v: number, factor: string) => {
+      if (factor === 'seats') return v.toFixed(0);
+      const r = Math.round(v);
+      return r > 0 ? `+${r}%` : `${r}%`;
     };
 
     // --- Gridlines + tick labels ---
@@ -220,13 +216,25 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     // --- Penumbra ellipses (voter spread) ---
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
       const penumbraG = svg.append('g').attr('class', 'penumbra').attr('clip-path', `url(#${clipId})`);
+      // Population SDs for raw→percentile SD scaling
+      const POP_SD: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+      const rawToPctile = (raw: number, f: string) => {
+        const sd = POP_SD[f] || 1;
+        return (1 / (1 + Math.exp(-1.7 * raw / sd))) * 100 - 50;
+      };
       for (const cs of clusterSpreads) {
         if (!enabledParties.has(cs.party)) continue;
         const color = PARTY_COLORS[cs.party] ?? '#6b7280';
-        const mx = Number(cs[`mean_${xFactor}`] ?? 0);
-        const my = Number(cs[`mean_${yFactor}`] ?? 0);
-        const sdx = Number(cs[`sd_${xFactor}`] ?? 0);
-        const sdy = Number(cs[`sd_${yFactor}`] ?? 0);
+        // Convert means to percentile space
+        const rawMx = Number(cs[`mean_${xFactor}`] ?? 0);
+        const rawMy = Number(cs[`mean_${yFactor}`] ?? 0);
+        const mx = rawToPctile(rawMx, xFactor);
+        const my = rawToPctile(rawMy, yFactor);
+        // Approximate SD in percentile space
+        const rawSdx = Number(cs[`sd_${xFactor}`] ?? 0);
+        const rawSdy = Number(cs[`sd_${yFactor}`] ?? 0);
+        const sdx = Math.abs(rawToPctile(rawMx + rawSdx, xFactor) - mx);
+        const sdy = Math.abs(rawToPctile(rawMy + rawSdy, yFactor) - my);
         if (!sdx || !sdy || isNaN(sdx) || isNaN(sdy)) continue;
 
         const covKey = `cov_${xFactor}_${yFactor}`;
