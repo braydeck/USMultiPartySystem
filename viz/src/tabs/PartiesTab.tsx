@@ -13,6 +13,7 @@ type SortFactor = 'F1' | 'F2' | 'F3' | 'F4' | 'F5';
 
 export function PartiesTab({ clusters, clusterSpreads }: Props) {
   const [sortFactor, setSortFactor] = useState<SortFactor>('F5');
+  const [cardMode, setCardMode] = useState<'strength' | 'percentile'>('strength');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   function toggleSort(f: SortFactor) {
@@ -82,9 +83,22 @@ export function PartiesTab({ clusters, clusterSpreads }: Props) {
         />
       </div>
 
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Party Profiles</h3>
+        <div className="flex gap-1">
+          <button onClick={() => setCardMode('strength')}
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              cardMode === 'strength' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+            }`}>Strength</button>
+          <button onClick={() => setCardMode('percentile')}
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              cardMode === 'percentile' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+            }`}>Percentile</button>
+        </div>
+      </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {sorted.map(c => (
-          <PartyCard key={c.id} cluster={c} />
+          <PartyCard key={c.id} cluster={c} mode={cardMode} />
         ))}
       </div>
     </div>

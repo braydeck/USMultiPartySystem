@@ -3,6 +3,7 @@ import { PARTY_COLORS, FACTOR_POLES, FACTOR_LABELS } from '../../constants/parti
 
 interface Props {
   cluster: ClusterProfile;
+  mode?: 'strength' | 'percentile';
 }
 
 function zDesc(factor: string, z: number): string {
@@ -17,7 +18,16 @@ function zDesc(factor: string, z: number): string {
   return `Very strongly ${direction.toLowerCase()}`;
 }
 
-export function PartyCard({ cluster }: Props) {
+function pctDesc(factor: string, pctile: number): string {
+  const poles = FACTOR_POLES[factor];
+  if (!poles) return '';
+  const isHigh = pctile >= 50;
+  const pole = isHigh ? poles.high : poles.low;
+  const magnitude = isHigh ? pctile : 100 - pctile;
+  return `More ${pole.toLowerCase()} than ${Math.round(magnitude)}%`;
+}
+
+export function PartyCard({ cluster, mode = 'strength' }: Props) {
   const color = PARTY_COLORS[cluster.party] ?? '#6b7280';
   const positions = cluster.keyPositions ?? [];
 
@@ -44,12 +54,37 @@ export function PartyCard({ cluster }: Props) {
         <div className="mb-4 space-y-2.5">
           {(['F1', 'F2', 'F3', 'F4', 'F5'] as const).map(f => {
             const z = (cluster as unknown as Record<string, number>)[`z_${f}`];
+            const pctile = (cluster as unknown as Record<string, number>)[`pctile_${f}`];
             if (z == null) return null;
+
+            if (mode === 'percentile' && pctile != null) {
+              const isHigh = pctile >= 50;
+              const barColor = isHigh ? '#dc2626' : '#2563eb';
+              const desc = pctDesc(f, pctile);
+              return (
+                <div key={f}>
+                  <div className="flex items-center justify-between text-xs mb-0.5">
+                    <span className="text-slate-500">{FACTOR_LABELS[f]}</span>
+                    <span className="font-medium" style={{ color: barColor }}>{desc}</span>
+                  </div>
+                  <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
+                    {isHigh ? (
+                      <div className="absolute top-0 left-0 h-full rounded-l-full"
+                        style={{ width: `${pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
+                    ) : (
+                      <div className="absolute top-0 right-0 h-full rounded-r-full"
+                        style={{ width: `${100 - pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
+                    )}
+                    <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
+                  </div>
+                </div>
+              );
+            }
+
             const desc = zDesc(f, z);
             const isHigh = z >= 0;
             const barColor = isHigh ? '#dc2626' : '#2563eb';
             const barPct = Math.min(Math.abs(z) / 2.5 * 50, 50);
-
             return (
               <div key={f}>
                 <div className="flex items-center justify-between text-xs mb-0.5">
