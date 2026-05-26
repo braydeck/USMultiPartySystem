@@ -11,9 +11,9 @@ function zDesc(factor: string, z: number): string {
   if (!poles) return '';
   const az = Math.abs(z);
   const direction = z >= 0 ? poles.high : poles.low;
-  if (az < 0.5) return 'Moderate';
+  if (az < 0.5) return 'Centrist';
   if (az < 1.0) return `Leans ${direction.toLowerCase()}`;
-  if (az < 1.5) return direction;
+  if (az < 1.5) return `Moderately ${direction.toLowerCase()}`;
   if (az < 2.0) return `Strongly ${direction.toLowerCase()}`;
   return `Very strongly ${direction.toLowerCase()}`;
 }
@@ -89,7 +89,7 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
               <div key={f}>
                 <div className="flex items-center justify-between text-xs mb-0.5">
                   <span className="text-slate-500">{FACTOR_LABELS[f]}</span>
-                  <span className="font-medium" style={{ color: desc === 'Moderate' ? '#6b7280' : barColor }}>{desc}</span>
+                  <span className="font-medium" style={{ color: desc === 'Centrist' ? '#6b7280' : barColor }}>{desc}</span>
                 </div>
                 <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
                   {isHigh ? (

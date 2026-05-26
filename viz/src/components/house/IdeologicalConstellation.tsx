@@ -182,11 +182,11 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     if (scaleMode === 'strength') {
       const zones = [
         { from: -2.0, to: -1.5, label: 'Strongly', side: 'low' },
-        { from: -1.5, to: -1.0, label: '',         side: 'low' },
+        { from: -1.5, to: -1.0, label: 'Moderately', side: 'low' },
         { from: -1.0, to: -0.5, label: 'Leans',    side: 'low' },
-        { from: -0.5, to:  0.5, label: 'Moderate',  side: 'mid' },
+        { from: -0.5, to:  0.5, label: 'Centrist',   side: 'mid' },
         { from:  0.5, to:  1.0, label: 'Leans',    side: 'high' },
-        { from:  1.0, to:  1.5, label: '',          side: 'high' },
+        { from:  1.0, to:  1.5, label: 'Moderately',  side: 'high' },
         { from:  1.5, to:  2.0, label: 'Strongly', side: 'high' },
       ];
       const zoneColor = (side: string) => side === 'high' ? '#fecaca' : side === 'low' ? '#bfdbfe' : '#f1f5f9';
