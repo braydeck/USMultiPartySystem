@@ -1,9 +1,17 @@
 import type { ClusterProfile } from '../../types';
-import { PARTY_COLORS } from '../../constants/parties';
-import { FactorBar } from '../shared/FactorBar';
+import { PARTY_COLORS, FACTOR_POLES, FACTOR_LABELS } from '../../constants/parties';
 
 interface Props {
   cluster: ClusterProfile;
+}
+
+function pctileDesc(factor: string, pctile: number): string {
+  const poles = FACTOR_POLES[factor];
+  if (!poles) return '';
+  const isHigh = pctile >= 50;
+  const pole = isHigh ? poles.high : poles.low;
+  const magnitude = isHigh ? pctile : 100 - pctile;
+  return `${Math.round(magnitude)}% more ${pole.toLowerCase()}`;
 }
 
 export function PartyCard({ cluster }: Props) {
@@ -15,25 +23,14 @@ export function PartyCard({ cluster }: Props) {
   const church = cluster.variables['pew_churatd']?.pct;
 
   return (
-    <div
-      className="rounded-xl border overflow-hidden flex flex-col"
-      style={{ borderColor: color + '55' }}
-    >
+    <div className="rounded-xl border overflow-hidden flex flex-col" style={{ borderColor: color + '55' }}>
       <div className="px-5 py-4" style={{ backgroundColor: color + '22' }}>
         <div className="flex items-start justify-between">
           <div>
-            <div
-              className="text-xs font-bold uppercase tracking-widest mb-1"
-              style={{ color }}
-            >
-              {cluster.party}
-            </div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color }}>{cluster.party}</div>
             <div className="text-lg font-bold text-slate-900">{cluster.partyName}</div>
           </div>
-          <div
-            className="text-xl font-bold rounded px-2 py-1"
-            style={{ backgroundColor: color + '33', color }}
-          >
+          <div className="text-xl font-bold rounded px-2 py-1" style={{ backgroundColor: color + '33', color }}>
             {cluster.seatsHouse}
             <span className="text-xs font-normal ml-1">seats</span>
           </div>
@@ -41,10 +38,34 @@ export function PartyCard({ cluster }: Props) {
       </div>
 
       <div className="px-5 py-4 flex-1">
-        <div className="mb-3">
-          {(['F1','F2','F3','F4','F5'] as const).map(f => (
-            <FactorBar key={f} factor={f} value={(cluster as any)[f]} />
-          ))}
+        {/* Diverging factor bars */}
+        <div className="mb-4 space-y-2.5">
+          {(['F1', 'F2', 'F3', 'F4', 'F5'] as const).map(f => {
+            const pctile = (cluster as unknown as Record<string, number>)[`pctile_${f}`];
+            if (pctile == null) return null;
+            const isHigh = pctile >= 50;
+            const desc = pctileDesc(f, pctile);
+            const barColor = isHigh ? '#dc2626' : '#2563eb';
+
+            return (
+              <div key={f}>
+                <div className="flex items-center justify-between text-xs mb-0.5">
+                  <span className="text-slate-500">{FACTOR_LABELS[f]}</span>
+                  <span className="font-medium" style={{ color: barColor }}>{desc}</span>
+                </div>
+                <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
+                  {isHigh ? (
+                    <div className="absolute top-0 h-full rounded-r-full"
+                      style={{ left: '50%', width: `${pctile - 50}%`, backgroundColor: barColor, opacity: 0.45 }} />
+                  ) : (
+                    <div className="absolute top-0 h-full rounded-l-full"
+                      style={{ right: '50%', width: `${50 - pctile}%`, backgroundColor: barColor, opacity: 0.45 }} />
+                  )}
+                  <div className="absolute top-0 left-1/2 w-px h-full bg-slate-300" />
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {positions.length > 0 && (
@@ -53,12 +74,8 @@ export function PartyCard({ cluster }: Props) {
             <ul className="space-y-1">
               {positions.map((pos, i) => (
                 <li key={i} className="text-xs text-slate-700 flex items-start gap-1.5">
-                  <span className="sr-only">{pos.direction === 'supports' ? 'Supports:' : 'Opposes:'}</span>
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 shrink-0"
-                    style={{ color: pos.direction === 'supports' ? '#22c55e' : '#ef4444' }}
-                  >
+                  <span aria-hidden="true" className="mt-0.5 shrink-0"
+                    style={{ color: pos.direction === 'supports' ? '#22c55e' : '#ef4444' }}>
                     {pos.direction === 'supports' ? '▲' : '▼'}
                   </span>
                   <span>
@@ -72,15 +89,9 @@ export function PartyCard({ cluster }: Props) {
         )}
 
         <div className="grid grid-cols-3 gap-2 mt-3">
-          {taxCut !== undefined && (
-            <StatPill label="Tax Cuts" value={taxCut} color={color} />
-          )}
-          {immigration !== undefined && (
-            <StatPill label="Border" value={immigration} color={color} />
-          )}
-          {church !== undefined && (
-            <StatPill label="Church" value={church} color={color} />
-          )}
+          {taxCut !== undefined && <StatPill label="Tax Cuts" value={taxCut} color={color} />}
+          {immigration !== undefined && <StatPill label="Border" value={immigration} color={color} />}
+          {church !== undefined && <StatPill label="Church" value={church} color={color} />}
         </div>
       </div>
     </div>
@@ -91,9 +102,7 @@ function StatPill({ label, value, color }: { label: string; value: number; color
   return (
     <div className="text-center rounded bg-slate-100 py-2 px-1">
       <div className="text-xs text-slate-500 mb-0.5">{label}</div>
-      <div className="text-sm font-semibold" style={{ color }}>
-        {Math.round(value)}%
-      </div>
+      <div className="text-sm font-semibold" style={{ color }}>{Math.round(value)}%</div>
     </div>
   );
 }

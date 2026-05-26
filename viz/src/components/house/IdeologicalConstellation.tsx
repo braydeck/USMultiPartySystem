@@ -162,6 +162,17 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     const xTicks = xScale.ticks(4);
     const yTicks = yScale.ticks(4);
 
+    // Zero lines (prominent)
+    const x0 = xScale(0), y0 = yScale(0);
+    if (x0 >= PAD_L && x0 <= W - PAD_R) {
+      svg.append('line').attr('x1', x0).attr('y1', PAD_T).attr('x2', x0).attr('y2', H - PAD_B)
+        .attr('stroke', '#94a3b8').attr('stroke-width', 1).attr('stroke-dasharray', '4,3');
+    }
+    if (y0 >= PAD_T && y0 <= H - PAD_B) {
+      svg.append('line').attr('x1', PAD_L).attr('y1', y0).attr('x2', W - PAD_R).attr('y2', y0)
+        .attr('stroke', '#94a3b8').attr('stroke-width', 1).attr('stroke-dasharray', '4,3');
+    }
+
     // Vertical gridlines
     svg.append('g').selectAll('line.xgrid')
       .data(xTicks).enter().append('line')
@@ -173,7 +184,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .data(xTicks).enter().append('text')
       .attr('x', d => xScale(d)).attr('y', H - PAD_B + 12)
       .attr('text-anchor', 'middle')
-      .style('fill', '#cbd5e1').style('font-size', '9px')
+      .style('fill', '#64748b').style('font-size', '9px')
       .text(d => d.toFixed(1));
 
     // Horizontal gridlines
@@ -187,7 +198,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .data(yTicks).enter().append('text')
       .attr('x', PAD_L - 4).attr('y', d => yScale(d) + 3)
       .attr('text-anchor', 'end')
-      .style('fill', '#cbd5e1').style('font-size', '9px')
+      .style('fill', '#64748b').style('font-size', '9px')
       .text(d => d.toFixed(1));
 
     // --- Penumbra ellipses (voter spread) ---
@@ -344,13 +355,13 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     svg.append('text')
       .attr('x', (PAD_L + W - PAD_R) / 2).attr('y', H - 4)
       .attr('text-anchor', 'middle')
-      .style('fill', '#94a3b8').style('font-size', '10px')
+      .style('fill', '#475569').style('font-size', '10px')
       .text(`← Low ${xLabel}   |   High →`);
     svg.append('text')
       .attr('transform', 'rotate(-90)')
       .attr('x', -(PAD_T + H - PAD_B) / 2).attr('y', 13)
       .attr('text-anchor', 'middle')
-      .style('fill', '#94a3b8').style('font-size', '10px')
+      .style('fill', '#475569').style('font-size', '10px')
       .text(`← Low ${yLabel}   |   High →`);
 
   }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties, equalSize]);

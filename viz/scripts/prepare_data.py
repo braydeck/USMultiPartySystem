@@ -1274,6 +1274,36 @@ def build_cluster_profiles():
                 "F5": float(r["F5_populist_conservatism"]),
             }
 
+    # Compute percentile ranks from voter data
+    efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
+    typo_path = Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"
+    if efa_path.exists() and typo_path.exists():
+        efa_rows = read_csv(str(efa_path))
+        typo_rows = read_csv(str(typo_path))
+        factor_map = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
+        # Also check residualized columns
+        if "FS_F4" not in (efa_rows[0] if efa_rows else {}):
+            factor_map["F4"] = "FS_F4_resid"
+            factor_map["F5"] = "FS_F5_resid"
+        # Try typology for F4/F5 if not in efa
+        def get_factor_val(row_idx, factor_key):
+            col = factor_map[factor_key]
+            val = efa_rows[row_idx].get(col)
+            if val is None or val == '':
+                val = typo_rows[row_idx].get(col)
+            return float(val or 0)
+
+        N = len(efa_rows)
+        for factor_key in ["F1", "F2", "F3", "F4", "F5"]:
+            all_vals = [get_factor_val(i, factor_key) for i in range(N)]
+            all_vals_sorted = sorted(all_vals)
+            for cid in clusters:
+                centroid = clusters[cid].get(factor_key, 0)
+                # Percentile: fraction of voters below the centroid
+                below = sum(1 for v in all_vals if v < centroid)
+                pctile = round(below / N * 100, 1)
+                clusters[cid][f"pctile_{factor_key}"] = pctile
+
     # Add key positions vs nearest neighbors
     for cid in clusters:
         clusters[cid]["keyPositions"] = compute_key_positions_vs_neighbors(rows, cid, cluster_factors)
