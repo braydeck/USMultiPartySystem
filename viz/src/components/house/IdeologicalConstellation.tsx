@@ -158,6 +158,22 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     // Text color: always dark with white outline for readability
     const getTextColor = () => '#1e293b';
 
+    // --- Raw score → signed percentile from average ---
+    // Population SDs from EFA (computed from 45,707 voters)
+    const POP_SD: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+    // Normal CDF approximation (logistic)
+    const normCdf = (z: number) => 1 / (1 + Math.exp(-1.7 * z));
+    const toPctile = (raw: number, factor: string) => {
+      const sd = POP_SD[factor];
+      if (!sd) return raw; // seats or unknown
+      return Math.round(normCdf(raw / sd) * 100 - 50); // signed distance from 50th
+    };
+    const fmtTick = (raw: number, factor: string) => {
+      if (factor === 'seats') return raw.toFixed(0);
+      const p = toPctile(raw, factor);
+      return p > 0 ? `+${p}` : `${p}`;
+    };
+
     // --- Gridlines + tick labels ---
     const xTicks = xScale.ticks(4);
     const yTicks = yScale.ticks(4);
@@ -185,7 +201,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .attr('x', d => xScale(d)).attr('y', H - PAD_B + 12)
       .attr('text-anchor', 'middle')
       .style('fill', '#64748b').style('font-size', '9px')
-      .text(d => d.toFixed(1));
+      .text(d => fmtTick(d, xFactor));
 
     // Horizontal gridlines
     svg.append('g').selectAll('line.ygrid')
@@ -199,7 +215,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .attr('x', PAD_L - 4).attr('y', d => yScale(d) + 3)
       .attr('text-anchor', 'end')
       .style('fill', '#64748b').style('font-size', '9px')
-      .text(d => d.toFixed(1));
+      .text(d => fmtTick(d, yFactor));
 
     // --- Penumbra ellipses (voter spread) ---
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
