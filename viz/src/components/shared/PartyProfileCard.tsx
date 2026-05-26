@@ -52,14 +52,14 @@ export function PartyProfileCard({ cluster }: Props) {
                 <span className="text-slate-500 shrink-0">{label}</span>
                 <span className="font-medium" style={{ color: barColor }}>{desc}</span>
               </div>
-              {/* Diverging bar: 50th percentile at center, full width = 0-100 */}
+              {/* Diverging bar: center = avg voter, each half = 0-100% */}
               <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
                 {isHigh ? (
                   <div className="absolute top-0 h-full rounded-r-full"
-                    style={{ left: '50%', width: `${pctile - 50}%`, backgroundColor: barColor, opacity: 0.5 }} />
+                    style={{ left: '50%', width: `${magnitude / 2}%`, backgroundColor: barColor, opacity: 0.5 }} />
                 ) : (
                   <div className="absolute top-0 h-full rounded-l-full"
-                    style={{ left: `${pctile}%`, width: `${50 - pctile}%`, backgroundColor: barColor, opacity: 0.5 }} />
+                    style={{ left: `${50 - magnitude / 2}%`, width: `${magnitude / 2}%`, backgroundColor: barColor, opacity: 0.5 }} />
                 )}
                 <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
               </div>

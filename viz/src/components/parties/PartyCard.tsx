@@ -56,10 +56,10 @@ export function PartyCard({ cluster }: Props) {
                 <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
                   {isHigh ? (
                     <div className="absolute top-0 h-full rounded-r-full"
-                      style={{ left: '50%', width: `${pctile - 50}%`, backgroundColor: barColor, opacity: 0.45 }} />
+                      style={{ left: '50%', width: `${magnitude / 2}%`, backgroundColor: barColor, opacity: 0.45 }} />
                   ) : (
                     <div className="absolute top-0 h-full rounded-l-full"
-                      style={{ left: `${pctile}%`, width: `${50 - pctile}%`, backgroundColor: barColor, opacity: 0.45 }} />
+                      style={{ left: `${50 - magnitude / 2}%`, width: `${magnitude / 2}%`, backgroundColor: barColor, opacity: 0.45 }} />
                   )}
                   <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
                 </div>
