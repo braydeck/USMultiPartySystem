@@ -136,11 +136,11 @@ export function PrimaryTab({
             id: c.party,
             label: c.party,
             seats: c.seatsHouse,
-            F1: ((c as any).pctile_F1 ?? 50) - 50,
-            F2: ((c as any).pctile_F2 ?? 50) - 50,
-            F3: ((c as any).pctile_F3 ?? 50) - 50,
-            F4: ((c as any).pctile_F4 ?? 50) - 50,
-            F5: ((c as any).pctile_F5 ?? 50) - 50,
+            F1: ((c as any).pctile_F1 ?? 50),
+            F2: ((c as any).pctile_F2 ?? 50),
+            F3: ((c as any).pctile_F3 ?? 50),
+            F4: ((c as any).pctile_F4 ?? 50),
+            F5: ((c as any).pctile_F5 ?? 50),
           }))}
           clusterSpreads={clusterSpreads}
         />

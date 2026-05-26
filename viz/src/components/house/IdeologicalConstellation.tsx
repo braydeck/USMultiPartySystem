@@ -98,7 +98,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       const POP_SD_DOM: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
       const r2p = (raw: number, f: string) => {
         const sd = POP_SD_DOM[f] || 1;
-        return (1 / (1 + Math.exp(-1.7 * raw / sd))) * 100 - 50;
+        return (1 / (1 + Math.exp(-1.7 * raw / sd))) * 100;
       };
       for (const cs of clusterSpreads) {
         if (!enabledParties.has(cs.party)) continue;
@@ -163,19 +163,19 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     // Text color: always dark with white outline for readability
     const getTextColor = () => '#1e293b';
 
-    // Tick label formatter — values are already percentile distance from avg (0 = average voter)
+    // Tick label formatter — values are percentiles (0-100, 50 = average voter)
     const fmtTick = (v: number, factor: string) => {
       if (factor === 'seats') return v.toFixed(0);
       const r = Math.round(v);
-      return r > 0 ? `+${r}%` : `${r}%`;
+      return `${r}%`;
     };
 
     // --- Gridlines + tick labels ---
     const xTicks = xScale.ticks(4);
     const yTicks = yScale.ticks(4);
 
-    // Zero lines (prominent)
-    const x0 = xScale(0), y0 = yScale(0);
+    // Average voter lines at 50th percentile (prominent)
+    const x0 = xScale(50), y0 = yScale(50);
     if (x0 >= PAD_L && x0 <= W - PAD_R) {
       svg.append('line').attr('x1', x0).attr('y1', PAD_T).attr('x2', x0).attr('y2', H - PAD_B)
         .attr('stroke', '#94a3b8').attr('stroke-width', 1).attr('stroke-dasharray', '4,3');
@@ -220,7 +220,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       const POP_SD: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
       const rawToPctile = (raw: number, f: string) => {
         const sd = POP_SD[f] || 1;
-        return (1 / (1 + Math.exp(-1.7 * raw / sd))) * 100 - 50;
+        return (1 / (1 + Math.exp(-1.7 * raw / sd))) * 100;
       };
       for (const cs of clusterSpreads) {
         if (!enabledParties.has(cs.party)) continue;

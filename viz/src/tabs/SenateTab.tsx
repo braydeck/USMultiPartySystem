@@ -57,13 +57,13 @@ export function SenateTab({ condorcetFD, irvFD,
   );
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   function getFactorScore(code: string, factor: string): number {
-    // Return percentile-based value (pctile - 50) for constellation
+    // Return percentile (0-100, 50 = avg voter) for constellation
     const pKey = `pctile_${factor}`;
     const cl = clusterByParty[code];
-    if (cl) { const p = (cl as any)[pKey]; if (p != null) return p - 50; }
+    if (cl) { const p = (cl as any)[pKey]; if (p != null) return p; }
     const base = code.split('_')[0];
     const baseCl = clusterByParty[base];
-    if (baseCl) { const p = (baseCl as any)[pKey]; if (p != null) return p - 50; }
+    if (baseCl) { const p = (baseCl as any)[pKey]; if (p != null) return p; }
     // Fallback to raw for FD variants (no percentile available)
     const fd = fdProfiles[code];
     if (fd) return (fd as unknown as Record<string, number>)[factor] ?? 0;

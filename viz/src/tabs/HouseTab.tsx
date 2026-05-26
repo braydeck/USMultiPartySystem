@@ -85,11 +85,11 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
     return {
       id: party, label: party,
       seats: 'seatsHouse' in c ? (c as any).seatsHouse : 0,
-      F1: ((cp as any)?.pctile_F1 ?? 50) - 50,
-      F2: ((cp as any)?.pctile_F2 ?? 50) - 50,
-      F3: ((cp as any)?.pctile_F3 ?? 50) - 50,
-      F4: ((cp as any)?.pctile_F4 ?? 50) - 50,
-      F5: ((cp as any)?.pctile_F5 ?? 50) - 50,
+      F1: ((cp as any)?.pctile_F1 ?? 50),
+      F2: ((cp as any)?.pctile_F2 ?? 50),
+      F3: ((cp as any)?.pctile_F3 ?? 50),
+      F4: ((cp as any)?.pctile_F4 ?? 50),
+      F5: ((cp as any)?.pctile_F5 ?? 50),
     };
   };
 
