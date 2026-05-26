@@ -172,19 +172,6 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
         <UrbSubRurChart seats={activeSeats} />
       </div>
 
-      {/* FPTP disproportionality */}
-      {fptpStates.length > 0 && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
-            FPTP Disproportionality by State
-          </h3>
-          <p className="text-xs text-slate-500 mb-4">
-            How far each state&apos;s FPTP outcome diverges from proportional representation.
-          </p>
-          <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />
-        </div>
-      )}
-
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 2: PARTIES & GEOGRAPHY
           ═══════════════════════════════════════════════════════════════════════ */}
@@ -227,6 +214,19 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
         {mapView === 'map' && <HouseMap districtResults={scenario === 'factorDev' ? fdDistrictResults : districtResults} districtCountyMap={districtCountyMap} />}
         {mapView === 'grid' && <HouseGridChart stateMap={stateMap} districtResults={scenario === 'factorDev' ? fdDistrictResults : districtResults} />}
       </div>
+
+      {/* FPTP disproportionality — below maps */}
+      {fptpStates.length > 0 && (
+        <div className="bg-white rounded-xl p-4 border border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            FPTP Disproportionality by State
+          </h3>
+          <p className="text-xs text-slate-500 mb-4">
+            How far each state&apos;s FPTP outcome diverges from proportional representation.
+          </p>
+          <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />
+        </div>
+      )}
 
       {/* Vote Transfer Destinations — Raw Multi only */}
       {scenario === 'rawMulti' && houseTransfers.length > 0 && (
