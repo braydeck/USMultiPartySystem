@@ -95,7 +95,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
     // Expand domain to fit penumbra extents in percentile space
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
-      const POP_MEAN_D: Record<string, number> = { F1: 0.007, F2: -0.044, F3: -0.017, F4: -0.052, F5: -0.105 };
+      const POP_MEAN_D: Record<string, number> = { F1: 0, F2: 0, F3: 0, F4: 0, F5: 0 };
       const POP_SD_D: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
       const r2z = (raw: number, f: string) => (raw - (POP_MEAN_D[f] ?? 0)) / (POP_SD_D[f] || 1);
       for (const cs of clusterSpreads) {
@@ -214,7 +214,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
       const penumbraG = svg.append('g').attr('class', 'penumbra').attr('clip-path', `url(#${clipId})`);
       // Population stats for raw→z conversion
-      const POP_MEAN: Record<string, number> = { F1: 0.007, F2: -0.044, F3: -0.017, F4: -0.052, F5: -0.105 };
+      const POP_MEAN: Record<string, number> = { F1: 0, F2: 0, F3: 0, F4: 0, F5: 0 };  // zero = factor model origin
       const POP_SD: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
       const rawToZ = (raw: number, f: string) => (raw - (POP_MEAN[f] ?? 0)) / (POP_SD[f] || 1);
       for (const cs of clusterSpreads) {

@@ -1300,9 +1300,10 @@ def build_cluster_profiles():
                 centroid = clusters[cid].get(factor_key, 0)
                 below = sum(1 for v in all_vals if v < centroid)
                 pctile = round(below / N * 100, 1)
-                z = round((centroid - pop_mean) / pop_sd, 2) if pop_sd > 0 else 0
+                z_mean = round((centroid - pop_mean) / pop_sd, 2) if pop_sd > 0 else 0
+                z_zero = round(centroid / pop_sd, 2) if pop_sd > 0 else 0
                 clusters[cid][f"pctile_{factor_key}"] = pctile
-                clusters[cid][f"z_{factor_key}"] = z
+                clusters[cid][f"z_{factor_key}"] = z_zero  # zero-based (factor model origin)
 
     # Add key positions vs nearest neighbors
     for cid in clusters:

@@ -5,7 +5,7 @@ import { VoteModelTable } from '../components/senate/VoteModelTable';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
-import { PartyProfileCard } from '../components/shared/PartyProfileCard';
+import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { FACTOR_LABELS, PARTY_NAMES, F5_ORDER, getBlendColor } from '../constants/parties';
 
@@ -269,17 +269,7 @@ export function SenateTab({ condorcetFD, irvFD,
       </div>
 
       {/* Nine-party profiles below map */}
-      <div>
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
-        <p className="text-xs text-slate-500 mb-4">
-          Ordered left→right by Ideology (F5). Intensity labels show how far each party deviates from the average American voter.
-        </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {orderedClusters.map(cluster => (
-            <PartyProfileCard key={cluster.party} cluster={cluster} />
-          ))}
-        </div>
-      </div>
+      <PartyProfileGrid clusters={orderedClusters} />
 
       {/* Factor Dev variant bar — visible for FD scenarios */}
       {fdVariantSeats.length > 0 && (

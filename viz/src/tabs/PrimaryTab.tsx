@@ -3,7 +3,7 @@ import type { PrimaryStateWinner, PrimarySankeyData, FDPrimaryData, ClusterProfi
 import { PrimaryStateMap } from '../components/primary/PrimaryStateMap';
 import AlluvialFlow from '../components/primary/AlluvialFlow';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
-import { PartyProfileCard } from '../components/shared/PartyProfileCard';
+import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PARTY_NAMES, F5_ORDER } from '../constants/parties';
 
 interface Props {
@@ -146,17 +146,7 @@ export function PrimaryTab({
         />
       </div>
 
-      <div>
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
-        <p className="text-xs text-slate-500 mb-4">
-          Ordered left→right by Ideology (F5). Intensity labels show how far each party deviates from the average American voter.
-        </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {orderedClusters.map(cluster => (
-            <PartyProfileCard key={cluster.party} cluster={cluster} />
-          ))}
-        </div>
-      </div>
+      <PartyProfileGrid clusters={orderedClusters} />
 
       {/* Stage summary cards */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
