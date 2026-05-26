@@ -59,6 +59,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
   const [sizeFactor, setSizeFactor] = useState('F2');
   const [colorMode, setColorMode] = useState('F4');
   const [equalSize, setEqualSize] = useState(false);
+  const [scaleMode, setScaleMode] = useState<'strength' | 'percentile'>('strength');
   const [enabledParties, setEnabledParties] = useState<Set<string>>(() => new Set(F5_ORDER));
 
   const toggleParty = (p: string) => {
@@ -81,9 +82,15 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     }).map(n => ({ ...n }));
     if (nodes.length === 0) return;
 
+    // Population SDs for z→percentile conversion
+    const POP_SD_ALL: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+    const zToPctile = (z: number) => (1 / (1 + Math.exp(-1.7 * z))) * 100;
+
     const getVal = (n: ConstellationNode, key: string): number => {
       if (key === 'seats') return n.seats;
-      return (n as unknown as Record<string, number>)[key] ?? 0;
+      const raw = (n as unknown as Record<string, number>)[key] ?? 0;
+      if (scaleMode === 'percentile' && key !== 'seats') return zToPctile(raw);
+      return raw;
     };
 
     const xVals = nodes.map(n => getVal(n, xFactor));
@@ -95,9 +102,11 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
     // Expand domain to fit penumbra extents in percentile space
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
-      const POP_MEAN_D: Record<string, number> = { F1: 0, F2: 0, F3: 0, F4: 0, F5: 0 };
       const POP_SD_D: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
-      const r2z = (raw: number, f: string) => (raw - (POP_MEAN_D[f] ?? 0)) / (POP_SD_D[f] || 1);
+      const r2plot = (raw: number, f: string) => {
+        const z = raw / (POP_SD_D[f] || 1);
+        return scaleMode === 'percentile' ? zToPctile(z) : z;
+      };
       for (const cs of clusterSpreads) {
         if (!enabledParties.has(cs.party)) continue;
         const rawMx = Number(cs[`mean_${xFactor}`] ?? 0);
@@ -105,10 +114,10 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         const rawSdx = Number(cs[`sd_${xFactor}`] ?? 0);
         const rawSdy = Number(cs[`sd_${yFactor}`] ?? 0);
         if (rawSdx && rawSdy) {
-          xMin = Math.min(xMin, r2z(rawMx - rawSdx, xFactor));
-          xMax = Math.max(xMax, r2z(rawMx + rawSdx, xFactor));
-          yMin = Math.min(yMin, r2z(rawMy - rawSdy, yFactor));
-          yMax = Math.max(yMax, r2z(rawMy + rawSdy, yFactor));
+          xMin = Math.min(xMin, r2plot(rawMx - rawSdx, xFactor));
+          xMax = Math.max(xMax, r2plot(rawMx + rawSdx, xFactor));
+          yMin = Math.min(yMin, r2plot(rawMy - rawSdy, yFactor));
+          yMax = Math.max(yMax, r2plot(rawMy + rawSdy, yFactor));
         }
       }
     }
@@ -161,18 +170,48 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     // Text color: always dark with white outline for readability
     const getTextColor = () => '#1e293b';
 
-    // Tick label formatter — values are z-scores (SDs from mean, 0 = average voter)
+    // Tick label formatter
     const fmtTick = (v: number, factor: string) => {
       if (factor === 'seats') return v.toFixed(0);
+      if (scaleMode === 'percentile') return `${Math.round(v)}%`;
       return v > 0 ? `+${v.toFixed(1)}σ` : `${v.toFixed(1)}σ`;
     };
+
+    // --- Intensity zone bands (strength mode only) ---
+    const centerVal = scaleMode === 'percentile' ? 50 : 0;
+    if (scaleMode === 'strength' && xFactor !== 'seats') {
+      const zones = [
+        { from: -0.5, to: 0.5, label: 'Moderate' },
+        { from: -1.0, to: -0.5, label: 'Leans' }, { from: 0.5, to: 1.0, label: 'Leans' },
+        { from: -1.5, to: -1.0, label: '' }, { from: 1.0, to: 1.5, label: '' },
+        { from: -2.0, to: -1.5, label: 'Strongly' }, { from: 1.5, to: 2.0, label: 'Strongly' },
+      ];
+      const zoneG = svg.append('g').attr('class', 'zones');
+      for (const z of zones) {
+        const x1 = Math.max(PAD_L, xScale(z.from));
+        const x2 = Math.min(W - PAD_R, xScale(z.to));
+        if (x2 > x1) {
+          zoneG.append('rect')
+            .attr('x', x1).attr('y', PAD_T).attr('width', x2 - x1).attr('height', H - PAD_T - PAD_B)
+            .attr('fill', z.from >= 0 ? '#fecaca' : z.to <= 0 ? '#bfdbfe' : '#f1f5f9')
+            .attr('opacity', z.label === 'Moderate' ? 0.15 : 0.08);
+          if (z.label) {
+            zoneG.append('text')
+              .attr('x', (x1 + x2) / 2).attr('y', PAD_T + 12)
+              .attr('text-anchor', 'middle')
+              .style('fill', '#94a3b8').style('font-size', '8px').style('font-style', 'italic')
+              .text(z.label);
+          }
+        }
+      }
+    }
 
     // --- Gridlines + tick labels ---
     const xTicks = xScale.ticks(4);
     const yTicks = yScale.ticks(4);
 
-    // Average voter lines at 0 (mean, 0σ)
-    const x0 = xScale(0), y0 = yScale(0);
+    // Average voter line
+    const x0 = xScale(centerVal), y0 = yScale(centerVal);
     if (x0 >= PAD_L && x0 <= W - PAD_R) {
       svg.append('line').attr('x1', x0).attr('y1', PAD_T).attr('x2', x0).attr('y2', H - PAD_B)
         .attr('stroke', '#94a3b8').attr('stroke-width', 1).attr('stroke-dasharray', '4,3');
@@ -214,21 +253,26 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
       const penumbraG = svg.append('g').attr('class', 'penumbra').attr('clip-path', `url(#${clipId})`);
       // Population stats for raw→z conversion
-      const POP_MEAN: Record<string, number> = { F1: 0, F2: 0, F3: 0, F4: 0, F5: 0 };  // zero = factor model origin
-      const POP_SD: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
-      const rawToZ = (raw: number, f: string) => (raw - (POP_MEAN[f] ?? 0)) / (POP_SD[f] || 1);
+      const POP_SD_P: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+      const rawToPlot = (raw: number, f: string) => {
+        const z = raw / (POP_SD_P[f] || 1);
+        return scaleMode === 'percentile' ? zToPctile(z) : z;
+      };
       for (const cs of clusterSpreads) {
         if (!enabledParties.has(cs.party)) continue;
         const color = PARTY_COLORS[cs.party] ?? '#6b7280';
         const rawMx = Number(cs[`mean_${xFactor}`] ?? 0);
         const rawMy = Number(cs[`mean_${yFactor}`] ?? 0);
-        const mx = rawToZ(rawMx, xFactor);
-        const my = rawToZ(rawMy, yFactor);
-        // SD in z-score space = raw_sd / pop_sd
+        const mx = rawToPlot(rawMx, xFactor);
+        const my = rawToPlot(rawMy, yFactor);
         const rawSdx = Number(cs[`sd_${xFactor}`] ?? 0);
         const rawSdy = Number(cs[`sd_${yFactor}`] ?? 0);
-        const sdx = rawSdx / (POP_SD[xFactor] || 1);
-        const sdy = rawSdy / (POP_SD[yFactor] || 1);
+        const sdx = scaleMode === 'percentile'
+          ? Math.abs(rawToPlot(rawMx + rawSdx, xFactor) - mx)
+          : rawSdx / (POP_SD_P[xFactor] || 1);
+        const sdy = scaleMode === 'percentile'
+          ? Math.abs(rawToPlot(rawMy + rawSdy, yFactor) - my)
+          : rawSdy / (POP_SD_P[yFactor] || 1);
         if (!sdx || !sdy || isNaN(sdx) || isNaN(sdy)) continue;
 
         const covKey = `cov_${xFactor}_${yFactor}`;
@@ -386,7 +430,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .style('fill', '#475569').style('font-size', '10px')
       .text(`← Low ${yLabel}   |   High →`);
 
-  }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties, equalSize]);
+  }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties, equalSize, scaleMode]);
 
   const colorOptions = ['party', ...FACTORS] as const;
 
@@ -429,7 +473,15 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
       {/* SVG + controls */}
       <div className="flex-1 min-w-0">
-        {/* Party toggles */}
+        {/* Scale + Party toggles */}
+        <div className="flex flex-wrap items-center gap-1 mb-2">
+          <button onClick={() => setScaleMode(scaleMode === 'strength' ? 'percentile' : 'strength')}
+            className={`px-2 py-0.5 rounded text-[10px] font-medium mr-1 ${
+              scaleMode === 'percentile' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'
+            }`}>
+            {scaleMode === 'strength' ? 'σ Strength' : '% Percentile'}
+          </button>
+        </div>
         <div className="flex flex-wrap gap-1 mb-2">
           {F5_ORDER.map(p => {
             const on = enabledParties.has(p);
