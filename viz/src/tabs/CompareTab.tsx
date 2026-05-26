@@ -177,10 +177,10 @@ function DotTrack({
           <>
             <line x1={`${toPos(overall)}%`} y1={POLICY_LINE_Y - 10}
               x2={`${toPos(overall)}%`} y2={POLICY_LINE_Y + 10}
-              stroke="#059669" strokeWidth={2} strokeDasharray="2,2" />
-            <text x={`${toPos(overall)}%`} y={POLICY_LINE_Y - 13}
+              stroke="#059669" strokeWidth={2} />
+            <text x={`${toPos(overall)}%`} y={POLICY_H - 3}
               textAnchor="middle" fontSize={8} fill="#059669" fontWeight="600">
-              Avg {toDisp(overall)}
+              All Americans: {toDisp(overall)}
             </text>
           </>
         )}
@@ -235,20 +235,36 @@ const fvToPct = (v: number) => ((v - FACTOR_MIN) / (FACTOR_MAX - FACTOR_MIN)) * 
 const TIER_BOUNDS   = [-2.0, -1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0];
 
 function FactorDotRow({
-  factor, codes, clusters, fdProfiles,
+  factor, codes, clusters, fdProfiles, scaleMode,
 }: {
   factor: FactorKey;
   codes: string[];
   clusters: ClusterProfile[];
   fdProfiles: Record<string, FDCandidateProfile>;
+  scaleMode: 'strength' | 'percentile';
 }) {
+  const zToPctile = (z: number) => (1 / (1 + Math.exp(-1.7 * z))) * 100;
+
   const scored = codes
     .map(code => {
       const raw = getFactorScores(code, clusters, fdProfiles)?.[factor];
-      return raw !== undefined ? { code, val: rawToZ(raw, factor) } : null;
+      if (raw === undefined) return null;
+      const z = rawToZ(raw, factor);
+      // Also check for precomputed percentile
+      const cl = clusters.find(c => c.party === code) ?? clusters.find(c => c.party === code.split('_')[0]);
+      const pctile = (cl as any)?.[`pctile_${factor}`] ?? zToPctile(z);
+      return { code, z, pctile };
     })
-    .filter((s): s is { code: string; val: number } => s !== null)
-    .sort((a, b) => a.val - b.val);
+    .filter((s): s is { code: string; z: number; pctile: number } => s !== null)
+    .sort((a, b) => a.z - b.z);
+
+  const isPercentile = scaleMode === 'percentile';
+  const toPos = isPercentile
+    ? (item: { z: number; pctile: number }) => item.pctile
+    : (item: { z: number; pctile: number }) => fvToPct(item.z);
+  const fmtVal = isPercentile
+    ? (item: { z: number; pctile: number }) => `${Math.round(item.pctile)}%`
+    : (item: { z: number; pctile: number }) => `${item.z >= 0 ? '+' : ''}${item.z.toFixed(1)}σ`;
 
   return (
     <div className="px-4 py-3 border-t border-slate-50 first:border-t-0">
@@ -258,32 +274,46 @@ function FactorDotRow({
       </div>
       <svg width="100%" height={FACTOR_H} style={{ overflow: 'visible' }}>
         {/* Tier boundary ticks */}
-        {TIER_BOUNDS.map(v => (
+        {!isPercentile && TIER_BOUNDS.map(v => (
           <line key={v}
             x1={`${fvToPct(v)}%`} y1={FACTOR_LINE_Y - 8}
             x2={`${fvToPct(v)}%`} y2={FACTOR_LINE_Y + 8}
-            stroke={v === 0 ? '#cbd5e1' : '#e2e8f0'}
-            strokeWidth={v === 0 ? 1.5 : 0.8} />
+            stroke={v === 0 ? '#94a3b8' : '#cbd5e1'}
+            strokeWidth={v === 0 ? 1.5 : 1} />
         ))}
+        {isPercentile && (
+          <line x1="50%" y1={FACTOR_LINE_Y - 8} x2="50%" y2={FACTOR_LINE_Y + 8}
+            stroke="#94a3b8" strokeWidth={1.5} />
+        )}
         {/* Base line */}
         <line x1="1%" y1={FACTOR_LINE_Y} x2="99%" y2={FACTOR_LINE_Y}
           stroke="#e2e8f0" strokeWidth={1.5} />
         {/* Tier labels */}
-        <text x="3%"                       y={FACTOR_H - 4} fontSize={8} fill="#94a3b8">Strongly</text>
-        <text x={`${fvToPct(-1.25)}%`}     y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
-        <text x={`${fvToPct(-0.75)}%`}     y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
-        <text x={`${fvToPct(0)}%`}         y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Centrist</text>
-        <text x={`${fvToPct(0.75)}%`}      y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
-        <text x={`${fvToPct(1.25)}%`}      y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
-        <text x="97%"                       y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="end">Strongly</text>
-        {/* Dots + combined inline labels */}
+        {!isPercentile ? (
+          <>
+            <text x="3%"                     y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8">Strongly</text>
+            <text x={`${fvToPct(-1.25)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
+            <text x={`${fvToPct(-0.75)}%`}   y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
+            <text x={`${fvToPct(0)}%`}       y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Centrist</text>
+            <text x={`${fvToPct(0.75)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Leans</text>
+            <text x={`${fvToPct(1.25)}%`}    y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="middle">Moderately</text>
+            <text x="97%"                     y={FACTOR_LINE_Y - 12} fontSize={8} fill="#94a3b8" textAnchor="end">Strongly</text>
+          </>
+        ) : (
+          <>
+            <text x="1%"  y={FACTOR_H - 4} fontSize={8} fill="#94a3b8">0%</text>
+            <text x="50%" y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">50% (median)</text>
+            <text x="99%" y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="end">100%</text>
+          </>
+        )}
+        {/* Dots */}
         {scored.map((item, idx) => {
-          const pct   = fvToPct(item.val);
+          const pct   = toPos(item);
           const color = getBlendColor(item.code);
           const above = idx % 2 === 0;
           const labelY = above
-            ? FACTOR_LINE_Y - FACTOR_DOT_R - 5
-            : FACTOR_LINE_Y + FACTOR_DOT_R + 13;
+            ? FACTOR_LINE_Y + FACTOR_DOT_R + 13
+            : FACTOR_LINE_Y + FACTOR_DOT_R + 25;
           const anchor = pct < 12 ? 'start' : pct > 88 ? 'end' : 'middle';
           return (
             <g key={item.code}>
@@ -291,7 +321,7 @@ function FactorDotRow({
                 fill={color} stroke="white" strokeWidth={2} />
               <text x={`${pct}%`} y={labelY} textAnchor={anchor}>
                 <tspan fontWeight="700" fontSize={11} fill={color}>{item.code}</tspan>
-                <tspan fontSize={10} fill="#475569"> {item.val >= 0 ? '+' : ''}{item.val.toFixed(1)}σ</tspan>
+                <tspan fontSize={10} fill="#475569"> {fmtVal(item)}</tspan>
               </text>
             </g>
           );
@@ -314,6 +344,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['Untagged']));
   const [groupBy, setGroupBy] = useState<'category' | 'factor'>('category');
   const [showNatAvg, setShowNatAvg] = useState(false);
+  const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>('strength');
 
   // Build option list: pure parties in F5_ORDER, then FD candidates grouped by party
   const pureOptions = F5_ORDER
@@ -497,13 +528,27 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
         <>
           {/* Factor scores */}
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Factor Scores</span>
-              <span className="text-xs text-slate-400 ml-3">Scale: Strongly &gt;1.5σ · Moderately 1.0σ · Leans 0.5σ · Centrist &lt;0.5σ</span>
+            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Factor Scores</span>
+                <span className="text-xs text-slate-400 ml-3">
+                  {factorScale === 'strength' ? 'Strongly >1.5σ · Moderately 1.0σ · Leans 0.5σ · Centrist <0.5σ' : '0% = lowest · 50% = median · 100% = highest'}
+                </span>
+              </div>
+              <div className="flex gap-1">
+                <button onClick={() => setFactorScale('strength')}
+                  className={`px-2 py-0.5 rounded text-xs font-medium ${factorScale === 'strength' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                  Strength
+                </button>
+                <button onClick={() => setFactorScale('percentile')}
+                  className={`px-2 py-0.5 rounded text-xs font-medium ${factorScale === 'percentile' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                  Percentile
+                </button>
+              </div>
             </div>
             <div>
               {FACTORS.map(f => (
-                <FactorDotRow key={f} factor={f} codes={selected} clusters={clusters} fdProfiles={fdProfiles} />
+                <FactorDotRow key={f} factor={f} codes={selected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
               ))}
             </div>
           </div>
