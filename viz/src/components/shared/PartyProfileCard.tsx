@@ -6,7 +6,7 @@ const FACTOR_SHORT_LABEL: Record<string, string> = {
   F2: 'Elections',
   F3: 'Establishment',
   F4: 'Religion',
-  F5: 'Ideology',
+  F5: 'Conservatism',
 };
 
 function zDescriptor(factor: string, z: number): string {
@@ -55,24 +55,25 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
 
           if (mode === 'percentile' && pctile != null) {
             const isHigh = pctile >= 50;
-            const magnitude = isHigh ? pctile : 100 - pctile;
             const barColor = isHigh ? '#dc2626' : '#2563eb';
             const desc = pctileDescriptor(f, pctile);
-            const barPct = magnitude / 2; // 100% fills half the bar
+
             return (
               <div key={f}>
                 <div className="flex items-center justify-between text-xs gap-2 mb-0.5">
                   <span className="text-slate-500 shrink-0">{label}</span>
-                  <span className="font-medium" style={{ color: magnitude < 55 ? '#6b7280' : barColor }}>{desc}</span>
+                  <span className="font-medium" style={{ color: barColor }}>{desc}</span>
                 </div>
+                {/* 0-100 bar: red fills left→right for high, blue fills right→left for low */}
                 <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
                   {isHigh ? (
-                    <div className="absolute top-0 h-full rounded-r-full"
-                      style={{ left: '50%', width: `${barPct}%`, backgroundColor: barColor, opacity: 0.5 }} />
+                    <div className="absolute top-0 left-0 h-full rounded-l-full"
+                      style={{ width: `${pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
                   ) : (
-                    <div className="absolute top-0 h-full rounded-l-full"
-                      style={{ left: `${50 - barPct}%`, width: `${barPct}%`, backgroundColor: barColor, opacity: 0.5 }} />
+                    <div className="absolute top-0 right-0 h-full rounded-r-full"
+                      style={{ width: `${100 - pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
                   )}
+                  {/* Median marker at 50% */}
                   <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
                 </div>
               </div>
