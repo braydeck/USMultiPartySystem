@@ -389,11 +389,11 @@ def main():
     cum_mask = retail_mask.copy()
     active, r_rows, t_rows = winnow(
         ballots_arr[cum_mask], weights[cum_mask], active,
-        survivors_target=12, label="After_Retail_Six", cand_names=CAND_NAMES,
+        survivors_target=12, label="After_Retail", cand_names=CAND_NAMES,
     )
     all_results   += r_rows
     all_transfers += t_rows
-    snapshot("After_Retail_Six", cum_mask, active)
+    snapshot("After_Retail", cum_mask, active)
 
     # ── Phase 2: + Pod A → 10 survivors ───────────────────────────────────────
     print(f"\n{'='*60}")
@@ -401,7 +401,7 @@ def main():
     cum_mask = retail_mask | poda_mask
     active, r_rows, t_rows = winnow(
         ballots_arr[cum_mask], weights[cum_mask], active,
-        survivors_target=10, label="After_Pod_A", cand_names=CAND_NAMES,
+        survivors_target=9, label="After_Pod_A", cand_names=CAND_NAMES,
     )
     all_results   += r_rows
     all_transfers += t_rows
@@ -413,7 +413,7 @@ def main():
     cum_mask = retail_mask | poda_mask | podc_mask
     active, r_rows, t_rows = winnow(
         ballots_arr[cum_mask], weights[cum_mask], active,
-        survivors_target=8, label="After_Pod_C", cand_names=CAND_NAMES,
+        survivors_target=7, label="After_Pod_C", cand_names=CAND_NAMES,
     )
     all_results   += r_rows
     all_transfers += t_rows

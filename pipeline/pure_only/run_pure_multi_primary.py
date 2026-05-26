@@ -38,7 +38,7 @@ STAGES = [
     ("Initial_Slate",    None),   # snapshot only
     ("After_Retail",     12),
     ("After_Pod_A",       9),
-    ("After_Pod_B",       7),
+    ("After_Pod_C",       7),
     ("After_Pod_BD",      5),
 ]
 

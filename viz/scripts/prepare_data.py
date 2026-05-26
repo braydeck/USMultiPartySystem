@@ -81,9 +81,9 @@ def build_primary():
     rows = read_csv(OUTPUTS / "primary_results_2028.csv")
     centroids = {r["candidate_code"]: r for r in read_csv(OUTPUTS / "candidate_factor_centroids.csv")}
 
-    stages_order = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
+    stages_order = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
     stage_labels = {
-        "After_Retail_Six": "Retail + Bench States",
+        "After_Retail": "Retail + Bench States",
         "After_Pod_A": "After Pod A (West)",
         "After_Pod_C": "After Pod C (South)",
         "After_Pod_BD": "After Pods B+D (Final)",
@@ -131,7 +131,7 @@ def build_primary():
 # ---------- primaryStateWinners.json ----------
 # Maps each state's presidential primary winner to pods so the map can reveal by stage.
 STAGE_TO_PODS = {
-    "After_Retail_Six": {"Retail"},
+    "After_Retail": {"Retail"},
     "After_Pod_A":       {"Retail", "A"},
     "After_Pod_C":       {"Retail", "A", "C"},
     "After_Pod_BD":      {"Retail", "A", "B", "C", "D"},
@@ -2027,7 +2027,7 @@ def build_primary_sankey():
     fc_pct = {code: round(v / total_fc * 100, 3) for code, v in fc_totals.items()}
 
     # Trajectory vote_pcts keyed by (norm_code, stageIdx)
-    stage_order = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
+    stage_order = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
     stage_to_idx = {s: i + 1 for i, s in enumerate(stage_order)}
     traj_rows = [r for r in diag_rows if r["diagnostic"] == "trajectories"]
 
@@ -2130,9 +2130,9 @@ def build_primary_raw():
     rows = read_csv(PURE_DIR / "primary_results_2028.csv")
     centroids = {r["candidate_code"]: r for r in read_csv(OUTPUTS / "candidate_factor_centroids.csv")}
 
-    stages_order = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
+    stages_order = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
     stage_labels = {
-        "After_Retail_Six": "Retail + Bench States",
+        "After_Retail": "Retail + Bench States",
         "After_Pod_A": "After Pod A (West)",
         "After_Pod_C": "After Pod C (South)",
         "After_Pod_BD": "After Pods B+D (Final)",
@@ -2233,7 +2233,7 @@ def build_primary_sankey_raw():
     total_fc = sum(fc_totals.values()) or 1
     fc_pct = {code: round(v / total_fc * 100, 3) for code, v in fc_totals.items()}
 
-    stage_order = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
+    stage_order = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
     stage_to_idx = {s: i + 1 for i, s in enumerate(stage_order)}
     traj_rows = [r for r in diag_rows if r["diagnostic"] == "trajectories"]
 
@@ -2345,7 +2345,7 @@ def build_primary_sankey_raw():
 
 def _build_trajectory_pcts(diag_rows):
     """Extract pod-relative first-choice % from 'trajectories' diagnostic rows.
-    Returns dict: {(display_code, stage_key) → pct}  e.g. ('STY_ctr', 'After_Retail_Six') → 8.3
+    Returns dict: {(display_code, stage_key) → pct}  e.g. ('STY_ctr', 'After_Retail') → 8.3
     """
     out = {}
     for r in diag_rows:
@@ -2371,9 +2371,9 @@ def build_primary_light_fusion():
     diag_rows = read_csv(results_dir / "primary_diagnostics_2028.csv")
     traj_pcts = _build_trajectory_pcts(diag_rows)
 
-    stages_order = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
+    stages_order = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
     stage_labels = {
-        "After_Retail_Six": "Retail + Bench States",
+        "After_Retail": "Retail + Bench States",
         "After_Pod_A": "After Pod A (West)",
         "After_Pod_C": "After Pod C (South)",
         "After_Pod_BD": "After Pods B+D (Final)",
@@ -2522,7 +2522,7 @@ def build_primary_sankey_light_fusion():
     total_fc = sum(fc_totals.values()) or 1
     fc_pct = {code: round(v / total_fc * 100, 3) for code, v in fc_totals.items()}
 
-    stage_order = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
+    stage_order = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
     stage_to_idx = {s: i + 1 for i, s in enumerate(stage_order)}
 
     traj_rows = [r for r in diag_rows if r.get("diagnostic") == "trajectories"]
@@ -2775,9 +2775,9 @@ def build_fd_primary():
     diag_rows  = read_csv(FD_DIR / "primary_diagnostics_2028.csv")
     traj_pcts  = _build_trajectory_pcts(diag_rows)
 
-    stages_order = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
+    stages_order = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
     stage_labels = {
-        "After_Retail_Six": "Retail + Bench States",
+        "After_Retail": "Retail + Bench States",
         "After_Pod_A":      "After Pod A (West)",
         "After_Pod_C":      "After Pod C (South)",
         "After_Pod_BD":     "After Pods B+D (Final)",
@@ -2914,7 +2914,7 @@ def build_fd_primary_sankey():
     total_fc = sum(fc_totals.values()) or 1
     fc_pct   = {code: round(v / total_fc * 100, 3) for code, v in fc_totals.items()}
 
-    stage_order  = ["After_Retail_Six", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
+    stage_order  = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
     stage_to_idx = {s: i + 1 for i, s in enumerate(stage_order)}
 
     traj_rows    = [r for r in diag_rows if r.get("diagnostic") == "trajectories"]
