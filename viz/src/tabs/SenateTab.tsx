@@ -27,6 +27,47 @@ interface Props {
   fdAttractionDrivers: { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[];
 }
 
+function SenateCompBar({ label, seats, segments, total: totalOverride }: {
+  label: string;
+  seats?: FDSenateSeat[];
+  segments?: { party: string; n: number; color: string }[];
+  total?: number;
+}) {
+  const segs = segments ?? (() => {
+    const counts: Record<string, number> = {};
+    for (const s of seats ?? []) {
+      const p = s.senatorParty ?? s.senatorCode.split('_')[0];
+      counts[p] = (counts[p] ?? 0) + 1;
+    }
+    return F5_ORDER.filter(p => counts[p] > 0).map(p => ({
+      party: p, n: counts[p], color: PARTY_COLORS[p] ?? '#6b7280',
+    }));
+  })();
+  const total = totalOverride ?? segs.reduce((s, x) => s + x.n, 0);
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="shrink-0 text-right" style={{ width: 110 }}>
+        <div className="text-xs font-semibold text-slate-700">{label}</div>
+        <div className="text-xs text-slate-400">{total} seats</div>
+      </div>
+      <div className="flex-1 flex rounded-lg overflow-hidden h-10">
+        {segs.map(({ party, n, color }) => {
+          const pct = (n / total) * 100;
+          return (
+            <div key={party} className="flex items-center justify-center"
+              style={{ width: `${pct}%`, backgroundColor: color }}>
+              {pct >= 6 && (
+                <span className="text-white text-[10px] font-bold">{party} {n}</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
                              voteModel, clusters, fdProfiles, clusterSpreads,
                              houseTransfers, fdVariantAttraction, fdAttractionDrivers }: Props) {
@@ -182,53 +223,25 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         </div>
       </div>
 
-      {/* Seat Comparison: Condorcet vs IRV (+ FD in FD mode) */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
+      {/* FPTP vs STV Senate Comparison */}
+      <div className="bg-white rounded-xl p-5 border-2 border-indigo-200 space-y-3">
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
-          Senate Seat Comparison
+          FPTP Today vs STV Senate
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
-          How does the election method change party representation?
-          {isFD && ' Solid = Factor Dev, outlined = Raw Multi for comparison.'}
-        </p>
-        <div className="space-y-2">
-          {comparisonParties.map(party => {
-            const cond = condCounts[party] ?? 0;
-            const irv  = irvCounts[party] ?? 0;
-            const rmCond = rmCondCounts[party] ?? 0;
-            const rmIrv  = rmIrvCounts[party] ?? 0;
-            const color = PARTY_COLORS[party] ?? '#6b7280';
-            const maxSeats = 51;
-            if (cond === 0 && irv === 0 && (!isFD || (rmCond === 0 && rmIrv === 0))) return null;
-
-            return (
-              <div key={party} className="grid grid-cols-[56px_1fr] gap-2 items-center">
-                <span className="text-xs font-bold font-mono text-right" style={{ color }}>{party}</span>
-                <div className="space-y-0.5">
-                  {/* Condorcet */}
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 rounded-sm" style={{ width: `${(cond / maxSeats) * 100}%`, minWidth: cond > 0 ? 2 : 0, backgroundColor: color, opacity: 0.75 }} />
-                    <span className="text-[10px] text-slate-600">Cond: <b>{cond}</b></span>
-                    {isFD && rmCond > 0 && rmCond !== cond && (
-                      <span className="text-[10px] text-slate-400">(RM: {rmCond})</span>
-                    )}
-                  </div>
-                  {/* IRV */}
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 rounded-sm border-2" style={{
-                      width: `${(irv / maxSeats) * 100}%`, minWidth: irv > 0 ? 2 : 0,
-                      borderColor: color, backgroundColor: color + '33',
-                    }} />
-                    <span className="text-[10px] text-slate-600">IRV: <b>{irv}</b></span>
-                    {isFD && rmIrv > 0 && rmIrv !== irv && (
-                      <span className="text-[10px] text-slate-400">(RM: {rmIrv})</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {/* FPTP Today */}
+        <SenateCompBar label="FPTP Today" segments={[
+          { party: 'DEM', n: 47, color: '#1d4ed8' },
+          { party: 'GOP', n: 53, color: '#dc2626' },
+        ]} total={100} />
+        {/* RM Condorcet */}
+        <SenateCompBar label="RM Condorcet" seats={condorcetRawMulti} />
+        {/* RM IRV */}
+        <SenateCompBar label="RM IRV" seats={irvRawMulti} />
+        {/* FD bars */}
+        {isFD && <>
+          <SenateCompBar label="FD Condorcet" seats={condorcetFD} />
+          <SenateCompBar label="FD IRV" seats={irvFD} />
+        </>}
       </div>
 
       {/* Parliament fan chart */}
