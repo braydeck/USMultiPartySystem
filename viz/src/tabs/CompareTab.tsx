@@ -321,9 +321,13 @@ function FactorDotRow({
           </>
         ) : (
           <>
-            <text x="1%"  y={FACTOR_H - 4} fontSize={8} fill="#94a3b8">0%</text>
+            <text x="1%"  y={FACTOR_H - 4} fontSize={8} fill="#2563eb" fontWeight="600">
+              ← {FACTOR_POLES[factor]?.low ?? ''} (0%)
+            </text>
             <text x="50%" y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">50% (median)</text>
-            <text x="99%" y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="end">100%</text>
+            <text x="99%" y={FACTOR_H - 4} fontSize={8} fill="#dc2626" fontWeight="600" textAnchor="end">
+              {FACTOR_POLES[factor]?.high ?? ''} (100%) →
+            </text>
           </>
         )}
         {/* Dots */}
