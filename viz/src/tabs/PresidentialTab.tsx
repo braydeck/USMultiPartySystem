@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile } from '../types';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
-import { CondorcetTable } from '../components/presidential/CondorcetTable';
-import { IRVRoundsChart } from '../components/presidential/IRVRoundsChart';
 import { IRVSankey } from '../components/presidential/IRVSankey';
 import { WinnerCard } from '../components/presidential/WinnerCard';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
+import { CondorcetMatrix } from '../components/presidential/CondorcetMatrix';
 
 interface Props {
   factorDev: PresidentialElection;
@@ -29,9 +28,8 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, fdProfiles, sen
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">2028 Presidential General Election</h2>
         <p className="text-slate-500 text-sm">
-          General election results using IRV and Condorcet methods. Raw Multi uses 5 finalists
-          from the 27-candidate intra-party primary — SD_1 wins IRV, CTR_1 wins Condorcet. Factor Dev
-          uses 71 axis-deviation candidates.
+          Single-winner race. The question is which method picks the most acceptable president.
+          Condorcet finds who beats everyone head-to-head; IRV rewards the candidate with the strongest base.
         </p>
       </div>
 
@@ -51,10 +49,25 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, fdProfiles, sen
         ))}
       </div>
 
-      {/* Dual winner comparison cards */}
+      {/* Hero winner cards — Condorcet preferred */}
       <WinnerCard data={data} clusters={clusters} fdProfiles={fdProfiles} />
 
-      {/* State map with IRV/Plurality toggle */}
+      {/* Condorcet head-to-head matrix — explains why Condorcet winner wins */}
+      <div className="bg-white rounded-xl p-4 border border-slate-200">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+          Head-to-Head Matrix (Condorcet)
+        </h3>
+        <p className="text-xs text-slate-500 mb-3">
+          Every possible pairing. Green = row candidate wins; red = row candidate loses.
+          The Condorcet winner&apos;s row is all-green — that&apos;s why they win.
+        </p>
+        <CondorcetMatrix
+          matchups={data.condorcetMatchups}
+          condorcetWinner={data.condorcetWinner}
+        />
+      </div>
+
+      {/* State map */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
           State Results
@@ -87,29 +100,6 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, fdProfiles, sen
           voter coalition that supports the bill.
         </p>
         <PresidentialComparison rows={senateVotes} factorDev={factorDev} rawMulti={rawMulti} />
-      </div>
-
-      {/* IRV rounds + Condorcet table */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
-            IRV Rounds Detail
-          </h3>
-          <p className="text-xs text-slate-500 mb-3">
-            Candidates eliminated each round until one clears 50%. Select a round to explore.
-          </p>
-          <IRVRoundsChart rounds={data.irvRounds} irvWinner={data.irvWinner} />
-        </div>
-
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
-            Head-to-Head Matchups (Condorcet)
-          </h3>
-          <p className="text-xs text-slate-500 mb-3">
-            Every possible pairing. The Condorcet winner beats all opponents.
-          </p>
-          <CondorcetTable matchups={data.condorcetMatchups} condorcetWinner={data.condorcetWinner} />
-        </div>
       </div>
     </div>
   );

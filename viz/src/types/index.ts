@@ -344,3 +344,53 @@ export interface FDPrimaryData {
   quotaByStage: Record<string, number>;
   candidates: FDPrimaryCandidate[];
 }
+
+export interface FPTPState {
+  state: string;
+  totalSeats: number;
+  gopFptpSeats: number;
+  demFptpSeats: number;
+  gopPrSeats: number;
+  demPrSeats: number;
+  gopVotePct: number;
+  demVotePct: number;
+  fptpSeatDiff: number;
+}
+
+export interface DistrictResult {
+  districtId: string;
+  densityTier: 'URBAN' | 'SUBURBAN' | 'RURAL';
+  seatCount: number;
+  elected: string[];
+  nRespondents: number;
+}
+
+export interface RCVRound {
+  round: number;
+  totals: Record<string, number>;
+  pcts: Record<string, number>;
+  eliminated: string | null;
+}
+
+export interface RCVRace {
+  state: 'AK' | 'ME';
+  year: number;
+  office: 'US_HOUSE' | 'US_SENATE' | 'GOVERNOR';
+  raceName?: string;
+  district?: string;
+  candidates: string[];
+  totalBallots: number;
+  irvRounds: RCVRound[];
+  irvWinner: string;
+  condorcetMatrix: Record<string, Record<string, number>>;
+  condorcetWinner: string | null;
+  rankedPairsWinner?: string | null;
+  irvMatchesCondorcet: boolean;
+  stvSeats?: number;
+  stvElected?: string[];
+}
+
+export interface RCVData {
+  AK: RCVRace[];
+  ME: RCVRace[];
+}

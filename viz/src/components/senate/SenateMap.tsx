@@ -46,7 +46,7 @@ export function SenateMap({ seats }: Props) {
                     }}
                     onMouseEnter={() => {
                       if (seat) {
-                        setTooltip(`${seat.stateAbbr}: ${seat.senatorLabel} (${seat.senatorType})`);
+                        setTooltip(`${seat.stateAbbr}: ${seat.senatorLabel} (${seat.senatorType || seat.senatorParty})`);
                       }
                     }}
                     onMouseLeave={() => setTooltip(null)}
@@ -56,6 +56,27 @@ export function SenateMap({ seats }: Props) {
             }
           </Geographies>
         </ComposableMap>
+
+        {/* DC inset — geoAlbersUsa renders DC as a near-invisible dot */}
+        {(() => {
+          const dc = seatByFips['11'];
+          if (!dc) return null;
+          const color = getBlendColor(dc.senatorCode);
+          return (
+            <div
+              className="absolute cursor-pointer"
+              style={{ bottom: '14%', right: '4%' }}
+              onMouseEnter={() => setTooltip(`DC: ${dc.senatorLabel} (${dc.senatorType || dc.senatorParty})`)}
+              onMouseLeave={() => setTooltip(null)}
+            >
+              <div className="text-center text-[9px] font-bold text-slate-500 mb-0.5 leading-none">DC</div>
+              <div
+                className="rounded border border-slate-300 w-12 h-7"
+                style={{ backgroundColor: color + 'cc' }}
+              />
+            </div>
+          );
+        })()}
       </div>
 
       <p className="text-xs text-slate-500 mt-2 text-center">

@@ -1,4 +1,4 @@
-import { FACTOR_LABELS } from '../../constants/parties';
+import { FACTOR_LABELS, FACTOR_POLES } from '../../constants/parties';
 
 interface Props {
   factor: string;
@@ -17,6 +17,7 @@ export function FactorBar({ factor, value }: Props) {
   const label = FACTOR_LABELS[factor] ?? factor;
   const pct = Math.round(((value + 2) / 4) * 100);
   const color = barColor(value);
+  const poles = FACTOR_POLES[factor];
 
   return (
     <div className="mb-2">
@@ -32,6 +33,12 @@ export function FactorBar({ factor, value }: Props) {
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
+      {poles && (
+        <div className="flex justify-between text-slate-400 mt-0.5" style={{ fontSize: 9 }}>
+          <span>{poles.low}</span>
+          <span>{poles.high}</span>
+        </div>
+      )}
     </div>
   );
 }

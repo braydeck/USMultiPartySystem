@@ -1,0 +1,77 @@
+import type { HouseStateEntry } from '../../types';
+
+// 2024 congressional apportionment (post-2020 census, 435 total)
+const FPTP_SEATS: Record<string, number> = {
+  AL: 7,  AK: 1,  AZ: 9,  AR: 4,  CA: 52, CO: 8,  CT: 5,  DE: 1,
+  FL: 28, GA: 14, HI: 2,  ID: 2,  IL: 17, IN: 9,  IA: 4,  KS: 4,
+  KY: 6,  LA: 6,  ME: 2,  MD: 8,  MA: 9,  MI: 13, MN: 8,  MS: 4,
+  MO: 8,  MT: 2,  NE: 3,  NV: 4,  NH: 2,  NJ: 12, NM: 3,  NY: 26,
+  NC: 14, ND: 1,  OH: 15, OK: 5,  OR: 6,  PA: 17, RI: 2,  SC: 7,
+  SD: 1,  TN: 9,  TX: 38, UT: 4,  VT: 1,  VA: 11, WA: 10, WV: 2,
+  WI: 8,  WY: 1,
+};
+
+interface Props {
+  stateMap: Record<string, HouseStateEntry>;
+}
+
+export function StateSeatsTable({ stateMap }: Props) {
+  const rows = Object.values(stateMap)
+    .map(entry => ({
+      abbr:  entry.stateAbbr,
+      stv:   entry.totalSeats,
+      fptp:  FPTP_SEATS[entry.stateAbbr] ?? 0,
+      delta: entry.totalSeats - (FPTP_SEATS[entry.stateAbbr] ?? 0),
+    }))
+    .sort((a, b) => a.abbr.localeCompare(b.abbr));
+
+  const stvTotal  = rows.reduce((s, r) => s + r.stv, 0);
+  const fptpTotal = rows.reduce((s, r) => s + r.fptp, 0);
+
+  const half  = Math.ceil(rows.length / 2);
+  const left  = rows.slice(0, half);
+  const right = rows.slice(half);
+
+  const renderRows = (data: typeof rows) =>
+    data.map(({ abbr, stv, fptp, delta }) => (
+      <tr key={abbr} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+        <td className="py-1 pr-2 text-xs font-semibold text-slate-700 w-8">{abbr}</td>
+        <td className="py-1 px-2 text-xs text-right tabular-nums text-slate-500">{fptp}</td>
+        <td className="py-1 px-2 text-xs text-right tabular-nums font-medium text-slate-800">{stv}</td>
+        <td className="py-1 pl-2 text-xs text-right tabular-nums font-bold text-emerald-600">+{delta}</td>
+      </tr>
+    ));
+
+  const ColHead = () => (
+    <thead>
+      <tr className="border-b border-slate-200">
+        <th className="pb-1.5 pr-2 text-xs text-slate-400 font-medium text-left">State</th>
+        <th className="pb-1.5 px-2 text-xs text-slate-400 font-medium text-right">Now</th>
+        <th className="pb-1.5 px-2 text-xs text-slate-400 font-medium text-right">STV</th>
+        <th className="pb-1.5 pl-2 text-xs text-slate-400 font-medium text-right">Gain</th>
+      </tr>
+    </thead>
+  );
+
+  return (
+    <div>
+      <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        Seats per State: STV vs Current
+      </h3>
+      <p className="text-xs text-slate-400 mb-3">
+        Now = 2024 FPTP apportionment ({fptpTotal} total). STV = simulated proportional districts ({stvTotal} total).
+        Every state gains seats because multi-member STV targets one seat per ~380k residents.
+      </p>
+      <div className="grid grid-cols-2 gap-x-8">
+        <table className="w-full">
+          <ColHead />
+          <tbody>{renderRows(left)}</tbody>
+        </table>
+        <table className="w-full">
+          <ColHead />
+          <tbody>{renderRows(right)}</tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

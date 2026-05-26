@@ -292,15 +292,14 @@ export function SenateTab({ condorcetFD, irvFD,
         </div>
       )}
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
-            Ideological Constellation
-          </h3>
-          <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
-        </div>
+      <div className="bg-white rounded-xl p-4 border border-slate-200">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
+          Ideological Constellation
+        </h3>
+        <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
+      </div>
 
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
+      <div className="bg-white rounded-xl p-4 border border-slate-200">
           <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-4">
             Senate Vote Model — 37 Bills
           </h3>
@@ -308,7 +307,6 @@ export function SenateTab({ condorcetFD, irvFD,
             Highlighted rows show bills the senate passes but the president vetoes.
           </p>
           <VoteModelTable rows={voteModel} scenario={scenario} />
-        </div>
       </div>
     </div>
   );

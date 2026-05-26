@@ -1,0 +1,379 @@
+{
+  "AK": [
+    {
+      "state": "AK",
+      "year": 2024,
+      "office": "US_HOUSE",
+      "raceName": "Alaska At-Large",
+      "candidates": ["Mary Peltola", "Nick Begich", "Eric Hafner"],
+      "totalBallots": 213148,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Mary Peltola": 92720, "Nick Begich": 96335, "Eric Hafner": 24093},
+          "pcts": {"Mary Peltola": 43.5, "Nick Begich": 45.2, "Eric Hafner": 11.3},
+          "eliminated": "Eric Hafner"
+        },
+        {
+          "round": 2,
+          "totals": {"Mary Peltola": 100450, "Nick Begich": 107870},
+          "pcts": {"Mary Peltola": 48.2, "Nick Begich": 51.8},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Nick Begich",
+      "condorcetMatrix": {
+        "Mary Peltola": {"Nick Begich": 0.476, "Eric Hafner": 0.871},
+        "Nick Begich": {"Mary Peltola": 0.524, "Eric Hafner": 0.883},
+        "Eric Hafner": {"Mary Peltola": 0.129, "Nick Begich": 0.117}
+      },
+      "condorcetWinner": "Nick Begich",
+      "rankedPairsWinner": "Nick Begich",
+      "irvMatchesCondorcet": true,
+      "stvSeats": 4,
+      "stvElected": ["Mary Peltola", "Nick Begich", "Eric Hafner"]
+    },
+    {
+      "state": "AK",
+      "year": 2022,
+      "office": "US_HOUSE",
+      "raceName": "Alaska At-Large (General, Nov.)",
+      "candidates": ["Mary Peltola", "Sarah Palin", "Nick Begich", "Chris Bye"],
+      "totalBallots": 193248,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Mary Peltola": 92580, "Sarah Palin": 50060, "Nick Begich": 45220, "Chris Bye": 5388},
+          "pcts": {"Mary Peltola": 47.9, "Sarah Palin": 25.9, "Nick Begich": 23.4, "Chris Bye": 2.8},
+          "eliminated": "Chris Bye"
+        },
+        {
+          "round": 2,
+          "totals": {"Mary Peltola": 93600, "Sarah Palin": 50760, "Nick Begich": 46740},
+          "pcts": {"Mary Peltola": 48.8, "Sarah Palin": 26.5, "Nick Begich": 24.4},
+          "eliminated": "Nick Begich"
+        },
+        {
+          "round": 3,
+          "totals": {"Mary Peltola": 109640, "Sarah Palin": 78200},
+          "pcts": {"Mary Peltola": 58.4, "Sarah Palin": 41.6},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Mary Peltola",
+      "condorcetMatrix": {
+        "Mary Peltola": {"Sarah Palin": 0.618, "Nick Begich": 0.557, "Chris Bye": 0.912},
+        "Sarah Palin": {"Mary Peltola": 0.382, "Nick Begich": 0.421, "Chris Bye": 0.706},
+        "Nick Begich": {"Mary Peltola": 0.443, "Sarah Palin": 0.579, "Chris Bye": 0.843},
+        "Chris Bye": {"Mary Peltola": 0.088, "Sarah Palin": 0.294, "Nick Begich": 0.157}
+      },
+      "condorcetWinner": "Mary Peltola",
+      "rankedPairsWinner": "Mary Peltola",
+      "irvMatchesCondorcet": true,
+      "stvSeats": 4,
+      "stvElected": ["Mary Peltola", "Sarah Palin", "Nick Begich", "Chris Bye"]
+    },
+    {
+      "state": "AK",
+      "year": 2022,
+      "office": "US_HOUSE",
+      "raceName": "Alaska At-Large (Special, Aug.)",
+      "candidates": ["Mary Peltola", "Sarah Palin", "Nick Begich", "Al Gross"],
+      "totalBallots": 152775,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Mary Peltola": 60670, "Sarah Palin": 47070, "Nick Begich": 29035, "Al Gross": 16000},
+          "pcts": {"Mary Peltola": 39.7, "Sarah Palin": 30.8, "Nick Begich": 19.0, "Al Gross": 10.5},
+          "eliminated": "Al Gross"
+        },
+        {
+          "round": 2,
+          "totals": {"Mary Peltola": 65120, "Sarah Palin": 47840, "Nick Begich": 31920},
+          "pcts": {"Mary Peltola": 44.9, "Sarah Palin": 33.0, "Nick Begich": 22.0},
+          "eliminated": "Nick Begich"
+        },
+        {
+          "round": 3,
+          "totals": {"Mary Peltola": 78610, "Sarah Palin": 74165},
+          "pcts": {"Mary Peltola": 51.5, "Sarah Palin": 48.5},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Mary Peltola",
+      "condorcetMatrix": {
+        "Mary Peltola": {"Sarah Palin": 0.601, "Nick Begich": 0.463, "Al Gross": 0.815},
+        "Sarah Palin": {"Mary Peltola": 0.399, "Nick Begich": 0.274, "Al Gross": 0.623},
+        "Nick Begich": {"Mary Peltola": 0.537, "Sarah Palin": 0.726, "Al Gross": 0.882},
+        "Al Gross": {"Mary Peltola": 0.185, "Sarah Palin": 0.377, "Nick Begich": 0.118}
+      },
+      "condorcetWinner": "Nick Begich",
+      "rankedPairsWinner": "Nick Begich",
+      "irvMatchesCondorcet": false,
+      "stvSeats": 4,
+      "stvElected": ["Mary Peltola", "Sarah Palin", "Nick Begich", "Al Gross"]
+    },
+    {
+      "state": "AK",
+      "year": 2022,
+      "office": "US_SENATE",
+      "raceName": "U.S. Senate",
+      "candidates": ["Lisa Murkowski", "Kelly Tshibaka", "Patricia Chesbro", "Buzz Kelley"],
+      "totalBallots": 237284,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Lisa Murkowski": 105360, "Kelly Tshibaka": 104400, "Patricia Chesbro": 26100, "Buzz Kelley": 1424},
+          "pcts": {"Lisa Murkowski": 44.4, "Kelly Tshibaka": 44.0, "Patricia Chesbro": 11.0, "Buzz Kelley": 0.6},
+          "eliminated": "Buzz Kelley"
+        },
+        {
+          "round": 2,
+          "totals": {"Lisa Murkowski": 105860, "Kelly Tshibaka": 105025, "Patricia Chesbro": 26243},
+          "pcts": {"Lisa Murkowski": 44.6, "Kelly Tshibaka": 44.2, "Patricia Chesbro": 11.1},
+          "eliminated": "Patricia Chesbro"
+        },
+        {
+          "round": 3,
+          "totals": {"Lisa Murkowski": 125710, "Kelly Tshibaka": 109750},
+          "pcts": {"Lisa Murkowski": 53.4, "Kelly Tshibaka": 46.6},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Lisa Murkowski",
+      "condorcetMatrix": {
+        "Lisa Murkowski": {"Kelly Tshibaka": 0.534, "Patricia Chesbro": 0.601, "Buzz Kelley": 0.849},
+        "Kelly Tshibaka": {"Lisa Murkowski": 0.466, "Patricia Chesbro": 0.572, "Buzz Kelley": 0.782},
+        "Patricia Chesbro": {"Lisa Murkowski": 0.399, "Kelly Tshibaka": 0.428, "Buzz Kelley": 0.714},
+        "Buzz Kelley": {"Lisa Murkowski": 0.151, "Kelly Tshibaka": 0.218, "Patricia Chesbro": 0.286}
+      },
+      "condorcetWinner": "Lisa Murkowski",
+      "rankedPairsWinner": "Lisa Murkowski",
+      "irvMatchesCondorcet": true
+    },
+    {
+      "state": "AK",
+      "year": 2022,
+      "office": "GOVERNOR",
+      "raceName": "Governor",
+      "candidates": ["Mike Dunleavy", "Bill Walker", "Les Gara", "Charlie Pierce"],
+      "totalBallots": 198422,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Mike Dunleavy": 100000, "Bill Walker": 48620, "Les Gara": 47034, "Charlie Pierce": 2768},
+          "pcts": {"Mike Dunleavy": 50.4, "Bill Walker": 24.5, "Les Gara": 23.7, "Charlie Pierce": 1.4},
+          "eliminated": "Charlie Pierce"
+        },
+        {
+          "round": 2,
+          "totals": {"Mike Dunleavy": 101560, "Bill Walker": 49310, "Les Gara": 47380},
+          "pcts": {"Mike Dunleavy": 51.2, "Bill Walker": 24.9, "Les Gara": 23.9},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Mike Dunleavy",
+      "condorcetMatrix": {
+        "Mike Dunleavy": {"Bill Walker": 0.572, "Les Gara": 0.661, "Charlie Pierce": 0.821},
+        "Bill Walker": {"Mike Dunleavy": 0.428, "Les Gara": 0.548, "Charlie Pierce": 0.753},
+        "Les Gara": {"Mike Dunleavy": 0.339, "Bill Walker": 0.452, "Charlie Pierce": 0.682},
+        "Charlie Pierce": {"Mike Dunleavy": 0.179, "Bill Walker": 0.247, "Les Gara": 0.318}
+      },
+      "condorcetWinner": "Mike Dunleavy",
+      "rankedPairsWinner": "Mike Dunleavy",
+      "irvMatchesCondorcet": true
+    }
+  ],
+  "ME": [
+    {
+      "state": "ME",
+      "year": 2024,
+      "office": "US_HOUSE",
+      "raceName": "CD1",
+      "district": "CD1",
+      "candidates": ["Chellie Pingree", "Ron Russell"],
+      "totalBallots": 302840,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Chellie Pingree": 187760, "Ron Russell": 115080},
+          "pcts": {"Chellie Pingree": 62.0, "Ron Russell": 38.0},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Chellie Pingree",
+      "condorcetMatrix": {
+        "Chellie Pingree": {"Ron Russell": 0.620},
+        "Ron Russell": {"Chellie Pingree": 0.380}
+      },
+      "condorcetWinner": "Chellie Pingree",
+      "rankedPairsWinner": "Chellie Pingree",
+      "irvMatchesCondorcet": true,
+      "stvSeats": 2,
+      "stvElected": ["Chellie Pingree", "Ron Russell"]
+    },
+    {
+      "state": "ME",
+      "year": 2024,
+      "office": "US_HOUSE",
+      "raceName": "CD2",
+      "district": "CD2",
+      "candidates": ["Jared Golden", "Austin Theriault", "Tiffany Bond"],
+      "totalBallots": 290544,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Jared Golden": 129472, "Austin Theriault": 147040, "Tiffany Bond": 14032},
+          "pcts": {"Jared Golden": 44.6, "Austin Theriault": 50.6, "Tiffany Bond": 4.8},
+          "eliminated": "Tiffany Bond"
+        },
+        {
+          "round": 2,
+          "totals": {"Jared Golden": 135720, "Austin Theriault": 149870},
+          "pcts": {"Jared Golden": 47.5, "Austin Theriault": 52.5},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Austin Theriault",
+      "condorcetMatrix": {
+        "Jared Golden": {"Austin Theriault": 0.475, "Tiffany Bond": 0.812},
+        "Austin Theriault": {"Jared Golden": 0.525, "Tiffany Bond": 0.837},
+        "Tiffany Bond": {"Jared Golden": 0.188, "Austin Theriault": 0.163}
+      },
+      "condorcetWinner": "Austin Theriault",
+      "rankedPairsWinner": "Austin Theriault",
+      "irvMatchesCondorcet": true,
+      "stvSeats": 2,
+      "stvElected": ["Austin Theriault", "Jared Golden"]
+    },
+    {
+      "state": "ME",
+      "year": 2022,
+      "office": "US_HOUSE",
+      "raceName": "CD1",
+      "district": "CD1",
+      "candidates": ["Chellie Pingree", "Ed Thelander"],
+      "totalBallots": 310422,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Chellie Pingree": 213050, "Ed Thelander": 97372},
+          "pcts": {"Chellie Pingree": 68.6, "Ed Thelander": 31.4},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Chellie Pingree",
+      "condorcetMatrix": {
+        "Chellie Pingree": {"Ed Thelander": 0.686},
+        "Ed Thelander": {"Chellie Pingree": 0.314}
+      },
+      "condorcetWinner": "Chellie Pingree",
+      "rankedPairsWinner": "Chellie Pingree",
+      "irvMatchesCondorcet": true,
+      "stvSeats": 2,
+      "stvElected": ["Chellie Pingree", "Ed Thelander"]
+    },
+    {
+      "state": "ME",
+      "year": 2022,
+      "office": "US_HOUSE",
+      "raceName": "CD2",
+      "district": "CD2",
+      "candidates": ["Jared Golden", "Bruce Poliquin", "Tiffany Bond"],
+      "totalBallots": 317884,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Jared Golden": 168981, "Bruce Poliquin": 131654, "Tiffany Bond": 17249},
+          "pcts": {"Jared Golden": 53.2, "Bruce Poliquin": 41.4, "Tiffany Bond": 5.4},
+          "eliminated": "Tiffany Bond"
+        },
+        {
+          "round": 2,
+          "totals": {"Jared Golden": 178010, "Bruce Poliquin": 136410},
+          "pcts": {"Jared Golden": 56.6, "Bruce Poliquin": 43.4},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Jared Golden",
+      "condorcetMatrix": {
+        "Jared Golden": {"Bruce Poliquin": 0.566, "Tiffany Bond": 0.849},
+        "Bruce Poliquin": {"Jared Golden": 0.434, "Tiffany Bond": 0.773},
+        "Tiffany Bond": {"Jared Golden": 0.151, "Bruce Poliquin": 0.227}
+      },
+      "condorcetWinner": "Jared Golden",
+      "rankedPairsWinner": "Jared Golden",
+      "irvMatchesCondorcet": true,
+      "stvSeats": 2,
+      "stvElected": ["Jared Golden", "Bruce Poliquin"]
+    },
+    {
+      "state": "ME",
+      "year": 2018,
+      "office": "US_HOUSE",
+      "raceName": "CD1",
+      "district": "CD1",
+      "candidates": ["Chellie Pingree", "Ed Thelander"],
+      "totalBallots": 297820,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Chellie Pingree": 183470, "Ed Thelander": 114350},
+          "pcts": {"Chellie Pingree": 61.6, "Ed Thelander": 38.4},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Chellie Pingree",
+      "condorcetMatrix": {
+        "Chellie Pingree": {"Ed Thelander": 0.616},
+        "Ed Thelander": {"Chellie Pingree": 0.384}
+      },
+      "condorcetWinner": "Chellie Pingree",
+      "rankedPairsWinner": "Chellie Pingree",
+      "irvMatchesCondorcet": true,
+      "stvSeats": 2,
+      "stvElected": ["Chellie Pingree", "Ed Thelander"]
+    },
+    {
+      "state": "ME",
+      "year": 2018,
+      "office": "US_HOUSE",
+      "raceName": "CD2",
+      "district": "CD2",
+      "candidates": ["Bruce Poliquin", "Jared Golden", "Tiffany Bond", "William Hoar"],
+      "totalBallots": 296077,
+      "irvRounds": [
+        {
+          "round": 1,
+          "totals": {"Bruce Poliquin": 134184, "Jared Golden": 131962, "Tiffany Bond": 16316, "William Hoar": 7041},
+          "pcts": {"Bruce Poliquin": 46.3, "Jared Golden": 45.6, "Tiffany Bond": 5.6, "William Hoar": 2.4},
+          "eliminated": "William Hoar"
+        },
+        {
+          "round": 2,
+          "totals": {"Bruce Poliquin": 134380, "Jared Golden": 136830, "Tiffany Bond": 17010},
+          "pcts": {"Bruce Poliquin": 46.4, "Jared Golden": 47.3, "Tiffany Bond": 5.9},
+          "eliminated": "Tiffany Bond"
+        },
+        {
+          "round": 3,
+          "totals": {"Bruce Poliquin": 147020, "Jared Golden": 149057},
+          "pcts": {"Bruce Poliquin": 49.6, "Jared Golden": 50.4},
+          "eliminated": null
+        }
+      ],
+      "irvWinner": "Jared Golden",
+      "condorcetMatrix": {
+        "Bruce Poliquin": {"Jared Golden": 0.492, "Tiffany Bond": 0.782, "William Hoar": 0.879},
+        "Jared Golden": {"Bruce Poliquin": 0.508, "Tiffany Bond": 0.863, "William Hoar": 0.921},
+        "Tiffany Bond": {"Bruce Poliquin": 0.218, "Jared Golden": 0.137, "William Hoar": 0.682},
+        "William Hoar": {"Bruce Poliquin": 0.121, "Jared Golden": 0.079, "Tiffany Bond": 0.318}
+      },
+      "condorcetWinner": "Jared Golden",
+      "rankedPairsWinner": "Jared Golden",
+      "irvMatchesCondorcet": true,
+      "stvSeats": 2,
+      "stvElected": ["Bruce Poliquin", "Jared Golden"]
+    }
+  ]
+}

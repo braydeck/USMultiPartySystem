@@ -1,0 +1,560 @@
+import { useState } from 'react';
+import { PARTY_COLORS, PARTY_NAMES, F5_ORDER } from '../constants/parties';
+
+const PARTY_TAGLINES: Record<string, string> = {
+  PRG: 'Climate action, social justice, universal programs',
+  LIB: 'Civil liberties, regulated markets, global engagement',
+  DSA: 'Worker power, economic equality, public ownership',
+  SD:  'Strong safety net, institutional reform, center-left',
+  STY: 'Cross-cutting populism, skeptical of both establishments',
+  CTR: 'Moderate on economics and culture, institutionalist',
+  CON: 'Free markets, traditional values, national sovereignty',
+  REF: 'Anti-establishment right, immigration restriction',
+  NAT: 'Cultural conservatism, economic nationalism, strong borders',
+};
+
+const FACTORS = [
+  {
+    short: 'SO', label: 'Security & Order', color: '#1d4ed8',
+    hi: 'Pro-police, tougher sentencing, strong military',
+    lo: 'Reform policing, de-escalation, diplomacy-first',
+  },
+  {
+    short: 'ES', label: 'Electoral Skepticism', color: '#7c3aed',
+    hi: 'Questions election integrity, anti-establishment media',
+    lo: 'Trusts institutions, accepts electoral outcomes',
+  },
+  {
+    short: 'GD', label: 'Government Distrust', color: '#b45309',
+    hi: 'Government is inefficient and overreaches',
+    lo: 'Government can solve problems, trusts agencies',
+  },
+  {
+    short: 'RT', label: 'Religious Traditionalism', color: '#dc2626',
+    hi: 'Faith-informed policy, traditional family structures',
+    lo: 'Secular policy, pluralist social norms',
+  },
+  {
+    short: 'PC', label: 'Populist Conservatism', color: '#92400e',
+    hi: 'Anti-elite, nationalist, culturally conservative',
+    lo: 'Cosmopolitan, progressive on culture and economics',
+  },
+];
+
+const VOTING_SYSTEMS = [
+  {
+    name: 'STV',
+    full: 'Single Transferable Vote',
+    used: 'Presidential Primary · House',
+    color: '#1d4ed8',
+    how: 'Voters rank candidates. Once a candidate passes the Droop quota, their surplus votes transfer to next choices. Losers also transfer. Continues until seats are filled.',
+    why: 'Produces proportional outcomes in multi-seat races. Penalizes parties that run too many candidates (vote-splitting). Rewards coalition-building.',
+  },
+  {
+    name: 'IRV',
+    full: 'Instant-Runoff Voting',
+    used: 'Presidential General · Senate',
+    color: '#16a34a',
+    how: 'Voters rank candidates. The last-place candidate is eliminated each round and their votes redistribute. Continues until someone clears 50%.',
+    why: 'Eliminates spoiler effects. The winner has majority support after preferences are accounted for — often different from first-choice plurality.',
+  },
+  {
+    name: 'Condorcet',
+    full: 'Condorcet Method',
+    used: 'Presidential General · Senate',
+    color: '#a16207',
+    how: 'Every candidate faces every other in a head-to-head matchup. The candidate who beats everyone else wins. If no one does, a tiebreak applies.',
+    why: 'Finds the candidate most preferred by the electorate overall. Often selects a centrist who may not win IRV, revealing tension between the two methods.',
+  },
+];
+
+const SCENARIOS = [
+  {
+    name: 'Raw Multi',
+    tag: '27 candidates',
+    color: '#1d4ed8',
+    desc: 'Each of the 9 parties fields exactly 3 intra-party candidates with a 40/35/25 first-choice split. All three share identical ideological positions — only prominence (name recognition) differs.',
+    insight: 'Isolates the structural effect of proportional voting itself. Same-party candidates compete on prominence, not ideology.',
+    candidates: 'SD_1, SD_2, SD_3 · CON_1, CON_2, CON_3 · ...',
+  },
+  {
+    name: 'Factor Dev',
+    tag: '37 candidates',
+    color: '#ea580c',
+    desc: '9 base candidates + 28 axis-deviation variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation — producing candidates like SD_hi_so (more hawkish Social Democrat) or CON_lo_pc (less nationalist Conservative).',
+    insight: 'Models intra-party ideological diversity. Voters can express preference not just for a party, but for a faction within it.',
+    candidates: 'SD · SD_hi_so · SD_lo_so · SD_hi_ae · ...',
+  },
+];
+
+const STEPS = [
+  {
+    n: 1, color: '#1d4ed8',
+    title: 'Cooperative Election Study (CES 2024)',
+    body: '~60,000 respondents across the US answer ~100 policy questions covering taxes, immigration, healthcare, climate, guns, abortion, civil liberties, and more. This is one of the largest and most rigorous political surveys in American social science.',
+  },
+  {
+    n: 2, color: '#7c3aed',
+    title: 'Exploratory Factor Analysis (EFA)',
+    body: 'Policy responses are reduced to 5 underlying ideological dimensions using polychoric EFA. These factors capture the latent structure of American opinion — not what people say they believe, but the correlated belief clusters that actually organize political space.',
+  },
+  {
+    n: 3, color: '#16a34a',
+    title: 'Voter Typology — 10 Clusters',
+    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents into 10 voter types based on their 5 factor scores. Each cluster becomes a party. Blue Dogs (C7) are excluded — too small and ideologically absorbed by adjacent clusters.',
+  },
+  {
+    n: 4, color: '#ea580c',
+    title: 'Ballot Generation',
+    body: 'Each voter\'s factor scores are compared to each candidate\'s position in the same 5D space. Proximity (via Gaussian kernel, σ=0.35, η²-weighted) produces a ranked preference list. Within-party ordering follows candidate prominence.',
+  },
+  {
+    n: 5, color: '#a16207',
+    title: 'Elections',
+    body: 'Ballots run through STV (House/Primary), IRV and Condorcet (Senate/Presidential). Results show which parties win seats, which candidates emerge as finalists, and whether the two electoral methods agree on a winner.',
+  },
+];
+
+type Section = 'overview' | 'data' | 'parties' | 'voting' | 'scenarios' | 'caveats';
+const SECTIONS: { id: Section; label: string }[] = [
+  { id: 'overview',  label: 'Overview'       },
+  { id: 'data',      label: 'Methodology'    },
+  { id: 'parties',   label: 'The 9 Parties'  },
+  { id: 'voting',    label: 'Voting Systems' },
+  { id: 'scenarios', label: 'Two Scenarios'  },
+  { id: 'caveats',   label: 'Caveats'        },
+];
+
+export function AboutTab() {
+  const [active, setActive] = useState<Section>('overview');
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-1">What Is This?</h2>
+        <p className="text-slate-500 text-sm">
+          A data-driven simulation of what American elections might look like under proportional representation — built from 60,000 real survey responses.
+        </p>
+      </div>
+
+      {/* Nav pills */}
+      <div className="flex flex-wrap gap-2">
+        {SECTIONS.map(s => (
+          <button
+            key={s.id}
+            onClick={() => setActive(s.id)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              active === s.id
+                ? 'bg-slate-900 text-white'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Overview ─────────────────────────────────────────── */}
+      {active === 'overview' && (
+        <div className="space-y-5">
+          {/* Hero callout */}
+          <div className="rounded-xl bg-slate-900 text-white px-6 py-8">
+            <div className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-3">The premise</div>
+            <p className="text-xl font-semibold leading-snug mb-4">
+              What if Americans voted in a 9-party proportional system in 2028 — using their actual political beliefs?
+            </p>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              The US currently runs winner-take-all (FPTP) elections that compress a complex, multi-dimensional political landscape into two parties. This simulation asks: if the electoral system changed, which parties would emerge from the actual distribution of American opinion, and who would govern?
+            </p>
+          </div>
+
+          {/* Three pillars */}
+          <div className="grid sm:grid-cols-3 gap-4">
+            {[
+              { accent: '#1d4ed8', icon: '◎', title: 'Real Survey Data', body: 'Drawn from the 2024 Cooperative Election Study — 60,000 respondents, ~100 policy questions. These are real voters with real preferences.' },
+              { accent: '#16a34a', icon: '◈', title: 'Empirical Party System', body: 'Parties aren\'t invented — they emerge from factor analysis and clustering of the survey data. Each party is a statistically distinct voter type.' },
+              { accent: '#ea580c', icon: '◆', title: 'Modern Voting Theory', body: 'Elections run via STV, IRV, and Condorcet — the same systems used in Ireland, Australia, and academic political science.' },
+            ].map(p => (
+              <div key={p.title} className="bg-white rounded-xl border border-slate-200 p-5">
+                <div className="text-2xl mb-2" style={{ color: p.accent }}>{p.icon}</div>
+                <div className="font-semibold text-slate-800 mb-1.5">{p.title}</div>
+                <p className="text-xs text-slate-500 leading-relaxed">{p.body}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Quick stats */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">By the numbers</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              {[
+                { n: '~60,000', label: 'Survey respondents' },
+                { n: '9',       label: 'Active parties' },
+                { n: '873',     label: 'House seats' },
+                { n: '51',      label: 'Senate seats' },
+              ].map(s => (
+                <div key={s.label}>
+                  <div className="text-2xl font-bold text-slate-900">{s.n}</div>
+                  <div className="text-xs text-slate-400 mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tab guide */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">What each tab shows</div>
+            <div className="space-y-2.5">
+              {[
+                { tab: 'Presidential Primary', desc: 'A 4-round STV primary across regional pods. Watch candidates from 9+ parties consolidate into a final field.' },
+                { tab: 'Presidential General', desc: 'Head-to-head general election between the primary finalists. IRV and Condorcet often pick different winners — that gap is the story.' },
+                { tab: 'Senate',   desc: 'Per-state elections for 51 seats (one per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.' },
+                { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type. Includes a representation gap analysis.' },
+                { tab: 'Legislation', desc: 'Given the simulated chambers, which bills pass? Uses a Normal approximation of chamber vote counts to produce passage probabilities.' },
+                { tab: 'Compare', desc: 'Policy-by-policy comparison across up to 4 parties or Factor Dev candidates.' },
+              ].map(r => (
+                <div key={r.tab} className="flex gap-3 text-sm">
+                  <span className="font-semibold text-slate-700 w-44 shrink-0">{r.tab}</span>
+                  <span className="text-slate-500 leading-snug">{r.desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Methodology ──────────────────────────────────────── */}
+      {active === 'data' && (
+        <div className="space-y-5">
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50">
+              <div className="font-semibold text-slate-800">From Survey Responses to Election Results</div>
+              <p className="text-xs text-slate-500 mt-0.5">A five-step pipeline, each grounded in published methods</p>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {STEPS.map((step, i) => (
+                <div key={i} className="flex gap-4 px-5 py-5">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5"
+                    style={{ backgroundColor: step.color }}
+                  >
+                    {step.n}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-800 text-sm mb-1">{step.title}</div>
+                    <p className="text-xs text-slate-500 leading-relaxed">{step.body}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Factor detail */}
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50">
+              <div className="font-semibold text-slate-800">The 5 Ideological Dimensions</div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                These are latent factors — not imposed categories, but patterns that emerge from how survey responses correlate with each other.
+              </p>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {FACTORS.map(f => (
+                <div key={f.short} className="flex items-start gap-4 px-5 py-4">
+                  <div
+                    className="text-xs font-bold font-mono px-2 py-1 rounded shrink-0 mt-0.5"
+                    style={{ backgroundColor: f.color + '18', color: f.color }}
+                  >
+                    {f.short}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-slate-800 text-sm mb-1">{f.label}</div>
+                    <div className="flex gap-6 text-xs text-slate-500">
+                      <span><span className="font-medium text-slate-600">High:</span> {f.hi}</span>
+                      <span><span className="font-medium text-slate-600">Low:</span> {f.lo}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Ballot generation detail */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <div className="font-semibold text-slate-800 mb-3">How Ballots Are Generated</div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="bg-slate-50 rounded-lg p-4">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Positional scoring (Gaussian proximity)</div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Each voter's 5D factor score vector is compared to each candidate's position. Similarity decays exponentially with distance (σ = 0.35, η²-weighted per factor). At this sigma, voters are effectively matched to their ideologically nearest party — but cross-party affinities still influence rank ordering.
+                </p>
+              </div>
+              <div className="bg-slate-50 rounded-lg p-4">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Within-party ordering</div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  For same-party candidates at identical positions, prominence (a proxy for name recognition: 40/35/25%) breaks ties via Plackett-Luce sampling. This ensures the top candidate doesn't sweep all same-party votes, modeling a realistic primary-like distribution.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── The 9 Parties ────────────────────────────────────── */}
+      {active === 'parties' && (
+        <div className="space-y-5">
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <p className="text-sm text-slate-600 leading-relaxed mb-1">
+              Each party is a statistically distinct cluster of ~60,000 CES respondents. They aren't named by researchers — the names are assigned post-hoc based on their ideological profiles. The political spectrum here is five-dimensional, ordered below along the primary axis (F5 Populist Conservatism, low → high).
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {F5_ORDER.map((code, i) => {
+              const color = PARTY_COLORS[code];
+              const name  = PARTY_NAMES[code] ?? code;
+              const tag   = PARTY_TAGLINES[code] ?? '';
+              return (
+                <div
+                  key={code}
+                  className="bg-white rounded-xl border overflow-hidden"
+                  style={{ borderColor: color + '44', borderLeftColor: color, borderLeftWidth: 4 }}
+                >
+                  <div className="px-4 py-3">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div>
+                        <span
+                          className="text-xs font-bold font-mono px-2 py-0.5 rounded"
+                          style={{ backgroundColor: color + '18', color }}
+                        >
+                          {code}
+                        </span>
+                        <div className="font-semibold text-slate-800 text-sm mt-1">{name}</div>
+                      </div>
+                      <span className="text-xs text-slate-400 font-mono shrink-0">#{i + 1}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-snug">{tag}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div className="text-xs font-semibold text-amber-800 mb-1">Why 9 and not 10?</div>
+            <p className="text-xs text-amber-700 leading-relaxed">
+              The DPGMM naturally produces 10 clusters. Cluster 7 (Blue Dogs — conservative Democrats) is dropped because it's small and ideologically spans the CON/CTR boundary. Including it produced unstable results and unclear ideological identity. All 9 remaining clusters are statistically robust and ideologically interpretable.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Voting Systems ───────────────────────────────────── */}
+      {active === 'voting' && (
+        <div className="space-y-4">
+          {VOTING_SYSTEMS.map(vs => (
+            <div key={vs.name} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <div
+                className="px-5 py-4 border-b"
+                style={{ backgroundColor: vs.color + '10', borderBottomColor: vs.color + '30' }}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="text-sm font-bold font-mono px-2.5 py-1 rounded"
+                    style={{ backgroundColor: vs.color + '20', color: vs.color }}
+                  >
+                    {vs.name}
+                  </span>
+                  <div>
+                    <div className="font-semibold text-slate-800">{vs.full}</div>
+                    <div className="text-xs text-slate-500">Used in: {vs.used}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="px-5 py-4 grid sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">How it works</div>
+                  <p className="text-xs text-slate-600 leading-relaxed">{vs.how}</p>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">Why it matters here</div>
+                  <p className="text-xs text-slate-600 leading-relaxed">{vs.why}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* IRV vs Condorcet explainer */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <div className="font-semibold text-slate-800 mb-3">IRV vs Condorcet — Why Both?</div>
+            <p className="text-xs text-slate-600 leading-relaxed mb-4">
+              IRV and Condorcet frequently disagree on a winner, and the gap between them is politically revealing. IRV can elect a candidate with strong first-choice support who loses head-to-head. Condorcet finds the candidate most preferred <em>overall</em> — often a centrist. Showing both exposes the method-dependence of "winning."
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="text-xs font-semibold text-green-800 mb-1">IRV tends to elect...</div>
+                <p className="text-xs text-green-700">Candidates with strong first-choice bases, often from larger parties. Can miss broadly acceptable centrists if they lack top-of-ballot support.</p>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <div className="text-xs font-semibold text-amber-800 mb-1">Condorcet tends to elect...</div>
+                <p className="text-xs text-amber-700">The "least-bad" option — the candidate who beats everyone else one-on-one. Often a centrist who nobody loves but most can live with.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Two Scenarios ────────────────────────────────────── */}
+      {active === 'scenarios' && (
+        <div className="space-y-5">
+          <div className="grid sm:grid-cols-2 gap-4">
+            {SCENARIOS.map(s => (
+              <div
+                key={s.name}
+                className="bg-white rounded-xl border-2 overflow-hidden"
+                style={{ borderColor: s.color + '55' }}
+              >
+                <div className="px-5 py-4 border-b" style={{ borderColor: s.color + '33', backgroundColor: s.color + '0c' }}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span
+                      className="text-xs font-bold px-2 py-0.5 rounded font-mono"
+                      style={{ backgroundColor: s.color + '22', color: s.color }}
+                    >
+                      {s.tag}
+                    </span>
+                  </div>
+                  <div className="font-bold text-slate-900 text-lg">{s.name}</div>
+                </div>
+                <div className="px-5 py-4 space-y-3">
+                  <p className="text-xs text-slate-600 leading-relaxed">{s.desc}</p>
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1">What it isolates</div>
+                    <p className="text-xs text-slate-600">{s.insight}</p>
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Example candidates</div>
+                    <code className="text-xs text-slate-500 font-mono">{s.candidates}</code>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <div className="font-semibold text-slate-800 mb-3">What comparing them reveals</div>
+            <div className="space-y-3 text-sm">
+              {[
+                { q: 'Do intra-party factions matter?', a: 'If Factor Dev and Raw Multi produce very different senate compositions, ideological variance within parties is electorally significant. If results converge, party label dominates.' },
+                { q: 'Which parties benefit from factional candidates?', a: 'Some parties gain seats by splitting their ideological space — variants attract voters who\'d otherwise vote adjacent. Others lose seats to vote-splitting.' },
+                { q: 'Does the presidential winner change?', a: 'Often yes. Factor Dev\'s SD_hi_so and Raw Multi\'s SD_1 are different candidacies — one signals a hawkish tilt, the other is the party baseline.' },
+              ].map(r => (
+                <div key={r.q} className="flex gap-3">
+                  <div className="text-slate-400 shrink-0 mt-0.5">→</div>
+                  <div>
+                    <span className="font-medium text-slate-700">{r.q} </span>
+                    <span className="text-slate-500">{r.a}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Caveats ──────────────────────────────────────────── */}
+      {active === 'caveats' && (
+        <div className="space-y-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+            <div className="font-semibold text-amber-900 mb-1">This is a simulation, not a prediction</div>
+            <p className="text-sm text-amber-800 leading-relaxed">
+              The goal is to understand structural properties of electoral systems applied to the actual distribution of American political opinion — not to forecast 2028. Party formation, candidate emergence, strategic voting, and campaign dynamics are all absent.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50">
+              <div className="font-semibold text-slate-800">Key Assumptions</div>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {[
+                {
+                  label: 'Perfect party cohesion',
+                  body: 'Senators and representatives vote with their party 100% of the time on the legislation model. Real legislatures have party discipline ranging from ~70% (US Democrats) to ~95% (UK Conservative Party). This overstates certainty in passage probabilities.',
+                },
+                {
+                  label: 'Sincere voting',
+                  body: 'Voters rank candidates by genuine ideological proximity. In real ranked-choice elections, strategic voting (burying strong competitors, propping up weak ones) is common. This simulation shows what sincere preferences would produce.',
+                },
+                {
+                  label: 'Static ideological space',
+                  body: 'The 5D factor space is fit to CES 2024 data and held fixed. In reality, the emergence of new parties would shift voter alignments, party platforms would evolve, and the factor structure itself might change.',
+                },
+                {
+                  label: 'Prominence as name recognition',
+                  body: 'The 40/35/25 within-party split is a modeling assumption, not empirical data. It prevents the top candidate from sweeping all same-party ballots, but the specific values are illustrative.',
+                },
+                {
+                  label: 'House districts are idealized',
+                  body: 'Districts are assigned urban/suburban/rural tiers based on census geography. Actual multi-member STV districts would be drawn differently, and gerrymandering is not modeled.',
+                },
+                {
+                  label: 'Survey ≠ likely voters',
+                  body: 'CES respondents skew more educated and more engaged than the general electorate. The party system here reflects the opinion distribution of survey-takers, which differs from the distribution of actual voters.',
+                },
+              ].map(a => (
+                <div key={a.label} className="px-5 py-4">
+                  <div className="font-medium text-slate-700 text-sm mb-1">{a.label}</div>
+                  <p className="text-xs text-slate-500 leading-relaxed">{a.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 p-5">
+            <div className="font-semibold text-slate-800 mb-3">What this can and can't tell you</div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs font-semibold text-green-700 uppercase tracking-widest mb-2">Can tell you</div>
+                <ul className="space-y-1.5 text-xs text-slate-600">
+                  {[
+                    'Which ideological coalitions exist in the American electorate',
+                    'How different voting methods produce different outcomes from the same ballots',
+                    'Which policy positions have majority support across the full chamber',
+                    'Where IRV and Condorcet disagree — and why',
+                    'How intra-party factionalism affects seat allocation',
+                  ].map(l => (
+                    <li key={l} className="flex gap-2"><span className="text-green-500 shrink-0">✓</span>{l}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-red-700 uppercase tracking-widest mb-2">Cannot tell you</div>
+                <ul className="space-y-1.5 text-xs text-slate-600">
+                  {[
+                    'Who would actually win in 2028',
+                    'How strategic voting would change outcomes',
+                    'How new parties would alter voter alignments over time',
+                    'Whether these parties could build stable governing coalitions',
+                    'How media, money, and endorsements would shape the race',
+                  ].map(l => (
+                    <li key={l} className="flex gap-2"><span className="text-red-400 shrink-0">✗</span>{l}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Data & Methods</div>
+            <div className="space-y-1 text-xs text-slate-500">
+              <div><span className="font-medium text-slate-600">Survey:</span> Cooperative Election Study (CES) 2024, Harvard/YouGov</div>
+              <div><span className="font-medium text-slate-600">Factor analysis:</span> Polychoric EFA, 5 factors, oblique (promax) rotation</div>
+              <div><span className="font-medium text-slate-600">Clustering:</span> Dirichlet Process Gaussian Mixture Model (DPGMM)</div>
+              <div><span className="font-medium text-slate-600">Ballot scoring:</span> Gaussian proximity kernel, σ=0.35, η²-weighted factors</div>
+              <div><span className="font-medium text-slate-600">Legislation model:</span> Normal approximation of chamber Bernoulli vote counts</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -143,6 +143,14 @@ export const FACTOR_SHORT: Record<string, string> = {
   F5: 'PC',
 };
 
+export const FACTOR_POLES: Record<string, { low: string; high: string }> = {
+  F1: { low: 'Civil Libertarian', high: 'Law & Order' },
+  F2: { low: 'Establishment',     high: 'Anti-Establishment' },
+  F3: { low: 'Institutionalist',  high: 'Anti-Government' },
+  F4: { low: 'Secular',           high: 'Faith-Guided' },
+  F5: { low: 'Progressive',       high: 'Conservative' },
+};
+
 // Variable → primary EFA factor (highest absolute loading > 0.3, from efa_loadings_k5_final.csv)
 // Items marked * are content-based assignments (not in the 24-item EFA set)
 // Note: F3 primary items (CC24_423, CC24_424 — trust questions) are not in the policy dataset

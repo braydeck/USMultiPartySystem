@@ -72,6 +72,12 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
     }));
   }, [fdHouseSeats, seats]);
 
+  const fdSeatsByCode = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const s of fdHouseSeats) map[s.code] = s.national;
+    return map;
+  }, [fdHouseSeats]);
+
   const activeSeats = scenario === 'rawMulti' ? seats : fdSeatsAggregated;
   const activeTotalSeats = activeSeats.reduce((s, r) => s + r.national, 0);
 
@@ -215,32 +221,43 @@ export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteMod
           SECTION 3: IDEOLOGICAL LANDSCAPE
           ═══════════════════════════════════════════════════════════════════════ */}
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
-            Ideological Constellation
-          </h3>
-          <IdeologicalConstellation
-            nodes={coalitions
+      <div className="bg-white rounded-xl p-4 border border-slate-200">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
+          Ideological Constellation
+        </h3>
+        <IdeologicalConstellation
+          nodes={(() => {
+            if (scenario === 'factorDev') {
+              const fdNodes = fdCandidatePositions
+                .filter(c => (fdSeatsByCode[c.code] ?? 0) > 0)
+                .map(c => ({
+                  id: c.code,
+                  label: c.axis === 'base' ? c.party : c.code,
+                  seats: fdSeatsByCode[c.code] ?? 1,
+                  F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
+                }));
+              return fdNodes.length > 0 ? fdNodes : [];
+            }
+            return coalitions
               .filter(c => c.seatsHouse > 0)
               .map(c => ({
-                id: c.type, label: PARTY_NAMES[c.type] ?? c.type,
+                id: c.type, label: c.type,
                 seats: c.seatsHouse, F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
-              }))}
-            transfers={transfers}
-            clusterSpreads={clusterSpreads}
-          />
-        </div>
+              }));
+          })()}
+          transfers={scenario === 'rawMulti' ? transfers : undefined}
+          clusterSpreads={clusterSpreads}
+        />
+      </div>
 
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
-            Bill Simulator
-          </h3>
-          <p className="text-xs text-slate-500 mb-3">
-            Probability of passage based on the House seat composition.
-          </p>
-          <BillSimulator rows={voteModel} />
-        </div>
+      <div className="bg-white rounded-xl p-4 border border-slate-200">
+        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
+          Bill Simulator
+        </h3>
+        <p className="text-xs text-slate-500 mb-3">
+          Probability of passage based on the House seat composition.
+        </p>
+        <BillSimulator rows={voteModel} />
       </div>
 
       {/* Nine-Party Profiles */}

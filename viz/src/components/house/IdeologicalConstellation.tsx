@@ -58,6 +58,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
   const [yFactor, setYFactor] = useState('F1');
   const [sizeFactor, setSizeFactor] = useState('F2');
   const [colorMode, setColorMode] = useState('F4');
+  const [equalSize, setEqualSize] = useState(false);
   const [enabledParties, setEnabledParties] = useState<Set<string>>(() => new Set(F5_ORDER));
 
   const toggleParty = (p: string) => {
@@ -72,7 +73,12 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    const nodes = inputNodes.filter(n => enabledParties.has(n.id)).map(n => ({ ...n }));
+    const nodes = inputNodes.filter(n => {
+      // Match by exact id or base party prefix (for variant codes like CON_1, SD_hi_so)
+      if (enabledParties.has(n.id)) return true;
+      const base = n.id.split('_')[0];
+      return enabledParties.has(base);
+    }).map(n => ({ ...n }));
     if (nodes.length === 0) return;
 
     const getVal = (n: ConstellationNode, key: string): number => {
@@ -82,27 +88,60 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
     const xVals = nodes.map(n => getVal(n, xFactor));
     const yVals = nodes.map(n => getVal(n, yFactor));
-    const sVals = nodes.map(n => getVal(n, sizeFactor));  // no Math.abs
+    const sVals = nodes.map(n => getVal(n, sizeFactor));
 
-    // Tighter padding: 5% of range
-    const xRange = (d3.max(xVals)! - d3.min(xVals)!) || 1;
-    const yRange = (d3.max(yVals)! - d3.min(yVals)!) || 1;
-    const xPad = xRange * 0.05;
-    const yPad = yRange * 0.05;
+    let xMin = d3.min(xVals) ?? -1, xMax = d3.max(xVals) ?? 1;
+    let yMin = d3.min(yVals) ?? -1, yMax = d3.max(yVals) ?? 1;
+
+    // Expand domain to fit penumbra extents (mean ± 1σ)
+    if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
+      for (const cs of clusterSpreads) {
+        if (!enabledParties.has(cs.party)) continue;
+        const mx = Number(cs[`mean_${xFactor}`] ?? 0);
+        const my = Number(cs[`mean_${yFactor}`] ?? 0);
+        const sdx = Number(cs[`sd_${xFactor}`] ?? 0);
+        const sdy = Number(cs[`sd_${yFactor}`] ?? 0);
+        if (sdx && sdy) {
+          xMin = Math.min(xMin, mx - sdx);
+          xMax = Math.max(xMax, mx + sdx);
+          yMin = Math.min(yMin, my - sdy);
+          yMax = Math.max(yMax, my + sdy);
+        }
+      }
+    }
+
+    const xRange = (xMax - xMin) || 1;
+    const yRange = (yMax - yMin) || 1;
+    const xPad = xRange * 0.08;
+    const yPad = yRange * 0.08;
 
     const xScale = d3.scaleLinear()
-      .domain([d3.min(xVals)! - xPad, d3.max(xVals)! + xPad])
+      .domain([xMin - xPad, xMax + xPad])
       .range([PAD_L, W - PAD_R]);
     const yScale = d3.scaleLinear()
-      .domain([d3.min(yVals)! - yPad, d3.max(yVals)! + yPad])
+      .domain([yMin - yPad, yMax + yPad])
       .range([H - PAD_B, PAD_T]);
 
     // Size scale: [sMin, sMax] → [minR, maxR]
     const sMin = d3.min(sVals) ?? 0;
     const sMax = d3.max(sVals) ?? 1;
-    const rScale = sizeFactor === 'seats'
-      ? d3.scaleSqrt().domain([0, sMax]).range([6, 42])
-      : d3.scaleLinear().domain([sMin, sMax === sMin ? sMin + 1 : sMax]).range([6, 30]);
+    const rScale = equalSize
+      ? (() => { const fn = (_: number) => 5; fn.domain = () => [0, 1]; fn.range = () => [5, 5]; return fn; })()
+      : sizeFactor === 'seats'
+        ? d3.scaleSqrt().domain([0, sMax || 1]).range([6, 42])
+        : d3.scaleLinear().domain([sMin, sMax === sMin ? sMin + 1 : sMax]).range([6, 30]);
+
+    // Canvas background + clip path
+    const clipId = `chart-clip-${Math.random().toString(36).slice(2, 8)}`;
+    svg.append('defs').append('clipPath').attr('id', clipId)
+      .append('rect')
+      .attr('x', PAD_L).attr('y', PAD_T)
+      .attr('width', W - PAD_L - PAD_R).attr('height', H - PAD_T - PAD_B);
+
+    svg.append('rect')
+      .attr('x', PAD_L).attr('y', PAD_T)
+      .attr('width', W - PAD_L - PAD_R).attr('height', H - PAD_T - PAD_B)
+      .attr('fill', '#f8fafc').attr('rx', 4);
 
     // Color scale — per-factor data range so each factor uses the full cividis spectrum
     const cVals = nodes.map(n => getVal(n, colorMode === 'party' ? 'F5' : colorMode));
@@ -116,13 +155,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       return cScale(getVal(n, colorMode));
     };
 
-    // Text color: white on dark cividis fills, dark on light fills
-    const getTextColor = (n: ConstellationNode, r: number) => {
-      if (r < 14) return '#334155';  // small bubble — always dark (label goes outside)
-      if (colorMode === 'party') return '#0f172a';
-      const hsl = d3.hsl(getColor(n));
-      return (hsl.l ?? 0.5) > 0.45 ? '#0f172a' : '#ffffff';
-    };
+    // Text color: always dark with white outline for readability
+    const getTextColor = () => '#1e293b';
 
     // --- Gridlines + tick labels ---
     const xTicks = xScale.ticks(4);
@@ -157,8 +191,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .text(d => d.toFixed(1));
 
     // --- Penumbra ellipses (voter spread) ---
-    if (clusterSpreads) {
-      const penumbraG = svg.append('g').attr('class', 'penumbra');
+    if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
+      const penumbraG = svg.append('g').attr('class', 'penumbra').attr('clip-path', `url(#${clipId})`);
       for (const cs of clusterSpreads) {
         if (!enabledParties.has(cs.party)) continue;
         const color = PARTY_COLORS[cs.party] ?? '#6b7280';
@@ -166,6 +200,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         const my = Number(cs[`mean_${yFactor}`] ?? 0);
         const sdx = Number(cs[`sd_${xFactor}`] ?? 0);
         const sdy = Number(cs[`sd_${yFactor}`] ?? 0);
+        if (!sdx || !sdy || isNaN(sdx) || isNaN(sdy)) continue;
+
         const covKey = `cov_${xFactor}_${yFactor}`;
         const covKeyAlt = `cov_${yFactor}_${xFactor}`;
         const cov = Number(cs[covKey] ?? cs[covKeyAlt] ?? 0);
@@ -178,11 +214,14 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         const lambda2 = Math.max(0.001, trace / 2 - disc);
         const angle = b !== 0 ? Math.atan2(lambda1 - a, b) * (180 / Math.PI) : 0;
 
-        const SIGMA = 1.5;
+        const SIGMA = 1.0;
         const xDomain = xScale.domain();
         const yDomain = yScale.domain();
-        const rx = Math.sqrt(lambda1) * SIGMA / (xDomain[1] - xDomain[0]) * (W - PAD_L - PAD_R);
-        const ry = Math.sqrt(lambda2) * SIGMA / (yDomain[1] - yDomain[0]) * (H - PAD_T - PAD_B);
+        const xRange = (xDomain[1] - xDomain[0]) || 1;
+        const yRange = (yDomain[1] - yDomain[0]) || 1;
+        const rx = Math.sqrt(lambda1) * SIGMA / xRange * (W - PAD_L - PAD_R);
+        const ry = Math.sqrt(lambda2) * SIGMA / yRange * (H - PAD_T - PAD_B);
+        if (isNaN(rx) || isNaN(ry) || !isFinite(rx) || !isFinite(ry)) continue;
 
         penumbraG.append('ellipse')
           .attr('cx', xScale(mx))
@@ -217,69 +256,87 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       }
     }
 
-    const sim = d3.forceSimulation(nodes as any)
-      .force('link', d3.forceLink(links as any).id((d: any) => d.id).strength(0.05))
-      .force('charge', d3.forceManyBody().strength(-80))
-      .force('x', d3.forceX((d: any) => xScale(getVal(d, xFactor))).strength(0.5))
-      .force('y', d3.forceY((d: any) => yScale(getVal(d, yFactor))).strength(0.5))
-      .force('collide', d3.forceCollide((d: any) => rScale(getVal(d, sizeFactor)) + 4))
-      .stop();
+    // Place nodes at exact factor positions (no force offset — Venn diagram style)
+    const posOf = (n: ConstellationNode) => ({
+      x: xScale(getVal(n, xFactor)),
+      y: yScale(getVal(n, yFactor)),
+    });
 
-    for (let i = 0; i < 200; i++) sim.tick();
+    // Build link lookup for hover
+    const nodeById: Record<string, ConstellationNode> = {};
+    for (const n of nodes) nodeById[n.id] = n;
 
     // Links
     const linkSel = svg.append('g')
       .selectAll('line')
       .data(links)
       .enter().append('line')
-      .attr('x1', (d: any) => d.source.x)
-      .attr('y1', (d: any) => d.source.y)
-      .attr('x2', (d: any) => d.target.x)
-      .attr('y2', (d: any) => d.target.y)
+      .attr('x1', (d) => posOf(nodeById[d.source] ?? nodes[0]).x)
+      .attr('y1', (d) => posOf(nodeById[d.source] ?? nodes[0]).y)
+      .attr('x2', (d) => posOf(nodeById[d.target] ?? nodes[0]).x)
+      .attr('y2', (d) => posOf(nodeById[d.target] ?? nodes[0]).y)
       .attr('stroke', '#cbd5e1')
       .attr('stroke-width', (d) => Math.max(0.5, d.value / 2))
-      .attr('opacity', 0.5);
+      .attr('opacity', 0.4);
 
-    // Nodes
+    const manyNodes = false;  // always show labels — hover-only was too hard to use
+
+    // Nodes — exact positions, overlapping allowed
     svg.append('g')
       .selectAll('circle')
-      .data(nodes as any)
+      .data(nodes)
       .enter().append('circle')
-      .attr('cx', (d: any) => d.x)
-      .attr('cy', (d: any) => d.y)
-      .attr('r', (d: any) => rScale(getVal(d, sizeFactor)))
-      .attr('fill', (d: any) => getColor(d))
-      .attr('fill-opacity', 0.6)
-      .attr('stroke', (d: any) => getColor(d))
-      .attr('stroke-width', 2)
+      .attr('cx', d => posOf(d).x)
+      .attr('cy', d => posOf(d).y)
+      .attr('r', d => rScale(getVal(d, sizeFactor)))
+      .attr('fill', d => getColor(d))
+      .attr('fill-opacity', 0.55)
+      .attr('stroke', d => getColor(d))
+      .attr('stroke-width', 1.5)
       .style('cursor', 'pointer')
-      .on('mouseenter', function (_e, d: any) {
-        d3.select(this).attr('fill-opacity', 0.85);
+      .on('mouseenter', function (_e, d) {
+        d3.select(this).attr('fill-opacity', 0.9).attr('stroke-width', 3);
+        // Show tooltip label
+        svg.select(`.hover-label-${d.id.replace(/[^a-zA-Z0-9]/g, '_')}`).attr('opacity', 1);
         linkSel
-          .attr('opacity', (l: any) => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.1)
-          .attr('stroke', (l: any) => (l.source.id === d.id || l.target.id === d.id) ? '#94a3b8' : '#cbd5e1');
+          .attr('opacity', (l) => (l.source === d.id || l.target === d.id) ? 1 : 0.08)
+          .attr('stroke', (l) => (l.source === d.id || l.target === d.id) ? '#64748b' : '#cbd5e1');
       })
-      .on('mouseleave', function (_e, _d: any) {
-        d3.select(this).attr('fill-opacity', 0.6);
-        linkSel.attr('opacity', 0.5).attr('stroke', '#cbd5e1');
+      .on('mouseleave', function (_e, d) {
+        d3.select(this).attr('fill-opacity', 0.55).attr('stroke-width', 1.5);
+        svg.select(`.hover-label-${d.id.replace(/[^a-zA-Z0-9]/g, '_')}`).attr('opacity', manyNodes ? 0 : 1);
+        linkSel.attr('opacity', 0.4).attr('stroke', '#cbd5e1');
       });
 
-    // Labels — offset above circle when bubble is too small to contain text
-    svg.append('g')
-      .selectAll('text')
-      .data(nodes as any)
-      .enter().append('text')
-      .attr('x', (d: any) => d.x)
-      .attr('y', (d: any) => {
-        const r = rScale(getVal(d, sizeFactor));
-        return r < 14 ? d.y - r - 4 : d.y + 4;
-      })
-      .attr('text-anchor', 'middle')
-      .style('fill', (d: any) => getTextColor(d, rScale(getVal(d, sizeFactor))))
-      .style('font-size', (d: any) => rScale(getVal(d, sizeFactor)) < 14 ? '9px' : '11px')
-      .style('font-weight', '600')
-      .style('pointer-events', 'none')
-      .text((d: any) => d.id);
+    // Labels
+    const labelG = svg.append('g');
+    for (const d of nodes) {
+      const p = posOf(d);
+      const r = rScale(getVal(d, sizeFactor));
+      const safeClass = `hover-label-${d.id.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const alwaysShow = !manyNodes;
+      const fontSize = manyNodes ? '9px' : '10px';
+
+      // White outline
+      labelG.append('text')
+        .attr('class', safeClass)
+        .attr('x', p.x).attr('y', p.y - r - 3)
+        .attr('text-anchor', 'middle')
+        .style('fill', 'none').style('stroke', '#f8fafc').style('stroke-width', '3px')
+        .style('font-size', fontSize).style('font-weight', '700')
+        .style('pointer-events', 'none')
+        .attr('opacity', alwaysShow ? 1 : 0)
+        .text(d.id);
+      // Label text
+      labelG.append('text')
+        .attr('class', safeClass)
+        .attr('x', p.x).attr('y', p.y - r - 3)
+        .attr('text-anchor', 'middle')
+        .style('fill', getTextColor()).style('font-size', fontSize).style('font-weight', '700')
+        .style('pointer-events', 'none')
+        .attr('opacity', alwaysShow ? 1 : 0)
+        .text(d.id);
+    }
 
     // Axis labels
     const xLabel = xFactor === 'seats' ? 'Seats' : (FACTOR_LABELS[xFactor] ?? xFactor);
@@ -296,7 +353,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .style('fill', '#94a3b8').style('font-size', '10px')
       .text(`← Low ${yLabel}   |   High →`);
 
-  }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties]);
+  }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties, equalSize]);
 
   const colorOptions = ['party', ...FACTORS] as const;
 
@@ -307,6 +364,12 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
         <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} />
         <ControlSection label="Size" options={ALL_AXES} value={sizeFactor} onChange={setSizeFactor} />
+        <button onClick={() => setEqualSize(!equalSize)}
+          className={`w-full px-1.5 py-0.5 rounded text-xs font-medium text-left transition-colors ${
+            equalSize ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}>
+          {equalSize ? '⊙ Equal size' : '○ Equal size'}
+        </button>
         <div>
           <span className="text-xs text-slate-500 font-semibold uppercase tracking-wide block mb-1">Color</span>
           <div className="flex flex-col gap-0.5">

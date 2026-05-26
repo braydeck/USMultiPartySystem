@@ -10,7 +10,7 @@ export interface ParliamentSegment {
 interface Props {
   segments: ParliamentSegment[];  // pre-sorted by fVal ascending
   factor: string;
-  globalRange?: [number, number]; // fixed min/max across all scenarios for stable category labels
+  globalRange?: [number, number]; // fixed min/max across all scenarios for stable labels
 }
 
 function computeRings(total: number, innerR: number, ringGap: number): number[] {
@@ -25,8 +25,9 @@ function computeRings(total: number, innerR: number, ringGap: number): number[] 
   return floored;
 }
 
-const CAT_LABELS = ['Very Low', 'Low', 'Medium', 'High', 'Very High'] as const;
-const N_CATS = 5;
+const CAT_LABELS = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
+const DIV_FRACS  = [0.20, 0.40, 0.60, 0.80];
+const MID_FRACS  = [0.10, 0.30, 0.50, 0.70, 0.90];
 
 export function ParliamentChart({ segments, factor, globalRange }: Props) {
   const INNER_R = 60;
@@ -34,9 +35,9 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
 
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
 
-  const { groupedDots, nRings, dotSize, dividers, catMidFracs } = useMemo(() => {
+  const { groupedDots, nRings, dotSize, cumFracs } = useMemo(() => {
     const totalSeats = segments.reduce((s, seg) => s + seg.seats, 0);
-    if (totalSeats === 0) return { groupedDots: {}, nRings: 3, dotSize: 4, dividers: [], catMidFracs: [] };
+    if (totalSeats === 0) return { groupedDots: {}, nRings: 3, dotSize: 4, cumFracs: [] };
 
     const rings = computeRings(totalSeats, INNER_R, RING_GAP);
     const nRings = rings.length;
@@ -55,13 +56,14 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
     }
     if (cumFracs.length > 0) cumFracs[cumFracs.length - 1].end = 1.0001;
 
-    // Generate dots grouped by party code for efficient opacity switching
+    // Generate dots grouped by party code
     const groupedDots: Record<string, { cx: number; cy: number }[]> = {};
     for (let ring = 0; ring < nRings; ring++) {
       const n = rings[ring];
       const r = INNER_R + RING_GAP * ring;
       for (let i = 0; i < n; i++) {
         const frac = n === 1 ? 0.5 : i / (n - 1);
+
         let code = cumFracs[cumFracs.length - 1]?.code ?? '';
         for (const cf of cumFracs) {
           if (frac >= cf.start && frac < cf.end) { code = cf.code; break; }
@@ -72,37 +74,7 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
       }
     }
 
-    // Category dividers — use globalRange for stable absolute labels, fallback to scenario range
-    const fVals = segments.map(s => s.fVal);
-    const minF = globalRange ? globalRange[0] : Math.min(...fVals);
-    const maxF = globalRange ? globalRange[1] : Math.max(...fVals);
-    const fStep = (maxF - minF) / N_CATS;
-
-    const allDividers: { arcFrac: number; value: number }[] = [];
-    for (let i = 1; i < N_CATS; i++) {
-      const threshold = minF + fStep * i;
-      let cumulativeSeats = 0;
-      for (const seg of segments) {
-        if (seg.fVal <= threshold) cumulativeSeats += seg.seats;
-      }
-      allDividers.push({ arcFrac: cumulativeSeats / totalSeats, value: threshold });
-    }
-
-    const zoneEdges = [0, ...allDividers.map(d => d.arcFrac), 1];
-    const zoneHasSeats = zoneEdges.slice(0, -1).map((start, i) => zoneEdges[i + 1] - start > 0.0005);
-
-    const dividers = allDividers.filter((d, i) =>
-      (zoneHasSeats[i] || zoneHasSeats[i + 1]) && d.arcFrac > 0.001 && d.arcFrac < 0.999
-    );
-
-    const catMidFracs = zoneEdges.slice(0, -1)
-      .map((f, i) => zoneHasSeats[i] ? { label: CAT_LABELS[i], midFrac: (f + zoneEdges[i + 1]) / 2 } : null)
-      .filter(Boolean) as { label: string; midFrac: number }[];
-
-    // Guarantee at least one dot for every segment with seats.
-    // Small segments (< 1 dot-width of the arc) can be skipped by the
-    // evenly-spaced loop above; add a single dot at their arc midpoint
-    // on the outermost ring so they always appear in the chart.
+    // Guarantee at least one dot for every segment with seats
     const outerRingR = INNER_R + RING_GAP * (nRings - 1);
     for (const cf of cumFracs) {
       if (cf.end - cf.start > 0 && !groupedDots[cf.code]?.length) {
@@ -116,19 +88,16 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
       }
     }
 
-    return { groupedDots, nRings, dotSize, dividers, catMidFracs };
+    return { groupedDots, nRings, dotSize, cumFracs };
   }, [segments]);
 
   const totalSeats = segments.reduce((s, seg) => s + seg.seats, 0);
   if (totalSeats === 0) return null;
 
   const outerR = INNER_R + RING_GAP * (nRings - 1);
-  const markerInner = INNER_R * 0.88;
-  const markerOuter = outerR + 10;
-  const labelR = outerR + 26;
-  const tickR = outerR + 14;
+  const labelR = outerR + 18;
 
-  const VB_W = (outerR + 40) * 2;
+  const VB_W = (outerR + 44) * 2;
   const oy = outerR + 52;
   const VB_H = oy + 22;
   const ox = VB_W / 2;
@@ -136,7 +105,6 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
   const factorLabel = FACTOR_LABELS[factor] ?? factor;
   const minVal = segments[0]?.fVal ?? 0;
   const maxVal = segments[segments.length - 1]?.fVal ?? 1;
-  // Show global anchor endpoints if provided, otherwise show scenario range
   const arcMinLabel = globalRange ? globalRange[0].toFixed(2) : minVal.toFixed(2);
   const arcMaxLabel = globalRange ? globalRange[1].toFixed(2) : maxVal.toFixed(2);
 
@@ -148,7 +116,7 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
         aria-label={`Parliament chart ordered by ${factorLabel}`}
       >
         <g transform={`translate(${ox},${oy})`}>
-          {/* Seat dots grouped by party — hover dims non-selected */}
+          {/* Seat dots grouped by party */}
           {Object.entries(groupedDots).map(([code, positions]) => (
             <g
               key={code}
@@ -169,44 +137,25 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
             </g>
           ))}
 
-          {/* Category divider lines + value labels */}
-          {dividers.map(({ arcFrac, value }, i) => {
-            const angle = Math.PI - arcFrac * Math.PI;
-            const cos = Math.cos(angle), sin = Math.sin(angle);
-            return (
-              <g key={i}>
-                <line
-                  x1={markerInner * cos} y1={-markerInner * sin}
-                  x2={markerOuter * cos} y2={-markerOuter * sin}
-                  stroke="#94a3b8" strokeWidth={1.2} strokeDasharray="4 3"
-                />
-                <text
-                  x={tickR * cos} y={-tickR * sin}
-                  textAnchor="middle" dominantBaseline="middle"
-                  fontSize={6.5} fill="#94a3b8"
-                >
-                  {value.toFixed(2)}
-                </text>
-              </g>
-            );
+          {/* Category divider lines */}
+          {DIV_FRACS.map((df, i) => {
+            const angle = Math.PI - df * Math.PI;
+            const x1 = (INNER_R - 8) * Math.cos(angle);
+            const y1 = -(INNER_R - 8) * Math.sin(angle);
+            const x2 = (outerR + 6) * Math.cos(angle);
+            const y2 = -(outerR + 6) * Math.sin(angle);
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#cbd5e1" strokeWidth={0.8} />;
           })}
 
-          {/* Category labels — only for zones with seats */}
-          {catMidFracs.map(({ label, midFrac }) => {
-            const angle = Math.PI - midFrac * Math.PI;
+          {/* Zone labels */}
+          {MID_FRACS.map((mf, i) => {
+            const angle = Math.PI - mf * Math.PI;
             const lx = labelR * Math.cos(angle);
             const ly = -labelR * Math.sin(angle);
-            const rotDeg = (angle - Math.PI / 2) * (180 / Math.PI);
+            const anchor = i === 0 ? 'end' : i === 4 ? 'start' : 'middle';
             return (
-              <text
-                key={label}
-                x={lx} y={ly}
-                textAnchor="middle" dominantBaseline="middle"
-                fontSize={Math.max(6, dotSize * 1.0)}
-                fontWeight={600} fill="#64748b"
-                transform={`rotate(${rotDeg.toFixed(1)},${lx.toFixed(1)},${ly.toFixed(1)})`}
-              >
-                {label}
+              <text key={i} x={lx} y={ly} textAnchor={anchor} fontSize={7} fill="#94a3b8">
+                {CAT_LABELS[i]}
               </text>
             );
           })}
@@ -222,7 +171,7 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
         </text>
       </svg>
 
-      {/* Legend — ordered left to right matching the arc */}
+      {/* Legend */}
       <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2 px-1 justify-center">
         {segments.map(s => (
           <div
