@@ -291,12 +291,18 @@ function FactorDotRow({
         {/* Tier labels */}
         {!isPercentile ? (
           <>
-            {/* Zone background shading */}
+            {/* Zone background shading — intensity increases outward */}
+            {/* Centrist */}
             <rect x={`${fvToPct(-0.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(0.5) - fvToPct(-0.5)}%`} height={20} fill="#f1f5f9" rx={3} />
-            <rect x={`${fvToPct(0.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(1.0) - fvToPct(0.5)}%`} height={20} fill="#fef2f2" opacity={0.5} rx={2} />
-            <rect x={`${fvToPct(1.0)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(1.5) - fvToPct(1.0)}%`} height={20} fill="#fecaca" opacity={0.3} rx={2} />
-            <rect x={`${fvToPct(-1.0)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-0.5) - fvToPct(-1.0)}%`} height={20} fill="#eff6ff" opacity={0.5} rx={2} />
-            <rect x={`${fvToPct(-1.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-1.0) - fvToPct(-1.5)}%`} height={20} fill="#bfdbfe" opacity={0.3} rx={2} />
+            {/* Leans */}
+            <rect x={`${fvToPct(0.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(1.0) - fvToPct(0.5)}%`} height={20} fill="#fecaca" opacity={0.25} rx={2} />
+            <rect x={`${fvToPct(-1.0)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-0.5) - fvToPct(-1.0)}%`} height={20} fill="#bfdbfe" opacity={0.25} rx={2} />
+            {/* Moderately */}
+            <rect x={`${fvToPct(1.0)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(1.5) - fvToPct(1.0)}%`} height={20} fill="#fca5a5" opacity={0.35} rx={2} />
+            <rect x={`${fvToPct(-1.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-1.0) - fvToPct(-1.5)}%`} height={20} fill="#93c5fd" opacity={0.35} rx={2} />
+            {/* Strongly */}
+            <rect x={`${fvToPct(1.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(FACTOR_MAX) - fvToPct(1.5)}%`} height={20} fill="#f87171" opacity={0.3} rx={2} />
+            <rect x={`${fvToPct(FACTOR_MIN)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-1.5) - fvToPct(FACTOR_MIN)}%`} height={20} fill="#60a5fa" opacity={0.3} rx={2} />
             {/* Zone labels at zone CENTERS */}
             <text x={`${fvToPct(-1.75)}%`}  y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Strongly</text>
             <text x={`${fvToPct(-1.25)}%`}  y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Moderately</text>
