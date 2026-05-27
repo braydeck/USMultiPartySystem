@@ -6,7 +6,7 @@ import type { PrimaryStateWinner } from '../../types';
 const GEO_URL = './topojson/states-10m.json';
 
 const STAGE_PODS: Record<string, Set<string>> = {
-  After_Retail_Six: new Set(['Retail']),
+  After_Retail:     new Set(['Retail']),
   After_Pod_A:      new Set(['Retail', 'A']),
   After_Pod_C:      new Set(['Retail', 'A', 'C']),
   After_Pod_BD:     new Set(['Retail', 'A', 'B', 'C', 'D']),

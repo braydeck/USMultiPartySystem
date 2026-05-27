@@ -53,7 +53,15 @@ const F5_ORDER = [
 
 function f5Rank(label: string): number {
   const idx = F5_ORDER.indexOf(label);
-  return idx === -1 ? 99 : idx;
+  if (idx !== -1) return idx;
+  // Raw Multi: "CON_1" → extract party prefix, sub-sort by suffix
+  const parts = label.split('_');
+  const partyIdx = F5_ORDER.indexOf(parts[0]);
+  if (partyIdx !== -1) {
+    const suffix = parseInt(parts[1] || '0', 10) || 0;
+    return partyIdx + suffix * 0.1;
+  }
+  return 99;
 }
 
 // ── Tooltip state type ──────────────────────────────────────────────────────

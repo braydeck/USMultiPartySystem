@@ -3348,7 +3348,7 @@ def build_pure_multi_primary_sankey():
     elim_stages   = [s for s in all_stages if s != initial_stage]
     n_stages      = len(elim_stages)
 
-    # Build per-stage candidate data {stage_idx: {code: {pct, status}}}
+    # Build per-stage candidate data {stage_idx: {code: {pct, status, vote_total}}}
     stage_to_idx = {s: i for i, s in enumerate([initial_stage] + elim_stages)}
     candidates_at = {i: {} for i in range(len(all_stages))}
 
@@ -3356,10 +3356,11 @@ def build_pure_multi_primary_sankey():
         stage   = r.get("winnowing_point", r.get("stage", ""))
         code    = r.get("candidate_code", r.get("candidate", ""))
         pct     = float(r.get("vote_pct", r.get("vote_share", 0)) or 0)
+        vtotal  = float(r.get("vote_total", 0) or 0)
         status  = r.get("status", "surviving")
         idx     = stage_to_idx.get(stage)
         if idx is not None:
-            candidates_at[idx][code] = {"pct": pct, "status": status}
+            candidates_at[idx][code] = {"pct": pct, "status": status, "vote_total": vtotal}
 
     # Build transfer flows per stage {stage_idx: {from_code: [(to_code, votes, type)]}}
     transfers_at = {i: defaultdict(list) for i in range(1, len(all_stages))}
@@ -3407,6 +3408,27 @@ def build_pure_multi_primary_sankey():
         if src in node_ids and tgt in node_ids and val > 0.005:
             links.append({"source": src, "target": tgt, "value": round(val, 3), "type": xtype})
 
+    def _resolve_dest(code, stage_xfers, surviving, visited=None):
+        """Follow elimination chains to find surviving final destinations.
+        Returns {surviving_code: fraction_of_input} (fractions sum to <= 1.0)."""
+        if visited is None:
+            visited = set()
+        if code in surviving:
+            return {code: 1.0}
+        if code in visited:
+            return {}
+        visited.add(code)
+        flows = stage_xfers.get(code, [])
+        total = sum(v for _, v, _ in flows)
+        if total <= 0:
+            return {}  # exhausted
+        result = {}
+        for next_dest, vol, _ in flows:
+            sub = _resolve_dest(next_dest, stage_xfers, surviving, set(visited))
+            for k, v in sub.items():
+                result[k] = result.get(k, 0) + (vol / total) * v
+        return result
+
     # Build links between stages
     for stage_idx in range(1, len(all_stages)):
         prev = candidates_at[stage_idx - 1]
@@ -3414,39 +3436,55 @@ def build_pure_multi_primary_sankey():
                      if info["status"] in ("surviving", "elected", "active")}
         xfers = transfers_at[stage_idx]
 
-        # Total transferred per eliminated candidate (for percentage computation)
-        elim_totals = {}
-        for e_code, flows in xfers.items():
-            elim_totals[e_code] = sum(v for _, v, _ in flows) or 1.0
-
         for code, info in prev.items():
-            if info["status"] not in ("surviving", "elected", "active"):
-                continue
+            if info["pct"] <= 0:
+                continue  # skip zero-vote candidates (e.g. _2/_3 at Initial_Slate)
             src_id  = f"{code}__{stage_idx - 1}"
             src_pct = info["pct"]
 
             if code in curr_surv:
-                # Survivor: continuation link + any surplus transfers out
+                # Survivor: continuation link + surplus transfers out
                 surplus_flows = [(d, v, t) for d, v, t in xfers.get(code, []) if t == "surplus"]
-                surplus_total = sum(v for _, v, _ in surplus_flows)
-                elim_total    = elim_totals.get(code, 1.0)
-                surplus_pct   = (surplus_total / elim_total * src_pct) if surplus_flows else 0
+                if not surplus_flows:
+                    add_link(src_id, f"{code}__{stage_idx}", src_pct, "continuation")
+                else:
+                    surplus_total = sum(v for _, v, _ in surplus_flows)
+                    source_votes = info.get("vote_total", 0) or surplus_total
+                    effective = max(surplus_total, source_votes)
+                    surplus_frac = surplus_total / effective
 
-                add_link(src_id, f"{code}__{stage_idx}", src_pct - surplus_pct, "continuation")
-                for dest, vol, _ in surplus_flows:
-                    frac = vol / elim_total * src_pct
-                    add_link(src_id, f"{dest}__{stage_idx}", frac, "surplus")
+                    add_link(src_id, f"{code}__{stage_idx}",
+                             src_pct * (1.0 - surplus_frac), "continuation")
+                    leaked = 0.0
+                    for dest, vol, _ in surplus_flows:
+                        link_val = src_pct * vol / effective
+                        if dest in curr_surv:
+                            add_link(src_id, f"{dest}__{stage_idx}", link_val, "surplus")
+                        else:
+                            # Trace through elimination chain to surviving destinations
+                            resolved = _resolve_dest(dest, xfers, curr_surv)
+                            for final, rfrac in resolved.items():
+                                add_link(src_id, f"{final}__{stage_idx}",
+                                         link_val * rfrac, "surplus")
+                            leaked += link_val * (1.0 - sum(resolved.values()))
+                    if leaked > 0.01:
+                        add_link(src_id, f"exhausted__{stage_idx}", leaked, "exhausted")
             else:
-                # Eliminated: distribute to destinations
+                # Eliminated: distribute to destinations, resolving chains
                 flows = xfers.get(code, [])
-                elim_total = elim_totals.get(code, 1.0)
-                accounted = 0
+                total_out = sum(v for _, v, _ in flows) or 1.0
+                accounted = 0.0
                 for dest, vol, xtype in flows:
-                    frac = vol / elim_total * src_pct
-                    tgt = f"{dest}__{stage_idx}"
-                    if tgt in node_ids:
-                        add_link(src_id, tgt, frac, "elimination")
+                    frac = vol / total_out * src_pct
+                    if dest in curr_surv:
+                        add_link(src_id, f"{dest}__{stage_idx}", frac, "elimination")
                         accounted += frac
+                    else:
+                        resolved = _resolve_dest(dest, xfers, curr_surv)
+                        for final, rfrac in resolved.items():
+                            add_link(src_id, f"{final}__{stage_idx}",
+                                     frac * rfrac, "elimination")
+                            accounted += frac * rfrac
                 remaining = src_pct - accounted
                 if remaining > 0.01:
                     add_link(src_id, f"exhausted__{stage_idx}", remaining, "exhausted")
@@ -3463,7 +3501,296 @@ def build_pure_multi_primary_sankey():
     write_json({"stageLabels": stage_labels, "nodes": nodes, "links": links}, "pureMultiPrimarySankey.json")
 
 
+# ---------- pureMultiPrimaryBuckets.json ----------
+def build_pure_multi_primary_buckets():
+    """Per-stage bucket composition: for each winner, where did their quota come from?"""
+    results_rows = read_csv(PURE_MULTI_DIR / "primary_results_2028.csv")
+    diag_rows    = read_csv(PURE_MULTI_DIR / "primary_diagnostics_2028.csv")
+
+    # Parse results by stage
+    by_stage = defaultdict(dict)   # stage → {code: {pct, vote_total, status, party}}
+    all_stages = []
+    for r in results_rows:
+        stage = r.get("winnowing_point", "")
+        code  = r.get("candidate_code", "")
+        if stage and stage not in all_stages:
+            all_stages.append(stage)
+        by_stage[stage][code] = {
+            "pct":    float(r.get("vote_pct", 0) or 0),
+            "vtotal": float(r.get("vote_total", 0) or 0),
+            "status": r.get("status", ""),
+            "party":  r.get("party_code", code.rsplit("_", 1)[0]),
+            "quota":  float(r.get("quota_threshold", 0) or 0),
+        }
+
+    initial_stage = all_stages[0]  # Initial_Slate
+    elim_stages   = [s for s in all_stages if s != initial_stage]
+    pool = sum(v["vtotal"] for v in by_stage[initial_stage].values())
+
+    # Parse diagnostics: incoming transfers per (stage, dest)
+    xfer_incoming = defaultdict(lambda: defaultdict(float))   # (stage, dest) → {src_party: votes}
+    xfer_outgoing = defaultdict(lambda: defaultdict(float))   # (stage, src) → {dest_code: votes}
+    for d in diag_rows:
+        stage = d.get("winnowing_point", "")
+        src   = d.get("eliminated_code", "")
+        dest  = d.get("dest_code", "")
+        votes = float(d.get("transferred_votes", 0) or 0)
+        src_party = src.rsplit("_", 1)[0]
+        xfer_incoming[(stage, dest)][src_party] += votes
+        xfer_outgoing[(stage, src)][dest] += votes
+
+    stages_out = []
+    prev_stage = initial_stage
+
+    for stage in elim_stages:
+        stage_data = by_stage[stage]
+        prev_data  = by_stage[prev_stage]
+        quota_raw  = next((v["quota"] for v in stage_data.values() if v["quota"] > 0), 0)
+        quota_pct  = quota_raw / pool * 100 if pool > 0 else 0
+
+        winners   = []
+        eliminated = []
+
+        for code, info in sorted(stage_data.items(), key=lambda x: -x[1]["pct"]):
+            party   = info["party"]
+            entering = prev_data.get(code, {}).get("vtotal", 0)
+            entering_pct = entering / pool * 100 if pool > 0 else 0
+            inc = xfer_incoming.get((stage, code), {})
+
+            # Build source breakdown as list sorted by size
+            sources = []
+            for src_party, v in sorted(inc.items(), key=lambda x: -x[1]):
+                pct = v / pool * 100
+                if pct > 0.05:
+                    sources.append({"party": src_party, "pct": round(pct, 2)})
+
+            inc_total_pct = sum(s["pct"] for s in sources)
+            total_pct = entering_pct + inc_total_pct
+            overflow  = total_pct - quota_pct
+
+            if info["status"] in ("surviving", "elected") and info["pct"] > 0:
+                winners.append({
+                    "code":      code,
+                    "party":     party,
+                    "entering":  round(entering_pct, 2),
+                    "sources":   sources,
+                    "total":     round(total_pct, 2),
+                    "retained":  round(info["pct"], 2),
+                    "overflow":  round(max(overflow, 0), 2),
+                })
+            elif info["status"] == "eliminated_this_round":
+                # Where did this candidate's votes go?
+                out = xfer_outgoing.get((stage, code), {})
+                out_total = sum(out.values()) or 1.0
+                dests = []
+                for dest_code, v in sorted(out.items(), key=lambda x: -x[1]):
+                    pct = v / out_total * 100
+                    if pct > 1:
+                        dests.append({"code": dest_code, "pct": round(pct, 1)})
+                eliminated.append({
+                    "code":     code,
+                    "party":    party,
+                    "entering": round(entering_pct, 2),
+                    "sources":  sources,
+                    "total":    round(total_pct, 2),
+                    "dests":    dests,
+                })
+
+        label = stage.replace("_", " ").replace("After ", "")
+        n_entering = sum(1 for v in prev_data.values()
+                         if v["status"] in ("surviving", "elected") and v["pct"] > 0)
+        stages_out.append({
+            "name":       stage,
+            "label":      label,
+            "quota":      round(quota_pct, 2),
+            "nEntering":  n_entering,
+            "nWinners":   len(winners),
+            "winners":    winners,
+            "eliminated": eliminated,
+        })
+        prev_stage = stage
+
+    write_json({"pool": round(pool, 2), "stages": stages_out}, "pureMultiPrimaryBuckets.json")
+
+
 # ---------- pureMultiSenate*.json ----------
+# ---------- senateBuckets.json ----------
+def build_senate_buckets():
+    """Per-state and national-average bucket compositions for senate finalists."""
+    bucket_rows  = read_csv(PURE_MULTI_DIR / "senate" / "senate_stv_buckets.csv")
+    cond_rows    = read_csv(PURE_MULTI_DIR / "senate" / "senate_composition.csv")
+    irv_rows     = read_csv(PURE_MULTI_DIR / "senate" / "senate_irv_composition.csv")
+
+    # Winner lookups: {fips: winner_code}
+    cond_winner = {r["state_fips"].zfill(2): r["senator_code"] for r in cond_rows}
+    irv_winner  = {r["state_fips"].zfill(2): r["senator_code"]  for r in irv_rows}
+
+    PARTIES = ["CON", "CTR", "DSA", "LIB", "NAT", "PRG", "REF", "SD", "STY"]
+
+    # Build per-state finalist bucket data
+    states = {}  # fips → {finalists: [...], condWinner, irvWinner}
+    for r in bucket_rows:
+        fips  = r["state_fips"].zfill(2)
+        code  = r["finalist_code"]
+        party = r["finalist_party"]
+        fc    = float(r.get("first_choice_pct", 0) or 0)
+        sources = []
+        for p in PARTIES:
+            val = float(r.get(f"inc_{p}", 0) or 0)
+            if val > 0.05:
+                sources.append({"party": p, "pct": round(val, 2)})
+        sources.sort(key=lambda s: -s["pct"])
+
+        if fips not in states:
+            abbr = r.get("state_abbr", fips)
+            states[fips] = {
+                "fips": fips, "abbr": abbr,
+                "condWinner": cond_winner.get(fips, ""),
+                "irvWinner":  irv_winner.get(fips, ""),
+                "finalists": [],
+            }
+        states[fips]["finalists"].append({
+            "code": code, "party": party,
+            "firstChoice": round(fc, 2),
+            "sources": sources,
+            "total": round(fc + sum(s["pct"] for s in sources), 2),
+        })
+
+    # Sort finalists by total descending within each state
+    for st in states.values():
+        st["finalists"].sort(key=lambda f: -f["total"])
+
+    # Build national averages: for each winning party, average the bucket composition
+    # across all states where that party's candidate wins (Condorcet)
+    from collections import defaultdict as _dd
+    party_buckets = _dd(lambda: {"fc_sum": 0.0, "inc_sums": _dd(float), "count": 0})
+    for fips, st in states.items():
+        winner_code = st["condWinner"]
+        if not winner_code:
+            continue
+        winner_party = winner_code.split("_")[0]
+        # Find the winner's finalist entry
+        winner_fin = next((f for f in st["finalists"] if f["code"] == winner_code), None)
+        if not winner_fin:
+            continue
+        pb = party_buckets[winner_party]
+        pb["count"] += 1
+        pb["fc_sum"] += winner_fin["firstChoice"]
+        for s in winner_fin["sources"]:
+            pb["inc_sums"][s["party"]] += s["pct"]
+
+    averages = []
+    for party in PARTIES:
+        pb = party_buckets.get(party)
+        if not pb or pb["count"] == 0:
+            continue
+        n = pb["count"]
+        avg_sources = []
+        for p, total in sorted(pb["inc_sums"].items(), key=lambda x: -x[1]):
+            avg = total / n
+            if avg > 0.1:
+                avg_sources.append({"party": p, "pct": round(avg, 2)})
+        avg_fc = round(pb["fc_sum"] / n, 2)
+        averages.append({
+            "party": party,
+            "seats": n,
+            "avgFirstChoice": avg_fc,
+            "avgSources": avg_sources,
+            "avgTotal": round(avg_fc + sum(s["pct"] for s in avg_sources), 2),
+        })
+    averages.sort(key=lambda a: -a["seats"])
+
+    write_json({
+        "states": states,
+        "averages": averages,
+    }, "senateBuckets.json")
+
+
+# ---------- senateCondorcet.json ----------
+def build_senate_condorcet():
+    """National-average Condorcet matrix + per-state matchups for senate finalists."""
+    cond_rows = read_csv(PURE_MULTI_DIR / "senate" / "senate_condorcet_results.csv")
+
+    PARTIES = ["PRG", "LIB", "DSA", "SD", "STY", "CTR", "CON", "REF", "NAT"]
+
+    # Per-state matchups (for drill-down)
+    states = {}
+    for r in cond_rows:
+        fips = r["state_fips"].zfill(2)
+        if fips not in states:
+            states[fips] = {
+                "abbr": r["state_abbr"],
+                "winner": r.get("rp_winner_overall", ""),
+                "matchups": [],
+            }
+        a_votes = float(r.get("votes_a_beats_b", 0))
+        b_votes = float(r.get("votes_b_beats_a", 0))
+        total = a_votes + b_votes
+        states[fips]["matchups"].append({
+            "candidateA": r["candidate_a"],
+            "candidateB": r["candidate_b"],
+            "aWinsPct": round(a_votes / total, 4) if total else 0.5,
+            "margin": round(float(r.get("margin_pct", 0)), 2),
+            "winner": r["candidate_a"] if a_votes > b_votes else r["candidate_b"],
+        })
+
+    # National aggregation at party level
+    pair_data = {}  # (partyA, partyB) → {a_wins, total, margin_sum}
+    for r in cond_rows:
+        pa = r["candidate_a"].rsplit("_", 1)[0]
+        pb = r["candidate_b"].rsplit("_", 1)[0]
+        if pa == pb:
+            continue
+        a_votes = float(r.get("votes_a_beats_b", 0))
+        b_votes = float(r.get("votes_b_beats_a", 0))
+        margin  = float(r.get("margin_pct", 0))
+        # Normalize so party pair key is always alphabetically ordered
+        if pa > pb:
+            pa, pb = pb, pa
+            a_votes, b_votes = b_votes, a_votes
+            margin = -margin
+        key = f"{pa}|{pb}"
+        if key not in pair_data:
+            pair_data[key] = {"a_wins": 0, "total": 0, "margin_sum": 0.0}
+        pd_entry = pair_data[key]
+        pd_entry["total"] += 1
+        pd_entry["margin_sum"] += margin
+        if a_votes > b_votes:
+            pd_entry["a_wins"] += 1
+
+    # Build matrix as {rowParty: {colParty: {winRate, avgMargin, n}}}
+    matrix = {}
+    for key, pd_entry in pair_data.items():
+        pa, pb = key.split("|")
+        n = pd_entry["total"]
+        if n == 0:
+            continue
+        a_wr = pd_entry["a_wins"] / n
+        avg_m = pd_entry["margin_sum"] / n
+        if pa not in matrix:
+            matrix[pa] = {}
+        if pb not in matrix:
+            matrix[pb] = {}
+        matrix[pa][pb] = {"winRate": round(a_wr, 3), "avgMargin": round(avg_m, 1), "n": n}
+        matrix[pb][pa] = {"winRate": round(1 - a_wr, 3), "avgMargin": round(-avg_m, 1), "n": n}
+
+    # Determine overall Condorcet winner (party with highest avg win rate)
+    party_wr = {}
+    for p in PARTIES:
+        if p not in matrix:
+            continue
+        rates = [v["winRate"] for v in matrix[p].values()]
+        party_wr[p] = sum(rates) / len(rates) if rates else 0
+    overall_winner = max(party_wr, key=party_wr.get) if party_wr else ""
+
+    write_json({
+        "parties": PARTIES,
+        "matrix": matrix,
+        "overallWinner": overall_winner,
+        "states": states,
+    }, "senateCondorcet.json")
+
+
 def build_pure_multi_senate():
     """Pure multi senate compositions. senator_code is 'PARTY_N'; party from senator_party col."""
     def _extract(rows):
@@ -3669,7 +3996,10 @@ if __name__ == "__main__":
     build_fd_profiles()
     build_pure_multi_primary()
     build_pure_multi_primary_sankey()
+    build_pure_multi_primary_buckets()
     build_pure_multi_senate()
+    build_senate_buckets()
+    build_senate_condorcet()
     build_raw_multi_presidential_election()
     build_house_seats_gauss()
     build_fptp_disproportionality()

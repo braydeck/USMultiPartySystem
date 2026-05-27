@@ -222,13 +222,24 @@ def droop_quota(total_votes: float, n_survivors: int) -> float:
 
 
 def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
-               active_set: set, target: int) -> set:
-    """Gregory STV → returns finalist set."""
+               active_set: set, target: int):
+    """Gregory STV → returns (finalist_set, first_choice_totals, transfer_records).
+
+    transfer_records: list of (from_idx, dest_idx, votes, type) tuples
+    first_choice_totals: {candidate_idx: initial_first_choice_votes}
+    """
+    from collections import defaultdict
+
     active      = set(active_set)
     ballot_wts  = weights.astype(float).copy()
     total_votes = float(weights.sum())
     quota       = droop_quota(total_votes, target)
     elected: list = []
+    transfers: list = []  # (from_idx, dest_idx, votes, "surplus"|"elimination")
+
+    # Record initial first-choice totals
+    fsc0 = first_surviving_choice(ballots_arr, active)
+    first_choice = compute_vote_totals(fsc0, ballot_wts, active)
 
     while len(elected) < target and active:
         remaining = target - len(elected)
@@ -247,16 +258,56 @@ def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
         if over_quota:
             winner         = over_quota[0]
             surplus_factor = (totals[winner] - quota) / totals[winner]
+            # Track where surplus goes
+            temp_active = active - {winner}
+            xfer_dest = defaultdict(float)
             for i in range(len(fsc)):
                 if fsc[i] == winner:
+                    surplus_wt = ballot_wts[i] * surplus_factor
+                    for j in range(ballots_arr.shape[1]):
+                        c = ballots_arr[i, j]
+                        if c in temp_active:
+                            xfer_dest[c] += surplus_wt
+                            break
                     ballot_wts[i] *= surplus_factor
+            for dest, vol in xfer_dest.items():
+                transfers.append((winner, dest, vol, "surplus"))
             active.discard(winner)
             elected.append(winner)
         else:
             loser = min(active, key=lambda c: (totals[c], c))
+            # Track where elimination goes
+            xfer_dest = defaultdict(float)
+            for i in range(len(fsc)):
+                if fsc[i] == loser:
+                    for j in range(ballots_arr.shape[1]):
+                        c = ballots_arr[i, j]
+                        if c in active and c != loser:
+                            xfer_dest[c] += ballot_wts[i]
+                            break
+            for dest, vol in xfer_dest.items():
+                transfers.append((loser, dest, vol, "elimination"))
             active.discard(loser)
 
-    return set(elected)
+    # Handle leftovers (elected by default at end)
+    leftover = active - set(elected)
+    for left in leftover:
+        xfer_dest = defaultdict(float)
+        for i in range(len(ballots_arr)):
+            found_left = False
+            for j in range(ballots_arr.shape[1]):
+                c = ballots_arr[i, j]
+                if c == left:
+                    found_left = True
+                elif found_left and c in set(elected):
+                    xfer_dest[c] += ballot_wts[i]
+                    break
+                elif c in set(elected):
+                    break
+        for dest, vol in xfer_dest.items():
+            transfers.append((left, dest, vol, "elimination"))
+
+    return set(elected), first_choice, transfers
 
 
 # ── Condorcet (Ranked Pairs) ──────────────────────────────────────────────────
@@ -418,6 +469,7 @@ def main():
     all_condorcet:  list = []
     comp_rows_cond: list = []
     comp_rows_irv:  list = []
+    all_bucket_rows: list = []  # per-state STV bucket compositions
 
     all_condorcet_prob:  list = []
     comp_rows_cond_prob: list = []
@@ -458,8 +510,33 @@ def main():
 
         # STV → finalists
         n_survivors = min(STV_SURVIVORS, n_cands)
-        finalists     = winnow_stv(state_ballots, state_weights, set(cand_codes), n_survivors)
+        finalists, fc_totals, stv_transfers = winnow_stv(
+            state_ballots, state_weights, set(cand_codes), n_survivors)
         finalist_list = sorted(finalists)
+
+        # Build bucket composition for each finalist
+        total_w = float(state_weights.sum())
+        if total_w > 0:
+            # Accumulate incoming transfers per finalist by source party
+            from collections import defaultdict as _dd
+            incoming_by_finalist = {f: _dd(float) for f in finalist_list}
+            for src, dest, vol, xtype in stv_transfers:
+                if dest in incoming_by_finalist:
+                    src_party = party_of(dest) if dest == src else party_of(src)
+                    # Only count cross-party or within-party-from-other-candidate
+                    incoming_by_finalist[dest][party_of(src)] += vol
+            for fcode in finalist_list:
+                fc = fc_totals.get(fcode, 0.0)
+                inc = dict(incoming_by_finalist.get(fcode, {}))
+                all_bucket_rows.append({
+                    "state_fips": int(state_fips),
+                    "state_abbr": state_abbr,
+                    "finalist_code": fcode,
+                    "finalist_party": party_of(fcode),
+                    "first_choice_pct": round(fc / total_w * 100, 2),
+                    **{f"inc_{p}": round(v / total_w * 100, 2)
+                       for p, v in inc.items() if v > 0.005 * total_w},
+                })
 
         # Ranked Pairs
         if len(finalist_list) < 2:
@@ -491,7 +568,7 @@ def main():
         prob_scores        = compute_candidate_scores_prob(state_prob_matrix, candidates)
         prob_ballots       = generate_ballots(prob_scores, rng_prob, candidates)
 
-        prob_finalists     = winnow_stv(prob_ballots, state_weights, set(cand_codes), n_survivors)
+        prob_finalists, _, _ = winnow_stv(prob_ballots, state_weights, set(cand_codes), n_survivors)
         prob_finalist_list = sorted(prob_finalists)
 
         if len(prob_finalist_list) < 2:
@@ -536,6 +613,11 @@ def main():
 
     cond_df_primary.to_csv(OUTPUT_DIR / "senate_composition.csv", index=False)
     irv_df_primary.to_csv(OUTPUT_DIR / "senate_irv_composition.csv", index=False)
+
+    # STV bucket compositions
+    bucket_df = pd.DataFrame(all_bucket_rows).fillna(0)
+    bucket_df.to_csv(OUTPUT_DIR / "senate_stv_buckets.csv", index=False)
+    print(f"  senate_stv_buckets.csv  ({len(bucket_df)} rows)")
     print(f"  senate_composition.csv:              {len(cond_df_primary)} rows")
     print(f"  senate_irv_composition.csv:          {len(irv_df_primary)} rows")
 

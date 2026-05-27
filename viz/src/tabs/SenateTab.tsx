@@ -9,6 +9,8 @@ import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { PARTY_COLORS, FACTOR_LABELS, PARTY_NAMES, F5_ORDER, getBlendColor } from '../constants/parties';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
+import SenateBuckets from '../components/senate/SenateBuckets';
+import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
@@ -25,6 +27,10 @@ interface Props {
   houseTransfers: { source: string; totalVoters: number; destinations: { party: string; pct: number }[] }[];
   fdVariantAttraction: { variant: string; party: string; axis: string; direction: string; totalVoters: number; homePct: number; crossPct: number; sources: { party: string; pct: number }[] }[];
   fdAttractionDrivers: { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  senateBuckets: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  senateCondorcet: any;
 }
 
 function SenateCompBar({ label, seats, segments, total: totalOverride }: {
@@ -70,7 +76,8 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
 
 export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
                              voteModel, clusters, fdProfiles, clusterSpreads,
-                             houseTransfers, fdVariantAttraction, fdAttractionDrivers }: Props) {
+                             houseTransfers, fdVariantAttraction, fdAttractionDrivers,
+                             senateBuckets, senateCondorcet }: Props) {
   const [pipeline, setPipeline] = useState<'factorDev' | 'rawMulti'>('rawMulti');
   const [method, setMethod] = useState<'condorcet' | 'irv'>('condorcet');
   const [parliamentFactor, setParliamentFactor] = useState('F5');
@@ -194,8 +201,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex flex-col gap-1">
+      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-slate-100 -mx-4 px-4 py-2 flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400 uppercase tracking-widest">Scenario</span>
           <div className="flex gap-1">
             {(['rawMulti', 'factorDev'] as const).map(p => (
@@ -208,7 +215,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400 uppercase tracking-widest">Method</span>
           <div className="flex gap-1">
             {(['condorcet', 'irv'] as const).map(m => (
@@ -277,8 +284,34 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         <SenateMap seats={activeSeats} />
       </div>
 
-      {/* Nine-Party Profiles */}
-      <PartyProfileGrid clusters={orderedClusters} />
+      {/* Senate Coalition Composition — how winners fill their quota */}
+      {pipeline === 'rawMulti' && senateBuckets && (
+        <div className="bg-white rounded-xl p-4 border border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            How Senators Build Their Coalition
+          </h3>
+          <p className="text-xs text-slate-500 mb-3">
+            Each bar shows where a senator&apos;s votes came from during STV winnowing.
+            Darkest = own first-choice supporters. Other colors = transfers from eliminated parties.
+            Select a state to see the full finalist breakdown.
+          </p>
+          <SenateBuckets data={senateBuckets} method={method} />
+        </div>
+      )}
+
+      {/* Senate Condorcet Matrix */}
+      {pipeline === 'rawMulti' && senateCondorcet && (
+        <div className="bg-white rounded-xl p-4 border border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            Head-to-Head Matrix (Condorcet)
+          </h3>
+          <p className="text-xs text-slate-500 mb-3">
+            National average shows how often each party beats every other in head-to-head matchups across all 51 state races.
+            Select a state to see actual margins for that race&apos;s 5 finalists.
+          </p>
+          <SenateCondorcetView data={senateCondorcet} />
+        </div>
+      )}
 
       {/* Ideological Constellation */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">
@@ -288,18 +321,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
       </div>
 
-      {/* Vote Transfer Destinations */}
-      {houseTransfers.length > 0 && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
-            Vote Transfer Destinations
-          </h3>
-          <p className="text-xs text-slate-500 mb-4">
-            When a party is eliminated in STV/IRV, where do their voters&apos; ballots flow?
-          </p>
-          <TransferFlowChart data={houseTransfers} />
-        </div>
-      )}
+      {/* Nine-Party Profiles */}
+      <PartyProfileGrid clusters={orderedClusters} />
 
       {/* Senate Vote Model */}
       <div className="bg-white rounded-xl p-4 border border-slate-200">

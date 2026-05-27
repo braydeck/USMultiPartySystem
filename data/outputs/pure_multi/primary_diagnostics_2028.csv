@@ -136,6 +136,9 @@ After_Pod_A,SD_2,SD_2,NAT_1,NAT_1,26.8,surplus
 After_Pod_A,CON_2,CON_2,NAT_1,NAT_1,155.89,surplus
 After_Pod_A,CON_2,CON_2,DSA_1,DSA_1,40.87,surplus
 After_Pod_A,NAT_1,NAT_1,DSA_1,DSA_1,147.65,surplus
+After_Pod_A,DSA_1,DSA_1,SD_1,SD_1,1922.54,elimination
+After_Pod_A,DSA_1,DSA_1,LIB_1,LIB_1,948.83,elimination
+After_Pod_A,DSA_1,DSA_1,STY_1,STY_1,548.79,elimination
 After_Pod_C,SD_1,SD_1,SD_2,SD_2,2162.4,surplus
 After_Pod_C,SD_1,SD_1,STY_1,STY_1,515.38,surplus
 After_Pod_C,SD_1,SD_1,LIB_1,LIB_1,443.37,surplus
@@ -169,6 +172,10 @@ After_Pod_C,REF_1,REF_1,NAT_1,NAT_1,31.58,surplus
 After_Pod_C,CON_2,CON_2,SD_2,SD_2,1366.37,elimination
 After_Pod_C,CON_2,CON_2,NAT_1,NAT_1,1165.49,elimination
 After_Pod_C,SD_2,SD_2,NAT_1,NAT_1,253.92,surplus
+After_Pod_C,NAT_1,NAT_1,CON_1,CON_1,2334.59,elimination
+After_Pod_C,NAT_1,NAT_1,REF_1,REF_1,1451.0,elimination
+After_Pod_C,NAT_1,NAT_1,CTR_1,CTR_1,184.36,elimination
+After_Pod_C,NAT_1,NAT_1,STY_1,STY_1,6.61,elimination
 After_Pod_BD,CON_1,CON_1,REF_1,REF_1,1732.34,surplus
 After_Pod_BD,CON_1,CON_1,CTR_1,CTR_1,1132.95,surplus
 After_Pod_BD,CON_1,CON_1,STY_1,STY_1,496.5,surplus
@@ -189,3 +196,8 @@ After_Pod_BD,REF_1,REF_1,LIB_1,LIB_1,84.62,surplus
 After_Pod_BD,SD_2,SD_2,LIB_1,LIB_1,975.28,elimination
 After_Pod_BD,SD_2,SD_2,CTR_1,CTR_1,585.7,elimination
 After_Pod_BD,LIB_1,LIB_1,CTR_1,CTR_1,334.75,surplus
+After_Pod_BD,CTR_1,CTR_1,CON_1,CON_1,2105.93,elimination
+After_Pod_BD,CTR_1,CTR_1,STY_1,STY_1,1021.73,elimination
+After_Pod_BD,CTR_1,CTR_1,SD_1,SD_1,876.84,elimination
+After_Pod_BD,CTR_1,CTR_1,REF_1,REF_1,660.04,elimination
+After_Pod_BD,CTR_1,CTR_1,LIB_1,LIB_1,435.21,elimination

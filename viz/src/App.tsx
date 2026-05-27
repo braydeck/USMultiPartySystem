@@ -24,6 +24,8 @@ import fdSenateCondorcetData from './data/fdSenateCondorcet.json';
 import fdSenateIRVData from './data/fdSenateIRV.json';
 import pureMultiSenateCondorcetData from './data/pureMultiSenateCondorcet.json';
 import pureMultiSenateIRVData from './data/pureMultiSenateIRV.json';
+import senateBucketsData from './data/senateBuckets.json';
+import senateCondorcetData from './data/senateCondorcet.json';
 import fdHouseSeatsData from './data/fdHouseSeats.json';
 import fdPrimaryData from './data/fdPrimary.json';
 import fdPrimaryStateWinnersData from './data/fdPrimaryStateWinners.json';
@@ -34,6 +36,7 @@ import fdProfilesData from './data/fdProfiles.json';
 import pureMultiPrimaryData from './data/pureMultiPrimary.json';
 import pureMultiPrimaryStateWinnersData from './data/pureMultiPrimaryStateWinners.json';
 import pureMultiPrimarySankeyData from './data/pureMultiPrimarySankey.json';
+import pureMultiPrimaryBucketsData from './data/pureMultiPrimaryBuckets.json';
 import fptpDisproportionalityData from './data/fptpDisproportionality.json';
 import countyTiersData from './data/countyTiers.json';
 import districtStvResultsData from './data/districtStvResults.json';
@@ -64,7 +67,6 @@ const TABS = [
   { id: 'house',        label: 'House' },
   { id: 'rcv',          label: 'RCV Case Studies' },
   { id: 'legislation',  label: 'Legislation' },
-  { id: 'compare',      label: 'Compare' },
   { id: 'parties',      label: 'Parties' },
   { id: 'quiz',         label: 'Who Are You?' },
 ] as const;
@@ -76,12 +78,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
-      <header className="border-b border-slate-200 bg-white/90 backdrop-blur sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="text-xl font-bold text-slate-900">STV 2028</div>
-            <div className="text-sm text-slate-500">Proportional Democracy Simulation</div>
-          </div>
+      {/* Title — scrolls away */}
+      <div className="border-b border-slate-100 bg-white">
+        <div className="max-w-7xl mx-auto px-4 pt-3 pb-2 flex items-center gap-3">
+          <div className="text-xl font-bold text-slate-900">STV 2028</div>
+          <div className="text-sm text-slate-500">Proportional Democracy Simulation</div>
+        </div>
+      </div>
+      {/* Nav tabs — sticky */}
+      <header className="border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 py-1.5">
           <div className="relative">
             <nav className="flex gap-1 overflow-x-auto pb-px">
               {TABS.map(t => (
@@ -131,6 +137,7 @@ export default function App() {
             pureMulti={pureMultiPrimaryData as unknown as FDPrimaryData}
             pureMultiStateWinners={pureMultiPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
             pureMultiSankey={pureMultiPrimarySankeyData as unknown as PrimarySankeyData}
+            pureMultiBuckets={pureMultiPrimaryBucketsData}
             clusters={clusterProfilesData as ClusterProfile[]}
             clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
           />
@@ -157,6 +164,8 @@ export default function App() {
             houseTransfers={houseTransfersData as { source: string; totalVoters: number; destinations: { party: string; pct: number }[] }[]}
             fdVariantAttraction={fdVariantAttractionData as { variant: string; party: string; axis: string; direction: string; totalVoters: number; homePct: number; crossPct: number; sources: { party: string; pct: number }[] }[]}
             fdAttractionDrivers={fdAttractionDriversData as { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[]}
+            senateBuckets={senateBucketsData}
+            senateCondorcet={senateCondorcetData}
           />
         )}
         {tab === 'house' && (
@@ -195,16 +204,11 @@ export default function App() {
             rawMultiElection={rawMultiPresidentialElectionData as unknown as PresidentialElection}
           />
         )}
-        {tab === 'compare' && (
-          <CompareTab
-            clusters={clusterProfilesData as ClusterProfile[]}
-            fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
-          />
-        )}
         {tab === 'parties' && (
           <PartiesTab
             clusters={clusterProfilesData as ClusterProfile[]}
             clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
+            fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
           />
         )}
         {tab === 'quiz' && (

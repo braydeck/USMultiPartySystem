@@ -181,6 +181,33 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
 
     survivors = set(elected)
 
+    # Record transfers for implicitly eliminated leftovers (candidates still
+    # active but not elected when the loop exits — they were passed over)
+    leftover = active - set(elected)
+    for left in leftover:
+        transfer_targets = defaultdict(float)
+        for i in range(len(ballots)):
+            # Check if this voter ranks the leftover on their ballot
+            ranks_left = False
+            for j in range(ballots.shape[1]):
+                c = int(ballots[i, j])
+                if c == left:
+                    ranks_left = True
+                elif ranks_left and c in survivors:
+                    transfer_targets[codes[c]] += ballot_wts[i]
+                    break
+                elif c in survivors:
+                    break  # voter prefers a survivor before leftover
+        eliminated.append(left)
+        for dest, vol in sorted(transfer_targets.items(), key=lambda x: -x[1]):
+            if vol > 0.01:
+                transfers.append({
+                    "from": codes[left],
+                    "to": dest,
+                    "votes": round(vol, 2),
+                    "type": "elimination",
+                })
+
     # Display totals: elected-via-quota candidates show quota weight;
     # candidates elected via "remaining <= seats" show their last-round total.
     final_totals = {}

@@ -4,9 +4,10 @@ import { getBlendColor } from '../../constants/parties';
 interface Props {
   matchups: CondorcetMatchup[];
   condorcetWinner: string;
+  scale?: number;
 }
 
-export function CondorcetMatrix({ matchups, condorcetWinner }: Props) {
+export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props) {
   // Collect all candidates
   const candidateSet = new Set<string>();
   for (const m of matchups) {
@@ -34,8 +35,11 @@ export function CondorcetMatrix({ matchups, condorcetWinner }: Props) {
     return winCount(b) - winCount(a);
   });
 
-  const cellSize = Math.min(52, Math.floor(480 / (sorted.length + 1)));
-  const labelW = 56;
+  const baseCellSize = Math.min(52, Math.floor(480 / (sorted.length + 1)));
+  const cellSize = Math.round(baseCellSize * scale);
+  const labelW = Math.round(56 * scale);
+  const labelFontSize = Math.round(10 * scale);
+  const cellFontSize = Math.round(8 * scale);
   const totalW = labelW + sorted.length * cellSize;
 
   return (
@@ -52,8 +56,8 @@ export function CondorcetMatrix({ matchups, condorcetWinner }: Props) {
                 className="flex items-end justify-center pb-1"
               >
                 <span
-                  className="text-xs font-bold font-mono"
-                  style={{ color, writingMode: 'vertical-rl', textOrientation: 'mixed', fontSize: 10 }}
+                  className="font-bold font-mono"
+                  style={{ color, writingMode: 'vertical-rl', textOrientation: 'mixed', fontSize: labelFontSize }}
                 >
                   {col}
                 </span>
@@ -78,12 +82,12 @@ export function CondorcetMatrix({ matchups, condorcetWinner }: Props) {
                   <span className="text-amber-500 text-xs">★</span>
                 )}
                 <span
-                  className="text-xs font-bold font-mono"
-                  style={{ color: rowColor, fontSize: 10 }}
+                  className="font-bold font-mono"
+                  style={{ color: rowColor, fontSize: labelFontSize }}
                 >
                   {row}
                 </span>
-                <span className="text-xs text-slate-400">{wins}W</span>
+                <span className="text-slate-400" style={{ fontSize: labelFontSize }}>{wins}W</span>
               </div>
 
               {/* Cells */}
@@ -127,7 +131,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner }: Props) {
                       justifyContent: 'center',
                     }}
                   >
-                    <span style={{ fontSize: 8, fontWeight: 600, color: rowWins ? '#15803d' : '#b91c1c' }}>
+                    <span style={{ fontSize: cellFontSize, fontWeight: 600, color: rowWins ? '#15803d' : '#b91c1c' }}>
                       {rowWins ? '+' : '−'}{margin.toFixed(0)}
                     </span>
                   </div>
