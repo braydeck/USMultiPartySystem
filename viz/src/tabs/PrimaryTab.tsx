@@ -35,8 +35,8 @@ const PIPELINE_DESC: Record<Pipeline, string> = {
 };
 
 export function PrimaryTab({
-  factorDev, factorDevStateWinners, factorDevSankey,
-  pureMulti, pureMultiStateWinners, pureMultiSankey, pureMultiBuckets,
+  factorDev, factorDevStateWinners,
+  pureMulti, pureMultiStateWinners, pureMultiBuckets,
   clusters, clusterSpreads,
 }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);

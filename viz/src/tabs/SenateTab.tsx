@@ -163,20 +163,6 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
       F5: getFactorScore(code, 'F5'),
     }));
 
-  // Seat comparison: party-level counts for Condorcet vs IRV (+ FD in FD mode)
-  const countByParty = (seats: FDSenateSeat[]) => {
-    const counts: Record<string, number> = {};
-    for (const s of seats) {
-      const party = s.senatorParty ?? s.senatorCode.split('_')[0];
-      counts[party] = (counts[party] ?? 0) + 1;
-    }
-    return counts;
-  };
-  const rmCondCounts = countByParty(condorcetRawMulti);
-  const rmIrvCounts  = countByParty(irvRawMulti);
-  const fdCondCounts = countByParty(condorcetFD);
-  const fdIrvCounts  = countByParty(irvFD);
-
   const isFD = pipeline === 'factorDev';
 
   return (

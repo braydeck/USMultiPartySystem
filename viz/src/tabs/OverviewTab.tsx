@@ -4,7 +4,7 @@ import type {
   FPTPState, HouseStateEntry,
 } from '../types';
 import {
-  PARTY_COLORS, PARTY_NAMES, F5_ORDER, getBlendColor,
+  PARTY_COLORS, PARTY_NAMES, F5_ORDER,
 } from '../constants/parties';
 import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';

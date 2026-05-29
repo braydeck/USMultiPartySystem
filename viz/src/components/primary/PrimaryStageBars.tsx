@@ -114,7 +114,6 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
       const segs: Segment[] = [];
       const eliminated: string[] = [];
       let poolTotal = 0;
-      let quotaRaw = 0;
 
       for (const c of data.candidates) {
         const sd = c.stages[stage];
@@ -130,7 +129,6 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
             willBeEliminated: willBeElim,
           });
           poolTotal += sd.voteTotal;
-          if (sd.quotaThreshold > 0) quotaRaw = sd.quotaThreshold;
         }
         if (sd.status === 'eliminated_this_round') {
           eliminated.push(c.code);
