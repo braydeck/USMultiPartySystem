@@ -46,7 +46,7 @@ export function SenateMap({ seats }: Props) {
                     }}
                     onMouseEnter={() => {
                       if (seat) {
-                        setTooltip(`${seat.stateAbbr}: ${seat.senatorLabel} (${seat.senatorType || seat.senatorParty})`);
+                        setTooltip(`${seat.stateAbbr}: ${seat.senatorLabel} (${seat.senatorType})`);
                       }
                     }}
                     onMouseLeave={() => setTooltip(null)}
@@ -66,7 +66,7 @@ export function SenateMap({ seats }: Props) {
             <div
               className="absolute cursor-pointer"
               style={{ bottom: '14%', right: '4%' }}
-              onMouseEnter={() => setTooltip(`DC: ${dc.senatorLabel} (${dc.senatorType || dc.senatorParty})`)}
+              onMouseEnter={() => setTooltip(`DC: ${dc.senatorLabel} (${dc.senatorType})`)}
               onMouseLeave={() => setTooltip(null)}
             >
               <div className="text-center text-[9px] font-bold text-slate-500 mb-0.5 leading-none">DC</div>

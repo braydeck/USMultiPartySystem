@@ -416,7 +416,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
 
     const varMap = new Map<string, {
       question: string; domain: string; pcts: Record<string, number>;
-      maxVal: number; unit: string;
+      overall: number | null; maxVal: number; unit: string;
     }>();
     for (const code of selected) {
       const vars = getVariables(code, clusters, fdProfiles);

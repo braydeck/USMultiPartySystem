@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, FACTOR_LABELS } from '../../constants/parties';
+import { PARTY_COLORS, F5_ORDER, FACTOR_LABELS } from '../../constants/parties';
 
 interface Candidate {
   code: string;

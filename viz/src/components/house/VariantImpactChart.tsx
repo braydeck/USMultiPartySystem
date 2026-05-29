@@ -1,5 +1,5 @@
 import type { FDHouseSeat } from '../../types';
-import { PARTY_COLORS, F5_ORDER, FACTOR_LABELS } from '../../constants/parties';
+import { PARTY_COLORS, F5_ORDER } from '../../constants/parties';
 
 interface Props {
   seats: FDHouseSeat[];

@@ -39,7 +39,6 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
     // Compute from candidates: _1 candidates hold all initial first-choice votes
     // Since the JSON doesn't include Initial_Slate, we derive from After_Retail's entries
     const initialSegs: Segment[] = [];
-    const partyFirstChoice: Record<string, number> = {};
     const partyCount: Record<string, number> = {};
     for (const c of data.candidates) {
       const party = c.party;
@@ -50,20 +49,12 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
     }
     // Use pool_size and voteTotal from first stage to compute first-choice %
     const firstStage = stages[0];
-    const poolSize = data.candidates.reduce((s, c) => {
-      const sd = c.stages[firstStage];
-      return sd ? Math.max(s, sd.quotaThreshold * (
-        // Droop quota = pool / (seats+1); for 12 seats: pool = quota * 13
-        // For After_Retail seats=12, quota ≈ pool/13
-        13)) : s;
-    }, 0);
     // Collect ALL candidates at first stage (surviving + eliminated_this_round)
     for (const c of data.candidates) {
       const sd = c.stages[firstStage];
       if (!sd) continue;
       // First-choice goes entirely to _1 candidates
       // For initial display, group by party
-      const party = c.party;
       if (sd.voteTotal > 0 || sd.status === 'eliminated_this_round') {
         // _1 candidates had non-zero initial votes; _2/_3 had 0
         if (c.code.endsWith('_1') || (!c.code.match(/_\d+$/))) {
@@ -149,7 +140,6 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
       segs.sort((a, b) => partyRank(a.code) - partyRank(b.code));
 
       // Quota as % of the full pool
-      const quotaPct = poolTotal > 0 ? (quotaRaw / poolTotal) * segs.length * 100 / segs.length : 0;
       // Simpler: quota / (sum of all survivor voteTotals) * 100... but that's not right either.
       // quota = pool / (seats + 1). Survivor shares sum to ~100%.
       // quota_pct_of_bar = (quota / pool) * 100 = 1/(seats+1) * 100

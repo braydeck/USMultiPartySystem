@@ -83,7 +83,6 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     if (nodes.length === 0) return;
 
     // Population SDs for z→percentile conversion
-    const POP_SD_ALL: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
     const zToPctile = (z: number) => (1 / (1 + Math.exp(-1.7 * z))) * 100;
 
     const getVal = (n: ConstellationNode, key: string): number => {

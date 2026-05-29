@@ -97,8 +97,6 @@ export function VariantAttractionChart({ data }: Props) {
                 const label = variantLabel(v);
                 const incremental = v.crossPct - baseRef;
                 const crossSources = v.sources.filter(s => s.party !== v.party);
-                const crossTotal = crossSources.reduce((s, x) => s + x.pct, 0) || 1;
-
                 // Compute incremental sources (subtract base-level per-party)
                 const baseVariant = data.find(d => d.party === v.party && d.axis === 'base');
                 const baseSources: Record<string, number> = {};

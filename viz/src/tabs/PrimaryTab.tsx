@@ -47,16 +47,8 @@ export function PrimaryTab({
   const data: FDPrimaryData =
     pipeline === 'factorDev' ? factorDev : pureMulti;
   const stateWinners = pipeline === 'factorDev' ? factorDevStateWinners : pureMultiStateWinners;
-  const sankey = pipeline === 'factorDev' ? factorDevSankey : pureMultiSankey;
-
   const stage = data.stagesOrder[stageIdx] ?? data.stagesOrder[0];
-  const prevStage = stageIdx > 0 ? data.stagesOrder[stageIdx - 1] : null;
   const quota = data.quotaByStage[stage] ?? 0;
-  const stageLabel = data.stageLabels[stage] ?? stage;
-
-  const activeCandidates = data.candidates.filter(c =>
-    data.stagesOrder.some(s => (c.stages[s]?.votePct ?? 0) > 0)
-  );
 
   return (
     <div className="space-y-8">

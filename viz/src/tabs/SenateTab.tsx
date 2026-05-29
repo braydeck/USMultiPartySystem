@@ -7,8 +7,7 @@ import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { PARTY_COLORS, FACTOR_LABELS, PARTY_NAMES, F5_ORDER, getBlendColor } from '../constants/parties';
-import { TransferFlowChart } from '../components/house/TransferFlowChart';
+import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER } from '../constants/parties';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -76,7 +75,7 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
 
 export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
                              voteModel, clusters, fdProfiles, clusterSpreads,
-                             houseTransfers, fdVariantAttraction, fdAttractionDrivers,
+                             fdVariantAttraction, fdAttractionDrivers,
                              senateBuckets, senateCondorcet }: Props) {
   const [pipeline, setPipeline] = useState<'factorDev' | 'rawMulti'>('rawMulti');
   const [method, setMethod] = useState<'condorcet' | 'irv'>('condorcet');
@@ -178,18 +177,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   const fdCondCounts = countByParty(condorcetFD);
   const fdIrvCounts  = countByParty(irvFD);
 
-  const comparisonParties = Array.from(new Set([
-    ...Object.keys(rmCondCounts), ...Object.keys(rmIrvCounts),
-    ...Object.keys(fdCondCounts), ...Object.keys(fdIrvCounts),
-  ])).sort((a, b) => {
-    const ai = F5_ORDER.indexOf(a as typeof F5_ORDER[number]);
-    const bi = F5_ORDER.indexOf(b as typeof F5_ORDER[number]);
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  });
-
   const isFD = pipeline === 'factorDev';
-  const condCounts = isFD ? fdCondCounts : rmCondCounts;
-  const irvCounts  = isFD ? fdIrvCounts  : rmIrvCounts;
 
   return (
     <div className="space-y-8">

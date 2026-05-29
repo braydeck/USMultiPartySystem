@@ -75,9 +75,6 @@ export function AttractionDriverChart({ data }: Props) {
           const color = PARTY_COLORS[party] ?? '#6b7280';
           const name = PARTY_NAMES[party] ?? party;
           const isExpanded = expandedParty === party;
-          const totalPull = Object.values(variants)
-            .flat()
-            .reduce((s, r) => s + r.attractedPct, 0);
           const variantCount = Object.keys(variants).length;
 
           return (

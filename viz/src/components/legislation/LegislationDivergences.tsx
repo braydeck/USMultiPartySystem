@@ -34,7 +34,6 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
   const condWinner = election.condorcetWinner;
   const irvWinner  = election.irvWinner;
 
-  const pipelineKey = pipeline === 'rawMulti' ? 'RawMulti' : 'FD';
   const condCombo = `${pipeline}+condorcet`;
   const irvCombo  = `${pipeline}+irv`;
 

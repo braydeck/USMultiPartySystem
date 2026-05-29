@@ -6,7 +6,6 @@ import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
 import { CondorcetMatrix } from '../components/presidential/CondorcetMatrix';
 import { PartyProfileCard } from '../components/shared/PartyProfileCard';
-import { VerdictBadge, getBayesianLabel } from '../components/legislation/UnifiedBillTable';
 
 interface Props {
   factorDev: PresidentialElection;
@@ -38,7 +37,7 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
   );
 }
 
-export function PresidentialTab({ factorDev, rawMulti, clusters, fdProfiles, senateVotes }: Props) {
+export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: Props) {
   const [scenario, setScenario] = useState<PresidentialScenario>('rawMulti');
   const data = scenario === 'rawMulti' ? rawMulti : factorDev;
 

@@ -6,7 +6,6 @@ import { QuizTab } from './tabs/QuizTab';
 import { PartiesTab } from './tabs/PartiesTab';
 import { PresidentialTab } from './tabs/PresidentialTab';
 import { LegislationTab } from './tabs/LegislationTab';
-import { CompareTab } from './tabs/CompareTab';
 import { AboutTab } from './tabs/AboutTab';
 import { OverviewTab } from './tabs/OverviewTab';
 import { RCVTab } from './tabs/RCVTab';

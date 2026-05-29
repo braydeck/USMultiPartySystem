@@ -150,7 +150,7 @@ function WinnerBar({ w, scaleMax, onTip }: {
 
 /* ── Eliminated bar: stacked showing where votes went ────────────────────── */
 
-function EliminatedBar({ e, scaleMax, quota, onTip }: {
+function EliminatedBar({ e, scaleMax, onTip }: {
   e: BucketEliminated; scaleMax: number; quota: number;
   onTip: (t: TooltipInfo | null) => void;
 }) {

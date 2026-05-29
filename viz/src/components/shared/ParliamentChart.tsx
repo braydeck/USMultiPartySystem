@@ -35,7 +35,7 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
 
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
 
-  const { groupedDots, nRings, dotSize, cumFracs } = useMemo(() => {
+  const { groupedDots, nRings, dotSize } = useMemo(() => {
     const totalSeats = segments.reduce((s, seg) => s + seg.seats, 0);
     if (totalSeats === 0) return { groupedDots: {}, nRings: 3, dotSize: 4, cumFracs: [] };
 

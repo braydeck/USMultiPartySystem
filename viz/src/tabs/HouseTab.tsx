@@ -17,7 +17,7 @@ import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { PARTY_NAMES, CLUSTER_TO_PARTY, F5_ORDER, FACTOR_LABELS } from '../constants/parties';
+import { CLUSTER_TO_PARTY, F5_ORDER, FACTOR_LABELS } from '../constants/parties';
 
 interface Props {
   seats: HouseSeat[];
@@ -40,7 +40,7 @@ interface Props {
   fdDistrictResults: Record<string, DistrictResult[]>;
 }
 
-export function HouseTab({ seats, seatsProbBased, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, countyTiers, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults }: Props) {
+export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const totalSeats = seats.reduce((s, r) => s + r.national, 0);
