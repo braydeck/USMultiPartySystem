@@ -176,16 +176,16 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
           >
             {/* Label row */}
             <div className="flex items-baseline gap-2 mb-0.5">
-              <span className="text-xs font-semibold text-slate-600">{row.label}</span>
+              <span className="text-xs font-semibold text-muted-foreground">{row.label}</span>
               {row.quota > 0 && (
-                <span className="text-[10px] text-slate-400 font-medium">
+                <span className="text-[10px] text-muted-foreground font-medium">
                   quota {row.quota.toFixed(1)}%
                 </span>
               )}
             </div>
 
             {/* Bar */}
-            <div className="relative flex h-8 rounded overflow-hidden bg-slate-100">
+            <div className="relative flex h-8 rounded overflow-hidden bg-muted">
               {row.segments.map((seg, si) => {
                 const w = (seg.pct / totalPct) * 100;
                 const color = PARTY_COLORS[seg.party] ?? '#6b7280';
@@ -232,8 +232,8 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
 
             {/* Eliminated note */}
             {row.eliminated.length > 0 && (
-              <div className="text-[10px] text-slate-400 mt-0.5 truncate">
-                <span className="text-slate-500">↗</span> {row.eliminated.join(', ')} eliminated
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                <span className="text-muted-foreground">↗</span> {row.eliminated.join(', ')} eliminated
               </div>
             )}
           </div>

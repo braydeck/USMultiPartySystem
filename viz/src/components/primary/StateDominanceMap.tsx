@@ -36,9 +36,9 @@ export function StateDominanceMap({ statePods, senateSeats }: Props) {
   );
 
   return (
-    <div className="relative">
+    <div className="relative" aria-label="Primary election state results map" role="img">
       {tooltip && (
-        <div className="absolute top-2 left-2 bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm z-10 pointer-events-none">
+        <div className="absolute top-2 left-2 bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm z-10 pointer-events-none" role="status" aria-live="polite">
           {tooltip}
         </div>
       )}

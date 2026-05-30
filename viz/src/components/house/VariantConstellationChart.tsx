@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { PARTY_COLORS, F5_ORDER, FACTOR_LABELS } from '../../constants/parties';
+import { Button } from '@/components/ui/button';
 
 interface Candidate {
   code: string;
@@ -73,32 +74,36 @@ export function VariantConstellationChart({ candidates, fdSeats, clusterSpreads 
       {/* Axis selectors */}
       <div className="flex flex-wrap items-center gap-3 mb-3">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-slate-500">X:</span>
+          <span className="text-xs text-muted-foreground">X:</span>
           {FACTORS.map(f => (
-            <button key={f} onClick={() => setXAxis(f)}
-              className={`px-2 py-0.5 rounded text-xs font-medium ${xAxis === f ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+            <Button key={f} onClick={() => setXAxis(f)}
+              variant={xAxis === f ? 'default' : 'secondary'}
+              size="sm" className="h-6 px-2">
               {f}
-            </button>
+            </Button>
           ))}
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-slate-500">Y:</span>
+          <span className="text-xs text-muted-foreground">Y:</span>
           {FACTORS.map(f => (
-            <button key={f} onClick={() => setYAxis(f)}
-              className={`px-2 py-0.5 rounded text-xs font-medium ${yAxis === f ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+            <Button key={f} onClick={() => setYAxis(f)}
+              variant={yAxis === f ? 'default' : 'secondary'}
+              size="sm" className="h-6 px-2">
               {f}
-            </button>
+            </Button>
           ))}
         </div>
-        <button onClick={() => setShowVariants(!showVariants)}
-          className={`px-3 py-0.5 rounded text-xs font-medium ${showVariants ? 'bg-violet-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+        <Button onClick={() => setShowVariants(!showVariants)}
+          variant={showVariants ? 'default' : 'secondary'}
+          size="sm" className="h-6">
           {showVariants ? 'Variants ON' : 'Variants OFF'}
-        </button>
-        <button onClick={() => setShowEffective(!showEffective)}
-          className={`px-3 py-0.5 rounded text-xs font-medium ${showEffective ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}
+        </Button>
+        <Button onClick={() => setShowEffective(!showEffective)}
+          variant={showEffective ? 'default' : 'secondary'}
+          size="sm" className="h-6"
           title="Show covariance-adjusted positions: where variants effectively attract voters, accounting for factor correlations">
           {showEffective ? 'Effective Pos' : 'Raw Pos'}
-        </button>
+        </Button>
       </div>
 
       {/* Party toggles */}
@@ -123,7 +128,7 @@ export function VariantConstellationChart({ candidates, fdSeats, clusterSpreads 
 
       {/* Tooltip */}
       {hovered && (
-        <div className="text-sm text-slate-700 bg-white border border-slate-200 rounded px-3 py-1.5 shadow-sm mb-2 inline-block">
+        <div className="text-sm text-foreground bg-white border border-border rounded px-3 py-1.5 shadow-sm mb-2 inline-block">
           {hovered}{fdSeats && fdSeats[hovered] ? ` — ${fdSeats[hovered]} seats` : ''}
         </div>
       )}
@@ -234,7 +239,7 @@ export function VariantConstellationChart({ candidates, fdSeats, clusterSpreads 
         })}
       </svg>
 
-      <p className="text-xs text-slate-500 mt-1 text-center">
+      <p className="text-xs text-muted-foreground mt-1 text-center">
         Large circles = base party positions. Small circles = axis deviations (size ∝ seats won).
         Lines connect variants to their party base. Toggle parties and variants to explore overlap.
       </p>

@@ -1,5 +1,6 @@
 import { getBlendColor } from '../../constants/parties';
 import type { CondorcetMatchup } from '../../types';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 
 interface Props {
   matchups: CondorcetMatchup[];
@@ -20,7 +21,7 @@ export function CondorcetTable({ matchups, condorcetWinner }: Props) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">
-        <div className="text-xs text-slate-500 uppercase tracking-widest">Condorcet Winner</div>
+        <div className="text-xs text-muted-foreground uppercase tracking-widest">Condorcet Winner</div>
         <div
           className="text-sm font-bold px-3 py-1 rounded"
           style={{
@@ -31,57 +32,55 @@ export function CondorcetTable({ matchups, condorcetWinner }: Props) {
         >
           {condorcetWinner}
         </div>
-        <div className="text-xs text-slate-500">beats all opponents head-to-head</div>
+        <div className="text-xs text-muted-foreground">beats all opponents head-to-head</div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="text-slate-500 border-b border-slate-200">
-              <th className="text-left py-2 pr-3">Candidate A</th>
-              <th className="text-left py-2 pr-3">Candidate B</th>
-              <th className="text-left py-2 pr-3">Winner</th>
-              <th className="text-right py-2 pr-3">A wins %</th>
-              <th className="text-right py-2">Margin</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((m, i) => {
-              const isWinnerRow = m.candidateA === condorcetWinner || m.candidateB === condorcetWinner;
-              return (
-                <tr
-                  key={i}
-                  className={`border-b border-slate-100 ${isWinnerRow ? 'bg-slate-50' : ''}`}
-                >
-                  <td className="py-2 pr-3 font-mono" style={{ color: getBlendColor(m.candidateA) }}>
-                    {m.candidateA}
-                  </td>
-                  <td className="py-2 pr-3 font-mono" style={{ color: getBlendColor(m.candidateB) }}>
-                    {m.candidateB}
-                  </td>
-                  <td className="py-2 pr-3">
-                    <span
-                      className="font-bold px-2 py-0.5 rounded text-xs"
-                      style={{
-                        backgroundColor: getBlendColor(m.winner) + '33',
-                        color: getBlendColor(m.winner),
-                      }}
-                    >
-                      {m.winner}
-                    </span>
-                  </td>
-                  <td className="py-2 pr-3 text-right font-mono text-slate-700">
-                    {m.aWinsPct.toFixed(1)}%
-                  </td>
-                  <td className="py-2 text-right font-mono text-slate-500">
-                    {m.margin.toFixed(2)}pp
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Table className="text-xs">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-left">Candidate A</TableHead>
+            <TableHead className="text-left">Candidate B</TableHead>
+            <TableHead className="text-left">Winner</TableHead>
+            <TableHead className="text-right">A wins %</TableHead>
+            <TableHead className="text-right">Margin</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sorted.map((m, i) => {
+            const isWinnerRow = m.candidateA === condorcetWinner || m.candidateB === condorcetWinner;
+            return (
+              <TableRow
+                key={i}
+                className={isWinnerRow ? 'bg-slate-50' : ''}
+              >
+                <TableCell className="font-mono" style={{ color: getBlendColor(m.candidateA) }}>
+                  {m.candidateA}
+                </TableCell>
+                <TableCell className="font-mono" style={{ color: getBlendColor(m.candidateB) }}>
+                  {m.candidateB}
+                </TableCell>
+                <TableCell>
+                  <span
+                    className="font-bold px-2 py-0.5 rounded text-xs"
+                    style={{
+                      backgroundColor: getBlendColor(m.winner) + '33',
+                      color: getBlendColor(m.winner),
+                    }}
+                  >
+                    {m.winner}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right font-mono text-foreground">
+                  {m.aWinsPct.toFixed(1)}%
+                </TableCell>
+                <TableCell className="text-right font-mono text-muted-foreground">
+                  {m.margin.toFixed(2)}pp
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }

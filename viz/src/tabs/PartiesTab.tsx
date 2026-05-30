@@ -4,6 +4,8 @@ import { PartyCard } from '../components/parties/PartyCard';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { FACTOR_LABELS } from '../constants/parties';
 import { CompareTab } from './CompareTab';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -39,8 +41,8 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-1">Parties</h2>
-        <p className="text-slate-500 text-sm">
+        <h2 className="text-2xl font-bold text-foreground mb-1">Parties</h2>
+        <p className="text-muted-foreground text-sm">
           A 10-cluster model of the American electorate, with the Blue Dog remnant (C7) merged
           into adjacent clusters. Each party reflects a distinct ideological constellation
           derived from CES 2024 survey data.
@@ -48,51 +50,44 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
       </div>
 
       {/* Section toggle — sticky */}
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-slate-100 -mx-4 px-4 py-2 flex gap-2">
-        <button
+      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex gap-2">
+        <Button
           onClick={() => setSection('profiles')}
-          className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-            section === 'profiles' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-          }`}
+          variant={section === 'profiles' ? 'default' : 'secondary'}
         >
           Party Profiles
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setSection('compare')}
-          className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-            section === 'compare' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-          }`}
+          variant={section === 'compare' ? 'default' : 'secondary'}
         >
           Compare Policies
-        </button>
+        </Button>
       </div>
 
       {section === 'profiles' && (
         <>
           {/* Sort controls */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-slate-600 uppercase tracking-widest">Sort by</span>
+            <span className="text-xs text-muted-foreground uppercase tracking-widest">Sort by</span>
             {(['F1','F2','F3','F4','F5'] as SortFactor[]).map(f => (
-              <button
+              <Button
                 key={f}
                 onClick={() => toggleSort(f)}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  sortFactor === f
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                }`}
+                variant={sortFactor === f ? 'default' : 'secondary'}
+                size="sm"
               >
                 {FACTOR_LABELS[f]}{' '}
                 {sortFactor === f
                   ? (sortDir === 'desc' ? '↓' : '↑')
                   : <span className="text-slate-300">↕</span>}
-              </button>
+              </Button>
             ))}
           </div>
 
           {/* Constellation */}
-          <div className="bg-white rounded-xl p-4 border border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
               Ideological Constellation
             </h3>
             <IdeologicalConstellation
@@ -107,19 +102,17 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
               }))}
               clusterSpreads={clusterSpreads}
             />
-          </div>
+          </Card>
 
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Party Profiles</h3>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Party Profiles</h3>
             <div className="flex gap-1">
-              <button onClick={() => setCardMode('strength')}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  cardMode === 'strength' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                }`}>Strength</button>
-              <button onClick={() => setCardMode('percentile')}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  cardMode === 'percentile' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                }`}>Percentile</button>
+              <Button onClick={() => setCardMode('strength')}
+                variant={cardMode === 'strength' ? 'default' : 'secondary'}
+                size="sm">Strength</Button>
+              <Button onClick={() => setCardMode('percentile')}
+                variant={cardMode === 'percentile' ? 'default' : 'secondary'}
+                size="sm">Percentile</Button>
             </div>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

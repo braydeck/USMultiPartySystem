@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { Button } from '@/components/ui/button';
 
 interface Source { party: string; pct: number }
 interface Finalist { code: string; party: string; firstChoice: number; sources: Source[]; total: number }
@@ -25,18 +26,17 @@ export default function SenateBuckets({ data, method }: Props) {
     <div className="space-y-4">
       {/* State selector */}
       <div className="flex items-center gap-2 flex-wrap">
-        <button
+        <Button
           onClick={() => setSelectedState(null)}
-          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-            !selectedState ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}
+          variant={!selectedState ? 'default' : 'secondary'}
+          size="sm"
         >
           National Average
-        </button>
+        </Button>
         <select
           value={selectedState ?? ''}
           onChange={e => setSelectedState(e.target.value || null)}
-          className="text-xs border border-slate-200 rounded px-2 py-1 text-slate-600"
+          className="text-xs border border-border rounded px-2 py-1 text-muted-foreground"
         >
           <option value="">Select a state…</option>
           {stateList.map(st => (
@@ -48,7 +48,7 @@ export default function SenateBuckets({ data, method }: Props) {
       {/* National averages */}
       {!selectedState && (
         <div className="space-y-1.5">
-          <div className="text-[10px] text-slate-400 mb-2">
+          <div className="text-[10px] text-muted-foreground mb-2">
             Average vote composition for each winning party&apos;s senators ({method === 'condorcet' ? 'Condorcet' : 'IRV'})
           </div>
           {data.averages.map(a => {
@@ -58,8 +58,8 @@ export default function SenateBuckets({ data, method }: Props) {
 
             return (
               <div key={a.party} className="flex items-center gap-2">
-                <span className="text-[10px] text-slate-500 w-10 text-right shrink-0 font-semibold">{a.party}</span>
-                <span className="text-[9px] text-slate-400 w-5 text-right shrink-0">{a.seats}s</span>
+                <span className="text-[10px] text-muted-foreground w-10 text-right shrink-0 font-semibold">{a.party}</span>
+                <span className="text-[9px] text-muted-foreground w-5 text-right shrink-0">{a.seats}s</span>
                 <div
                   className="flex-1 h-6 relative cursor-pointer overflow-hidden"
                   onMouseMove={e => setTip({
@@ -92,7 +92,7 @@ export default function SenateBuckets({ data, method }: Props) {
                       }} />
                     ))}
                   </div>
-                  <span className="absolute top-0 h-full flex items-center text-[9px] font-bold text-slate-500 pointer-events-none pl-1"
+                  <span className="absolute top-0 h-full flex items-center text-[9px] font-bold text-muted-foreground pointer-events-none pl-1"
                     style={{ left: `${Math.min((a.avgTotal / maxBar) * 88, 88)}%` }}>
                     {a.avgTotal.toFixed(1)}%
                   </span>
@@ -106,9 +106,9 @@ export default function SenateBuckets({ data, method }: Props) {
       {/* State drill-down */}
       {selectedData && (
         <div className="space-y-1.5">
-          <div className="text-[10px] text-slate-400 mb-1">
+          <div className="text-[10px] text-muted-foreground mb-1">
             {selectedData.abbr} — {method === 'condorcet' ? 'Condorcet' : 'IRV'} winner:{' '}
-            <strong className="text-slate-600">
+            <strong className="text-muted-foreground">
               {method === 'condorcet' ? selectedData.condWinner : selectedData.irvWinner}
             </strong>
           </div>
@@ -121,7 +121,7 @@ export default function SenateBuckets({ data, method }: Props) {
 
             return (
               <div key={f.code} className="flex items-center gap-2">
-                <span className={`text-[10px] w-12 text-right shrink-0 font-semibold ${isWinner ? 'text-emerald-600' : 'text-slate-400'}`}>
+                <span className={`text-[10px] w-12 text-right shrink-0 font-semibold ${isWinner ? 'text-emerald-600' : 'text-muted-foreground'}`}>
                   {isWinner ? '★ ' : ''}{f.code}
                 </span>
                 <div
@@ -159,7 +159,7 @@ export default function SenateBuckets({ data, method }: Props) {
                       }} />
                     ))}
                   </div>
-                  <span className="absolute top-0 h-full flex items-center text-[9px] font-bold text-slate-500 pointer-events-none pl-1"
+                  <span className="absolute top-0 h-full flex items-center text-[9px] font-bold text-muted-foreground pointer-events-none pl-1"
                     style={{ left: `${Math.min((f.total / maxBar) * 88, 88)}%` }}>
                     {f.total.toFixed(1)}%
                   </span>

@@ -53,14 +53,14 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario }: Props) 
               {/* Population */}
               <div className="flex items-center gap-2">
                 <div className="h-5 rounded-sm" style={{ width: `${(r.popPct / maxPct) * 100}%`, minWidth: 2, backgroundColor: color, opacity: 0.3 }} />
-                <span className="text-[10px] text-slate-500 whitespace-nowrap">{r.popPct.toFixed(1)}%</span>
+                <span className="text-[10px] text-muted-foreground whitespace-nowrap">{r.popPct.toFixed(1)}%</span>
               </div>
               {/* Raw Multi */}
               <div className="flex items-center gap-2">
                 <div className="h-5 rounded-sm" style={{ width: `${(r.rmPct / maxPct) * 100}%`, minWidth: 2, backgroundColor: color, opacity: 0.75 }} />
                 <span className="text-[10px] whitespace-nowrap">
                   <span style={{ color }}>{r.rmPct.toFixed(1)}%</span>
-                  <span className={`ml-1 ${rmGap > 0.5 ? 'text-green-600' : rmGap < -1 ? 'text-red-500' : 'text-slate-400'}`}>
+                  <span className={`ml-1 ${rmGap > 0.5 ? 'text-green-600' : rmGap < -1 ? 'text-red-500' : 'text-muted-foreground'}`}>
                     ({rmGap > 0 ? '+' : ''}{rmGap.toFixed(1)})
                   </span>
                 </span>
@@ -74,7 +74,7 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario }: Props) 
                   }} />
                   <span className="text-[10px] whitespace-nowrap">
                     <span style={{ color }}>{r.fdPct.toFixed(1)}%</span>
-                    <span className={`ml-1 ${fdGap > 0.5 ? 'text-green-600' : fdGap < -1 ? 'text-red-500' : 'text-slate-400'}`}>
+                    <span className={`ml-1 ${fdGap > 0.5 ? 'text-green-600' : fdGap < -1 ? 'text-red-500' : 'text-muted-foreground'}`}>
                       ({fdGap > 0 ? '+' : ''}{fdGap.toFixed(1)})
                     </span>
                   </span>

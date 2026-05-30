@@ -10,10 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/geist-mono": "^5.2.8",
+    "@fontsource/geist-sans": "^5.2.5",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@types/d3": "^7.4.3",
     "@types/d3-sankey": "^0.12.5",
     "@types/topojson-client": "^3.1.5",
     "autoprefixer": "^10.4.27",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
     "d3-sankey": "^0.12.3",
@@ -23,6 +29,7 @@
     "react-dom": "^19.2.4",
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.8.1",
+    "tailwind-merge": "^3.6.0",
     "tailwindcss": "^3.4.19",
     "topojson-client": "^3.1.0",
     "us-atlas": "^3.0.1"

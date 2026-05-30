@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import type { VoteModelRow } from '../../types';
 import { getBlendColor } from '../../constants/parties';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface Props {
   houseRows: VoteModelRow[];
@@ -74,15 +76,16 @@ export function getDirection(label: VerdictLabel | ''): 'pass' | 'fail' | 'uncer
 }
 
 export function VerdictBadge({ label }: { label: VerdictLabel | '' }) {
-  if (!label) return <span className="text-slate-300 text-xs">—</span>;
+  if (!label) return <span className="text-muted-foreground text-xs">—</span>;
   const s = VERDICT_STYLE[label];
   return (
-    <span
-      className="text-xs font-semibold px-2 py-0.5 rounded border whitespace-nowrap"
+    <Badge
+      variant="outline"
+      className="whitespace-nowrap"
       style={{ backgroundColor: s.bg, color: s.text, borderColor: s.border }}
     >
       {label}
-    </span>
+    </Badge>
   );
 }
 
@@ -131,21 +134,18 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
     <div>
       <div className="flex flex-wrap gap-2 mb-4">
         {domains.map(d => (
-          <button
+          <Button
             key={d}
             onClick={() => setDomain(d)}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              domain === d
-                ? 'bg-indigo-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
+            variant={domain === d ? 'default' : 'secondary'}
+            size="sm"
           >
             {d}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <div className="hidden md:grid grid-cols-[1fr_150px_150px_120px] gap-x-3 items-center px-3 py-1 text-xs text-slate-500 uppercase tracking-widest border-b border-slate-200 mb-1">
+      <div className="hidden md:grid grid-cols-[1fr_150px_150px_120px] gap-x-3 items-center px-3 py-1 text-xs text-muted-foreground uppercase tracking-widest border-b border-border mb-1">
         <div>Bill</div>
         <div>House</div>
         <div>Senate</div>
@@ -182,12 +182,12 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
               className={`flex flex-col md:grid md:grid-cols-[1fr_150px_150px_120px] gap-x-3 items-start md:items-center py-2 px-3 rounded text-sm ${
                 chamberSplit
                   ? 'bg-amber-50 border border-amber-200'
-                  : 'bg-white border border-slate-100 hover:bg-slate-50'
+                  : 'bg-white border border-border/50 hover:bg-slate-50'
               }`}
             >
               <div className="min-w-0">
-                <span className="text-slate-700">{ref.question}</span>
-                <span className="text-xs text-slate-400 ml-2">{ref.domain}</span>
+                <span className="text-foreground">{ref.question}</span>
+                <span className="text-xs text-muted-foreground ml-2">{ref.domain}</span>
               </div>
 
               <div className="mt-1 md:mt-0 flex flex-col gap-1">
@@ -214,7 +214,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                       {signs === 'SIGN' ? 'Signs' : 'Vetoes'}
                     </span>
                     {presPct !== undefined && (
-                      <span className="text-xs text-slate-400 font-mono">{Math.round(presPct)}%</span>
+                      <span className="text-xs text-muted-foreground font-mono">{Math.round(presPct)}%</span>
                     )}
                   </>
                 ) : (

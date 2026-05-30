@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile } from '../types';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { PARTY_COLORS } from '../constants/parties';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
@@ -70,54 +72,50 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-1">2028 Presidential General Election</h2>
-        <p className="text-slate-500 text-sm">
+        <h2 className="text-2xl font-bold text-foreground mb-1">2028 Presidential General Election</h2>
+        <p className="text-muted-foreground text-sm">
           Single-winner race. The question is which method picks the most acceptable president.
           Condorcet finds who beats everyone head-to-head; IRV rewards the candidate with the strongest base.
         </p>
       </div>
 
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-slate-100 -mx-4 px-4 py-2 flex flex-wrap gap-2">
+      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap gap-2">
         {(['rawMulti', 'factorDev'] as PresidentialScenario[]).map(s => (
-          <button
+          <Button
             key={s}
             onClick={() => setScenario(s)}
-            className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-              scenario === s
-                ? 'bg-indigo-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
+            variant={scenario === s ? 'default' : 'secondary'}
           >
             {PRES_LABELS[s]}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Presidential Outcomes — scenario-dependent */}
       {scenario === 'rawMulti' ? (
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Presidential Outcomes</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Presidential Outcomes</h3>
           {rmSameWinner ? (
             <div>
-              <div className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">
+              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
                 Winner (both methods): {rmCondWinner}
               </div>
               {clusterByParty[rmCondParty] && <div className="max-w-sm"><PartyProfileCard cluster={clusterByParty[rmCondParty]} /></div>}
             </div>
           ) : (
             <>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 Condorcet and IRV elect different presidents — the winner shapes which bills become law.
               </p>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <div className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">
+                  <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
                     Condorcet Winner — {rmCondWinner}
                   </div>
                   {clusterByParty[rmCondParty] && <PartyProfileCard cluster={clusterByParty[rmCondParty]} />}
                 </div>
                 <div>
-                  <div className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">
+                  <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
                     IRV Winner — {rmIrvWinner}
                   </div>
                   {clusterByParty[rmIrvParty] && <PartyProfileCard cluster={clusterByParty[rmIrvParty]} />}
@@ -125,7 +123,7 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
               </div>
 
               {divergentBills.length > 0 && (
-                <div className="bg-white rounded-xl border border-amber-300 overflow-hidden">
+                <Card className="overflow-hidden border-amber-300">
                   <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
                     <h4 className="text-sm font-semibold text-amber-900">
                       {divergentBills.length} bill{divergentBills.length !== 1 ? 's' : ''} with different presidential outcomes
@@ -135,7 +133,7 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
                     </p>
                   </div>
 
-                  <div className="hidden md:grid grid-cols-[1fr_80px_80px] gap-x-2 px-4 py-2 text-xs text-slate-500 border-b border-slate-100 uppercase tracking-widest">
+                  <div className="hidden md:grid grid-cols-[1fr_80px_80px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
                     <div>Bill</div>
                     <div className="text-center font-bold" style={{ color: PARTY_COLORS[rmCondParty] ?? '#6b7280' }}>{rmCondParty}</div>
                     <div className="text-center font-bold" style={{ color: PARTY_COLORS[rmIrvParty] ?? '#6b7280' }}>{rmIrvParty}</div>
@@ -148,8 +146,8 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
                         className="flex flex-col md:grid md:grid-cols-[1fr_80px_80px] gap-x-2 items-start md:items-center px-4 py-2.5 bg-amber-50/30"
                       >
                         <div className="min-w-0 mb-1 md:mb-0">
-                          <div className="text-sm text-slate-800 leading-snug">{r.question}</div>
-                          <div className="text-xs text-slate-400 mt-0.5">{r.domain}</div>
+                          <div className="text-sm text-foreground leading-snug">{r.question}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{r.domain}</div>
                         </div>
                         <div className="flex justify-center">
                           <PresCell signs={r.presRawMultiCondSigns} partyCode={rmCondParty} />
@@ -160,7 +158,7 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
                       </div>
                     ))}
                   </div>
-                </div>
+                </Card>
               )}
             </>
           )}
@@ -168,12 +166,12 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
       ) : (
         /* Factor Dev — single winner */
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Presidential Outcome</h3>
-          <p className="text-xs text-slate-500">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Presidential Outcome</h3>
+          <p className="text-xs text-muted-foreground">
             Both Condorcet and IRV elect the same president under Factor Dev.
           </p>
           <div>
-            <div className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">
+            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
               Winner — {fdWinner}
             </div>
             <div className="max-w-sm">
@@ -184,11 +182,11 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
       )}
 
       {/* Condorcet head-to-head matrix — centered, 1.5x scale */}
-      <div className="bg-white rounded-xl p-6 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-6">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Head-to-Head Matrix (Condorcet)
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-muted-foreground mb-4">
           Every possible pairing. Green = row candidate wins; red = row candidate loses.
           The Condorcet winner&apos;s row is all-green — that&apos;s why they win.
         </p>
@@ -199,44 +197,44 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
             scale={1.5}
           />
         </div>
-      </div>
+      </Card>
 
       {/* IRV vote flow Sankey */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           IRV Vote Flow
         </h3>
-        <p className="text-xs text-slate-500 mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           Each column is one elimination round. Eliminated candidates&apos; votes fan out to the remaining field.
         </p>
         <IRVSankey rounds={data.irvRounds} irvWinner={data.irvWinner} />
-      </div>
+      </Card>
 
       {/* State map */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           State Results Without National Override
         </h3>
-        <p className="text-xs text-slate-500 mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           How each state would vote independently — no electoral college, no national consolidation.
           Toggle between IRV winner and 1st-choice plurality winner to see where ranked choice flips the outcome.
         </p>
         <PresidentialMap stateWinners={data.irvStateWinners} />
-      </div>
+      </Card>
 
       {/* Presidential Policy Comparison — Factor Dev only */}
       {scenario === 'factorDev' && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             Presidential Policy Comparison — Factor Dev · Raw Multi
           </h3>
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-muted-foreground mb-4">
             How likely each potential president would sign or veto major legislation.
             Amber rows highlight where the presidents disagree. % = fraction of the president&apos;s
             voter coalition that supports the bill.
           </p>
           <PresidentialComparison rows={senateVotes} factorDev={factorDev} rawMulti={rawMulti} />
-        </div>
+        </Card>
       )}
     </div>
   );

@@ -32,15 +32,15 @@ export function FPTPvsSTV({ seats }: Props) {
 
   return (
     <div className="space-y-1">
-      <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
         FPTP vs STV — House of Representatives
       </div>
 
       {/* FPTP row */}
       <div className="flex items-center gap-3">
         <div className="shrink-0 text-right" style={{ width: labelColW }}>
-          <div className="text-xs font-semibold text-slate-700">FPTP Today</div>
-          <div className="text-xs text-slate-400">{FPTP_TOTAL} seats</div>
+          <div className="text-xs font-semibold text-foreground">FPTP Today</div>
+          <div className="text-xs text-muted-foreground">{FPTP_TOTAL} seats</div>
         </div>
         <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: fptpBarH }}>
           <div
@@ -71,8 +71,8 @@ export function FPTPvsSTV({ seats }: Props) {
       {/* Proportional 2-party row */}
       <div className="flex items-center gap-3">
         <div className="shrink-0 text-right" style={{ width: labelColW }}>
-          <div className="text-xs font-semibold text-slate-700">PR (2-party)</div>
-          <div className="text-xs text-slate-400">{PR2_TOTAL} seats</div>
+          <div className="text-xs font-semibold text-foreground">PR (2-party)</div>
+          <div className="text-xs text-muted-foreground">{PR2_TOTAL} seats</div>
         </div>
         <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: fptpBarH }}>
           <div
@@ -97,8 +97,8 @@ export function FPTPvsSTV({ seats }: Props) {
       {/* STV row */}
       <div className="flex items-center gap-3">
         <div className="shrink-0 text-right" style={{ width: labelColW }}>
-          <div className="text-xs font-semibold text-slate-700">STV (sim)</div>
-          <div className="text-xs text-slate-400">{stvTotal} seats</div>
+          <div className="text-xs font-semibold text-foreground">STV (sim)</div>
+          <div className="text-xs text-muted-foreground">{stvTotal} seats</div>
         </div>
         <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: stvBarH }}>
           {stvSegments.map(({ party, seats: n }) => {
@@ -123,20 +123,20 @@ export function FPTPvsSTV({ seats }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-3 pt-2 border-t border-slate-100">
+      <div className="flex flex-wrap gap-3 mt-3 pt-2 border-t border-border/50">
         {stvSegments.map(({ party, seats: n }) => {
           const pct = (n / stvTotal) * 100;
           return (
           <div key={party} className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }} />
-            <span className="text-xs text-slate-600 font-medium">{party}</span>
-            <span className="text-xs text-slate-400">{n} ({pct.toFixed(1)}%)</span>
+            <span className="text-xs text-muted-foreground font-medium">{party}</span>
+            <span className="text-xs text-muted-foreground">{n} ({pct.toFixed(1)}%)</span>
           </div>
           );
         })}
       </div>
 
-      <p className="text-xs text-slate-400 mt-1">
+      <p className="text-xs text-muted-foreground mt-1">
         FPTP: winner-take-all produces a 2-party monopoly with disproportionate seat shares.
         PR (2-party): same two parties but seats match vote share — still just two parties.
         STV: {stvSegments.length} parties proportionally represented across {stvTotal} seats.

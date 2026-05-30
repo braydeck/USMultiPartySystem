@@ -33,11 +33,11 @@ export function TransferFlowChart({ data }: Props) {
           <div key={party}>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-bold font-mono w-8" style={{ color }}>{party}</span>
-              <span className="text-xs text-slate-500">{name} — if eliminated, votes transfer to:</span>
+              <span className="text-xs text-muted-foreground">{name} — if eliminated, votes transfer to:</span>
             </div>
 
             {/* Stacked bar */}
-            <div className="flex h-7 rounded overflow-hidden border border-slate-200">
+            <div className="flex h-7 rounded overflow-hidden border border-border">
               {row.destinations.map(d => {
                 const dColor = PARTY_COLORS[d.party] ?? '#6b7280';
                 return (

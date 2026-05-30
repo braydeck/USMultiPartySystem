@@ -4,6 +4,8 @@ import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { DistrictResult } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER } from '../../constants/parties';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const W = 900;
 const H = 560;
@@ -293,30 +295,32 @@ export function HouseMap({ districtResults, districtCountyMap }: Props) {
           ))}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <label className="text-xs font-semibold text-slate-500">State:</label>
+          <label className="text-xs font-semibold text-muted-foreground">State:</label>
           <select
             value={selectedFips}
             onChange={e => setSelectedFips(e.target.value)}
-            className="text-sm border border-slate-200 rounded px-2 py-1 bg-white text-slate-800"
+            className="text-sm border border-border rounded px-2 py-1 bg-white text-foreground"
           >
             {US_STATES.map(s => (
               <option key={s.fips} value={s.fips}>{s.name}</option>
             ))}
           </select>
           <div className="flex gap-1">
-            <button onClick={() => handleZoom(1.5)} className="w-7 h-7 rounded bg-slate-200 text-slate-700 hover:bg-slate-300 text-sm font-bold" title="Zoom in">+</button>
-            <button onClick={() => handleZoom(1 / 1.5)} className="w-7 h-7 rounded bg-slate-200 text-slate-700 hover:bg-slate-300 text-sm font-bold" title="Zoom out">−</button>
-            <button onClick={handleResetZoom} className="px-2 h-7 rounded bg-slate-200 text-slate-600 hover:bg-slate-300 text-xs font-medium" title="Reset zoom">US</button>
+            <Button onClick={() => handleZoom(1.5)} variant="secondary" size="icon" className="h-7 w-7" title="Zoom in" aria-label="Zoom in">+</Button>
+            <Button onClick={() => handleZoom(1 / 1.5)} variant="secondary" size="icon" className="h-7 w-7" title="Zoom out" aria-label="Zoom out">−</Button>
+            <Button onClick={handleResetZoom} variant="secondary" size="sm" className="px-2 h-7" title="Reset zoom" aria-label="Reset zoom">US</Button>
           </div>
         </div>
       </div>
 
       {/* Map */}
-      <div className="relative rounded-lg overflow-hidden bg-slate-50 border border-slate-200">
+      <div className="relative rounded-lg overflow-hidden bg-slate-50 border border-border" aria-label="House district map" role="img">
         {tooltip && (
           <div
-            className="absolute z-10 bg-white border border-slate-200 rounded px-2 py-1 text-xs text-slate-700 shadow-sm pointer-events-none"
+            className="absolute z-10 bg-white border border-border rounded px-2 py-1 text-xs text-foreground shadow-sm pointer-events-none"
             style={{ left: tooltip.x + 12, top: tooltip.y - 8 }}
+            role="status"
+            aria-live="polite"
           >
             {tooltip.text}
           </div>
@@ -326,7 +330,7 @@ export function HouseMap({ districtResults, districtCountyMap }: Props) {
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: '100%', height: 'auto', display: 'block', cursor: 'grab' }}
         />
-        <div className="absolute bottom-2 left-2 text-xs text-slate-400 pointer-events-none">
+        <div className="absolute bottom-2 left-2 text-xs text-muted-foreground pointer-events-none">
           Click a state to zoom · scroll or +/− to zoom
         </div>
       </div>
@@ -344,10 +348,10 @@ export function HouseMap({ districtResults, districtCountyMap }: Props) {
         return (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
               STV Districts — {stateEntry.name}
             </h4>
-            <span className="text-xs text-slate-400">{stateTotal} seats total</span>
+            <span className="text-xs text-muted-foreground">{stateTotal} seats total</span>
           </div>
 
           {/* State-level summary bar */}
@@ -383,16 +387,16 @@ export function HouseMap({ districtResults, districtCountyMap }: Props) {
             {districts.map(d => {
               const tierColor = TIER_COLORS[d.densityTier] ?? '#6b7280';
               return (
-                <div
+                <Card
                   key={d.districtId}
-                  className="rounded-lg border p-3 space-y-2"
+                  className="p-3 space-y-2"
                   style={{ borderColor: tierColor + '44', backgroundColor: tierColor + '08' }}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold px-1.5 py-0.5 rounded text-white" style={{ backgroundColor: tierColor }}>
                       {TIER_LABELS[d.densityTier] ?? d.densityTier}
                     </span>
-                    <span className="text-xs text-slate-400">{d.seatCount} seats · {d.nRespondents} resp.</span>
+                    <span className="text-xs text-muted-foreground">{d.seatCount} seats · {d.nRespondents} resp.</span>
                   </div>
                   {/* Seat bar */}
                   <div className="flex rounded-sm overflow-hidden h-4">
@@ -422,7 +426,7 @@ export function HouseMap({ districtResults, districtCountyMap }: Props) {
                         </span>
                       ))}
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
@@ -430,10 +434,10 @@ export function HouseMap({ districtResults, districtCountyMap }: Props) {
         );
       })()}
       {districts.length === 0 && (
-        <p className="text-xs text-slate-400 italic">No district data for {stateEntry.name}.</p>
+        <p className="text-xs text-muted-foreground italic">No district data for {stateEntry.name}.</p>
       )}
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-muted-foreground">
         Each district is a geographically contiguous cluster of adjacent counties. Fill gradient shows
         proportional seat share; outline color = plurality party. Click a state to zoom in.
       </p>

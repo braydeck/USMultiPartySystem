@@ -27,11 +27,11 @@ export function SeatDistributionBar({ seats: rawSeats }: Props) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-white border border-slate-200 rounded px-3 py-2 text-sm text-slate-900">
+      <div className="bg-white border border-border rounded px-3 py-2 text-sm text-foreground">
         <div className="font-semibold mb-1">{label}</div>
         {payload.map((p: any) => (
           <div key={p.name} className="flex justify-between gap-4">
-            <span className="text-slate-500">{p.name}:</span>
+            <span className="text-muted-foreground">{p.name}:</span>
             <span style={{ color: p.fill }}>{p.value} seats</span>
           </div>
         ))}

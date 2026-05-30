@@ -22,7 +22,7 @@ export function FactorBar({ factor, value }: Props) {
   return (
     <div className="mb-2">
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-slate-600">{label}</span>
+        <span className="text-muted-foreground">{label}</span>
         <span style={{ color }} className="font-mono font-semibold">
           {value >= 0 ? '+' : ''}{value.toFixed(2)}
         </span>
@@ -34,7 +34,7 @@ export function FactorBar({ factor, value }: Props) {
         />
       </div>
       {poles && (
-        <div className="flex justify-between text-slate-400 mt-0.5" style={{ fontSize: 9 }}>
+        <div className="flex justify-between text-muted-foreground mt-0.5" style={{ fontSize: 9 }}>
           <span>{poles.low}</span>
           <span>{poles.high}</span>
         </div>

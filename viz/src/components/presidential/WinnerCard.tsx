@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { PresidentialElection, ClusterProfile, FDCandidateProfile } from '../../types';
 import { getBlendColor, PARTY_NAMES } from '../../constants/parties';
+import { Card } from '@/components/ui/card';
 
 interface Props {
   data: PresidentialElection;
@@ -113,30 +114,30 @@ function CandidateCard({
   const isIRV = methodLabel === 'IRV';
 
   return (
-    <div className="rounded-xl border-2 overflow-hidden flex flex-col" style={{ borderColor: info.color }}>
+    <Card className="border-2 overflow-hidden flex flex-col" style={{ borderColor: info.color }}>
       {/* Header */}
       <div className="px-5 py-3" style={{ backgroundColor: info.color + '12' }}>
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-0.5">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">
           {methodLabel} Winner
         </div>
         <div className="flex items-end gap-2">
           <div className="text-3xl font-black font-mono" style={{ color: info.color }}>{info.code}</div>
-          <div className="text-base font-semibold text-slate-700 mb-0.5">{info.partyName}</div>
+          <div className="text-base font-semibold text-foreground mb-0.5">{info.partyName}</div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 border-b border-slate-200 divide-x divide-slate-200">
+      <div className="grid grid-cols-3 border-b border-border divide-x divide-slate-200">
         {info.finalPct !== undefined && (
           <div className="px-3 py-2 text-center">
             <div className="text-xl font-bold" style={{ color: info.color }}>{info.finalPct.toFixed(1)}%</div>
-            <div className="text-xs text-slate-500">Final Round</div>
+            <div className="text-xs text-muted-foreground">Final Round</div>
           </div>
         )}
         {info.finalPct === undefined && <div className="px-3 py-2" />}
         <div className="px-3 py-2 text-center">
           <div className="text-xl font-bold" style={{ color: info.color }}>{info.statesWon}</div>
-          <div className="text-xs text-slate-500">States (IRV)</div>
+          <div className="text-xs text-muted-foreground">States (IRV)</div>
         </div>
         <div className="px-3 py-2 text-center">
           {info.matchupVsOther !== null ? (
@@ -145,10 +146,10 @@ function CandidateCard({
                 style={{ color: info.matchupVsOther.margin > 0 ? info.color : '#94a3b8' }}>
                 {info.matchupVsOther.margin > 0 ? '+' : ''}{info.matchupVsOther.margin.toFixed(1)}pp
               </div>
-              <div className="text-xs text-slate-500">vs {otherInfo.code}</div>
+              <div className="text-xs text-muted-foreground">vs {otherInfo.code}</div>
             </>
           ) : (
-            <div className="text-xs text-slate-400">—</div>
+            <div className="text-xs text-muted-foreground">—</div>
           )}
         </div>
       </div>
@@ -156,7 +157,7 @@ function CandidateCard({
       {/* Where they differ — show positions where this candidate is higher */}
       {sharedDiffs.length > 0 && (
         <div className="px-5 py-3 flex-1">
-          <div className="text-xs font-semibold text-slate-600 uppercase tracking-widest mb-2">Where They Differ</div>
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Where They Differ</div>
           <ul className="space-y-2">
             {sharedDiffs.map((d, i) => {
               const myPct = isIRV ? d.pctA : d.pctB;
@@ -171,13 +172,13 @@ function CandidateCard({
                     >
                       {iAmHigher ? '▲' : '▼'}
                     </span>
-                    <span className="text-slate-700 leading-snug">{d.question}</span>
+                    <span className="text-foreground leading-snug">{d.question}</span>
                   </div>
-                  <div className="flex gap-3 mt-0.5 ml-4 text-slate-500">
+                  <div className="flex gap-3 mt-0.5 ml-4 text-muted-foreground">
                     <span style={{ color: info.color }} className="font-semibold">{Math.round(myPct)}%</span>
                     <span className="text-slate-300">vs</span>
                     <span style={{ color: otherInfo.color }}>{Math.round(theirPct)}%</span>
-                    <span className="text-slate-400">({d.diffPp.toFixed(0)}pp gap)</span>
+                    <span className="text-muted-foreground">({d.diffPp.toFixed(0)}pp gap)</span>
                   </div>
                 </li>
               );
@@ -186,11 +187,11 @@ function CandidateCard({
         </div>
       )}
       {sharedDiffs.length === 0 && (
-        <div className="px-5 py-4 flex-1 text-xs text-slate-400 italic">
+        <div className="px-5 py-4 flex-1 text-xs text-muted-foreground italic">
           No policy positions with ≥{minGap}pp gap found between these candidates.
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -208,31 +209,31 @@ export function WinnerCard({ data, clusters, fdProfiles }: Props) {
   return (
     <div className="space-y-3">
       {sameWinner ? (
-        <div className="rounded-xl border-2 overflow-hidden" style={{ borderColor: irvInfo.color }}>
+        <Card className="border-2 overflow-hidden" style={{ borderColor: irvInfo.color }}>
           <div className="px-5 py-3" style={{ backgroundColor: irvInfo.color + '12' }}>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-0.5">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">
               IRV & Condorcet Winner
             </div>
             <div className="flex items-end gap-2">
               <div className="text-3xl font-black font-mono" style={{ color: irvInfo.color }}>{irvInfo.code}</div>
-              <div className="text-base font-semibold text-slate-700 mb-0.5">{irvInfo.partyName}</div>
+              <div className="text-base font-semibold text-foreground mb-0.5">{irvInfo.partyName}</div>
             </div>
           </div>
-          <div className="grid grid-cols-2 border-b border-slate-200 divide-x divide-slate-200">
+          <div className="grid grid-cols-2 border-b border-border divide-x divide-slate-200">
             <div className="px-4 py-2 text-center">
               <div className="text-xl font-bold" style={{ color: irvInfo.color }}>{irvInfo.finalPct?.toFixed(1)}%</div>
-              <div className="text-xs text-slate-500">Final Round</div>
+              <div className="text-xs text-muted-foreground">Final Round</div>
             </div>
             <div className="px-4 py-2 text-center">
               <div className="text-xl font-bold" style={{ color: irvInfo.color }}>{irvInfo.statesWon}</div>
-              <div className="text-xs text-slate-500">States (IRV)</div>
+              <div className="text-xs text-muted-foreground">States (IRV)</div>
             </div>
           </div>
-        </div>
+        </Card>
       ) : (
         <>
           <div className="flex justify-end">
-            <label className="flex items-center gap-1.5 text-xs text-slate-500">
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
               Min gap to show
               <input
                 type="number"
@@ -240,7 +241,7 @@ export function WinnerCard({ data, clusters, fdProfiles }: Props) {
                 max={100}
                 value={minGap}
                 onChange={e => setMinGap(Math.max(0, Math.min(100, Number(e.target.value))))}
-                className="w-14 border border-slate-200 rounded px-2 py-1 text-center font-mono text-slate-700 bg-white"
+                className="w-14 border border-border rounded px-2 py-1 text-center font-mono text-foreground bg-white"
               />
               pp
             </label>
@@ -251,11 +252,11 @@ export function WinnerCard({ data, clusters, fdProfiles }: Props) {
           </div>
 
           {/* Head-to-head callout */}
-          <div className="rounded-lg bg-slate-50 border border-slate-200 px-4 py-3">
-            <div className="text-xs font-semibold text-slate-600 uppercase tracking-widest mb-2">
+          <Card className="bg-slate-50 px-4 py-3">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
               How They Differ
             </div>
-            <div className="grid sm:grid-cols-2 gap-3 text-xs text-slate-600">
+            <div className="grid sm:grid-cols-2 gap-3 text-xs text-muted-foreground">
               <div>
                 <span className="font-semibold" style={{ color: irvInfo.color }}>{irvInfo.code}</span>
                 {' '}wins via IRV because its voters transfer well from eliminated candidates.
@@ -273,7 +274,7 @@ export function WinnerCard({ data, clusters, fdProfiles }: Props) {
                 But under IRV, early eliminations prevent it from accumulating enough transfers.
               </div>
             </div>
-          </div>
+          </Card>
         </>
       )}
     </div>

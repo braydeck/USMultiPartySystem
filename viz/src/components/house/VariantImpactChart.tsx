@@ -71,7 +71,7 @@ export function VariantImpactChart({ seats }: Props) {
             <span className="text-xs font-bold font-mono text-right" style={{ color }}>{party}</span>
 
             {/* Stacked bar by axis */}
-            <div className="flex h-6 rounded overflow-hidden border border-slate-200">
+            <div className="flex h-6 rounded overflow-hidden border border-border">
               {axes.map(a => {
                 const n = data[a] ?? 0;
                 if (n === 0) return null;
@@ -94,7 +94,7 @@ export function VariantImpactChart({ seats }: Props) {
             </div>
 
             {/* Summary */}
-            <div className="text-[10px] text-slate-600">
+            <div className="text-[10px] text-muted-foreground">
               <span className="font-semibold">{total}</span> seats
               {variantSeats > 0 && bestAxis && (
                 <span className="ml-1">

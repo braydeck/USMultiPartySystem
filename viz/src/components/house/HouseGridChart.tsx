@@ -112,7 +112,7 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
     <div>
       {/* Party highlight filter */}
       <div className="flex flex-wrap gap-1.5 mb-3">
-        <span className="text-xs text-slate-400 self-center mr-1">Highlight:</span>
+        <span className="text-xs text-muted-foreground self-center mr-1">Highlight:</span>
         {F5_ORDER.map(p => (
           <button
             key={p}
@@ -131,7 +131,7 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
         {activeParty && (
           <button
             onClick={() => setActiveParty(null)}
-            className="text-xs px-2 py-0.5 rounded border border-slate-300 text-slate-400"
+            className="text-xs px-2 py-0.5 rounded border border-slate-300 text-muted-foreground"
           >
             clear
           </button>
@@ -139,7 +139,7 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
       </div>
 
       {tooltip && (
-        <div className="text-sm text-slate-700 bg-white border border-slate-200 rounded px-3 py-1.5 shadow-sm mb-2 inline-block">
+        <div className="text-sm text-foreground bg-white border border-border rounded px-3 py-1.5 shadow-sm mb-2 inline-block">
           {tooltip}
         </div>
       )}
@@ -227,7 +227,7 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
           })}
         </svg>
       </div>
-      <p className="text-xs text-slate-500 mt-2 text-center">
+      <p className="text-xs text-muted-foreground mt-2 text-center">
         Each square = one STV seat · rows = districts (urban → suburban → rural) · cell size ∝ state representation · click a party to see its geographic reach
       </p>
     </div>

@@ -1,4 +1,5 @@
 import type { HouseStateEntry } from '../../types';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 
 // 2024 congressional apportionment (post-2020 census, 435 total)
 const FPTP_SEATS: Record<string, number> = {
@@ -34,43 +35,43 @@ export function StateSeatsTable({ stateMap }: Props) {
 
   const renderRows = (data: typeof rows) =>
     data.map(({ abbr, stv, fptp, delta }) => (
-      <tr key={abbr} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
-        <td className="py-1 pr-2 text-xs font-semibold text-slate-700 w-8">{abbr}</td>
-        <td className="py-1 px-2 text-xs text-right tabular-nums text-slate-500">{fptp}</td>
-        <td className="py-1 px-2 text-xs text-right tabular-nums font-medium text-slate-800">{stv}</td>
-        <td className="py-1 pl-2 text-xs text-right tabular-nums font-bold text-emerald-600">+{delta}</td>
-      </tr>
+      <TableRow key={abbr}>
+        <TableCell className="py-1 pr-2 text-xs font-semibold text-foreground w-8">{abbr}</TableCell>
+        <TableCell className="py-1 px-2 text-xs text-right tabular-nums text-muted-foreground">{fptp}</TableCell>
+        <TableCell className="py-1 px-2 text-xs text-right tabular-nums font-medium text-foreground">{stv}</TableCell>
+        <TableCell className="py-1 pl-2 text-xs text-right tabular-nums font-bold text-emerald-600">+{delta}</TableCell>
+      </TableRow>
     ));
 
   const ColHead = () => (
-    <thead>
-      <tr className="border-b border-slate-200">
-        <th className="pb-1.5 pr-2 text-xs text-slate-400 font-medium text-left">State</th>
-        <th className="pb-1.5 px-2 text-xs text-slate-400 font-medium text-right">Now</th>
-        <th className="pb-1.5 px-2 text-xs text-slate-400 font-medium text-right">STV</th>
-        <th className="pb-1.5 pl-2 text-xs text-slate-400 font-medium text-right">Gain</th>
-      </tr>
-    </thead>
+    <TableHeader>
+      <TableRow>
+        <TableHead className="pb-1.5 pr-2 text-xs text-muted-foreground text-left">State</TableHead>
+        <TableHead className="pb-1.5 px-2 text-xs text-muted-foreground text-right">Now</TableHead>
+        <TableHead className="pb-1.5 px-2 text-xs text-muted-foreground text-right">STV</TableHead>
+        <TableHead className="pb-1.5 pl-2 text-xs text-muted-foreground text-right">Gain</TableHead>
+      </TableRow>
+    </TableHeader>
   );
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
         Seats per State: STV vs Current
       </h3>
-      <p className="text-xs text-slate-400 mb-3">
+      <p className="text-xs text-muted-foreground mb-3">
         Now = 2024 FPTP apportionment ({fptpTotal} total). STV = simulated proportional districts ({stvTotal} total).
         Every state gains seats because multi-member STV targets one seat per ~380k residents.
       </p>
       <div className="grid grid-cols-2 gap-x-8">
-        <table className="w-full">
+        <Table>
           <ColHead />
-          <tbody>{renderRows(left)}</tbody>
-        </table>
-        <table className="w-full">
+          <TableBody>{renderRows(left)}</TableBody>
+        </Table>
+        <Table>
           <ColHead />
-          <tbody>{renderRows(right)}</tbody>
-        </table>
+          <TableBody>{renderRows(right)}</TableBody>
+        </Table>
       </div>
     </div>
   );

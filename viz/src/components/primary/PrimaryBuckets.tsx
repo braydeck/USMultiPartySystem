@@ -44,8 +44,8 @@ export default function PrimaryBuckets({ data, stageIdx }: Props) {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="text-[10px] text-slate-400">
-        {stage.nEntering} enter → <strong className="text-slate-600">{stage.nWinners} elected</strong>
+      <div className="text-[10px] text-muted-foreground">
+        {stage.nEntering} enter → <strong className="text-muted-foreground">{stage.nWinners} elected</strong>
         {' · '}quota = {stage.quota.toFixed(1)}%
       </div>
 
@@ -116,7 +116,7 @@ function WinnerBar({ w, scaleMax, onTip }: {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[10px] text-slate-500 w-12 text-right shrink-0 font-semibold">{w.code}</span>
+      <span className="text-[10px] text-muted-foreground w-12 text-right shrink-0 font-semibold">{w.code}</span>
       <div
         className="flex-1 h-6 relative cursor-pointer overflow-hidden"
         onMouseMove={e => onTip({ x: e.clientX, y: e.clientY, lines: tooltipLines })}
@@ -137,7 +137,7 @@ function WinnerBar({ w, scaleMax, onTip }: {
           ))}
         </div>
         <span
-          className="absolute top-0 h-full flex items-center text-[9px] font-bold text-slate-500 pointer-events-none pl-1"
+          className="absolute top-0 h-full flex items-center text-[9px] font-bold text-muted-foreground pointer-events-none pl-1"
           style={{ left: `${barW}%` }}
         >
           {w.retained.toFixed(1)}%
@@ -202,7 +202,7 @@ function EliminatedBar({ e, scaleMax, onTip }: {
               className="h-full flex items-center justify-center"
               style={{ width: `${(remainder / 100) * 100}%`, backgroundColor: '#94a3b8', opacity: 0.3 }}
             >
-              <span className="text-[7px] text-slate-500">exh</span>
+              <span className="text-[7px] text-muted-foreground">exh</span>
             </div>
           )}
         </div>

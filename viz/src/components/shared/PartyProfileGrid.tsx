@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ClusterProfile } from '../../types';
 import { PartyProfileCard } from './PartyProfileCard';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -13,26 +14,24 @@ export function PartyProfileGrid({ clusters }: Props) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
-          <p className="text-xs text-slate-500">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
+          <p className="text-xs text-muted-foreground">
             {mode === 'strength'
               ? 'Intensity of each ideological position (σ from zero = factor model center).'
               : 'How each party compares to all American voters surveyed (percentile rank).'}
           </p>
         </div>
         <div className="flex gap-1 shrink-0 ml-4">
-          <button onClick={() => setMode('strength')}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              mode === 'strength' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-            }`}>
+          <Button onClick={() => setMode('strength')}
+            variant={mode === 'strength' ? 'default' : 'secondary'}
+            size="sm">
             Strength
-          </button>
-          <button onClick={() => setMode('percentile')}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              mode === 'percentile' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-            }`}>
+          </Button>
+          <Button onClick={() => setMode('percentile')}
+            variant={mode === 'percentile' ? 'default' : 'secondary'}
+            size="sm">
             Percentile
-          </button>
+          </Button>
         </div>
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

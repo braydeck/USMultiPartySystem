@@ -4,6 +4,8 @@ import { QuizQuestion } from '../components/quiz/QuizQuestion';
 import { QuizProgress } from '../components/quiz/QuizProgress';
 import { QuizResult } from '../components/quiz/QuizResult';
 import { scoreQuiz } from '../utils/quizScoring';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   questions: QuizQuestionType[];
@@ -49,8 +51,8 @@ export function QuizTab({ questions, clusters, houseVotes }: Props) {
     return (
       <div className="space-y-8">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-1">Your Political Profile</h2>
-          <p className="text-slate-500 text-sm">Based on your quiz answers, here's which party you align with most.</p>
+          <h2 className="text-2xl font-bold text-foreground mb-1">Your Political Profile</h2>
+          <p className="text-muted-foreground text-sm">Based on your quiz answers, here's which party you align with most.</p>
         </div>
         <QuizResult
           cluster={cluster}
@@ -69,38 +71,38 @@ export function QuizTab({ questions, clusters, houseVotes }: Props) {
   return (
     <div className="space-y-8 max-w-xl mx-auto">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-1">Who Are You?</h2>
-        <p className="text-slate-500 text-sm">
+        <h2 className="text-2xl font-bold text-foreground mb-1">Who Are You?</h2>
+        <p className="text-muted-foreground text-sm">
           10 questions to find which of the 9 parties best matches your political values.
         </p>
       </div>
 
       <QuizProgress current={current + 1} total={questions.length} />
 
-      <div className="bg-white rounded-xl p-6 border border-slate-200">
+      <Card className="p-6">
         <QuizQuestion
           question={q.question}
           domain={q.domain}
           selected={answers[current] ?? null}
           onSelect={handleSelect}
         />
-      </div>
+      </Card>
 
       <div className="flex justify-between">
-        <button
+        <Button
           onClick={handleBack}
           disabled={current === 0}
-          className="px-5 py-2 rounded bg-slate-200 text-slate-700 font-medium disabled:opacity-40 hover:bg-slate-300 transition-colors"
+          variant="secondary"
         >
           Back
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleNext}
           disabled={!hasAnswer}
-          className="px-5 py-2 rounded bg-indigo-600 text-white font-medium disabled:opacity-40 hover:bg-indigo-500 transition-colors"
+          variant="default"
         >
           {current === questions.length - 1 ? 'See Results' : 'Next'}
-        </button>
+        </Button>
       </div>
     </div>
   );

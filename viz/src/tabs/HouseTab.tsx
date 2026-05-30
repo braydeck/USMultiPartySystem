@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import type { HouseSeat, CoalitionProfile, TransferMatrix, VoteModelRow, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { BillSimulator } from '../components/house/BillSimulator';
@@ -109,21 +111,19 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-1">House of Representatives</h2>
-        <p className="text-slate-500 text-sm">
+        <h2 className="text-2xl font-bold text-foreground mb-1">House of Representatives</h2>
+        <p className="text-muted-foreground text-sm">
           {totalSeats} seats allocated via STV across geographically-drawn districts sized 4–7 seats.
         </p>
       </div>
 
       {/* Scenario toggle — sticky */}
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-slate-100 -mx-4 px-4 py-2 flex gap-2">
+      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex gap-2">
         {(['rawMulti', 'factorDev'] as const).map(s => (
-          <button key={s} onClick={() => setScenario(s)}
-            className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-              scenario === s ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}>
+          <Button key={s} onClick={() => setScenario(s)}
+            variant={scenario === s ? 'default' : 'secondary'}>
             {s === 'rawMulti' ? 'Raw Multi' : 'Factor Dev'}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -132,45 +132,45 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
           ═══════════════════════════════════════════════════════════════════════ */}
 
       {/* Hero: FPTP vs STV */}
-      <div className="bg-white rounded-xl p-5 border-2 border-indigo-200">
+      <Card className="p-5 border-2 border-indigo-200">
         <FPTPvsSTV seats={activeSeats} />
-      </div>
+      </Card>
 
       {/* Population vs Seat Share */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Population vs Seat Share
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-muted-foreground mb-4">
           How close does STV get to proportional representation? Faded bar = population share, solid = seat share.
           {scenario === 'factorDev' && ' Outlined = Factor Dev seat share for comparison.'}
         </p>
         <ScenarioComparison rawMultiSeats={seats} fdSeats={fdSeatsAggregated} scenario={scenario} />
-      </div>
+      </Card>
 
       {/* FD: Variant bar right after seat share */}
       {scenario === 'factorDev' && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             Seats by Variant
           </h3>
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-muted-foreground mb-3">
             {activeTotalSeats} seats stacked by axis variant. Full color = base; lighter = hi axis; darker = lo axis.
           </p>
           <PartyVariantBar seats={fdHouseSeats} totalLabel={`${activeTotalSeats} house seats`} />
-        </div>
+        </Card>
       )}
 
       {/* Seats by District Type */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Seats by District Type
         </h3>
-        <p className="text-xs text-slate-500 mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
         </p>
         <UrbSubRurChart seats={activeSeats} />
-      </div>
+      </Card>
 
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 2: PARTIES & GEOGRAPHY
@@ -180,73 +180,71 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
       <PartyProfileGrid clusters={orderedClusters} />
 
       {/* Chamber Composition */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
+      <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Chamber Composition</h3>
-          <span className="text-xs text-slate-500">— order by:</span>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Chamber Composition</h3>
+          <span className="text-xs text-muted-foreground">— order by:</span>
           {(['F1','F2','F3','F4','F5'] as const).map(f => (
-            <button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
-              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                parliamentFactor === f ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-              }`}>
+            <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
+              variant={parliamentFactor === f ? 'default' : 'secondary'}
+              size="sm">
               {f} · {FACTOR_LABELS[f]}
-            </button>
+            </Button>
           ))}
         </div>
         <ParliamentChart segments={parliamentSegments} factor={parliamentFactor} />
-      </div>
+      </Card>
 
       {/* State Composition — both views */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
+      <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">State Composition</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
           <div className="flex gap-1">
             {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
-              <button key={v} onClick={() => setMapView(v)}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  mapView === v ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                }`}>
+              <Button key={v} onClick={() => setMapView(v)}
+                variant={mapView === v ? 'default' : 'secondary'}
+                size="sm">
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
         {mapView === 'map' && <HouseMap districtResults={scenario === 'factorDev' ? fdDistrictResults : districtResults} districtCountyMap={districtCountyMap} />}
         {mapView === 'grid' && <HouseGridChart stateMap={stateMap} districtResults={scenario === 'factorDev' ? fdDistrictResults : districtResults} />}
-      </div>
+      </Card>
 
       {/* FPTP disproportionality — below maps */}
       {fptpStates.length > 0 && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             FPTP Disproportionality by State
           </h3>
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-muted-foreground mb-4">
             How far each state&apos;s FPTP outcome diverges from proportional representation.
           </p>
           <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />
-        </div>
+        </Card>
       )}
 
       {/* Vote Transfer Destinations — Raw Multi only */}
       {scenario === 'rawMulti' && houseTransfers.length > 0 && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             Vote Transfer Destinations
           </h3>
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-muted-foreground mb-4">
             When a party is eliminated in STV, where do their voters&apos; ballots flow?
           </p>
           <TransferFlowChart data={houseTransfers} />
-        </div>
+        </Card>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 3: IDEOLOGICAL LANDSCAPE
           ═══════════════════════════════════════════════════════════════════════ */}
 
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
           Ideological Constellation
         </h3>
         <IdeologicalConstellation
@@ -269,21 +267,21 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
           transfers={scenario === 'rawMulti' ? transfers : undefined}
           clusterSpreads={clusterSpreads}
         />
-      </div>
+      </Card>
 
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
           Bill Simulator
         </h3>
-        <p className="text-xs text-slate-500 mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           Probability of passage based on the House seat composition.
         </p>
         <BillSimulator rows={voteModel} />
-      </div>
+      </Card>
 
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
+      <Card className="p-4">
         <StateSeatsTable stateMap={stateMap} />
-      </div>
+      </Card>
 
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 4: FACTOR DEV VARIANT ANALYSIS (FD only, at bottom)
@@ -293,47 +291,47 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
         <>
           <div className="border-t-2 border-violet-200 pt-6">
             <h3 className="text-lg font-bold text-violet-800 mb-1">Factor Deviation Analysis</h3>
-            <p className="text-xs text-slate-500 mb-6">
+            <p className="text-xs text-muted-foreground mb-6">
               How do ideological deviations from party baselines affect seat composition and cross-party attraction?
             </p>
           </div>
 
           {/* Variant Impact */}
-          <div className="bg-white rounded-xl p-4 border border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
               Variant Impact by Party
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-muted-foreground mb-4">
               Which ideological deviations win seats? Stacked bars show base vs axis variant contributions.
             </p>
             <VariantImpactChart seats={fdHouseSeats} />
-          </div>
+          </Card>
 
           {/* Variant Voter Attraction Sources */}
           {fdVariantAttraction.length > 0 && (
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
                 Variant Voter Attraction Sources
               </h3>
-              <p className="text-xs text-slate-500 mb-4">
+              <p className="text-xs text-muted-foreground mb-4">
                 Incremental cross-party attraction for each deviation relative to the party base.
               </p>
               <VariantAttractionChart data={fdVariantAttraction} />
-            </div>
+            </Card>
           )}
 
           {/* Cross-Party Attraction Drivers */}
           {fdAttractionDrivers.length > 0 && (
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
                 Cross-Party Attraction Drivers
               </h3>
-              <p className="text-xs text-slate-500 mb-3">
+              <p className="text-xs text-muted-foreground mb-3">
                 Which factors explain each variant&apos;s cross-party pull? Bars show per-factor contribution
                 to closing the distance between the variant and the attracted party.
               </p>
               <AttractionDriverChart data={fdAttractionDrivers} />
-            </div>
+            </Card>
           )}
         </>
       )}

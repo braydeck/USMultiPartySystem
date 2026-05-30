@@ -1,4 +1,5 @@
 import { getPartyColor } from '../../constants/parties';
+import { Badge } from '@/components/ui/badge';
 
 interface Props {
   code: string;
@@ -7,13 +8,13 @@ interface Props {
 
 export function PartyBadge({ code, size = 'md' }: Props) {
   const color = getPartyColor(code);
-  const px = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
   return (
-    <span
-      className={`inline-block rounded font-semibold ${px}`}
-      style={{ backgroundColor: color + '33', color, border: `1px solid ${color}88` }}
+    <Badge
+      variant="outline"
+      className={size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-3 py-1'}
+      style={{ backgroundColor: color + '33', color, borderColor: color + '88' }}
     >
       {code}
-    </span>
+    </Badge>
   );
 }

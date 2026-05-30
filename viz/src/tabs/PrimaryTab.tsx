@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import type { PrimaryStateWinner, PrimarySankeyData, FDPrimaryData, ClusterProfile } from '../types';
 import { PrimaryStateMap } from '../components/primary/PrimaryStateMap';
 import PrimaryStageBars from '../components/primary/PrimaryStageBars';
@@ -53,8 +55,8 @@ export function PrimaryTab({
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-1">2028 Presidential Primary</h2>
-        <p className="text-slate-500 text-sm">
+        <h2 className="text-2xl font-bold text-foreground mb-1">2028 Presidential Primary</h2>
+        <p className="text-muted-foreground text-sm">
           A 4-round STV simulation across regional pods — a crowded field collapses into a final set of survivors
           through elimination rounds. Quota = {(quota * 100).toFixed(1)}%.
         </p>
@@ -64,42 +66,34 @@ export function PrimaryTab({
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2">
           {(['rawMulti', 'factorDev'] as Pipeline[]).map(p => (
-            <button
+            <Button
               key={p}
               onClick={() => { setPipeline(p); setStageIdx(0); }}
-              className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-                pipeline === p
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-              }`}
+              variant={pipeline === p ? 'default' : 'secondary'}
             >
               {PIPELINE_LABELS[p]}
-            </button>
+            </Button>
           ))}
         </div>
-        <p className="text-xs text-slate-500">{PIPELINE_DESC[pipeline]}</p>
+        <p className="text-xs text-muted-foreground">{PIPELINE_DESC[pipeline]}</p>
       </div>
 
       {/* Stage selector + party legend — sticky below main nav */}
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-slate-100 -mx-4 px-4 py-2 space-y-1.5">
+      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 space-y-1.5">
         <div className="flex flex-wrap gap-2">
           {data.stagesOrder.map((s, i) => (
-            <button
+            <Button
               key={s}
               onClick={() => setStageIdx(i)}
-              className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-                stageIdx === i
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-              }`}
+              variant={stageIdx === i ? 'default' : 'secondary'}
             >
               {data.stageLabels[s] ?? s}
-            </button>
+            </Button>
           ))}
         </div>
         <div className="flex flex-wrap gap-x-3 gap-y-0.5">
           {F5_ORDER.map(p => (
-            <span key={p} className="flex items-center gap-1 text-[10px] text-slate-500">
+            <span key={p} className="flex items-center gap-1 text-[10px] text-muted-foreground">
               <span
                 className="inline-block w-2.5 h-2.5 rounded-sm"
                 style={{ backgroundColor: PARTY_COLORS[p] }}
@@ -111,48 +105,48 @@ export function PrimaryTab({
       </div>
 
       {/* State map — full width */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           State Winners by Stage
         </h3>
-        <p className="text-xs text-slate-500 mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           States light up as their pod votes. Color = IRV winner in that state&apos;s race.
         </p>
         <PrimaryStateMap stateWinners={stateWinners} stage={stage} />
-      </div>
+      </Card>
 
       {/* Primary Winnowing — stage-by-stage stacked bars */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Primary Winnowing
         </h3>
-        <p className="text-xs text-slate-500 mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           Each bar shows surviving candidates after a round. Bar width = vote share. Dimmed segments = eliminated next round.
           Dashed line = Droop quota. Hover for details.
         </p>
         <PrimaryStageBars data={data} highlightStage={stageIdx + 1} />
-      </div>
+      </Card>
 
       {/* Bucket Chart — how each winner filled their quota */}
       {pipeline === 'rawMulti' && pureMultiBuckets?.stages?.[stageIdx] && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             How Winners Fill Their Quota
           </h3>
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-muted-foreground mb-3">
             Each bar shows where a winner&apos;s votes came from. Darkest = own first-choice supporters.
             Other colors = transfers from surplus or eliminated candidates. Dashed line = quota threshold.
           </p>
           <PrimaryBuckets data={pureMultiBuckets} stageIdx={stageIdx} />
-        </div>
+        </Card>
       )}
 
       {/* Ideological Constellation + Party Profiles */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Ideological Constellation
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-muted-foreground mb-4">
           Drag axes to explore ideological dimensions. Bubble size = house seats. Links = transfer affinity.
         </p>
         <IdeologicalConstellation
@@ -168,7 +162,7 @@ export function PrimaryTab({
           }))}
           clusterSpreads={clusterSpreads}
         />
-      </div>
+      </Card>
 
       <PartyProfileGrid clusters={orderedClusters} />
 

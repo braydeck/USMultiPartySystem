@@ -16,9 +16,9 @@ export function SenateMap({ seats }: Props) {
 
   return (
     <div>
-      <div className="relative">
+      <div className="relative" aria-label="Senate election results map" role="img">
         {tooltip && (
-          <div className="absolute top-2 left-2 bg-white border border-slate-300 rounded px-3 py-2 text-sm text-slate-900 z-10 pointer-events-none max-w-xs shadow-sm">
+          <div className="absolute top-2 left-2 bg-white border border-slate-300 rounded px-3 py-2 text-sm text-foreground z-10 pointer-events-none max-w-xs shadow-sm" role="status" aria-live="polite">
             {tooltip}
           </div>
         )}
@@ -69,7 +69,7 @@ export function SenateMap({ seats }: Props) {
               onMouseEnter={() => setTooltip(`DC: ${dc.senatorLabel} (${dc.senatorType})`)}
               onMouseLeave={() => setTooltip(null)}
             >
-              <div className="text-center text-[9px] font-bold text-slate-500 mb-0.5 leading-none">DC</div>
+              <div className="text-center text-[9px] font-bold text-muted-foreground mb-0.5 leading-none">DC</div>
               <div
                 className="rounded border border-slate-300 w-12 h-7"
                 style={{ backgroundColor: color + 'cc' }}
@@ -79,7 +79,7 @@ export function SenateMap({ seats }: Props) {
         })()}
       </div>
 
-      <p className="text-xs text-slate-500 mt-2 text-center">
+      <p className="text-xs text-muted-foreground mt-2 text-center">
         Blended senators shown as interpolated colors · hover for details
       </p>
     </div>

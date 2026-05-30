@@ -213,15 +213,17 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
       <div className="relative">
         {tooltip && (
           <div
-            className="absolute z-10 bg-white border border-slate-300 rounded px-3 py-2 text-xs pointer-events-none text-slate-700 shadow-sm"
+            className="absolute z-10 bg-white border border-slate-300 rounded px-3 py-2 text-xs pointer-events-none text-foreground shadow-sm"
             style={{ left: tooltip.x + 12, top: tooltip.y - 8, maxWidth: 220 }}
+            role="status"
+            aria-live="polite"
           >
             {tooltip.text}
           </div>
         )}
-        <svg ref={svgRef} className="w-full" style={{ height: 280 }} />
+        <svg ref={svgRef} className="w-full" style={{ height: 280 }} aria-label="IRV vote transfer Sankey diagram" />
       </div>
-      <p className="text-xs text-slate-500 mt-1 text-center">
+      <p className="text-xs text-muted-foreground mt-1 text-center">
         Carry-forward votes flow straight across. Eliminated candidates&apos; votes fan out to remaining candidates.
       </p>
     </div>

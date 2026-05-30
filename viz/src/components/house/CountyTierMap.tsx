@@ -4,6 +4,8 @@ import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { DistrictResult } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const W = 900;
 const H = 560;
@@ -254,19 +256,19 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
           {(['URBAN', 'SUBURBAN', 'RURAL'] as const).map(tier => (
             <div key={tier} className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: TIER_COLORS[tier] }} />
-              <span className="text-xs text-slate-600">
+              <span className="text-xs text-muted-foreground">
                 {TIER_LABELS[tier]}
-                <span className="text-slate-400 ml-1">({tierCounts[tier].toLocaleString()})</span>
+                <span className="text-muted-foreground ml-1">({tierCounts[tier].toLocaleString()})</span>
               </span>
             </div>
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-slate-500">State:</label>
+          <label className="text-xs font-semibold text-muted-foreground">State:</label>
           <select
             value={stateEntry.fips}
             onChange={e => setSelectedFips(e.target.value)}
-            className="text-sm border border-slate-200 rounded px-2 py-1 bg-white text-slate-800"
+            className="text-sm border border-border rounded px-2 py-1 bg-white text-foreground"
           >
             {US_STATES.map(s => (
               <option key={s.fips} value={s.fips}>{s.name}</option>
@@ -274,31 +276,42 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
           </select>
           {/* Zoom controls */}
           <div className="flex gap-1 ml-2">
-            <button
+            <Button
               onClick={() => handleZoom(1.5)}
-              className="w-7 h-7 rounded bg-slate-200 text-slate-700 hover:bg-slate-300 text-sm font-bold transition-colors"
+              variant="secondary"
+              size="icon"
+              className="h-7 w-7"
               title="Zoom in"
-            >+</button>
-            <button
+              aria-label="Zoom in"
+            >+</Button>
+            <Button
               onClick={() => handleZoom(1 / 1.5)}
-              className="w-7 h-7 rounded bg-slate-200 text-slate-700 hover:bg-slate-300 text-sm font-bold transition-colors"
+              variant="secondary"
+              size="icon"
+              className="h-7 w-7"
               title="Zoom out"
-            >−</button>
-            <button
+              aria-label="Zoom out"
+            >−</Button>
+            <Button
               onClick={handleResetZoom}
-              className="px-2 h-7 rounded bg-slate-200 text-slate-600 hover:bg-slate-300 text-xs font-medium transition-colors"
+              variant="secondary"
+              size="sm"
+              className="px-2 h-7"
               title="Reset zoom"
-            >US</button>
+              aria-label="Reset zoom"
+            >US</Button>
           </div>
         </div>
       </div>
 
       {/* Map */}
-      <div className="relative rounded-lg overflow-hidden bg-slate-50 border border-slate-200">
+      <div className="relative rounded-lg overflow-hidden bg-slate-50 border border-border" aria-label="County tier map" role="img">
         {tooltip && (
           <div
-            className="absolute z-10 bg-white border border-slate-200 rounded px-2 py-1 text-xs text-slate-700 shadow-sm pointer-events-none"
+            className="absolute z-10 bg-white border border-border rounded px-2 py-1 text-xs text-foreground shadow-sm pointer-events-none"
             style={{ left: tooltip.x + 12, top: tooltip.y - 8 }}
+            role="status"
+            aria-live="polite"
           >
             {tooltip.text}
           </div>
@@ -308,7 +321,7 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
           viewBox={`0 0 ${W} ${H}`}
           style={{ width: '100%', height: 'auto', display: 'block', cursor: 'grab' }}
         />
-        <div className="absolute bottom-2 left-2 text-xs text-slate-400 pointer-events-none">
+        <div className="absolute bottom-2 left-2 text-xs text-muted-foreground pointer-events-none">
           Click a state to zoom in · scroll or +/− to zoom
         </div>
       </div>
@@ -316,16 +329,16 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
       {/* District STV result cards for selected state */}
       {districts.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
             STV Districts — {stateEntry.name}
           </h4>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {districts.map(d => {
               const tierColor = TIER_COLORS[d.densityTier] ?? '#6b7280';
               return (
-                <div
+                <Card
                   key={d.districtId}
-                  className="rounded-lg border p-3 space-y-2"
+                  className="p-3 space-y-2"
                   style={{ borderColor: tierColor + '44', backgroundColor: tierColor + '08' }}
                 >
                   <div className="flex items-center justify-between">
@@ -335,7 +348,7 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
                     >
                       {TIER_LABELS[d.densityTier]?.split(' ')[0]}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-muted-foreground">
                       {d.seatCount} seats · {d.nRespondents} resp.
                     </span>
                   </div>
@@ -351,17 +364,17 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
                       </span>
                     ))}
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
         </div>
       )}
       {districts.length === 0 && (
-        <p className="text-xs text-slate-400 italic">No district data for {stateEntry.name}.</p>
+        <p className="text-xs text-muted-foreground italic">No district data for {stateEntry.name}.</p>
       )}
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-muted-foreground">
         County tiers from CDC NCHS Urban-Rural Classification (2013): Large metro core → Urban;
         medium/small metro → Suburban; micropolitan/noncore → Rural.
         District outlines show geographically contiguous multi-member districts drawn by county adjacency.

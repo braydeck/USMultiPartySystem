@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER } from '../../constants/parties';
 import { CondorcetMatrix } from '../presidential/CondorcetMatrix';
 import type { CondorcetMatchup } from '../../types';
+import { Button } from '@/components/ui/button';
 
 interface CellData { winRate: number; avgMargin: number; n: number }
 interface StateMatchup { candidateA: string; candidateB: string; aWinsPct: number; margin: number; winner: string }
@@ -55,18 +56,17 @@ export default function SenateCondorcetView({ data }: Props) {
     <div className="space-y-4">
       {/* Selector */}
       <div className="flex items-center gap-2 flex-wrap">
-        <button
+        <Button
           onClick={() => setSelectedState(null)}
-          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-            !selectedState ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}
+          variant={!selectedState ? 'default' : 'secondary'}
+          size="sm"
         >
           National Average
-        </button>
+        </Button>
         <select
           value={selectedState ?? ''}
           onChange={e => setSelectedState(e.target.value || null)}
-          className="text-xs border border-slate-200 rounded px-2 py-1 text-slate-600"
+          className="text-xs border border-border rounded px-2 py-1 text-muted-foreground"
         >
           <option value="">Select a state…</option>
           {stateList.map(st => (
@@ -78,9 +78,9 @@ export default function SenateCondorcetView({ data }: Props) {
       {/* National average matrix */}
       {!selectedState && (
         <div>
-          <div className="text-[10px] text-slate-400 mb-3">
+          <div className="text-[10px] text-muted-foreground mb-3">
             Win rate across all states where both parties appear as finalists. Green = row party wins more often.
-            Overall Condorcet champion: <strong className="text-slate-600">{data.overallWinner}</strong>
+            Overall Condorcet champion: <strong className="text-muted-foreground">{data.overallWinner}</strong>
           </div>
           <div className="flex justify-center" style={{ overflowX: 'auto' }}>
             <div style={{ minWidth: labelW + parties.length * cellSize }}>
@@ -111,7 +111,7 @@ export default function SenateCondorcetView({ data }: Props) {
                     {parties.map(col => {
                       if (row === col) {
                         return <div key={col} style={{ width: cellSize, height: cellSize - 2, flexShrink: 0, margin: 1 }}
-                          className="bg-slate-100 rounded-sm" />;
+                          className="bg-muted rounded-sm" />;
                       }
                       const cell = data.matrix[row]?.[col];
                       if (!cell || cell.n === 0) {
@@ -159,7 +159,7 @@ export default function SenateCondorcetView({ data }: Props) {
               })}
 
               {/* Legend */}
-              <div className="text-xs text-slate-500 mt-3 flex gap-4">
+              <div className="text-xs text-muted-foreground mt-3 flex gap-4">
                 <span>
                   <span className="inline-block w-3 h-3 rounded-sm bg-green-400 opacity-60 mr-1 align-middle" />
                   Row wins &gt;50%
@@ -178,8 +178,8 @@ export default function SenateCondorcetView({ data }: Props) {
       {/* Per-state drill-down */}
       {selectedData && (
         <div>
-          <div className="text-[10px] text-slate-400 mb-3">
-            {selectedData.abbr} — Condorcet winner: <strong className="text-slate-600">{selectedData.winner}</strong>
+          <div className="text-[10px] text-muted-foreground mb-3">
+            {selectedData.abbr} — Condorcet winner: <strong className="text-muted-foreground">{selectedData.winner}</strong>
           </div>
           <div className="flex justify-center">
             <CondorcetMatrix

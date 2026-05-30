@@ -34,9 +34,9 @@ export function PrimaryStateMap({ stateWinners, stage }: Props) {
 
   return (
     <div>
-      <div className="relative">
+      <div className="relative" aria-label="Primary election state results map" role="img">
         {tooltip && (
-          <div className="absolute top-2 left-2 bg-white border border-slate-300 rounded px-3 py-2 text-sm text-slate-900 z-10 pointer-events-none max-w-xs shadow-sm">
+          <div className="absolute top-2 left-2 bg-white border border-slate-300 rounded px-3 py-2 text-sm text-foreground z-10 pointer-events-none max-w-xs shadow-sm" role="status" aria-live="polite">
             {tooltip}
           </div>
         )}
@@ -121,13 +121,13 @@ export function PrimaryStateMap({ stateWinners, stage }: Props) {
               }}
             >
               {code}
-              <span className="bg-slate-100 text-slate-600 rounded px-1">{count}</span>
+              <span className="bg-muted text-muted-foreground rounded px-1">{count}</span>
             </div>
           ))}
         </div>
       )}
 
-      <p className="text-xs text-slate-500 mt-2 text-center">
+      <p className="text-xs text-muted-foreground mt-2 text-center">
         Gray states haven't voted yet in this stage. Gradient shows candidate share. Hover for details.
       </p>
     </div>

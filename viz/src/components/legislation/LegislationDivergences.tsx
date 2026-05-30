@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { VoteModelRow, PresidentialElection } from '../../types';
 import { getBlendColor } from '../../constants/parties';
 import { getBayesianLabel, getDirection, VerdictBadge, type VerdictLabel } from './UnifiedBillTable';
+import { Card } from '@/components/ui/card';
 
 interface Props {
   houseVotes: VoteModelRow[];
@@ -25,7 +26,7 @@ function PresCell({ signs, winner }: { signs: string | undefined; winner: string
       >
         {signs === 'SIGN' ? '✓ Sign' : '✗ Veto'}
       </span>
-      <span className="text-xs font-mono text-slate-400 truncate max-w-[72px]" title={winner}>{winner}</span>
+      <span className="text-xs font-mono text-muted-foreground truncate max-w-[72px]" title={winner}>{winner}</span>
     </div>
   );
 }
@@ -104,16 +105,16 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
 
   if (divergentBills.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-green-200 px-4 py-3">
+      <Card className="border-green-200 px-4 py-3">
         <span className="text-sm text-green-700">No method divergences found — Condorcet and IRV produce the same legislative outcomes.</span>
-      </div>
+      </Card>
     );
   }
 
   const label = pipeline === 'rawMulti' ? 'Raw Multi' : 'Factor Dev';
 
   return (
-    <div className="bg-white rounded-xl border border-amber-300 overflow-hidden">
+    <Card className="border-amber-300 overflow-hidden">
       <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
         <h3 className="text-sm font-semibold text-amber-900">
           Method Divergences ({label}) — {divergentBills.length} bill{divergentBills.length !== 1 ? 's' : ''} where IRV ≠ Condorcet
@@ -123,7 +124,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         </p>
       </div>
 
-      <div className="hidden md:grid grid-cols-[1fr_90px_90px_90px_60px_60px] gap-x-2 px-4 py-2 text-xs text-slate-500 border-b border-slate-100 uppercase tracking-widest">
+      <div className="hidden md:grid grid-cols-[1fr_90px_90px_90px_60px_60px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
         <div>Bill</div>
         <div className="text-center">House</div>
         <div className="text-center">Senate Cond</div>
@@ -141,8 +142,8 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
             }`}
           >
             <div className="min-w-0 mb-1 md:mb-0">
-              <span className="text-sm text-slate-800">{row.question}</span>
-              <span className="text-xs text-slate-400 ml-2">{row.domain}</span>
+              <span className="text-sm text-foreground">{row.question}</span>
+              <span className="text-xs text-muted-foreground ml-2">{row.domain}</span>
             </div>
             <div className="flex justify-center"><VerdictBadge label={houseLabel} /></div>
             <div className="flex justify-center"><VerdictBadge label={senateCondLabel} /></div>
@@ -152,6 +153,6 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }

@@ -43,8 +43,8 @@ export function UrbSubRurChart({ seats }: Props) {
         return (
           <div key={tier} className="flex items-center gap-3">
             <div className="shrink-0 text-right" style={{ width: 80 }}>
-              <div className="text-xs font-semibold text-slate-700">{TIER_LABELS[tier]}</div>
-              <div className="text-xs text-slate-400">{total} seats</div>
+              <div className="text-xs font-semibold text-foreground">{TIER_LABELS[tier]}</div>
+              <div className="text-xs text-muted-foreground">{total} seats</div>
             </div>
             <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: 44 }}>
               {segments.map(({ party, [tier]: n }) => {
@@ -73,11 +73,11 @@ export function UrbSubRurChart({ seats }: Props) {
       })}
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-3 pt-2 border-t border-slate-100">
+      <div className="flex flex-wrap gap-3 pt-2 border-t border-border/50">
         {partySeats.map(({ party }) => (
           <div key={party} className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }} />
-            <span className="text-xs text-slate-600">{party}</span>
+            <span className="text-xs text-muted-foreground">{party}</span>
           </div>
         ))}
       </div>

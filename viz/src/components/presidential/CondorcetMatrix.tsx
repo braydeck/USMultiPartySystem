@@ -43,7 +43,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
   const totalW = labelW + sorted.length * cellSize;
 
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div style={{ overflowX: 'auto' }} aria-label="Condorcet pairwise matchup matrix" role="img">
       <div style={{ minWidth: totalW, position: 'relative' }}>
         {/* Column headers */}
         <div className="flex" style={{ paddingLeft: labelW }}>
@@ -87,7 +87,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
                 >
                   {row}
                 </span>
-                <span className="text-slate-400" style={{ fontSize: labelFontSize }}>{wins}W</span>
+                <span className="text-muted-foreground" style={{ fontSize: labelFontSize }}>{wins}W</span>
               </div>
 
               {/* Cells */}
@@ -97,7 +97,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
                     <div
                       key={col}
                       style={{ width: cellSize, height: cellSize - 2, flexShrink: 0, margin: 1 }}
-                      className="bg-slate-100 rounded-sm"
+                      className="bg-muted rounded-sm"
                     />
                   );
                 }
@@ -142,7 +142,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
         })}
 
         {/* Caption */}
-        <div className="text-xs text-slate-500 mt-2 flex gap-4">
+        <div className="text-xs text-muted-foreground mt-2 flex gap-4">
           <span>
             <span className="inline-block w-3 h-3 rounded-sm bg-green-400 opacity-60 mr-1 align-middle" />
             Row beats column

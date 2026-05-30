@@ -99,7 +99,7 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
   return (
     <div className="relative">
       {totalLabel != null && (
-        <div className="text-xs text-slate-400 mb-2">
+        <div className="text-xs text-muted-foreground mb-2">
           {totalLabel} — {grandTotal.toLocaleString()} total
         </div>
       )}
@@ -111,6 +111,7 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
           className="w-full"
           style={{ minWidth: 480 }}
           onMouseLeave={() => setTip(null)}
+          aria-label="Party variant distribution"
         >
           <defs>
             {/* Diagonal stripes — SO axis */}
@@ -213,6 +214,8 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
           <div
             className="pointer-events-none absolute z-10 rounded bg-slate-800 px-2 py-1.5 text-xs text-white shadow-lg"
             style={{ left: tip.x + 14, top: tip.y - 40, maxWidth: 210 }}
+            role="status"
+            aria-live="polite"
           >
             {tip.lines.map((l, i) => (
               <div key={i} className={i === 0 ? 'font-semibold' : 'text-slate-300 mt-0.5'}>{l}</div>
@@ -222,8 +225,8 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
       </div>
 
       {/* Pattern legend */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mt-3 text-xs text-slate-500">
-        <span className="font-semibold text-slate-600">Axis patterns:</span>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 mt-3 text-xs text-muted-foreground">
+        <span className="font-semibold text-muted-foreground">Axis patterns:</span>
 
         {/* SO — diagonal */}
         <span className="flex items-center gap-1.5">
@@ -255,7 +258,7 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
           <span>vertical = PC</span>
         </span>
 
-        <span className="text-slate-400">· lighter tint = hi variant, darker = lo</span>
+        <span className="text-muted-foreground">· lighter tint = hi variant, darker = lo</span>
       </div>
     </div>
   );

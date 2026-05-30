@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import type { ConstellationNode, TransferMatrix } from '../../types';
 import { getBlendColor, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+import { Button } from '@/components/ui/button';
 
 interface ClusterSpread {
   party: string;
@@ -28,21 +29,19 @@ function ControlSection({
 }) {
   return (
     <div>
-      <span className="text-xs text-slate-500 font-semibold uppercase tracking-wide block mb-1">{label}</span>
+      <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wide block mb-1">{label}</span>
       <div className="flex flex-col gap-0.5">
         {options.map(opt => (
-          <button
+          <Button
             key={opt}
             onClick={() => onChange(opt)}
             title={opt === 'seats' ? 'Seats' : (FACTOR_LABELS[opt] ?? opt)}
-            className={`px-1.5 py-0.5 rounded text-xs font-medium text-left transition-colors ${
-              value === opt
-                ? 'bg-teal-600 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+            variant={value === opt ? 'default' : 'secondary'}
+            size="sm"
+            className="justify-start px-1.5 h-6"
           >
             {opt === 'seats' ? 'Seats' : (FACTOR_LABELS[opt] ?? opt)}
-          </button>
+          </Button>
         ))}
       </div>
     </div>
@@ -464,36 +463,34 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
   return (
     <div className="flex gap-3 items-start">
       {/* Left control panel */}
-      <div className="shrink-0 w-44 space-y-3 p-2 bg-slate-50 rounded border border-slate-200 self-start">
+      <div className="shrink-0 w-44 space-y-3 p-2 bg-slate-50 rounded border border-border self-start">
         <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
         <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} />
         <ControlSection label="Size" options={ALL_AXES} value={sizeFactor} onChange={setSizeFactor} />
-        <button onClick={() => setEqualSize(!equalSize)}
-          className={`w-full px-1.5 py-0.5 rounded text-xs font-medium text-left transition-colors ${
-            equalSize ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}>
+        <Button onClick={() => setEqualSize(!equalSize)}
+          variant={equalSize ? 'default' : 'secondary'}
+          size="sm"
+          className="w-full justify-start px-1.5 h-6">
           {equalSize ? '⊙ Equal size' : '○ Equal size'}
-        </button>
+        </Button>
         <div>
-          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wide block mb-1">Color</span>
+          <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wide block mb-1">Color</span>
           <div className="flex flex-col gap-0.5">
             {colorOptions.map(opt => (
-              <button
+              <Button
                 key={opt}
                 onClick={() => setColorMode(opt)}
                 title={opt === 'party' ? 'Party color' : (FACTOR_LABELS[opt] ?? opt)}
-                className={`px-1.5 py-0.5 rounded text-xs font-medium text-left transition-colors ${
-                  colorMode === opt
-                    ? 'bg-teal-600 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
+                variant={colorMode === opt ? 'default' : 'secondary'}
+                size="sm"
+                className="justify-start px-1.5 h-6"
               >
                 {opt === 'party' ? 'Party' : (FACTOR_LABELS[opt] ?? opt)}
-              </button>
+              </Button>
             ))}
           </div>
           {colorMode !== 'party' && (
-            <span className="text-xs text-slate-400 mt-1 block">cividis scale</span>
+            <span className="text-xs text-muted-foreground mt-1 block">cividis scale</span>
           )}
         </div>
       </div>
@@ -502,12 +499,12 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       <div className="flex-1 min-w-0">
         {/* Scale + Party toggles */}
         <div className="flex flex-wrap items-center gap-1 mb-2">
-          <button onClick={() => setScaleMode(scaleMode === 'strength' ? 'percentile' : 'strength')}
-            className={`px-2 py-0.5 rounded text-[10px] font-medium mr-1 ${
-              scaleMode === 'percentile' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'
-            }`}>
+          <Button onClick={() => setScaleMode(scaleMode === 'strength' ? 'percentile' : 'strength')}
+            variant={scaleMode === 'percentile' ? 'default' : 'secondary'}
+            size="sm"
+            className="mr-1 h-6 text-[10px]">
             {scaleMode === 'strength' ? 'σ Strength' : '% Percentile'}
-          </button>
+          </Button>
         </div>
         <div className="flex flex-wrap gap-1 mb-2">
           {F5_ORDER.map(p => {
@@ -527,9 +524,9 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             );
           })}
         </div>
-        <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto' }} />
+        <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto' }} aria-label="Ideological factor constellation chart" />
         {transfers && (
-          <p className="text-xs text-slate-500 mt-1 text-center">
+          <p className="text-xs text-muted-foreground mt-1 text-center">
             Lines = voter transfer affinity &gt; {THRESHOLD}. Hover to highlight.
           </p>
         )}

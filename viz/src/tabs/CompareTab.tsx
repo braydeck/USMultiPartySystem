@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES } from '../constants/parties';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -152,18 +154,18 @@ function DotTrack({
   const axisR  = unit === '%' ? '100%' : `${maxVal} ${unit}`;
 
   return (
-    <div className={`px-3 py-3 ${highlighted ? 'bg-amber-50' : 'hover:bg-slate-50/50'}`}>
+    <div className={`px-3 py-3 ${highlighted ? 'bg-amber-50' : 'hover:bg-muted/50'}`}>
       <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="text-xs text-slate-700 leading-snug flex-1 min-w-0 font-medium">
+        <div className="text-xs text-foreground leading-snug flex-1 min-w-0 font-medium">
           {factor && (
-            <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1.5 bg-slate-100 text-slate-500 align-middle">
+            <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1.5 bg-muted text-muted-foreground align-middle">
               {FACTOR_SHORT[factor]}
             </span>
           )}
           {question}
         </div>
         {gap > 0 && (
-          <span className={`text-[11px] font-mono shrink-0 mt-0.5 font-semibold ${highlighted ? 'text-amber-600' : 'text-slate-400'}`}>
+          <span className={`text-[11px] font-mono shrink-0 mt-0.5 font-semibold ${highlighted ? 'text-amber-600' : 'text-muted-foreground'}`}>
             {gap.toFixed(0)}{unit === '%' ? 'pp' : ` ${unit}`}
           </span>
         )}
@@ -269,8 +271,8 @@ function FactorDotRow({
   return (
     <div className="px-4 py-3 border-t border-slate-50 first:border-t-0">
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm font-semibold text-slate-700">{FACTOR_LABELS[factor]}</span>
-        <span className="text-[10px] text-slate-400 font-mono bg-slate-100 px-1 rounded">{FACTOR_SHORT[factor]}</span>
+        <span className="text-sm font-semibold text-foreground">{FACTOR_LABELS[factor]}</span>
+        <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1 rounded">{FACTOR_SHORT[factor]}</span>
       </div>
       <svg width="100%" height={FACTOR_H} style={{ overflow: 'visible' }}>
         {/* Tier boundary ticks */}
@@ -488,16 +490,16 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-1">Party Comparison</h2>
-        <p className="text-slate-500 text-sm">
+        <h2 className="text-2xl font-bold text-foreground mb-1">Party Comparison</h2>
+        <p className="text-muted-foreground text-sm">
           Compare any number of parties across all policy domains. Amber rows highlight where
           parties differ by ≥{minGap}pp and sort to the top of each section.
         </p>
       </div>
 
       {/* Party selector */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <div className="text-sm font-semibold text-slate-700 mb-3">Select parties to compare</div>
+      <Card className="p-4">
+        <div className="text-sm font-semibold text-foreground mb-3">Select parties to compare</div>
         <div className="flex items-center gap-2 flex-wrap">
           {selected.map(code => {
             const color = getBlendColor(code);
@@ -513,7 +515,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                 <button
                   onClick={() => removeParty(code)}
                   className="ml-0.5 opacity-70 hover:opacity-100 leading-none"
-                  aria-label={`Remove ${code}`}
+                  aria-label={`Remove ${label}`}
                 >
                   ×
                 </button>
@@ -521,9 +523,10 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
             );
           })}
           <select
-            className="text-sm border border-slate-200 rounded px-2 py-1.5 text-slate-700 bg-white"
+            className="text-sm border border-border rounded px-2 py-1.5 text-foreground bg-white"
             value=""
             onChange={e => { if (e.target.value) addParty(e.target.value); }}
+            aria-label="Select party to add"
           >
             <option value="">+ Add party</option>
             {pureOptions.filter(o => !selected.includes(o.code)).length > 0 && (
@@ -543,32 +546,34 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
           </select>
         </div>
         {selected.length === 0 && (
-          <p className="text-xs text-slate-400 mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             Try: PRG + NAT (maximum divergence) · SD + CON (presidential rivals) · SD_hi_so + SD (factor deviation vs base)
           </p>
         )}
-      </div>
+      </Card>
 
       {selected.length >= 1 && (
         <>
           {/* Factor scores */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+          <Card className="overflow-hidden">
+            <div className="px-4 py-3 border-b border-border/50 bg-muted flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Factor Scores</span>
-                <span className="text-xs text-slate-400 ml-3">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Factor Scores</span>
+                <span className="text-xs text-muted-foreground ml-3">
                   {factorScale === 'strength' ? 'Strongly >1.5σ · Moderately 1.0σ · Leans 0.5σ · Centrist <0.5σ' : '0% = lowest · 50% = median · 100% = highest'}
                 </span>
               </div>
               <div className="flex gap-1">
-                <button onClick={() => setFactorScale('strength')}
-                  className={`px-2 py-0.5 rounded text-xs font-medium ${factorScale === 'strength' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                <Button onClick={() => setFactorScale('strength')}
+                  variant={factorScale === 'strength' ? 'default' : 'secondary'}
+                  size="sm">
                   Strength
-                </button>
-                <button onClick={() => setFactorScale('percentile')}
-                  className={`px-2 py-0.5 rounded text-xs font-medium ${factorScale === 'percentile' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                </Button>
+                <Button onClick={() => setFactorScale('percentile')}
+                  variant={factorScale === 'percentile' ? 'default' : 'secondary'}
+                  size="sm">
                   Percentile
-                </button>
+                </Button>
               </div>
             </div>
             <div>
@@ -576,64 +581,59 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                 <FactorDotRow key={f} factor={f} codes={selected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
               ))}
             </div>
-          </div>
+          </Card>
 
           {/* Controls: group by + factor filter (category mode only) + highlight threshold */}
           <div className="flex flex-wrap items-start gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 uppercase tracking-widest">Group by</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-widest">Group by</span>
               {(['category', 'factor'] as const).map(g => (
-                <button
+                <Button
                   key={g}
                   onClick={() => setGroupBy(g)}
-                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                    groupBy === g ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                  variant={groupBy === g ? 'default' : 'secondary'}
+                  size="sm"
                 >
                   {g === 'category' ? 'Category' : 'Factor'}
-                </button>
+                </Button>
               ))}
             </div>
 
             {groupBy === 'category' && (
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-slate-500 uppercase tracking-widest">Filter</span>
-                <button
+                <span className="text-xs text-muted-foreground uppercase tracking-widest">Filter</span>
+                <Button
                   onClick={() => setActiveFactors(new Set())}
-                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                    activeFactors.size === 0 ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                  variant={activeFactors.size === 0 ? 'default' : 'secondary'}
+                  size="sm"
                 >
                   All
-                </button>
+                </Button>
                 {FACTORS.map(f => (
-                  <button
+                  <Button
                     key={f}
                     onClick={() => toggleFactor(f)}
-                    className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                      activeFactors.has(f) ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
+                    variant={activeFactors.has(f) ? 'default' : 'secondary'}
+                    size="sm"
                   >
                     {FACTOR_LABELS[f]} ({FACTOR_SHORT[f]})
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
 
-            <button onClick={() => setShowNatAvg(!showNatAvg)}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                showNatAvg ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}>
+            <Button onClick={() => setShowNatAvg(!showNatAvg)}
+              variant={showNatAvg ? 'default' : 'secondary'}
+              size="sm">
               {showNatAvg ? '✓ National Avg' : 'National Avg'}
-            </button>
-            <button onClick={() => setDivergeOnly(!divergeOnly)}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                divergeOnly ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}>
+            </Button>
+            <Button onClick={() => setDivergeOnly(!divergeOnly)}
+              variant={divergeOnly ? 'default' : 'secondary'}
+              size="sm">
               {divergeOnly ? '✓ Divergences only' : 'Divergences only'}
-            </button>
+            </Button>
 
-            <label className="flex items-center gap-1.5 text-xs text-slate-500 whitespace-nowrap ml-auto">
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap ml-auto">
               Highlight gap ≥
               <input
                 type="number"
@@ -641,7 +641,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                 max={100}
                 value={minGap}
                 onChange={e => setMinGap(Math.max(0, Math.min(100, Number(e.target.value))))}
-                className="w-14 border border-slate-200 rounded px-2 py-1 text-center font-mono text-slate-700 bg-white"
+                className="w-14 border border-border rounded px-2 py-1 text-center font-mono text-foreground bg-white"
               />
               pp
             </label>
@@ -649,9 +649,9 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
 
           {/* Sections */}
           {sectionKeys.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400 text-sm">
+            <Card className="p-8 text-center text-muted-foreground text-sm">
               No variables match the selected filter.
-            </div>
+            </Card>
           ) : (
             <div className="space-y-3">
               {sectionKeys.map(sectionKey => {
@@ -662,30 +662,31 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                 const highlightCount = allVars.filter(v => v.highlighted).length;
 
                 return (
-                  <div key={sectionKey} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                  <Card key={sectionKey} className="overflow-hidden">
                     <button
-                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted transition-colors text-left"
                       onClick={() => toggleSection(sectionKey)}
+                      aria-expanded={!collapsed}
                     >
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-slate-700">{getSectionTitle(sectionKey)}</span>
-                        <span className="text-xs bg-slate-100 text-slate-500 rounded-full px-2 py-0.5">{vars.length}</span>
+                        <span className="text-sm font-semibold text-foreground">{getSectionTitle(sectionKey)}</span>
+                        <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5">{vars.length}</span>
                         {highlightCount > 0 && (
                           <span className="text-xs bg-amber-100 text-amber-700 font-medium rounded-full px-2 py-0.5">
                             {highlightCount} diverge
                           </span>
                         )}
                       </div>
-                      <span className="text-slate-400 text-xs flex-shrink-0 ml-2">{collapsed ? '▶' : '▼'}</span>
+                      <span className="text-muted-foreground text-xs flex-shrink-0 ml-2">{collapsed ? '▶' : '▼'}</span>
                     </button>
 
                     {!collapsed && (
-                      <div className="border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2">
+                      <div className="border-t border-border/50 grid grid-cols-1 sm:grid-cols-2">
                         {vars.map((v, i) => (
                           <div
                             key={v.key}
                             className={[
-                              i >= 2 ? 'border-t border-slate-100' : '',
+                              i >= 2 ? 'border-t border-border/50' : '',
                               i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
                             ].filter(Boolean).join(' ')}
                           >
@@ -705,7 +706,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                         ))}
                       </div>
                     )}
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -714,12 +715,12 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
       )}
 
       {selected.length === 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-          <div className="text-slate-400 text-sm">Select a party above to explore their positions</div>
+        <Card className="p-12 text-center">
+          <div className="text-muted-foreground text-sm">Select a party above to explore their positions</div>
           <div className="text-slate-300 text-xs mt-2">
             Add a second party to compare — amber rows highlight where they diverge by ≥{minGap}pp.
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

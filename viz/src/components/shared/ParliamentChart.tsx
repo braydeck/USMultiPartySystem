@@ -178,15 +178,18 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
             key={s.code}
             className="flex items-center gap-1.5 cursor-default select-none"
             style={{ opacity: hoveredCode && hoveredCode !== s.code ? 0.35 : 1, transition: 'opacity 0.15s' }}
+            tabIndex={0}
             onMouseEnter={() => setHoveredCode(s.code)}
             onMouseLeave={() => setHoveredCode(null)}
+            onFocus={() => setHoveredCode(s.code)}
+            onBlur={() => setHoveredCode(null)}
           >
             <div
               className="w-3 h-3 rounded-sm flex-shrink-0"
               style={{ backgroundColor: getBlendColor(s.code), opacity: 0.88 }}
             />
-            <span className="text-xs font-semibold text-slate-700">{s.code}</span>
-            <span className="text-xs text-slate-400">{s.seats}</span>
+            <span className="text-xs font-semibold text-foreground">{s.code}</span>
+            <span className="text-xs text-muted-foreground">{s.seats}</span>
           </div>
         ))}
       </div>

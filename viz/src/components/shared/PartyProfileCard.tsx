@@ -1,5 +1,6 @@
 import type { ClusterProfile } from '../../types';
 import { getBlendColor, FACTOR_POLES } from '../../constants/parties';
+import { Card } from '@/components/ui/card';
 
 const FACTOR_SHORT_LABEL: Record<string, string> = {
   F1: 'Security',
@@ -38,13 +39,13 @@ interface Props {
 export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
   const color = getBlendColor(cluster.party);
   return (
-    <div className="rounded-xl border overflow-hidden" style={{ borderColor: color + '55' }}>
+    <Card className="overflow-hidden" style={{ borderColor: color + '55' }}>
       <div className="px-4 py-3 flex items-center justify-between" style={{ backgroundColor: color + '18' }}>
         <div>
           <span className="text-xs font-bold font-mono" style={{ color }}>{cluster.party}</span>
-          <div className="text-sm font-semibold text-slate-800">{cluster.partyName}</div>
+          <div className="text-sm font-semibold text-foreground">{cluster.partyName}</div>
         </div>
-        <span className="text-xs text-slate-500">{cluster.seatsHouse}s</span>
+        <span className="text-xs text-muted-foreground">{cluster.seatsHouse}s</span>
       </div>
       <div className="px-4 py-3 space-y-2">
         {(['F1', 'F2', 'F3', 'F4', 'F5'] as const).map(f => {
@@ -61,11 +62,11 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
             return (
               <div key={f}>
                 <div className="flex items-center justify-between text-xs gap-2 mb-0.5">
-                  <span className="text-slate-500 shrink-0">{label}</span>
+                  <span className="text-muted-foreground shrink-0">{label}</span>
                   <span className="font-medium" style={{ color: barColor }}>{desc}</span>
                 </div>
                 {/* 0-100 bar: red fills left→right for high, blue fills right→left for low */}
-                <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                   {isHigh ? (
                     <div className="absolute top-0 left-0 h-full rounded-l-full"
                       style={{ width: `${pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
@@ -88,10 +89,10 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
           return (
             <div key={f}>
               <div className="flex items-center justify-between text-xs gap-2 mb-0.5">
-                <span className="text-slate-500 shrink-0">{label}</span>
+                <span className="text-muted-foreground shrink-0">{label}</span>
                 <span className="font-medium" style={{ color: desc === 'Centrist' ? '#6b7280' : barColor }}>{desc}</span>
               </div>
-              <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                 {isHigh ? (
                   <div className="absolute top-0 h-full rounded-r-full"
                     style={{ left: '50%', width: `${barPct}%`, backgroundColor: barColor, opacity: 0.5 }} />
@@ -105,6 +106,6 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

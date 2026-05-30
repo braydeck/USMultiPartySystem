@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { PARTY_COLORS, F5_ORDER, PARTY_NAMES, FACTOR_LABELS } from '../../constants/parties';
+import { Card } from '@/components/ui/card';
 
 interface FactorContrib {
   factor: string;
@@ -78,7 +79,7 @@ export function AttractionDriverChart({ data }: Props) {
           const variantCount = Object.keys(variants).length;
 
           return (
-            <div key={party} className="rounded-xl border overflow-hidden"
+            <Card key={party} className="overflow-hidden"
               style={{ borderColor: color + '44' }}>
               {/* Party header — click to expand */}
               <button
@@ -87,11 +88,11 @@ export function AttractionDriverChart({ data }: Props) {
                 style={{ backgroundColor: color + '10' }}>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold font-mono" style={{ color }}>{party}</span>
-                  <span className="text-sm text-slate-700">{name}</span>
+                  <span className="text-sm text-foreground">{name}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-slate-500">{variantCount} deviation{variantCount !== 1 ? 's' : ''} with cross-party pull</span>
-                  <span className="text-xs text-slate-400">{isExpanded ? '▼' : '▶'}</span>
+                  <span className="text-xs text-muted-foreground">{variantCount} deviation{variantCount !== 1 ? 's' : ''} with cross-party pull</span>
+                  <span className="text-xs text-muted-foreground">{isExpanded ? '▼' : '▶'}</span>
                 </div>
               </button>
 
@@ -104,7 +105,7 @@ export function AttractionDriverChart({ data }: Props) {
 
                     return (
                       <div key={variantCode}>
-                        <div className="text-xs font-semibold text-slate-700 mb-1.5">
+                        <div className="text-xs font-semibold text-foreground mb-1.5">
                           {label}
                         </div>
 
@@ -117,10 +118,10 @@ export function AttractionDriverChart({ data }: Props) {
                                   <span className="text-xs font-bold" style={{ color: attColor }}>
                                     {r.attracted}
                                   </span>
-                                  <span className="text-[10px] text-slate-400 ml-1">{r.attractedPct}%</span>
+                                  <span className="text-[10px] text-muted-foreground ml-1">{r.attractedPct}%</span>
                                 </div>
 
-                                <div className="flex-1 flex h-5 rounded overflow-hidden border border-slate-200">
+                                <div className="flex-1 flex h-5 rounded overflow-hidden border border-border">
                                   {r.factors.map(f => (
                                     <div key={f.factor}
                                       style={{
@@ -147,7 +148,7 @@ export function AttractionDriverChart({ data }: Props) {
                   })}
                 </div>
               )}
-            </div>
+            </Card>
           );
         })}
       </div>

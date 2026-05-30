@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { getBlendColor } from '../../constants/parties';
 import type { IRVRound } from '../../types';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   rounds: IRVRound[];
@@ -19,24 +20,21 @@ export function IRVRoundsChart({ rounds, irvWinner }: Props) {
     <div>
       <div className="flex flex-wrap gap-2 mb-4">
         {rounds.map((r, i) => (
-          <button
+          <Button
             key={r.round}
             onClick={() => setSelectedRound(i)}
-            className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-              selectedRound === i
-                ? 'bg-amber-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
+            variant={selectedRound === i ? 'default' : 'secondary'}
+            size="sm"
           >
             Round {r.round}
             {i === rounds.length - 1 && (
               <span className="ml-1 text-amber-300">★</span>
             )}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <div className="mb-2 text-xs text-slate-500">
+      <div className="mb-2 text-xs text-muted-foreground">
         {selectedRound < rounds.length - 1
           ? `${round.candidates.filter(c => c.eliminated).map(c => c.code).join(', ')} eliminated this round`
           : `Final: ${irvWinner} wins with ${data.find(c => c.winner)?.pct.toFixed(1)}%`}
@@ -64,7 +62,7 @@ export function IRVRoundsChart({ rounds, irvWinner }: Props) {
         </BarChart>
       </ResponsiveContainer>
 
-      <p className="text-xs text-slate-500 mt-2 text-center">
+      <p className="text-xs text-muted-foreground mt-2 text-center">
         Yellow line = 50% threshold. Gray bars = eliminated candidates.
       </p>
     </div>

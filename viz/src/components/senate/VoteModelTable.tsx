@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { VoteModelRow, SenateScenario } from '../../types';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 
 interface Props {
   rows: VoteModelRow[];
@@ -23,9 +26,9 @@ function VerdictBadge({ verdict }: { verdict: string }) {
     verdict === 'FAIL' ? 'bg-red-50 text-red-700 border-red-300' :
     'bg-yellow-50 text-yellow-700 border-yellow-300';
   return (
-    <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${color}`}>
+    <Badge variant="outline" className={color}>
       {verdict}
-    </span>
+    </Badge>
   );
 }
 
@@ -43,72 +46,67 @@ export function VoteModelTable({ rows, scenario }: Props) {
     <div>
       <div className="flex flex-wrap gap-2 mb-4">
         {domains.map(d => (
-          <button
+          <Button
             key={d}
             onClick={() => setDomain(d)}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              domain === d
-                ? 'bg-teal-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
+            variant={domain === d ? 'default' : 'secondary'}
+            size="sm"
           >
             {d}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-slate-200">
-              <th className="text-left py-2 pr-4 text-slate-500 font-medium">Bill</th>
-              <th className="text-center py-2 px-3 text-slate-500 font-medium whitespace-nowrap">Senate</th>
-              <th className="text-center py-2 px-3 text-slate-500 font-medium whitespace-nowrap">President</th>
-              <th className="text-center py-2 px-3 text-slate-500 font-medium whitespace-nowrap">Becomes Law?</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(row => {
-              const verdict = row[fields.verdict] as string | undefined;
-              const signs   = row[fields.signs] as string | undefined;
-              const becomesLaw = verdict === 'PASS' && signs === 'SIGN';
-              const vetoed     = verdict === 'PASS' && signs === 'VETO';
-              return (
-                <tr
-                  key={row.variable}
-                  className={`border-b border-slate-100 ${vetoed ? 'bg-amber-50' : ''}`}
-                >
-                  <td className="py-2 pr-4 text-slate-700">
-                    <div>{row.question}</div>
-                    <div className="text-xs text-slate-500">{row.domain}</div>
-                  </td>
-                  <td className="py-2 px-3 text-center">
-                    {verdict ? <VerdictBadge verdict={verdict} /> : <span className="text-slate-500 text-xs">—</span>}
-                  </td>
-                  <td className="py-2 px-3 text-center">
-                    {signs ? (
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${
-                        signs === 'SIGN'
-                          ? 'bg-green-50 text-green-700 border-green-300'
-                          : 'bg-red-50 text-red-700 border-red-300'
-                      }`}>
-                        {signs === 'SIGN' ? 'Signs' : 'Vetoes'}
-                      </span>
-                    ) : <span className="text-slate-500 text-xs">—</span>}
-                  </td>
-                  <td className="py-2 px-3 text-center">
-                    {verdict && signs ? (
-                      <span className={`text-base ${becomesLaw ? 'text-green-600' : 'text-red-500'}`}>
-                        {becomesLaw ? '✓' : '✗'}
-                      </span>
-                    ) : <span className="text-slate-500 text-xs">—</span>}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-left">Bill</TableHead>
+            <TableHead className="text-center whitespace-nowrap">Senate</TableHead>
+            <TableHead className="text-center whitespace-nowrap">President</TableHead>
+            <TableHead className="text-center whitespace-nowrap">Becomes Law?</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filtered.map(row => {
+            const verdict = row[fields.verdict] as string | undefined;
+            const signs   = row[fields.signs] as string | undefined;
+            const becomesLaw = verdict === 'PASS' && signs === 'SIGN';
+            const vetoed     = verdict === 'PASS' && signs === 'VETO';
+            return (
+              <TableRow
+                key={row.variable}
+                className={vetoed ? 'bg-amber-50' : ''}
+              >
+                <TableCell className="text-foreground">
+                  <div>{row.question}</div>
+                  <div className="text-xs text-muted-foreground">{row.domain}</div>
+                </TableCell>
+                <TableCell className="text-center">
+                  {verdict ? <VerdictBadge verdict={verdict} /> : <span className="text-muted-foreground text-xs">—</span>}
+                </TableCell>
+                <TableCell className="text-center">
+                  {signs ? (
+                    <Badge variant="outline" className={
+                      signs === 'SIGN'
+                        ? 'bg-green-50 text-green-700 border-green-300'
+                        : 'bg-red-50 text-red-700 border-red-300'
+                    }>
+                      {signs === 'SIGN' ? 'Signs' : 'Vetoes'}
+                    </Badge>
+                  ) : <span className="text-muted-foreground text-xs">—</span>}
+                </TableCell>
+                <TableCell className="text-center">
+                  {verdict && signs ? (
+                    <span className={`text-base ${becomesLaw ? 'text-green-600' : 'text-red-500'}`}>
+                      {becomesLaw ? '✓' : '✗'}
+                    </span>
+                  ) : <span className="text-muted-foreground text-xs">—</span>}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }

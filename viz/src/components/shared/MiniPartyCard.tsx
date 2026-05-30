@@ -1,5 +1,6 @@
 import { getBlendColor } from '../../constants/parties';
 import type { KeyPosition } from '../../types';
+import { Card } from '@/components/ui/card';
 
 interface Props {
   code: string;
@@ -16,8 +17,8 @@ export function MiniPartyCard({ code, seats, votePct, positions }: Props) {
   const topPositions = positions?.slice(0, 2) ?? [];
 
   return (
-    <div
-      className="rounded-lg border bg-white overflow-hidden"
+    <Card
+      className="overflow-hidden"
       style={{ borderColor: color + '55', borderLeftColor: color, borderLeftWidth: 3 }}
     >
       <div className="px-3 py-2">
@@ -29,7 +30,7 @@ export function MiniPartyCard({ code, seats, votePct, positions }: Props) {
             {code}
           </span>
           {seats !== undefined && (
-            <span className="text-xs text-slate-500 font-mono">{seats}s</span>
+            <span className="text-xs text-muted-foreground font-mono">{seats}s</span>
           )}
           {votePct !== undefined && (
             <span className="text-xs font-mono" style={{ color }}>{votePct.toFixed(1)}%</span>
@@ -38,7 +39,7 @@ export function MiniPartyCard({ code, seats, votePct, positions }: Props) {
         {topPositions.length > 0 && (
           <ul className="space-y-0.5">
             {topPositions.map((pos, i) => (
-              <li key={i} className="text-xs text-slate-600 flex items-start gap-1 leading-tight">
+              <li key={i} className="text-xs text-muted-foreground flex items-start gap-1 leading-tight">
                 <span className="sr-only">{pos.direction === 'supports' ? 'Supports:' : 'Opposes:'}</span>
                 <span
                   aria-hidden="true"
@@ -53,6 +54,6 @@ export function MiniPartyCard({ code, seats, votePct, positions }: Props) {
           </ul>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

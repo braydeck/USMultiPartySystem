@@ -180,8 +180,8 @@ export default function FinalistJourneys({ data, sankeyData }: Props) {
             {/* Header */}
             <div className="flex items-baseline gap-2">
               <span className="text-sm font-bold" style={{ color }}>{row.code}</span>
-              <span className="text-xs text-slate-400">{row.partyName}</span>
-              <span className="text-xs font-semibold text-slate-600 ml-auto">
+              <span className="text-xs text-muted-foreground">{row.partyName}</span>
+              <span className="text-xs font-semibold text-muted-foreground ml-auto">
                 {row.stages[row.stages.length - 1].pct.toFixed(1)}%
               </span>
             </div>
@@ -190,7 +190,7 @@ export default function FinalistJourneys({ data, sankeyData }: Props) {
             {row.stages.map((snap, si) => (
               <div key={si} className="flex items-center gap-2 h-5">
                 {/* Stage label */}
-                <span className="text-[10px] text-slate-400 w-12 text-right shrink-0">
+                <span className="text-[10px] text-muted-foreground w-12 text-right shrink-0">
                   {snap.label}
                 </span>
 
@@ -217,7 +217,7 @@ export default function FinalistJourneys({ data, sankeyData }: Props) {
                 </div>
 
                 {/* Annotation */}
-                <div className="text-[9px] text-slate-400 w-44 shrink-0 truncate">
+                <div className="text-[9px] text-muted-foreground w-44 shrink-0 truncate">
                   {snap.delta < -1 && snap.surplusTo.length > 0 && (
                     <span>
                       <span className="text-amber-500">↗</span> surplus → {snap.surplusTo.join(', ')}

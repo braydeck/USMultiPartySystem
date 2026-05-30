@@ -1,6 +1,8 @@
 import type { BlendProfile } from '../../types';
 import { getBlendColor, PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
 import { FactorBar } from '../shared/FactorBar';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface Props {
   profile: BlendProfile;
@@ -11,32 +13,32 @@ export function BlendCard({ profile }: Props) {
   const parts = profile.code.split('/');
 
   return (
-    <div
-      className="rounded-xl border overflow-hidden flex flex-col"
+    <Card
+      className="overflow-hidden flex flex-col"
       style={{ borderColor: color + '55' }}
     >
       {/* Header */}
       <div className="px-5 py-4" style={{ backgroundColor: color + '22' }}>
         <div className="flex items-start justify-between gap-2">
           <div>
-            <div className="text-lg font-bold text-slate-900 font-mono">{profile.code}</div>
+            <div className="text-lg font-bold text-foreground font-mono">{profile.code}</div>
             <div className="flex gap-1 mt-1">
               {parts.map(p => (
-                <span
+                <Badge
                   key={p}
-                  className="text-xs font-semibold px-2 py-0.5 rounded"
+                  variant="secondary"
                   style={{ backgroundColor: (PARTY_COLORS[p] ?? '#6b7280') + '44', color: PARTY_COLORS[p] ?? '#94a3b8' }}
                 >
                   {PARTY_NAMES[p] ?? p}
-                </span>
+                </Badge>
               ))}
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-xs text-slate-500">Senate seats</div>
+            <div className="text-xs text-muted-foreground">Senate seats</div>
             <div className="flex gap-2 text-sm font-semibold mt-0.5">
               <span style={{ color }} title="Condorcet">{profile.seatsCond}C</span>
-              <span className="text-slate-600">/</span>
+              <span className="text-muted-foreground">/</span>
               <span style={{ color: color + 'aa' }} title="IRV">{profile.seatsIRV}I</span>
             </div>
           </div>
@@ -54,10 +56,10 @@ export function BlendCard({ profile }: Props) {
         {/* Key positions */}
         {profile.keyPositions.length > 0 && (
           <div>
-            <div className="text-xs text-slate-500 uppercase tracking-widest mb-2">Key Positions</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Key Positions</div>
             <ul className="space-y-1">
               {profile.keyPositions.map((pos, i) => (
-                <li key={i} className="text-xs text-slate-700 flex items-start gap-1.5">
+                <li key={i} className="text-xs text-foreground flex items-start gap-1.5">
                   <span
                     className="mt-0.5 shrink-0"
                     style={{ color: pos.direction === 'supports' ? '#22c55e' : '#ef4444' }}
@@ -66,7 +68,7 @@ export function BlendCard({ profile }: Props) {
                   </span>
                   <span>
                     {pos.question}
-                    <span className="text-slate-500 ml-1">({Math.round(pos.pct)}% support)</span>
+                    <span className="text-muted-foreground ml-1">({Math.round(pos.pct)}% support)</span>
                   </span>
                 </li>
               ))}
@@ -74,6 +76,6 @@ export function BlendCard({ profile }: Props) {
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

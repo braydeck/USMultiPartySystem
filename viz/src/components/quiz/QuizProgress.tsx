@@ -6,8 +6,9 @@ interface Props {
 export function QuizProgress({ current, total }: Props) {
   const pct = (current / total) * 100;
   return (
-    <div className="mb-6">
-      <div className="flex justify-between text-xs text-slate-500 mb-1">
+    <div className="mb-6" aria-live="polite" aria-atomic="true">
+      <span className="sr-only">Question {current} of {total}</span>
+      <div className="flex justify-between text-xs text-muted-foreground mb-1">
         <span>Question {current} of {total}</span>
         <span>{Math.round(pct)}%</span>
       </div>

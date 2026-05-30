@@ -193,7 +193,7 @@ export function TransferSankey({ transfers }: Props) {
         <svg ref={svgRef} className="w-full" style={{ height: 380 }} />
       </div>
 
-      <p className="text-xs text-slate-600 mt-2 text-center">
+      <p className="text-xs text-muted-foreground mt-2 text-center">
         Width = vote volume. Bidirectional flows collapsed to net direction. Hover for transfer %.
       </p>
     </div>

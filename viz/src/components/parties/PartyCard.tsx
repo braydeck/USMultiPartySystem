@@ -1,5 +1,6 @@
 import type { ClusterProfile } from '../../types';
 import { PARTY_COLORS, FACTOR_POLES, FACTOR_LABELS } from '../../constants/parties';
+import { Card } from '@/components/ui/card';
 
 interface Props {
   cluster: ClusterProfile;
@@ -36,12 +37,12 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
   const church = cluster.variables['pew_churatd']?.pct;
 
   return (
-    <div className="rounded-xl border overflow-hidden flex flex-col" style={{ borderColor: color + '55' }}>
+    <Card className="overflow-hidden flex flex-col" style={{ borderColor: color + '55' }}>
       <div className="px-5 py-4" style={{ backgroundColor: color + '22' }}>
         <div className="flex items-start justify-between">
           <div>
             <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color }}>{cluster.party}</div>
-            <div className="text-lg font-bold text-slate-900">{cluster.partyName}</div>
+            <div className="text-lg font-bold text-foreground">{cluster.partyName}</div>
           </div>
           <div className="text-xl font-bold rounded px-2 py-1" style={{ backgroundColor: color + '33', color }}>
             {cluster.seatsHouse}
@@ -64,10 +65,10 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
               return (
                 <div key={f}>
                   <div className="flex items-center justify-between text-xs mb-0.5">
-                    <span className="text-slate-500">{FACTOR_LABELS[f]}</span>
+                    <span className="text-muted-foreground">{FACTOR_LABELS[f]}</span>
                     <span className="font-medium" style={{ color: barColor }}>{desc}</span>
                   </div>
-                  <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="relative h-3 bg-muted rounded-full overflow-hidden">
                     {isHigh ? (
                       <div className="absolute top-0 left-0 h-full rounded-l-full"
                         style={{ width: `${pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
@@ -88,10 +89,10 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
             return (
               <div key={f}>
                 <div className="flex items-center justify-between text-xs mb-0.5">
-                  <span className="text-slate-500">{FACTOR_LABELS[f]}</span>
+                  <span className="text-muted-foreground">{FACTOR_LABELS[f]}</span>
                   <span className="font-medium" style={{ color: desc === 'Centrist' ? '#6b7280' : barColor }}>{desc}</span>
                 </div>
-                <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div className="relative h-3 bg-muted rounded-full overflow-hidden">
                   {isHigh ? (
                     <div className="absolute top-0 h-full rounded-r-full"
                       style={{ left: '50%', width: `${barPct}%`, backgroundColor: barColor, opacity: 0.45 }} />
@@ -108,17 +109,17 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
 
         {positions.length > 0 && (
           <div className="mb-3">
-            <div className="text-xs text-slate-500 uppercase tracking-widest mb-2">Strongest Positions</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Strongest Positions</div>
             <ul className="space-y-1">
               {positions.map((pos, i) => (
-                <li key={i} className="text-xs text-slate-700 flex items-start gap-1.5">
+                <li key={i} className="text-xs text-foreground flex items-start gap-1.5">
                   <span aria-hidden="true" className="mt-0.5 shrink-0"
                     style={{ color: pos.direction === 'supports' ? '#22c55e' : '#ef4444' }}>
                     {pos.direction === 'supports' ? '▲' : '▼'}
                   </span>
                   <span>
                     {pos.question}
-                    <span className="text-slate-500 ml-1">({Math.round(pos.pct)}% support)</span>
+                    <span className="text-muted-foreground ml-1">({Math.round(pos.pct)}% support)</span>
                   </span>
                 </li>
               ))}
@@ -132,14 +133,14 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
           {church !== undefined && <StatPill label="Church" value={church} color={color} />}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
 function StatPill({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="text-center rounded bg-slate-100 py-2 px-1">
-      <div className="text-xs text-slate-500 mb-0.5">{label}</div>
+    <div className="text-center rounded bg-muted py-2 px-1">
+      <div className="text-xs text-muted-foreground mb-0.5">{label}</div>
       <div className="text-sm font-semibold" style={{ color }}>{Math.round(value)}%</div>
     </div>
   );

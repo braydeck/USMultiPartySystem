@@ -32,19 +32,19 @@ export function RepresentationGap({ seats }: Props) {
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
         Population Share vs. Seat Share
       </h3>
-      <p className="text-xs text-slate-500 mb-4">
+      <p className="text-xs text-muted-foreground mb-4">
         Does each party win seats in proportion to its share of the electorate?
       </p>
 
       {/* Column headers */}
       <div className="grid gap-y-2" style={{ gridTemplateColumns: '3.5rem 1fr 1fr 3.5rem' }}>
         <div />
-        <div className="text-xs text-slate-400 font-medium pb-1 pl-1">Population %</div>
-        <div className="text-xs text-slate-400 font-medium pb-1 pl-1">Seat %</div>
-        <div className="text-xs text-slate-400 font-medium pb-1 text-right">Δ</div>
+        <div className="text-xs text-muted-foreground font-medium pb-1 pl-1">Population %</div>
+        <div className="text-xs text-muted-foreground font-medium pb-1 pl-1">Seat %</div>
+        <div className="text-xs text-muted-foreground font-medium pb-1 text-right">Δ</div>
 
         {rows.map(row => {
           const popW  = (row.popPct  / maxPct) * 100;
@@ -60,26 +60,26 @@ export function RepresentationGap({ seats }: Props) {
 
             /* Population bar */
             <div key={`pop-${row.cluster}`} className="flex items-center gap-1.5 pr-2">
-              <div className="flex-1 h-5 bg-slate-100 rounded-sm overflow-hidden">
+              <div className="flex-1 h-5 bg-muted rounded-sm overflow-hidden">
                 <div
                   className="h-full rounded-sm opacity-50"
                   style={{ width: `${popW}%`, backgroundColor: row.color }}
                 />
               </div>
-              <span className="text-xs text-slate-500 w-9 text-right tabular-nums shrink-0">
+              <span className="text-xs text-muted-foreground w-9 text-right tabular-nums shrink-0">
                 {row.popPct.toFixed(1)}%
               </span>
             </div>,
 
             /* Seat bar */
             <div key={`seat-${row.cluster}`} className="flex items-center gap-1.5 pr-2">
-              <div className="flex-1 h-5 bg-slate-100 rounded-sm overflow-hidden">
+              <div className="flex-1 h-5 bg-muted rounded-sm overflow-hidden">
                 <div
                   className="h-full rounded-sm"
                   style={{ width: `${seatW}%`, backgroundColor: row.color }}
                 />
               </div>
-              <span className="text-xs text-slate-700 font-semibold w-9 text-right tabular-nums shrink-0">
+              <span className="text-xs text-foreground font-semibold w-9 text-right tabular-nums shrink-0">
                 {row.seatPct.toFixed(1)}%
               </span>
             </div>,
@@ -94,7 +94,7 @@ export function RepresentationGap({ seats }: Props) {
         })}
       </div>
 
-      <div className="flex gap-4 mt-3 pt-2 border-t border-slate-100 text-xs text-slate-400">
+      <div className="flex gap-4 mt-3 pt-2 border-t border-border/50 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-8 h-3 rounded-sm bg-slate-300 opacity-50" />
           Population share

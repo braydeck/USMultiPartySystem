@@ -1,6 +1,8 @@
 import type { ClusterProfile, VoteModelRow } from '../../types';
 import { FactorBar } from '../shared/FactorBar';
 import { PARTY_COLORS } from '../../constants/parties';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   cluster: ClusterProfile;
@@ -29,12 +31,12 @@ export function QuizResult({ cluster, topScore, secondScore, houseVotes, onRetak
     .slice(0, 3);
 
   return (
-    <div className="max-w-xl mx-auto">
-      <div className="rounded-xl border-2 overflow-hidden mb-6" style={{ borderColor: color }}>
+    <div className="max-w-xl mx-auto" aria-live="polite">
+      <Card className="border-2 overflow-hidden mb-6" style={{ borderColor: color }}>
         <div className="px-6 py-4" style={{ backgroundColor: color + '22' }}>
           <div className="text-xs uppercase tracking-widest mb-1" style={{ color }}>Your Match</div>
           <div className="text-2xl font-bold" style={{ color }}>{cluster.partyName}</div>
-          <div className="text-sm text-slate-500 mt-1">
+          <div className="text-sm text-muted-foreground mt-1">
             {cluster.seatsHouse} House seats
           </div>
           {isBlend && (
@@ -48,15 +50,16 @@ export function QuizResult({ cluster, topScore, secondScore, houseVotes, onRetak
             <FactorBar key={f} factor={f} value={(cluster as any)[f]} />
           ))}
         </div>
-      </div>
+      </Card>
 
       {strongSupport.length > 0 && (
         <div className="mb-4">
           <div className="text-sm font-semibold text-green-400 mb-2">Strongly supports:</div>
           <ul className="space-y-1">
             {strongSupport.map(r => (
-              <li key={r.variable} className="text-sm text-slate-700 flex items-start gap-2">
-                <span className="text-green-500 mt-0.5">✓</span>
+              <li key={r.variable} className="text-sm text-foreground flex items-start gap-2">
+                <span className="text-green-500 mt-0.5" aria-hidden="true">✓</span>
+                <span className="sr-only">Supports: </span>
                 {r.question}
               </li>
             ))}
@@ -69,8 +72,9 @@ export function QuizResult({ cluster, topScore, secondScore, houseVotes, onRetak
           <div className="text-sm font-semibold text-red-400 mb-2">Strongly opposes:</div>
           <ul className="space-y-1">
             {strongOppose.map(r => (
-              <li key={r.variable} className="text-sm text-slate-700 flex items-start gap-2">
-                <span className="text-red-500 mt-0.5">✗</span>
+              <li key={r.variable} className="text-sm text-foreground flex items-start gap-2">
+                <span className="text-red-500 mt-0.5" aria-hidden="true">✗</span>
+                <span className="sr-only">Opposes: </span>
                 {r.question}
               </li>
             ))}
@@ -78,12 +82,13 @@ export function QuizResult({ cluster, topScore, secondScore, houseVotes, onRetak
         </div>
       )}
 
-      <button
+      <Button
         onClick={onRetake}
-        className="w-full py-3 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium transition-colors"
+        variant="secondary"
+        className="w-full py-3"
       >
         Retake Quiz
-      </button>
+      </Button>
     </div>
   );
 }

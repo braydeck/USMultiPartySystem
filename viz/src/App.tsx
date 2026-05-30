@@ -9,6 +9,8 @@ import { LegislationTab } from './tabs/LegislationTab';
 import { AboutTab } from './tabs/AboutTab';
 import { OverviewTab } from './tabs/OverviewTab';
 import { RCVTab } from './tabs/RCVTab';
+import { Tabs, TabsList, TabsTrigger } from './components/ui/tabs';
+import { TooltipProvider } from './components/ui/tooltip';
 
 import senateVoteModelData from './data/senateVoteModel.json';
 import houseSeatsData from './data/houseSeats.json';
@@ -76,39 +78,35 @@ export default function App() {
   const [tab, setTab] = useState<TabId>('about');
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
+    <TooltipProvider>
+    <Tabs value={tab} onValueChange={v => setTab(v as TabId)} className="min-h-screen bg-background text-foreground">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:bg-card focus:text-foreground focus:px-4 focus:py-2 focus:rounded-md focus:shadow-lg focus:border focus:border-border">
+        Skip to content
+      </a>
       {/* Title — scrolls away */}
-      <div className="border-b border-slate-100 bg-white">
+      <div className="border-b border-border/50 bg-card">
         <div className="max-w-7xl mx-auto px-4 pt-3 pb-2 flex items-center gap-3">
-          <div className="text-xl font-bold text-slate-900">STV 2028</div>
-          <div className="text-sm text-slate-500">Proportional Democracy Simulation</div>
+          <h1 className="text-xl font-bold text-foreground">STV 2028</h1>
+          <div className="text-sm text-muted-foreground">Proportional Democracy Simulation</div>
         </div>
       </div>
       {/* Nav tabs — sticky */}
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 py-1.5">
+      <header className="border-b border-border bg-card/95 backdrop-blur sticky top-0 z-20">
+        <nav aria-label="Main navigation" className="max-w-7xl mx-auto px-4 py-1.5">
           <div className="relative">
-            <nav className="flex gap-1 overflow-x-auto pb-px">
+            <TabsList className="overflow-x-auto pb-px" aria-label="Section tabs">
               {TABS.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setTab(t.id)}
-                  className={`px-4 py-1.5 rounded text-sm font-medium whitespace-nowrap transition-colors ${
-                    tab === t.id
-                      ? 'bg-slate-200 text-slate-900'
-                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
+                <TabsTrigger key={t.id} value={t.id}>
                   {t.label}
-                </button>
+                </TabsTrigger>
               ))}
-            </nav>
-            <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white" />
+            </TabsList>
+            <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white" aria-hidden="true" />
           </div>
-        </div>
+        </nav>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 py-8">
         {tab === 'about' && <AboutTab />}
         {tab === 'overview' && (
           <OverviewTab
@@ -219,9 +217,10 @@ export default function App() {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+      <footer className="border-t border-border mt-12 py-6 text-center text-xs text-muted-foreground">
         Built on CES 2024 survey data · 10-party STV simulation · 873 House seats · 51 Senate seats
       </footer>
-    </div>
+    </Tabs>
+    </TooltipProvider>
   );
 }

@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { VoteModelRow } from '../../types';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface Props {
   rows: VoteModelRow[];
@@ -24,9 +26,9 @@ function VerdictBadge({ verdict }: { verdict: string }) {
     verdict === 'FAIL' ? 'bg-red-50 text-red-700 border-red-300' :
     'bg-yellow-50 text-yellow-700 border-yellow-300';
   return (
-    <span className={`text-xs font-bold px-2 py-0.5 rounded border whitespace-nowrap ${cls}`}>
+    <Badge variant="outline" className={`whitespace-nowrap ${cls}`}>
       {verdict}
-    </span>
+    </Badge>
   );
 }
 
@@ -43,17 +45,14 @@ export function BillSimulator({ rows }: Props) {
     <div>
       <div className="flex flex-wrap gap-2 mb-4">
         {domains.map(d => (
-          <button
+          <Button
             key={d}
             onClick={() => setDomain(d)}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              domain === d
-                ? 'bg-indigo-600 text-white'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
+            variant={domain === d ? 'default' : 'secondary'}
+            size="sm"
           >
             {d}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -61,11 +60,11 @@ export function BillSimulator({ rows }: Props) {
         {filtered.map(row => (
           <div
             key={row.variable}
-            className="flex items-center gap-3 py-2 px-3 rounded bg-white border border-slate-100 hover:bg-slate-50"
+            className="flex items-center gap-3 py-2 px-3 rounded bg-white border border-border/50 hover:bg-slate-50"
           >
-            <div className="flex-1 text-sm text-slate-700 min-w-0">
+            <div className="flex-1 text-sm text-foreground min-w-0">
               <span>{row.question}</span>
-              <span className="text-xs text-slate-500 ml-2">{row.domain}</span>
+              <span className="text-xs text-muted-foreground ml-2">{row.domain}</span>
             </div>
             <ProbBar prob={row.probPass!} />
             <VerdictBadge verdict={row.verdict!} />

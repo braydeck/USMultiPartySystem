@@ -86,9 +86,9 @@ export function VariantAttractionChart({ data }: Props) {
           <div key={party}>
             <div className="flex items-center gap-2 mb-0.5">
               <span className="text-sm font-bold font-mono" style={{ color }}>{party}</span>
-              <span className="text-sm text-slate-600">{name}</span>
+              <span className="text-sm text-muted-foreground">{name}</span>
             </div>
-            <div className="text-xs text-slate-500 mb-2">
+            <div className="text-xs text-muted-foreground mb-2">
               Base cross-party: {baseRef.toFixed(1)}% — values below show incremental attraction from each deviation
             </div>
 
@@ -118,8 +118,8 @@ export function VariantAttractionChart({ data }: Props) {
                 return (
                   <div key={v.variant} className="flex items-center gap-3">
                     <div className="w-32 shrink-0 text-right">
-                      <div className="text-xs font-semibold text-slate-800">{label}</div>
-                      <div className={`text-xs font-medium ${isPositive ? 'text-green-700' : isNegative ? 'text-red-600' : 'text-slate-500'}`}>
+                      <div className="text-xs font-semibold text-foreground">{label}</div>
+                      <div className={`text-xs font-medium ${isPositive ? 'text-green-700' : isNegative ? 'text-red-600' : 'text-muted-foreground'}`}>
                         {incremental > 0 ? '+' : ''}{incremental.toFixed(1)}pp vs base
                       </div>
                     </div>
@@ -128,7 +128,7 @@ export function VariantAttractionChart({ data }: Props) {
                       {incrementalSources.length > 0 ? (
                         <>
                           <div
-                            className="flex h-7 rounded overflow-hidden border border-slate-300"
+                            className="flex h-7 rounded overflow-hidden border border-border"
                             style={{ width: `${Math.max(incTotal / globalMaxInc * 80, 4)}%`, minWidth: 30 }}
                           >
                             {incrementalSources.map(s => {
@@ -154,12 +154,12 @@ export function VariantAttractionChart({ data }: Props) {
                               );
                             })}
                           </div>
-                          <span className="text-xs text-slate-600 whitespace-nowrap">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
                             {incrementalSources.filter(s => s.pct >= 1).map(s => `${s.party} +${s.pct.toFixed(1)}%`).join(' · ')}
                           </span>
                         </>
                       ) : (
-                        <span className="text-xs text-slate-400">no incremental attraction</span>
+                        <span className="text-xs text-muted-foreground">no incremental attraction</span>
                       )}
                     </div>
                   </div>

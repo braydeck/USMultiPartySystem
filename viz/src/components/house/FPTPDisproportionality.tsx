@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
 import type { FPTPState, HouseStateEntry } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER } from '../../constants/parties';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 
 interface Props {
   states: FPTPState[];
@@ -36,7 +39,7 @@ function SpotlightBar({
   const gopPct = (gop / total) * 100;
   return (
     <div>
-      <div className="text-xs text-slate-400 font-medium mb-1">{label} ({total} seats)</div>
+      <div className="text-xs text-muted-foreground font-medium mb-1">{label} ({total} seats)</div>
       <div className="flex rounded overflow-hidden" style={{ height: 26 }}>
         <div
           className="flex items-center justify-center"
@@ -68,7 +71,7 @@ function StvBar({ entry }: { entry: HouseStateEntry }) {
   const segments = F5_ORDER.filter(p => (seats[p] ?? 0) > 0).map(p => ({ party: p, n: seats[p] }));
   return (
     <div>
-      <div className="text-xs text-slate-400 font-medium mb-1">Multi-party STV ({totalSeats} seats)</div>
+      <div className="text-xs text-muted-foreground font-medium mb-1">Multi-party STV ({totalSeats} seats)</div>
       <div className="flex rounded overflow-hidden" style={{ height: 26 }}>
         {segments.map(({ party, n }) => {
           const pct = (n / totalSeats) * 100;
@@ -90,7 +93,7 @@ function StvBar({ entry }: { entry: HouseStateEntry }) {
       </div>
       <div className="flex flex-wrap gap-x-2.5 gap-y-0 mt-1">
         {segments.map(({ party, n }) => (
-          <span key={party} className="text-xs text-slate-500">
+          <span key={party} className="text-xs text-muted-foreground">
             <span style={{ color: PARTY_COLORS[party] }} className="font-bold">{party}</span> {n}
           </span>
         ))}
@@ -120,12 +123,12 @@ function SpotlightCard({
   const sortedOptions = [...allStates].sort((a, b) => gerryScore(b) - gerryScore(a));
 
   return (
-    <div className="border border-slate-200 rounded-xl p-3 flex flex-col gap-2.5 bg-white">
+    <Card className="p-3 flex flex-col gap-2.5">
       <div className="flex items-start justify-between gap-2">
         <select
           value={stateName}
           onChange={e => onChangeState(e.target.value)}
-          className="flex-1 text-sm font-semibold text-slate-700 bg-transparent rounded border border-slate-200 py-0.5 px-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-400 cursor-pointer"
+          className="flex-1 text-sm font-semibold text-foreground bg-transparent rounded border border-border py-0.5 px-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-400 cursor-pointer"
         >
           {sortedOptions.map(s => (
             <option key={s.state} value={s.state}>
@@ -156,14 +159,14 @@ function SpotlightCard({
       />
       {stvEntry && <StvBar entry={stvEntry} />}
 
-      <p className="text-xs text-slate-500 leading-snug">
+      <p className="text-xs text-muted-foreground leading-snug">
         {isGopOver ? 'Republican' : 'Democrat'}s hold{' '}
         <span className="font-semibold" style={{ color: overColor }}>
           {overSeats}/{data.totalSeats} seats ({overSeatPct}%)
         </span>{' '}
         on {overVotePct.toFixed(1)}% of the vote.
       </p>
-    </div>
+    </Card>
   );
 }
 
@@ -212,7 +215,7 @@ export function FPTPDisproportionality({ states, stateMap }: Props) {
     <div className="space-y-5">
       {/* Spotlight cards */}
       <div>
-        <p className="text-xs text-slate-400 mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           Use the dropdowns to compare any states — sorted by gerrymander score (seat share − vote share gap).
           {stateMap && <span> Third bar shows the 9-party STV simulation result.</span>}
         </p>
@@ -230,22 +233,24 @@ export function FPTPDisproportionality({ states, stateMap }: Props) {
       </div>
 
       {/* Collapsible bubble chart + table */}
-      <div className="border border-slate-200 rounded-xl overflow-hidden">
-        <button
-          className="flex items-center justify-between w-full px-4 py-3 text-left bg-slate-50 hover:bg-slate-100 transition-colors"
+      <Card className="overflow-hidden">
+        <Button
+          variant="ghost"
+          className="flex items-center justify-between w-full px-4 py-3 text-left"
           onClick={() => setShowDetail(v => !v)}
+          aria-expanded={showDetail}
         >
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Bubble chart &amp; full table
           </span>
-          <span className="text-slate-400 text-sm">{showDetail ? '▲' : '▼'}</span>
-        </button>
+          <span className="text-muted-foreground text-sm">{showDetail ? '▲' : '▼'}</span>
+        </Button>
 
         {showDetail && (
           <div className="p-4 space-y-4">
             {/* Bubble chart */}
             <div>
-              <div className="text-xs text-slate-500 mb-2">
+              <div className="text-xs text-muted-foreground mb-2">
                 Each bubble: X = GOP vote share, Y = GOP seat share. Diagonal = perfect proportionality.{' '}
                 <span className="text-red-600 font-medium">Above = GOP over-represented</span>{' '}
                 <span className="text-blue-600 font-medium">Below = Dem over-represented</span>
@@ -297,63 +302,62 @@ export function FPTPDisproportionality({ states, stateMap }: Props) {
             {/* Sort + table */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs text-slate-500">Sort by:</span>
+                <span className="text-xs text-muted-foreground">Sort by:</span>
                 {(['diff', 'seats', 'az'] as const).map(s => (
-                  <button
+                  <Button
                     key={s}
                     onClick={() => setSortBy(s)}
-                    className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                      sortBy === s ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                    }`}
+                    variant={sortBy === s ? 'default' : 'secondary'}
+                    size="sm"
                   >
                     {s === 'diff' ? 'Disproportionality' : s === 'seats' ? 'Seats' : 'A–Z'}
-                  </button>
+                  </Button>
                 ))}
               </div>
               <div className="overflow-y-auto" style={{ maxHeight: 320 }}>
-                <table className="text-xs w-full">
-                  <thead className="sticky top-0 bg-white">
-                    <tr className="text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                      <th className="text-left pb-1.5 pr-3 font-medium">State</th>
-                      <th className="text-right pb-1.5 px-2 font-medium">Seats</th>
-                      <th className="text-right pb-1.5 px-2 font-medium">GOP Vote</th>
-                      <th className="text-right pb-1.5 px-2 font-medium">FPTP</th>
-                      <th className="text-right pb-1.5 px-2 font-medium">PR</th>
-                      <th className="text-right pb-1.5 pl-2 font-medium">Excess</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table className="text-xs">
+                  <TableHeader className="sticky top-0 bg-white">
+                    <TableRow className="text-muted-foreground uppercase tracking-widest">
+                      <TableHead className="text-left pb-1.5 pr-3">State</TableHead>
+                      <TableHead className="text-right pb-1.5 px-2">Seats</TableHead>
+                      <TableHead className="text-right pb-1.5 px-2">GOP Vote</TableHead>
+                      <TableHead className="text-right pb-1.5 px-2">FPTP</TableHead>
+                      <TableHead className="text-right pb-1.5 px-2">PR</TableHead>
+                      <TableHead className="text-right pb-1.5 pl-2">Excess</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {sorted.map(s => {
                       const excess = s.gopFptpSeats - s.gopPrSeats;
                       return (
-                        <tr key={s.state} className="border-b border-slate-50">
-                          <td className="py-1 pr-3 font-medium text-slate-700">{s.state}</td>
-                          <td className="text-right px-2 text-slate-500">{s.totalSeats}</td>
-                          <td className="text-right px-2 text-slate-500">{s.gopVotePct.toFixed(0)}%</td>
-                          <td className="text-right px-2 font-mono">
+                        <TableRow key={s.state}>
+                          <TableCell className="py-1 pr-3 font-medium text-foreground">{s.state}</TableCell>
+                          <TableCell className="text-right px-2 text-muted-foreground">{s.totalSeats}</TableCell>
+                          <TableCell className="text-right px-2 text-muted-foreground">{s.gopVotePct.toFixed(0)}%</TableCell>
+                          <TableCell className="text-right px-2 font-mono">
                             <span className="text-red-600">{s.gopFptpSeats}R</span>
                             <span className="text-slate-300 mx-0.5">/</span>
                             <span className="text-blue-600">{s.demFptpSeats}D</span>
-                          </td>
-                          <td className="text-right px-2 font-mono text-slate-500">
+                          </TableCell>
+                          <TableCell className="text-right px-2 font-mono text-muted-foreground">
                             {s.gopPrSeats}R/{s.demPrSeats}D
-                          </td>
-                          <td
+                          </TableCell>
+                          <TableCell
                             className="text-right pl-2 font-mono font-bold"
                             style={{ color: excess > 0 ? '#dc2626' : excess < 0 ? '#1d4ed8' : '#94a3b8' }}
                           >
                             {excess > 0 ? `+${excess}R` : excess < 0 ? `${Math.abs(excess)}D` : '—'}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </div>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

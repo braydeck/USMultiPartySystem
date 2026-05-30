@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import type { SenateSeat, VoteModelRow, SenateScenario, ClusterProfile, ConstellationNode, FDSenateSeat, FDHouseSeat, FDCandidateProfile } from '../types';
 import { SenateMap } from '../components/senate/SenateMap';
 import { VoteModelTable } from '../components/senate/VoteModelTable';
@@ -53,8 +55,8 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
   return (
     <div className="flex items-center gap-3">
       <div className="shrink-0 text-right" style={{ width: 110 }}>
-        <div className="text-xs font-semibold text-slate-700">{label}</div>
-        <div className="text-xs text-slate-400">{total} seats</div>
+        <div className="text-xs font-semibold text-foreground">{label}</div>
+        <div className="text-xs text-muted-foreground">{total} seats</div>
       </div>
       <div className="flex-1 flex rounded-lg overflow-hidden h-10">
         {segs.map(({ party, n, color }) => {
@@ -168,45 +170,43 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-1">Senate</h2>
-        <p className="text-slate-500 text-sm">
+        <h2 className="text-2xl font-bold text-foreground mb-1">Senate</h2>
+        <p className="text-muted-foreground text-sm">
           Each state elects one senator via either Condorcet or IRV. The method choice matters:
           Condorcet finds the most broadly acceptable candidate; IRV amplifies strong-base parties.
         </p>
       </div>
 
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-slate-100 -mx-4 px-4 py-2 flex flex-wrap items-center gap-4">
+      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 uppercase tracking-widest">Scenario</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-widest">Scenario</span>
           <div className="flex gap-1">
             {(['rawMulti', 'factorDev'] as const).map(p => (
-              <button key={p} onClick={() => setPipeline(p)}
-                className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  pipeline === p ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                }`}>
+              <Button key={p} onClick={() => setPipeline(p)}
+                variant={pipeline === p ? 'default' : 'secondary'}
+                size="sm">
                 {p === 'factorDev' ? 'Factor Dev' : 'Raw Multi'}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 uppercase tracking-widest">Method</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-widest">Method</span>
           <div className="flex gap-1">
             {(['condorcet', 'irv'] as const).map(m => (
-              <button key={m} onClick={() => setMethod(m)}
-                className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  method === m ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                }`}>
+              <Button key={m} onClick={() => setMethod(m)}
+                variant={method === m ? 'default' : 'secondary'}
+                size="sm">
                 {m === 'condorcet' ? 'Condorcet' : 'IRV'}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
       </div>
 
       {/* FPTP vs STV Senate Comparison */}
-      <div className="bg-white rounded-xl p-5 border-2 border-indigo-200 space-y-3">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+      <Card className="p-5 border-2 border-indigo-200 space-y-3">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           FPTP Today vs STV Senate
         </h3>
         {/* FPTP Today */}
@@ -223,134 +223,133 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           <SenateCompBar label="FD Condorcet" seats={condorcetFD} />
           <SenateCompBar label="FD IRV" seats={irvFD} />
         </>}
-      </div>
+      </Card>
 
       {/* Parliament fan chart */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
+      <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="text-xs text-slate-600 uppercase tracking-widest">Order by</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-widest">Order by</span>
           {(['F1','F2','F3','F4','F5'] as const).map(f => (
-            <button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
-              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                parliamentFactor === f ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-              }`}>
+            <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
+              variant={parliamentFactor === f ? 'default' : 'secondary'}
+              size="sm">
               {f} · {FACTOR_LABELS[f]}
-            </button>
+            </Button>
           ))}
         </div>
         <ParliamentChart segments={parliamentSegments} factor={parliamentFactor} globalRange={globalRange} />
-      </div>
+      </Card>
 
       {/* FD: Variant bar below fan chart */}
       {isFD && fdVariantSeats.length > 0 && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             Senate Seats by Variant
           </h3>
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-muted-foreground mb-3">
             Full color = base; lighter = hi axis deviation; darker = lo axis deviation.
           </p>
           <PartyVariantBar seats={fdVariantSeats} totalLabel="51 senate seats" />
-        </div>
+        </Card>
       )}
 
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
+      <Card className="p-4">
         <SenateMap seats={activeSeats} />
-      </div>
+      </Card>
 
       {/* Senate Coalition Composition — how winners fill their quota */}
       {pipeline === 'rawMulti' && senateBuckets && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             How Senators Build Their Coalition
           </h3>
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-muted-foreground mb-3">
             Each bar shows where a senator&apos;s votes came from during STV winnowing.
             Darkest = own first-choice supporters. Other colors = transfers from eliminated parties.
             Select a state to see the full finalist breakdown.
           </p>
           <SenateBuckets data={senateBuckets} method={method} />
-        </div>
+        </Card>
       )}
 
       {/* Senate Condorcet Matrix */}
       {pipeline === 'rawMulti' && senateCondorcet && (
-        <div className="bg-white rounded-xl p-4 border border-slate-200">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             Head-to-Head Matrix (Condorcet)
           </h3>
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-muted-foreground mb-3">
             National average shows how often each party beats every other in head-to-head matchups across all 51 state races.
             Select a state to see actual margins for that race&apos;s 5 finalists.
           </p>
           <SenateCondorcetView data={senateCondorcet} />
-        </div>
+        </Card>
       )}
 
       {/* Ideological Constellation */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
           Ideological Constellation
         </h3>
         <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
-      </div>
+      </Card>
 
       {/* Nine-Party Profiles */}
       <PartyProfileGrid clusters={orderedClusters} />
 
       {/* Senate Vote Model */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-4">
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">
           Senate Vote Model — 37 Bills
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-muted-foreground mb-4">
           Highlighted rows show bills the senate passes but the president vetoes.
         </p>
         <VoteModelTable rows={voteModel} scenario={scenario} />
-      </div>
+      </Card>
 
       {/* FD Analysis section */}
       {isFD && (
         <>
           <div className="border-t-2 border-violet-200 pt-6">
             <h3 className="text-lg font-bold text-violet-800 mb-1">Factor Deviation Analysis — Senate</h3>
-            <p className="text-xs text-slate-500 mb-6">
+            <p className="text-xs text-muted-foreground mb-6">
               How do ideological deviations affect senate composition under {method === 'condorcet' ? 'Condorcet' : 'IRV'}?
             </p>
           </div>
 
-          <div className="bg-white rounded-xl p-4 border border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
               Variant Impact by Party
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-muted-foreground mb-4">
               Which ideological deviations win senate seats?
             </p>
             <VariantImpactChart seats={fdVariantSeats} />
-          </div>
+          </Card>
 
           {fdVariantAttraction.length > 0 && (
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
                 Variant Voter Attraction Sources
               </h3>
-              <p className="text-xs text-slate-500 mb-4">
+              <p className="text-xs text-muted-foreground mb-4">
                 Incremental cross-party attraction for each deviation relative to the party base.
               </p>
               <VariantAttractionChart data={fdVariantAttraction} />
-            </div>
+            </Card>
           )}
 
           {fdAttractionDrivers.length > 0 && (
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
                 Cross-Party Attraction Drivers
               </h3>
-              <p className="text-xs text-slate-500 mb-3">
+              <p className="text-xs text-muted-foreground mb-3">
                 Which factors explain each variant&apos;s cross-party pull?
               </p>
               <AttractionDriverChart data={fdAttractionDrivers} />
-            </div>
+            </Card>
           )}
         </>
       )}

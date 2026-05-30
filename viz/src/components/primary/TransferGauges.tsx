@@ -38,7 +38,7 @@ export function TransferGauges({ candidates, stage, prevStage }: Props) {
       {/* Eliminated candidates this round */}
       {eliminated.length > 0 && (
         <div>
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
             Eliminated This Round
           </div>
           <div className="space-y-1.5">
@@ -48,8 +48,8 @@ export function TransferGauges({ candidates, stage, prevStage }: Props) {
               const barW = (pct / maxPct) * 100;
               return (
                 <div key={c.code} className="flex items-center gap-2">
-                  <div className="w-20 text-xs font-mono text-slate-400 shrink-0 text-right">{c.code}</div>
-                  <div className="flex-1 relative h-5 bg-slate-100 rounded overflow-hidden">
+                  <div className="w-20 text-xs font-mono text-muted-foreground shrink-0 text-right">{c.code}</div>
+                  <div className="flex-1 relative h-5 bg-muted rounded overflow-hidden">
                     <div
                       className="absolute inset-y-0 left-0 rounded"
                       style={{
@@ -58,7 +58,7 @@ export function TransferGauges({ candidates, stage, prevStage }: Props) {
                         opacity: 0.35,
                       }}
                     />
-                    <span className="absolute inset-0 flex items-center pl-2 text-xs text-slate-400">
+                    <span className="absolute inset-0 flex items-center pl-2 text-xs text-muted-foreground">
                       {(pct * 100).toFixed(1)}% → transferred
                     </span>
                   </div>
@@ -71,7 +71,7 @@ export function TransferGauges({ candidates, stage, prevStage }: Props) {
 
       {/* Surviving candidates — carry-over + absorbed */}
       <div>
-        <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
           {prevStage ? 'After Transfer' : 'Vote Share'}
         </div>
         <div className="space-y-1.5">
@@ -93,7 +93,7 @@ export function TransferGauges({ candidates, stage, prevStage }: Props) {
                   {c.code}
                   {isElected && <span className="ml-1 text-amber-500">★</span>}
                 </div>
-                <div className="flex-1 relative h-5 bg-slate-100 rounded overflow-hidden">
+                <div className="flex-1 relative h-5 bg-muted rounded overflow-hidden">
                   {/* Carryover portion */}
                   <div
                     className="absolute inset-y-0 left-0"
@@ -129,7 +129,7 @@ export function TransferGauges({ candidates, stage, prevStage }: Props) {
       </div>
 
       {prevStage && eliminated.length > 0 && (
-        <div className="text-xs text-slate-400 border-t border-slate-100 pt-2">
+        <div className="text-xs text-muted-foreground border-t border-border/50 pt-2">
           Darker bar = carry-over votes · lighter extension = transfers absorbed this round
         </div>
       )}
