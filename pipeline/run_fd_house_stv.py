@@ -17,6 +17,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+import sys
+
 BASE_DIR        = Path(__file__).parent.parent
 CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT   = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
@@ -24,6 +26,11 @@ EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation" / "house"
+
+# Triple Wyoming variants
+CHECKPOINT_PATH_TRIPLE = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "ballots_checkpoint.parquet"
+APPORTIONMENT_TRIPLE   = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "district_apportionment.csv"
+OUTPUT_DIR_TRIPLE      = BASE_DIR / "data" / "outputs" / "factor_deviation_triple" / "house"
 
 VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 CAND_FACTOR_COLS  = [
@@ -74,13 +81,12 @@ def score_candidates_hybrid(voter_factors:  np.ndarray,
 def generate_ballots(scores: np.ndarray,
                      cand_arr: np.ndarray,
                      rng: np.random.Generator) -> np.ndarray:
+    """Deterministic ranking: sort candidates by score descending."""
     N, M     = scores.shape
-    EPSILON  = 1e-10
     ballots  = np.empty((N, M), dtype=object)
     for i in range(N):
-        probs  = scores[i] + EPSILON
-        probs /= probs.sum()
-        ballots[i] = cand_arr[rng.choice(M, size=M, replace=False, p=probs)]
+        order = np.argsort(-scores[i])
+        ballots[i] = cand_arr[order]
     return ballots
 
 
@@ -150,15 +156,24 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-def main():
+def main(checkpoint_path=None, apportionment_path=None, output_dir=None, label="FD"):
+    if checkpoint_path is None:
+        checkpoint_path = CHECKPOINT_PATH
+    if apportionment_path is None:
+        apportionment_path = APPORTIONMENT
+    if output_dir is None:
+        output_dir = OUTPUT_DIR
+    else:
+        output_dir = Path(output_dir)
+
     rng = np.random.default_rng(42)
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     sep  = "=" * 70
     thin = "-" * 70
 
     print(sep)
-    print("FD HOUSE STV  —  71 factor-deviation candidates, 180 districts")
+    print(f"{label} HOUSE STV  —  71 factor-deviation candidates")
     print(sep)
 
     # ── Load data ─────────────────────────────────────────────────────────────
@@ -172,15 +187,15 @@ def main():
     assert len(typology) == len(efa), f"Row mismatch: {len(typology)} vs {len(efa)}"
     prob_matrix = typology[PROB_COLS].values.astype(np.float64)
 
-    print("Loading district assignments from canonical checkpoint…")
-    checkpoint    = pd.read_parquet(CHECKPOINT_PATH)
+    print(f"Loading district assignments from checkpoint ({checkpoint_path.name})…")
+    checkpoint    = pd.read_parquet(checkpoint_path)
     assert len(checkpoint) == len(efa), "Row count mismatch between EFA scores and checkpoint"
     district_ids  = checkpoint["district_id"].values
     density_tiers = checkpoint["density_tier"].values
     print(f"  {len(efa):,} respondents assigned to {checkpoint['district_id'].nunique()} districts")
 
     print("Loading district apportionment…")
-    apportion_df  = pd.read_csv(APPORTIONMENT)
+    apportion_df  = pd.read_csv(apportionment_path)
     dist_seats    = dict(zip(apportion_df["district_id"], apportion_df["seat_count"]))
     dist_state    = dict(zip(apportion_df["district_id"], apportion_df["state_fips"]))
     dist_abbr     = dict(zip(apportion_df["district_id"], apportion_df["state_abbr"]))
@@ -266,7 +281,7 @@ def main():
         dist_rows.append(row)
 
     dist_df = pd.DataFrame(dist_rows).sort_values(["state_fips", "district_id"])
-    dist_df.to_csv(OUTPUT_DIR / "stv_results_by_district.csv", index=False)
+    dist_df.to_csv(output_dir / "stv_results_by_district.csv", index=False)
     print(f"\nSaved stv_results_by_district.csv  ({len(dist_df)} districts)")
 
     # ── Seat summary ──────────────────────────────────────────────────────────
@@ -301,7 +316,7 @@ def main():
     summary_df = pd.DataFrame(summary_rows).sort_values("NATIONAL", ascending=False)
     total_seats = summary_df["NATIONAL"].sum()
     summary_df["pct_national"] = (summary_df["NATIONAL"] / total_seats * 100).round(2)
-    summary_df.to_csv(OUTPUT_DIR / "stv_seat_summary.csv", index=False)
+    summary_df.to_csv(output_dir / "stv_seat_summary.csv", index=False)
     print(f"Saved stv_seat_summary.csv  ({len(summary_df)} candidates with seats)")
 
     # ── Summary by party ──────────────────────────────────────────────────────
@@ -330,9 +345,17 @@ def main():
               f"seats={int(row['NATIONAL'])}")
 
     print(f"\n{sep}")
-    print("FD house STV complete.")
+    print(f"{label} house STV complete.")
     print(sep)
 
 
 if __name__ == "__main__":
-    main()
+    if "--triple" in sys.argv:
+        main(
+            checkpoint_path=CHECKPOINT_PATH_TRIPLE,
+            apportionment_path=APPORTIONMENT_TRIPLE,
+            output_dir=OUTPUT_DIR_TRIPLE,
+            label="FD TRIPLE WYOMING",
+        )
+    else:
+        main()

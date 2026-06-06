@@ -129,14 +129,12 @@ def compute_candidate_scores(voter_factors: np.ndarray,
 
 
 def generate_ballots(scores: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """Plackett-Luce sampling. Returns (N, C) int16 array of candidate indices."""
+    """Deterministic ranking: sort candidates by score descending.
+    Returns (N, C) int16 array of candidate indices."""
     N, C    = scores.shape
-    EPSILON = 1e-10
     ballots = np.zeros((N, C), dtype=np.int16)
     for i in range(N):
-        probs  = scores[i] + EPSILON
-        probs /= probs.sum()
-        ballots[i] = rng.choice(C, size=C, replace=False, p=probs)
+        ballots[i] = np.argsort(-scores[i])
     return ballots
 
 

@@ -49,6 +49,12 @@ import clusterSpreadsData from './data/clusterSpreads.json';
 import fdAttractionDriversData from './data/fdAttractionDrivers.json';
 import fdDistrictStvResultsData from './data/fdDistrictStvResults.json';
 import rcvResultsData from './data/rcvResults.json';
+import houseSeatsTripleData from './data/houseSeatsTriple.json';
+import fdHouseSeatsTripleData from './data/fdHouseSeatsTriple.json';
+import districtStvResultsTripleData from './data/districtStvResultsTriple.json';
+import fdDistrictStvResultsTripleData from './data/fdDistrictStvResultsTriple.json';
+import houseStateMapTripleData from './data/houseStateMapTriple.json';
+import districtCountyMapTripleData from './data/districtCountyMapTriple.json';
 
 import type {
   PrimaryStateWinner, VoteModelRow, HouseSeat,
@@ -185,6 +191,12 @@ export default function App() {
             clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
             fdAttractionDrivers={fdAttractionDriversData as { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[]}
             fdDistrictResults={fdDistrictStvResultsData as unknown as Record<string, DistrictResult[]>}
+            seatsTriple={houseSeatsTripleData as HouseSeat[]}
+            fdHouseSeatsTriple={fdHouseSeatsTripleData as unknown as FDHouseSeat[]}
+            stateMapTriple={houseStateMapTripleData as unknown as Record<string, HouseStateEntry>}
+            districtResultsTriple={districtStvResultsTripleData as unknown as Record<string, DistrictResult[]>}
+            fdDistrictResultsTriple={fdDistrictStvResultsTripleData as unknown as Record<string, DistrictResult[]>}
+            districtCountyMapTriple={districtCountyMapTripleData as Record<string, string[]>}
           />
         )}
         {tab === 'rcv' && (
@@ -218,7 +230,7 @@ export default function App() {
       </main>
 
       <footer className="border-t border-border mt-12 py-6 text-center text-xs text-muted-foreground">
-        Built on CES 2024 survey data · 10-party STV simulation · 873 House seats · 51 Senate seats
+        Built on CES 2024 survey data · 10-party STV simulation · 873 / 1,726 House seats · 51 Senate seats
       </footer>
     </Tabs>
     </TooltipProvider>

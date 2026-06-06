@@ -10,6 +10,7 @@ interface Props {
   pipeline: 'rawMulti' | 'factorDev';
   senateMethod: 'condorcet' | 'irv';
   presWinner: string;
+  wyoming?: 'double' | 'triple';
 }
 
 const SENATE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
@@ -103,11 +104,19 @@ function ProbBar({ prob }: { prob: number | undefined }) {
   );
 }
 
-export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod, presWinner }: Props) {
+const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
+  'rawMulti+double':    'houseRawMultiProbPass',
+  'rawMulti+triple':    'houseRawMultiTripleProbPass',
+  'factorDev+double':   'houseFDProbPass',
+  'factorDev+triple':   'houseFDTripleProbPass',
+};
+
+export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod, presWinner, wyoming = 'double' }: Props) {
   const [domain, setDomain] = useState<string>('All');
 
   const combo          = `${pipeline}+${senateMethod}`;
   const senateProbField = SENATE_PROB_FIELD[combo];
+  const houseProbField  = HOUSE_PROB_FIELD[`${pipeline}+${wyoming}`] ?? 'houseRawMultiProbPass';
   const presSignField   = PRES_SIGN_FIELD[combo];
   const presPctField    = PRES_PCT_FIELD[combo];
   const presColor       = getBlendColor(presWinner);
@@ -165,7 +174,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
           const ref = hr ?? sr;
           if (!ref) return null;
 
-          const houseProb    = hr?.probPass;
+          const houseProb    = hr?.[houseProbField] as number | undefined;
           const houseLabel   = getBayesianLabel([houseProb]);
           const senateProb   = sr?.[senateProbField] as number | undefined;
           const senateLabel  = getBayesianLabel([senateProb]);

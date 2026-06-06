@@ -40,15 +40,24 @@ interface Props {
   clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
   fdAttractionDrivers: { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[];
   fdDistrictResults: Record<string, DistrictResult[]>;
+  seatsTriple: HouseSeat[];
+  fdHouseSeatsTriple: FDHouseSeat[];
+  stateMapTriple: Record<string, HouseStateEntry>;
+  districtResultsTriple: Record<string, DistrictResult[]>;
+  fdDistrictResultsTriple: Record<string, DistrictResult[]>;
+  districtCountyMapTriple: Record<string, string[]>;
 }
 
-export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults }: Props) {
+type WyomingRule = 'double' | 'triple';
+
+export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
-  const totalSeats = seats.reduce((s, r) => s + r.national, 0);
   const [scenario, setScenario] = useState<'rawMulti' | 'factorDev'>('rawMulti');
+  const [wyoming, setWyoming] = useState<WyomingRule>('double');
   const [mapView, setMapView] = useState<'map' | 'grid'>('map');
   const [parliamentFactor, setParliamentFactor] = useState('F5');
+  const [seatShareState, setSeatShareState] = useState('national');
 
   const fdSeatsAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
@@ -74,11 +83,30 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
     }));
   }, [fdHouseSeats, seats]);
 
-  const fdSeatsByCode = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const s of fdHouseSeats) map[s.code] = s.national;
-    return map;
-  }, [fdHouseSeats]);
+  // FD aggregation for triple Wyoming
+  const fdSeatsTripleAggregated: HouseSeat[] = useMemo(() => {
+    const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
+    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, SD: 1, STY: 2, NAT: 3, LIB: 4, REF: 5, CTR: 6, DSA: 8, PRG: 9 };
+    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Social Democrat',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Reform',6:'Center',8:'DSA',9:'Progressive' };
+    for (const s of fdHouseSeatsTriple) {
+      const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
+      if (cluster < 0) continue;
+      if (!byCluster[cluster]) byCluster[cluster] = { urban: 0, suburban: 0, rural: 0, national: 0 };
+      byCluster[cluster].urban += s.urban;
+      byCluster[cluster].suburban += s.suburban;
+      byCluster[cluster].rural += s.rural;
+      byCluster[cluster].national += s.national;
+    }
+    const fdTotal = Object.values(byCluster).reduce((s, r) => s + r.national, 0) || 1;
+    return Object.entries(byCluster).map(([k, v]) => ({
+      party: Number(k),
+      partyName: CLUSTER_NAMES[Number(k)] ?? '',
+      urban: v.urban, suburban: v.suburban, rural: v.rural,
+      national: v.national,
+      pctNational: v.national / fdTotal * 100,
+      pctPopulation: seats.find(s => s.party === Number(k))?.pctPopulation ?? 0,
+    }));
+  }, [fdHouseSeatsTriple, seats]);
 
   // Helper: convert cluster to percentile-based constellation node
   const clusterToNode = (c: CoalitionProfile | ClusterProfile) => {
@@ -95,8 +123,22 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
     };
   };
 
-  const activeSeats = scenario === 'rawMulti' ? seats : fdSeatsAggregated;
+  const activeSeats = useMemo(() => {
+    if (wyoming === 'triple') return scenario === 'rawMulti' ? seatsTriple : fdSeatsTripleAggregated;
+    return scenario === 'rawMulti' ? seats : fdSeatsAggregated;
+  }, [wyoming, scenario, seats, seatsTriple, fdSeatsAggregated, fdSeatsTripleAggregated]);
   const activeTotalSeats = activeSeats.reduce((s, r) => s + r.national, 0);
+  const activeDistrictResults = wyoming === 'triple'
+    ? (scenario === 'factorDev' ? fdDistrictResultsTriple : districtResultsTriple)
+    : (scenario === 'factorDev' ? fdDistrictResults : districtResults);
+  const activeDistrictCountyMap = wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap;
+  const activeStateMap = wyoming === 'triple' ? stateMapTriple : stateMap;
+  const activeFdHouseSeats = wyoming === 'triple' ? fdHouseSeatsTriple : fdHouseSeats;
+  const activeFdSeatsByCode = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const s of activeFdHouseSeats) map[s.code] = s.national;
+    return map;
+  }, [activeFdHouseSeats]);
 
   const parliamentSegments: ParliamentSegment[] = activeSeats
     .filter(s => s.national > 0)
@@ -113,18 +155,34 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-1">House of Representatives</h2>
         <p className="text-muted-foreground text-sm">
-          {totalSeats} seats allocated via STV across geographically-drawn districts sized 4–7 seats.
+          {activeTotalSeats} seats allocated via STV across geographically-drawn multi-member districts.
         </p>
       </div>
 
       {/* Scenario toggle — sticky */}
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex gap-2">
-        {(['rawMulti', 'factorDev'] as const).map(s => (
-          <Button key={s} onClick={() => setScenario(s)}
-            variant={scenario === s ? 'default' : 'secondary'}>
-            {s === 'rawMulti' ? 'Raw Multi' : 'Factor Dev'}
-          </Button>
-        ))}
+      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground uppercase tracking-widest">Wyoming</span>
+          <div className="flex gap-1">
+            {([['double', 'Double (873)'], ['triple', 'Triple (~1,726)']] as const).map(([v, label]) => (
+              <Button key={v} onClick={() => setWyoming(v as WyomingRule)}
+                variant={wyoming === v ? 'default' : 'secondary'} size="sm">
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground uppercase tracking-widest">Scenario</span>
+          <div className="flex gap-1">
+            {(['rawMulti', 'factorDev'] as const).map(s => (
+              <Button key={s} onClick={() => setScenario(s)}
+                variant={scenario === s ? 'default' : 'secondary'} size="sm">
+                {s === 'rawMulti' ? 'Raw Multi' : 'Factor Dev'}
+              </Button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════════
@@ -133,7 +191,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
 
       {/* Hero: FPTP vs STV */}
       <Card className="p-5 border-2 border-indigo-200">
-        <FPTPvsSTV seats={activeSeats} />
+        <FPTPvsSTV seats={activeSeats} doubleSeats={seats} wyoming={wyoming} />
       </Card>
 
       {/* Population vs Seat Share */}
@@ -145,8 +203,41 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
           How close does STV get to proportional representation? Faded bar = population share, solid = seat share.
           {scenario === 'factorDev' && ' Outlined = Factor Dev seat share for comparison.'}
         </p>
-        <ScenarioComparison rawMultiSeats={seats} fdSeats={fdSeatsAggregated} scenario={scenario} />
+        <ScenarioComparison
+          rawMultiSeats={wyoming === 'triple' ? seatsTriple : seats}
+          fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
+          scenario={scenario}
+          wyoming={wyoming}
+          doubleSeats={seats}
+          doubleFdSeats={fdSeatsAggregated}
+          stateMap={activeStateMap}
+          doubleStateMap={stateMap}
+          selectedState={seatShareState}
+          onStateChange={setSeatShareState}
+        />
       </Card>
+
+      {/* Vote Transfer Destinations — filtered by state/national */}
+      {scenario === 'rawMulti' && houseTransfers.length > 0 && (
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            {seatShareState === 'national'
+              ? "When a party is eliminated in STV, where do their voters\u2019 ballots flow?"
+              : `Showing parties that won seats in ${seatShareState}. Transfer patterns are national averages.`}
+          </p>
+          <TransferFlowChart
+            data={houseTransfers}
+            filterParties={seatShareState === 'national' ? undefined : (() => {
+              const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
+              const entry = fips ? activeStateMap[fips] : undefined;
+              return entry ? Object.keys(entry.seats) : undefined;
+            })()}
+          />
+        </Card>
+      )}
 
       {/* FD: Variant bar right after seat share */}
       {scenario === 'factorDev' && (
@@ -157,7 +248,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
           <p className="text-xs text-muted-foreground mb-3">
             {activeTotalSeats} seats stacked by axis variant. Full color = base; lighter = hi axis; darker = lo axis.
           </p>
-          <PartyVariantBar seats={fdHouseSeats} totalLabel={`${activeTotalSeats} house seats`} />
+          <PartyVariantBar seats={activeFdHouseSeats} totalLabel={`${activeTotalSeats} house seats`} />
         </Card>
       )}
 
@@ -209,8 +300,8 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
             ))}
           </div>
         </div>
-        {mapView === 'map' && <HouseMap districtResults={scenario === 'factorDev' ? fdDistrictResults : districtResults} districtCountyMap={districtCountyMap} />}
-        {mapView === 'grid' && <HouseGridChart stateMap={stateMap} districtResults={scenario === 'factorDev' ? fdDistrictResults : districtResults} />}
+        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap} />}
+        {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} />}
       </Card>
 
       {/* FPTP disproportionality — below maps */}
@@ -222,22 +313,11 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
           <p className="text-xs text-muted-foreground mb-4">
             How far each state&apos;s FPTP outcome diverges from proportional representation.
           </p>
-          <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />
+          <FPTPDisproportionality states={fptpStates} stateMap={activeStateMap} />
         </Card>
       )}
 
-      {/* Vote Transfer Destinations — Raw Multi only */}
-      {scenario === 'rawMulti' && houseTransfers.length > 0 && (
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            Vote Transfer Destinations
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">
-            When a party is eliminated in STV, where do their voters&apos; ballots flow?
-          </p>
-          <TransferFlowChart data={houseTransfers} />
-        </Card>
-      )}
+      {/* Vote Transfer Destinations removed — now below Population vs Seat Share */}
 
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 3: IDEOLOGICAL LANDSCAPE
@@ -251,11 +331,11 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
           nodes={(() => {
             if (scenario === 'factorDev') {
               const fdNodes = fdCandidatePositions
-                .filter(c => (fdSeatsByCode[c.code] ?? 0) > 0)
+                .filter(c => (activeFdSeatsByCode[c.code] ?? 0) > 0)
                 .map(c => ({
                   id: c.code,
                   label: c.axis === 'base' ? c.party : c.code,
-                  seats: fdSeatsByCode[c.code] ?? 1,
+                  seats: activeFdSeatsByCode[c.code] ?? 1,
                   F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
                 }));
               return fdNodes.length > 0 ? fdNodes : [];
@@ -276,11 +356,15 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
         <p className="text-xs text-muted-foreground mb-3">
           Probability of passage based on the House seat composition.
         </p>
-        <BillSimulator rows={voteModel} />
+        <BillSimulator rows={voteModel} probField={
+          wyoming === 'triple'
+            ? (scenario === 'rawMulti' ? 'houseRawMultiTripleProbPass' : 'houseFDTripleProbPass')
+            : (scenario === 'rawMulti' ? 'houseRawMultiProbPass' : 'houseFDProbPass')
+        } />
       </Card>
 
       <Card className="p-4">
-        <StateSeatsTable stateMap={stateMap} />
+        <StateSeatsTable stateMap={activeStateMap} wyoming={wyoming} />
       </Card>
 
       {/* ═══════════════════════════════════════════════════════════════════════
@@ -304,7 +388,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
             <p className="text-xs text-muted-foreground mb-4">
               Which ideological deviations win seats? Stacked bars show base vs axis variant contributions.
             </p>
-            <VariantImpactChart seats={fdHouseSeats} />
+            <VariantImpactChart seats={activeFdHouseSeats} />
           </Card>
 
           {/* Variant Voter Attraction Sources */}

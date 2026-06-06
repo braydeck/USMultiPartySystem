@@ -104,6 +104,7 @@ STATE_POPS = {
 }
 
 POP_PER_SEAT = 380_000
+POP_PER_SEAT_TRIPLE = 192_284   # Triple Wyoming: 576,851 / 3
 
 # ── Census 2020 urban % by state FIPS ─────────────────────────────────────────
 # Approximated from 2020 Census Urban and Rural Classification

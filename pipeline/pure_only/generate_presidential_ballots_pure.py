@@ -111,17 +111,14 @@ def compute_candidate_scores(voter_factors: np.ndarray,
 
 
 def generate_ballots(scores: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """
-    Plackett-Luce sampling.  Returns (N, 18) int8 array where
+    """Deterministic ranking: sort candidates by score descending.
+    Returns (N, 18) int8 array where
     ballots[i][k] = index of candidate at rank k+1 for respondent i.
     """
     N = len(scores)
-    EPSILON = 1e-10
     ballots = np.zeros((N, N_CANDIDATES), dtype=np.int8)
     for i in range(N):
-        probs = scores[i] + EPSILON
-        probs /= probs.sum()
-        ballots[i] = rng.choice(N_CANDIDATES, size=N_CANDIDATES, replace=False, p=probs)
+        ballots[i] = np.argsort(-scores[i])
     return ballots
 
 

@@ -14,9 +14,10 @@ const FPTP_SEATS: Record<string, number> = {
 
 interface Props {
   stateMap: Record<string, HouseStateEntry>;
+  wyoming?: 'double' | 'triple';
 }
 
-export function StateSeatsTable({ stateMap }: Props) {
+export function StateSeatsTable({ stateMap, wyoming = 'double' }: Props) {
   const rows = Object.values(stateMap)
     .map(entry => ({
       abbr:  entry.stateAbbr,
@@ -61,7 +62,7 @@ export function StateSeatsTable({ stateMap }: Props) {
       </h3>
       <p className="text-xs text-muted-foreground mb-3">
         Now = 2024 FPTP apportionment ({fptpTotal} total). STV = simulated proportional districts ({stvTotal} total).
-        Every state gains seats because multi-member STV targets one seat per ~380k residents.
+        Every state gains seats because multi-member STV targets one seat per ~{wyoming === 'triple' ? '192k' : '380k'} residents.
       </p>
       <div className="grid grid-cols-2 gap-x-8">
         <Table>

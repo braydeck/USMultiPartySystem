@@ -81,6 +81,12 @@ export interface VoteModelRow {
   presRawMultiIRVPct?:    number;
   presRawMultiCondSigns?: string;
   presRawMultiCondPct?:   number;
+  // House Triple Wyoming (pure_multi_triple, ~1726 seats)
+  houseRawMultiTripleProbPass?: number;
+  houseRawMultiTripleVerdict?:  string;
+  // House Triple Wyoming Factor Dev
+  houseFDTripleProbPass?: number;
+  houseFDTripleVerdict?:  string;
 }
 
 export interface HouseSeat {
@@ -154,6 +160,7 @@ export interface HouseStateEntry {
   pluralityParty: string;
   totalSeats: number;
   seats: Record<string, number>;
+  popShares?: Record<string, number>;
 }
 
 export interface KeyPosition {

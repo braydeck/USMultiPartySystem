@@ -27,6 +27,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+import sys
+
 BASE_DIR         = Path(__file__).parent.parent.parent
 CHECKPOINT_PATH  = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
@@ -35,6 +37,12 @@ TYPOLOGY_PATH    = BASE_DIR / "data" / "processed" / "typology_cluster_assignmen
 OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "pure_multi" / "house"
 VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
+
+# Triple Wyoming variants
+CHECKPOINT_PATH_TRIPLE  = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "ballots_checkpoint.parquet"
+APPORTIONMENT_TRIPLE    = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "district_apportionment.csv"
+OUTPUT_DIR_TRIPLE       = BASE_DIR / "data" / "outputs" / "pure_multi_triple" / "house"
+COUNTY_DIST_PATH_TRIPLE = BASE_DIR / "data" / "processed" / "county_to_district_triple.csv"
 
 # ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
 POSITIONAL_SIGMA = 0.35
@@ -155,13 +163,15 @@ def compute_candidate_scores_prob(prob_matrix: np.ndarray, candidates: list) -> 
 
 def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
                      candidates: list) -> np.ndarray:
-    """Plackett-Luce sampling with within-party prominence ordering.
+    """Deterministic ranking with within-party prominence ordering.
+
+    Candidates are ranked by score descending. Within each party,
+    candidates are ordered by prominence (_1 before _2 before _3).
 
     Returns (N, n_cands) object array of candidate code strings.
     """
     N       = len(scores)
     n_cands = len(candidates)
-    EPSILON = 1e-10
 
     cand_codes = [c["code"] for c in candidates]
 
@@ -176,11 +186,9 @@ def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
     ballots = np.empty((N, n_cands), dtype=object)
 
     for i in range(N):
-        probs = scores[i] + EPSILON
-        probs /= probs.sum()
-        ballot = rng.choice(n_cands, size=n_cands, replace=False, p=probs)
+        ballot = np.argsort(-scores[i])
 
-        # Assign prominence labels within each party's PL-determined positions.
+        # Assign prominence labels within each party's positions.
         # _1 gets the best position, _2 next, _3 worst.
         rank_of = {int(ballot[r]): r for r in range(n_cands)}
         for party_idxs in multi_parties:
@@ -249,16 +257,28 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-def main():
+def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
+         output_dir=None, label="PURE MULTI"):
+    if apportionment_path is None:
+        apportionment_path = APPORTIONMENT
+    if checkpoint_path is None:
+        checkpoint_path = CHECKPOINT_PATH
+    if county_dist_path is None:
+        county_dist_path = COUNTY_DIST_PATH
+    if output_dir is None:
+        output_dir = OUTPUT_DIR
+    else:
+        output_dir = Path(output_dir)
+
     rng      = np.random.default_rng(42)
     rng_prob = np.random.default_rng(43)
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     sep  = "=" * 70
     thin = "-" * 70
 
     print(sep)
-    print("PURE MULTI HOUSE STV  —  state-proportional candidate pools")
+    print(f"{label} HOUSE STV  —  state-proportional candidate pools")
     print(sep)
 
     # ── Load data ──────────────────────────────────────────────────────────────
@@ -270,19 +290,19 @@ def main():
     weights       = efa["commonpostweight"].values.astype(np.float64)
 
     print("Loading district apportionment…")
-    apportion_df = pd.read_csv(APPORTIONMENT)
+    apportion_df = pd.read_csv(apportionment_path)
     dist_seats   = dict(zip(apportion_df["district_id"], apportion_df["seat_count"]))
     dist_state   = dict(zip(apportion_df["district_id"], apportion_df["state_fips"]))
     dist_abbr    = dict(zip(apportion_df["district_id"], apportion_df["state_abbr"]))
     dist_tier    = dict(zip(apportion_df["district_id"], apportion_df["density_tier"]))
 
-    if VOTER_FIPS_PATH.exists() and COUNTY_DIST_PATH.exists():
-        print("Assigning voters to districts via county FIPS…")
+    if VOTER_FIPS_PATH.exists() and county_dist_path.exists():
+        print(f"Assigning voters to districts via county FIPS ({county_dist_path.name})…")
         voter_fips_df  = pd.read_csv(VOTER_FIPS_PATH, index_col=0)
         county_fips    = pd.to_numeric(voter_fips_df["countyfips"], errors="coerce").fillna(0).astype(int)
         voter_counties = county_fips.astype(str).str.zfill(5).values
 
-        county_dist_df = pd.read_csv(COUNTY_DIST_PATH)
+        county_dist_df = pd.read_csv(county_dist_path)
         county_to_dist = dict(zip(
             county_dist_df["county_fips5"].astype(str).str.zfill(5),
             county_dist_df["district_id"]
@@ -303,8 +323,8 @@ def main():
         n_unique = len({d for d in district_ids if d})
         print(f"  {len(efa):,} respondents assigned to {n_unique} districts")
     else:
-        print("Geo files not found — falling back to canonical checkpoint…")
-        checkpoint   = pd.read_parquet(CHECKPOINT_PATH, columns=["district_id", "density_tier"])
+        print("Geo files not found — falling back to checkpoint…")
+        checkpoint   = pd.read_parquet(checkpoint_path, columns=["district_id", "density_tier"])
         assert len(checkpoint) == len(efa), \
             f"Row count mismatch: checkpoint={len(checkpoint)}, efa={len(efa)}"
         district_ids = checkpoint["district_id"].values
@@ -447,11 +467,11 @@ def main():
 
     # prob → canonical; gaussian → reference
     dist_df_prob = pd.DataFrame(_dist_rows(district_results_prob)).sort_values(["state_fips", "district_id"])
-    dist_df_prob.to_csv(OUTPUT_DIR / "stv_results_by_district.csv", index=False)
+    dist_df_prob.to_csv(output_dir / "stv_results_by_district.csv", index=False)
     print(f"\nSaved stv_results_by_district.csv (prob — canonical)  ({len(dist_df_prob)} districts)")
 
     dist_df = pd.DataFrame(_dist_rows(district_results)).sort_values(["state_fips", "district_id"])
-    dist_df.to_csv(OUTPUT_DIR / "stv_results_by_district_gauss.csv", index=False)
+    dist_df.to_csv(output_dir / "stv_results_by_district_gauss.csv", index=False)
     print(f"Saved stv_results_by_district_gauss.csv  ({len(dist_df)} districts)")
 
     # ── Seat summary (format matches No_C7_canonical/stv_seat_summary.csv) ────
@@ -479,11 +499,11 @@ def main():
 
     # prob → canonical; gaussian → reference
     summary_df_prob, total_seats_prob = _build_summary(tier_counts_prob)
-    summary_df_prob.to_csv(OUTPUT_DIR / "stv_seat_summary.csv", index=False)
+    summary_df_prob.to_csv(output_dir / "stv_seat_summary.csv", index=False)
     print(f"Saved stv_seat_summary.csv (prob — canonical)  ({len(summary_df_prob)} parties with seats)")
 
     summary_df, total_seats = _build_summary(tier_counts)
-    summary_df.to_csv(OUTPUT_DIR / "stv_seat_summary_gauss.csv", index=False)
+    summary_df.to_csv(output_dir / "stv_seat_summary_gauss.csv", index=False)
     print(f"Saved stv_seat_summary_gauss.csv  ({len(summary_df)} parties with seats)")
 
     # ── Summary table ──────────────────────────────────────────────────────────
@@ -505,9 +525,18 @@ def main():
           f"{int(total_seats_prob):>6}  100.0%")
 
     print(f"\n{sep}")
-    print("Pure multi house STV complete.")
+    print(f"{label} house STV complete.")
     print(sep)
 
 
 if __name__ == "__main__":
-    main()
+    if "--triple" in sys.argv:
+        main(
+            apportionment_path=APPORTIONMENT_TRIPLE,
+            checkpoint_path=CHECKPOINT_PATH_TRIPLE,
+            county_dist_path=COUNTY_DIST_PATH_TRIPLE,
+            output_dir=OUTPUT_DIR_TRIPLE,
+            label="PURE MULTI TRIPLE WYOMING",
+        )
+    else:
+        main()

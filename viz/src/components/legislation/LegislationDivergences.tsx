@@ -9,6 +9,7 @@ interface Props {
   senateVotes: VoteModelRow[];
   election: PresidentialElection;
   pipeline: 'rawMulti' | 'factorDev';
+  wyoming?: 'double' | 'triple';
 }
 
 function PresCell({ signs, winner }: { signs: string | undefined; winner: string }) {
@@ -31,7 +32,7 @@ function PresCell({ signs, winner }: { signs: string | undefined; winner: string
   );
 }
 
-export function LegislationDivergences({ houseVotes, senateVotes, election, pipeline }: Props) {
+export function LegislationDivergences({ houseVotes, senateVotes, election, pipeline, wyoming = 'double' }: Props) {
   const condWinner = election.condorcetWinner;
   const irvWinner  = election.irvWinner;
 
@@ -52,7 +53,9 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
     'factorDev+irv':       'presFDIRVSigns',
   };
 
-  const HOUSE_PROB: keyof VoteModelRow = pipeline === 'rawMulti' ? 'houseRawMultiProbPass' : 'houseFDProbPass';
+  const HOUSE_PROB: keyof VoteModelRow = wyoming === 'triple'
+    ? (pipeline === 'rawMulti' ? 'houseRawMultiTripleProbPass' : 'houseFDTripleProbPass')
+    : (pipeline === 'rawMulti' ? 'houseRawMultiProbPass' : 'houseFDProbPass');
 
   const houseByVar = useMemo(
     () => Object.fromEntries(houseVotes.map(r => [r.variable, r])),

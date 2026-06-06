@@ -53,14 +53,11 @@ FIPS_TO_ABBR = {
 
 
 def generate_ballots(scores: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """Plackett-Luce sampling of 9 parties. Returns (N, 9) int array of party indices."""
+    """Deterministic ranking: sort parties by score descending. Returns (N, 9) int array."""
     N = len(scores)
     ballots = np.zeros((N, N_PARTIES), dtype=np.int8)
-    EPSILON = 1e-10
     for i in range(N):
-        probs = scores[i] + EPSILON
-        probs /= probs.sum()
-        ballots[i] = rng.choice(N_PARTIES, size=N_PARTIES, replace=False, p=probs)
+        ballots[i] = np.argsort(-scores[i])
     return ballots
 
 

@@ -12,10 +12,14 @@ const PR2_TOTAL = PR2_HOUSE.GOP + PR2_HOUSE.DEM;
 
 interface Props {
   seats: HouseSeat[];
+  doubleSeats?: HouseSeat[];
+  wyoming?: 'double' | 'triple';
 }
 
-export function FPTPvsSTV({ seats }: Props) {
+export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double' }: Props) {
   const stvTotal = seats.reduce((s, r) => s + r.national, 0);
+  const dblTotal = doubleSeats?.reduce((s, r) => s + r.national, 0) ?? 0;
+  const showDouble = wyoming === 'triple' && doubleSeats && dblTotal > 0;
 
   // Build STV segments in F5 order
   const stvSegments: { party: string; seats: number }[] = [];
@@ -97,7 +101,7 @@ export function FPTPvsSTV({ seats }: Props) {
       {/* STV row */}
       <div className="flex items-center gap-3">
         <div className="shrink-0 text-right" style={{ width: labelColW }}>
-          <div className="text-xs font-semibold text-foreground">STV (sim)</div>
+          <div className="text-xs font-semibold text-foreground">{wyoming === 'triple' ? 'Triple' : 'STV (sim)'}</div>
           <div className="text-xs text-muted-foreground">{stvTotal} seats</div>
         </div>
         <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: stvBarH }}>
@@ -121,6 +125,45 @@ export function FPTPvsSTV({ seats }: Props) {
           })}
         </div>
       </div>
+
+      {/* Double Wyoming comparison row (only in triple view) */}
+      {showDouble && (() => {
+        const dblSegments: { party: string; seats: number }[] = [];
+        for (const party of F5_ORDER) {
+          const clusterId = Object.entries(CLUSTER_TO_PARTY).find(([, p]) => p === party)?.[0];
+          if (!clusterId) continue;
+          const row = doubleSeats!.find(s => String(s.party) === clusterId);
+          if (row && row.national > 0) dblSegments.push({ party, seats: row.national });
+        }
+        return (
+          <div className="flex items-center gap-3">
+            <div className="shrink-0 text-right" style={{ width: labelColW }}>
+              <div className="text-xs font-semibold text-muted-foreground">Double</div>
+              <div className="text-xs text-muted-foreground">{dblTotal} seats</div>
+            </div>
+            <div className="flex-1 flex rounded-lg overflow-hidden opacity-60" style={{ height: stvBarH - 8 }}>
+              {dblSegments.map(({ party, seats: n }) => {
+                const pct = (n / dblTotal) * 100;
+                const color = PARTY_COLORS[party] ?? '#6b7280';
+                return (
+                  <div
+                    key={party}
+                    title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(1)}%)`}
+                    className="flex items-center justify-center overflow-hidden"
+                    style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}
+                  >
+                    {pct >= 5 && (
+                      <span className="text-white text-[10px] font-bold leading-tight text-center px-0.5">
+                        {pct.toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 mt-3 pt-2 border-t border-border/50">

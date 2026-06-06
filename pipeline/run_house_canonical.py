@@ -37,7 +37,7 @@ VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 
 sys.path.insert(0, str(Path(__file__).parent))
-from stv_config import STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT, STATE_URBAN_PCT
+from stv_config import STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT, POP_PER_SEAT_TRIPLE, STATE_URBAN_PCT
 
 FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 POSITIONAL_SIGMA = 0.35
@@ -97,6 +97,162 @@ def partition_seats(total: int) -> list:
     return sorted(best, reverse=True) if best else [total]
 
 
+def _partition_standard(total: int) -> list:
+    """Partition seats using {7, 5, 6, 4} for non-urban districts.
+
+    Same logic as partition_seats but produces the preferred distribution for
+    standard (non-urban) districts.
+    """
+    if total <= 0:
+        return []
+    if total <= 3:
+        return [total]
+
+    best = None
+    best_key = None
+    for n7 in range(total // 7, -1, -1):
+        rem7 = total - 7 * n7
+        for n5 in range(rem7 // 5, -1, -1):
+            rem75 = rem7 - 5 * n5
+            for n6 in range(rem75 // 6, -1, -1):
+                rem = rem75 - 6 * n6
+                if rem >= 0 and rem % 4 == 0:
+                    n4 = rem // 4
+                    # minimize 4s, maximize 7s, minimize 6s
+                    key = (n4, -n7, n6)
+                    if best_key is None or key < best_key:
+                        best_key = key
+                        best = [7]*n7 + [6]*n6 + [5]*n5 + [4]*n4
+    return sorted(best, reverse=True) if best else [total]
+
+
+def _partition_urban(total: int) -> list:
+    """Partition seats into urban-sized districts {8, 9, 10}, prefer 9."""
+    if total <= 0:
+        return []
+    if total <= 10:
+        return [total]
+
+    n9 = total // 9
+    rem = total % 9
+    # Handle remainder by adjusting: prefer 9, then 10, then 8
+    REMAINDER = {
+        0: [],
+        1: [10, -9],       # swap one 9 for 10
+        2: [10, 10, -9, -9],  # swap two 9s for two 10s (18 → 20)
+        3: [10, 10, 10, -9, -9, -9],  # swap three 9s for three 10s (27 → 30)
+        4: [10, 10, 10, 10, -9, -9, -9, -9],  # (36 → 40) — only if enough 9s
+        5: [10, 10, 10, 10, 10, -9, -9, -9, -9, -9],
+        6: [10, 10, 10, 8, -9, -9, -9],  # swap three 9s for three 10s + 8 (27 → 38, net +11) no...
+        7: [8, 8, -9],     # swap one 9 for two 8s (9 → 16, net +7)
+        8: [8],
+    }
+
+    # Simpler approach: greedily fill with 9, then adjust
+    if rem == 0:
+        return [9] * n9
+    elif rem <= 5 and n9 >= rem:
+        # Swap 'rem' nines for 'rem' tens
+        return [10] * rem + [9] * (n9 - rem)
+    elif rem == 6:
+        # 6 remaining: could do one extra 9 → swap: (n9-1)*9 + 6 = total - 3, add 9 back...
+        # Actually: rem 6 with enough 9s: swap 2 nines (18) → 10+8+6 (24, net +6)
+        if n9 >= 2:
+            return [10] + [9] * (n9 - 2) + [8] + [6]
+        else:
+            return [9] * n9 + [6] if n9 > 0 else [6]
+    elif rem == 7:
+        if n9 >= 1:
+            return [10] + [9] * (n9 - 1) + [6]  # swap one 9 → 10+6 (net +7)
+        else:
+            return [7]
+    elif rem == 8:
+        return [9] * n9 + [8]
+    else:
+        return [9] * n9 + [rem] if rem >= 4 else [9] * n9 + [rem]
+
+
+def partition_seats_triple(total: int, urban_pct: float = 70.0) -> list:
+    """
+    Partition total seats into district sizes for Triple Wyoming.
+
+    Two-pass approach:
+      1. Determine how many seats go to URBAN districts (8, 9, 10)
+         based on state's urban population percentage.
+      2. Remaining seats go to standard districts (7, 5, 6, 4).
+
+    3-seat districts are NEVER used as partition units.
+    States with <=3 total seats → single at-large district.
+    States with 4-10 total seats → single district of that size.
+    """
+    if total <= 3:
+        return [total]
+    if total <= 10:
+        return [total]
+
+    # Below 60% urban → no large districts, all standard (7/5/6/4)
+    if urban_pct < 60:
+        return _partition_standard(total)
+
+    # Compute urban seat count: higher urban % → more seats in 8-10 districts
+    urban_frac = max(0.0, (urban_pct - 40.0) / 100.0)  # 90% urban → 0.50
+    urban_seats_target = round(total * urban_frac)
+
+    # Snap urban_seats to a multiple of 9 (preferred urban district size)
+    # This avoids awkward remainders
+    n_urban_dists = max(0, round(urban_seats_target / 9))
+    urban_seats = n_urban_dists * 9  # start with clean 9s
+
+    # Ensure standard remainder is partitionable (>= 4 or == 0)
+    standard_seats = total - urban_seats
+    while standard_seats > 0 and standard_seats < 4 and n_urban_dists > 0:
+        n_urban_dists -= 1
+        urban_seats = n_urban_dists * 9
+        standard_seats = total - urban_seats
+
+    if n_urban_dists == 0:
+        return _partition_standard(total)
+
+    # Adjust: if standard partition would leave a bad remainder,
+    # try shifting one 9 → (7 + extra standard seats)
+    standard_part = _partition_standard(standard_seats)
+    # Check for any district < 5 in the standard part (we want to minimize 4s)
+    if any(s <= 4 for s in standard_part) and standard_seats > 0:
+        # Try absorbing standard seats into urban: make one 9 bigger (→10)
+        # or add standard as an 8, or redistribute
+        combined = urban_seats + standard_seats
+        # Re-partition the combined total prioritizing fewer 4s:
+        # Try (n_urban_dists - 1) 9s + standard of remainder
+        for try_n in range(n_urban_dists + 1, 0, -1):
+            try_urban = try_n * 9
+            try_std = combined - try_urban
+            if try_std == 0:
+                n_urban_dists = try_n
+                standard_part = []
+                break
+            if try_std >= 5:
+                try_std_part = _partition_standard(try_std)
+                if all(s >= 5 for s in try_std_part):
+                    n_urban_dists = try_n
+                    standard_part = try_std_part
+                    break
+        else:
+            # Fallback: try making one urban dist a 10
+            if n_urban_dists >= 1 and standard_seats > 0:
+                n_urban_dists -= 1
+                extra = 9 + standard_seats
+                if extra <= 10:
+                    standard_part = []
+                    n_urban_dists += 1  # restore, but as a 10 handled below
+                else:
+                    standard_part = _partition_standard(total - n_urban_dists * 9)
+
+    urban_part = [9] * n_urban_dists
+    result = urban_part + standard_part
+    assert sum(result) == total, f"Partition error: {result} sums to {sum(result)}, expected {total}"
+    return sorted(result, reverse=True)
+
+
 def assign_density_tiers(district_sizes: list, fips: int) -> list:
     """
     Assign URBAN / SUBURBAN / RURAL labels to districts.
@@ -134,13 +290,21 @@ def assign_density_tiers(district_sizes: list, fips: int) -> list:
     return ["URBAN"] * n_u + ["SUBURBAN"] * n_s + ["RURAL"] * n_r
 
 
-def run_apportionment() -> pd.DataFrame:
+def run_apportionment(pop_per_seat=POP_PER_SEAT, partition_fn=None) -> pd.DataFrame:
     """Compute district apportionment for all 51 states."""
+    if partition_fn is None:
+        partition_fn = partition_seats
     rows = []
     for fips in sorted(STATE_POPS.keys()):
-        total  = max(1, round(STATE_POPS[fips] / POP_PER_SEAT))
+        total  = max(1, round(STATE_POPS[fips] / pop_per_seat))
         abbr   = FIPS_TO_ABBR.get(fips, str(fips))
-        sizes  = partition_seats(total)
+        urban_pct = STATE_URBAN_PCT.get(fips, 70.0)
+        import inspect
+        # Pass urban_pct if the partition function accepts it
+        if 'urban_pct' in inspect.signature(partition_fn).parameters:
+            sizes = partition_fn(total, urban_pct=urban_pct)
+        else:
+            sizes = partition_fn(total)
         tiers  = assign_density_tiers(sizes, fips)
         for idx, (size, tier) in enumerate(zip(sizes, tiers), start=1):
             rows.append({
@@ -249,12 +413,12 @@ def score_candidates(voter_factors: np.ndarray,
 def generate_ballots(scores: np.ndarray,
                      cand_arr: np.ndarray,
                      rng: np.random.Generator) -> np.ndarray:
+    """Deterministic ranking: sort candidates by score descending."""
     N, M    = scores.shape
     ballots = np.empty((N, M), dtype=object)
     for i in range(N):
-        probs      = scores[i] + 1e-10
-        probs     /= probs.sum()
-        ballots[i] = cand_arr[rng.choice(M, size=M, replace=False, p=probs)]
+        order = np.argsort(-scores[i])
+        ballots[i] = cand_arr[order]
     return ballots
 
 
@@ -313,14 +477,21 @@ def run_stv(ballots: np.ndarray, weights: np.ndarray,
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-def main():
+def main(output_dir=None, pop_per_seat=POP_PER_SEAT, partition_fn=None, label="CANONICAL"):
+    if output_dir is None:
+        output_dir = OUTPUT_DIR
+    else:
+        output_dir = Path(output_dir)
+    if partition_fn is None:
+        partition_fn = partition_seats
+
     rng = np.random.default_rng(42)
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     sep  = "=" * 70
     thin = "-" * 70
     print(sep)
-    print("CANONICAL HOUSE STV  —  9 parties · Gaussian proximity · 2020 Census")
+    print(f"{label} HOUSE STV  —  9 parties · Gaussian proximity · 2020 Census")
     print(sep)
 
     # ── Load data ──────────────────────────────────────────────────────────────
@@ -344,11 +515,11 @@ def main():
 
     # ── Apportionment ──────────────────────────────────────────────────────────
     print("\nRunning apportionment…")
-    apportion    = run_apportionment()
+    apportion    = run_apportionment(pop_per_seat=pop_per_seat, partition_fn=partition_fn)
     total_seats  = int(apportion["seat_count"].sum())
     n_districts  = len(apportion)
 
-    apportion.to_csv(OUTPUT_DIR / "district_apportionment.csv", index=False)
+    apportion.to_csv(output_dir / "district_apportionment.csv", index=False)
     print(f"  {apportion['state_fips'].nunique()} states  |  {n_districts} districts  |  {total_seats} seats")
     size_dist = apportion["seat_count"].value_counts().sort_index()
     for sz, cnt in size_dist.items():
@@ -359,11 +530,14 @@ def main():
 
     # ── Voter assignment ───────────────────────────────────────────────────────
     print("\nAssigning voters to districts…")
-    if VOTER_FIPS_PATH.exists() and COUNTY_DIST_PATH.exists():
-        print("  Using geographic county FIPS assignment…")
+    # Triple Wyoming uses its own county-to-district mapping if available
+    county_dist_path = (BASE_DIR / "data" / "processed" / "county_to_district_triple.csv"
+                        if pop_per_seat == POP_PER_SEAT_TRIPLE else COUNTY_DIST_PATH)
+    if VOTER_FIPS_PATH.exists() and county_dist_path.exists():
+        print(f"  Using geographic county FIPS assignment ({county_dist_path.name})…")
         voter_fips_df  = pd.read_csv(VOTER_FIPS_PATH, index_col=0)
         voter_counties = voter_fips_df["countyfips"].astype(str).str.zfill(5).values
-        county_dist_df = pd.read_csv(COUNTY_DIST_PATH)
+        county_dist_df = pd.read_csv(county_dist_path)
         county_to_dist = dict(zip(
             county_dist_df["county_fips5"].astype(str).str.zfill(5),
             county_dist_df["district_id"]
@@ -377,6 +551,11 @@ def main():
     unassigned = (voter_district == "").sum()
     if unassigned:
         print(f"  Warning: {unassigned} voters unassigned — check state FIPS coverage")
+
+    # ── Save checkpoint (for FD and pure_multi scripts to reuse) ──────────────
+    ckpt_df = pd.DataFrame({"district_id": voter_district, "density_tier": density_tiers})
+    ckpt_df.to_parquet(output_dir / "ballots_checkpoint.parquet", index=False)
+    print(f"  Saved ballots_checkpoint.parquet ({len(ckpt_df):,} voters)")
 
     # ── District STV loop ──────────────────────────────────────────────────────
     all_dids = apportion["district_id"].tolist()
@@ -447,7 +626,7 @@ def main():
         dist_rows.append(row)
 
     dist_df = pd.DataFrame(dist_rows).sort_values(["state_fips", "district_id"])
-    dist_df.to_csv(OUTPUT_DIR / "stv_results_by_district.csv", index=False)
+    dist_df.to_csv(output_dir / "stv_results_by_district.csv", index=False)
     print(f"\nSaved stv_results_by_district.csv  ({len(dist_df)} districts)")
 
     # ── Seat summary ───────────────────────────────────────────────────────────
@@ -475,7 +654,7 @@ def main():
     summary_df = pd.DataFrame(summary_rows).sort_values("NATIONAL", ascending=False)
     grand_total = summary_df["NATIONAL"].sum()
     summary_df["pct_national"] = (summary_df["NATIONAL"] / grand_total * 100).round(2)
-    summary_df.to_csv(OUTPUT_DIR / "stv_seat_summary.csv", index=False)
+    summary_df.to_csv(output_dir / "stv_seat_summary.csv", index=False)
     print(f"Saved stv_seat_summary.csv  ({len(summary_df)} parties)")
 
     # ── Summary table ──────────────────────────────────────────────────────────
@@ -494,9 +673,24 @@ def main():
           f"{int(summary_df['RURAL'].sum()):>6}  {int(grand_total):>6}  100.0%")
 
     print(f"\n{sep}")
-    print("Canonical house STV complete.")
+    print(f"{label} house STV complete.")
     print(sep)
 
 
+TRIPLE_OUTPUT_DIR = BASE_DIR / "data" / "outputs" / "No_C7_triple"
+
+
+def main_triple():
+    main(
+        output_dir=TRIPLE_OUTPUT_DIR,
+        pop_per_seat=POP_PER_SEAT_TRIPLE,
+        partition_fn=partition_seats_triple,
+        label="TRIPLE WYOMING",
+    )
+
+
 if __name__ == "__main__":
-    main()
+    if "--triple" in sys.argv:
+        main_triple()
+    else:
+        main()

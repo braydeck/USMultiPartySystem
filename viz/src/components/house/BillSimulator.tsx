@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface Props {
   rows: VoteModelRow[];
+  probField?: keyof VoteModelRow;
 }
 
 function ProbBar({ prob }: { prob: number }) {
@@ -32,7 +33,7 @@ function VerdictBadge({ verdict }: { verdict: string }) {
   );
 }
 
-export function BillSimulator({ rows }: Props) {
+export function BillSimulator({ rows, probField = 'probPass' }: Props) {
   const [domain, setDomain] = useState<string>('All');
   const domains = useMemo(() => {
     const d = Array.from(new Set(rows.map(r => r.domain))).sort();
@@ -66,8 +67,8 @@ export function BillSimulator({ rows }: Props) {
               <span>{row.question}</span>
               <span className="text-xs text-muted-foreground ml-2">{row.domain}</span>
             </div>
-            <ProbBar prob={row.probPass!} />
-            <VerdictBadge verdict={row.verdict!} />
+            <ProbBar prob={(row[probField] as number) ?? 0} />
+            <VerdictBadge verdict={((row[probField] as number) ?? 0) >= 0.7 ? 'PASS' : ((row[probField] as number) ?? 0) <= 0.3 ? 'FAIL' : 'TOSS-UP'} />
           </div>
         ))}
       </div>

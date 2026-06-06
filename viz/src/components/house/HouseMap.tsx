@@ -261,8 +261,9 @@ export function HouseMap({ districtResults, districtCountyMap }: Props) {
         );
         if (initState) zoomToFeature(svg, zoom, path, initState, W, H, true);
       });
+  // Re-render when district data changes (e.g. Wyoming rule toggle)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [districtResults, districtCountyMap]);
 
   // ── Zoom when dropdown changes ────────────────────────────────────────────
   useEffect(() => {

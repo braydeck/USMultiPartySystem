@@ -13,17 +13,20 @@ interface TransferSource {
 
 interface Props {
   data: TransferSource[];
+  filterParties?: string[];
 }
 
-export function TransferFlowChart({ data }: Props) {
+export function TransferFlowChart({ data, filterParties }: Props) {
   if (!data || data.length === 0) return null;
 
   const bySource: Record<string, TransferSource> = {};
   for (const row of data) bySource[row.source] = row;
 
+  const parties = filterParties ?? F5_ORDER;
+
   return (
     <div className="space-y-3">
-      {F5_ORDER.map(party => {
+      {parties.map(party => {
         const row = bySource[party];
         if (!row || row.destinations.length === 0) return null;
         const color = PARTY_COLORS[party] ?? '#6b7280';

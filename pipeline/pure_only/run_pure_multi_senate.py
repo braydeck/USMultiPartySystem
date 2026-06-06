@@ -153,17 +153,15 @@ def compute_candidate_scores_prob(prob_matrix: np.ndarray, candidates: list) -> 
 
 def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
                      candidates: list) -> np.ndarray:
-    """Plackett-Luce sampling with within-party prominence ordering.
+    """Deterministic ranking with within-party prominence ordering.
 
-    The first same-party candidate position is determined by Plackett-Luce
-    (weighted by prominence × proximity). Remaining same-party candidates
-    always follow in strict prominence order (_1 before _2 before _3).
+    Candidates are ranked by score descending. Within each party,
+    candidates are ordered by prominence (_1 before _2 before _3).
 
     Returns (N, n_cands) object array of candidate code strings.
     """
     N       = len(scores)
     n_cands = len(candidates)
-    EPSILON = 1e-10
 
     cand_codes = [c["code"] for c in candidates]
 
@@ -179,11 +177,9 @@ def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
     ballots = np.empty((N, n_cands), dtype=object)
 
     for i in range(N):
-        probs = scores[i] + EPSILON
-        probs /= probs.sum()
-        ballot = rng.choice(n_cands, size=n_cands, replace=False, p=probs)
+        ballot = np.argsort(-scores[i])
 
-        # Assign prominence labels within each party's PL-determined positions.
+        # Assign prominence labels within each party's positions.
         rank_of = {int(ballot[r]): r for r in range(n_cands)}
         for party_idxs in multi_parties:
             positions = sorted(rank_of[idx] for idx in party_idxs)

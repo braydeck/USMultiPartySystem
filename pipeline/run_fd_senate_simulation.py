@@ -88,14 +88,13 @@ def score_candidates(voter_factors: np.ndarray,
 def generate_ballots(scores: np.ndarray,
                      cand_codes: list,
                      rng: np.random.Generator) -> np.ndarray:
+    """Deterministic ranking: sort candidates by score descending."""
     N, M     = scores.shape
-    EPSILON  = 1e-10
     ballots  = np.empty((N, M), dtype=object)
     cand_arr = np.array(cand_codes, dtype=object)
     for i in range(N):
-        probs  = scores[i] + EPSILON
-        probs /= probs.sum()
-        ballots[i] = cand_arr[rng.choice(M, size=M, replace=False, p=probs)]
+        order = np.argsort(-scores[i])
+        ballots[i] = cand_arr[order]
     return ballots
 
 

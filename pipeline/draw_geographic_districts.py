@@ -30,10 +30,12 @@ BASE_DIR      = Path(__file__).parent.parent
 TOPO_PATH     = BASE_DIR / "viz" / "public" / "topojson" / "counties-10m.json"
 TIERS_PATH    = BASE_DIR / "viz" / "src" / "data" / "countyTiers.json"
 XLSX_PATH     = BASE_DIR / "data" / "raw" / "NCHSURCodes2013.xlsx"
-OUTPUT_PATH   = BASE_DIR / "data" / "processed" / "county_to_district.csv"
+OUTPUT_PATH        = BASE_DIR / "data" / "processed" / "county_to_district.csv"
+OUTPUT_PATH_TRIPLE = BASE_DIR / "data" / "processed" / "county_to_district_triple.csv"
 
 sys.path.insert(0, str(Path(__file__).parent))
-from run_house_canonical import run_apportionment
+from run_house_canonical import run_apportionment, partition_seats_triple
+from stv_config import POP_PER_SEAT, POP_PER_SEAT_TRIPLE
 
 TIER_SORT_ORDER = {"URBAN": 0, "SUBURBAN": 1, "RURAL": 2}
 
@@ -157,7 +159,8 @@ def draw_state_districts(state_fips: str,
                           adjacency: dict,
                           districts: list,
                           county_tiers: dict,
-                          county_pops: dict) -> dict:
+                          county_pops: dict,
+                          pop_per_seat: int = 380_000) -> dict:
     """
     Assign counties to districts using seed-and-grow then flood-fill.
 
@@ -169,7 +172,7 @@ def draw_state_districts(state_fips: str,
     assignment: dict = {}
 
     for dist in districts:
-        target_pop = dist["seat_count"] * 380_000
+        target_pop = dist["seat_count"] * pop_per_seat
         tier       = dist["density_tier"]
 
         # Seed: highest-population unassigned county matching tier; fall back to any
@@ -223,7 +226,7 @@ def draw_state_districts(state_fips: str,
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-def main():
+def main(triple=False):
     print("Building county adjacency from TopoJSON…")
     adjacency, state_counties = build_county_adjacency(TOPO_PATH)
     print(f"  {len(adjacency):,} counties with adjacency data")
@@ -238,8 +241,17 @@ def main():
     county_pops = load_county_pops(XLSX_PATH)
     print(f"  {len(county_pops):,} counties with population")
 
-    print("Running apportionment…")
-    apportion   = run_apportionment()
+    if triple:
+        print("Running TRIPLE WYOMING apportionment…")
+        apportion = run_apportionment(pop_per_seat=POP_PER_SEAT_TRIPLE,
+                                      partition_fn=partition_seats_triple)
+        output_path = OUTPUT_PATH_TRIPLE
+        active_pop_per_seat = POP_PER_SEAT_TRIPLE
+    else:
+        print("Running apportionment…")
+        apportion = run_apportionment()
+        output_path = OUTPUT_PATH
+        active_pop_per_seat = POP_PER_SEAT
     n_districts = len(apportion)
     print(f"  {n_districts} districts across {apportion['state_fips'].nunique()} states")
 
@@ -266,7 +278,8 @@ def main():
             continue
 
         assignment = draw_state_districts(
-            sf, county_set, adjacency, dists, county_tiers, county_pops
+            sf, county_set, adjacency, dists, county_tiers, county_pops,
+            pop_per_seat=active_pop_per_seat,
         )
         leftover = county_set - set(assignment.keys())
         if leftover:
@@ -284,15 +297,15 @@ def main():
 
     print(f"  Total unassigned after flood-fill: {total_unassigned}")
 
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUTPUT_PATH, "w", newline="") as f:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", newline="") as f:
         writer = csv.DictWriter(
             f, fieldnames=["county_fips5", "state_fips", "district_id", "density_tier"]
         )
         writer.writeheader()
         writer.writerows(rows)
-    print(f"Saved {OUTPUT_PATH}  ({len(rows):,} county-district mappings)")
+    print(f"Saved {output_path}  ({len(rows):,} county-district mappings)")
 
 
 if __name__ == "__main__":
-    main()
+    main(triple="--triple" in sys.argv)

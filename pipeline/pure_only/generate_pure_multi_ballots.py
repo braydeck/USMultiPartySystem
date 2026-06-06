@@ -149,19 +149,15 @@ def compute_candidate_scores(voter_factors: np.ndarray,
 
 
 def generate_ballots(scores: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """Plackett-Luce sampling with within-party prominence ordering.
+    """Deterministic ranking with within-party prominence ordering.
 
-    The first same-party candidate on each ballot is determined by Plackett-Luce
-    (weighted by prominence × proximity). Remaining same-party candidates always
-    follow in strict prominence order (_1 before _2 before _3), ensuring
-    cross-party transfers respect the prominence hierarchy.
+    Candidates are ranked by score descending. Within each party,
+    candidates are ordered by prominence (_1 before _2 before _3).
     Returns (N, N_CANDIDATES) int8 array of candidate indices.
     """
     N       = len(scores)
-    EPSILON = 1e-10
     ballots = np.zeros((N, N_CANDIDATES), dtype=np.int8)
 
-    # Party groups in prominence order (CANDIDATES list is ordered 0.40 > 0.35 > 0.25)
     party_groups: dict[str, list[int]] = {}
     for idx, cand in enumerate(CANDIDATES):
         party = cand["party"]
@@ -171,18 +167,11 @@ def generate_ballots(scores: np.ndarray, rng: np.random.Generator) -> np.ndarray
     multi_parties = [idxs for idxs in party_groups.values() if len(idxs) > 1]
 
     for i in range(N):
-        probs = scores[i] + EPSILON
-        probs /= probs.sum()
-        ballot = rng.choice(N_CANDIDATES, size=N_CANDIDATES, replace=False, p=probs)
+        ballot = np.argsort(-scores[i])
 
-        # PL determined positions; now assign prominence labels within each
-        # party's slots. The positions stay where PL put them (so same-party
-        # candidates cluster naturally from equal scores), but _1 gets the
-        # best position, _2 the next, _3 the worst.
         rank_of = {int(ballot[r]): r for r in range(N_CANDIDATES)}
         for party_idxs in multi_parties:
             positions = sorted(rank_of[idx] for idx in party_idxs)
-            # party_idxs is in prominence order (_1, _2, _3)
             for k, pos in enumerate(positions):
                 ballot[pos] = party_idxs[k]
 
