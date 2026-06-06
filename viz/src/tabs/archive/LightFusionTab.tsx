@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { BlendProfile } from '../types';
-import { BlendCard } from '../components/parties/BlendCard';
+import { BlendCard } from './BlendCard';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { FACTOR_LABELS } from '../constants/parties';
 
