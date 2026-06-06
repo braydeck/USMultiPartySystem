@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
-import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES } from '../constants/parties';
+import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -42,6 +42,7 @@ interface VarEntry {
   maxGap: number;
   highlighted: boolean;
   factor: string | null;
+  factors: { factor: string; loading: number }[];
   maxVal: number;
   unit: string;
 }
@@ -124,18 +125,19 @@ const ABOVE_Y       = POLICY_LINE_Y - DOT_R - 5;   // label baseline above dot
 const BELOW_Y       = POLICY_LINE_Y + DOT_R + 13;  // label baseline below dot
 
 function DotTrack({
-  question, factor, highlighted, pcts, codes, gap, maxVal = 100, unit = '%', overall, showNatAvg,
+  question, factor, factors, highlighted, pcts, codes, maxVal = 100, unit = '%', overall, showNatAvg, loadingWeight,
 }: {
   question: string;
   factor: string | null;
+  factors?: { factor: string; loading: number }[];
   highlighted: boolean;
   pcts: Record<string, number>;
   codes: string[];
-  gap: number;
   maxVal?: number;
   unit?: string;
   overall?: number | null;
   showNatAvg?: boolean;
+  loadingWeight?: number;
 }) {
   const toPos  = (v: number) => (v / maxVal) * 100;  // value → 0-100% position
   const toDisp = (v: number) => unit === '%' ? `${Math.round(v)}%` : `${v % 1 === 0 ? v : v.toFixed(1)} ${unit}`;
@@ -157,18 +159,37 @@ function DotTrack({
     <div className={`px-3 py-3 ${highlighted ? 'bg-amber-50' : 'hover:bg-muted/50'}`}>
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="text-xs text-foreground leading-snug flex-1 min-w-0 font-medium">
-          {factor && (
+          {loadingWeight !== undefined && (() => {
+            const absW = Math.abs(loadingWeight);
+            // Map |loading| 0.2–0.9 to opacity 0.3–1.0
+            const opacity = 0.3 + (Math.min(absW, 0.9) - 0.2) / 0.7 * 0.7;
+            // Bar width: 20–60px based on |loading|
+            const barWidth = 20 + (Math.min(absW, 0.9) - 0.2) / 0.7 * 40;
+            return (
+              <span className="inline-flex items-center gap-1 mr-2 align-middle">
+                <span
+                  className="inline-block h-[6px] rounded-full flex-shrink-0"
+                  style={{ width: barWidth, backgroundColor: `rgba(79, 70, 229, ${opacity})` }}
+                />
+                <span className="text-[9px] font-mono font-semibold text-indigo-600 whitespace-nowrap">
+                  {loadingWeight >= 0 ? '+' : ''}{loadingWeight.toFixed(2)}
+                </span>
+              </span>
+            );
+          })()}
+          {factors && factors.length > 0 ? (
+            factors.map(f => (
+              <span key={f.factor} className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">
+                {FACTOR_SHORT[f.factor]}
+              </span>
+            ))
+          ) : factor ? (
             <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1.5 bg-muted text-muted-foreground align-middle">
               {FACTOR_SHORT[factor]}
             </span>
-          )}
+          ) : null}
           {question}
         </div>
-        {gap > 0 && (
-          <span className={`text-[11px] font-mono shrink-0 mt-0.5 font-semibold ${highlighted ? 'text-amber-600' : 'text-muted-foreground'}`}>
-            {gap.toFixed(0)}{unit === '%' ? 'pp' : ` ${unit}`}
-          </span>
-        )}
       </div>
       <svg width="100%" height={POLICY_H} style={{ overflow: 'visible' }}>
         {/* 50% reference line */}
@@ -269,7 +290,7 @@ function FactorDotRow({
     : (item: { z: number; pctile: number }) => `${item.z >= 0 ? '+' : ''}${item.z.toFixed(1)}σ`;
 
   return (
-    <div className="px-4 py-3 border-t border-slate-50 first:border-t-0">
+    <div className="px-4 py-3">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm font-semibold text-foreground">{FACTOR_LABELS[factor]}</span>
         <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1 rounded">{FACTOR_SHORT[factor]}</span>
@@ -357,6 +378,98 @@ function FactorDotRow({
   );
 }
 
+function FactorItemsPanel({
+  factor, codes, clusters, fdProfiles, minGap, showNatAvg,
+}: {
+  factor: string;
+  codes: string[];
+  clusters: ClusterProfile[];
+  fdProfiles: Record<string, FDCandidateProfile>;
+  minGap: number;
+  showNatAvg: boolean;
+}) {
+  const items = FACTOR_ITEMS[factor] ?? [];
+
+  const varEntries: {
+    key: string; loading: number; question: string;
+    pcts: Record<string, number>; overall: number | null;
+    maxVal: number; unit: string; maxGap: number; highlighted: boolean;
+  }[] = [];
+
+  for (const item of items) {
+    const pcts: Record<string, number> = {};
+    let question = '';
+    let overall: number | null = null;
+    let maxVal = 100;
+    let unit = '%';
+
+    for (const code of codes) {
+      const vars = getVariables(code, clusters, fdProfiles);
+      const v = vars[item.key];
+      if (v) {
+        pcts[code] = v.pct;
+        if (!question) question = v.question;
+        if (overall === null) overall = (v as any).overall ?? null;
+        maxVal = (v as unknown as Record<string, number>)['maxVal'] ?? 100;
+        unit = (v as unknown as Record<string, string>)['unit'] ?? '%';
+      }
+    }
+
+    if (Object.keys(pcts).length === 0) continue;
+
+    const pctVals = Object.values(pcts);
+    const maxGap = pctVals.length > 1 ? Math.max(...pctVals) - Math.min(...pctVals) : 0;
+
+    varEntries.push({
+      key: item.key, loading: item.loading, question, pcts,
+      overall, maxVal, unit, maxGap, highlighted: maxGap >= minGap,
+    });
+  }
+
+  if (varEntries.length === 0) {
+    return (
+      <div className="px-4 py-3 text-xs text-muted-foreground italic border-t border-border/30">
+        No item data available for this factor.
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-t border-border/30 bg-slate-50/50">
+      <div className="px-4 py-2">
+        <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+          Underlying EFA items ({varEntries.length})
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2">
+        {varEntries.map((v, i) => (
+          <div
+            key={v.key}
+            className={[
+              i >= 2 ? 'border-t border-border/50' : '',
+              i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
+            ].filter(Boolean).join(' ')}
+          >
+            <DotTrack
+              question={v.question}
+              factor={null}
+              highlighted={v.highlighted}
+              pcts={v.pcts}
+              codes={codes}
+
+              maxVal={v.maxVal}
+              unit={v.unit}
+              overall={v.overall}
+              showNatAvg={showNatAvg}
+              loadingWeight={v.loading}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function getSectionTitle(key: string): string {
   if (key === 'Untagged') return 'Other / Untagged';
   if ((FACTORS as readonly string[]).includes(key)) return `${FACTOR_LABELS[key]} (${FACTOR_SHORT[key]})`;
@@ -366,9 +479,8 @@ function getSectionTitle(key: string): string {
 export function CompareTab({ clusters, fdProfiles }: Props) {
   const [selected, setSelected] = useState<string[]>([]);
   const [minGap, setMinGap] = useState(15);
-  const [activeFactors, setActiveFactors] = useState<Set<string>>(new Set());
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set(['Untagged']));
-  const [groupBy, setGroupBy] = useState<'category' | 'factor'>('category');
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const [expandedFactors, setExpandedFactors] = useState<Set<string>>(new Set());
   const [showNatAvg, setShowNatAvg] = useState(true);
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>('strength');
   const [divergeOnly, setDivergeOnly] = useState(false);
@@ -396,8 +508,8 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
     setSelected(prev => prev.filter(c => c !== code));
   };
 
-  const toggleFactor = (f: string) => {
-    setActiveFactors(prev => {
+  const toggleFactorExpand = (f: string) => {
+    setExpandedFactors(prev => {
       const next = new Set(prev);
       if (next.has(f)) next.delete(f); else next.add(f);
       return next;
@@ -439,18 +551,14 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
       if (pcts.length < 1) continue;
       const maxGap = Math.max(...pcts) - Math.min(...pcts);
       const factor = VAR_FACTOR[key] ?? null;
+      const factors = VAR_ALL_FACTORS[key] ?? [];
 
-      const groupKey = groupBy === 'factor'
-        ? (factor ?? 'Untagged')
-        : entry.domain;
-
-      // Factor filter only applies in category mode
-      if (groupBy === 'category' && activeFactors.size > 0 && !activeFactors.has(factor ?? '')) continue;
+      const groupKey = entry.domain;
 
       if (!grouped[groupKey]) grouped[groupKey] = [];
       grouped[groupKey].push({
         key, question: entry.question, pcts: entry.pcts, overall: entry.overall,
-        maxGap, highlighted: maxGap >= minGap, factor,
+        maxGap, highlighted: maxGap >= minGap, factor, factors,
         maxVal: entry.maxVal, unit: entry.unit,
       });
     }
@@ -475,17 +583,12 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
     }
 
     return grouped;
-  }, [selected, clusters, fdProfiles, minGap, activeFactors, groupBy]);
+  }, [selected, clusters, fdProfiles, minGap]);
 
   // Ordered section keys
   const sectionKeys = useMemo(() => {
-    if (groupBy === 'category') {
-      return DOMAINS.filter(d => (sectionVarMap[d]?.length ?? 0) > 0);
-    }
-    const factorKeys = FACTORS.filter(f => (sectionVarMap[f]?.length ?? 0) > 0);
-    const hasUntagged = (sectionVarMap['Untagged']?.length ?? 0) > 0;
-    return [...factorKeys, ...(hasUntagged ? ['Untagged'] : [])];
-  }, [sectionVarMap, groupBy]);
+    return DOMAINS.filter(d => (sectionVarMap[d]?.length ?? 0) > 0);
+  }, [sectionVarMap]);
 
   return (
     <div className="space-y-6">
@@ -576,52 +679,43 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                 </Button>
               </div>
             </div>
-            <div>
-              {FACTORS.map(f => (
-                <FactorDotRow key={f} factor={f} codes={selected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
-              ))}
+            <div className="divide-y divide-border/50">
+              {FACTORS.map(f => {
+                const isExpanded = expandedFactors.has(f);
+                return (
+                  <div key={f}>
+                    <div
+                      className="cursor-pointer hover:bg-muted/30 transition-colors"
+                      onClick={() => toggleFactorExpand(f)}
+                      role="button"
+                      aria-expanded={isExpanded}
+                    >
+                      <FactorDotRow factor={f} codes={selected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
+                      <div className="flex items-center justify-center pb-2 gap-1">
+                        <span className="text-muted-foreground text-[10px]">{isExpanded ? '▲' : '▼'}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {isExpanded ? 'collapse items' : `expand items (${(FACTOR_ITEMS[f] ?? []).length})`}
+                        </span>
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <FactorItemsPanel
+                        factor={f}
+                        codes={selected}
+                        clusters={clusters}
+                        fdProfiles={fdProfiles}
+                        minGap={minGap}
+                        showNatAvg={showNatAvg}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </Card>
 
-          {/* Controls: group by + factor filter (category mode only) + highlight threshold */}
+          {/* Controls: highlight threshold + toggles */}
           <div className="flex flex-wrap items-start gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground uppercase tracking-widest">Group by</span>
-              {(['category', 'factor'] as const).map(g => (
-                <Button
-                  key={g}
-                  onClick={() => setGroupBy(g)}
-                  variant={groupBy === g ? 'default' : 'secondary'}
-                  size="sm"
-                >
-                  {g === 'category' ? 'Category' : 'Factor'}
-                </Button>
-              ))}
-            </div>
-
-            {groupBy === 'category' && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-muted-foreground uppercase tracking-widest">Filter</span>
-                <Button
-                  onClick={() => setActiveFactors(new Set())}
-                  variant={activeFactors.size === 0 ? 'default' : 'secondary'}
-                  size="sm"
-                >
-                  All
-                </Button>
-                {FACTORS.map(f => (
-                  <Button
-                    key={f}
-                    onClick={() => toggleFactor(f)}
-                    variant={activeFactors.has(f) ? 'default' : 'secondary'}
-                    size="sm"
-                  >
-                    {FACTOR_LABELS[f]} ({FACTOR_SHORT[f]})
-                  </Button>
-                ))}
-              </div>
-            )}
-
             <Button onClick={() => setShowNatAvg(!showNatAvg)}
               variant={showNatAvg ? 'default' : 'secondary'}
               size="sm">
@@ -693,10 +787,11 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                             <DotTrack
                               question={v.question}
                               factor={v.factor}
+                              factors={v.factors}
                               highlighted={v.highlighted}
                               pcts={v.pcts}
                               codes={selected}
-                              gap={v.maxGap}
+                
                               maxVal={v.maxVal}
                               unit={v.unit}
                               overall={v.overall}

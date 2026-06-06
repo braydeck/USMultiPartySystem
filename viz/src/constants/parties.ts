@@ -10,12 +10,6 @@ export const PARTY_COLORS: Record<string, string> = {
   NAT: '#7f1d1d',  // deep maroon (warm, rightmost)
 };
 
-// Hardcoded overrides for composite codes that would otherwise blend to grey
-const BLEND_OVERRIDES: Record<string, string> = {
-  'CON/SD': '#b45309',  // warm amber-bronze (CON-dominant)
-  'SD/CON': '#0c4a6e',  // deep dark navy (SD-dominant, clearly distinct)
-};
-
 export const F5_ORDER = ['PRG','LIB','DSA','SD','STY','CTR','CON','REF','NAT'] as const;
 
 export const PARTY_NAMES: Record<string, string> = {
@@ -63,22 +57,21 @@ function blendHex(hex1: string, hex2: string, w1 = 0.65): string {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-/** Returns color for a party code, blending if composite.
- * Handles three formats:
- *   "CON/STY"  — blended (~50/50), 65/35 visual blend
- *   "STY_ctr"  — light fusion (80/20), 85/15 visual blend toward primary
- *   "CON"      — pure party, exact party color
+/** Returns color for a party code.
+ * Active formats:
+ *   "CON"        — pure party, exact party color
+ *   "STY_lo_ae"  — FD variant, returns base party color
+ *   "STY_1"      — pure multi variant, returns base party color
  */
 export function getBlendColor(code: string): string {
   if (!code) return '#6b7280';
-  if (BLEND_OVERRIDES[code]) return BLEND_OVERRIDES[code];
   if (code.includes('/')) {
     const parts = code.split('/');
     const c1 = PARTY_COLORS[parts[0]] ?? '#6b7280';
     const c2 = PARTY_COLORS[parts[1]] ?? '#6b7280';
     return blendHex(c1, c2);
   }
-  // Light fusion: underscore with lowercase suffix (e.g. STY_ctr, CON_ref)
+  // FD/multi variant: underscore with lowercase suffix (e.g. STY_lo_ae, STY_1)
   if (code.includes('_')) {
     const [base, lean] = code.split('_', 2);
     if (lean === lean.toLowerCase() && PARTY_COLORS[base]) {
@@ -116,7 +109,7 @@ export function getFDColor(party: string, direction: 'base' | 'hi' | 'lo'): stri
   return base;
 }
 
-/** Given a senator_code like "CON/STY" or "CON", return the primary party code */
+/** Given a senator_code like "CON" or "STY_lo_ae", return the primary party code */
 export function getPrimaryParty(code: string): string {
   if (!code) return '';
   return code.split('/')[0];
@@ -169,7 +162,7 @@ export const VAR_FACTOR: Record<string, string> = {
   CC24_424:          'F3',  // loading +0.476 (low trust in state government)
   // F4 – Religious Traditionalism
   pew_churatd:       'F4',  // loading +0.688 (church attendance)
-  CC24_325:          'F4',  // loading +0.688 (abortion weeks — continuous; may not appear in compare)
+  CC24_325_median:   'F4',  // loading +0.688 (abortion weeks — continuous)
   CC24_340c:         'F4',  // loading +0.651 (same-sex marriage)
   CC24_340b:         'F4',  // loading +0.489 (abortion access)
   CC24_324b:         'F4',  // loading +0.297 F4 vs +0.268 F1
@@ -186,3 +179,69 @@ export const VAR_FACTOR: Record<string, string> = {
   CC24_440c_agree:   'F5',  // loading −0.437 (women seek power over men)
   CC24_341d:         'F5',  // loading −0.365 (infrastructure spending)
 };
+
+// All EFA factor loadings (|loading| > 0.20), sorted by |loading| desc per factor.
+// Items intentionally repeat across factors when they cross-load.
+export const FACTOR_ITEMS: Record<string, { key: string; loading: number }[]> = {
+  F1: [
+    { key: 'CC24_321d', loading: +0.734 },
+    { key: 'CC24_323b', loading: +0.705 },
+    { key: 'CC24_340f', loading: +0.664 },
+    { key: 'CC24_321e', loading: +0.653 },
+    { key: 'CC24_340e', loading: +0.493 },
+    { key: 'CC24_323a', loading: +0.319 },
+    { key: 'CC24_323d', loading: +0.313 },
+    { key: 'CC24_324b', loading: +0.268 },
+    { key: 'CC24_341a', loading: +0.260 },
+  ],
+  F2: [
+    { key: 'CC24_421_2_agree', loading: +0.901 },
+    { key: 'CC24_421_1_agree', loading: +0.726 },
+    { key: 'CC24_424', loading: +0.380 },
+    { key: 'CC24_423', loading: +0.240 },
+    { key: 'CC24_440c_agree', loading: +0.209 },
+    { key: 'CC24_341a', loading: +0.202 },
+  ],
+  F3: [
+    { key: 'CC24_423', loading: +0.663 },
+    { key: 'CC24_424', loading: +0.476 },
+    { key: 'CC24_340e', loading: -0.319 },
+    { key: 'CC24_323a', loading: +0.270 },
+    { key: 'CC24_323d', loading: +0.225 },
+    { key: 'CC24_440c_agree', loading: -0.219 },
+    { key: 'CC24_440b_agree', loading: -0.208 },
+    { key: 'CC24_303', loading: +0.203 },
+  ],
+  F4: [
+    { key: 'pew_churatd', loading: +0.688 },
+    { key: 'CC24_325_median', loading: +0.688 },
+    { key: 'CC24_340c', loading: +0.651 },
+    { key: 'CC24_340b', loading: +0.489 },
+    { key: 'CC24_341d', loading: +0.300 },
+    { key: 'CC24_324b', loading: +0.297 },
+    { key: 'CC24_341c', loading: +0.285 },
+    { key: 'CC24_341a', loading: +0.240 },
+    { key: 'CC24_303', loading: +0.219 },
+  ],
+  F5: [
+    { key: 'CC24_440b_agree', loading: -0.616 },
+    { key: 'CC24_321b', loading: -0.557 },
+    { key: 'CC24_323d', loading: -0.540 },
+    { key: 'CC24_341c', loading: -0.534 },
+    { key: 'CC24_323a', loading: -0.520 },
+    { key: 'CC24_440c_agree', loading: -0.437 },
+    { key: 'CC24_341d', loading: -0.365 },
+    { key: 'CC24_340e', loading: +0.341 },
+    { key: 'CC24_340f', loading: -0.271 },
+    { key: 'CC24_341a', loading: -0.238 },
+  ],
+};
+
+// Reverse mapping: variable key → all factors it loads on
+export const VAR_ALL_FACTORS: Record<string, { factor: string; loading: number }[]> = {};
+for (const [factor, items] of Object.entries(FACTOR_ITEMS)) {
+  for (const item of items) {
+    if (!VAR_ALL_FACTORS[item.key]) VAR_ALL_FACTORS[item.key] = [];
+    VAR_ALL_FACTORS[item.key].push({ factor, loading: item.loading });
+  }
+}
