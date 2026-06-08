@@ -200,18 +200,27 @@ function EliminatedRow({ e, onTip }: { e: BucketEliminated; onTip: (t: TooltipIn
   const destTotal = e.dests.reduce((s, d) => s + d.pct, 0);
   const remainder = 100 - destTotal;
 
+  const hasTransfers = e.total > e.entering + 0.05;
   const tooltipLines = [
-    `${e.code} — ELIMINATED (held ${e.total.toFixed(1)}%)`,
+    `${e.code} — ELIMINATED`,
+    `First-choice: ${e.entering.toFixed(1)}%`,
+    ...(hasTransfers ? [`Accumulated w/ transfers: ${e.total.toFixed(1)}%`] : []),
     ...e.dests.map(d => `→ ${d.code}: ${d.pct.toFixed(0)}%`),
     ...(remainder > 1 ? [`→ exhausted: ${remainder.toFixed(0)}%`] : []),
   ];
+
+  const label = e.entering > 0.05 && hasTransfers
+    ? `${e.entering.toFixed(1)}% first-choice + ${(e.total - e.entering).toFixed(1)}% transfers`
+    : e.entering > 0.05
+      ? `${e.entering.toFixed(1)}% first-choice`
+      : `${e.total.toFixed(1)}% from transfers`;
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-0.5">
         <CandidatePill code={e.code} party={e.party} dimmed />
         <span className="text-[10px] text-muted-foreground">
-          held {e.total.toFixed(1)}% → transferred to:
+          {label} → transferred to:
         </span>
       </div>
       <div className="flex items-center gap-2">
