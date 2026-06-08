@@ -120,6 +120,35 @@ export function getPartyColor(code: string): string {
   return getBlendColor(code);
 }
 
+/**
+ * Build a display-label map for a set of candidate codes.
+ * Numbered variants like CON_1 are simplified to CON when no CON_2/CON_3 exist.
+ * Non-numeric suffixes (e.g. STY_hi_so) are always kept.
+ */
+export function buildDisplayLabels(codes: Iterable<string>): Record<string, string> {
+  const all = [...codes];
+  // Count how many numbered variants each base party has
+  const numberedByBase: Record<string, string[]> = {};
+  for (const code of all) {
+    const m = code.match(/^([A-Z]+)_(\d+)$/);
+    if (m) {
+      const base = m[1];
+      if (!numberedByBase[base]) numberedByBase[base] = [];
+      numberedByBase[base].push(code);
+    }
+  }
+  const labels: Record<string, string> = {};
+  for (const code of all) {
+    const m = code.match(/^([A-Z]+)_(\d+)$/);
+    if (m && (numberedByBase[m[1]]?.length ?? 0) <= 1) {
+      labels[code] = m[1]; // strip _1 when sole candidate
+    } else {
+      labels[code] = code;
+    }
+  }
+  return labels;
+}
+
 export const FACTOR_LABELS: Record<string, string> = {
   F1: 'Security & Order',
   F2: 'Electoral Skepticism',

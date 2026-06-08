@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import type { CondorcetMatchup } from '../../types';
-import { getBlendColor } from '../../constants/parties';
+import { getBlendColor, buildDisplayLabels } from '../../constants/parties';
 
 interface Props {
   matchups: CondorcetMatchup[];
@@ -15,6 +16,8 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
     candidateSet.add(m.candidateB);
   }
   const candidates = Array.from(candidateSet);
+  const labels = useMemo(() => buildDisplayLabels(candidateSet), [matchups]); // eslint-disable-line react-hooks/exhaustive-deps
+  const label = (code: string) => labels[code] ?? code;
 
   // Build win/loss lookup: winsMap[row][col] = { aWinsPct, margin, winner }
   const winsMap: Record<string, Record<string, { aWinsPct: number; margin: number; winner: string }>> = {};
@@ -59,7 +62,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
                   className="font-bold font-mono"
                   style={{ color, writingMode: 'vertical-rl', textOrientation: 'mixed', fontSize: labelFontSize }}
                 >
-                  {col}
+                  {label(col)}
                 </span>
               </div>
             );
@@ -85,7 +88,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
                   className="font-bold font-mono"
                   style={{ color: rowColor, fontSize: labelFontSize }}
                 >
-                  {row}
+                  {label(row)}
                 </span>
                 <span className="text-muted-foreground" style={{ fontSize: labelFontSize }}>{wins}W</span>
               </div>
@@ -118,7 +121,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
                 return (
                   <div
                     key={col}
-                    title={`${row} vs ${col}: ${rowWins ? row : col} wins by ${margin.toFixed(1)}pp`}
+                    title={`${label(row)} vs ${label(col)}: ${label(rowWins ? row : col)} wins by ${margin.toFixed(1)}pp`}
                     style={{
                       width: cellSize,
                       height: cellSize - 2,

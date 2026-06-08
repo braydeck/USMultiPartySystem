@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal, sankeyLeft } from 'd3-sankey';
 import type { SankeyNode, SankeyLink } from 'd3-sankey';
-import { getBlendColor } from '../../constants/parties';
+import { getBlendColor, buildDisplayLabels } from '../../constants/parties';
 import type { IRVRound } from '../../types';
 
 interface Props {
@@ -35,6 +35,12 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
     svg.attr('viewBox', `0 0 ${width} ${height}`);
 
     const padL = 56, padR = 80, padT = 36, padB = 16;
+
+    // Build display labels (CON_1 → CON when sole numbered variant)
+    const allCodes = new Set<string>();
+    for (const r of rounds) for (const c of r.candidates) allCodes.add(c.code);
+    const dispLabels = buildDisplayLabels(allCodes);
+    const dl = (code: string) => dispLabels[code] ?? code;
 
     // Create one node per (candidate, round) for every round the candidate appears in.
     // This ensures eliminated candidates have carry-forward links that anchor their depth correctly.
@@ -140,7 +146,7 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
         const tgt = d.target as ExtNode as unknown as SNode;
         setTooltip({
           x: event.offsetX, y: event.offsetY,
-          text: `${src.label} → ${tgt.label}: ${d.value.toFixed(2)}%`,
+          text: `${dl(src.label)} → ${dl(tgt.label)}: ${d.value.toFixed(2)}%`,
         });
       })
       .on('mousemove', function(event: MouseEvent) {
@@ -195,10 +201,10 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
       })
       .text((d: ExtNode) => {
         const sn = d as unknown as SNode;
-        if (sn.roundIdx === rounds.length - 1) return `${sn.label} ${sn.pct.toFixed(1)}%`;
+        if (sn.roundIdx === rounds.length - 1) return `${dl(sn.label)} ${sn.pct.toFixed(1)}%`;
         // For eliminated candidates at round 0, show with strike indicator
         const isElimHere = rounds[sn.roundIdx]?.candidates.find(c => c.code === sn.label)?.eliminated;
-        return isElimHere ? `${sn.label} ✕` : sn.label;
+        return isElimHere ? `${dl(sn.label)} ✕` : dl(sn.label);
       })
       .attr('fill-opacity', (d: ExtNode) => {
         const sn = d as unknown as SNode;

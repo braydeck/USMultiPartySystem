@@ -182,57 +182,55 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
     survivors = set(elected)
 
     # Record transfers for implicitly eliminated leftovers (candidates still
-    # active but not elected when the loop exits — they were passed over)
-    leftover = active - set(elected)
-    for left in leftover:
+    # active but not elected when the loop exits — they were passed over).
+    # Leftover candidates hold votes via surplus transfers (modified ballot_wts).
+    # Since survivors already used surplus to shed weight, leftover voters are
+    # those who rank leftovers above survivors on the MODIFIED-weight ballots.
+    # We simulate elimination rounds: weakest leftover eliminated, votes transfer
+    # to survivors (recorded) or remaining leftovers (cascade continues).
+    leftover = list(active - set(elected))
+    remaining_left = set(leftover)
+    while remaining_left:
+        # First choice among only leftovers (not survivors — those already elected)
+        fsc_left = first_surviving_choice(ballots, remaining_left)
+        totals_left = {c: 0.0 for c in remaining_left}
+        for i in range(len(fsc_left)):
+            if fsc_left[i] in totals_left:
+                totals_left[fsc_left[i]] += ballot_wts[i]
+        # Eliminate weakest leftover
+        weakest_left = min(remaining_left, key=lambda c: (totals_left.get(c, 0), c))
+        remaining_left.discard(weakest_left)
+        # Find where weakest_left's voters go (to remaining leftovers or survivors)
+        dest_set = remaining_left | survivors
         transfer_targets = defaultdict(float)
-        for i in range(len(ballots)):
-            # Check if this voter ranks the leftover on their ballot
-            ranks_left = False
-            for j in range(ballots.shape[1]):
-                c = int(ballots[i, j])
-                if c == left:
-                    ranks_left = True
-                elif ranks_left and c in survivors:
-                    transfer_targets[codes[c]] += ballot_wts[i]
-                    break
-                elif c in survivors:
-                    break  # voter prefers a survivor before leftover
-        eliminated.append(left)
+        for i in range(len(fsc_left)):
+            if fsc_left[i] == weakest_left:
+                found = False
+                for j in range(ballots.shape[1]):
+                    c = int(ballots[i, j])
+                    if c == weakest_left:
+                        found = True
+                    elif found and c in dest_set:
+                        transfer_targets[codes[c]] += ballot_wts[i]
+                        break
+        eliminated.append(weakest_left)
         for dest, vol in sorted(transfer_targets.items(), key=lambda x: -x[1]):
             if vol > 0.01:
                 transfers.append({
-                    "from": codes[left],
+                    "from": codes[weakest_left],
                     "to": dest,
                     "votes": round(vol, 2),
                     "type": "elimination",
                 })
 
-    # Display totals: elected-via-quota candidates show quota weight;
-    # candidates elected via "remaining <= seats" show their last-round total.
+    # Display totals: every elected candidate retains exactly quota.
+    # Surplus above quota was shed via Gregory fractional transfers.
+    # No normalization — retained values should reflect the true Droop quota
+    # as a share of the total pool (e.g., 7.69% for 12 survivors).
     final_totals = {}
-    # Last round totals (before the shortcut)
-    last_round = round_data[-1] if round_data else {}
-    last_round_by_idx = {}
-    for c_code, val in last_round.items():
-        for idx in range(len(codes)):
-            if codes[idx] == c_code:
-                last_round_by_idx[idx] = val
-                break
-
-    elected_set = set()
     for c in elected:
-        if c in elected_set:
-            continue
-        # Check if this candidate was elected via quota (appeared in the over_quota path)
-        # Approximate: candidates elected early had quota-level vote totals
-        final_totals[c] = max(quota, last_round_by_idx.get(c, quota))
-        elected_set.add(c)
-
-    # Normalize so display totals are meaningful percentages
-    total_display = sum(final_totals.values()) or 1.0
-    for c in final_totals:
-        final_totals[c] = final_totals[c] / total_display * total_votes
+        if c not in final_totals:
+            final_totals[c] = quota
 
     return survivors, elected, eliminated, transfers, round_data, quota, final_totals
 
@@ -308,8 +306,8 @@ def main():
         surviving = {surv_list[local] for local in survivors_local}
         surv_codes_final = sorted([codes[s] for s in surviving])
 
-        # Use STV-computed final vote totals (with modified ballot weights)
-        total_w = sum(final_totals_local.values()) or 1.0
+        # Use actual pool size for percentage computation
+        total_w = float(weights.sum())
 
         print(f"  Quota: {quota:.1f}")
         print(f"  Elected: {len(elected)}  Eliminated: {len(eliminated)}")
@@ -319,6 +317,9 @@ def main():
             vt   = final_totals_local[loc_idx]
             print(f"    {code:<10} {vt/total_w*100:>6.1f}%  ({vt:.0f})")
 
+        # First-choice tallies (round 1 of STV, before surplus/elimination)
+        first_choice = rounds[0] if rounds else {}
+
         # Record results
         for local_idx in range(n_surv):
             code = surv_codes[local_idx]
@@ -327,6 +328,7 @@ def main():
 
             status = "surviving" if in_survivors else "eliminated_this_round"
             vt = final_totals_local.get(local_idx, 0.0) if in_survivors else 0.0
+            fc = first_choice.get(code, 0.0)
             results_rows.append({
                 "winnowing_point": stage_name,
                 "candidate_code": code,
@@ -334,6 +336,8 @@ def main():
                 "party_code": PARTY_OF.get(code, code),
                 "vote_total": round(vt, 4),
                 "vote_pct": round(vt / total_w * 100, 2) if total_w > 0 else 0,
+                "first_choice_total": round(fc, 4),
+                "first_choice_pct": round(fc / total_w * 100, 2) if total_w > 0 else 0,
                 "status": status,
                 "quota_threshold": round(quota, 4),
                 "accumulated_pool_size": round(total_w, 4),

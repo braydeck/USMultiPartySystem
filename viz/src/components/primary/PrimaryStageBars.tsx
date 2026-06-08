@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { PARTY_COLORS, F5_ORDER } from '../../constants/parties';
 import type { FDPrimaryData } from '../../types';
 
@@ -7,253 +7,129 @@ interface Props {
   highlightStage?: number;
 }
 
-interface Segment {
+interface CandidateEntry {
   code: string;
   party: string;
   pct: number;
-  willBeEliminated: boolean;
-}
-
-interface StageRow {
-  label: string;
-  segments: Segment[];
-  quota: number; // as percentage of total pool (0 if N/A)
-  eliminated: string[];
+  status: 'surviving' | 'elected' | 'eliminated';
 }
 
 function partyRank(code: string): number {
   const party = code.split('_')[0];
   const idx = F5_ORDER.indexOf(party as typeof F5_ORDER[number]);
-  const suffix = parseInt(code.split('_')[1] || '0', 10) || 0;
-  return (idx === -1 ? 99 : idx) * 10 + suffix;
+  return (idx === -1 ? 99 : idx) * 100 + code.charCodeAt(code.length - 1);
 }
 
 export default function PrimaryStageBars({ data, highlightStage }: Props) {
-  const [hovered, setHovered] = useState<{ code: string; pct: number; rect: DOMRect } | null>(null);
+  const stages = data.stagesOrder;
 
-  const rows = useMemo(() => {
-    const stages = data.stagesOrder;
-    const result: StageRow[] = [];
-
-    // Row 0: Initial Slate — parties with first-choice vote shares
-    // Compute from candidates: _1 candidates hold all initial first-choice votes
-    // Since the JSON doesn't include Initial_Slate, we derive from After_Retail's entries
-    const initialSegs: Segment[] = [];
-    const partyCount: Record<string, number> = {};
-    for (const c of data.candidates) {
-      const party = c.party;
-      partyCount[party] = (partyCount[party] ?? 0) + 1;
-      // _1 candidates' first-choice votes ≈ the party's initial share
-      // We can approximate from After_Retail: sum party's surviving + eliminated totals
-      // But simpler: check if code ends in _1 and use the max stage pct ratio
-    }
-    // Use pool_size and voteTotal from first stage to compute first-choice %
-    const firstStage = stages[0];
-    // Collect ALL candidates at first stage (surviving + eliminated_this_round)
-    for (const c of data.candidates) {
-      const sd = c.stages[firstStage];
-      if (!sd) continue;
-      // First-choice goes entirely to _1 candidates
-      // For initial display, group by party
-      if (sd.voteTotal > 0 || sd.status === 'eliminated_this_round') {
-        // _1 candidates had non-zero initial votes; _2/_3 had 0
-        if (c.code.endsWith('_1') || (!c.code.match(/_\d+$/))) {
-          // Check: does this candidate have first-choice data?
-          // Approximate initial % from the transfer math:
-          // _1 candidate's initial share ≈ sum of all party candidates' After_Retail shares
-          // (since surplus from _1 creates _2)
-        }
-      }
-    }
-
-    // Simpler approach: aggregate by party at first stage
-    const partySums: Record<string, number> = {};
-    for (const c of data.candidates) {
-      const sd = c.stages[firstStage];
-      if (!sd) continue;
-      const party = c.party;
-      partySums[party] = (partySums[party] ?? 0) + sd.voteTotal;
-    }
-    const totalVotes = Object.values(partySums).reduce((s, v) => s + v, 0) || 1;
-    for (const [party, total] of Object.entries(partySums)) {
-      if (total > 0) {
-        initialSegs.push({
-          code: `${party} ×${partyCount[party] ?? 1}`,
-          party,
-          pct: total / totalVotes * 100,
-          willBeEliminated: false,
-        });
-      }
-    }
-    initialSegs.sort((a, b) => partyRank(a.party) - partyRank(b.party));
-    // Mark parties that lose ALL candidates in the first round
-    const firstStageSurvivors = new Set(
-      data.candidates
-        .filter(c => c.stages[firstStage]?.status === 'surviving' || c.stages[firstStage]?.status === 'elected')
-        .map(c => c.party)
-    );
-    for (const seg of initialSegs) {
-      if (!firstStageSurvivors.has(seg.party)) {
-        seg.willBeEliminated = true;
-      }
-    }
-
-    result.push({
-      label: `Initial Slate · ${data.candidates.length} candidates, ${Object.keys(partyCount).length} parties`,
-      segments: initialSegs,
-      quota: 0,
-      eliminated: [],
-    });
-
-    // Stage rows
-    for (let i = 0; i < stages.length; i++) {
-      const stage = stages[i];
-      const nextStage = stages[i + 1];
-      const label = data.stageLabels[stage] ?? stage.replace(/_/g, ' ').replace('After ', '');
-
-      const segs: Segment[] = [];
-      const eliminated: string[] = [];
-      let poolTotal = 0;
+  const stageRows = useMemo(() => {
+    return stages.map(stage => {
+      const candidates: CandidateEntry[] = [];
 
       for (const c of data.candidates) {
         const sd = c.stages[stage];
         if (!sd) continue;
-        if ((sd.status === 'surviving' || sd.status === 'elected') && sd.votePct > 0) {
-          const willBeElim = nextStage
-            ? c.stages[nextStage]?.status === 'eliminated_this_round'
-            : false;
-          segs.push({
+
+        if (sd.status === 'surviving' || sd.status === 'elected') {
+          candidates.push({
             code: c.code,
             party: c.party,
             pct: sd.votePct,
-            willBeEliminated: willBeElim,
+            status: 'surviving',
           });
-          poolTotal += sd.voteTotal;
-        }
-        if (sd.status === 'eliminated_this_round') {
-          eliminated.push(c.code);
+        } else if (sd.status === 'eliminated_this_round') {
+          candidates.push({
+            code: c.code,
+            party: c.party,
+            pct: sd.votePct,
+            status: 'eliminated',
+          });
         }
       }
 
-      segs.sort((a, b) => partyRank(a.code) - partyRank(b.code));
-
-      // Quota as % of the full pool
-      // Simpler: quota / (sum of all survivor voteTotals) * 100... but that's not right either.
-      // quota = pool / (seats + 1). Survivor shares sum to ~100%.
-      // quota_pct_of_bar = (quota / pool) * 100 = 1/(seats+1) * 100
-      const nSeats = segs.length;
-      const quotaPctOfBar = nSeats > 0 ? 100 / (nSeats + 1) : 0;
-
-      result.push({
-        label: `${label} · ${segs.length} candidates`,
-        segments: segs,
-        quota: quotaPctOfBar,
-        eliminated,
+      // Sort: surviving first (by party order), then eliminated (by party order)
+      candidates.sort((a, b) => {
+        if (a.status !== b.status) return a.status === 'surviving' ? -1 : 1;
+        return partyRank(a.code) - partyRank(b.code);
       });
-    }
 
-    return result;
-  }, [data]);
+      const surviving = candidates.filter(c => c.status === 'surviving');
+      const eliminated = candidates.filter(c => c.status === 'eliminated');
+      const label = data.stageLabels[stage] ?? stage.replace(/_/g, ' ').replace('After ', '');
+      // Droop quota as % of pool: 100 / (seats_to_fill + 1)
+      // seats_to_fill = number of survivors
+      const quotaPct = surviving.length > 0 ? 100 / (surviving.length + 1) : 0;
+
+      return { stage, label, surviving, eliminated, quotaPct };
+    });
+  }, [data, stages]);
 
   return (
-    <div className="space-y-3">
-      {rows.map((row, rowIdx) => {
-        const isActive = highlightStage === undefined || highlightStage === rowIdx;
-        const totalPct = row.segments.reduce((s, seg) => s + seg.pct, 0) || 1;
-
-        // Group segments by party for bracket rendering
-        const parties = new Map<string, Segment[]>();
-        for (const seg of row.segments) {
-          if (!parties.has(seg.party)) parties.set(seg.party, []);
-          parties.get(seg.party)!.push(seg);
-        }
+    <div className="space-y-5">
+      {stageRows.map((row, rowIdx) => {
+        const isActive = highlightStage === undefined || highlightStage === rowIdx + 1;
 
         return (
           <div
-            key={rowIdx}
+            key={row.stage}
             className="transition-opacity duration-200"
-            style={{ opacity: isActive ? 1 : 0.35 }}
+            style={{ opacity: isActive ? 1 : 0.4 }}
           >
-            {/* Label row */}
-            <div className="flex items-baseline gap-2 mb-0.5">
-              <span className="text-xs font-semibold text-muted-foreground">{row.label}</span>
-              {row.quota > 0 && (
-                <span className="text-[10px] text-muted-foreground font-medium">
-                  quota {row.quota.toFixed(1)}%
+            {/* Stage header */}
+            <div className="flex items-baseline gap-2 mb-2">
+              <span className="text-xs font-semibold text-foreground uppercase tracking-widest">
+                {row.label}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {row.surviving.length} advance{row.eliminated.length > 0 ? ` · ${row.eliminated.length} eliminated` : ''}
+              </span>
+              {row.quotaPct > 0 && (
+                <span className="text-[10px] text-muted-foreground">
+                  · quota {row.quotaPct.toFixed(1)}%
                 </span>
               )}
             </div>
 
-            {/* Bar */}
-            <div className="relative flex h-8 rounded overflow-hidden bg-muted">
-              {row.segments.map((seg, si) => {
-                const w = (seg.pct / totalPct) * 100;
-                const color = PARTY_COLORS[seg.party] ?? '#6b7280';
-                // Thin party-group separator
-                const prevParty = si > 0 ? row.segments[si - 1].party : null;
-                const newParty = seg.party !== prevParty;
-
+            {/* Surviving pills */}
+            <div className="flex flex-wrap gap-1.5 mb-1">
+              {row.surviving.map(c => {
+                const color = PARTY_COLORS[c.party] ?? '#6b7280';
                 return (
                   <div
-                    key={seg.code}
-                    className="relative flex items-center justify-center overflow-hidden cursor-pointer"
-                    style={{
-                      width: `${w}%`,
-                      minWidth: 2,
-                      backgroundColor: color,
-                      opacity: seg.willBeEliminated ? 0.3 : 0.85,
-                      borderLeft: newParty && si > 0 ? '2px solid rgba(255,255,255,0.6)' : '0.5px solid rgba(255,255,255,0.25)',
-                    }}
-                    onMouseEnter={(e) => setHovered({ code: seg.code, pct: seg.pct, rect: e.currentTarget.getBoundingClientRect() })}
-                    onMouseLeave={() => setHovered(null)}
+                    key={c.code}
+                    className="flex items-center gap-1 rounded-md px-2 py-1 text-white text-xs font-semibold"
+                    style={{ backgroundColor: color }}
+                    title={`${c.code}: ${c.pct.toFixed(1)}%`}
                   >
-                    {w > 5 && (
-                      <span
-                        className="text-[9px] font-bold text-white truncate px-0.5 select-none"
-                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
-                      >
-                        {seg.code}
-                      </span>
-                    )}
+                    <span>{c.code}</span>
+                    <span className="font-mono text-[10px] opacity-75">{c.pct.toFixed(1)}%</span>
                   </div>
                 );
               })}
-
-              {/* Quota marker */}
-              {row.quota > 0 && (
-                <div
-                  className="absolute top-0 bottom-0 pointer-events-none"
-                  style={{ left: `${row.quota}%` }}
-                >
-                  <div className="h-full border-l-[1.5px] border-dashed border-white/80" />
-                </div>
-              )}
             </div>
 
-            {/* Eliminated note */}
+            {/* Eliminated pills */}
             {row.eliminated.length > 0 && (
-              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">
-                <span className="text-muted-foreground">↗</span> {row.eliminated.join(', ')} eliminated
+              <div className="flex flex-wrap gap-1.5">
+                {row.eliminated.map(c => {
+                  const color = PARTY_COLORS[c.party] ?? '#6b7280';
+                  return (
+                    <div
+                      key={c.code}
+                      className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold line-through opacity-40"
+                      style={{ backgroundColor: color + '22', color, border: `1px solid ${color}44` }}
+                      title={`${c.code}: eliminated`}
+                    >
+                      <span>{c.code}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         );
       })}
-
-      {/* Floating tooltip */}
-      {hovered && (
-        <div
-          className="fixed z-50 bg-slate-800 text-white text-xs rounded px-2.5 py-1.5 shadow-lg pointer-events-none whitespace-nowrap"
-          style={{
-            left: hovered.rect.left + hovered.rect.width / 2,
-            top: hovered.rect.top - 32,
-            transform: 'translateX(-50%)',
-          }}
-        >
-          <span className="font-semibold">{hovered.code}</span>
-          <span className="text-slate-300 ml-1">{hovered.pct.toFixed(1)}%</span>
-        </div>
-      )}
     </div>
   );
 }

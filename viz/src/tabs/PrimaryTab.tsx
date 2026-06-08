@@ -1,13 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { PrimaryStateWinner, PrimarySankeyData, FDPrimaryData, ClusterProfile } from '../types';
+import type { PrimaryStateWinner, PrimaryStageShares, PrimarySankeyData, FDPrimaryData, ClusterProfile } from '../types';
 import { PrimaryStateMap } from '../components/primary/PrimaryStateMap';
-import PrimaryStageBars from '../components/primary/PrimaryStageBars';
 import PrimaryBuckets from '../components/primary/PrimaryBuckets';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
-import { PARTY_NAMES, PARTY_COLORS, F5_ORDER } from '../constants/parties';
+import { PARTY_NAMES, PARTY_COLORS, F5_ORDER, getBlendColor } from '../constants/parties';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BucketData = any; // from pureMultiPrimaryBuckets.json
@@ -15,9 +14,12 @@ type BucketData = any; // from pureMultiPrimaryBuckets.json
 interface Props {
   factorDev: FDPrimaryData;
   factorDevStateWinners: Record<string, PrimaryStateWinner>;
+  factorDevStageShares: Record<string, PrimaryStageShares>;
+  factorDevBuckets: BucketData;
   factorDevSankey: PrimarySankeyData;
   pureMulti: FDPrimaryData;
   pureMultiStateWinners: Record<string, PrimaryStateWinner>;
+  pureMultiStageShares: Record<string, PrimaryStageShares>;
   pureMultiSankey: PrimarySankeyData;
   pureMultiBuckets: BucketData;
   clusters: ClusterProfile[];
@@ -37,8 +39,8 @@ const PIPELINE_DESC: Record<Pipeline, string> = {
 };
 
 export function PrimaryTab({
-  factorDev, factorDevStateWinners,
-  pureMulti, pureMultiStateWinners, pureMultiBuckets,
+  factorDev, factorDevStageShares, factorDevBuckets,
+  pureMulti, pureMultiStageShares, pureMultiBuckets,
   clusters, clusterSpreads,
 }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
@@ -48,9 +50,37 @@ export function PrimaryTab({
 
   const data: FDPrimaryData =
     pipeline === 'factorDev' ? factorDev : pureMulti;
-  const stateWinners = pipeline === 'factorDev' ? factorDevStateWinners : pureMultiStateWinners;
+  const stageShares  = pipeline === 'factorDev' ? factorDevStageShares : pureMultiStageShares;
   const stage = data.stagesOrder[stageIdx] ?? data.stagesOrder[0];
   const quota = data.quotaByStage[stage] ?? 0;
+
+  // National first-choice shares aggregated from stage-specific state data
+  const STAGE_PODS: Record<string, Set<string>> = {
+    After_Retail: new Set(['Retail']),
+    After_Pod_A:  new Set(['Retail', 'A']),
+    After_Pod_C:  new Set(['Retail', 'A', 'C']),
+    After_Pod_BD: new Set(['Retail', 'A', 'B', 'C', 'D']),
+  };
+  const nationalShares = useMemo(() => {
+    const activePods = STAGE_PODS[stage] ?? new Set();
+    const totals: Record<string, number> = {};
+    let totalResp = 0;
+    for (const ss of Object.values(stageShares)) {
+      if (!activePods.has(ss.pod)) continue;
+      const stageData = ss.stages[stage];
+      if (!stageData) continue;
+      const n = ss.nRespondents;
+      totalResp += n;
+      for (const [code, share] of Object.entries(stageData.shares)) {
+        totals[code] = (totals[code] ?? 0) + share * n;
+      }
+    }
+    if (totalResp === 0) return [];
+    return Object.entries(totals)
+      .map(([code, weighted]) => ({ code, pct: weighted / totalResp }))
+      .sort((a, b) => b.pct - a.pct);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stageShares, stage]);
 
   return (
     <div className="space-y-8">
@@ -104,42 +134,76 @@ export function PrimaryTab({
         </div>
       </div>
 
-      {/* State map — full width */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          State Winners by Stage
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          States light up as their pod votes. Color = IRV winner in that state&apos;s race.
-        </p>
-        <PrimaryStateMap stateWinners={stateWinners} stage={stage} />
-      </Card>
+      {/* Primary Winnowing — bucket composition */}
+      {(() => {
+        const buckets = pipeline === 'rawMulti' ? pureMultiBuckets : factorDevBuckets;
+        return buckets?.stages?.[stageIdx] ? (
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              Primary Winnowing
+            </h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              Each bar shows where a survivor&apos;s votes came from. Darkest = own first-choice supporters.
+              Other colors = transfers from surplus or eliminated candidates.
+            </p>
+            <PrimaryBuckets data={buckets} stageIdx={stageIdx} />
+          </Card>
+        ) : null;
+      })()}
 
-      {/* Primary Winnowing — stage-by-stage stacked bars */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Primary Winnowing
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Each bar shows surviving candidates after a round. Bar width = vote share. Dimmed segments = eliminated next round.
-          Dashed line = Droop quota. Hover for details.
-        </p>
-        <PrimaryStageBars data={data} highlightStage={stageIdx + 1} />
-      </Card>
-
-      {/* Bucket Chart — how each winner filled their quota */}
-      {pipeline === 'rawMulti' && pureMultiBuckets?.stages?.[stageIdx] && (
+      {/* National First-Choice Share */}
+      {nationalShares.length > 0 && (
         <Card className="p-4">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            How Winners Fill Their Quota
+            National First-Choice Share
           </h3>
           <p className="text-xs text-muted-foreground mb-3">
-            Each bar shows where a winner&apos;s votes came from. Darkest = own first-choice supporters.
-            Other colors = transfers from surplus or eliminated candidates. Dashed line = quota threshold.
+            Aggregate first-choice vote across states that have voted at this stage.
           </p>
-          <PrimaryBuckets data={pureMultiBuckets} stageIdx={stageIdx} />
+          <div>
+            <div className="text-sm mb-2">
+              <span className="font-bold" style={{ color: getBlendColor(nationalShares[0].code) }}>
+                {nationalShares[0].code}
+              </span>
+              <span className="text-foreground"> leads with </span>
+              <span className="font-bold">{(nationalShares[0].pct * 100).toFixed(1)}%</span>
+              <span className="text-muted-foreground"> of the first-choice vote</span>
+            </div>
+            <div className="flex rounded overflow-hidden h-8 mb-2">
+              {nationalShares.map(({ code, pct }) => {
+                const w = pct * 100;
+                const color = getBlendColor(code);
+                return (
+                  <div
+                    key={code}
+                    className="flex items-center justify-center overflow-hidden"
+                    style={{ width: `${w}%`, backgroundColor: color, minWidth: w < 2 ? 2 : 0 }}
+                    title={`${code}: ${(pct * 100).toFixed(1)}%`}
+                  >
+                    {w > 5 && (
+                      <span className="text-white text-xs font-bold px-0.5 truncate"
+                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                        {code} {(pct * 100).toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </Card>
       )}
+
+      {/* State Vote Shares */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          State Vote Shares
+        </h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          States light up as their pod votes. Bars show first-choice vote proportions. Hover for breakdown.
+        </p>
+        <PrimaryStateMap stageShares={stageShares} stage={stage} primaryData={data} />
+      </Card>
 
       {/* Ideological Constellation + Party Profiles */}
       <Card className="p-4">

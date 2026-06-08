@@ -1773,11 +1773,12 @@ def build_fd_presidential_election():
                 shares[code] = val
         total = sum(shares.values())
         irv_state_winners[fips] = {
-            "stateAbbr":    r["state_abbr"],
-            "winner":       r["winner_code"],
-            "pod":          pod_by_fips.get(fips, "D"),
-            "nRespondents": int(r["n_respondents"]),
-            "shares":       {k: round(v / total, 4) for k, v in shares.items()} if total > 0 else {},
+            "stateAbbr":        r["state_abbr"],
+            "winner":           r["winner_code"],
+            "condorcetWinner":  r.get("condorcet_winner_code", r["winner_code"]),
+            "pod":              pod_by_fips.get(fips, "D"),
+            "nRespondents":     int(r["n_respondents"]),
+            "shares":           {k: round(v / total, 4) for k, v in shares.items()} if total > 0 else {},
         }
 
     write_json({
@@ -1860,11 +1861,12 @@ def build_raw_multi_presidential_election():
         winner = r.get("winner_code", r.get("irv_winner", ""))
         n_resp = int(float(r.get("n_respondents", 0) or r.get("total_weight", 0) or 0))
         irv_state_winners[fips] = {
-            "stateAbbr":    r["state_abbr"],
-            "winner":       winner,
-            "pod":          pod_by_fips.get(fips, "D"),
-            "nRespondents": n_resp,
-            "shares":       {k: round(v / total, 4) for k, v in shares.items()} if total > 0 else {},
+            "stateAbbr":        r["state_abbr"],
+            "winner":           winner,
+            "condorcetWinner":  r.get("condorcet_winner_code", winner),
+            "pod":              pod_by_fips.get(fips, "D"),
+            "nRespondents":     n_resp,
+            "shares":           {k: round(v / total, 4) for k, v in shares.items()} if total > 0 else {},
         }
 
     write_json({
@@ -2203,11 +2205,12 @@ def build_pure_multi_primary_buckets():
         if stage and stage not in all_stages:
             all_stages.append(stage)
         by_stage[stage][code] = {
-            "pct":    float(r.get("vote_pct", 0) or 0),
-            "vtotal": float(r.get("vote_total", 0) or 0),
-            "status": r.get("status", ""),
-            "party":  r.get("party_code", code.rsplit("_", 1)[0]),
-            "quota":  float(r.get("quota_threshold", 0) or 0),
+            "pct":      float(r.get("vote_pct", 0) or 0),
+            "vtotal":   float(r.get("vote_total", 0) or 0),
+            "fc_total": float(r.get("first_choice_total", 0) or 0),
+            "status":   r.get("status", ""),
+            "party":    r.get("party_code", code.rsplit("_", 1)[0]),
+            "quota":    float(r.get("quota_threshold", 0) or 0),
         }
 
     initial_stage = all_stages[0]  # Initial_Slate
@@ -2240,27 +2243,43 @@ def build_pure_multi_primary_buckets():
 
         for code, info in sorted(stage_data.items(), key=lambda x: -x[1]["pct"]):
             party   = info["party"]
-            entering = prev_data.get(code, {}).get("vtotal", 0)
-            entering_pct = entering / pool * 100 if pool > 0 else 0
+            # Use first-choice tally at THIS stage (not carried from previous)
+            fc_raw = float(info.get("fc_total", 0) or 0)
+            entering_pct = fc_raw / pool * 100 if pool > 0 else 0
             inc = xfer_incoming.get((stage, code), {})
 
             # Build source breakdown as list sorted by size
-            sources = []
+            all_sources = []
             for src_party, v in sorted(inc.items(), key=lambda x: -x[1]):
                 pct = v / pool * 100
                 if pct > 0.05:
-                    sources.append({"party": src_party, "pct": round(pct, 2)})
+                    all_sources.append({"party": src_party, "pct": round(pct, 2)})
 
-            inc_total_pct = sum(s["pct"] for s in sources)
+            inc_total_pct = sum(s["pct"] for s in all_sources)
             total_pct = entering_pct + inc_total_pct
             overflow  = total_pct - quota_pct
 
             if info["status"] in ("surviving", "elected") and info["pct"] > 0:
+                # Cap composition at quota: if entering >= quota, the survivor
+                # filled quota entirely from own first-choice votes (no transfers
+                # needed). If entering < quota, show only enough transfers to
+                # fill the gap.
+                capped_entering = min(entering_pct, quota_pct)
+                gap = max(quota_pct - entering_pct, 0)
+                capped_sources = []
+                remaining_gap = gap
+                for src in all_sources:
+                    if remaining_gap <= 0:
+                        break
+                    used = min(src["pct"], remaining_gap)
+                    capped_sources.append({"party": src["party"], "pct": round(used, 2)})
+                    remaining_gap -= used
+
                 winners.append({
                     "code":      code,
                     "party":     party,
-                    "entering":  round(entering_pct, 2),
-                    "sources":   sources,
+                    "entering":  round(capped_entering, 2),
+                    "sources":   capped_sources,
                     "total":     round(total_pct, 2),
                     "retained":  round(info["pct"], 2),
                     "overflow":  round(max(overflow, 0), 2),
@@ -2278,14 +2297,14 @@ def build_pure_multi_primary_buckets():
                     "code":     code,
                     "party":    party,
                     "entering": round(entering_pct, 2),
-                    "sources":  sources,
+                    "sources":  all_sources,
                     "total":    round(total_pct, 2),
                     "dests":    dests,
                 })
 
         label = stage.replace("_", " ").replace("After ", "")
         n_entering = sum(1 for v in prev_data.values()
-                         if v["status"] in ("surviving", "elected") and v["pct"] > 0)
+                         if v["status"] in ("surviving", "elected"))
         stages_out.append({
             "name":       stage,
             "label":      label,
@@ -2298,6 +2317,126 @@ def build_pure_multi_primary_buckets():
         prev_stage = stage
 
     write_json({"pool": round(pool, 2), "stages": stages_out}, "pureMultiPrimaryBuckets.json")
+
+
+# ---------- fdPrimaryBuckets.json ----------
+def build_fd_primary_buckets():
+    """Per-stage bucket composition for Factor Dev primary."""
+    results_rows = read_csv(FD_DIR / "primary_results_2028.csv")
+    diag_rows    = read_csv(FD_DIR / "primary_diagnostics_2028.csv")
+
+    # Parse results by stage
+    by_stage = defaultdict(dict)
+    all_stages = []
+    for r in results_rows:
+        stage = r.get("winnowing_point", "")
+        code  = r.get("candidate_code", "")
+        if stage and stage not in all_stages:
+            all_stages.append(stage)
+        by_stage[stage][code] = {
+            "pct":      float(r.get("vote_pct", 0) or 0),
+            "vtotal":   float(r.get("vote_total", 0) or 0),
+            "fc_total": float(r.get("first_choice_total", 0) or 0),
+            "status":   r.get("status", ""),
+            "party":    r.get("party_code", code.split("_")[0]),
+            "quota":    float(r.get("quota_threshold", 0) or 0),
+            "pool":     float(r.get("accumulated_pool_size", 0) or 0),
+        }
+
+    elim_stages = [s for s in all_stages if by_stage[s]]
+
+    # Parse transfer_analysis diagnostics
+    xfer_incoming = defaultdict(lambda: defaultdict(float))
+    xfer_outgoing = defaultdict(lambda: defaultdict(float))
+    for d in diag_rows:
+        if d.get("diagnostic") != "transfer_analysis":
+            continue
+        stage = d.get("winnowing_point", "")
+        src   = d.get("eliminated_code", "")
+        dest  = d.get("dest_code", "")
+        votes = float(d.get("transferred_votes", 0) or 0)
+        src_party = src.split("_")[0]
+        xfer_incoming[(stage, dest)][src_party] += votes
+        xfer_outgoing[(stage, src)][dest] += votes
+
+    stages_out = []
+    for stage in elim_stages:
+        stage_data = by_stage[stage]
+        # Use stage-specific pool (accumulated_pool_size grows as pods vote)
+        pool = next((v["pool"] for v in stage_data.values() if v["pool"] > 0), 1.0)
+        quota_raw  = next((v["quota"] for v in stage_data.values() if v["quota"] > 0), 0)
+        quota_pct  = quota_raw / pool * 100 if pool > 0 else 0
+
+        winners    = []
+        eliminated = []
+
+        for code, info in sorted(stage_data.items(), key=lambda x: -x[1]["pct"]):
+            party = info["party"]
+            # Use first-choice tally if available, else fall back to vtotal
+            fc_raw = info.get("fc_total", 0) or info.get("vtotal", 0)
+            entering_pct = fc_raw / pool * 100 if pool > 0 else 0
+            inc = xfer_incoming.get((stage, code), {})
+
+            all_sources = []
+            for src_party, v in sorted(inc.items(), key=lambda x: -x[1]):
+                pct = v / pool * 100
+                if pct > 0.05:
+                    all_sources.append({"party": src_party, "pct": round(pct, 2)})
+
+            inc_total_pct = sum(s["pct"] for s in all_sources)
+            total_pct = entering_pct + inc_total_pct
+
+            if info["status"] in ("surviving", "elected", "active") and info["pct"] > 0:
+                capped_entering = min(entering_pct, quota_pct)
+                gap = max(quota_pct - entering_pct, 0)
+                capped_sources = []
+                remaining_gap = gap
+                for src in all_sources:
+                    if remaining_gap <= 0:
+                        break
+                    used = min(src["pct"], remaining_gap)
+                    capped_sources.append({"party": src["party"], "pct": round(used, 2)})
+                    remaining_gap -= used
+
+                winners.append({
+                    "code":      code,
+                    "party":     party,
+                    "entering":  round(capped_entering, 2),
+                    "sources":   capped_sources,
+                    "total":     round(total_pct, 2),
+                    "retained":  round(quota_pct, 2),
+                    "overflow":  round(max(total_pct - quota_pct, 0), 2),
+                })
+            elif info["status"] == "eliminated_this_round":
+                out = xfer_outgoing.get((stage, code), {})
+                out_total = sum(out.values()) or 1.0
+                dests = []
+                for dest_code, v in sorted(out.items(), key=lambda x: -x[1]):
+                    pct = v / out_total * 100
+                    if pct > 1:
+                        dests.append({"code": dest_code, "pct": round(pct, 1)})
+                eliminated.append({
+                    "code":     code,
+                    "party":    party,
+                    "entering": round(entering_pct, 2),
+                    "sources":  all_sources,
+                    "total":    round(total_pct, 2),
+                    "dests":    dests,
+                })
+
+        label = stage.replace("_", " ").replace("After ", "")
+        n_entering = len(stage_data)
+        stages_out.append({
+            "name":       stage,
+            "label":      label,
+            "quota":      round(quota_pct, 2),
+            "nEntering":  n_entering,
+            "nWinners":   len(winners),
+            "winners":    winners,
+            "eliminated": eliminated,
+        })
+
+    write_json({"pool": round(pool, 2), "stages": stages_out}, "fdPrimaryBuckets.json")
 
 
 # ---------- pureMultiSenate*.json ----------

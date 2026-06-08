@@ -138,11 +138,13 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
         )}
       </div>
 
-      {tooltip && (
-        <div className="text-sm text-foreground bg-white border border-border rounded px-3 py-1.5 shadow-sm mb-2 inline-block">
-          {tooltip}
-        </div>
-      )}
+      <div className="h-8 mb-1">
+        {tooltip && (
+          <div className="text-sm text-foreground bg-white border border-border rounded px-3 py-1.5 shadow-sm inline-block">
+            {tooltip}
+          </div>
+        )}
+      </div>
 
       <div className="overflow-x-auto">
         <svg

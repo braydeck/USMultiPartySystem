@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile } from '../types';
+import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PARTY_COLORS } from '../constants/parties';
+import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
@@ -15,6 +15,7 @@ interface Props {
   clusters:  ClusterProfile[];
   fdProfiles: Record<string, FDCandidateProfile>;
   senateVotes: VoteModelRow[];
+  houseStateMap: Record<string, HouseStateEntry>;
 }
 
 const PRES_LABELS: Record<PresidentialScenario, string> = {
@@ -39,7 +40,7 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
   );
 }
 
-export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: Props) {
+export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, houseStateMap }: Props) {
   const [scenario, setScenario] = useState<PresidentialScenario>('rawMulti');
   const data = scenario === 'rawMulti' ? rawMulti : factorDev;
 
@@ -54,6 +55,14 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
   const rmCondParty  = rmCondWinner.split('_')[0];
   const rmIrvParty   = rmIrvWinner.split('_')[0];
   const rmSameWinner = rmCondWinner === rmIrvWinner;
+
+  // Build Raw Multi display labels (CON_1 → CON when sole numbered variant)
+  const rmLabels = useMemo(() => {
+    const codes = new Set<string>();
+    for (const r of rawMulti.irvRounds) for (const c of r.candidates) codes.add(c.code);
+    return buildDisplayLabels(codes);
+  }, [rawMulti]);
+  const rmLabel = (code: string) => rmLabels[code] ?? code;
 
   // Factor Dev winner (same for both methods)
   const fdWinner     = factorDev.condorcetWinner;
@@ -98,7 +107,7 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
           {rmSameWinner ? (
             <div>
               <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
-                Winner (both methods): {rmCondWinner}
+                Winner (both methods): {rmLabel(rmCondWinner)}
               </div>
               {clusterByParty[rmCondParty] && <div className="max-w-sm"><PartyProfileCard cluster={clusterByParty[rmCondParty]} /></div>}
             </div>
@@ -110,13 +119,13 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
-                    Condorcet Winner — {rmCondWinner}
+                    Condorcet Winner — {rmLabel(rmCondWinner)}
                   </div>
                   {clusterByParty[rmCondParty] && <PartyProfileCard cluster={clusterByParty[rmCondParty]} />}
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
-                    IRV Winner — {rmIrvWinner}
+                    IRV Winner — {rmLabel(rmIrvWinner)}
                   </div>
                   {clusterByParty[rmIrvParty] && <PartyProfileCard cluster={clusterByParty[rmIrvParty]} />}
                 </div>
@@ -210,17 +219,8 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes }: 
         <IRVSankey rounds={data.irvRounds} irvWinner={data.irvWinner} />
       </Card>
 
-      {/* State map */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          State Results Without National Override
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          How each state would vote independently — no electoral college, no national consolidation.
-          Toggle between IRV winner and 1st-choice plurality winner to see where ranked choice flips the outcome.
-        </p>
-        <PresidentialMap stateWinners={data.irvStateWinners} />
-      </Card>
+      {/* State map + EC */}
+      <PresidentialMap stateWinners={data.irvStateWinners} stateMap={houseStateMap} />
 
       {/* Presidential Policy Comparison — Factor Dev only */}
       {scenario === 'factorDev' && (

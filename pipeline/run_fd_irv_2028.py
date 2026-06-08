@@ -219,25 +219,29 @@ def main():
     cond_df.to_csv(cond_path, index=False)
     print(f"Saved Condorcet matchups → {cond_path.relative_to(BASE_DIR)}")
 
-    # ── Per-state IRV ──────────────────────────────────────────────────────────
-    print("\nRunning per-state IRV…")
+    # ── Per-state IRV + Condorcet ────────────────────────────────────────────
+    print("\nRunning per-state IRV + Condorcet…")
     state_rows = []
     for fips in sorted(set(state_fips)):
         mask = state_fips == fips
         if mask.sum() < 5:
             continue
-        s_rounds = run_irv(ballots[mask], weights[mask], FINALISTS)
+        s_ballots = ballots[mask]
+        s_weights = weights[mask]
+        s_rounds = run_irv(s_ballots, s_weights, FINALISTS)
         s_result = summarise_irv(s_rounds, FINALISTS)
+        _, s_cond_winner = run_condorcet(s_ballots, s_weights, FINALISTS)
         r1 = s_rounds[0]["pcts"] if s_rounds else {}
         row = {
-            "state_fips":      fips,
-            "state_abbr":      FIPS_TO_ABBR.get(fips, f"FIPS{fips}"),
-            "winner_code":     s_result["winner"],
-            "winner_label":    s_result["winner_label"],
-            "runner_up_code":  s_result["runner_up"],
-            "runner_up_label": s_result["runner_up_label"],
-            "n_respondents":   int(mask.sum()),
-            "n_irv_rounds":    len(s_rounds),
+            "state_fips":            fips,
+            "state_abbr":            FIPS_TO_ABBR.get(fips, f"FIPS{fips}"),
+            "winner_code":           s_result["winner"],
+            "winner_label":          s_result["winner_label"],
+            "runner_up_code":        s_result["runner_up"],
+            "runner_up_label":       s_result["runner_up_label"],
+            "condorcet_winner_code": s_cond_winner,
+            "n_respondents":         int(mask.sum()),
+            "n_irv_rounds":          len(s_rounds),
         }
         for code in FINALISTS:
             row[f"r1_pct_{code}"] = round(r1.get(code, 0.0), 2)

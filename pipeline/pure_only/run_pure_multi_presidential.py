@@ -268,8 +268,8 @@ def main():
     cond_df.to_csv(cond_path, index=False)
     print(f"Saved Condorcet matchups → {cond_path}  ({len(cond_df)} rows)")
 
-    # ── Per-state IRV ─────────────────────────────────────────────────────────
-    print("\nRunning per-state IRV…")
+    # ── Per-state IRV + Condorcet ──────────────────────────────────────────────
+    print("\nRunning per-state IRV + Condorcet…")
     unique_states = sorted(s for s in np.unique(state_fips) if s != 72)
     state_rows    = []
 
@@ -284,14 +284,19 @@ def main():
         s_rounds = run_irv(s_ballots, s_weights, FINALISTS)
         s_result = summarise_irv(s_rounds, FINALISTS)
 
+        # State-level Condorcet via Ranked Pairs
+        s_matchups                  = build_matchups(s_ballots, s_weights, FINALISTS)
+        s_cond_winner, _            = ranked_pairs_winner(s_matchups, FINALISTS)
+
         r1 = s_rounds[0]["pcts"] if s_rounds else {}
         row = {
-            "state_fips":     fips,
-            "state_abbr":     abbr,
-            "winner_code":    s_result["winner"],
-            "runner_up_code": s_result["runner_up"],
-            "n_respondents":  int(mask.sum()),
-            "n_irv_rounds":   len(s_rounds),
+            "state_fips":            fips,
+            "state_abbr":            abbr,
+            "winner_code":           s_result["winner"],
+            "runner_up_code":        s_result["runner_up"],
+            "condorcet_winner_code": s_cond_winner,
+            "n_respondents":         int(mask.sum()),
+            "n_irv_rounds":          len(s_rounds),
         }
         for code in FINALISTS:
             row[f"r1_pct_{code}"] = round(r1.get(code, 0.0), 2)

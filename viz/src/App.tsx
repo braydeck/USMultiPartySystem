@@ -30,12 +30,15 @@ import senateCondorcetData from './data/senateCondorcet.json';
 import fdHouseSeatsData from './data/fdHouseSeats.json';
 import fdPrimaryData from './data/fdPrimary.json';
 import fdPrimaryStateWinnersData from './data/fdPrimaryStateWinners.json';
+import fdPrimaryStageSharesData from './data/fdPrimaryStageShares.json';
 import fdPrimarySankeyData from './data/fdPrimarySankey.json';
+import fdPrimaryBucketsData from './data/fdPrimaryBuckets.json';
 import fdPresidentialElectionData from './data/fdPresidentialElection.json';
 import rawMultiPresidentialElectionData from './data/rawMultiPresidentialElection.json';
 import fdProfilesData from './data/fdProfiles.json';
 import pureMultiPrimaryData from './data/pureMultiPrimary.json';
 import pureMultiPrimaryStateWinnersData from './data/pureMultiPrimaryStateWinners.json';
+import pureMultiPrimaryStageSharesData from './data/pureMultiPrimaryStageShares.json';
 import pureMultiPrimarySankeyData from './data/pureMultiPrimarySankey.json';
 import pureMultiPrimaryBucketsData from './data/pureMultiPrimaryBuckets.json';
 import fptpDisproportionalityData from './data/fptpDisproportionality.json';
@@ -57,7 +60,7 @@ import houseStateMapTripleData from './data/houseStateMapTriple.json';
 import districtCountyMapTripleData from './data/districtCountyMapTriple.json';
 
 import type {
-  PrimaryStateWinner, VoteModelRow, HouseSeat,
+  PrimaryStateWinner, PrimaryStageShares, VoteModelRow, HouseSeat,
   HouseStateEntry, CoalitionProfile, TransferMatrix, ClusterProfile,
   QuizQuestion, PresidentialElection,
   PrimarySankeyData,
@@ -136,9 +139,12 @@ export default function App() {
           <PrimaryTab
             factorDev={fdPrimaryData as unknown as FDPrimaryData}
             factorDevStateWinners={fdPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
+            factorDevStageShares={fdPrimaryStageSharesData as unknown as Record<string, PrimaryStageShares>}
+            factorDevBuckets={fdPrimaryBucketsData}
             factorDevSankey={fdPrimarySankeyData as unknown as PrimarySankeyData}
             pureMulti={pureMultiPrimaryData as unknown as FDPrimaryData}
             pureMultiStateWinners={pureMultiPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
+            pureMultiStageShares={pureMultiPrimaryStageSharesData as unknown as Record<string, PrimaryStageShares>}
             pureMultiSankey={pureMultiPrimarySankeyData as unknown as PrimarySankeyData}
             pureMultiBuckets={pureMultiPrimaryBucketsData}
             clusters={clusterProfilesData as ClusterProfile[]}
@@ -152,6 +158,7 @@ export default function App() {
             clusters={clusterProfilesData as ClusterProfile[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
             senateVotes={senateVoteModelData as VoteModelRow[]}
+            houseStateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
           />
         )}
         {tab === 'senate' && (

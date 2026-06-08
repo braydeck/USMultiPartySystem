@@ -155,6 +155,13 @@ export interface PrimaryStateWinner {
   shares: Record<string, number>;
 }
 
+export interface PrimaryStageShares {
+  stateAbbr: string;
+  pod: string;
+  nRespondents: number;
+  stages: Record<string, { shares: Record<string, number>; exhausted: number }>;
+}
+
 export interface HouseStateEntry {
   stateAbbr: string;
   pluralityParty: string;
@@ -217,6 +224,7 @@ export interface CondorcetMatchup {
 export interface PresidentialStateWinner {
   stateAbbr: string;
   winner: string;
+  condorcetWinner: string;
   pod: string;
   nRespondents: number;
   shares: Record<string, number>;
