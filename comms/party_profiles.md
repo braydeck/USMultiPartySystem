@@ -1,35 +1,55 @@
 # American Political Party Profiles
 
-*A guide to the 23 political types in a proportional representation simulation based on CES 2024 survey data (N=45,707)*
+*A guide to the political types in a proportional representation simulation based on CES 2024 survey data (N=45,707)*
 
 ---
 
 ## Introduction
 
-This document profiles the political parties and coalition types that emerge when you run American survey data through a proportional representation system. The underlying data comes from the 2024 Cooperative Election Study, one of the largest academic surveys of American political opinion, with responses from over 45,000 adults weighted to match the national population. These parties were not invented — they were discovered. Researchers applied clustering algorithms to how Americans actually answered 172 policy and demographic questions, and the nine parties described below are the natural groupings that fell out. The question this project asks is simple: if Americans could vote for a party that actually matched their views, what would the map look like?
+This document profiles the political parties and candidate types that emerge when you run American survey data through a proportional representation system. The underlying data comes from the 2024 Cooperative Election Study, one of the largest academic surveys of American political opinion, with responses from over 45,000 adults weighted to match the national population. These parties were not invented — they were discovered. Researchers applied clustering algorithms to how Americans actually answered 172 policy and demographic questions, and the nine parties described below are the natural groupings that fell out. The question this project asks is simple: if Americans could vote for a party that actually matched their views, what would the map look like?
 
 Five underlying dimensions replace the single left-right axis that dominates American political conversation. The first is **Security & Order** — whether someone wants more police, more border enforcement, and more surveillance. The second is **Electoral Skepticism** — whether someone believes American elections are run fairly. The third is **Government Distrust** — general low trust in federal and state institutions (this dimension turns out to be nearly identical across all winning parties and does not differentiate them). The fourth is **Religious Traditionalism** — the weight someone gives to church attendance, traditional views on abortion, and traditional views on marriage. The fifth is **Populist Conservatism** — the cluster of attitudes around immigration restriction, fiscal conservatism, and racial traditionalism that defines the populist right. Some party profiles look contradictory at first glance. They usually stop looking contradictory once you see all five dimensions at once.
 
 No party holds a majority. The simulation allocates 873 total seats across the House and Senate, and the three largest parties — Social Democrat (166 seats, 19%), Conservative (164 seats, 18.8%), and Solidarity (160 seats, 18.3%) — collectively hold just over half. Every legislative majority requires coalition-building across parties that disagree on at least two or three fundamental issues. That is the design. The system forces the negotiation that the current two-party structure conceals behind partisan loyalty.
 
-These parties do not map cleanly onto Democrat or Republican. The Reform Party supports raising the corporate tax rate above what most Democrats have managed to pass. Solidarity has near-MAGA-level distrust of elections but supports labor unions, DACA, and opposes increased police funding. The Liberal Party supports universal background checks and has the highest gun ownership rate of any left-leaning party. The Center Party voted for Trump by a plurality (41.9% Trump, 33.2% Biden) — yet it is the most trusting of elections of any party in the entire system. The coalitions are real. They are just new.
+### Two Candidate Fields
+
+The simulation tests two different ways candidates might emerge in a multi-party system:
+
+**The crossover field** puts 37 candidates into the race: 9 who run on the pure party platform, plus 28 *crossover candidates* — politicians from one party who break from their base on a single ideological dimension. A crossover candidate is defined by a shift on one of three axes: Security & Order (tougher or softer on policing and enforcement), Anti-Establishment (more or less institutional distrust), or Populist Conservatism (more or less immigration-restrictionist). The result is candidates like "a Solidarity senator who runs tougher on security" or "a Social Democrat who softens on enforcement" — the kind of politicians who exist in every real legislature. Crossover candidates test whether voters reward ideological flexibility.
+
+**The pure partisan field** puts 27 candidates into the race: 3 per party, all running on the identical party platform. No one breaks from their base on any dimension. This tests the structural effect of proportional voting alone — what happens when parties compete as monoliths.
+
+Each field is then counted two ways: **Instant Runoff Voting (IRV)**, which eliminates the last-place candidate each round and redistributes their votes until someone crosses 50%; and **Condorcet** (ranked pairs), which finds the candidate who would beat every other candidate in a head-to-head matchup. These two methods often produce different winners because they reward different things — IRV rewards first-choice accumulation, Condorcet rewards broad acceptability. The combination of two fields and two methods produces four scenarios, and the results diverge in ways that matter.
 
 ---
 
 ## The Presidency
 
-**IRV and Condorcet produce different presidents — but they are nearly identical candidates.**
+**Solidarity wins the presidency in three of four scenarios — but a different kind of Solidarity each time.**
 
-Under Instant Runoff Voting, the winner is **CON/SD** (50.43% vs. CON/STY 49.57% in the final round): a Conservative whose coalition must also speak to Social Democrat voters. Under Ranked-Pairs (Condorcet), the winner is **SD/CON**: a Social Democrat whose coalition must speak to Conservative voters. SD/CON beats CON/SD in a head-to-head matchup by 50.49% to 49.51% — a margin of 223 votes out of 45,000. The two candidates sit at nearly the same position in factor space; the difference is which party claims the dominant identity on the ticket.
+| Scenario | Winner | Final margin |
+|----------|--------|-------------|
+| Crossover IRV | **STY_hi_so** (Solidarity, tough on security) | 60.3% vs. SD_lo_ae 39.7% |
+| Crossover Condorcet | **STY_hi_so** (same candidate) | Beats all opponents; closest: SD_lo_ae at 39.7% |
+| Pure partisan IRV | **SD_1** (Social Democrat) | 54.4% vs. CON_1 45.6% |
+| Pure partisan Condorcet | **STY_1** (Solidarity, pure) | Beats all opponents; closest: SD_1 at 40.9% |
 
-The divergence illustrates a structural property of the two methods. IRV rewards first-choice accumulation: CON/SD, running with the Conservative label leading, attracts more first-choice votes from the CON base and survives elimination rounds until it faces CON/STY in the final. Ranked-Pairs rewards global head-to-head performance: SD/CON, with the slightly more centrist SD-leading identity, wins marginally more pairwise contests across the full field. The result is two different presidents who would govern almost identically.
+In the crossover field, both methods converge on the same president: a Solidarity candidate who breaks from the party base by running tougher on security. STY_hi_so's factor profile shifts Security & Order from the base STY position of −0.45 to −0.27 — still left of center on enforcement, but meaningfully less anti-police than the median Solidarity voter. This is the Solidarity candidate who can credibly promise working-class economic policy while also promising not to defund anyone's local police department. In the final IRV round, STY_hi_so defeats SD_lo_ae (a Social Democrat who softens on enforcement) by 60–40 after absorbing transfers from eliminated Conservative and Reform voters who prefer any candidate with security credibility over a pure civil-libertarian Social Democrat.
 
-Both CON/SD and SD/CON sit at the genuine cross-aisle midpoint of the factor space, slightly conservative on Security & Order, trusting of elections, moderately religious, and near-zero on Populist Conservatism. In practice either president signs increased border patrol funding, asylum denial at the border, extension of the 2017 tax structure, universal background checks, the $150B infrastructure bill, and permanent DACA reform. Either vetoes outright ACA repeal — the SD coalition partner cannot support dismantling coverage for tens of millions — and declines to sign the post-9/11 surveillance renewal or the gas stove ban. Conservatives call the DACA signature a betrayal; progressives call the border enforcement a capitulation. The multi-party arithmetic calls it the only governing position with majority support. The legislative vote model below uses **CON/SD** (the IRV winner) as the reference president for bill-signing outcomes.
+In the pure partisan field, the two methods diverge. IRV elects a **Social Democrat** — SD_1 wins the final round 54.4% to 45.6% against CON_1 after Solidarity is eliminated in round 3 and its transfers split roughly evenly. Condorcet elects a **pure Solidarity partisan** — STY_1 beats every other candidate in head-to-head matchups, including SD_1 by a margin of 18 points. The divergence illustrates a structural property: IRV penalizes candidates who aren't many voters' first choice (STY_1 starts in third at 18.4%) even when those candidates would beat everyone one-on-one.
 
-**CON/SD factor profile:** F1 +0.24 (security-oriented) · F2 −0.03 (trusts elections) · F4 −0.03 (moderate-secular) · F5 −0.01 (true cross-aisle centrist)
-**SD/CON factor profile:** F1 +0.15 · F2 −0.03 · F4 −0.07 · F5 −0.08 (slightly more center-left across all dimensions)
+**What each president signs and vetoes:**
 
-**Pure-party scenario:** When candidates are restricted to pure single-party nominees — no coalition blends — both methods converge on the same president: **Solidarity (STY)**. STY wins as the spatial median of a nine-party field. Under IRV, LIB is eliminated first, then CON, then SD, leaving STY to prevail over CTR 50.54% to 49.46% in the final round. Under Ranked-Pairs, STY is also the winner. The STY president signs progressive economic measures, Medicaid expansion, infrastructure, and DACA, while vetoing immigration restriction bills and tax-cut extensions. The three scenarios — mixed IRV, mixed Condorcet, and pure-party — all produce different presidents, which illustrates how much both the candidate field structure and the counting method matter before a single governing vote is cast.
+The three presidents — STY_hi_so, SD_1, and STY_1 — produce meaningfully different legislative records despite all sitting left of center.
+
+**STY_hi_so** (crossover president) governs as a working-class centrist with a security edge. Signs the 2017 tax cut extension, border enforcement, fossil fuel production, the gender transition ban for minors, parental consent for school pronoun changes, and school vouchers. Vetoes the corporate tax hike (47% coalition support), the congressional abortion access protection (48%), and federal same-sex marriage recognition (48.5%) — all measures where the "tough on security" Solidarity coalition splits just below the 50% threshold. This president represents the Solidarity voter who goes to church, supports unions, and doesn't want to defund the police.
+
+**SD_1** (pure IRV president) governs as a progressive economic reformer. Signs the corporate tax hike, abortion access protection, same-sex marriage recognition, and student loan forgiveness. Vetoes the 2017 tax cut extension (49% support), the gender transition ban for minors (49%), parental consent for school pronouns (46%), school vouchers (44%), fossil fuel production increases (36%), and Medicaid work requirements (45%). This president represents the educated, secular, union-household Social Democrat who views cultural conservatism as incompatible with the party's identity.
+
+**STY_1** (pure Condorcet president) splits the difference. Signs same-sex marriage (54%), the gender transition ban (60%), school vouchers (61%), abortion access protection (53%), and the tax cut extension (61%). Vetoes police expansion (35%), Medicaid work requirements (49%), asylum denial (40%), and the TikTok ban (41%). This president — the pure Solidarity partisan — is the most centrist of the three, signing measures from both sides that clear 50% in the Solidarity coalition.
+
+The pattern: where STY_hi_so and SD_1 disagree on every cultural issue, STY_1 governs the middle. The crossover field produces a president with a sharper ideological profile than the pure partisan field's Condorcet winner.
 
 ---
 
@@ -57,7 +77,7 @@ Progressives are the smallest party in the system, but they are not an outlier �
 - Only 23.8% say national elections are run unfairly — the most institutionally trusting of any far-left party. Despite holding radical positions on nearly every policy issue, Progressives show a deep commitment to the democratic process itself, distinguishing them sharply from DSA, where electoral skepticism runs twice as high.
 - Despite averaging age 41 and being 28.1% LGBTQ+, PRG is 53% male — a reminder that progressive politics draws heavily from educated men alongside its more visible feminist and queer constituencies.
 
-**Senate seats:** 0 as a pure party in all four scenarios. PRG's support is too concentrated in a handful of urban House districts to command a state-level plurality. Senate presence comes only through the PRG/DSA coalition blend, which captures Vermont under mixed-scenario IRV.
+**Senate seats:** 0 in all four scenarios. PRG's support is too concentrated in a handful of urban House districts to command a state-level plurality under any method or candidate field.
 
 ---
 
@@ -81,7 +101,7 @@ The Democratic Socialists are ideologically close to Progressives on economic an
 - 52.7% say national elections are not run fairly — the highest of any explicitly left-wing party, putting DSA in the same bracket as Nationalist (63.1%) and Reform (61.6%). Electoral distrust is not a right-wing monopoly; for a party that is 38.6% LGBTQ+ and 34.1% non-white, there are independent reasons to doubt whether the system delivers equal treatment.
 - DSA has the lowest marriage rate of any party (29.0%) and among the highest non-voting rates in 2020 (27.5% did not vote), a combination that reflects a young, non-traditional left base that remains substantially disengaged from electoral participation despite deep political conviction.
 
-**Senate seats:** 0 as a pure party in all four scenarios. Like PRG, DSA's vote share never commands a state-level plurality alone; its senate presence comes only through the PRG/DSA coalition blend in Vermont under mixed-scenario IRV.
+**Senate seats:** 0 in all four scenarios. Like PRG, DSA's vote share never commands a state-level plurality; its support is too young, too urban, and too dispersed.
 
 ---
 
@@ -105,7 +125,7 @@ Liberals are the third-largest left-leaning party, and in many ways the most sur
 - 86.5% support universal background checks, and 17.0% personally own guns — the most gun-owning left-leaning party in the system by a wide margin, and notably higher than PRG (11.4%) or DSA (9.8%). Their libertarianism is real but it cuts both ways: they trust individuals with firearms while also trusting elections (only 24.2% say national elections are unfair, the lowest of any non-CTR party).
 - Only 29.9% support gender-transition surgery for minors — far below the PRG (68%) and DSA (57.5%) levels — reflecting a genuine social conservatism on gender issues that coexists with broadly progressive economics.
 
-**Senate seats — mixed (coalition blends allowed):** Condorcet 1 *(Rhode Island)* · IRV 1 *(Rhode Island)* · **Pure-party:** Condorcet 0 · IRV 0. LIB's civil-libertarian profile wins Rhode Island as a pure senator in both mixed-scenario methods but cannot command a plurality in any state once blended candidates are removed from the field.
+**Senate seats:** Pure partisan IRV: 1 *(Vermont)*. All other scenarios: 0. LIB's civil-libertarian profile wins Vermont under IRV when the elimination order favors its second-choice accumulation, but it cannot command a plurality in any state under Condorcet or in the crossover field where axis-shifted SD and STY candidates absorb its voters.
 
 ---
 
@@ -129,7 +149,7 @@ Social Democrats are the largest party in the system and, in many ways, the most
 - 43.2% support increasing border patrols — nearly half — reflecting a working-class base more ambivalent on immigration than a "liberal" label would suggest. SD simultaneously supports DACA at 89.5% while backing border enforcement at nearly the same rate as Center (65.9%), a combination that makes sense as a labor-protection rather than nativist position.
 - SD has the highest combined union affiliation of any party — 6.4% currently active, with an additional 15.8% who are former union members (22.2% total union household experience) — yet only 4.3% voted Trump in 2020. SD's labor identity is real and shapes its economic politics even among members who no longer hold active membership.
 
-**Senate seats — mixed (coalition blends allowed):** Condorcet 6 *(IL, MA, MI, OR, SC, WA)* · IRV 6 *(IL, MA, MI, OR, WA, WI)* · **Pure-party:** Condorcet 16 *(AK, CA, CT, DE, IL, KS, MD, MA, MS, MT, NJ, NM, OR, PA, RI, WA)* · IRV 14 *(AK, CA, CT, DE, FL, IL, KS, MD, MA, NM, OR, PA, RI, WA)*. SD is the dominant party in the pure-party scenario, nearly tripling its seat count when coalition blends are removed and the electorate sorts to its spatial center.
+**Senate seats:** SD is the dominant senate party under IRV and competitive under Condorcet. Crossover IRV: 27 seats (the largest total in any scenario, winning through axis-shifted variants that soften on security or tone down anti-establishment rhetoric). Crossover Condorcet: 11 seats. Pure partisan IRV: 26 seats. Pure partisan Condorcet: 15 seats. SD's strength under IRV reflects its second-choice appeal — voters who rank SD second after their preferred party is eliminated.
 
 ---
 
@@ -153,7 +173,7 @@ Solidarity is the most politically disorienting party in the system, and arguabl
 - Despite 55.8% believing elections aren't fair — a rate matching Nationalist (63.1%) and Reform (61.6%) — STY voted 88% for non-Trump candidates in 2020 and has a 44% non-voting rate. Only 16.3% voted Trump. STY's electoral skepticism comes from the left, not the right: for a majority non-white, lowest-income, female-majority party, distrust of institutions reflects lived experience of exclusion rather than election denialism.
 - STY is the only party that combines majority non-white membership, majority female membership, the lowest income in the system, and 37.7% born-again evangelical identity — a demographic profile that fits no existing political coalition and explains why they are estranged from both parties rather than firmly attached to either.
 
-**Senate seats — mixed (coalition blends allowed):** Condorcet 5 *(AZ, UT, VT, WI, WY)* · IRV 2 *(UT, WY)* · **Pure-party:** Condorcet 10 *(CO, GA, LA, ME, MI, NV, NH, NY, SC, TX)* · IRV 8 *(CO, LA, MI, MN, NV, NH, SC, WY)*. STY's seat count doubles in the pure-party scenario as its spatial median position prevails across a wider set of states once coalition blends are no longer available to absorb its voters.
+**Senate seats:** STY dominates under Condorcet — where broad head-to-head acceptability matters most — and competes strongly under IRV. Crossover Condorcet: 34 seats (the largest total in any scenario, overwhelmingly through the establishment-friendly STY_lo_ae variant). Crossover IRV: 19 seats. Pure partisan Condorcet: 33 seats. Pure partisan IRV: 11 seats. STY's Condorcet dominance reflects its position as the spatial median of the multi-party field — the party that the most other voters can tolerate even if it isn't their first choice.
 
 ---
 
@@ -177,13 +197,13 @@ The Center Party occupies a genuinely unusual political position: moderate on al
 - CTR has the lowest electoral skepticism in the entire system — only 17.5% say national elections are not run fairly, lower even than Social Democrat (19.7%). Yet 41.9% voted for Trump in 2020 and only 33.2% for Biden, making CTR the most genuinely swing-right party in the system, not the "reluctant Democrat" the two-party framing would suggest. They lean Trump but trust the elections Biden won — a combination that is genuinely unusual.
 - Despite being 43% born-again evangelical and favoring stricter abortion limits (median 16 weeks), 77.7% support federal recognition of same-sex marriage — suggesting a religious conservatism focused on reproductive rather than sexual ethics.
 
-**Senate seats — mixed (coalition blends allowed):** Condorcet 1 *(AK)* · IRV 2 *(AK, SC)* · **Pure-party:** Condorcet 15 *(AZ, AR, DC, FL, HI, ID, IA, MN, MO, NE, TN, UT, VT, WV, WY)* · IRV 13 *(AZ, AR, DC, HI, ID, IA, MS, NE, NY, TN, UT, VT, WV)*. CTR's moderate, trusting profile sits at the spatial center of the pure-party field, making it the second-largest senate party in both pure scenarios despite winning only 1–2 seats in the mixed pipeline where coalition blends absorb its voters.
+**Senate seats:** CTR rarely wins outright but its moderate position makes it a kingmaker in coalitions. Crossover IRV: 1 seat *(South Dakota — via CTR_hi_pc, a Center candidate who runs more populist-conservative)*. Pure partisan Condorcet: 1 seat *(Wyoming)*. All other scenarios: 0. CTR's spatial center position means other parties' crossover candidates absorb its voters before CTR itself can win.
 
 ---
 
 ### Conservative (CON) — 164 House Seats (18.8%)
 
-Conservatives are the second-largest party and the dominant force on the center-right. They are high on Security & Order and Religious Traditionalism, low on Electoral Skepticism, and sitting at a moderate +0.46 on Populist Conservatism — meaningfully right but not at the populist extreme. They are older, whiter, and more married than the national average, with above-average incomes, and near gender parity (49% male). Their politics are recognizable as the Eisenhower-to-Reagan Republican tradition: law enforcement, border security, religious values, low taxes, and a belief that American institutions basically work. They are hawkish on immigration and police funding, opposed to most climate regulation, and split nearly in half on some social issues. What distinguishes them from NAT is not just intensity but institutional orientation — Conservatives trust elections and, to a striking degree, trust background checks.
+Conservatives are the second-largest party and the dominant force on the center-right. They are high on Security & Order and Religious Traditionalism, low on Electoral Skepticism, and sitting at a moderate +0.44 on Populist Conservatism — meaningfully right but not at the populist extreme. They are older, whiter, and more married than the national average, with above-average incomes, and near gender parity (49% male). Their politics are recognizable as the Eisenhower-to-Reagan Republican tradition: law enforcement, border security, religious values, low taxes, and a belief that American institutions basically work. They are hawkish on immigration and police funding, opposed to most climate regulation, and split nearly in half on some social issues. What distinguishes them from NAT is not just intensity but institutional orientation — Conservatives trust elections and, to a striking degree, trust background checks.
 
 **Who they are:**
 - Median age 59 · 49.0% male · 78.4% white · 30.3% 4-yr+ degree · 20.5% city
@@ -201,7 +221,7 @@ Conservatives are the second-largest party and the dominant force on the center-
 - 72.3% of Conservatives support universal background checks on gun sales — nearly three in four. This is the signature cross-cutting finding for CON: a party that is 39.2% gun-owning and 91.2% pro-border-patrol nonetheless supports a policy their partisan analog in the two-party system has blocked for decades. Their gun politics are about ownership and rights, not about blocking all regulation.
 - Only 31.7% say national elections are unfair — nearly identical to the overall national average — reflecting an institutional conservatism that CON shares with CTR but not with REF (61.6%) or NAT (63.1%).
 
-**Senate seats — mixed (coalition blends allowed):** Condorcet 3 *(LA, OK, TN)* · IRV 3 *(LA, OK, TN)* · **Pure-party:** Condorcet 9 *(AL, IN, KY, NC, OH, OK, SD, VA, WI)* · IRV 12 *(AL, GA, IN, KY, MO, MT, NJ, OH, SD, TX, VA, WI)*. CON's seat count triples in the pure-party scenario, and unusually it gains more seats under IRV than Condorcet — reflecting that CON accumulates first-choice votes in contested states more effectively than it wins head-to-head matchups against the centrist field.
+**Senate seats:** CON wins few seats under Condorcet but breaks through under IRV — especially in the pure partisan field where its strong first-choice base survives elimination rounds. Crossover Condorcet: 1 seat *(Tennessee — via CON_lo_pc, a Conservative softened on populism)*. Crossover IRV: 3 seats *(Idaho via CON_hi_pc, Oklahoma via CON_lo_ae, Wyoming via base CON)*. Pure partisan Condorcet: 1 seat *(Tennessee)*. Pure partisan IRV: 11 seats *(Arkansas, Idaho, Indiana, Iowa, Kentucky, Michigan, Montana, North Carolina, North Dakota, Ohio, Tennessee)*. The IRV–Condorcet gap is dramatic: CON accumulates first-choice votes in contested states but loses head-to-head matchups to the centrist STY and SD candidates who attract broader second-choice support.
 
 ---
 
@@ -225,7 +245,7 @@ Reform is the Tea Party and MAGA populism stripped of the Republican establishme
 - 26.4% of Reform members support raising the corporate tax rate — higher than what most centrist Democrats manage in Republican-leaning districts, and notable for a party with near-universal immigration restriction. Reform is economically populist, not pro-business: they want the corporate elite taxed even as they support the rest of the conservative policy agenda.
 - 76.7% support universal background checks despite being the most immigration-restrictionist party outside of NAT — suggesting gun regulation opposition in the two-party system reflects partisan packaging more than genuine voter preference.
 
-**Senate seats — mixed (coalition blends allowed):** Condorcet 0 · IRV 0 · **Pure-party:** Condorcet 1 *(ND)* · IRV 4 *(ME, NC, ND, OK)*. REF wins no senate seats in the mixed pipeline — its voters are absorbed into CON/REF blends in states where it runs competitively. In the pure-party scenario REF breaks through, particularly under IRV where its first-choice plurality in low-competition states survives elimination rounds.
+**Senate seats:** REF wins seats primarily through its establishment-friendly crossover variant (REF_lo_ae), which tones down anti-establishment rhetoric enough to attract transfers from moderate voters. Crossover Condorcet: 5 seats *(Idaho, North Dakota, Oklahoma, South Dakota, Wyoming)*. Crossover IRV: 1 seat *(North Dakota)*. Pure partisan Condorcet: 1 seat *(Idaho)*. Pure partisan IRV: 2 seats *(Arizona, Wyoming)*. REF's Condorcet success in the crossover field reflects a surprising dynamic: when a Reform candidate dials back institutional distrust, the resulting profile — fiscally populist, immigration-restrictionist, but trusting enough of elections to seem governable — commands a plurality in deeply conservative states.
 
 ---
 
@@ -249,471 +269,373 @@ The Nationalist Party is the populist far-right pole of the system. At +1.51 on 
 - Despite being the most evangelical party (47.7% born-again) and the most rural (15.9% city), NAT ranks second in household income — a profile of prosperous older white rural Christians, not the economically precarious working class its anti-establishment rhetoric might suggest. NAT is more college-educated (39.3%) than Conservative (30.3%) or Reform (25.8%), and their near-universal support for the 2017 tax cuts aligns with their actual economic position rather than contradicting it.
 - 63.3% support universal background checks — a majority, even in the most nativist and gun-owning party in the system.
 
-**Senate seats:** 0 in all four scenarios. NAT's votes are absorbed into CON/NAT-adjacent blends in the mixed pipeline, and in the pure-party scenario its extreme F5 position makes it a non-plurality candidate in every state — including the rural states where it has the strongest House presence.
+**Senate seats:** 0 in all four scenarios. NAT's extreme F5 position (+1.51) places it too far from the median voter to win any state-level plurality — even in the most conservative states, where crossover Conservative or Reform candidates absorb its voters by running closer to the center.
 
 ---
 
-## Part II: Senate Coalition Types
+## Part II: The Crossover Senate
 
-Senate candidates in this simulation emerge when two voter clusters co-occur frequently enough within a state that a politician must credibly appeal to both simultaneously. A CON/SD senator represents a state where enough voters hold a mixture of conservative and social-democratic views that no pure-party candidate can win. The first-named party is the dominant orientation, carrying roughly 55–67% of the weight; the second names the constituency that pulls the candidate toward positions their base party would not normally hold. Each blend type is listed with seat counts under both the IRV and Condorcet runoff methods; the two methods produce meaningfully different outcomes in 9 states. Several states also elect pure single-party senators — those are listed at the end of this section. The presidency (CON/SD) is addressed in its own section above.
+When candidates can break from their party on a single ideological dimension, the Senate map transforms. Instead of nine parties competing as monoliths, 37 candidates compete — and the winners are overwhelmingly crossover types who figured out which dimension to shift on. The first-named party is the base identity; the axis shift describes the direction they moved to win.
 
----
-
-### SD/STY — IRV: 8 seats · Condorcet: 8 seats
-
-*IRV: California, DC, Hawaii, Iowa, Maryland, Minnesota, Nevada, New York*
-*Condorcet: California, DC, Hawaii, Iowa, Maryland, Minnesota, Nevada, New York*
-
-The SD/STY senator represents the dominant coalitional type on the center-left: a Social Democrat whose base is large enough that they must also speak to Solidarity voters — more working-class, more religiously observant, more skeptical that elections are fair. Compared to a pure SD candidate, the SD/STY blend is noticeably less likely to support same-sex marriage recognition (the biggest policy shift), more skeptical of elections (17 points of range shift toward distrust), and more ambivalent on abortion restrictions. Economically, the blend moves slightly toward fiscal caution — less support for the full $150B infrastructure package, slightly less support for upper-bracket tax increases. What remains stable is the core: immigration reform, labor support, and climate policy. This is the senator who wins California or Minnesota by holding together educated liberals and working-class voters of color.
-
-The surprising combination: despite moving toward Solidarity on nearly every cultural axis, the SD/STY blend is *more secular* than pure SD — attendance frequency shifts down — because STY's high Black church attendance is paired with more political independence from church doctrine.
-
-**Factor profile:** Low F1 (anti-enforcement), Medium-Low F2 (modest electoral skepticism), Low F4 (secular-leaning), Low F5 (progressive-populist).
+Three axes produce all the variation: **Security & Order** (tougher or softer on policing and enforcement), **Anti-Establishment** (more or less institutional distrust), and **Populist Conservatism** (more or less immigration-restrictionist and racially traditional). A candidate shifts on only one axis at a time — they keep their party's position on everything else.
 
 ---
 
-### CON/SD — IRV: 6 seats · Condorcet: 6 seats
+### STY_lo_ae — The Establishment Solidarity Senator
+**Condorcet: 20 seats · IRV: 10 seats**
 
-*IRV: Colorado, Georgia, Nebraska, New Jersey, Pennsylvania, Virginia*
-*Condorcet: Colorado, Georgia, Nebraska, New Jersey, Pennsylvania, Virginia*
+*A Solidarity senator who tones down anti-establishment rhetoric and signals trust in institutions.*
 
-The CON/SD senator is the most counterintuitive type in the system: a Conservative who must also speak to Social Democrats in a purple-to-blue-leaning state. The blend moves CON dramatically toward SD on police funding (the largest single shift: +30.5% of range toward more police skepticism), same-sex marriage recognition (CON moves −29 points toward SD's near-universal support), church attendance, abortion timing, and Dreamer support. Electoral skepticism stays essentially unchanged — neither CON nor SD is particularly skeptical about elections, so the blend inherits that stability. The result is a Conservative who sounds like a mainstream Republican on immigration and taxes but who breaks sharply with the right on social and policing issues. This is the senator who can win Pennsylvania or Virginia by running culturally conservative on economics and culturally moderate on social issues.
+This is the most successful crossover type in the system. By shifting from STY's base Electoral Skepticism of +0.66 down to +0.51, this candidate keeps Solidarity's working-class economics, its skepticism of police expansion, and its multi-racial coalition — while dropping just enough institutional distrust to become broadly acceptable in head-to-head matchups against every other candidate. Under Condorcet, STY_lo_ae wins 20 states spanning every region: Alabama, Alaska, Arkansas, California, Colorado, Indiana, Kentucky, Michigan, Montana, Nebraska, New Jersey, New Mexico, New York, North Carolina, Ohio, Oregon, Texas, Virginia, Washington, and Wisconsin. Under IRV, where first-choice intensity matters more, the count drops to 10 as SD variants absorb some of these states.
 
-The surprising combination: CON/SD is the most significant cross-ideological blend in the system — moving a full 29 points of range on same-sex marriage and 30 points on police funding while keeping the core of Conservative fiscal policy largely intact.
+**Factor profile:** F1 −0.45 (anti-enforcement) · F2 +0.51 (mildly skeptical) · F4 +0.17 (moderate religious) · F5 −0.06 (near-center)
 
-**Factor profile:** Medium F1 (moderate on security), Medium F2 (trusts elections), Medium F4 (moderate religious traditionalism), Medium F5 (near-center on populism).
-
----
-
-### CON/STY — IRV: 4 seats · Condorcet: 4 seats
-
-*IRV: Alabama, Arkansas, Connecticut, New Mexico*
-*Condorcet: Alabama, Arkansas, Connecticut, New Mexico*
-
-The CON/STY senator holds the dominant center-right coalition in Southern and border states: a Conservative who must also speak to Solidarity voters — the working-class, electorally skeptical, Black-and-rural constituency that makes up a substantial part of the Southern electorate. Compared to pure CON, this blend is more skeptical of elections (the second-largest shift, +22.7% on local election fairness), more supportive of police skepticism, more attentive to immigration enforcement (moving slightly toward STY's ambivalence on asylum), and more focused on economic anxiety. The blend is meaningfully less evangelical than pure CON, reflecting Solidarity's more secular working-class base. This is the senator who wins Alabama or Connecticut by sounding tough on immigration and crime while acknowledging that the system has not always worked fairly for everyone.
-
-The surprising combination: CON/STY registers the highest electoral skepticism shift of any CON-dominant blend, pushing a Conservative senator toward a Solidarity-level distrust of election fairness without moving at all toward left economics — a posture that mirrors Trump-era Republican rhetoric but comes from a different demographic base.
-
-**Factor profile:** High F1 (security-oriented), Medium F2 (modest electoral skepticism), Medium F4 (moderate religious traditionalism), Medium F5 (center-right).
+**Why it works:** Condorcet rewards the candidate who offends the fewest voters. STY_lo_ae is still a Solidarity candidate — still working-class, still pro-Medicaid, still anti-police-expansion — but the establishment-friendliness means center-right voters rank it ahead of more extreme options. When every head-to-head matchup is resolved, the candidate nobody hates beats the candidates half the electorate loves and half despises.
 
 ---
 
-### STY/SD — IRV: 1 seat · Condorcet: 0 seats
+### SD_lo_so — The Civil Libertarian Social Democrat
+**Condorcet: 1 seat · IRV: 11 seats**
 
-*IRV: Arizona*
-*Condorcet: none — Arizona elects a pure STY senator under Condorcet*
+*A Social Democrat who runs softer on security — more skeptical of policing, less supportive of enforcement.*
 
-The STY/SD senator is Solidarity-dominant but pulled toward Social Democrat — representing a state where the working-class populist base is larger than the educated progressive base. The blend's most significant shifts from pure STY are toward less electoral skepticism (election distrust drops as SD's institutional trust moderates the blend) and toward more support for spending programs. This is a Solidarity senator who had to earn Social Democrat votes by softening on abortion, spending more on infrastructure, and reducing their anti-establishment rhetoric. What stays fixed is the economic core: labor support, immigration ambivalence, police skepticism. Arizona produces this type under IRV because second-choice transfers from the SD base accumulate toward the STY candidate; under Condorcet, the head-to-head matchup advantage goes to a pure STY nominee who commands broader cross-party appeal.
+SD_lo_so shifts Security & Order from SD's base of −0.41 down to −0.60, deepening the civil-libertarian streak while keeping SD's progressive economics, institutional trust, and secular profile. Under IRV, this candidate dominates the blue-state corridor: California, Colorado, Illinois, Minnesota, New Hampshire, New Jersey, New Mexico, New York, Oregon, Pennsylvania, and Washington. Under Condorcet, it wins only New Hampshire — the rest of those states go to the broadly-acceptable STY_lo_ae instead.
 
-The surprising combination: STY/SD is *more* religious than pure STY, reflecting the high Black church attendance within the Social Democrat constituency that pulls the blend back toward religious traditionalism even as it moves left on economic and electoral issues.
+**Factor profile:** F1 −0.60 (strongly anti-enforcement) · F2 −0.03 (trusts elections) · F4 −0.35 (secular) · F5 −0.56 (progressive)
 
-**Factor profile:** Low F1 (anti-enforcement), Medium F2 (moderate electoral skepticism), Medium F4 (moderate religious traditionalism), Low F5 (progressive-leaning).
-
----
-
-### CON/CTR — IRV: 6 seats · Condorcet: 5 seats
-
-*IRV: Florida, Idaho, Kentucky, Mississippi, North Carolina, South Dakota*
-*Condorcet: Florida, Kentucky, North Carolina, Ohio, South Dakota*
-
-The CON/CTR senator is the institutional center-right — a Conservative who must also speak to Center Party voters, who are the most trusting of elections of any constituency in the system. The defining feature of this blend is what disappears: compared to pure CON, the CON/CTR senator is dramatically less likely to say the government is untrustworthy, less skeptical of elections (−18 points on fairness), and more likely to support police funding (the CTR base brings its law-and-order sensibility). The result is a Conservative who sounds more mainstream, more institutionalist, and less populist — a Midwestern or Southern senator who will oppose Medicaid expansion and EPA regulation but will not say the 2020 election was stolen. Under IRV, second-choice transfers from CTR voters push the CON/CTR blend into additional states; the Condorcet method favors a slightly different set by surfacing head-to-head matchup winners.
-
-The surprising combination: the top differentiators for this blend are entirely about trust — federal government trust, state government trust, election fairness — not about policy substance. CON/CTR senators look almost identical to pure CON on immigration, abortion, and economics, but they sound fundamentally different on whether the system works.
-
-**Factor profile:** High F1 (security-oriented), Low F2 (trusts elections), Medium F4 (moderate religious traditionalism), High F5 (center-right populist).
+**Why it works under IRV:** In states with educated, secular, progressive-leaning electorates, SD_lo_so accumulates first-choice votes from the LIB and PRG bases whose members rank it first over the base SD candidate. As more conservative candidates are eliminated, SD_lo_so's transfers hold. The civil-libertarian shift is a signal: *I am the most anti-surveillance, anti-enforcement option you can elect who also has a realistic chance of winning.*
 
 ---
 
-### CON/REF — IRV: 5 seats · Condorcet: 6 seats
+### SD_lo_ae — The Establishment Social Democrat
+**Condorcet: 4 seats · IRV: 10 seats**
 
-*IRV: Indiana, Kansas, Missouri, Montana, Ohio*
-*Condorcet: Idaho, Indiana, Kansas, Missouri, Mississippi, Montana*
+*A Social Democrat who signals institutional trust and tones down anti-establishment sentiment.*
 
-The CON/REF senator combines Conservative institutional conservatism with Reform's populist economic grievance and deep electoral skepticism. This is the blend that most closely resembles Trump-era Republicanism: high F1 (security and enforcement), elevated F2 (doubts about elections), strongly conservative on F5. Compared to pure CON, CON/REF moves substantially toward border hardness, immigration restriction, and concealed carry, while also absorbing Reform's greater sense of economic anxiety. Church attendance stays nearly identical. Electoral distrust increases meaningfully — this blend will express doubts about election integrity that pure CON would not. Indiana and Montana produce this type: states where the suburban Conservative base must be held together with the exurban Reform voter who feels left behind.
+SD_lo_ae shifts Electoral Skepticism from SD's base of −0.03 to −0.18 — a subtle move that makes the candidate even more trusting of elections than base SD. This resonates in states where the center-left electorate wants progressive economics without populist grievance. Under IRV, it wins: Arizona, Delaware, DC, Kansas, Maryland, Massachusetts, Michigan, Vermont, Virginia, and Wisconsin. Under Condorcet: DC, Illinois, Massachusetts, Vermont.
 
-The surprising combination: CON/REF sits at a notably higher F5 than CON alone, meaning the blend is more economically populist despite having a Conservative-dominant base — suggesting Reform voters who blend with CON push the ticket toward economic grievance rather than toward fiscal orthodoxy.
+**Factor profile:** F1 −0.41 (anti-enforcement) · F2 −0.18 (trusts elections) · F4 −0.35 (secular) · F5 −0.56 (progressive)
 
-**Factor profile:** High F1, Medium-High F2 (moderately skeptical), Medium F4, High F5 (populist-conservative).
-
----
-
-### SD/LIB — IRV: 1 seat · Condorcet: 2 seats
-
-*IRV: New Hampshire*
-*Condorcet: Maine, New Hampshire*
-
-The SD/LIB senator is the most institutionally trusting left-wing type in the system. SD/LIB combines Social Democrat's economic program with Liberal's deep trust in elections, skepticism of government surveillance, and civil libertarian streak. The dominant policy shifts from pure SD are all about institutional trust: election skepticism drops 26 points, state and local government distrust drops 24 points, and federal government distrust drops 14 points. The blend is slightly more permissive on abortion, slightly higher on income (reflecting LIB's professional-class skew), and almost unchanged on immigration. This senator wins in states where the educated liberal professional community is large enough to moderate the Social Democrat base's working-class skepticism. New Hampshire is a natural home; Maine reaches this blend under Condorcet when the head-to-head matchup advantage goes to the candidate most trusted across the center-left spectrum.
-
-The surprising combination: the defining feature of SD/LIB is not any policy shift but a wholesale change in the senator's relationship to institutions — moving from SD's mild ambivalence to LIB's pronounced confidence that elections are fair and government surveillance is the bigger threat.
-
-**Factor profile:** Low F1 (anti-enforcement), Low F2 (trusts elections strongly), Low F4 (secular), Very Low F5 (strongly progressive).
+**Why it works:** In states with large educated-professional populations (Massachusetts, Virginia, Maryland), the establishment-friendly Social Democrat wins by being the candidate most associated with institutional stability. Where SD_lo_so appeals to the libertarian left, SD_lo_ae appeals to the institutional left.
 
 ---
 
-### STY/REF — IRV: 1 seat · Condorcet: 1 seat
+### STY_hi_so — The Law-and-Order Solidarity Senator
+**Condorcet: 5 seats · IRV: 5 seats**
 
-*IRV: West Virginia*
-*Condorcet: West Virginia*
+*A Solidarity senator who breaks right on security — more pro-police, tougher on enforcement.*
 
-The STY/REF senator pairs Solidarity's working-class economics and deep electoral skepticism with Reform's immigration restrictionism and fiscal conservatism. The result is the highest F2 score of any left-leaning-dominant blend — electoral skepticism near the maximum — combined with a sharp rightward shift on immigration (opposing legal status for undocumented workers increases by 28 points, Dreamer opposition rises 27 points). The blend remains skeptical of police expansion, reflects above-average concern about inflation, and sits at lower concealed-carry support than pure REF. West Virginia is the natural home: an electorate with a significant working-class populist constituency that combines labor instincts with immigration ambivalence and a distrust of how elections are administered.
+STY_hi_so shifts Security & Order from STY's base of −0.45 to −0.27, moving meaningfully toward the center on policing while keeping everything else: the working-class identity, the electoral skepticism, the multi-racial base. This is the same candidate type that wins the presidency — and it wins senate seats in states where the conservative working class is large enough to reward a Solidarity politician willing to say "I support your local police department." States: Louisiana, Missouri, Nevada, South Carolina, and West Virginia under both methods; also Tennessee under IRV (replacing the Condorcet's CON_lo_pc winner).
 
-The surprising combination: STY/REF has higher F2 (electoral skepticism) than even the CON/REF blend — the most electorally distrustful senator type outside pure REF itself, despite having a Solidarity-dominant base that is pro-labor and opposed to police expansion.
+**Factor profile:** F1 −0.27 (moderate on enforcement) · F2 +0.66 (electorally skeptical) · F4 +0.17 (moderate religious) · F5 −0.06 (near-center)
 
-**Factor profile:** Medium F1 (moderate enforcement), Very High F2 (deeply skeptical of elections), Medium F4, High F5 (leans populist-conservative).
-
----
-
-### SD/CON — IRV: 1 seat · Condorcet: 1 seat
-
-*IRV: Delaware*
-*Condorcet: Delaware*
-
-The SD/CON senator is the mirror of CON/SD: Social Democrat-dominant but obligated to speak to Conservative voters in an unusual state configuration. The blend represents a center-left candidate who has absorbed Conservative views on police (dropping 33 points toward pro-police), asylum (dropping 29 points toward denial), and church attendance (dropping 31 points toward more frequent attendance). Electoral skepticism is essentially unchanged — neither SD nor CON is particularly skeptical, so the blend inherits their shared trust in institutions. Delaware is a small state where the SD coalition is large enough to anchor the ticket but where enough Conservative voters exist to require real accommodation on culture and policing.
-
-The surprising combination: SD/CON and CON/SD have nearly identical factor scores despite being ordered differently — they represent a genuinely centrist position that falls almost exactly between the two parent parties, and either parent can claim the senator depending on how the state's electorate leans.
-
-**Factor profile:** Medium F1 (moderate on security), Medium F2 (trusts elections), Medium F4 (moderate religious traditionalism), Near-zero F5 (true centrist).
+**Why it works:** In the Deep South and Appalachia, a pure Solidarity candidate's anti-police stance is disqualifying for enough voters to prevent a win. STY_hi_so makes one calculated concession — police and enforcement — while keeping the economic populism that animates Solidarity's base. The result: a senator who votes for Medicaid expansion and against ACA repeal, but who also votes for border funding and won't defund anyone's sheriff's department.
 
 ---
 
-### STY/CON — IRV: 1 seat · Condorcet: 1 seat
+### STY_lo_pc — The Progressive Solidarity Senator
+**Condorcet: 4 seats · IRV: 3 seats**
 
-*IRV: Texas*
-*Condorcet: Texas*
+*A Solidarity senator who softens on populist conservatism — more progressive on immigration and race.*
 
-The STY/CON senator represents the Southern cross-pressure type: a Solidarity-dominant senator who must speak to Conservative voters in a large state where the working-class multi-racial coalition anchors the ticket but the CON constituency is too large to ignore. Compared to pure STY, the blend moves toward police skepticism (−26.5% — less pro-police than pure STY, as CON's police skepticism moderates STY's), less skeptical of elections (−22 points), and more restrictionist on immigration. Texas's Black and Hispanic working-class majority produces a Solidarity base large enough to anchor the ticket, but the CON constituency requires movement toward immigration restriction and away from STY's most anti-establishment positions.
+STY_lo_pc shifts Populist Conservatism from STY's base of −0.06 down to −0.27, pulling the candidate leftward on immigration and racial attitudes while keeping Solidarity's working-class economics and institutional skepticism. States under Condorcet: Connecticut, Florida, Georgia, Hawaii. Under IRV: Florida, Hawaii, Mississippi.
 
-The surprising combination: STY/CON moves *away* from police support compared to pure STY, because the CON base — despite its general law-and-order lean — provides less police-expansion pressure than STY's working-class base already carries. The blend actually softens the pro-police stance.
+**Factor profile:** F1 −0.45 (anti-enforcement) · F2 +0.66 (electorally skeptical) · F4 +0.17 (moderate religious) · F5 −0.27 (progressive-leaning)
 
-**Factor profile:** Medium F1 (moderate enforcement), Medium F2 (moderate electoral skepticism), Medium F4, Medium F5 (center-right leaning).
-
----
-
-### REF/STY — IRV: 1 seat · Condorcet: 0 seats
-
-*IRV: Maine*
-*Condorcet: none — Maine elects an SD/LIB senator under Condorcet*
-
-REF/STY wins one seat under Instant Runoff Voting but zero under Condorcet. Maine's electorate contains a significant working-class populist constituency that combines labor instincts with immigration ambivalence and deep electoral distrust — enough first-preference support to survive IRV's elimination rounds. Under Condorcet, however, the head-to-head matchup advantage goes to the SD/LIB candidate, who is broadly acceptable across the center-left spectrum in a way that REF/STY is not. The blend is Reform-dominant but pulled toward Solidarity's working-class economics — high electoral skepticism, but with somewhat less immigration restriction and more attentiveness to economic precarity than pure REF.
-
-The surprising combination: REF/STY moves *away* from REF's anti-asylum, anti-immigration restrictionism when pulled toward STY — but maintains near-maximum electoral skepticism. The combination of high election distrust with moderated immigration restriction defines a voter type that feels the system is rigged economically, not just demographically.
-
-**Factor profile:** Medium F1, Very High F2 (near-maximum election skepticism), Medium F4, High F5 (populist-conservative).
+**Why it works:** In diverse states with large non-white working-class populations (Florida, Georgia, Hawaii), the base STY position is already close to the state median — but a slight leftward shift on race and immigration picks up enough additional minority voters to command a plurality. This is the Solidarity senator for states where the multi-racial coalition is the majority.
 
 ---
 
-### REF/SD — IRV: 0 seats · Condorcet: 1 seat
+### SD_hi_so — The Security-Minded Social Democrat
+**Condorcet: 5 seats · IRV: 1 seat**
 
-*Condorcet: North Dakota*
-*IRV: none — North Dakota elects a CTR/LIB senator under IRV*
+*A Social Democrat who runs tougher on security — more supportive of policing and enforcement.*
 
-REF/SD wins zero seats under Instant Runoff Voting but captures one seat under Condorcet. North Dakota's electorate contains a Reform-dominant base pulled toward Social Democrat on labor and economic issues — a combination that emerges as the Condorcet winner when head-to-head matchups filter out the more extreme options on both sides. Under IRV, the same state produces a CTR/LIB winner as second-choice transfers from moderate voters accumulate toward the most institutionally trusted candidate. REF/SD represents the economically populist voter who distrusts elections, wants border enforcement, but also wants labor protections and is skeptical of pure-party Conservative orthodoxy.
+SD_hi_so shifts Security & Order from SD's base of −0.41 to −0.23, making a meaningful concession toward law-and-order while keeping progressive economics. Under Condorcet, this candidate wins in states with mixed electorates where progressive economics need a security credential: Delaware, Maine, Minnesota, Pennsylvania, Rhode Island. Under IRV, only Rhode Island — the rest are absorbed by other SD or STY variants.
 
-**Factor profile:** Medium-Low F1, High F2 (electoral skepticism), Medium F4, High F5 (populist-conservative).
+**Factor profile:** F1 −0.23 (moderate on enforcement) · F2 −0.03 (trusts elections) · F4 −0.35 (secular) · F5 −0.56 (progressive)
 
----
-
-### CTR/LIB — IRV: 1 seat · Condorcet: 0 seats
-
-*IRV: North Dakota*
-*Condorcet: none — North Dakota elects a REF/SD senator under Condorcet*
-
-CTR/LIB wins one seat under IRV but zero under Condorcet. North Dakota's unusual political geography — a deeply conservative state with a significant libertarian-leaning rural tradition — produces this blend as second-choice transfers accumulate from the center during IRV counting. CTR/LIB combines Center's deep trust in elections and moderate religiosity with Liberal's civil libertarian skepticism of government surveillance and distrust of concentrated police power. The result is the most institutionally trusting senator type in the system, holding moderate positions on social issues while opposing post-9/11 surveillance programs and backing background checks. Under Condorcet, the Reform/SD candidate's head-to-head matchup strength prevails instead, reflecting how differently the state electorate resolves when ranked preferences are fully counted.
-
-**Factor profile:** Low F1, Very Low F2 (maximum election trust), Low-Medium F4, Low F5 (moderate-progressive).
+**Why it works under Condorcet:** In purple states like Pennsylvania and Minnesota, SD_hi_so beats every other candidate one-on-one because it occupies the precise ideological sweet spot: progressive enough for the center-left base, security-credible enough to win transfers from center-right voters who would never rank a pure SD candidate above a Conservative.
 
 ---
 
-### PRG/DSA — IRV: 1 seat · Condorcet: 0 seats
+### REF_lo_ae — The Establishment Reform Senator
+**Condorcet: 5 seats · IRV: 1 seat**
 
-*IRV: Vermont*
-*Condorcet: none — Vermont elects a pure STY senator under Condorcet*
+*A Reform senator who tones down anti-establishment rhetoric and signals trust in institutions.*
 
-PRG/DSA wins one seat under IRV but zero under Condorcet. Vermont's left-dominated electorate produces a Progressive/Democratic Socialist blend as the IRV winner — a state where the combined first-preference support for the two far-left parties is large enough to survive elimination rounds and consolidate. Under Condorcet, however, Vermont produces a pure Solidarity senator: the STY candidate beats every other nominee in head-to-head matchups, because Solidarity's working-class economics and institutional skepticism find common ground with Vermont's rural populist voters in ways that a pure PRG/DSA stance does not. The PRG/DSA senator would be the most economically redistributive and socially progressive senator in the chamber, with near-universal support for Medicare for All, aggressive climate regulation, and full immigration liberalization.
+REF_lo_ae shifts Electoral Skepticism from REF's base of +0.76 down to +0.61 — still deeply skeptical by any standard, but measurably less hostile to institutions than the pure Reform position. This candidate keeps Reform's immigration restrictionism, fiscal populism, and cultural conservatism while becoming just acceptable enough to win in deeply red states. Under Condorcet: Idaho, North Dakota, Oklahoma, South Dakota, Wyoming. Under IRV: only North Dakota.
 
-**Factor profile:** Very Low F1 (strongly anti-enforcement), Low F2 (trusts elections), Very Low F4 (secular), Very Low F5 (far-progressive).
+**Factor profile:** F1 +0.20 (moderate enforcement) · F2 +0.61 (electorally skeptical) · F4 +0.15 (moderate religious) · F5 +0.99 (strongly conservative)
 
----
-
-### Single-Party Senate Seats
-
-Several states elect a senator from a single party with no co-occurrence blend required — meaning one party holds enough of a plurality in that state that a pure candidate wins without needing to appeal to a second cluster. Numbers here are for the **mixed-coalition pipeline** (blend candidates compete alongside pure-party nominees); see the pure-party scenario below.
-
-**Solidarity (STY)** — IRV: 2 seats *(Utah, Wyoming)* · Condorcet: 5 seats *(Arizona, Utah, Vermont, Wisconsin, Wyoming)*
-Under Condorcet, five states surface a pure STY winner: working-class, majority non-white electorates where Solidarity's combination of economic populism and institutional distrust commands an outright plurality when all head-to-head matchups are resolved. Under IRV, Utah and Wyoming return pure STY; Arizona shifts to STY/SD as SD second-choice transfers move toward a blend, Vermont goes to PRG/DSA, and Wisconsin goes to a pure SD winner.
-
-**Social Democrat (SD)** — IRV: 6 seats *(Illinois, Massachusetts, Michigan, Oregon, Washington, Wisconsin)* · Condorcet: 6 seats *(Illinois, Massachusetts, Michigan, Oregon, South Carolina, Washington)*
-Illinois, Massachusetts, Michigan, Oregon, and Washington return pure SD senators under both methods. Wisconsin shifts from SD (IRV) to STY (Condorcet) as the Condorcet head-to-head matchup favors the more electorally skeptical working-class candidate. South Carolina shifts from CTR (IRV) to SD (Condorcet).
-
-**Conservative (CON)** — IRV: 3 seats *(Louisiana, Oklahoma, Tennessee)* · Condorcet: 3 seats *(Louisiana, Oklahoma, Tennessee)*
-All three states elect a pure Conservative senator under both methods — states where CON holds a dominant first-preference plurality and the head-to-head matchup advantage holds regardless of counting method.
-
-**Center (CTR)** — IRV: 2 seats *(Alaska, South Carolina)* · Condorcet: 1 seat *(Alaska)*
-Alaska returns a pure CTR senator under both methods. South Carolina, where Center's moderate religious pragmatism commands enough first-preference support under IRV, shifts to pure SD under Condorcet.
-
-**Liberal (LIB)** — IRV: 1 seat *(Rhode Island)* · Condorcet: 1 seat *(Rhode Island)*
-Rhode Island returns a pure Liberal senator under both methods — the only state where LIB's civil libertarian, institutionally trusting profile commands an outright plurality in both counting systems.
+**Why it works:** In the five most conservative states in the system, no center-left candidate wins a head-to-head matchup. REF_lo_ae wins by being the rightmost candidate that has moderated enough to beat CON variants one-on-one. Under IRV, only North Dakota produces enough first-choice Reform votes to survive elimination — in the other four states, first-choice CON voters outnumber REF voters, and IRV rewards that first-choice lead.
 
 ---
 
-### Pure-Party Scenario Senate Seats
+### Other Crossover Types
 
-When the field is restricted to the nine core parties (no coalition blends), the map changes dramatically. No seat goes to LIB, NAT, PRG, or DSA in any state. The five parties that win seats are:
+Several types win a small number of seats:
 
-**Social Democrat (SD)** — Condorcet: 16 seats · IRV: 14 seats
-*Both methods:* AK, CA, CT, DE, IL, KS, MD, MA, NM, OR, PA, RI, WA *(13 states)*
-*Condorcet only:* MS, MT, NJ *(3 additional)*
-*IRV only:* FL *(1 additional)*
-SD is the plurality party in the pure-party field, dominating the coasts, Midwest, and Mountain West states where its center-left economic platform outpolls both STY and CTR in head-to-head and IRV rounds.
+**STY_lo_so** (Solidarity, softer on security) — Condorcet: 2 *(Kansas, Utah)* · IRV: 1 *(Utah)*. A deeply civil-libertarian Solidarity candidate (F1 −0.63), winning in states with libertarian-leaning electorates.
 
-**Center (CTR)** — Condorcet: 15 seats · IRV: 13 seats
-*Both methods:* AZ, AR, DC, HI, ID, IA, NE, TN, UT, VT, WV *(11 states)*
-*Condorcet only:* FL, MN, MO, WY *(4 additional)*
-*IRV only:* MS, NY *(2 additional)*
-CTR's position at the spatial center of the nine-party field makes it the Condorcet winner in states where no single party holds an outright plurality — the states where moderate-religious swing voters decide the outcome.
+**STY (base)** — Condorcet: 2 *(Maryland, Mississippi)* · IRV: 0. The unshifted Solidarity candidate wins in two states where the base profile is already close to the state median.
 
-**Solidarity (STY)** — Condorcet: 10 seats · IRV: 8 seats
-*Both methods:* CO, LA, MI, NV, NH, SC *(6 states)*
-*Condorcet only:* GA, ME, NY, TX *(4 additional)*
-*IRV only:* MN, WY *(2 additional)*
-STY wins states with large working-class multi-racial electorates where its combination of economic populism and institutional distrust commands a plurality. Under Condorcet it reaches a wider set; under IRV it loses some contested states to CON when first-choice accumulation favors the Republican-leaning candidate.
+**STY_hi_pc** (Solidarity, more populist-conservative) — Condorcet: 1 *(Arizona)* · IRV: 0. A Solidarity candidate who shifts rightward on immigration — notable for winning Arizona, which goes to SD_lo_ae under IRV.
 
-**Conservative (CON)** — Condorcet: 9 seats · IRV: 12 seats
-*Both methods:* AL, IN, KY, OH, SD, VA, WI *(7 states)*
-*Condorcet only:* NC *(1 additional)*
-*IRV only:* GA, MO, MT, NJ, TX *(5 additional)*
-CON's seat count is notably higher under IRV than Condorcet — it accumulates first-choice votes effectively in closely contested states but loses more head-to-head matchups to the centrist field.
+**SD_hi_ae** (Social Democrat, more anti-establishment) — Condorcet: 0 · IRV: 2 *(Connecticut, Maine)*. An SD candidate who signals more institutional skepticism, winning in New England under IRV.
 
-**Reform (REF)** — Condorcet: 1 seat · IRV: 4 seats
-*Both methods:* ND *(1 state)*
-*IRV only:* ME, NC, OK *(3 additional)*
-REF wins only North Dakota under both methods. Under IRV it breaks through in three additional low-turnout, highly populist states where its first-choice plurality survives elimination rounds — but those same states go to CON or CTR under Condorcet head-to-head resolution.
+**SD (base)** — Condorcet: 1 *(Iowa)* · IRV: 2 *(Georgia, Iowa)*. The unshifted Social Democrat wins where the base profile matches the state.
+
+**SD_lo_pc** (Social Democrat, less populist-conservative) — Condorcet: 0 · IRV: 1 *(Nevada)*. A more progressive SD variant.
+
+**CON_lo_pc** (Conservative, less populist) — Condorcet: 1 *(Tennessee)* · IRV: 0. The only Conservative to win under Condorcet — by softening populism enough to beat STY and REF in head-to-head matchups.
+
+**CON_hi_pc** (Conservative, more populist) — Condorcet: 0 · IRV: 1 *(Idaho)*. A hard-right Conservative who survives IRV in the most conservative state outside the deep South.
+
+**CON_lo_ae** (Conservative, establishment-friendly) — Condorcet: 0 · IRV: 1 *(Oklahoma)*.
+
+**CON (base)** — Condorcet: 0 · IRV: 1 *(Wyoming)*.
+
+**CTR_hi_pc** (Center, more populist-conservative) — Condorcet: 0 · IRV: 1 *(South Dakota)*. The only Center party win in the crossover field.
+
+---
+
+## Part III: The Pure Partisan Senate
+
+When candidates run only on the pure party platform — no axis shifts, no crossover positioning — the map simplifies dramatically. Only five parties win seats, and the balance between STY and SD depends entirely on which counting method is used.
+
+### Condorcet: STY Dominance
+
+Under Condorcet, Solidarity wins 33 of 51 seats — a near-supermajority driven by the same dynamic that makes STY_lo_ae the dominant crossover type: Solidarity sits at the spatial median of the nine-party field, and in head-to-head matchups against every other party, more voters prefer STY than oppose it.
+
+| Party | Seats | States |
+|-------|-------|--------|
+| STY | 33 | AL, AK, AZ, AR, CA, CO, FL, GA, HI, IN, IA, KS, KY, LA, MD, MI, MS, MO, MT, NE, NV, NC, ND, OH, OK, PA, SC, SD, TX, UT, VA, WI, WV |
+| SD | 15 | CT, DE, DC, IL, ME, MA, MN, NH, NJ, NM, NY, OR, RI, VT, WA |
+| CON | 1 | TN |
+| REF | 1 | ID |
+| CTR | 1 | WY |
+
+### IRV: Three-Way Competition
+
+Under IRV, the map transforms. Social Democrat wins 26 seats, while Conservative — which won only 1 under Condorcet — breaks through to 11, and Solidarity drops to 11. The shift happens because IRV rewards first-choice intensity: CON voters are enthusiastic first-rankers whose candidates survive early elimination rounds, while STY voters — many of whom are broadly acceptable but not many voters' passionate first choice — are eliminated before their broad appeal can matter.
+
+| Party | Seats | States |
+|-------|-------|--------|
+| SD | 26 | CA, CO, CT, DE, DC, FL, GA, IL, ME, MD, MA, MN, MO, NE, NV, NH, NJ, NM, NY, OR, PA, RI, SC, VA, WA, WI |
+| CON | 11 | AR, ID, IN, IA, KY, MI, MT, NC, ND, OH, TN |
+| STY | 11 | AL, AK, HI, KS, LA, MS, OK, SD, TX, UT, WV |
+| REF | 2 | AZ, WY |
+| LIB | 1 | VT |
+
+The 25-state divergence between methods is the largest in the simulation. CON gains 10 seats under IRV that it loses under Condorcet; STY loses 22 seats. The implication is stark: for Solidarity, which counting method the Senate uses matters more than any policy position.
 
 ---
 
 ## Electoral Breakdown
 
-### Senate Seat Totals by Method — Mixed Scenario (coalition blends allowed)
+### Senate Seat Totals by Party Across All Four Scenarios
 
-| Type | IRV | Condorcet | Difference |
-|------|-----|-----------|------------|
-| SD/STY | 8 | 8 | — |
-| CON/SD | 6 | 6 | — |
-| CON/CTR | 6 | 5 | +1 IRV |
-| SD (pure) | 6 | 6 | — |
-| CON/REF | 5 | 6 | +1 Condorcet |
-| CON/STY | 4 | 4 | — |
-| CON (pure) | 3 | 3 | — |
-| STY (pure) | 2 | 5 | +3 Condorcet |
-| CTR (pure) | 2 | 1 | +1 IRV |
-| STY/SD | 1 | 0 | IRV only |
-| SD/CON | 1 | 1 | — |
-| REF/STY | 1 | 0 | IRV only |
-| CTR/LIB | 1 | 0 | IRV only |
-| SD/LIB | 1 | 2 | +1 Condorcet |
-| STY/CON | 1 | 1 | — |
-| PRG/DSA | 1 | 0 | IRV only |
-| STY/REF | 1 | 1 | — |
-| LIB (pure) | 1 | 1 | — |
-| REF/SD | 0 | 1 | Condorcet only |
+| Party | Crossover Condorcet | Crossover IRV | Pure Condorcet | Pure IRV |
+|-------|:---:|:---:|:---:|:---:|
+| STY | 34 | 19 | 33 | 11 |
+| SD | 11 | 27 | 15 | 26 |
+| CON | 1 | 3 | 1 | 11 |
+| REF | 5 | 1 | 1 | 2 |
+| CTR | 0 | 1 | 1 | 0 |
+| LIB | 0 | 0 | 0 | 1 |
+| PRG | 0 | 0 | 0 | 0 |
+| DSA | 0 | 0 | 0 | 0 |
+| NAT | 0 | 0 | 0 | 0 |
 
-The Condorcet method produces more pure-party Solidarity seats (5 vs. 2) and more CON/REF seats (6 vs. 5), while IRV produces more mixed-blend diversity — CTR/LIB, STY/SD, REF/STY, and PRG/DSA each win seats under IRV that disappear under Condorcet. The two methods agree on the dominant coalition types — SD/STY, CON/SD, CON/STY, SD, CON, SD/CON, STY/CON, STY/REF, LIB — and diverge in 9 states where the IRV second-choice dynamics produce different winners than the Condorcet head-to-head matchup.
+The pattern is consistent: **Condorcet produces STY dominance; IRV produces SD dominance** — across both candidate fields. The crossover field amplifies whatever the counting method already favors: STY variants win even more states under crossover Condorcet (34 vs. 32 pure), and SD variants win even more under crossover IRV (27 vs. 26 pure).
 
-### Senate Seat Totals — Pure-Party Scenario (no coalition blends)
+### State-by-State: Crossover Field
 
-When blended coalition candidates are removed and voters must choose among the nine core parties, the map consolidates around the spatial center. LIB, PRG, DSA, and NAT win no senate seats under either method; every seat goes to SD, CTR, STY, CON, or REF.
+States where both methods elect the same party are in plain text. The **21 states where the winning party differs** are bold. States where the party is the same but the crossover variant differs are marked with *.
 
-| Party | Condorcet | IRV | Difference |
-|-------|-----------|-----|------------|
-| SD | 16 | 14 | +2 Condorcet |
-| CTR | 15 | 13 | +2 Condorcet |
-| STY | 10 | 8 | +2 Condorcet |
-| CON | 9 | 12 | +3 IRV |
-| REF | 1 | 4 | +3 IRV |
+| State | Condorcet | IRV |
+|-------|-----------|-----|
+| Alabama | STY_lo_ae | STY_lo_ae |
+| Alaska | STY_lo_ae | STY_lo_ae |
+| **Arizona** | **STY_hi_pc** | **SD_lo_ae** |
+| Arkansas | STY_lo_ae | STY_lo_ae |
+| **California** | **STY_lo_ae** | **SD_lo_so** |
+| **Colorado** | **STY_lo_ae** | **SD_lo_so** |
+| **Connecticut** | **STY_lo_pc** | **SD_hi_ae** |
+| Delaware* | SD_hi_so | SD_lo_ae |
+| DC | SD_lo_ae | SD_lo_ae |
+| Florida | STY_lo_pc | STY_lo_pc |
+| **Georgia** | **STY_lo_pc** | **SD** |
+| Hawaii | STY_lo_pc | STY_lo_pc |
+| **Idaho** | **REF_lo_ae** | **CON_hi_pc** |
+| Illinois* | SD_lo_ae | SD_lo_so |
+| Indiana | STY_lo_ae | STY_lo_ae |
+| Iowa | SD | SD |
+| **Kansas** | **STY_lo_so** | **SD_lo_ae** |
+| Kentucky | STY_lo_ae | STY_lo_ae |
+| Louisiana | STY_hi_so | STY_hi_so |
+| Maine* | SD_hi_so | SD_hi_ae |
+| **Maryland** | **STY** | **SD_lo_ae** |
+| Massachusetts | SD_lo_ae | SD_lo_ae |
+| **Michigan** | **STY_lo_ae** | **SD_lo_ae** |
+| Minnesota* | SD_hi_so | SD_lo_so |
+| Mississippi* | STY | STY_lo_pc |
+| Missouri | STY_hi_so | STY_hi_so |
+| Montana | STY_lo_ae | STY_lo_ae |
+| Nebraska | STY_lo_ae | STY_lo_ae |
+| **Nevada** | **STY_hi_so** | **SD_lo_pc** |
+| New Hampshire | SD_lo_so | SD_lo_so |
+| **New Jersey** | **STY_lo_ae** | **SD_lo_so** |
+| **New Mexico** | **STY_lo_ae** | **SD_lo_so** |
+| **New York** | **STY_lo_ae** | **SD_lo_so** |
+| North Carolina | STY_lo_ae | STY_lo_ae |
+| North Dakota | REF_lo_ae | REF_lo_ae |
+| Ohio | STY_lo_ae | STY_lo_ae |
+| **Oklahoma** | **REF_lo_ae** | **CON_lo_ae** |
+| **Oregon** | **STY_lo_ae** | **SD_lo_so** |
+| Pennsylvania* | SD_hi_so | SD_lo_so |
+| Rhode Island | SD_hi_so | SD_hi_so |
+| South Carolina | STY_hi_so | STY_hi_so |
+| **South Dakota** | **REF_lo_ae** | **CTR_hi_pc** |
+| **Tennessee** | **CON_lo_pc** | **STY_hi_so** |
+| Texas | STY_lo_ae | STY_lo_ae |
+| Utah | STY_lo_so | STY_lo_so |
+| Vermont | SD_lo_ae | SD_lo_ae |
+| **Virginia** | **STY_lo_ae** | **SD_lo_ae** |
+| **Washington** | **STY_lo_ae** | **SD_lo_so** |
+| West Virginia | STY_hi_so | STY_hi_so |
+| **Wisconsin** | **STY_lo_ae** | **SD_lo_ae** |
+| **Wyoming** | **REF_lo_ae** | **CON** |
 
-Condorcet favors the three spatial-center parties (SD, CTR, STY) that win head-to-head matchups across a broader coalition. IRV favors CON and REF, which accumulate strong first-choice pluralities in contested right-leaning states even when they lose more head-to-head contests against centrist candidates. The 13-state divergence between methods (vs. 9 states in the mixed scenario) reflects a more competitive field where no candidate has the coalition-bridging advantage that blends provided.
+### State-by-State: Pure Partisan Field
 
-### State-by-State Senate Comparison
+The **25 states where the winner differs** between methods are bold.
 
-States where the two methods agree are shown in plain text. The 9 states where outcomes differ are **bold**.
-
-| State | IRV | Condorcet |
-|-------|-----|-----------|
-| Alabama | CON/STY | CON/STY |
-| Alaska | CTR | CTR |
-| **Arizona** | **STY/SD** | **STY** |
-| Arkansas | CON/STY | CON/STY |
-| California | SD/STY | SD/STY |
-| Colorado | CON/SD | CON/SD |
-| Connecticut | CON/STY | CON/STY |
-| Delaware | SD/CON | SD/CON |
-| DC | SD/STY | SD/STY |
-| Florida | CON/CTR | CON/CTR |
-| Georgia | CON/SD | CON/SD |
-| Hawaii | SD/STY | SD/STY |
-| **Idaho** | **CON/CTR** | **CON/REF** |
-| Illinois | SD | SD |
-| Indiana | CON/REF | CON/REF |
-| Iowa | SD/STY | SD/STY |
-| Kansas | CON/REF | CON/REF |
-| Kentucky | CON/CTR | CON/CTR |
-| Louisiana | CON | CON |
-| **Maine** | **REF/STY** | **SD/LIB** |
-| Maryland | SD/STY | SD/STY |
-| Massachusetts | SD | SD |
-| Michigan | SD | SD |
-| Minnesota | SD/STY | SD/STY |
-| **Mississippi** | **CON/CTR** | **CON/REF** |
-| Missouri | CON/REF | CON/REF |
-| Montana | CON/REF | CON/REF |
-| Nebraska | CON/SD | CON/SD |
-| Nevada | SD/STY | SD/STY |
-| New Hampshire | SD/LIB | SD/LIB |
-| New Jersey | CON/SD | CON/SD |
-| New Mexico | CON/STY | CON/STY |
-| New York | SD/STY | SD/STY |
-| North Carolina | CON/CTR | CON/CTR |
-| **North Dakota** | **CTR/LIB** | **REF/SD** |
-| **Ohio** | **CON/REF** | **CON/CTR** |
-| Oklahoma | CON | CON |
-| Oregon | SD | SD |
-| Pennsylvania | CON/SD | CON/SD |
-| Rhode Island | LIB | LIB |
-| **South Carolina** | **CTR** | **SD** |
-| South Dakota | CON/CTR | CON/CTR |
-| Tennessee | CON | CON |
-| Texas | STY/CON | STY/CON |
-| Utah | STY | STY |
-| Virginia | CON/SD | CON/SD |
-| **Vermont** | **PRG/DSA** | **STY** |
-| Washington | SD | SD |
-| **Wisconsin** | **SD** | **STY** |
-| West Virginia | STY/REF | STY/REF |
-| Wyoming | STY | STY |
-
-### State-by-State Pure-Party Comparison
-
-States where IRV and Condorcet agree are shown in plain text. The 13 states where outcomes differ are **bold**.
-
-| State | IRV | Condorcet |
-|-------|-----|-----------|
-| Alabama | CON | CON |
-| Alaska | SD | SD |
-| Arizona | CTR | CTR |
-| Arkansas | CTR | CTR |
-| California | SD | SD |
-| Colorado | STY | STY |
+| State | Condorcet | IRV |
+|-------|-----------|-----|
+| Alabama | STY | STY |
+| Alaska | STY | STY |
+| **Arizona** | **STY** | **REF** |
+| **Arkansas** | **STY** | **CON** |
+| **California** | **STY** | **SD** |
+| **Colorado** | **STY** | **SD** |
 | Connecticut | SD | SD |
 | Delaware | SD | SD |
-| DC | CTR | CTR |
-| **Florida** | **SD** | **CTR** |
-| **Georgia** | **CON** | **STY** |
-| Hawaii | CTR | CTR |
-| Idaho | CTR | CTR |
+| DC | SD | SD |
+| **Florida** | **STY** | **SD** |
+| **Georgia** | **STY** | **SD** |
+| Hawaii | STY | STY |
+| **Idaho** | **REF** | **CON** |
 | Illinois | SD | SD |
-| Indiana | CON | CON |
-| Iowa | CTR | CTR |
-| Kansas | SD | SD |
-| Kentucky | CON | CON |
+| **Indiana** | **STY** | **CON** |
+| **Iowa** | **STY** | **CON** |
+| Kansas | STY | STY |
+| **Kentucky** | **STY** | **CON** |
 | Louisiana | STY | STY |
-| **Maine** | **REF** | **STY** |
-| Maryland | SD | SD |
+| Maine | SD | SD |
+| **Maryland** | **STY** | **SD** |
 | Massachusetts | SD | SD |
-| Michigan | STY | STY |
-| **Minnesota** | **STY** | **CTR** |
-| **Mississippi** | **CTR** | **SD** |
-| **Missouri** | **CON** | **CTR** |
-| **Montana** | **CON** | **SD** |
-| Nebraska | CTR | CTR |
-| Nevada | STY | STY |
-| New Hampshire | STY | STY |
-| **New Jersey** | **CON** | **SD** |
+| **Michigan** | **STY** | **CON** |
+| Minnesota | SD | SD |
+| Mississippi | STY | STY |
+| **Missouri** | **STY** | **SD** |
+| **Montana** | **STY** | **CON** |
+| **Nebraska** | **STY** | **SD** |
+| **Nevada** | **STY** | **SD** |
+| New Hampshire | SD | SD |
+| New Jersey | SD | SD |
 | New Mexico | SD | SD |
-| **New York** | **CTR** | **STY** |
-| **North Carolina** | **REF** | **CON** |
-| North Dakota | REF | REF |
-| Ohio | CON | CON |
-| **Oklahoma** | **REF** | **CON** |
+| New York | SD | SD |
+| **North Carolina** | **STY** | **CON** |
+| **North Dakota** | **STY** | **CON** |
+| **Ohio** | **STY** | **CON** |
+| Oklahoma | STY | STY |
 | Oregon | SD | SD |
-| Pennsylvania | SD | SD |
+| **Pennsylvania** | **STY** | **SD** |
 | Rhode Island | SD | SD |
-| South Carolina | STY | STY |
-| South Dakota | CON | CON |
-| Tennessee | CTR | CTR |
-| **Texas** | **CON** | **STY** |
-| Utah | CTR | CTR |
-| Vermont | CTR | CTR |
-| Virginia | CON | CON |
+| **South Carolina** | **STY** | **SD** |
+| South Dakota | STY | STY |
+| Tennessee | CON | CON |
+| Texas | STY | STY |
+| Utah | STY | STY |
+| **Vermont** | **SD** | **LIB** |
+| **Virginia** | **STY** | **SD** |
 | Washington | SD | SD |
-| West Virginia | CTR | CTR |
-| Wisconsin | CON | CON |
-| **Wyoming** | **STY** | **CTR** |
+| West Virginia | STY | STY |
+| **Wisconsin** | **STY** | **SD** |
+| **Wyoming** | **CTR** | **REF** |
 
 ---
 
 ## Legislative Outlook
 
-The vote simulation models 37 binary policy items across all four scenarios (mixed/pure × Condorcet/IRV). Senate composition alone does not determine what becomes law — the president's signature is decisive on five bills, and the two pipelines elect different presidents.
+The vote simulation models 37 binary policy items across all scenarios. The legislative outcome depends on three things: whether the bill passes the House, whether it passes the Senate (which varies by scenario), and whether the president signs it (which varies by which president the scenario produces).
 
-**Four distinct presidents across the scenarios:**
-- Mixed IRV → **CON/SD** (Conservative/Social Democrat; IRV accumulates CON first-choice votes)
-- Mixed Condorcet → **SD/CON** (Social Democrat/Conservative; wins more head-to-head matchups)
-- Pure Condorcet → **STY** (Solidarity; spatial median of the nine-party field)
-- Pure IRV → **STY** (same result under both methods in the pure scenario)
+The crossover field's STY-dominated senate produces meaningfully more left-leaning outcomes than the pure partisan field's more competitive senate. Several bills that pass easily under one scenario fail under another — not because voters changed their minds, but because the counting method and candidate field changed which voices are represented.
 
-CON/SD and SD/CON are different candidates from different parties, though their factor profiles are nearly identical — both sit at the genuine cross-aisle centroid, separated by less than 0.1 on every dimension. The vote model uses **CON/SD as the presidential reference for both mixed scenarios**, since the two would likely govern indistinguishably on most legislation; a full separation would require running separate bill-signing models for each. Bills where a CON-leaning vs. SD-leaning instinct might plausibly diverge are flagged below.
+### What Passes in All Scenarios
 
-**Mixed pipeline president (CON/SD as reference):** Signs border enforcement, police expansion, Medicaid work requirements, and the TikTok ban. Vetoes student loan forgiveness. Governs center-right on security with cross-aisle accommodation on immigration pathways, infrastructure, and healthcare preservation. An SD/CON president would likely sign the same set, though the work requirements and TikTok ban represent the margin calls most likely to flip under an SD-leading identity.
+These bills clear the House, pass every senate configuration, and are signed by all three possible presidents:
 
-**Pure-party pipeline president (STY):** Signs student loan forgiveness, legal status for undocumented immigrants, and the full progressive economic package. Vetoes asylum denial at the border, the police funding increase, Medicaid work requirements, and the TikTok ban. Governs center-left, anchored by the working-class multi-racial coalition that dominates the pure-party senate.
+**Taxes & Spending** — Allow top-bracket rates on incomes over $400k to rise to 35% (65.3% support). Spend $150B/yr on infrastructure (80.5%). Expand federal tax incentives for affordable housing (72.4%).
 
-Thirty-two of the 37 bills produce the same outcome across all four scenarios. The five that differ are driven entirely by the presidential signature difference between the mixed and pure pipelines, not by senate composition — senate verdicts are identical within each pipeline regardless of counting method.
+**Immigration** — Grant legal status to long-term undocumented immigrants (59.2%). Permanent DACA pathway for Dreamers (70.4%). Increase border patrols (79.6%). Forgive up to $20k of student loan debt (54.2%).
 
-### What Passes in All Four Scenarios
+**Environment** — Give EPA authority to regulate CO2 emissions (62.4%). Require 20% renewable electricity (66.1%). Strengthen Clean Air and Water Act enforcement (55.2%). Prevent government from banning gas stoves (67.5%).
 
-**Taxes** — The congress simultaneously extends the 2017 tax cuts, raises the corporate rate from 21% to 28%, and allows top-bracket rates on incomes over $400k to rise to 35%. All three pass the House and all four senate configurations. In a two-party system these are mutually exclusive party platforms; in a proportional congress they represent three separate majority coalitions forming around the same vote schedule.
+**Police & Public Safety** — Ban assault rifles (59.6%). Universal background checks on all gun sales (92.5%). Increase spending on mental health and school safety (86.5%).
 
-**Immigration** — Legal status for long-term undocumented immigrants (PASS all scenarios), permanent DACA pathway for Dreamers (PASS all scenarios), and increased border patrols (PASS all scenarios) all pass both chambers and are signed by both presidents. Denying asylum at the border passes both chambers in all scenarios but is signed only by CON/SD — STY vetoes it (see presidential split below).
+**Healthcare** — Expand Medicaid for incomes under $25k/$40k (78.7%).
 
-**Environment** — EPA authority to regulate CO2 (PASS), 20% renewable electricity requirement (PASS), strengthening the Clean Air and Water Act even at some job cost (PASS), increasing fossil fuel production (PASS), and preventing the government from banning gas stoves (PASS) all clear both chambers under both presidents. The renewable mandate and the gas stove protection pass through entirely different party coalitions — and both pass.
+**Civil Liberties** — Age verification for adult web content (78.8%).
 
-**Police & Public Safety** — The 10% police funding increase passes both chambers in all scenarios and is signed by CON/SD; STY vetoes it (see below). A 10% cut fails in all chambers. Mental health and school safety spending passes. The assault rifle ban passes. Universal background checks pass with near-certainty. Easier concealed carry fails.
+### What Fails in All Scenarios
 
-**Healthcare** — Medicaid expansion passes in all four scenarios. ACA repeal fails clearly — it cannot pass either chamber, and both presidents would veto it in any case. Work requirements for able-bodied Medicaid recipients pass both chambers in all scenarios but are signed only by CON/SD — STY vetoes them (see below).
+- **Easier concealed carry** (38.9%) — fails in all chambers; every president vetoes
+- **Decrease police 10%** (26.8%) — no cross-party coalition reaches majority
+- **Renew post-9/11 surveillance programs** (34.0%) — fails in all chambers; every president vetoes
+- **ACA repeal** (38.5%) — fails clearly in all chambers; every president vetoes
+- **Prohibit abortion-inducing drugs by mail** (41.2%) — fails in all chambers
+- **Restrict interstate travel for abortion** (18.5%) — fails decisively
 
-**Social Issues** — Federal recognition of same-sex and interracial marriages passes (66.1% global support). Congressional protection of abortion access passes in all four scenarios; restrictions on abortion-inducing drugs by mail and interstate travel bans for abortion both fail in all four. Preventing gender transition surgery for minors passes (60.1% global support). Parental consent requirements for school name/pronoun changes passes. Age verification for adult web content passes. School voucher subsidies pass.
+### Where the President Decides
 
-**Civil Liberties** — The conditional TikTok ban passes both chambers in all scenarios but is signed only by CON/SD — STY vetoes it (see below). Post-9/11 surveillance renewal fails in all four scenarios. Affordable housing tax incentives pass in all four.
+These bills pass the House and most senate configurations, but whether they become law depends on which president the scenario produces. The three presidents — STY_hi_so (crossover), SD_1 (pure IRV), and STY_1 (pure Condorcet) — have distinct veto patterns.
 
-### Where the President Decides (the Five Split Bills)
+| Bill | Overall support | STY_hi_so | SD_1 | STY_1 |
+|------|:---:|:---:|:---:|:---:|
+| Extend 2017 tax cuts | 62.9% | Signs | **Vetoes** (49%) | Signs |
+| Raise corporate tax 21%→28% | 57.7% | **Vetoes** (47%) | Signs | Signs |
+| Prohibit restrictions on abortion access | 63.0% | **Vetoes** (48%) | Signs | Signs |
+| Federal recognition of same-sex marriages | 66.1% | **Vetoes** (48.5%) | Signs | Signs |
+| Prevent gender transition surgery for minors | 60.1% | Signs | **Vetoes** (49%) | Signs |
+| Parental consent for school name/pronoun changes | 62.7% | Signs | **Vetoes** (46%) | Signs |
+| School voucher subsidies | 56.2% | Signs | **Vetoes** (44%) | Signs |
 
-These bills pass both chambers in all four scenarios. Whether they become law depends on which president signs them. The model ran one mixed-pipeline presidential reference (CON/SD); the SD/CON column below is an inference from the mixed-electorate support percentages and the candidates' factor profiles — not modeled directly.
+The STY_hi_so and SD_1 presidents have *opposite* veto profiles. STY_hi_so vetoes the progressive social agenda (abortion access, same-sex marriage, corporate tax hike) because the "tough on security" Solidarity coalition is just conservative enough on social issues to split below 50%. SD_1 vetoes the conservative social agenda (gender transition ban, parental consent, vouchers, tax cut extension) because the progressive SD base cannot stomach these measures. STY_1, the pure Solidarity Condorcet winner, signs almost everything from both sides — the spatial median president.
 
-| Bill | Mixed support | CON/SD (mixed IRV) | SD/CON (mixed Condorcet) | STY (pure) |
-|------|:-------------:|--------------------|--------------------------|------------|
-| Deny asylum at the border | 72.9% | **Signs → Law** | Likely signs → Law | Vetoes → Fails |
-| Increase police funding 10% | 69.3% | **Signs → Law** | Likely signs → Law | Vetoes → Fails |
-| Conditional TikTok ban | 60.6% | **Signs → Law** | Likely signs → Law | Vetoes → Fails |
-| Medicaid work requirements | 58.4% | **Signs → Law** | Likely vetoes → Fails | Vetoes → Fails |
-| Student loan forgiveness $20k | 49.7% | Vetoes → Fails | Likely signs → Law | **Signs → Law** |
+### Where the Senate Decides
 
-Asylum denial and police funding have enough cross-party support (69–73%) that even an SD-leading president would sign; the CON/SD vs. SD/CON distinction is unlikely to matter there. Work requirements (58.4%) and student loans (49.7%) sit close enough to each SD president's identity threshold to plausibly flip. If those inferences hold, SD/CON produces a notably different legislative record from CON/SD on the two bills that most directly define the center-left economic agenda — and STY vetoes all four enforcement measures regardless.
+These bills pass the House but fail in the crossover field's STY-dominated senate, producing dramatically different outcomes depending on which candidate field is used:
 
-### What Fails in All Four Scenarios
+| Bill | House | Crossover Senate | Pure Partisan Senate | All presidents |
+|------|:---:|:---:|:---:|:---:|
+| Deny asylum at the border | PASS | **FAIL** (Cond 23%, IRV 12%) | Mixed (Cond FAIL, IRV PASS) | STY_hi_so vetoes; SD_1 vetoes; STY_1 vetoes |
+| Increase police funding 10% | PASS | **FAIL** (Cond 2%, IRV 1%) | Mixed (Cond FAIL, IRV TOSS-UP) | All presidents veto |
+| Ban TikTok unless China sells | PASS | **FAIL** (Cond 19%, IRV 23%) | Mixed (Cond FAIL, IRV TOSS-UP) | All presidents veto |
+| Increase fossil fuel production | PASS | **TOSS-UP/FAIL** (Cond 46%, IRV 17%) | Mixed | STY_hi_so signs; SD_1 vetoes; STY_1 signs (barely, 50%) |
+| Halt oil/gas leases on federal land | FAIL | Cond TOSS-UP, **IRV PASS (89%)** | Cond PASS (71%), IRV TOSS-UP | STY_hi_so vetoes; SD_1 signs; STY_1 signs (51%) |
 
-The items that fail share a common structure: they represent the maximum position of a single ideological bloc that cannot find coalition partners.
+The crossover senate's STY dominance blocks enforcement-heavy and security-oriented bills that would pass in the pure partisan field. The most striking result: halting new oil/gas leases on federal land, which fails in the House and was described as dead-on-arrival in two-party politics, *passes* the crossover IRV senate at 89% probability — because the STY-variant senators who dominate that chamber represent an electorate skeptical of fossil fuel expansion.
 
-- **Easier concealed carry** — fails in all chambers; even CON and NAT senators face gun-owning constituencies that support background checks
-- **Decrease police 10%** — no cross-party coalition reaches majority; DSA and PRG cannot build one alone
-- **Halt new oil/gas leases on federal lands** — the SD/LIB/PRG coalition is too small; CON and STY-dominant types cannot support it (though STY would sign it if it passed)
-- **ACA repeal** — fails clearly in all chambers; even REF and NAT senators represent constituents who rely on Medicaid, and both presidents veto it
-- **Renew post-9/11 surveillance programs** — LIB, DSA, and PRG provide the opposition margin; STY's institutional distrust reinforces it; both presidents veto it
-- **Prohibit abortion-inducing drugs by mail** — the majority willing to restrict abortion access cannot reach 50% even with CON and NAT support; both presidents veto it
-- **Restrict interstate abortion travel** — fails decisively; even CON senators will not restrict citizens' physical movement across state lines; both presidents veto it
+### The Toss-Ups
 
-### The One Toss-Up
+**Relaxing local zoning laws** (50.2%) sits at almost exactly 50/50 in the House and varies by senate scenario. It passes the crossover senate but is a toss-up in the pure partisan senate. All three presidents would sign it.
 
-Relaxing local zoning laws to allow more apartments and condos sits at almost exactly 50/50 across all four scenarios (global support: 50.2%). This is the rare item where the electorate is genuinely split rather than cross-pressured — urban SD and LIB types support it, rural CON and REF types oppose it, and the suburban swing types (CTR, CON/CTR) are evenly divided. The CON/SD president would veto it; STY would sign it — but it never clears the senate to reach either desk.
+**Medicaid work requirements** (53.3%) passes the House but is a toss-up in every senate configuration. SD_1 and STY_1 both veto it; STY_hi_so signs.
+
+**Abortion restricted to rape/incest/life danger** (51.4%) is a toss-up in the House, varies across senate scenarios, and splits the presidents: STY_hi_so and STY_1 sign; SD_1 vetoes.
 
 ---
 
@@ -735,56 +657,59 @@ High scorers favor increasing police by 10%, expanding border patrols, denying a
 
 ### F2 — Electoral Skepticism
 
-High scorers disagree that U.S. elections are run fairly and disagree that their 2024 state/local elections were fair. This factor is near-orthogonal to partisan identity (Cramér's V ≈ 0.15). Critically, REF (+0.76), STY (+0.66), and DSA (+0.50) all score High on F2 despite being maximally opposed on F5. Electoral skepticism cuts across the left-right divide. CTR (−0.82) and LIB/CTR (−0.77) are the most trusting types; REF and REF/STY are the most skeptical.
+High scorers disagree that U.S. elections are run fairly and disagree that their 2024 state/local elections were fair. This factor is near-orthogonal to partisan identity. Critically, REF (+0.76), STY (+0.66), and DSA (+0.50) all score High on F2 despite being maximally opposed on F5. Electoral skepticism cuts across the left-right divide. CTR (−0.82) is the most trusting party.
 
 ---
 
 ### F3 — Government Distrust
 
-High scorers distrust the federal and state governments generally. This factor shares items with F2 but captures general institutional distrust rather than specifically electoral skepticism. Critically: all 23 winning types score Medium on F3 (range: −0.21 to +0.13). Government distrust does not differentiate winning coalition types from each other — it is a background condition shared broadly across the electorate.
+High scorers distrust the federal and state governments generally. This factor shares items with F2 but captures general institutional distrust rather than specifically electoral skepticism. Critically: all nine parties score Medium on F3 (range: −0.21 to +0.13). Government distrust does not differentiate parties from each other — it is a background condition shared broadly across the electorate.
 
 ---
 
 ### F4 — Religious Traditionalism
 
-High scorers attend church frequently, favor stricter limits on abortion, and oppose federal recognition of same-sex marriages. Church attendance and abortion week limits have the joint-highest loadings (+0.69 each). This is genuinely the religious values axis, not just social conservatism broadly: NAT (+0.46) and CON/NAT (+0.34) are the only High-scoring types; all others are Medium or Low.
+High scorers attend church frequently, favor stricter limits on abortion, and oppose federal recognition of same-sex marriages. Church attendance and abortion week limits have the joint-highest loadings (+0.69 each). This is genuinely the religious values axis, not just social conservatism broadly: NAT (+0.46) is the only High-scoring party; all others are Medium or Low.
 
 ---
 
 ### F5 — Populist Conservatism
 
-High scorers agree that racial problems are rare and isolated, oppose Dreamer pathways to citizenship, oppose raising top-bracket tax rates, oppose legal status for undocumented immigrants, and disagree with progressive racial attitudes. Most conservative items load negatively because the CES coded liberal responses as higher numbers; a high F5 score predicts the conservative response. NAT at +1.51 is a full standard deviation above the next type (REF at +0.99). PRG (−0.99) and LIB (−0.95) anchor the opposite pole.
+High scorers agree that racial problems are rare and isolated, oppose Dreamer pathways to citizenship, oppose raising top-bracket tax rates, oppose legal status for undocumented immigrants, and disagree with progressive racial attitudes. NAT at +1.51 is a full standard deviation above the next type (REF at +0.99). PRG (−0.99) and LIB (−0.95) anchor the opposite pole.
 
 ---
 
-### Full Factor Score Table — All 23 Types (sorted by F5, most populist-conservative first)
+### Factor Score Table — Nine Parties + Key Crossover Types
 
-| Type | Chamber | F1 Sec/Ord | F2 ElecSkep | F3 GovtDis | F4 ReligTrad | F5 PopCons |
-|------|---------|-----------|-------------|------------|--------------|------------|
-| NAT | House | +0.737 | +0.428 | −0.208 | +0.457 | **+1.510** |
-| REF | Both | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
-| CON/NAT | Senate | +0.752 | +0.198 | −0.045 | +0.336 | +0.966 |
-| CON/REF | Senate | +0.592 | +0.219 | +0.013 | +0.196 | +0.612 |
-| REF/STY | Senate | −0.038 | +0.722 | −0.081 | +0.153 | +0.601 |
-| STY/REF | Senate | −0.154 | +0.704 | −0.019 | +0.157 | +0.411 |
-| CON | Both | +0.767 | −0.024 | +0.111 | +0.219 | +0.442 |
-| CON/CTR | Senate | +0.577 | −0.325 | +0.002 | +0.185 | +0.289 |
-| CON/STY | Senate | +0.258 | +0.263 | +0.120 | +0.196 | +0.230 |
-| STY/CON | Senate | +0.076 | +0.365 | +0.124 | +0.188 | +0.155 |
-| CTR | Both | +0.266 | −0.817 | −0.174 | +0.130 | +0.039 |
-| CON/SD | Senate | +0.236 | −0.027 | +0.102 | −0.035 | −0.011 |
-| STY | Both | −0.446 | +0.658 | +0.133 | +0.165 | −0.062 |
-| SD/CON | Senate | +0.153 | −0.028 | +0.101 | −0.074 | −0.081 |
-| SD/CTR | Senate | −0.122 | −0.369 | −0.023 | −0.141 | −0.305 |
-| STY/SD | Senate | −0.430 | +0.313 | +0.112 | −0.090 | −0.313 |
-| SD/STY | Senate | −0.425 | +0.196 | +0.105 | −0.177 | −0.398 |
-| SD | Both | −0.414 | −0.032 | +0.091 | −0.345 | −0.564 |
-| LIB/CTR | Senate | −0.171 | −0.773 | −0.121 | −0.142 | −0.554 |
-| SD/LIB | Senate | −0.438 | −0.381 | +0.004 | −0.334 | −0.753 |
-| DSA | House | −1.303 | +0.504 | +0.076 | −0.387 | −0.874 |
-| LIB | Both | −0.462 | −0.744 | −0.086 | −0.323 | −0.950 |
-| PRG | House | −1.260 | −0.634 | −0.206 | −0.387 | −0.990 |
+Sorted by F5, most populist-conservative first. Crossover types that win senate seats are included.
+
+| Type | Description | F1 Sec/Ord | F2 ElecSkep | F3 GovtDis | F4 ReligTrad | F5 PopCons |
+|------|-------------|-----------|-------------|------------|--------------|------------|
+| NAT | Nationalist | +0.737 | +0.428 | −0.208 | +0.457 | **+1.510** |
+| REF | Reform | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
+| REF_lo_ae | Reform, establishment-friendly | +0.202 | +0.613 | −0.206 | +0.147 | +0.990 |
+| CON_hi_pc | Conservative, more populist | +0.767 | −0.024 | +0.111 | +0.219 | +0.653 |
+| CON | Conservative | +0.767 | −0.024 | +0.111 | +0.219 | +0.442 |
+| CON_lo_ae | Conservative, establishment-friendly | +0.767 | −0.170 | +0.111 | +0.219 | +0.442 |
+| CON_lo_pc | Conservative, less populist | +0.767 | −0.024 | +0.111 | +0.219 | +0.232 |
+| CTR_hi_pc | Center, more populist | +0.266 | −0.817 | −0.174 | +0.130 | +0.250 |
+| STY_hi_pc | Solidarity, more populist | −0.446 | +0.658 | +0.133 | +0.165 | +0.149 |
+| CTR | Center | +0.266 | −0.817 | −0.174 | +0.130 | +0.039 |
+| STY | Solidarity (base) | −0.446 | +0.658 | +0.133 | +0.165 | −0.062 |
+| STY_lo_ae | Solidarity, establishment-friendly | −0.446 | +0.512 | +0.133 | +0.165 | −0.062 |
+| STY_hi_so | Solidarity, tough on security | −0.265 | +0.658 | +0.133 | +0.165 | −0.062 |
+| STY_lo_so | Solidarity, soft on security | −0.627 | +0.658 | +0.133 | +0.165 | −0.062 |
+| STY_lo_pc | Solidarity, less populist | −0.446 | +0.658 | +0.133 | +0.165 | −0.273 |
+| SD_hi_ae | Soc. Democrat, anti-establishment | −0.414 | +0.114 | +0.091 | −0.345 | −0.564 |
+| SD_hi_so | Soc. Democrat, tough on security | −0.234 | −0.032 | +0.091 | −0.345 | −0.564 |
+| SD | Social Democrat (base) | −0.414 | −0.032 | +0.091 | −0.345 | −0.564 |
+| SD_lo_ae | Soc. Democrat, establishment-friendly | −0.414 | −0.178 | +0.091 | −0.345 | −0.564 |
+| SD_lo_so | Soc. Democrat, soft on security | −0.595 | −0.032 | +0.091 | −0.345 | −0.564 |
+| SD_lo_pc | Soc. Democrat, less populist | −0.414 | −0.032 | +0.091 | −0.345 | −0.775 |
+| DSA | Democratic Socialists | −1.303 | +0.504 | +0.076 | −0.387 | −0.874 |
+| LIB | Liberal | −0.462 | −0.744 | −0.086 | −0.323 | −0.950 |
+| PRG | Progressive | −1.260 | −0.634 | −0.206 | −0.387 | −0.990 |
 
 ---
 
-*Simulation based on CES 2024 data (N=45,707). House seats allocated by Single Transferable Vote; Senate seats allocated by Instant Runoff Voting (IRV) and Condorcet methods. Party cluster assignments derived from k-means clustering on EFA factor scores.*
+*Simulation based on CES 2024 data (N=45,707). House seats allocated by Single Transferable Vote; Senate seats allocated by Instant Runoff Voting (IRV) and Condorcet (ranked pairs) methods. Party cluster assignments derived from k-means clustering on EFA factor scores. Crossover candidates generated by shifting base party positions ±25% of inter-party standard deviation on one discriminating axis.*
