@@ -114,7 +114,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
     );
   }
 
-  const label = pipeline === 'rawMulti' ? 'Raw Multi' : 'Factor Dev';
+  const label = pipeline === 'rawMulti' ? 'Party-Line' : 'Crossover';
 
   return (
     <Card className="border-amber-300 overflow-hidden">

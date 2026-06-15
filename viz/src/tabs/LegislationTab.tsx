@@ -17,8 +17,8 @@ type Method   = 'condorcet' | 'irv';
 type WyomingRule = 'double' | 'triple';
 
 const PIPELINE_LABELS: Record<Pipeline, string> = {
-  rawMulti:  'Raw Multi',
-  factorDev: 'Factor Dev',
+  rawMulti:  'Party-Line',
+  factorDev: 'Crossover',
 };
 
 const WYOMING_LABELS: Record<WyomingRule, string> = {

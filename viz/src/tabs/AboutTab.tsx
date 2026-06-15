@@ -71,7 +71,7 @@ const VOTING_SYSTEMS = [
 
 const SCENARIOS = [
   {
-    name: 'Raw Multi',
+    name: 'Party-Line',
     tag: '27 candidates',
     color: '#1d4ed8',
     desc: 'Each of the 9 parties fields exactly 3 intra-party candidates with a 40/35/25 first-choice split. All three share identical ideological positions — only prominence (name recognition) differs.',
@@ -79,10 +79,10 @@ const SCENARIOS = [
     candidates: 'SD_1, SD_2, SD_3 · CON_1, CON_2, CON_3 · ...',
   },
   {
-    name: 'Factor Dev',
+    name: 'Crossover',
     tag: '37 candidates',
     color: '#ea580c',
-    desc: '9 base candidates + 28 axis-deviation variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation — producing candidates like SD_hi_so (more hawkish Social Democrat) or CON_lo_pc (less nationalist Conservative).',
+    desc: '9 base candidates + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation — producing candidates like SD_hi_so (a Social Democrat who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
     insight: 'Models intra-party ideological diversity. Voters can express preference not just for a party, but for a faction within it.',
     candidates: 'SD · SD_hi_so · SD_lo_so · SD_hi_ae · ...',
   },
@@ -212,7 +212,7 @@ export function AboutTab() {
                 { tab: 'Senate',   desc: 'Per-state elections for 51 seats (one per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.' },
                 { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type. Includes a representation gap analysis.' },
                 { tab: 'Legislation', desc: 'Given the simulated chambers, which bills pass? Uses a Normal approximation of chamber vote counts to produce passage probabilities.' },
-                { tab: 'Compare', desc: 'Policy-by-policy comparison across up to 4 parties or Factor Dev candidates.' },
+                { tab: 'Compare', desc: 'Policy-by-policy comparison across up to 4 parties or crossover candidates.' },
               ].map(r => (
                 <div key={r.tab} className="flex gap-3 text-sm">
                   <span className="font-semibold text-foreground w-44 shrink-0">{r.tab}</span>
@@ -444,9 +444,9 @@ export function AboutTab() {
             <div className="font-semibold text-foreground mb-3">What comparing them reveals</div>
             <div className="space-y-3 text-sm">
               {[
-                { q: 'Do intra-party factions matter?', a: 'If Factor Dev and Raw Multi produce very different senate compositions, ideological variance within parties is electorally significant. If results converge, party label dominates.' },
-                { q: 'Which parties benefit from factional candidates?', a: 'Some parties gain seats by splitting their ideological space — variants attract voters who\'d otherwise vote adjacent. Others lose seats to vote-splitting.' },
-                { q: 'Does the presidential winner change?', a: 'Often yes. Factor Dev\'s SD_hi_so and Raw Multi\'s SD_1 are different candidacies — one signals a hawkish tilt, the other is the party baseline.' },
+                { q: 'Do intra-party factions matter?', a: 'If Crossover and Party-Line produce very different senate compositions, ideological variance within parties is electorally significant. If results converge, party label dominates.' },
+                { q: 'Which parties benefit from crossover candidates?', a: 'Some parties gain seats by splitting their ideological space — crossover variants attract voters who\'d otherwise vote adjacent. Others lose seats to vote-splitting.' },
+                { q: 'Does the presidential winner change?', a: 'Often yes. The Crossover field\'s STY_hi_so and the Party-Line field\'s SD_1 are different candidacies — one signals a security-minded Solidarity senator, the other is the Social Democrat baseline.' },
               ].map(r => (
                 <div key={r.q} className="flex gap-3">
                   <div className="text-muted-foreground shrink-0 mt-0.5">→</div>

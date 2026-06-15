@@ -118,11 +118,11 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
           </span>
         )}
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm inline-block bg-slate-700" /> {wyoming === 'triple' ? 'Triple (~1,726)' : 'Raw Multi'} seat %
+          <span className="w-3 h-3 rounded-sm inline-block bg-slate-700" /> {wyoming === 'triple' ? 'Triple (~1,726)' : 'Party-Line'} seat %
         </span>
         {showFD && (
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm border-2 border-slate-700 inline-block" style={{ backgroundColor: 'transparent' }} /> Factor Dev seat %
+            <span className="w-3 h-3 rounded-sm border-2 border-slate-700 inline-block" style={{ backgroundColor: 'transparent' }} /> Crossover seat %
           </span>
         )}
       </div>

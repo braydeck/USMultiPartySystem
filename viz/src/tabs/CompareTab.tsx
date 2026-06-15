@@ -640,7 +640,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
               </optgroup>
             )}
             {fdOptions.filter(o => !selected.includes(o.code)).length > 0 && (
-              <optgroup label="Factor Deviation candidates">
+              <optgroup label="Crossover candidates">
                 {fdOptions.filter(o => !selected.includes(o.code)).map(o => (
                   <option key={o.code} value={o.code}>{o.code}</option>
                 ))}
@@ -650,7 +650,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
         </div>
         {selected.length === 0 && (
           <p className="text-xs text-muted-foreground mt-2">
-            Try: PRG + NAT (maximum divergence) · SD + CON (presidential rivals) · SD_hi_so + SD (factor deviation vs base)
+            Try: PRG + NAT (maximum divergence) · SD + CON (presidential rivals) · SD_hi_so + SD (crossover vs base)
           </p>
         )}
       </Card>

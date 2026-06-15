@@ -185,7 +185,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
               <Button key={p} onClick={() => setPipeline(p)}
                 variant={pipeline === p ? 'default' : 'secondary'}
                 size="sm">
-                {p === 'factorDev' ? 'Factor Dev' : 'Raw Multi'}
+                {p === 'factorDev' ? 'Crossover' : 'Party-Line'}
               </Button>
             ))}
           </div>
@@ -312,7 +312,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
       {isFD && (
         <>
           <div className="border-t-2 border-violet-200 pt-6">
-            <h3 className="text-lg font-bold text-violet-800 mb-1">Factor Deviation Analysis — Senate</h3>
+            <h3 className="text-lg font-bold text-violet-800 mb-1">Crossover Analysis — Senate</h3>
             <p className="text-xs text-muted-foreground mb-6">
               How do ideological deviations affect senate composition under {method === 'condorcet' ? 'Condorcet' : 'IRV'}?
             </p>

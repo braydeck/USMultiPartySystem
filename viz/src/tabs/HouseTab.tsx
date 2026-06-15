@@ -178,7 +178,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
             {(['rawMulti', 'factorDev'] as const).map(s => (
               <Button key={s} onClick={() => setScenario(s)}
                 variant={scenario === s ? 'default' : 'secondary'} size="sm">
-                {s === 'rawMulti' ? 'Raw Multi' : 'Factor Dev'}
+                {s === 'rawMulti' ? 'Party-Line' : 'Crossover'}
               </Button>
             ))}
           </div>
@@ -201,7 +201,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
         </h3>
         <p className="text-xs text-muted-foreground mb-4">
           How close does STV get to proportional representation? Faded bar = population share, solid = seat share.
-          {scenario === 'factorDev' && ' Outlined = Factor Dev seat share for comparison.'}
+          {scenario === 'factorDev' && ' Outlined = Crossover seat share for comparison.'}
         </p>
         <ScenarioComparison
           rawMultiSeats={wyoming === 'triple' ? seatsTriple : seats}
@@ -374,7 +374,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
       {scenario === 'factorDev' && (
         <>
           <div className="border-t-2 border-violet-200 pt-6">
-            <h3 className="text-lg font-bold text-violet-800 mb-1">Factor Deviation Analysis</h3>
+            <h3 className="text-lg font-bold text-violet-800 mb-1">Crossover Analysis</h3>
             <p className="text-xs text-muted-foreground mb-6">
               How do ideological deviations from party baselines affect seat composition and cross-party attraction?
             </p>

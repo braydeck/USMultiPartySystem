@@ -19,8 +19,8 @@ interface Props {
 }
 
 const PRES_LABELS: Record<PresidentialScenario, string> = {
-  rawMulti:  'Raw Multi',
-  factorDev: 'Factor Dev',
+  rawMulti:  'Party-Line',
+  factorDev: 'Crossover',
 };
 
 function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: string }) {
