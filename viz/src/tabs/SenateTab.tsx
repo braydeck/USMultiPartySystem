@@ -264,7 +264,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
             How Senators Build Their Coalition
           </h3>
           <p className="text-xs text-muted-foreground mb-3">
-            Each bar shows where a senator&apos;s votes came from during STV winnowing.
+            Each bar shows where a senator&apos;s votes came from during IRV winnowing.
             Darkest = own first-choice supporters. Other colors = transfers from eliminated parties.
             Select a state to see the full finalist breakdown.
           </p>
