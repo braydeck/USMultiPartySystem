@@ -3,6 +3,8 @@ import type { RCVData, RCVRace, HouseStateEntry } from '../types';
 import { PARTY_COLORS, F5_ORDER } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { StickyControlBar } from '../components/shared/StickyControlBar';
 
 // Real candidate → closest simulation-party mapping for coloring
 const CANDIDATE_PARTY: Record<string, string> = {
@@ -511,17 +513,11 @@ export function RCVTab({ data, houseStateMap }: Props) {
         </p>
       </div>
 
-      <div className="flex gap-2">
-        {(['AK', 'ME'] as const).map(s => (
-          <Button
-            key={s}
-            onClick={() => setStateTab(s)}
-            variant={stateTab === s ? 'default' : 'secondary'}
-          >
-            {s === 'AK' ? 'Alaska' : 'Maine'}
-          </Button>
-        ))}
-      </div>
+      <StickyControlBar>
+        <ToggleGroup label="State" value={stateTab} onChange={setStateTab}
+          options={['AK', 'ME'] as const}
+          labels={{ AK: 'Alaska', ME: 'Maine' }} />
+      </StickyControlBar>
 
       {/* State context blurb */}
       <Card className="p-4 bg-muted text-sm text-muted-foreground space-y-1">

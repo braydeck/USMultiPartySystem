@@ -75,10 +75,10 @@ const TABS = [
   { id: 'presidential', label: 'Presidential General' },
   { id: 'senate',       label: 'Senate' },
   { id: 'house',        label: 'House' },
-  { id: 'rcv',          label: 'RCV Case Studies' },
   { id: 'legislation',  label: 'Legislation' },
   { id: 'parties',      label: 'Parties' },
   { id: 'quiz',         label: 'Who Are You?' },
+  { id: 'rcv',          label: 'RCV Case Studies' },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
