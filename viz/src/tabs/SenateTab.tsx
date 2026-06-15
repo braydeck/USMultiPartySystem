@@ -12,6 +12,7 @@ import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER } from '../constants/parties';
 import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { StickyControlBar } from '../components/shared/StickyControlBar';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -179,12 +180,12 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         </p>
       </div>
 
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap items-center gap-4">
+      <StickyControlBar>
         <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
-      </div>
+      </StickyControlBar>
 
       {/* FPTP vs STV Senate Comparison */}
       <Card className="p-5 border-2 border-indigo-200 space-y-3">

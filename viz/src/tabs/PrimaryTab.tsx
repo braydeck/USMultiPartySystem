@@ -9,6 +9,7 @@ import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PARTY_NAMES, PARTY_COLORS, F5_ORDER, getBlendColor } from '../constants/parties';
 import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { StickyControlBar } from '../components/shared/StickyControlBar';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BucketData = any; // from pureMultiPrimaryBuckets.json
@@ -84,42 +85,37 @@ export function PrimaryTab({
         </p>
       </div>
 
-      {/* Pipeline toggle */}
-      <div className="space-y-2">
-        <ToggleGroup
+      {/* Sticky controls */}
+      <StickyControlBar>
+        <ToggleGroup label="Scenario"
           value={pipeline}
           onChange={(p) => { setPipeline(p); setStageIdx(0); }}
           options={['rawMulti', 'factorDev'] as const}
           labels={PIPELINE_LABELS_LONG}
-          size="default"
         />
-        <p className="text-xs text-muted-foreground">{PIPELINE_DESC[pipeline]}</p>
-      </div>
-
-      {/* Stage selector + party legend — sticky below main nav */}
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 space-y-1.5">
-        <div className="flex flex-wrap gap-2">
-          {data.stagesOrder.map((s, i) => (
-            <Button
-              key={s}
-              onClick={() => setStageIdx(i)}
-              variant={stageIdx === i ? 'default' : 'secondary'}
-            >
-              {data.stageLabels[s] ?? s}
-            </Button>
-          ))}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground uppercase tracking-widest">Stage</span>
+          <div className="flex gap-1">
+            {data.stagesOrder.map((s, i) => (
+              <Button key={s} onClick={() => setStageIdx(i)}
+                variant={stageIdx === i ? 'default' : 'secondary'} size="sm">
+                {data.stageLabels[s] ?? s}
+              </Button>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-          {F5_ORDER.map(p => (
-            <span key={p} className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              <span
-                className="inline-block w-2.5 h-2.5 rounded-sm"
-                style={{ backgroundColor: PARTY_COLORS[p] }}
-              />
-              {PARTY_NAMES[p] ?? p}
-            </span>
-          ))}
-        </div>
+      </StickyControlBar>
+      <p className="text-xs text-muted-foreground">{PIPELINE_DESC[pipeline]}</p>
+      <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+        {F5_ORDER.map(p => (
+          <span key={p} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span
+              className="inline-block w-2.5 h-2.5 rounded-sm"
+              style={{ backgroundColor: PARTY_COLORS[p] }}
+            />
+            {PARTY_NAMES[p] ?? p}
+          </span>
+        ))}
       </div>
 
       {/* Primary Winnowing — bucket composition */}

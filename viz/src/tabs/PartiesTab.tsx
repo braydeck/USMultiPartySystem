@@ -6,6 +6,8 @@ import { FACTOR_LABELS } from '../constants/parties';
 import { CompareTab } from './CompareTab';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { StickyControlBar } from '../components/shared/StickyControlBar';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -49,21 +51,11 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
         </p>
       </div>
 
-      {/* Section toggle — sticky */}
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex gap-2">
-        <Button
-          onClick={() => setSection('profiles')}
-          variant={section === 'profiles' ? 'default' : 'secondary'}
-        >
-          Party Profiles
-        </Button>
-        <Button
-          onClick={() => setSection('compare')}
-          variant={section === 'compare' ? 'default' : 'secondary'}
-        >
-          Compare Policies
-        </Button>
-      </div>
+      <StickyControlBar>
+        <ToggleGroup label="View" value={section} onChange={setSection}
+          options={['profiles', 'compare'] as const}
+          labels={{ profiles: 'Party Profiles', compare: 'Compare Policies' }} />
+      </StickyControlBar>
 
       {section === 'profiles' && (
         <>

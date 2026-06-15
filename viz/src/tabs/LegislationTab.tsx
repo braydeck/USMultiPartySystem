@@ -4,6 +4,7 @@ import { UnifiedBillTable } from '../components/legislation/UnifiedBillTable';
 import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS } from '../constants/labels';
 import type { Pipeline, Method, WyomingRule } from '../constants/labels';
 
@@ -32,14 +33,14 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
         </p>
       </div>
 
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap items-center gap-3">
+      <StickyControlBar>
         <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Senate Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
-      </div>
+      </StickyControlBar>
 
       <LegislationDivergences
         houseVotes={houseVotes}

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
 import { PIPELINE_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
@@ -87,10 +88,10 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, ho
         </p>
       </div>
 
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap gap-2">
-        <ToggleGroup value={scenario} onChange={setScenario}
-          options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} size="default" />
-      </div>
+      <StickyControlBar>
+        <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
+          options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} />
+      </StickyControlBar>
 
       {/* Presidential Outcomes — scenario-dependent */}
       {scenario === 'rawMulti' ? (

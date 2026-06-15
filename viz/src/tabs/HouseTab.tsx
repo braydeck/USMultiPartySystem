@@ -22,6 +22,7 @@ import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { CLUSTER_TO_PARTY, F5_ORDER, FACTOR_LABELS } from '../constants/parties';
 import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { StickyControlBar } from '../components/shared/StickyControlBar';
 
 interface Props {
   seats: HouseSeat[];
@@ -162,12 +163,12 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
       </div>
 
       {/* Scenario toggle — sticky */}
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap items-center gap-3">
+      <StickyControlBar>
         <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
-      </div>
+      </StickyControlBar>
 
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 1: REPRESENTATION
