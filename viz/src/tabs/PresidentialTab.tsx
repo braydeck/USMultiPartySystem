@@ -3,6 +3,8 @@ import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteMo
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
+import { PIPELINE_LABELS } from '../constants/labels';
+import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
@@ -18,10 +20,7 @@ interface Props {
   houseStateMap: Record<string, HouseStateEntry>;
 }
 
-const PRES_LABELS: Record<PresidentialScenario, string> = {
-  rawMulti:  'Party-Line',
-  factorDev: 'Crossover',
-};
+const PRES_LABELS = PIPELINE_LABELS;
 
 function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: string }) {
   const color = PARTY_COLORS[partyCode] ?? '#6b7280';
@@ -89,15 +88,8 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, ho
       </div>
 
       <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap gap-2">
-        {(['rawMulti', 'factorDev'] as PresidentialScenario[]).map(s => (
-          <Button
-            key={s}
-            onClick={() => setScenario(s)}
-            variant={scenario === s ? 'default' : 'secondary'}
-          >
-            {PRES_LABELS[s]}
-          </Button>
-        ))}
+        <ToggleGroup value={scenario} onChange={setScenario}
+          options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} size="default" />
       </div>
 
       {/* Presidential Outcomes — scenario-dependent */}

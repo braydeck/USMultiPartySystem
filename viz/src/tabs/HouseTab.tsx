@@ -20,6 +20,8 @@ import { AttractionDriverChart } from '../components/house/AttractionDriverChart
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { CLUSTER_TO_PARTY, F5_ORDER, FACTOR_LABELS } from '../constants/parties';
+import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
+import { ToggleGroup } from '../components/shared/ToggleGroup';
 
 interface Props {
   seats: HouseSeat[];
@@ -161,28 +163,10 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
 
       {/* Scenario toggle — sticky */}
       <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground uppercase tracking-widest">Wyoming</span>
-          <div className="flex gap-1">
-            {([['double', 'Double (873)'], ['triple', 'Triple (~1,726)']] as const).map(([v, label]) => (
-              <Button key={v} onClick={() => setWyoming(v as WyomingRule)}
-                variant={wyoming === v ? 'default' : 'secondary'} size="sm">
-                {label}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground uppercase tracking-widest">Scenario</span>
-          <div className="flex gap-1">
-            {(['rawMulti', 'factorDev'] as const).map(s => (
-              <Button key={s} onClick={() => setScenario(s)}
-                variant={scenario === s ? 'default' : 'secondary'} size="sm">
-                {s === 'rawMulti' ? 'Party-Line' : 'Crossover'}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
+          options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
+        <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
+          options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════════

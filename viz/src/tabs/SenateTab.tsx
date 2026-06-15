@@ -10,6 +10,8 @@ import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER } from '../constants/parties';
+import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
+import { ToggleGroup } from '../components/shared/ToggleGroup';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -178,30 +180,10 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
       </div>
 
       <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground uppercase tracking-widest">Scenario</span>
-          <div className="flex gap-1">
-            {(['rawMulti', 'factorDev'] as const).map(p => (
-              <Button key={p} onClick={() => setPipeline(p)}
-                variant={pipeline === p ? 'default' : 'secondary'}
-                size="sm">
-                {p === 'factorDev' ? 'Crossover' : 'Party-Line'}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground uppercase tracking-widest">Method</span>
-          <div className="flex gap-1">
-            {(['condorcet', 'irv'] as const).map(m => (
-              <Button key={m} onClick={() => setMethod(m)}
-                variant={method === m ? 'default' : 'secondary'}
-                size="sm">
-                {m === 'condorcet' ? 'Condorcet' : 'IRV'}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
+          options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
+        <ToggleGroup label="Method" value={method} onChange={setMethod}
+          options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
       </div>
 
       {/* FPTP vs STV Senate Comparison */}

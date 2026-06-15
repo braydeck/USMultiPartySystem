@@ -7,6 +7,8 @@ import PrimaryBuckets from '../components/primary/PrimaryBuckets';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PARTY_NAMES, PARTY_COLORS, F5_ORDER, getBlendColor } from '../constants/parties';
+import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
+import { ToggleGroup } from '../components/shared/ToggleGroup';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BucketData = any; // from pureMultiPrimaryBuckets.json
@@ -27,16 +29,6 @@ interface Props {
 }
 
 type Pipeline = 'factorDev' | 'rawMulti';
-
-const PIPELINE_LABELS: Record<Pipeline, string> = {
-  factorDev: 'Factor Dev (37 candidates)',
-  rawMulti:  'Raw Multi (27 candidates)',
-};
-
-const PIPELINE_DESC: Record<Pipeline, string> = {
-  factorDev: '9 base parties + 28 axis-deviation variants (SO, AE, PC) at ±25% of inter-party SD. Candidates deviate on individual factor axes rather than blending toward a neighbor.',
-  rawMulti:  'All 9 parties field 3 intra-party candidates each (40/35/25 first-choice split). Same-party candidates share an identical factor-space position; prominence determines ballot ordering.',
-};
 
 export function PrimaryTab({
   factorDev, factorDevStageShares, factorDevBuckets,
@@ -94,17 +86,13 @@ export function PrimaryTab({
 
       {/* Pipeline toggle */}
       <div className="space-y-2">
-        <div className="flex flex-wrap gap-2">
-          {(['rawMulti', 'factorDev'] as Pipeline[]).map(p => (
-            <Button
-              key={p}
-              onClick={() => { setPipeline(p); setStageIdx(0); }}
-              variant={pipeline === p ? 'default' : 'secondary'}
-            >
-              {PIPELINE_LABELS[p]}
-            </Button>
-          ))}
-        </div>
+        <ToggleGroup
+          value={pipeline}
+          onChange={(p) => { setPipeline(p); setStageIdx(0); }}
+          options={['rawMulti', 'factorDev'] as const}
+          labels={PIPELINE_LABELS_LONG}
+          size="default"
+        />
         <p className="text-xs text-muted-foreground">{PIPELINE_DESC[pipeline]}</p>
       </div>
 
