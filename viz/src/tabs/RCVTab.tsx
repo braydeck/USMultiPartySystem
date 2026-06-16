@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useUrlState } from '../hooks/useUrlState';
 import type { RCVData, RCVRace, HouseStateEntry } from '../types';
 import { PARTY_COLORS, F5_ORDER } from '../constants/parties';
 import { Card } from '@/components/ui/card';
@@ -458,7 +459,7 @@ interface Props {
 }
 
 export function RCVTab({ data, houseStateMap }: Props) {
-  const [stateTab, setStateTab] = useState<'AK' | 'ME'>('AK');
+  const [stateTab, setStateTab] = useUrlState<'AK' | 'ME'>('rcvState', 'AK', { allowed: ['AK', 'ME'] });
 
   const races = data[stateTab];
   const stateLabel = stateTab === 'AK' ? 'Alaska' : 'Maine';

@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
+import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { SenateSeat, VoteModelRow, SenateScenario, ClusterProfile, ConstellationNode, FDSenateSeat, FDHouseSeat, FDCandidateProfile } from '../types';
@@ -82,9 +83,9 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
                              voteModel, clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers,
                              senateBuckets, senateCondorcet }: Props) {
-  const [pipeline, setPipeline] = useState<'factorDev' | 'rawMulti'>('rawMulti');
-  const [method, setMethod] = useState<'condorcet' | 'irv'>('condorcet');
-  const [parliamentFactor, setParliamentFactor] = useState('F5');
+  const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
+  const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
 
   const scenario: SenateScenario =
     pipeline === 'factorDev'

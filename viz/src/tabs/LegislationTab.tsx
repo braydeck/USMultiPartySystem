@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useUrlState } from '../hooks/useUrlState';
 import type { VoteModelRow, PresidentialElection } from '../types';
 import { UnifiedBillTable } from '../components/legislation/UnifiedBillTable';
 import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
@@ -16,9 +16,9 @@ interface Props {
 }
 
 export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiElection }: Props) {
-  const [pipeline, setPipeline] = useState<Pipeline>('rawMulti');
-  const [method,   setMethod]   = useState<Method>('condorcet');
-  const [wyoming,  setWyoming]  = useState<WyomingRule>('double');
+  const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
+  const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
 
   const election = pipeline === 'rawMulti' ? rawMultiElection : fdElection;
   const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;

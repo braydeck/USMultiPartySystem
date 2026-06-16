@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
+import { useUrlState, useUrlNumber } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { PrimaryStateWinner, PrimaryStageShares, PrimarySankeyData, FDPrimaryData, ClusterProfile } from '../types';
@@ -38,8 +39,8 @@ export function PrimaryTab({
 }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
-  const [pipeline, setPipeline] = useState<Pipeline>('rawMulti');
-  const [stageIdx, setStageIdx] = useState(0);
+  const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [stageIdx, setStageIdx] = useUrlNumber('stage', 0);
 
   const data: FDPrimaryData =
     pipeline === 'factorDev' ? factorDev : pureMulti;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useUrlState } from '../hooks/useUrlState';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { PartyCard } from '../components/parties/PartyCard';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
@@ -19,10 +19,10 @@ type SortFactor = 'F1' | 'F2' | 'F3' | 'F4' | 'F5';
 type Section = 'profiles' | 'compare';
 
 export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
-  const [sortFactor, setSortFactor] = useState<SortFactor>('F5');
-  const [cardMode, setCardMode] = useState<'strength' | 'percentile'>('strength');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [section, setSection] = useState<Section>('profiles');
+  const [sortFactor, setSortFactor] = useUrlState<SortFactor>('sort', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
+  const [cardMode, setCardMode] = useUrlState<'strength' | 'percentile'>('mode', 'strength', { allowed: ['strength', 'percentile'] });
+  const [sortDir, setSortDir] = useUrlState<'asc' | 'desc'>('dir', 'desc', { allowed: ['asc', 'desc'] });
+  const [section, setSection] = useUrlState<Section>('section', 'profiles', { allowed: ['profiles', 'compare'] });
 
   function toggleSort(f: SortFactor) {
     if (sortFactor === f) {

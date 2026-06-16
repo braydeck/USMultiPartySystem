@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useUrlState, resetUrlParams } from './hooks/useUrlState';
 import { PrimaryTab } from './tabs/PrimaryTab';
 import { SenateTab } from './tabs/SenateTab';
 import { HouseTab } from './tabs/HouseTab';
@@ -84,7 +84,9 @@ const TABS = [
 type TabId = typeof TABS[number]['id'];
 
 export default function App() {
-  const [tab, setTab] = useState<TabId>('about');
+  const [tab] = useUrlState<TabId>('tab', 'about', { allowed: TABS.map(t => t.id) });
+  // Tab navigation resets the query string so a tab's filters don't follow you to the next tab.
+  const setTab = (next: TabId) => resetUrlParams(next === 'about' ? {} : { tab: next });
 
   return (
     <TooltipProvider>

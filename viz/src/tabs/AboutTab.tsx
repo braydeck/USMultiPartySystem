@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER } from '../constants/parties';
 
@@ -127,7 +127,7 @@ const SECTIONS: { id: Section; label: string }[] = [
 ];
 
 export function AboutTab() {
-  const [active, setActive] = useState<Section>('overview');
+  const [active, setActive] = useUrlState<Section>('about', 'overview', { allowed: ['overview', 'data', 'parties', 'voting', 'scenarios', 'caveats'] });
 
   return (
     <div className="space-y-6">

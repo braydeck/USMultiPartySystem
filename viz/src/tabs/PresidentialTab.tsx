@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
+import { useUrlState } from '../hooks/useUrlState';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
@@ -40,7 +41,7 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
 }
 
 export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, houseStateMap }: Props) {
-  const [scenario, setScenario] = useState<PresidentialScenario>('rawMulti');
+  const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const data = scenario === 'rawMulti' ? rawMulti : factorDev;
 
   const clusterByParty = useMemo(
