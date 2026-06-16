@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { RCVData, RCVRace, HouseStateEntry } from '../types';
 import { PARTY_COLORS, F5_ORDER } from '../constants/parties';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 

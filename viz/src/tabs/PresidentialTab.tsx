@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
 import { PIPELINE_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
