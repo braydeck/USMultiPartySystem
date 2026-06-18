@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: "US Multi-Party System: A Proportional-Representation Election Simulation"
+message: "If you use this simulation or its data, please cite it as below."
+type: software
+authors:
+  - family-names: Decker
+    given-names: Brayden
+repository-code: "https://github.com/braydeck/USMultiPartySystem"
+url: "https://usmultipartysystem.pages.dev/"
+abstract: >-
+  An interactive simulation of US elections under proportional representation,
+  built from 45,707 2024 Cooperative Election Study responses via polychoric EFA,
+  DPGMM clustering, spatial ballot generation, and STV / IRV / Condorcet elections.
+keywords:
+  - proportional representation
+  - single transferable vote
+  - ranked choice voting
+  - Condorcet
+  - electoral reform
+  - political science
+license: GPL-3.0
+date-released: "2026-06-18"
