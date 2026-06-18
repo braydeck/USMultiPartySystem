@@ -556,6 +556,19 @@ export function AboutTab() {
           </Card>
         </div>
       )}
+
+      <div className="border-t border-border pt-5 mt-2 text-center text-xs text-muted-foreground">
+        Built by <span className="font-medium text-foreground">Brayden Decker</span>
+        <span className="mx-2 text-slate-300">·</span>
+        <a
+          href="https://brayden-decker-contact.pages.dev/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-indigo-600 hover:underline"
+        >
+          Contact me ↗
+        </a>
+      </div>
     </div>
   );
 }
