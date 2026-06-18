@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import type { QuizQuestion as QuizQuestionType, ClusterProfile, VoteModelRow, HouseSeat } from '../types';
+import type { QuizQuestion as QuizQuestionType, ClusterProfile, HouseSeat } from '../types';
 import { QuizQuestion } from '../components/quiz/QuizQuestion';
 import { QuizProgress } from '../components/quiz/QuizProgress';
-import { QuizResult } from '../components/quiz/QuizResult';
+import { QuizResult, type RankEntry } from '../components/quiz/QuizResult';
 import { scoreQuiz } from '../utils/quizScoring';
 import { useUrlState } from '../hooks/useUrlState';
 import { F5_ORDER } from '../constants/parties';
@@ -12,14 +12,13 @@ import { Button } from '@/components/ui/button';
 interface Props {
   questions: QuizQuestionType[];
   clusters: ClusterProfile[];
-  houseVotes: VoteModelRow[];
   houseSeats: HouseSeat[];
 }
 
-export function QuizTab({ questions, clusters, houseVotes, houseSeats }: Props) {
+export function QuizTab({ questions, clusters, houseSeats }: Props) {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [current, setCurrent] = useState(0);
-  const [scored, setScored] = useState<{ topScore: number; secondScore: number } | null>(null);
+  const [ranking, setRanking] = useState<RankEntry[] | null>(null);
   // Result party lives in the URL so it can be deep-linked / shared (?result=STY).
   const [resultParty, setResultParty] = useUrlState<string>('result', '', {
     allowed: [...F5_ORDER],
@@ -39,9 +38,12 @@ export function QuizTab({ questions, clusters, houseVotes, houseSeats }: Props) 
       setCurrent(c => c + 1);
     } else {
       const scores = scoreQuiz(questions, answers);
-      const top = clusters.find(c => c.id === scores[0].clusterId);
-      setScored({ topScore: scores[0].score, secondScore: scores[1]?.score ?? 0 });
-      if (top) setResultParty(top.party);
+      const top3: RankEntry[] = scores.slice(0, 3).map(s => {
+        const cl = clusters.find(c => c.id === s.clusterId);
+        return { party: cl?.party ?? '', partyName: cl?.partyName ?? '', score: s.score };
+      });
+      setRanking(top3);
+      if (top3[0].party) setResultParty(top3[0].party);
     }
   }
 
@@ -52,15 +54,15 @@ export function QuizTab({ questions, clusters, houseVotes, houseSeats }: Props) 
   function handleRetake() {
     setAnswers({});
     setCurrent(0);
-    setScored(null);
+    setRanking(null);
     setResultParty('');
   }
 
-  // Result view — either just taken (scored) or arrived via a shared ?result=CODE link.
+  // Result view — either just taken (ranking set) or arrived via a shared ?result=CODE link.
   if (resultParty) {
     const cluster = clusters.find(c => c.party === resultParty);
     if (cluster) {
-      const isShared = !scored;
+      const isShared = !ranking;
       return (
         <div className="space-y-8">
           <div>
@@ -76,10 +78,8 @@ export function QuizTab({ questions, clusters, houseVotes, houseSeats }: Props) 
           <QuizResult
             cluster={cluster}
             seats={seatsById[cluster.id] ?? 0}
-            topScore={scored?.topScore}
-            secondScore={scored?.secondScore}
             shared={isShared}
-            houseVotes={houseVotes}
+            ranking={ranking ?? undefined}
             onRetake={handleRetake}
           />
         </div>

@@ -1,38 +1,42 @@
 import { useState } from 'react';
-import type { ClusterProfile, VoteModelRow } from '../../types';
+import type { ClusterProfile } from '../../types';
 import { FactorBar } from '../shared/FactorBar';
-import { PARTY_COLORS, PARTY_TAGLINES } from '../../constants/parties';
+import { PARTY_COLORS, PARTY_TAGLINES, PARTY_BLURBS } from '../../constants/parties';
 import { resetUrlParams } from '../../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
+export interface RankEntry { party: string; partyName: string; score: number }
+
 interface Props {
   cluster: ClusterProfile;
   seats: number;
-  topScore?: number;
-  secondScore?: number;
   shared?: boolean;
-  houseVotes: VoteModelRow[];
+  ranking?: RankEntry[];
   onRetake: () => void;
 }
 
 const SUBSTACK = 'https://braydendecker.substack.com/';
 
-export function QuizResult({ cluster, seats, topScore, secondScore, shared, houseVotes, onRetake }: Props) {
+export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props) {
   const color = PARTY_COLORS[cluster.party] ?? '#6b7280';
   const tagline = PARTY_TAGLINES[cluster.party] ?? '';
-  const isBlend = topScore != null && secondScore != null && Math.abs(topScore - secondScore) < 0.03;
+  const blurb = PARTY_BLURBS[cluster.party] ?? '';
+  const isBlend = !!ranking && ranking.length > 1 && Math.abs(ranking[0].score - ranking[1].score) < 0.03;
   const [copied, setCopied] = useState(false);
 
   const shareUrl = `https://usmultipartysystem.pages.dev/r/${cluster.party}`;
   const shareText = `I'm ${cluster.partyName} in a 9-party America. Which party are you?`;
+
+  // Defining positions: the party's biggest deviations from the national average.
+  const positions = (cluster.keyPositions ?? []).slice(0, 5);
 
   async function handleShare() {
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Which party are you?', text: shareText, url: shareUrl });
         return;
-      } catch { /* user cancelled or unsupported — fall through to copy */ }
+      } catch { /* cancelled / unsupported — fall through to copy */ }
     }
     try {
       await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
@@ -40,13 +44,6 @@ export function QuizResult({ cluster, seats, topScore, secondScore, shared, hous
       setTimeout(() => setCopied(false), 2000);
     } catch { /* clipboard blocked — ignore */ }
   }
-
-  const strongSupport = houseVotes
-    .filter(r => { const cv = cluster.variables[r.variable]; return cv && cv.pct > 75; })
-    .slice(0, 3);
-  const strongOppose = houseVotes
-    .filter(r => { const cv = cluster.variables[r.variable]; return cv && cv.pct < 25; })
-    .slice(0, 3);
 
   return (
     <div className="max-w-xl mx-auto" aria-live="polite">
@@ -56,11 +53,12 @@ export function QuizResult({ cluster, seats, topScore, secondScore, shared, hous
             {shared ? 'The Party' : 'Your Match'}
           </div>
           <div className="text-2xl font-bold" style={{ color }}>{cluster.partyName}</div>
-          {tagline && <div className="text-sm text-foreground/80 mt-1">{tagline}</div>}
-          <div className="text-sm text-muted-foreground mt-2">{seats} of 873 House seats</div>
+          {tagline && <div className="text-sm font-medium text-foreground/80 mt-1">{tagline}</div>}
+          {blurb && <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{blurb}</p>}
+          <div className="text-xs text-muted-foreground mt-3">{seats} of 873 House seats under proportional rules</div>
           {isBlend && (
-            <div className="text-xs text-muted-foreground mt-2">
-              Close call. You also align closely with a neighboring party.
+            <div className="text-xs text-muted-foreground mt-1">
+              Close call. You align almost as well with {ranking![1].partyName}.
             </div>
           )}
         </div>
@@ -71,33 +69,50 @@ export function QuizResult({ cluster, seats, topScore, secondScore, shared, hous
         </div>
       </Card>
 
-      {strongSupport.length > 0 && (
-        <div className="mb-4">
-          <div className="text-sm font-semibold text-green-600 mb-2">Strongly supports:</div>
-          <ul className="space-y-1">
-            {strongSupport.map(r => (
-              <li key={r.variable} className="text-sm text-foreground flex items-start gap-2">
-                <span className="text-green-500 mt-0.5" aria-hidden="true">✓</span>
-                <span className="sr-only">Supports: </span>
-                {r.question}
-              </li>
-            ))}
-          </ul>
+      {!shared && ranking && ranking.length > 1 && (
+        <div className="mb-6">
+          <div className="text-sm font-semibold text-foreground mb-2">Your closest matches</div>
+          <div className="space-y-1.5">
+            {ranking.map(r => {
+              const c = PARTY_COLORS[r.party] ?? '#6b7280';
+              return (
+                <div key={r.party} className="flex items-center gap-2">
+                  <span className="w-36 shrink-0 text-sm text-foreground">{r.partyName}</span>
+                  <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${Math.round(r.score * 100)}%`, backgroundColor: c }} />
+                  </div>
+                  <span className="w-10 text-right text-xs text-muted-foreground tabular-nums">{Math.round(r.score * 100)}%</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      {strongOppose.length > 0 && (
+      {positions.length > 0 && (
         <div className="mb-6">
-          <div className="text-sm font-semibold text-red-600 mb-2">Strongly opposes:</div>
-          <ul className="space-y-1">
-            {strongOppose.map(r => (
-              <li key={r.variable} className="text-sm text-foreground flex items-start gap-2">
-                <span className="text-red-500 mt-0.5" aria-hidden="true">✗</span>
-                <span className="sr-only">Opposes: </span>
-                {r.question}
-              </li>
-            ))}
+          <div className="text-sm font-semibold text-foreground mb-2">
+            What sets {cluster.partyName} apart
+          </div>
+          <ul className="space-y-1.5">
+            {positions.map((p, i) => {
+              const supports = p.direction === 'supports';
+              return (
+                <li key={i} className="text-sm text-foreground flex items-start gap-2">
+                  <span className="mt-0.5 shrink-0" style={{ color: supports ? '#16a34a' : '#dc2626' }} aria-hidden="true">
+                    {supports ? '↑' : '↓'}
+                  </span>
+                  <span>
+                    <span className="sr-only">{supports ? 'More supportive: ' : 'More opposed: '}</span>
+                    {p.question}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
+          <div className="text-xs text-muted-foreground mt-2">
+            Positions where this party diverges most from the national average.
+          </div>
         </div>
       )}
 

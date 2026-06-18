@@ -36,6 +36,21 @@ export const PARTY_TAGLINES: Record<string, string> = {
   NAT: 'Cultural conservatism, economic nationalism, strong borders',
 };
 
+// One-to-two sentence character sketches (grounded in the cluster profiles).
+// Note: "Progressive" here is the urban, college-educated, institution-TRUSTING
+// far-left — distinct from the DSA, which shares its policy but distrusts institutions.
+export const PARTY_BLURBS: Record<string, string> = {
+  PRG: 'The urban, college-educated, institutionalist left. Strongly progressive on economics and culture, but unlike the DSA they trust elections and government to deliver.',
+  DSA: 'The young, urban democratic-socialist left. As progressive as the Progressives on policy, but deeply distrustful of institutions and the political system.',
+  LIB: 'The professional-class establishment left. Progressive economics and civil liberties, paired with a surprisingly hawkish streak on policing and the border.',
+  SD:  'The working-class, racially diverse center-left. Pro-safety-net and pro-Dreamer, but more moderate than the rest of the left on immigration enforcement and taxes.',
+  STY: 'The spatial center of the system and its hardest-to-place party. Young, majority non-white, lowest-income, religiously traditional, economically progressive, and deeply distrustful of institutions. No current party speaks to them.',
+  CUP: 'The religious, mostly-white moderate and the classic swing voter. Law-and-order and institution-trusting, centrist on economics and culture.',
+  CON: 'The pre-Trump, Reaganite right. Low-tax and law-and-order, but trusts elections, backs universal background checks, and is more moderate on immigration than the populists.',
+  POP: 'The populist right. Immigration-restrictionist and election-skeptical, but economically populist: a chunk even want to raise corporate taxes.',
+  NAT: 'The populist far-right pole. Deeply anti-immigration, high on racial resentment and religious traditionalism, and the furthest from the median voter.',
+};
+
 export const CLUSTER_TO_PARTY: Record<string, string> = {
   '0': 'CON',
   '1': 'SD',
