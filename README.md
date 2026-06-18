@@ -1,6 +1,8 @@
 # American Multi-Party Electoral Simulation
 
-A full-stack simulation of what American politics might look like under proportional representation, using real ideological data from the **2024 Cooperative Election Study (CES)** — 60,000+ respondents, 45,707 after listwise deletion.
+A full-stack simulation of what American politics might look like under proportional representation, using real ideological data from the **2024 Cooperative Election Study (CES)**: 60,000+ respondents, 45,707 after listwise deletion.
+
+![The simulated nine-party U.S. House: 873 seats across an ideological spectrum, no party near a majority.](viz/public/og-image.png)
 
 > **▶ Explore the live simulation: <https://usmultipartysystem.pages.dev/>**
 >
