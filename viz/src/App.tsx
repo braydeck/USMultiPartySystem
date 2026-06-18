@@ -11,6 +11,7 @@ import { OverviewTab } from './tabs/OverviewTab';
 import { RCVTab } from './tabs/RCVTab';
 import { Tabs, TabsList, TabsTrigger } from './components/ui/tabs';
 import { TooltipProvider } from './components/ui/tooltip';
+import { SocialLinks } from './components/SocialLinks';
 
 import senateVoteModelData from './data/senateVoteModel.json';
 import houseSeatsData from './data/houseSeats.json';
@@ -238,8 +239,11 @@ export default function App() {
         )}
       </main>
 
-      <footer className="border-t border-border mt-12 py-6 text-center text-xs text-muted-foreground">
-        Built on CES 2024 survey data · 10-party STV simulation · 873 / 1,726 House seats · 51 Senate seats
+      <footer className="border-t border-border mt-12 py-8 text-center text-xs text-muted-foreground">
+        <SocialLinks />
+        <p className="mt-4">
+          Built on CES 2024 survey data · 10-party STV simulation · 873 / 1,726 House seats · 51 Senate seats
+        </p>
       </footer>
     </Tabs>
     </TooltipProvider>

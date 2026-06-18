@@ -2,6 +2,8 @@
 
 A full-stack simulation of what American politics might look like under proportional representation, using real ideological data from the **2024 Cooperative Election Study (CES)** — 60,000+ respondents, 45,707 after listwise deletion.
 
+> **▶ Explore the live simulation: <https://usmultipartysystem.pages.dev/>**
+>
 > For the full technical reference (agent/developer guide), see [`docs/AGENTS.md`](docs/AGENTS.md).
 > For detailed EFA factor loadings, see [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md).
 
@@ -11,8 +13,8 @@ This project explores what American politics might look like under different ele
 - **Multi-party proportional representation** instead of winner-take-all
 - **Single Transferable Vote (STV)** primaries with Droop quota surplus transfers
 - **A rolling presidential primary** with geographic balance across 4 rounds
-- **Instant Runoff Voting (IRV)** for senate general elections
-- **Condorcet/Copeland general elections** with proportional elector allocation
+- **Ranked Pairs Condorcet and IRV** for senate general elections (reported side by side)
+- **Two candidate fields** — party-line vs. crossover — run through every chamber and the presidency
 ---
 
 ## Pipeline at a Glance
@@ -28,23 +30,23 @@ This project explores what American politics might look like under different ele
   DPGMM Clustering
   Factor scores → 10 voter typology clusters (C0–C9)
         │
+        ▼
+  Two candidate fields (used for House, Senate, and President)
+  • Party-line  (pure_multi):       3 identical-platform candidates per party
+  • Crossover   (factor_deviation): candidates shifted ±1 axis off base
+        │
         ├──────────────────────────────────────┐
         ▼                                      ▼
   House STV Simulation                   Senate Simulation
   873 seats / 180 districts              51 senators (one per state)
-  Droop quota + Gregory surplus          STV primary → Ranked Pairs Condorcet
-  Canonical: No_C7_canonical/            Condorcet + IRV scenarios
+  Droop quota + Gregory surplus          STV primary → Condorcet + IRV
+  → pure_multi/ + factor_deviation/      4 scenarios (2 fields × 2 methods)
         │                                      │
         └──────────────┬───────────────────────┘
                        ▼
              Chamber Vote Model
              37 binary policy items
              Sum-of-Binomials → P(pass)
-                       │
-                       ▼
-           Cross-Chamber Coalition Analysis
-           23 types × 5 factors
-           Per-factor alignment (k=2 poles + absolute tiers)
 ```
 
 ---
@@ -139,34 +141,34 @@ NAT is the extreme high end (+1.51); PRG (−0.99) and LIB (−0.95) are the ext
 | DSA | 22 | 2.5% | 14 | 6 | 2 |
 | PRG | 14 | 1.6% | 10 | 3 | 1 |
 
+This is the **party-line** field. The **crossover** field (`run_fd_house_stv.py` → `data/outputs/factor_deviation/house/`) runs the same STV over axis-shifted candidates; the viz House tab toggles between the two fields and the double/triple Wyoming-rule apportionments.
+
 ---
 
 ## Senate Simulation
 
-**Scripts:** `pipeline/run_senate_simulation.py` (Condorcet), `pipeline/run_senate_irv.py` (IRV)
-**Output:** `data/outputs/senate/`
+**Scripts:** crossover field — `pipeline/run_fd_senate_simulation.py`; party-line field — `pipeline/pure_only/run_pure_multi_senate.py` (each runs both Condorcet and IRV)
+**Outputs:** `data/outputs/factor_deviation/senate/` and `data/outputs/pure_multi/senate/` — `senate_composition.csv` (Condorcet) and `senate_irv_composition.csv` (IRV)
 
-- **51 senators** — one per state (50 states + DC)
-- **Candidate generation per state:** up to 18 candidates
-  - *Pure* candidates: any cluster with ≥5% weighted share in that state
-  - *Co-occurrence straddlers*: blend candidates based on within-state top-2 cluster co-occurrence rates
-  - *Wild card cross-aisle*: two clusters each ≥15% state share AND factor-space distance ≥1.40
-- **Primary:** STV elimination → 5 finalists
-- **General:** Ranked Pairs Condorcet → 1 senator (or IRV alternative)
+- **51 senators** — one per state (50 states + DC).
+- The senate uses the same **two candidate fields** as the rest of the simulation (there are no "blend" candidates):
+  - **Party-line (`pure_multi`)** — 3 candidates per party, all on the identical party platform (e.g. `STY_1`). Tests proportional voting with parties as monoliths.
+  - **Crossover (`factor_deviation`)** — 9 pure party candidates + 28 *crossover* candidates that shift one party off its base on a single axis: Security & Order, Anti-Establishment, or Populist Conservatism (±). Variant codes like `STY_lo_ae` (Solidarity, less anti-establishment).
+- In each state, an **STV primary** narrows the field; the **general** is then decided two ways — **Ranked Pairs Condorcet** (beats-all winner) and **IRV** (last-place elimination).
+- Two fields × two methods = **4 scenarios.**
 
-Senate candidate factor positions use linear interpolation: `blend = w × pure_primary + (1−w) × pure_secondary`.
+**Senate seats by party across the four scenarios:**
 
-**Top seat types (IRV scenario):**
+| Party | Crossover Cond | Crossover IRV | Party-line Cond | Party-line IRV |
+|-------|:--:|:--:|:--:|:--:|
+| STY | 34 | 19 | 33 | 11 |
+| SD  | 11 | 27 | 15 | 26 |
+| CON | 1  | 3  | 1  | 11 |
+| POP | 5  | 1  | 1  | 2  |
+| CUP | 0  | 1  | 1  | 0  |
+| LIB | 0  | 0  | 0  | 1  |
 
-| Type | Seats | Description |
-|------|-------|-------------|
-| SD/STY | 10 | Social Democrat–Solidarity |
-| CON/SD | 6 | Conservative–Social Democrat centrist |
-| CON/STY | 5 | Conservative–Solidarity working-class right |
-| STY/SD | 5 | Solidarity–Social Democrat |
-| CON/POP | 4 | Conservative–Populist populist right |
-| SD/LIB | 4 | Social Democrat–Liberal |
-| CON/CUP | 4 | Conservative–Civic Union Party moderate |
+NAT, DSA, and PRG win 0 senate seats in every scenario. **Pattern:** Condorcet rewards broad acceptability, so Solidarity (the spatial median) dominates; IRV rewards first-choice intensity, so Social Democrat leads and Conservative breaks through in the party-line field. Full state-by-state results are in [`comms/party_profiles.md`](comms/party_profiles.md).
 
 ---
 
@@ -195,21 +197,15 @@ These chambers are cross-cutting — they simultaneously pass both tax cuts AND 
 ## Coalition Analysis
 
 **Script:** `pipeline/cross_chamber_coalitions.py`
-**Output:** `data/outputs/coalitions/`
+**Output:** `data/outputs/coalitions/` (feeds the viz House tab's coalition view)
 
-Shows where senate and house party types align **within** each of the 5 factor dimensions — revealing issue-specific coalition partners rather than overall ideological proximity.
-
-**23 types:** 20 senate types (blends + pure) + 3 house-only pure types not in senate (NAT, DSA, PRG).
-
-**Per-factor analysis:**
-- `k=2` poles: 1D k-means on the 23 winner types → which "side" each type falls on
-- Absolute tiers: fixed EFA scale thresholds → position relative to the full electorate
+A secondary diagnostic — *not* the election model (the chambers are elected via the party-line and crossover fields above). For each of the 5 factor dimensions it shows which house and senate party types fall on the same side, surfacing issue-specific coalition partners rather than overall ideological proximity. Per factor it computes `k=2` poles (1D k-means) and absolute EFA-scale tiers.
 
 | Output File | Contents |
 |-------------|----------|
-| `coalition_type_profiles.csv` | 23 rows: F1–F5 scores, chamber tag, seat counts |
-| `coalition_factor_alignment.csv` | 115 rows: per-(factor × type) rank, k=2 pole, absolute tier |
-| `coalition_pairwise.csv` | 253 pairs: per-factor distances, normalized alignment scores (0–1) |
+| `coalition_type_profiles.csv` | per-type F1–F5 scores, chamber tag, seat counts |
+| `coalition_factor_alignment.csv` | per-(factor × type) rank, k=2 pole, absolute tier |
+| `coalition_pairwise.csv` | per-factor pairwise alignment scores (0–1) |
 
 ---
 
@@ -219,25 +215,16 @@ All outputs are under `data/outputs/`.
 
 | File | Description |
 |------|-------------|
-| `No_C7_canonical/stv_seat_summary.csv` | House seat totals by party and density tier |
-| `No_C7_canonical/stv_results_by_district.csv` | Per-district STV results with round-by-round elimination |
-| `No_C7_canonical/transfer_matrix_directed.csv` | Vote transfer % when each party is eliminated |
-| `affinity/second_choice_row_pct.csv` | % of each party's voters ranking each other party 2nd |
-| `affinity/mean_rank_proximity.csv` | Full preference ordering proximity (0=far, 1=close) |
-| `affinity/factor_mahalanobis.csv` | Mahalanobis distance between cluster centroids in 5D factor space |
+| `pure_multi/house/stv_seat_summary.csv` | **Party-line House** seat totals by party + density tier (→ `houseSeats.json`) |
+| `factor_deviation/house/stv_seat_summary.csv` | **Crossover House** seat totals (→ `fdHouseSeats.json`) |
+| `pure_multi/senate/senate_composition.csv` · `senate_irv_composition.csv` | **Party-line Senate** — Condorcet / IRV winner per state |
+| `factor_deviation/senate/senate_composition.csv` · `senate_irv_composition.csv` | **Crossover Senate** — Condorcet / IRV winner per state |
+| `No_C7_canonical/{ballots_checkpoint.parquet, district_apportionment.csv}` | Shared ballot + apportionment cache the pure_multi / factor_deviation runs read as input — see [DATA_SOURCES.md](docs/DATA_SOURCES.md) |
+| `No_C7_canonical/transfer_matrix_10party.csv` | Vote-transfer matrix (→ viz `transferMatrix.json`) |
 | `profiles/cluster_stats.csv` | Per-item statistics for all 10 clusters (policy + demographics) |
-| `profiles/blend_stats.csv` | Same stats for senate blend candidate types |
-| `senate/senate_composition.csv` | One row per state: Condorcet senator type + vote shares |
-| `senate/senate_irv_composition.csv` | One row per state: IRV winner + runner-up |
-| `senate/senate_chamber_profile.csv` | Policy/demographic profiles for 18 senate types + aggregates |
-| `senate/senate_vote_model.csv` | 37-item bill passage probability (senate) |
-| `senate/senate_voting_blocs.csv` | Ward clustering of senate types in 5D factor space |
-| `senate/candidate_proximity.csv` | Pairwise Euclidean distance between senate candidate types |
-| `house_chamber_profile.csv` | Policy/demographic profiles for house (canonical scenario) |
-| `house_vote_model.csv` | 37-item bill passage probability (house) |
-| `coalitions/coalition_type_profiles.csv` | 23 types with factor positions and seat counts |
-| `coalitions/coalition_factor_alignment.csv` | Per-factor pole and tier assignments |
-| `coalitions/coalition_pairwise.csv` | Pairwise factor alignment scores |
+| `senate/senate_chamber_profile.csv` · `house_chamber_profile.csv` | Seat-weighted policy aggregates per chamber (vote-model inputs) |
+| `senate/senate_vote_model.csv` · `house_vote_model.csv` | 37-item bill passage probability per chamber |
+| `coalitions/coalition_type_profiles.csv` (+ `_factor_alignment`, `_pairwise`) | Secondary cross-chamber factor-alignment diagnostic |
 
 ---
 
@@ -246,22 +233,26 @@ All outputs are under `data/outputs/`.
 All scripts live in `pipeline/` and use relative paths anchored to the project root.
 
 ```bash
-# ── STV House ──────────────────────────────────────────────────────────────
-python3 pipeline/stv_main.py                       # Full run steps 1–5 (~3.5s)
-python3 pipeline/stv_main.py --steps 3,4,5        # Resume from ballot checkpoint
-python3 pipeline/stv_affinity.py                   # Inter-party affinity matrices
-python3 pipeline/cluster_profile_viz.py            # HTML cluster profile reports
+# ── Base ballots / apportionment (shared cache) ─────────────────────────────
+python3 pipeline/stv_main.py                       # Build ballots_checkpoint + apportionment
+python3 pipeline/stv_main.py --steps 3,4,5         # Resume from ballot checkpoint
 
-# ── Senate & Analysis ──────────────────────────────────────────────────────
-python3 pipeline/run_senate_simulation.py          # Condorcet senate (~30s)
-python3 pipeline/run_senate_irv.py                 # IRV senate alternative
-python3 pipeline/generate_candidate_profiles.py    # Candidate factor centroids
-python3 pipeline/generate_blend_stats.py           # Blend candidate policy profiles
-python3 pipeline/senate_chamber_profile.py         # Senate chamber policy aggregate
+# ── Party-line field (pure_multi) ───────────────────────────────────────────
+python3 pipeline/pure_only/generate_pure_multi_ballots.py
+python3 pipeline/pure_only/run_pure_multi_house_stv.py     # → pure_multi/house/
+python3 pipeline/pure_only/run_pure_multi_senate.py        # → pure_multi/senate/ (Condorcet + IRV)
+
+# ── Crossover field (factor_deviation) ──────────────────────────────────────
+python3 pipeline/generate_factor_deviation_candidates.py
+python3 pipeline/generate_factor_deviation_ballots.py
+python3 pipeline/run_fd_house_stv.py                       # → factor_deviation/house/
+python3 pipeline/run_fd_senate_simulation.py               # → factor_deviation/senate/ (Condorcet + IRV)
+
+# ── Shared analysis ─────────────────────────────────────────────────────────
 python3 pipeline/house_chamber_profile.py          # House chamber policy aggregate
-python3 pipeline/senate_voting_blocs.py            # Hierarchical voting bloc clustering
-python3 pipeline/chamber_vote_model.py             # Bill passage probabilities
-python3 pipeline/cross_chamber_coalitions.py       # Cross-chamber coalition analysis
+python3 pipeline/senate_chamber_profile.py         # Senate chamber policy aggregate
+python3 pipeline/chamber_vote_model.py             # 37-item bill passage probabilities
+python3 pipeline/cross_chamber_coalitions.py       # Secondary coalition diagnostic
 
 # ── Visualization ──────────────────────────────────────────────────────────
 cd viz && python3 scripts/prepare_data.py          # Regenerate JSON from outputs
