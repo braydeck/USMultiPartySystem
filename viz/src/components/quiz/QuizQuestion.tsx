@@ -1,13 +1,16 @@
 import { Button } from '@/components/ui/button';
 
+interface Option { value: number; label: string }
+
 interface Props {
   question: string;
   domain: string;
   selected: number | null;
   onSelect: (v: number) => void;
+  options?: Option[];
 }
 
-const OPTIONS = [
+const DEFAULT_OPTIONS: Option[] = [
   { value: 1, label: 'Strongly Agree' },
   { value: 0.75, label: 'Agree' },
   { value: 0.5, label: 'Neutral' },
@@ -15,7 +18,8 @@ const OPTIONS = [
   { value: 0, label: 'Strongly Disagree' },
 ];
 
-export function QuizQuestion({ question, domain, selected, onSelect }: Props) {
+export function QuizQuestion({ question, domain, selected, onSelect, options }: Props) {
+  const OPTIONS = options ?? DEFAULT_OPTIONS;
   return (
     <div aria-live="polite">
       <div className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{domain}</div>

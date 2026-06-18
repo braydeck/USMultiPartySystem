@@ -107,6 +107,7 @@ export function QuizTab({ questions, clusters, houseVotes, houseSeats }: Props) 
           domain={q.domain}
           selected={answers[current] ?? null}
           onSelect={handleSelect}
+          options={q.options}
         />
       </Card>
 

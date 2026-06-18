@@ -170,21 +170,43 @@
     }
   },
   {
-    "variable": "CC24_324b",
+    "variable": "CC24_325_median",
     "factor": "F4",
-    "question": "Permit abortion only in rape/incest/life danger cases",
+    "question": "Abortion should be legal:",
     "domain": "Abortion",
     "clusterSupport": {
-      "0": 0.726,
-      "1": 0.369,
-      "2": 0.568,
-      "3": 0.722,
-      "4": 0.257,
-      "5": 0.604,
-      "6": 0.654,
-      "8": 0.142,
-      "9": 0.061
-    }
+      "0": 0.25,
+      "1": 0.45,
+      "2": 0.325,
+      "3": 0.175,
+      "4": 0.6,
+      "5": 0.2,
+      "6": 0.3,
+      "8": 0.7,
+      "9": 0.8
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "A woman's choice, without limits"
+      },
+      {
+        "value": 0.6,
+        "label": "Up to about 24 weeks (viability)"
+      },
+      {
+        "value": 0.375,
+        "label": "Up to about 15 weeks"
+      },
+      {
+        "value": 0.15,
+        "label": "Up to about 6 weeks"
+      },
+      {
+        "value": 0.0,
+        "label": "Only for rape, incest, or the mother's life"
+      }
+    ]
   },
   {
     "variable": "CC24_421_1_agree",

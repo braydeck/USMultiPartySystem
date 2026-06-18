@@ -139,6 +139,8 @@ export interface QuizQuestion {
   question: string;
   domain: string;
   clusterSupport: Record<string, number>;
+  /** Optional custom answer scale (e.g. abortion-by-weeks). Defaults to the 5-point agree/disagree scale. */
+  options?: { value: number; label: string }[];
 }
 
 export interface TransferMatrix {
