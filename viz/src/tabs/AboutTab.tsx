@@ -57,7 +57,7 @@ const VOTING_SYSTEMS = [
     used: 'Presidential General · Senate',
     color: '#16a34a',
     how: 'Voters rank candidates. The last-place candidate is eliminated each round and their votes redistribute. Continues until someone clears 50%.',
-    why: 'Eliminates spoiler effects. The winner has majority support after preferences are accounted for — often different from first-choice plurality.',
+    why: 'Eliminates spoiler effects. The winner has majority support after preferences are accounted for, often different from first-choice plurality.',
   },
   {
     name: 'Condorcet',
@@ -74,7 +74,7 @@ const SCENARIOS = [
     name: 'Party-Line',
     tag: '27 candidates',
     color: '#1d4ed8',
-    desc: 'Each of the 9 parties fields exactly 3 intra-party candidates with a 40/35/25 first-choice split. All three share identical ideological positions — only prominence (name recognition) differs.',
+    desc: 'Each of the 9 parties fields exactly 3 intra-party candidates with a 40/35/25 first-choice split. All three share identical ideological positions; only prominence (name recognition) differs.',
     insight: 'Isolates the structural effect of proportional voting itself. Same-party candidates compete on prominence, not ideology.',
     candidates: 'SD_1, SD_2, SD_3 · CON_1, CON_2, CON_3 · ...',
   },
@@ -82,8 +82,8 @@ const SCENARIOS = [
     name: 'Crossover',
     tag: '37 candidates',
     color: '#ea580c',
-    desc: '9 base candidates + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation — producing candidates like SD_hi_so (a Social Democrat who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
-    insight: 'Models intra-party ideological diversity. Voters can express preference not just for a party, but for a faction within it.',
+    desc: '9 base candidates + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like SD_hi_so (a Social Democrat who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
+    insight: 'Models intra-party ideological diversity. Voters can express a preference not just for a party, but for a faction within it.',
     candidates: 'SD · SD_hi_so · SD_lo_so · SD_hi_ae · ...',
   },
 ];
@@ -97,12 +97,12 @@ const STEPS = [
   {
     n: 2, color: '#7c3aed',
     title: 'Exploratory Factor Analysis (EFA)',
-    body: 'Policy responses are reduced to 5 underlying ideological dimensions using polychoric EFA. These factors capture the latent structure of American opinion — not what people say they believe, but the correlated belief clusters that actually organize political space.',
+    body: 'Policy responses are reduced to 5 underlying ideological dimensions using polychoric EFA. These factors capture the latent structure of American opinion: not what people say they believe, but the correlated belief clusters that actually organize political space.',
   },
   {
     n: 3, color: '#16a34a',
-    title: 'Voter Typology — 10 Clusters',
-    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents into 10 voter types based on their 5 factor scores. Each cluster becomes a party. Blue Dogs (C7) are excluded — too small and ideologically absorbed by adjacent clusters.',
+    title: 'Voter Typology: 10 Clusters',
+    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents into 10 voter types based on their 5 factor scores. Each cluster becomes a party. Blue Dogs (C7) are excluded: too small, and ideologically absorbed by adjacent clusters.',
   },
   {
     n: 4, color: '#ea580c',
@@ -134,7 +134,7 @@ export function AboutTab() {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-1">What Is This?</h2>
         <p className="text-muted-foreground text-sm">
-          A data-driven simulation of what American elections might look like under proportional representation — built from 60,000 real survey responses.
+          A data-driven simulation of American elections under proportional representation, built from 60,000 real survey responses.
         </p>
       </div>
 
@@ -162,19 +162,19 @@ export function AboutTab() {
           <Card className="bg-slate-900 text-white border-slate-700 px-6 py-8">
             <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">The premise</div>
             <p className="text-xl font-semibold leading-snug mb-4">
-              What if Americans voted in a 9-party proportional system in 2028 — using their actual political beliefs?
+              What if Americans voted in a 9-party proportional system in 2028, using their actual political beliefs?
             </p>
             <p className="text-slate-300 text-sm leading-relaxed">
-              The US currently runs winner-take-all (FPTP) elections that compress a complex, multi-dimensional political landscape into two parties. This simulation asks: if the electoral system changed, which parties would emerge from the actual distribution of American opinion, and who would govern?
+              The US runs winner-take-all elections that compress a complex, multi-dimensional electorate into two parties. This simulation asks the obvious next question: if the rules changed, which parties would emerge from the real distribution of American opinion, and who would govern? It's the empirical core of a larger argument, that our two-party split is an artifact of the voting rules, not the country itself.
             </p>
           </Card>
 
           {/* Three pillars */}
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { accent: '#1d4ed8', icon: '◎', title: 'Real Survey Data', body: 'Drawn from the 2024 Cooperative Election Study — 60,000 respondents, ~100 policy questions. These are real voters with real preferences.' },
-              { accent: '#16a34a', icon: '◈', title: 'Empirical Party System', body: 'Parties aren\'t invented — they emerge from factor analysis and clustering of the survey data. Each party is a statistically distinct voter type.' },
-              { accent: '#ea580c', icon: '◆', title: 'Modern Voting Theory', body: 'Elections run via STV, IRV, and Condorcet — the same systems used in Ireland, Australia, and academic political science.' },
+              { accent: '#1d4ed8', icon: '◎', title: 'Real Survey Data', body: 'Drawn from the 2024 Cooperative Election Study: 60,000 respondents, ~100 policy questions. Real voters, real preferences.' },
+              { accent: '#16a34a', icon: '◈', title: 'Empirical Party System', body: 'Parties aren\'t invented. They emerge from factor analysis and clustering of the survey data, each one a statistically distinct voter type.' },
+              { accent: '#ea580c', icon: '◆', title: 'Modern Voting Theory', body: 'Elections run via STV, IRV, and Condorcet: systems designed to produce the greatest good for the greatest number. STV already runs in Ireland, Australia, Cambridge, and Portland.' },
             ].map(p => (
               <Card key={p.title} className="p-5">
                 <div className="text-2xl mb-2" style={{ color: p.accent }}>{p.icon}</div>
@@ -208,7 +208,7 @@ export function AboutTab() {
             <div className="space-y-2.5">
               {[
                 { tab: 'Presidential Primary', desc: 'A 4-round STV primary across regional pods. Watch candidates from 9+ parties consolidate into a final field.' },
-                { tab: 'Presidential General', desc: 'Head-to-head general election between the primary finalists. IRV and Condorcet often pick different winners — that gap is the story.' },
+                { tab: 'Presidential General', desc: 'Head-to-head general election between the primary finalists. IRV and Condorcet often pick different winners, and that gap is the story.' },
                 { tab: 'Senate',   desc: 'Per-state elections for 51 seats (one per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.' },
                 { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type. Includes a representation gap analysis.' },
                 { tab: 'Legislation', desc: 'Given the simulated chambers, which bills pass? Uses a Normal approximation of chamber vote counts to produce passage probabilities.' },
@@ -255,7 +255,7 @@ export function AboutTab() {
             <div className="px-5 py-4 border-b border-border/50 bg-muted">
               <div className="font-semibold text-foreground">The 5 Ideological Dimensions</div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                These are latent factors — not imposed categories, but patterns that emerge from how survey responses correlate with each other.
+                These are latent factors, not imposed categories: patterns that emerge from how survey responses correlate with each other.
               </p>
             </div>
             <div className="divide-y divide-slate-100">
@@ -286,7 +286,7 @@ export function AboutTab() {
               <div className="bg-muted rounded-lg p-4">
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Positional scoring (Gaussian proximity)</div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Each voter's 5D factor score vector is compared to each candidate's position. Similarity decays exponentially with distance (σ = 0.35, η²-weighted per factor). At this sigma, voters are effectively matched to their ideologically nearest party — but cross-party affinities still influence rank ordering.
+                  Each voter's 5D factor score vector is compared to each candidate's position. Similarity decays exponentially with distance (σ = 0.35, η²-weighted per factor). At this sigma, voters are effectively matched to their ideologically nearest party, but cross-party affinities still influence rank ordering.
                 </p>
               </div>
               <div className="bg-muted rounded-lg p-4">
@@ -305,7 +305,7 @@ export function AboutTab() {
         <div className="space-y-5">
           <Card className="p-5">
             <p className="text-sm text-muted-foreground leading-relaxed mb-1">
-              Each party is a statistically distinct cluster of ~60,000 CES respondents. They aren't named by researchers — the names are assigned post-hoc based on their ideological profiles. The political spectrum here is five-dimensional, ordered below along the primary axis (F5 Populist Conservatism, low → high).
+              Each party is a statistically distinct cluster of ~60,000 CES respondents. They aren't named by researchers; the names are assigned afterward, from each cluster's ideological profile. The political spectrum here is five-dimensional, ordered below along the primary axis (F5 Populist Conservatism, low → high).
             </p>
           </Card>
 
@@ -343,7 +343,7 @@ export function AboutTab() {
           <Card className="p-4 bg-amber-50 border-amber-200">
             <div className="text-xs font-semibold text-amber-800 mb-1">Why 9 and not 10?</div>
             <p className="text-xs text-amber-700 leading-relaxed">
-              The DPGMM naturally produces 10 clusters. Cluster 7 (Blue Dogs — conservative Democrats) is dropped because it's small and ideologically spans the CON/CUP boundary. Including it produced unstable results and unclear ideological identity. All 9 remaining clusters are statistically robust and ideologically interpretable.
+              The DPGMM naturally produces 10 clusters. Cluster 7 (Blue Dogs, conservative Democrats) is dropped because it's small and ideologically spans the CON/CUP boundary. Including it produced unstable results and unclear ideological identity. All 9 remaining clusters are statistically robust and ideologically interpretable.
             </p>
           </Card>
         </div>
@@ -386,9 +386,9 @@ export function AboutTab() {
 
           {/* IRV vs Condorcet explainer */}
           <Card className="p-5">
-            <div className="font-semibold text-foreground mb-3">IRV vs Condorcet — Why Both?</div>
+            <div className="font-semibold text-foreground mb-3">IRV vs Condorcet: Why Both?</div>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-              IRV and Condorcet frequently disagree on a winner, and the gap between them is politically revealing. IRV can elect a candidate with strong first-choice support who loses head-to-head. Condorcet finds the candidate most preferred <em>overall</em> — often a centrist. Showing both exposes the method-dependence of "winning."
+              IRV and Condorcet frequently disagree on a winner, and the gap between them is politically revealing. IRV can elect a candidate with strong first-choice support who loses head-to-head. Condorcet finds the candidate most preferred <em>overall</em>, often a centrist. Showing both exposes the method-dependence of "winning."
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
               <Card className="p-3 bg-green-50 border-green-200">
@@ -397,7 +397,7 @@ export function AboutTab() {
               </Card>
               <Card className="p-3 bg-amber-50 border-amber-200">
                 <div className="text-xs font-semibold text-amber-800 mb-1">Condorcet tends to elect...</div>
-                <p className="text-xs text-amber-700">The "least-bad" option — the candidate who beats everyone else one-on-one. Often a centrist who nobody loves but most can live with.</p>
+                <p className="text-xs text-amber-700">The "least-bad" option: the candidate who beats everyone else one-on-one. Often a centrist who nobody loves but most can live with.</p>
               </Card>
             </div>
           </Card>
@@ -445,8 +445,8 @@ export function AboutTab() {
             <div className="space-y-3 text-sm">
               {[
                 { q: 'Do intra-party factions matter?', a: 'If Crossover and Party-Line produce very different senate compositions, ideological variance within parties is electorally significant. If results converge, party label dominates.' },
-                { q: 'Which parties benefit from crossover candidates?', a: 'Some parties gain seats by splitting their ideological space — crossover variants attract voters who\'d otherwise vote adjacent. Others lose seats to vote-splitting.' },
-                { q: 'Does the presidential winner change?', a: 'Often yes. The Crossover field\'s STY_hi_so and the Party-Line field\'s SD_1 are different candidacies — one signals a security-minded Solidarity senator, the other is the Social Democrat baseline.' },
+                { q: 'Which parties benefit from crossover candidates?', a: 'Some parties gain seats by splitting their ideological space; crossover variants attract voters who\'d otherwise vote adjacent. Others lose seats to vote-splitting.' },
+                { q: 'Does the presidential winner change?', a: 'Often yes. The Crossover field\'s STY_hi_so and the Party-Line field\'s SD_1 are different candidacies: one is a security-minded Solidarity candidate, the other the Social Democrat baseline.' },
               ].map(r => (
                 <div key={r.q} className="flex gap-3">
                   <div className="text-muted-foreground shrink-0 mt-0.5">→</div>
@@ -467,7 +467,7 @@ export function AboutTab() {
           <Card className="p-5 bg-amber-50 border-amber-200">
             <div className="font-semibold text-amber-900 mb-1">This is a simulation, not a prediction</div>
             <p className="text-sm text-amber-800 leading-relaxed">
-              The goal is to understand structural properties of electoral systems applied to the actual distribution of American political opinion — not to forecast 2028. Party formation, candidate emergence, strategic voting, and campaign dynamics are all absent.
+              The goal is to understand structural properties of electoral systems applied to the actual distribution of American political opinion, not to forecast 2028. Party formation, candidate emergence, strategic voting, and campaign dynamics are all absent.
             </p>
           </Card>
 
@@ -520,7 +520,7 @@ export function AboutTab() {
                     'Which ideological coalitions exist in the American electorate',
                     'How different voting methods produce different outcomes from the same ballots',
                     'Which policy positions have majority support across the full chamber',
-                    'Where IRV and Condorcet disagree — and why',
+                    'Where IRV and Condorcet disagree, and why',
                     'How intra-party factionalism affects seat allocation',
                   ].map(l => (
                     <li key={l} className="flex gap-2"><span className="text-green-500 shrink-0">✓</span>{l}</li>
