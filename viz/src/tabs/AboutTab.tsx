@@ -1,18 +1,6 @@
 import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
-import { PARTY_COLORS, PARTY_NAMES, F5_ORDER } from '../constants/parties';
-
-const PARTY_TAGLINES: Record<string, string> = {
-  PRG: 'Climate action, social justice, universal programs',
-  LIB: 'Civil liberties, regulated markets, global engagement',
-  DSA: 'Worker power, economic equality, public ownership',
-  SD:  'Strong safety net, institutional reform, center-left',
-  STY: 'Cross-cutting populism, skeptical of both establishments',
-  CUP: 'Moderate on economics and culture, institutionalist',
-  CON: 'Free markets, traditional values, national sovereignty',
-  POP: 'Anti-establishment right, immigration restriction',
-  NAT: 'Cultural conservatism, economic nationalism, strong borders',
-};
+import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, PARTY_TAGLINES } from '../constants/parties';
 
 const FACTORS = [
   {

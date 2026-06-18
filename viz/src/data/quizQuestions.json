@@ -1,1 +1,223 @@
-[{"variable":"CC24_323b","factor":"F1","question":"Increase border patrols","domain":"Immigration","clusterSupport":{"0":0.994845,"1":0.722397,"2":0.6481189999999999,"3":1.0,"4":0.753309,"5":0.8910469999999999,"6":0.932013,"8":0.18338000000000002,"9":0.40627}},{"variable":"CC24_321d","factor":"F1","question":"Increase police by 10%","domain":"Police & Guns","clusterSupport":{"0":0.99714,"1":0.31436,"2":0.349589,"3":1.0,"4":0.355848,"5":0.44165999999999994,"6":0.6514230000000001,"8":0.0027069999999999998,"9":0.003959}},{"variable":"CC24_421_1","factor":"F2","question":"Elections in the U.S. are fair","domain":"Elections & Trust","clusterSupport":{"0":0.6398,"1":0.6183,"2":0.3552,"3":0.4794,"4":0.9455,"5":0.3637,"6":0.9381,"8":0.3276,"9":0.9078}},{"variable":"CC24_421_2","factor":"F2","question":"2024 state/local election was fair","domain":"Elections & Trust","clusterSupport":{"0":0.8105,"1":0.8045,"2":0.3905,"3":0.6274,"4":1.0,"5":0.4201,"6":1.0,"8":0.5777,"9":1.0}},{"variable":"CC24_423","factor":"F3","question":"I have very little trust in the federal government.","domain":"Elections & Trust","clusterSupport":{"0":0.1213,"1":0.09970000000000001,"2":0.16920000000000002,"3":0.30760000000000004,"4":0.0731,"5":0.2872,"6":0.0584,"8":0.21559999999999999,"9":0.11630000000000001}},{"variable":"CC24_424","factor":"F3","question":"I have very little trust in my state government.","domain":"Elections & Trust","clusterSupport":{"0":0.09939999999999999,"1":0.086,"2":0.17850000000000002,"3":0.2626,"4":0.057800000000000004,"5":0.2667,"6":0.0418,"8":0.22469999999999998,"9":0.0668}},{"variable":"CC24_324b","factor":"F4","question":"Permit abortion only in rape/incest/life danger cases","domain":"Abortion","clusterSupport":{"0":0.726163,"1":0.369495,"2":0.568046,"3":0.722413,"4":0.257348,"5":0.603942,"6":0.6544580000000001,"8":0.141527,"9":0.06143}},{"variable":"pew_churatd","factor":"F4","question":"I rarely or never attend religious services.","domain":"Religion","clusterSupport":{"0":0.2434,"1":0.442,"2":0.2857,"3":0.2568,"4":0.47509999999999997,"5":0.2975,"6":0.2432,"8":0.6015,"9":0.5787}},{"variable":"CC24_323a","factor":"F5","question":"Grant legal status to long-term undocumented immigrants","domain":"Immigration","clusterSupport":{"0":0.302296,"1":0.827113,"2":0.7510030000000001,"3":0.00201,"4":0.983073,"5":0.12344200000000001,"6":0.599703,"8":0.9936849999999999,"9":0.999762}},{"variable":"CC24_440a","factor":"F5","question":"White people have certain advantages because of their race","domain":"Racial & Gender","clusterSupport":{"0":0.2218,"1":0.7921,"2":0.6053,"3":0.0401,"4":0.8874,"5":0.2157,"6":0.418,"8":0.977,"9":0.9827}}]
+[
+  {
+    "variable": "CC24_340f",
+    "factor": "F1",
+    "question": "Deny asylum for illegal border crossings",
+    "domain": "Immigration",
+    "clusterSupport": {
+      "0": 0.998,
+      "1": 0.395,
+      "2": 0.396,
+      "3": 1.0,
+      "4": 0.294,
+      "5": 0.871,
+      "6": 0.821,
+      "8": 0.0,
+      "9": 0.001
+    }
+  },
+  {
+    "variable": "CC24_321d",
+    "factor": "F1",
+    "question": "Increase police by 10%",
+    "domain": "Police & Guns",
+    "clusterSupport": {
+      "0": 0.997,
+      "1": 0.314,
+      "2": 0.35,
+      "3": 1.0,
+      "4": 0.356,
+      "5": 0.442,
+      "6": 0.651,
+      "8": 0.003,
+      "9": 0.004
+    }
+  },
+  {
+    "variable": "CC24_323b",
+    "factor": "F1",
+    "question": "Increase border patrols",
+    "domain": "Immigration",
+    "clusterSupport": {
+      "0": 0.995,
+      "1": 0.722,
+      "2": 0.648,
+      "3": 1.0,
+      "4": 0.753,
+      "5": 0.891,
+      "6": 0.932,
+      "8": 0.183,
+      "9": 0.406
+    }
+  },
+  {
+    "variable": "CC24_323a",
+    "factor": "F5",
+    "question": "Grant legal status to long-term undocumented immigrants",
+    "domain": "Immigration",
+    "clusterSupport": {
+      "0": 0.302,
+      "1": 0.827,
+      "2": 0.751,
+      "3": 0.002,
+      "4": 0.983,
+      "5": 0.123,
+      "6": 0.6,
+      "8": 0.994,
+      "9": 1.0
+    }
+  },
+  {
+    "variable": "CC24_323d",
+    "factor": "F5",
+    "question": "Permanent status/pathway for Dreamers",
+    "domain": "Immigration",
+    "clusterSupport": {
+      "0": 0.53,
+      "1": 0.984,
+      "2": 0.867,
+      "3": 0.003,
+      "4": 1.0,
+      "5": 0.277,
+      "6": 0.723,
+      "8": 1.0,
+      "9": 1.0
+    }
+  },
+  {
+    "variable": "CC24_341c",
+    "factor": "F5",
+    "question": "Allow rates on $400k+ earners to rise to 35%",
+    "domain": "Taxes & Economy",
+    "clusterSupport": {
+      "0": 0.525,
+      "1": 0.864,
+      "2": 0.587,
+      "3": 0.076,
+      "4": 0.98,
+      "5": 0.38,
+      "6": 0.621,
+      "8": 0.996,
+      "9": 1.0
+    }
+  },
+  {
+    "variable": "CC24_341b",
+    "factor": "F5",
+    "question": "Raise corporate income tax from 21% to 28%",
+    "domain": "Taxes & Economy",
+    "clusterSupport": {
+      "0": 0.388,
+      "1": 0.804,
+      "2": 0.534,
+      "3": 0.067,
+      "4": 0.907,
+      "5": 0.336,
+      "6": 0.53,
+      "8": 0.885,
+      "9": 0.973
+    }
+  },
+  {
+    "variable": "CC24_321b",
+    "factor": "F5",
+    "question": "Easier concealed-carry permits",
+    "domain": "Police & Guns",
+    "clusterSupport": {
+      "0": 0.549,
+      "1": 0.202,
+      "2": 0.366,
+      "3": 0.918,
+      "4": 0.073,
+      "5": 0.679,
+      "6": 0.442,
+      "8": 0.019,
+      "9": 0.011
+    }
+  },
+  {
+    "variable": "pew_churatd",
+    "factor": "F4",
+    "question": "I attend religious services regularly",
+    "domain": "Religion",
+    "clusterSupport": {
+      "0": 0.31,
+      "1": 0.118,
+      "2": 0.311,
+      "3": 0.341,
+      "4": 0.139,
+      "5": 0.276,
+      "6": 0.351,
+      "8": 0.065,
+      "9": 0.075
+    }
+  },
+  {
+    "variable": "CC24_340c",
+    "factor": "F4",
+    "question": "Federal recognition of same-sex & interracial marriages",
+    "domain": "Civil Liberties",
+    "clusterSupport": {
+      "0": 0.478,
+      "1": 0.959,
+      "2": 0.543,
+      "3": 0.265,
+      "4": 0.973,
+      "5": 0.434,
+      "6": 0.558,
+      "8": 0.985,
+      "9": 0.999
+    }
+  },
+  {
+    "variable": "CC24_324b",
+    "factor": "F4",
+    "question": "Permit abortion only in rape/incest/life danger cases",
+    "domain": "Abortion",
+    "clusterSupport": {
+      "0": 0.726,
+      "1": 0.369,
+      "2": 0.568,
+      "3": 0.722,
+      "4": 0.257,
+      "5": 0.604,
+      "6": 0.654,
+      "8": 0.142,
+      "9": 0.061
+    }
+  },
+  {
+    "variable": "CC24_421_1_agree",
+    "factor": "F2",
+    "question": "Elections in the U.S. are fair",
+    "domain": "Elections & Trust",
+    "clusterSupport": {
+      "0": 0.64,
+      "1": 0.618,
+      "2": 0.355,
+      "3": 0.479,
+      "4": 0.945,
+      "5": 0.364,
+      "6": 0.938,
+      "8": 0.328,
+      "9": 0.908
+    }
+  },
+  {
+    "variable": "CC24_421_2_agree",
+    "factor": "F2",
+    "question": "2024 state/local election was fair",
+    "domain": "Elections & Trust",
+    "clusterSupport": {
+      "0": 0.811,
+      "1": 0.804,
+      "2": 0.39,
+      "3": 0.627,
+      "4": 1.0,
+      "5": 0.42,
+      "6": 1.0,
+      "8": 0.578,
+      "9": 1.0
+    }
+  }
+]

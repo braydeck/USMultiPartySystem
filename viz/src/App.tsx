@@ -235,6 +235,7 @@ export default function App() {
             questions={quizQuestionsData as QuizQuestion[]}
             clusters={clusterProfilesData as ClusterProfile[]}
             houseVotes={houseVoteModelData as VoteModelRow[]}
+            houseSeats={houseSeatsData as HouseSeat[]}
           />
         )}
       </main>

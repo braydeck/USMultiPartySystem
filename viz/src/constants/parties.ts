@@ -24,6 +24,18 @@ export const PARTY_NAMES: Record<string, string> = {
   PRG: 'Progressive',
 };
 
+export const PARTY_TAGLINES: Record<string, string> = {
+  PRG: 'Climate action, social justice, universal programs',
+  LIB: 'Civil liberties, regulated markets, global engagement',
+  DSA: 'Worker power, economic equality, public ownership',
+  SD:  'Strong safety net, institutional reform, center-left',
+  STY: 'Cross-cutting populism, skeptical of both establishments',
+  CUP: 'Moderate on economics and culture, institutionalist',
+  CON: 'Free markets, traditional values, national sovereignty',
+  POP: 'Anti-establishment right, immigration restriction',
+  NAT: 'Cultural conservatism, economic nationalism, strong borders',
+};
+
 export const CLUSTER_TO_PARTY: Record<string, string> = {
   '0': 'CON',
   '1': 'SD',
