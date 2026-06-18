@@ -17,3 +17,7 @@ data/raw/2024 CES Base/CCES24_Common_OUTPUT_vv_topost_final.dta
 data/raw/2024 CES Base/CCES24_Common_OUTPUT_vv_topost_final.csv
 data/raw/2020 CES Base/CES20_Common_OUTPUT_vv.dta
 data/raw/2020 CES Base/CES20_Common_OUTPUT_vv.csv
+
+# ANES data (removed — not used; redistribution-restricted)
+data/raw/2024 anes data/
+*anes_timeseries*
