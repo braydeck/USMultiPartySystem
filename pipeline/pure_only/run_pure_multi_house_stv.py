@@ -84,16 +84,16 @@ PARTY_CLUSTER = {
     "STY": 2,
     "NAT": 3,
     "LIB": 4,
-    "REF": 5,
-    "CTR": 6,
+    "POP": 5,
+    "CUP": 6,
     "DSA": 8,
     "PRG": 9,
 }
 
 PARTY_LABELS = {
     0: "Conservative", 1: "Social Democrat", 2: "Solidarity",
-    3: "Nationalist",  4: "Liberal",         5: "Reform",
-    6: "Center",       8: "DSA",             9: "Progressive",
+    3: "Nationalist",  4: "Liberal",         5: "Populist",
+    6: "Civic Union Party",       8: "DSA",             9: "Progressive",
 }
 
 MIN_RESPONDENTS = 5

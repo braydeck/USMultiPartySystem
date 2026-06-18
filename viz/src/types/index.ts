@@ -76,7 +76,7 @@ export interface VoteModelRow {
   condRawMultiVerdict?:  string;
   irvRawMultiProbPass?:  number;
   irvRawMultiVerdict?:   string;
-  // Raw Multi president (SD_1 IRV, CTR_1 Condorcet)
+  // Raw Multi president (SD_1 IRV, CUP_1 Condorcet)
   presRawMultiIRVSigns?:  string;
   presRawMultiIRVPct?:    number;
   presRawMultiCondSigns?: string;

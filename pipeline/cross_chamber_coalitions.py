@@ -89,7 +89,7 @@ FACTOR_POLES = {
 HOUSE_ONLY_NAMES = {"NAT", "DSA", "PRG"}
 
 # Pure party names that appear in BOTH chambers (senate + house seats)
-BOTH_CHAMBERS = {"CON", "SD", "STY", "REF", "LIB", "CTR"}
+BOTH_CHAMBERS = {"CON", "SD", "STY", "POP", "LIB", "CUP"}
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -172,8 +172,8 @@ NAME_MAP = {
     "Solidarity":     "STY",
     "Nationalist":    "NAT",
     "Liberal":        "LIB",
-    "Reform":         "REF",
-    "Center":         "CTR",
+    "Populist":         "POP",
+    "Civic Union Party":         "CUP",
     "DSA":            "DSA",
     "Progressive":    "PRG",
     "Blue Dogs":      "C7",   # excluded (0 seats)

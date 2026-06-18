@@ -4,20 +4,20 @@ export const PARTY_COLORS: Record<string, string> = {
   DSA: '#60a5fa',  // steel blue
   SD:  '#06b6d4',  // bright cyan/teal
   STY: '#16a34a',  // green (centrist left anchor)
-  CTR: '#a16207',  // dark yellow (centrist right anchor)
+  CUP: '#a16207',  // dark yellow (centrist right anchor)
   CON: '#ea580c',  // orange-red
-  REF: '#dc2626',  // crimson
+  POP: '#dc2626',  // crimson
   NAT: '#7f1d1d',  // deep maroon (warm, rightmost)
 };
 
-export const F5_ORDER = ['PRG','LIB','DSA','SD','STY','CTR','CON','REF','NAT'] as const;
+export const F5_ORDER = ['PRG','LIB','DSA','SD','STY','CUP','CON','POP','NAT'] as const;
 
 export const PARTY_NAMES: Record<string, string> = {
   CON: 'Conservative',
   SD:  'Social Democrat',
   STY: 'Solidarity',
-  REF: 'Reform',
-  CTR: 'Center',
+  POP: 'Populist',
+  CUP: 'Civic Union Party',
   LIB: 'Liberal',
   NAT: 'Nationalist',
   DSA: 'Democratic Socialists',
@@ -30,8 +30,8 @@ export const CLUSTER_TO_PARTY: Record<string, string> = {
   '2': 'STY',
   '3': 'NAT',
   '4': 'LIB',
-  '5': 'REF',
-  '6': 'CTR',
+  '5': 'POP',
+  '6': 'CUP',
   '8': 'DSA',
   '9': 'PRG',
 };

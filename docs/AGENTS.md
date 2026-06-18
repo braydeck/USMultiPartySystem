@@ -92,18 +92,20 @@ Note: The DTA file is large (~947 MB). Steps 1–2 of the STV pipeline read it; 
 
 ## Party Reference
 
+House Seats = party-line STV result (`viz/src/data/houseSeats.json`); see [DATA_SOURCES.md](DATA_SOURCES.md).
+
 | ID | Abbrev | Full Name | Status | House Seats |
 |----|--------|-----------|--------|-------------|
-| C0 | CON | Conservative | Active | 164 |
-| C1 | SD | Social Democrat | Active | 166 |
-| C2 | STY | Solidarity | Active | 160 |
-| C3 | NAT | Nationalist | Active | 22 |
-| C4 | LIB | Liberal | Active | 100 |
-| C5 | REF | Reform | Active | 125 |
-| C6 | CTR | Center | Active | 102 |
+| C0 | CON | Conservative | Active | 202 |
+| C1 | SD | Social Democrat | Active | 164 |
+| C2 | STY | Solidarity | Active | 130 |
+| C3 | NAT | Nationalist | Active | 46 |
+| C4 | LIB | Liberal | Active | 93 |
+| C5 | POP | Populist | Active | 99 |
+| C6 | CUP | Civic Union Party | Active | 103 |
 | C7 | — | Blue Dogs | **DISSOLVED** | 0 |
-| C8 | DSA | DSA | Active | 26 |
-| C9 | PRG | Progressive | Active | 8 |
+| C8 | DSA | DSA | Active | 22 |
+| C9 | PRG | Progressive | Active | 14 |
 
 **Total active seats:** 873. `N_PARTIES = 10`, `PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]`
 
@@ -121,8 +123,8 @@ Top items: increase police (+0.73), border patrols (+0.71), deny asylum (+0.66),
 
 ### F2 — Electoral Skepticism (high = distrust elections)
 Top items: state elections not fair (+0.90), US elections not fair (+0.73), distrust state govt (+0.38)
-- REF: +0.759 (Very High) | STY: +0.658 (High) | CTR: −0.817 (Very Low) | LIB: −0.744 (Very Low)
-- **Cross-cutting:** STY, REF, and DSA all score High despite opposing positions on F1 and F5.
+- POP: +0.759 (Very High) | STY: +0.658 (High) | CUP: −0.817 (Very Low) | LIB: −0.744 (Very Low)
+- **Cross-cutting:** STY, POP, and DSA all score High despite opposing positions on F1 and F5.
 
 ### F3 — Government Distrust (high = distrust institutions)
 Top items: distrust federal govt (+0.66), distrust state govt (+0.48)
@@ -135,7 +137,7 @@ Top items: church attendance (+0.69), abortion week limits (+0.69), oppose same-
 
 ### F5 — Populist Conservatism (high = populist-right, low = progressive-left)
 Top items (negative-loaded, higher F5 = conservative position): racial resentment (−0.62), oppose police reform (−0.56), oppose Dreamers (−0.54), oppose $400k+ tax hike (−0.53)
-- NAT: +1.510 (Very High) | REF: +0.990 (Very High) | PRG: −0.990 (Very Low) | LIB: −0.950 (Very Low)
+- NAT: +1.510 (Very High) | POP: +0.990 (Very High) | PRG: −0.990 (Very Low) | LIB: −0.950 (Very Low)
 
 ### Absolute Tier Thresholds
 

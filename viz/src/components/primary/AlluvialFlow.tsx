@@ -45,9 +45,9 @@ const F5_ORDER = [
   'DSA', 'DSA_prg', 'DSA_lib',
   'SD',  'SD_lib', 'SD_sty',
   'STY', 'STY_sd', 'STY_ctr',
-  'CTR', 'CTR_sty', 'CTR_con',
+  'CUP', 'CUP_sty', 'CUP_con',
   'CON', 'CON_ctr', 'CON_ref',
-  'REF', 'REF_con', 'REF_nat',
+  'POP', 'POP_con', 'POP_nat',
   'NAT', 'NAT_ref',
 ];
 

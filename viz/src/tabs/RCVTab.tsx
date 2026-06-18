@@ -16,15 +16,15 @@ const CANDIDATE_PARTY: Record<string, string> = {
   'Eric Hafner':      'LIB',
   'Al Gross':         'SD',
   // Alaska Senate
-  'Lisa Murkowski':   'CTR',
+  'Lisa Murkowski':   'CUP',
   'Kelly Tshibaka':   'CON',
   'Patricia Chesbro': 'SD',
-  'Buzz Kelley':      'REF',
+  'Buzz Kelley':      'POP',
   // Alaska Governor
   'Mike Dunleavy':    'CON',
-  'Bill Walker':      'CTR',
+  'Bill Walker':      'CUP',
   'Les Gara':         'SD',
-  'Charlie Pierce':   'REF',
+  'Charlie Pierce':   'POP',
   // Maine CD1
   'Chellie Pingree':  'PRG',
   'Ed Thelander':     'CON',
@@ -34,7 +34,7 @@ const CANDIDATE_PARTY: Record<string, string> = {
   'Bruce Poliquin':   'CON',
   'Tiffany Bond':     'LIB',
   'William Hoar':     'PRG',
-  'Austin Theriault': 'REF',
+  'Austin Theriault': 'POP',
 };
 
 function candidateColor(name: string): string {

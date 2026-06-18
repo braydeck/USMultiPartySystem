@@ -1,6 +1,6 @@
 round,candidate_code,candidate_name,vote_total,vote_pct,eliminated,winner
 1,CON_hi_pc,CON_hi_pc,10849.2005,23.7759,False,False
-1,REF_lo_ae,REF_lo_ae,6771.8794,14.8405,True,False
+1,POP_lo_ae,POP_lo_ae,6771.8794,14.8405,True,False
 1,SD_lo_ae,SD_lo_ae,9811.5996,21.502,False,False
 1,SD_lo_so,SD_lo_so,8566.333,18.773,False,False
 1,STY_hi_so,STY_hi_so,9632.1297,21.1087,False,False

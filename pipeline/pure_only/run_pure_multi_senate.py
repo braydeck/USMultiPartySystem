@@ -55,8 +55,8 @@ PARTY_CLUSTER = {
     "STY": 2,
     "NAT": 3,
     "LIB": 4,
-    "REF": 5,
-    "CTR": 6,
+    "POP": 5,
+    "CUP": 6,
     "DSA": 8,
     "PRG": 9,
 }

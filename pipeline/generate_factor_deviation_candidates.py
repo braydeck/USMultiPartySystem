@@ -14,9 +14,9 @@ making the ±0.048 deviation negligible.
 Active axes and qualifying parties (within/inter SD ratio >= 0.70):
   so  — Security & Order (F1)      → SD (0.72), STY (0.75)
   ae  — Anti-Establishment (F2)    → DSA (1.16), SD (0.88), STY (1.47),
-                                      CON (0.91), REF (1.39), NAT (1.39)
+                                      CON (0.91), POP (1.39), NAT (1.39)
   pc  — Populist Conservatism (F5) → LIB (0.72), SD (0.86), STY (1.21),
-                                      CTR (0.99), CON (0.86), REF (1.09)
+                                      CUP (0.99), CON (0.86), POP (1.09)
 
 Deviation = 25% of the inter-party SD on each factor.
 
@@ -26,9 +26,9 @@ Candidate count:
   DSA  — base + AE×2                 =  3
   SD   — base + SO×2 + AE×2 + PC×2  =  7
   STY  — base + SO×2 + AE×2 + PC×2  =  7
-  CTR  — base + PC×2                 =  3
+  CUP  — base + PC×2                 =  3
   CON  — base + AE×2 + PC×2         =  5
-  REF  — base + AE×2 + PC×2         =  5
+  POP  — base + AE×2 + PC×2         =  5
   NAT  — base + AE×2                 =  3
   Total                               = 37
 
@@ -60,8 +60,8 @@ PURE_CODES = {
     "STY": "MRJ",
     "NAT": "BE",
     "LIB": "CO",
-    "REF": "DH",
-    "CTR": "LK",
+    "POP": "DH",
+    "CUP": "LK",
     "DSA": "ZN",
     "PRG": "JR",
 }
@@ -69,8 +69,8 @@ PARTIES = list(PURE_CODES.keys())
 
 # Parties that qualify for each axis (within-party SD / inter-party SD >= 0.70)
 SO_PARTIES = {"SD", "STY"}
-AE_PARTIES = {"DSA", "SD", "STY", "CON", "REF", "NAT"}
-PC_PARTIES = {"LIB", "SD", "STY", "CTR", "CON", "REF"}
+AE_PARTIES = {"DSA", "SD", "STY", "CON", "POP", "NAT"}
+PC_PARTIES = {"LIB", "SD", "STY", "CUP", "CON", "POP"}
 
 AXIS_PARTIES = {"so": SO_PARTIES, "ae": AE_PARTIES, "pc": PC_PARTIES}
 

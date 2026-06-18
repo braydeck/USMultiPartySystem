@@ -83,14 +83,14 @@ CANDIDATES = [
     {"code": "LIB_1", "party": "LIB", "cluster": 4, "prominence": 0.40},
     {"code": "LIB_2", "party": "LIB", "cluster": 4, "prominence": 0.35},
     {"code": "LIB_3", "party": "LIB", "cluster": 4, "prominence": 0.25},
-    # ── REF: 3 candidates ──
-    {"code": "REF_1", "party": "REF", "cluster": 5, "prominence": 0.40},
-    {"code": "REF_2", "party": "REF", "cluster": 5, "prominence": 0.35},
-    {"code": "REF_3", "party": "REF", "cluster": 5, "prominence": 0.25},
-    # ── CTR: 3 candidates ──
-    {"code": "CTR_1", "party": "CTR", "cluster": 6, "prominence": 0.40},
-    {"code": "CTR_2", "party": "CTR", "cluster": 6, "prominence": 0.35},
-    {"code": "CTR_3", "party": "CTR", "cluster": 6, "prominence": 0.25},
+    # ── POP: 3 candidates ──
+    {"code": "POP_1", "party": "POP", "cluster": 5, "prominence": 0.40},
+    {"code": "POP_2", "party": "POP", "cluster": 5, "prominence": 0.35},
+    {"code": "POP_3", "party": "POP", "cluster": 5, "prominence": 0.25},
+    # ── CUP: 3 candidates ──
+    {"code": "CUP_1", "party": "CUP", "cluster": 6, "prominence": 0.40},
+    {"code": "CUP_2", "party": "CUP", "cluster": 6, "prominence": 0.35},
+    {"code": "CUP_3", "party": "CUP", "cluster": 6, "prominence": 0.25},
     # ── DSA: 3 candidates ──
     {"code": "DSA_1", "party": "DSA", "cluster": 8, "prominence": 0.40},
     {"code": "DSA_2", "party": "DSA", "cluster": 8, "prominence": 0.35},
@@ -253,7 +253,7 @@ def main():
     print(table.to_string())
 
     print("\nWithin-party first-choice splits (verify 40/35/25):")
-    for party in ["CON", "SD", "STY", "NAT", "LIB", "REF", "CTR", "DSA", "PRG"]:
+    for party in ["CON", "SD", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"]:
         codes = [f"{party}_{i}" for i in (1, 2, 3)]
         totals = {c: fc_counts.get(c, 0) for c in codes}
         party_total = sum(totals.values())

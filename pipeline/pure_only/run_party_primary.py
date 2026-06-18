@@ -32,7 +32,7 @@ OUTPUT_DIR  = BASE_DIR / "data" / "outputs" / "pure_multi"
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from party_stv import run_multi_seat_stv, expand_slots, condorcet_matchups
 
-PARTY_CODES = ["CON", "SD", "STY", "NAT", "LIB", "REF", "CTR", "DSA", "PRG"]
+PARTY_CODES = ["CON", "SD", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"]
 PARTY_IDX   = {code: i for i, code in enumerate(PARTY_CODES)}
 N_PARTIES   = len(PARTY_CODES)
 

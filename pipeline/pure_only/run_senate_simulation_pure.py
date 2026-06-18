@@ -32,7 +32,7 @@ OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "pure_only" / "senate"
 
 # ── Party abbreviations (C7 Blue Dogs excluded — permanently dissolved) ────────
 PARTY_ABBR      = {0:"CON", 1:"SD", 2:"STY", 3:"NAT", 4:"LIB",
-                   5:"REF", 6:"CTR", 8:"DSA", 9:"PRG"}
+                   5:"POP", 6:"CUP", 8:"DSA", 9:"PRG"}
 ACTIVE_CLUSTERS = sorted(PARTY_ABBR.keys())   # [0,1,2,3,4,5,6,8,9]
 PROB_COLS       = [f"prob_cluster_{k}" for k in range(10)]
 

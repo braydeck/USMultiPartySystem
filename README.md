@@ -55,18 +55,18 @@ Produced by **Dirichlet Process Gaussian Mixture Model (DPGMM)** clustering on 5
 
 | ID | Abbrev | Name | Character | ~Electorate |
 |----|--------|------|-----------|-------------|
-| C0 | CON | Conservative | Mainstream center-right; pro-law enforcement, economically traditional | ~15% |
-| C1 | SD | Social Democrat | Center-left institutionalist; supports safety net, moderate on social issues | ~18% |
-| C2 | STY | Solidarity | Disaffected working-class left; skeptical of institutions, pro-labor | ~17% |
-| C3 | NAT | Nationalist | Populist right; strong on immigration, anti-establishment, very high F5 | ~5% |
-| C4 | LIB | Liberal | College-educated progressive; socially liberal, moderate-left economics | ~12% |
-| C5 | REF | Reform | Right-of-center reformists; skeptical of elections, high F2 + F5 | ~10% |
-| C6 | CTR | Center | True centrists; cross-pressured, low electoral skepticism | ~10% |
-| C7 | — | Blue Dogs *(dissolved)* | Conservative Democrats; pre-eliminated in all simulations, 0 seats | ~5% |
-| C8 | DSA | DSA | Progressive left; far left on security, high electoral skepticism | ~4% |
-| C9 | PRG | Progressive | Progressive elite; urban, far left across most dimensions | ~4% |
+| C0 | CON | Conservative | Mainstream center-right; pro-law enforcement, economically traditional | ~19% |
+| C1 | SD | Social Democrat | Center-left institutionalist; supports safety net, moderate on social issues | ~16% |
+| C2 | STY | Solidarity | Disaffected working-class left; skeptical of institutions, economically left but low union density | ~15% |
+| C3 | NAT | Nationalist | Populist right; strong on immigration, anti-establishment, very high F5 | ~9% |
+| C4 | LIB | Liberal | College-educated progressive; socially liberal, moderate-left economics | ~9% |
+| C5 | POP | Populist | Right-of-center reformists; skeptical of elections, high F2 + F5 | ~11% |
+| C6 | CUP | Civic Union Party | True centrists; cross-pressured, low electoral skepticism | ~10% |
+| C7 | — | Blue Dogs *(dissolved)* | Conservative Democrats; pre-eliminated in all simulations, 0 seats | — |
+| C8 | DSA | DSA | Progressive left; far left on security, high electoral skepticism | ~6% |
+| C9 | PRG | Progressive | Progressive elite; urban, far left across most dimensions | ~5% |
 
-**House seat counts (canonical):** CON=164, SD=166, STY=160, REF=125, CTR=102, LIB=100, DSA=26, NAT=22, PRG=8, C7=0
+**House seat counts (party-line, canonical):** CON=202, SD=164, STY=130, POP=99, CUP=103, LIB=93, DSA=22, NAT=46, PRG=14, C7=0 (dissolved). Conservative is the largest party. Source: `viz/src/data/houseSeats.json` — see **[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)**. *(Do not quote `clusterProfiles.json` `seatsHouse` for seat counts — it's a population baseline, not seats won.)*
 
 ---
 
@@ -91,7 +91,7 @@ Factor scores are standardized to the survey population (mean≈0, SD≈1). Abso
 **High** = believes elections are NOT run fairly; distrusts voting systems
 **Low** = trusts electoral institutions
 *Top items: state/local elections not fair (+0.90), US elections not fair (+0.73)*
-Note: Near-orthogonal to partisan ID — STY, REF, and DSA all score High despite being ideologically distant on F1/F5.
+Note: Near-orthogonal to partisan ID — STY, POP, and DSA all score High despite being ideologically distant on F1/F5.
 
 ### F3 — Government Distrust
 **High** = low trust in federal and state government
@@ -115,7 +115,8 @@ NAT is the extreme high end (+1.51); PRG (−0.99) and LIB (−0.95) are the ext
 ## House STV Simulation
 
 **Scripts:** `pipeline/stv_main.py` and supporting `pipeline/stv_step1.py`–`pipeline/stv_step5.py`
-**Canonical output:** `data/outputs/No_C7_canonical/`
+**Published result:** `data/outputs/pure_multi/house/stv_seat_summary.csv` → `viz/src/data/houseSeats.json` (the party-line view the viz shows).
+**Note:** published seat counts come from `pure_multi`, *not* from `data/outputs/No_C7_canonical/stv_seat_summary.csv` (an outdated 750-seat summary — don't quote it). The `No_C7_*` directories are retained on purpose: the pure_multi and factor_deviation runs read their `ballots_checkpoint.parquet` + `district_apportionment.csv`, and the viz transfer matrix is built from `No_C7_canonical/transfer_matrix_10party.csv`. See [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
 
 - **873 seats** across **180 multi-member districts** (Urban / Suburban / Rural tiers per state)
 - Apportionment: Hamilton method, ~380,000 pop/seat from 2020 Census
@@ -124,19 +125,19 @@ NAT is the extreme high end (+1.51); PRG (−0.99) and LIB (−0.95) are the ext
 - **C7 pre-dissolved:** their voters' ballots skip to next-ranked active party before Round 1
 - Ballots derived from DPGMM soft cluster probabilities via Plackett-Luce ranking
 
-**Seat results (canonical):**
+**Seat results (party-line, canonical):**
 
 | Party | Seats | % | Urban | Suburban | Rural |
 |-------|-------|---|-------|----------|-------|
-| SD | 166 | 19.0% | 87 | 59 | 20 |
-| CON | 164 | 18.8% | 78 | 60 | 26 |
-| STY | 160 | 18.3% | 86 | 55 | 19 |
-| REF | 125 | 14.3% | 65 | 41 | 19 |
-| CTR | 102 | 11.7% | 58 | 32 | 12 |
-| LIB | 100 | 11.5% | 65 | 28 | 7 |
-| DSA | 26 | 3.0% | 24 | 2 | 0 |
-| NAT | 22 | 2.5% | 12 | 5 | 5 |
-| PRG | 8 | 0.9% | 8 | 0 | 0 |
+| CON | 202 | 23.1% | 106 | 68 | 28 |
+| SD | 164 | 18.8% | 96 | 51 | 17 |
+| STY | 130 | 14.9% | 71 | 50 | 9 |
+| CUP | 103 | 11.8% | 59 | 30 | 14 |
+| POP | 99 | 11.3% | 47 | 38 | 14 |
+| LIB | 93 | 10.7% | 62 | 26 | 5 |
+| NAT | 46 | 5.3% | 16 | 18 | 12 |
+| DSA | 22 | 2.5% | 14 | 6 | 2 |
+| PRG | 14 | 1.6% | 10 | 3 | 1 |
 
 ---
 
@@ -163,9 +164,9 @@ Senate candidate factor positions use linear interpolation: `blend = w × pure_p
 | CON/SD | 6 | Conservative–Social Democrat centrist |
 | CON/STY | 5 | Conservative–Solidarity working-class right |
 | STY/SD | 5 | Solidarity–Social Democrat |
-| CON/REF | 4 | Conservative–Reform populist right |
+| CON/POP | 4 | Conservative–Populist populist right |
 | SD/LIB | 4 | Social Democrat–Liberal |
-| CON/CTR | 4 | Conservative–Center moderate |
+| CON/CUP | 4 | Conservative–Civic Union Party moderate |
 
 ---
 

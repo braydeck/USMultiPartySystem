@@ -20,9 +20,9 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
   ├──────────────────────┼──────────┼────────────┤
   │ STY (Solidarity)     │ 14.25%   │ 11.68%     │
   ├──────────────────────┼──────────┼────────────┤
-  │ REF (Reform)         │ 10.43%   │ 8.76%      │
+  │ POP (Populist)         │ 10.43%   │ 8.76%      │
   ├──────────────────────┼──────────┼────────────┤
-  │ CTR (Centrist)       │ 9.35%    │ 8.52%      │
+  │ CUP (Centrist)       │ 9.35%    │ 8.52%      │
   ├──────────────────────┼──────────┼────────────┤
   │ LIB (Liberal)        │ 8.81%    │ 11.50%     │
   ├──────────────────────┼──────────┼────────────┤
@@ -123,7 +123,7 @@ Key relationships:
 | CC24_440c | +0.209 | Women seek to gain power by getting control over men |
 | CC24_341a | +0.202 | Support extending 2017 Trump tax cuts |
 
-**Note:** F2 is near-orthogonal to partisan ID (Cramér's V ≈ 0.15). STY (Solidarity), REF (Reform), and DSA all score High on F2 despite being ideologically opposed on F1 and F5 — electoral skepticism cuts across the left-right divide.
+**Note:** F2 is near-orthogonal to partisan ID (Cramér's V ≈ 0.15). STY (Solidarity), POP (Populist), and DSA all score High on F2 despite being ideologically opposed on F1 and F5 — electoral skepticism cuts across the left-right divide.
 
 ### F3 — Government Distrust
 
@@ -173,7 +173,7 @@ Key relationships:
 | CC24_340f | −0.271 | Deny asylum to Central American seekers | Support |
 | CC24_341a | −0.238 | Extend 2017 Trump tax cuts | Support |
 
-**Note on negative signs:** The CES coded liberal/progressive positions as higher numeric values. So negative loadings indicate high F5 predicts the *conservative* response. NAT (Nationalist) at +1.51 and REF (Reform) at +0.99 are the most extreme; PRG (Progressive) at −0.99 and LIB (Liberal) at −0.95 are the most progressive.
+**Note on negative signs:** The CES coded liberal/progressive positions as higher numeric values. So negative loadings indicate high F5 predicts the *conservative* response. NAT (Nationalist) at +1.51 and POP (Populist) at +0.99 are the most extreme; PRG (Progressive) at −0.99 and LIB (Liberal) at −0.95 are the most progressive.
 
 ---
 
@@ -184,24 +184,24 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 | Type | Chamber | F1 SecOrd | F2 ElecSkep | F3 GovtDis | F4 ReligTrad | F5 PopCons |
 |------|---------|-----------|-------------|------------|--------------|------------|
 | NAT | house | +0.737 | +0.428 | −0.208 | +0.457 | **+1.510** |
-| REF | both | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
+| POP | both | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
 | CON/NAT | senate | +0.752 | +0.198 | −0.045 | +0.336 | +0.966 |
-| CON/REF | senate | +0.592 | +0.219 | +0.013 | +0.196 | +0.612 |
-| REF/STY | senate | −0.038 | +0.722 | −0.081 | +0.153 | +0.601 |
-| STY/REF | senate | −0.154 | +0.704 | −0.019 | +0.157 | +0.411 |
+| CON/POP | senate | +0.592 | +0.219 | +0.013 | +0.196 | +0.612 |
+| POP/STY | senate | −0.038 | +0.722 | −0.081 | +0.153 | +0.601 |
+| STY/POP | senate | −0.154 | +0.704 | −0.019 | +0.157 | +0.411 |
 | CON | both | +0.767 | −0.024 | +0.111 | +0.219 | +0.442 |
-| CON/CTR | senate | +0.577 | −0.325 | +0.002 | +0.185 | +0.289 |
+| CON/CUP | senate | +0.577 | −0.325 | +0.002 | +0.185 | +0.289 |
 | CON/STY | senate | +0.258 | +0.263 | +0.120 | +0.196 | +0.230 |
 | STY/CON | senate | +0.076 | +0.365 | +0.124 | +0.188 | +0.155 |
-| CTR | both | +0.266 | −0.817 | −0.174 | +0.130 | +0.039 |
+| CUP | both | +0.266 | −0.817 | −0.174 | +0.130 | +0.039 |
 | CON/SD | senate | +0.236 | −0.027 | +0.102 | −0.035 | −0.011 |
 | STY | both | −0.446 | +0.658 | +0.133 | +0.165 | −0.062 |
 | SD/CON | senate | +0.153 | −0.028 | +0.101 | −0.074 | −0.081 |
-| SD/CTR | senate | −0.122 | −0.369 | −0.023 | −0.141 | −0.305 |
+| SD/CUP | senate | −0.122 | −0.369 | −0.023 | −0.141 | −0.305 |
 | STY/SD | senate | −0.430 | +0.313 | +0.112 | −0.090 | −0.313 |
 | SD/STY | senate | −0.425 | +0.196 | +0.105 | −0.177 | −0.398 |
 | SD | both | −0.414 | −0.032 | +0.091 | −0.345 | −0.564 |
-| LIB/CTR | senate | −0.171 | −0.773 | −0.121 | −0.142 | −0.554 |
+| LIB/CUP | senate | −0.171 | −0.773 | −0.121 | −0.142 | −0.554 |
 | SD/LIB | senate | −0.438 | −0.381 | +0.004 | −0.334 | −0.753 |
 | DSA | house | **−1.303** | +0.504 | +0.076 | −0.387 | −0.874 |
 | LIB | both | −0.462 | −0.744 | −0.086 | −0.323 | −0.950 |
@@ -217,19 +217,19 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 | Tier | Types |
 |------|-------|
 | Very High | CON (+0.77), CON/NAT (+0.75) |
-| High | NAT (+0.74), CON/REF (+0.59), CON/CTR (+0.58), CTR (+0.27), CON/STY (+0.26) |
-| Medium | CON/SD (+0.24), REF (+0.20), SD/CON (+0.15), STY/CON (+0.08), REF/STY (−0.04), SD/CTR (−0.12), STY/REF (−0.15), LIB/CTR (−0.17) |
+| High | NAT (+0.74), CON/POP (+0.59), CON/CUP (+0.58), CUP (+0.27), CON/STY (+0.26) |
+| Medium | CON/SD (+0.24), POP (+0.20), SD/CON (+0.15), STY/CON (+0.08), POP/STY (−0.04), SD/CUP (−0.12), STY/POP (−0.15), LIB/CUP (−0.17) |
 | Low | SD (−0.41), SD/STY (−0.42), STY/SD (−0.43), SD/LIB (−0.44), STY (−0.45), LIB (−0.46) |
 | Very Low | PRG (−1.26), DSA (−1.30) |
 
 ### F2 — Electoral Skepticism
 | Tier | Types |
 |------|-------|
-| Very High | REF (+0.76) |
-| High | REF/STY (+0.72), STY/REF (+0.70), STY (+0.66), DSA (+0.50), NAT (+0.43), STY/CON (+0.36), STY/SD (+0.31), CON/STY (+0.26) |
-| Medium | CON/REF (+0.22), CON/NAT (+0.20), SD/STY (+0.20), CON (−0.02), CON/SD (−0.03), SD/CON (−0.03), SD (−0.03) |
-| Low | CON/CTR (−0.32), SD/CTR (−0.37), SD/LIB (−0.38), PRG (−0.63), LIB (−0.74) |
-| Very Low | LIB/CTR (−0.77), CTR (−0.82) |
+| Very High | POP (+0.76) |
+| High | POP/STY (+0.72), STY/POP (+0.70), STY (+0.66), DSA (+0.50), NAT (+0.43), STY/CON (+0.36), STY/SD (+0.31), CON/STY (+0.26) |
+| Medium | CON/POP (+0.22), CON/NAT (+0.20), SD/STY (+0.20), CON (−0.02), CON/SD (−0.03), SD/CON (−0.03), SD (−0.03) |
+| Low | CON/CUP (−0.32), SD/CUP (−0.37), SD/LIB (−0.38), PRG (−0.63), LIB (−0.74) |
+| Very Low | LIB/CUP (−0.77), CUP (−0.82) |
 
 ### F3 — Government Distrust
 | Tier | Types |
@@ -252,10 +252,10 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 ### F5 — Populist Conservatism
 | Tier | Types |
 |------|-------|
-| Very High | NAT (+1.51), REF (+0.99), CON/NAT (+0.97) |
-| High | CON/REF (+0.61), REF/STY (+0.60), CON (+0.44), STY/REF (+0.41), CON/CTR (+0.29) |
+| Very High | NAT (+1.51), POP (+0.99), CON/NAT (+0.97) |
+| High | CON/POP (+0.61), POP/STY (+0.60), CON (+0.44), STY/POP (+0.41), CON/CUP (+0.29) |
 | Medium | CON/STY (+0.23) through SD/CON (−0.08) — 6 types |
-| Low | SD/CTR (−0.30), STY/SD (−0.31), SD/STY (−0.40), LIB/CTR (−0.55), SD (−0.56) |
+| Low | SD/CUP (−0.30), STY/SD (−0.31), SD/STY (−0.40), LIB/CUP (−0.55), SD (−0.56) |
 | Very Low | SD/LIB (−0.75), DSA (−0.87), LIB (−0.95), PRG (−0.99) |
 
 ---
@@ -264,10 +264,10 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 
 1. **F3 is non-differentiating** — All winning types cluster in Medium. Government distrust as a raw dimension is shared broadly across the winning coalition space.
 
-2. **F2 is the most cross-cutting** — REF (+0.76), STY (+0.66), and DSA (+0.50) all score High on electoral skepticism despite being maximally opposed on F5. These three parties would align on election-reform legislation despite sharing little else ideologically.
+2. **F2 is the most cross-cutting** — POP (+0.76), STY (+0.66), and DSA (+0.50) all score High on electoral skepticism despite being maximally opposed on F5. These three parties would align on election-reform legislation despite sharing little else ideologically.
 
-3. **NAT is the outlier on F5** — At +1.51, NAT is a full standard deviation above the next highest type (REF at +0.99). In coalition analysis, NAT forms a distinct bloc on the populist-right pole that no senate blend type fully reaches.
+3. **NAT is the outlier on F5** — At +1.51, NAT is a full standard deviation above the next highest type (POP at +0.99). In coalition analysis, NAT forms a distinct bloc on the populist-right pole that no senate blend type fully reaches.
 
 4. **DSA and PRG are near-identical on F4 and F5** — Both score −0.387 on F4 and approximately −0.87/−0.99 on F5. Their main distinction is F1 (DSA: −1.303, PRG: −1.260) and F2 (DSA: +0.504, PRG: −0.634) — DSA distrusts elections; PRG trusts them.
 
-5. **CON and CTR diverge sharply on F2** — CON scores −0.024 (Medium) while CTR scores −0.817 (Very Low). Despite having similar seat counts and both being "right-of-center," they are on opposite sides of the electoral skepticism divide.
+5. **CON and CUP diverge sharply on F2** — CON scores −0.024 (Medium) while CUP scores −0.817 (Very Low). Despite having similar seat counts and both being "right-of-center," they are on opposite sides of the electoral skepticism divide.

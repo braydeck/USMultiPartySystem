@@ -65,8 +65,8 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
 
   const fdSeatsAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
-    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, SD: 1, STY: 2, NAT: 3, LIB: 4, REF: 5, CTR: 6, DSA: 8, PRG: 9 };
-    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Social Democrat',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Reform',6:'Center',8:'DSA',9:'Progressive' };
+    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, SD: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
+    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Social Democrat',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
     for (const s of fdHouseSeats) {
       const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
       if (cluster < 0) continue;
@@ -90,8 +90,8 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
   // FD aggregation for triple Wyoming
   const fdSeatsTripleAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
-    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, SD: 1, STY: 2, NAT: 3, LIB: 4, REF: 5, CTR: 6, DSA: 8, PRG: 9 };
-    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Social Democrat',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Reform',6:'Center',8:'DSA',9:'Progressive' };
+    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, SD: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
+    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Social Democrat',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
     for (const s of fdHouseSeatsTriple) {
       const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
       if (cluster < 0) continue;

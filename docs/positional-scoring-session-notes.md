@@ -8,17 +8,17 @@ The senate simulation was producing senators that looked too conservative
 relative to the political makeup of their states. Two states that surfaced the
 issue cleanly:
 
-- **AZ** — Condorcet winner `REF/STY`, IRV winner `CON/NAT`. AZ has been
+- **AZ** — Condorcet winner `POP/STY`, IRV winner `CON/NAT`. AZ has been
   a competitive state, and `CON/NAT` is the most conservative coalition the
   pipeline can generate.
-- **CO** — Condorcet `REF/STY`, IRV `CON/REF`. CO went Harris +11 in 2024;
+- **CO** — Condorcet `POP/STY`, IRV `CON/POP`. CO went Harris +11 in 2024;
   a center-right senator does not match the state's political center of
   gravity.
 
-The smoking gun was the IRV transfer behavior in CO: when `REF/STY` was
-eliminated, **80% of its voters cascaded to `CON/REF`**, not to `SD` or `LIB`.
-The "centrist" candidate's voter base was actually right-pole-displaced REF
-voters whose first choice (pure REF) had been eliminated upstream in the STV
+The smoking gun was the IRV transfer behavior in CO: when `POP/STY` was
+eliminated, **80% of its voters cascaded to `CON/POP`**, not to `SD` or `LIB`.
+The "centrist" candidate's voter base was actually right-pole-displaced POP
+voters whose first choice (pure POP) had been eliminated upstream in the STV
 primary.
 
 ## Root cause
@@ -33,13 +33,13 @@ Three structural pathologies fall out of this formulation:
 
 1. **Pure candidates monopolize their cluster's first preferences.** With
    `w_primary = 1.0`, a pure-STY voter scores STY at 1.0 and every coalition
-   candidate (SD/STY, REF/STY) at strictly lower than 0.5. Coalition candidates
+   candidate (SD/STY, POP/STY) at strictly lower than 0.5. Coalition candidates
    can never accumulate first-preference votes from their natural cluster
    base.
-2. **Coalition candidates' bases are asymmetric.** A `REF/STY` candidate at
-   `w_primary = 0.7` pulls REF voters' rankings about 2× harder than STY
+2. **Coalition candidates' bases are asymmetric.** A `POP/STY` candidate at
+   `w_primary = 0.7` pulls POP voters' rankings about 2× harder than STY
    voters'. The candidate appears centrist but its support is 70%
-   REF-aligned. When eliminated, transfers go right.
+   POP-aligned. When eliminated, transfers go right.
 3. **Coalition candidates die early in STV.** They get crowded out of first
    preferences before they can absorb other clusters' transfers. SD/STY (CO),
    SD/LIB (CO), STY/SD (AZ) all eliminated at 0% first preferences in the
@@ -56,7 +56,7 @@ score              = exp(-‖voter_factor_scores - candidate_position‖² / (2 
 ```
 
 with `σ = 1.5`. The candidate's `w_primary` now controls a literal *position*
-in factor space (REF/STY at `w = 0.7` is 30% of the way from REF toward STY in
+in factor space (POP/STY at `w = 0.7` is 30% of the way from POP toward STY in
 F1-F5 space) rather than a discount factor on cluster-membership probability.
 
 Implications:
@@ -83,11 +83,11 @@ Implications:
 
 | State | Old Condorcet | New Condorcet | Old IRV | New IRV |
 |---|---|---|---|---|
-| AZ | REF/STY | STY | CON/NAT | STY/SD |
-| CO | REF/STY | CON/SD (wildcard) | CON/REF | CON/SD |
+| AZ | POP/STY | STY | CON/NAT | STY/SD |
+| CO | POP/STY | CON/SD (wildcard) | CON/POP | CON/SD |
 
 National senate Condorcet: 16 different parties win seats. SD/STY 8, CON/SD 6,
-CON/REF 6, SD 6, STY 5, CON/CTR 5, CON/STY 4 are the top tiers. Pure
+CON/POP 6, SD 6, STY 5, CON/CUP 5, CON/STY 4 are the top tiers. Pure
 candidates win 16 seats nationally; coalition candidates win 25; cross-aisle
 wildcards win 10.
 
@@ -120,11 +120,11 @@ entries in `CANDIDATES`. The primary pod survivor targets were lowered from
 
 ### Pure-only results
 
-**Senate national composition (Condorcet):** SD 16, CTR 15, STY 10, CON 9,
-REF 1. Five parties win seats; NAT, LIB, DSA, PRG win zero. **AZ:** CTR.
+**Senate national composition (Condorcet):** SD 16, CUP 15, STY 10, CON 9,
+POP 1. Five parties win seats; NAT, LIB, DSA, PRG win zero. **AZ:** CUP.
 **CO:** STY. Both methods (Condorcet, IRV) agree on AZ and CO.
 
-**Presidential general:** STY 50.54% beat CTR 49.46% in the final IRV round.
+**Presidential general:** STY 50.54% beat CUP 49.46% in the final IRV round.
 Round-by-round: LIB out first, then CON, then SD. STY wins as the spatial-
 median pure cluster.
 

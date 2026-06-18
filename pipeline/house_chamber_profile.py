@@ -31,7 +31,7 @@ OUT_DIR     = BASE / "data" / "outputs"
 # Cluster index → label mapping
 CLUSTER_NAMES = {
     0: "CON", 1: "SD",  2: "STY", 3: "NAT", 4: "LIB",
-    5: "REF", 6: "CTR", 7: "C7",  8: "DSA", 9: "PRG",
+    5: "POP", 6: "CUP", 7: "C7",  8: "DSA", 9: "PRG",
 }
 
 TYPE_COLS = [CLUSTER_NAMES[i] for i in range(10)]

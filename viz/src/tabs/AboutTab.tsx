@@ -8,9 +8,9 @@ const PARTY_TAGLINES: Record<string, string> = {
   DSA: 'Worker power, economic equality, public ownership',
   SD:  'Strong safety net, institutional reform, center-left',
   STY: 'Cross-cutting populism, skeptical of both establishments',
-  CTR: 'Moderate on economics and culture, institutionalist',
+  CUP: 'Moderate on economics and culture, institutionalist',
   CON: 'Free markets, traditional values, national sovereignty',
-  REF: 'Anti-establishment right, immigration restriction',
+  POP: 'Anti-establishment right, immigration restriction',
   NAT: 'Cultural conservatism, economic nationalism, strong borders',
 };
 
@@ -343,7 +343,7 @@ export function AboutTab() {
           <Card className="p-4 bg-amber-50 border-amber-200">
             <div className="text-xs font-semibold text-amber-800 mb-1">Why 9 and not 10?</div>
             <p className="text-xs text-amber-700 leading-relaxed">
-              The DPGMM naturally produces 10 clusters. Cluster 7 (Blue Dogs — conservative Democrats) is dropped because it's small and ideologically spans the CON/CTR boundary. Including it produced unstable results and unclear ideological identity. All 9 remaining clusters are statistically robust and ideologically interpretable.
+              The DPGMM naturally produces 10 clusters. Cluster 7 (Blue Dogs — conservative Democrats) is dropped because it's small and ideologically spans the CON/CUP boundary. Including it produced unstable results and unclear ideological identity. All 9 remaining clusters are statistically robust and ideologically interpretable.
             </p>
           </Card>
         </div>

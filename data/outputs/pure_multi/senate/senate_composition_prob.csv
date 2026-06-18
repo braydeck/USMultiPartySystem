@@ -1,4 +1,4 @@
-state_fips,state_abbr,senator_code,senator_label,senator_party,senator_type,primary_cluster,secondary_cluster,total_weighted_respondents,n_candidates_in_race,n_finalists,finalist_CON_1_pct,finalist_CTR_1_pct,finalist_REF_2_pct,finalist_SD_1_pct,finalist_STY_1_pct,finalist_REF_1_pct,finalist_LIB_1_pct,finalist_SD_2_pct,finalist_STY_2_pct,finalist_CON_2_pct,finalist_CTR_2_pct,finalist_DSA_1_pct,finalist_SD_3_pct,finalist_NAT_1_pct,finalist_STY_3_pct,finalist_LIB_2_pct,finalist_PRG_3_pct
+state_fips,state_abbr,senator_code,senator_label,senator_party,senator_type,primary_cluster,secondary_cluster,total_weighted_respondents,n_candidates_in_race,n_finalists,finalist_CON_1_pct,finalist_CUP_1_pct,finalist_POP_2_pct,finalist_SD_1_pct,finalist_STY_1_pct,finalist_POP_1_pct,finalist_LIB_1_pct,finalist_SD_2_pct,finalist_STY_2_pct,finalist_CON_2_pct,finalist_CUP_2_pct,finalist_DSA_1_pct,finalist_SD_3_pct,finalist_NAT_1_pct,finalist_STY_3_pct,finalist_LIB_2_pct,finalist_PRG_3_pct
 1,AL,STY_1,STY_1,STY,pure,2,,726.21,17,5,31.8776,12.4189,13.1131,25.6401,16.9502,,,,,,,,,,,,
 2,AK,STY_1,STY_1,STY,pure,2,,130.64,20,5,19.9374,12.4888,,36.0569,17.349,14.1679,,,,,,,,,,,
 4,AZ,STY_1,STY_1,STY,pure,2,,1160.11,22,5,27.548,,,18.9706,14.0035,22.9312,16.5467,,,,,,,,,,
@@ -11,7 +11,7 @@ state_fips,state_abbr,senator_code,senator_label,senator_party,senator_type,prim
 12,FL,STY_1,STY_1,STY,pure,2,,3184.13,21,5,18.6415,16.5636,,24.7143,26.3833,,,,,13.6973,,,,,,,
 13,GA,STY_1,STY_1,STY,pure,2,,1472.39,19,5,23.404,21.1595,,27.2403,16.1551,12.0411,,,,,,,,,,,
 15,HI,SD_1,SD_1,SD,pure,1,,203.15,18,5,,,,20.4206,22.5052,,19.6504,,,26.0725,,,11.3514,,,,
-16,ID,REF_1,REF_1,REF,pure,5,,325.33,19,5,28.1287,,,24.5664,13.03,18.4331,,,,,15.8418,,,,,,
+16,ID,POP_1,POP_1,POP,pure,5,,325.33,19,5,28.1287,,,24.5664,13.03,18.4331,,,,,15.8418,,,,,,
 17,IL,STY_1,STY_1,STY,pure,2,,1460.33,20,5,23.285,,,24.6398,15.2663,15.6656,21.1432,,,,,,,,,,
 18,IN,STY_1,STY_1,STY,pure,2,,994.99,20,5,22.3977,17.208,,27.0132,19.1021,,,,,14.2789,,,,,,,
 19,IA,STY_1,STY_1,STY,pure,2,,446.79,21,5,,19.2093,,,18.7657,,,28.5855,,19.8465,,,,13.593,,,
@@ -33,7 +33,7 @@ state_fips,state_abbr,senator_code,senator_label,senator_party,senator_type,prim
 35,NM,STY_1,STY_1,STY,pure,2,,415.1,20,5,26.3317,,,,17.7476,19.4409,17.8506,18.6292,,,,,,,,,
 36,NY,STY_1,STY_1,STY,pure,2,,2314.44,21,5,23.5025,,,24.5403,17.0011,15.3321,19.6241,,,,,,,,,,
 37,NC,STY_1,STY_1,STY,pure,2,,1455.35,21,5,32.8317,,,20.4443,15.1396,16.096,15.4884,,,,,,,,,,
-38,ND,REF_1,REF_1,REF,pure,5,,112.02,20,5,,15.0004,,,9.5805,34.1509,,23.5733,,17.695,,,,,,,
+38,ND,POP_1,POP_1,POP,pure,5,,112.02,20,5,,15.0004,,,9.5805,34.1509,,23.5733,,17.695,,,,,,,
 39,OH,STY_1,STY_1,STY,pure,2,,1727.15,21,5,27.5088,16.5645,,,14.6383,16.9689,,24.3195,,,,,,,,,
 40,OK,STY_2,STY_2,STY,pure,2,,606.2,21,5,23.7501,,,,,,,21.3259,24.4023,16.2536,14.2682,,,,,,
 41,OR,SD_2,SD_2,SD,pure,1,,861.73,22,5,21.4618,,,,,21.8162,22.5448,18.5792,,,,15.5981,,,,,
@@ -49,4 +49,4 @@ state_fips,state_abbr,senator_code,senator_label,senator_party,senator_type,prim
 53,WA,SD_1,SD_1,SD,pure,1,,1221.78,20,5,18.5649,,,27.7596,13.4162,17.0901,23.1693,,,,,,,,,,
 54,WV,STY_1,STY_1,STY,pure,2,,360.26,19,5,32.5332,,15.771,21.6453,14.6902,,,,,,15.3603,,,,,,
 55,WI,STY_1,STY_1,STY,pure,2,,969.41,20,5,,,,21.5783,14.4406,21.5935,17.391,,,24.9966,,,,,,,
-56,WY,REF_1,REF_1,REF,pure,5,,98.3,19,5,24.2335,,15.0034,31.5079,,13.3714,,,,,,,,15.8838,,,
+56,WY,POP_1,POP_1,POP,pure,5,,98.3,19,5,24.2335,,15.0034,31.5079,,13.3714,,,,,,,,15.8838,,,

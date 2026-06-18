@@ -29,18 +29,18 @@ OUT_DIR     = BASE / "data" / "outputs"
 
 # ── Senate type columns (from senate_chamber_profile.csv) ──────────────────
 SENATE_TYPES = [
-    "CON", "SD", "STY", "REF",
-    "CON/CTR", "CON/SD", "CON/STY",
-    "SD/STY", "SD/CON", "SD/CTR", "SD/LIB",
-    "STY/REF", "STY/SD", "STY/CON",
-    "REF/STY",
-    "CON/REF", "CON/NAT", "LIB/CTR",
+    "CON", "SD", "STY", "POP",
+    "CON/CUP", "CON/SD", "CON/STY",
+    "SD/STY", "SD/CON", "SD/CUP", "SD/LIB",
+    "STY/POP", "STY/SD", "STY/CON",
+    "POP/STY",
+    "CON/POP", "CON/NAT", "LIB/CUP",
 ]
 
 # ── House type columns (from house_chamber_profile.csv) ────────────────────
 HOUSE_CLUSTER_NAMES = {
     0: "CON", 1: "SD", 2: "STY", 3: "NAT", 4: "LIB",
-    5: "REF", 6: "CTR", 7: "C7", 8: "DSA", 9: "PRG",
+    5: "POP", 6: "CUP", 7: "C7", 8: "DSA", 9: "PRG",
 }
 HOUSE_TYPES = [HOUSE_CLUSTER_NAMES[i] for i in range(10)]
 

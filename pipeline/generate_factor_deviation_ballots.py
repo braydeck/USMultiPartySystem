@@ -6,7 +6,7 @@ Generate ranked ballots for 71 factor-deviation (FD) candidates using
 Plackett-Luce sampling from each respondent's 5-D factor position.
 
 The slate = 9 base party candidates + 62 factor-deviation variants:
-  - 4 axes: SO (F1), AE (F2), RT (F4; STY/CTR/REF/CON only), PC (F5)
+  - 4 axes: SO (F1), AE (F2), RT (F4; STY/CUP/POP/CON only), PC (F5)
   - Deviation = ±25% of inter-party SD per factor
   - F3 fixed at party centroid for all candidates (excluded deviation axis)
 
@@ -35,7 +35,7 @@ PROB_COLS         = [f"prob_cluster_{k}" for k in range(10)]
 # Party → cluster index (C7/BLB excluded)
 PARTY_CLUSTER = {
     "CON": 0, "SD": 1, "STY": 2, "NAT": 3, "LIB": 4,
-    "REF": 5, "CTR": 6, "DSA": 8, "PRG": 9,
+    "POP": 5, "CUP": 6, "DSA": 8, "PRG": 9,
 }
 
 # Corresponding columns in the candidate CSV

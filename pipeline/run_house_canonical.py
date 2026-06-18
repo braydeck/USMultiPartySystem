@@ -50,8 +50,8 @@ CANDIDATES = [
     {"name": "STY", "cluster": 2},
     {"name": "NAT", "cluster": 3},
     {"name": "LIB", "cluster": 4},
-    {"name": "REF", "cluster": 5},
-    {"name": "CTR", "cluster": 6},
+    {"name": "POP", "cluster": 5},
+    {"name": "CUP", "cluster": 6},
     {"name": "DSA", "cluster": 8},
     {"name": "PRG", "cluster": 9},
 ]
@@ -59,8 +59,8 @@ CAND_NAMES = [c["name"] for c in CANDIDATES]
 
 PARTY_LABELS = {
     0: "Conservative", 1: "Social Democrat", 2: "Solidarity",
-    3: "Nationalist",  4: "Liberal",         5: "Reform",
-    6: "Center",       8: "DSA",             9: "Progressive",
+    3: "Nationalist",  4: "Liberal",         5: "Populist",
+    6: "Civic Union Party",       8: "DSA",             9: "Progressive",
 }
 NAME_TO_CLUSTER = {c["name"]: c["cluster"] for c in CANDIDATES}
 

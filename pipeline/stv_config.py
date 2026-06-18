@@ -21,8 +21,8 @@ PARTY_LABELS = {
     2: "Solidarity",
     3: "Nationalist",
     4: "Liberal",
-    5: "Reform",
-    6: "Center",
+    5: "Populist",
+    6: "Civic Union Party",
     7: "Blue Dogs",      # dissolved — see DISSOLVED_PARTIES
     8: "DSA",
     9: "Progressive",

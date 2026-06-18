@@ -1,4 +1,4 @@
-variable,domain,type,stat_label,question,overall,CON,SD,STY,NAT,LIB,REF,CTR,C7,DSA,PRG,house_chamber
+variable,domain,type,stat_label,question,overall,CON,SD,STY,NAT,LIB,POP,CUP,C7,DSA,PRG,house_chamber
 CC24_341a,Taxes & Economy,binary,% Supporting,Extend the 2017 tax cuts,62.9096,85.1391,48.868,60.5274,93.7855,33.0026,75.7089,76.3888,68.5288,28.8072,11.7472,63.2544
 CC24_341b,Taxes & Economy,binary,% Supporting,Raise corporate income tax from 21% to 28%,57.6828,38.8283,80.3757,53.4382,6.6686,90.7269,33.5886,53.0495,80.0204,88.5291,97.349,57.4684
 CC24_341c,Taxes & Economy,binary,% Supporting,Allow rates on $400k+ earners to rise to 35%,65.3484,52.531,86.3894,58.7368,7.5546,98.0046,37.998,62.0599,92.7938,99.6371,100.0,65.0523

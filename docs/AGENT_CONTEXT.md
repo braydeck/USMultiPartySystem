@@ -123,8 +123,8 @@ PARTY_LABELS = {
     2: "Solidarity",
     3: "Nationalist",
     4: "Liberal",
-    5: "Reform",
-    6: "Center",
+    5: "Populist",
+    6: "Civic Union Party",
     7: "Blue Dogs",      # DISSOLVED — never wins seats
     8: "DSA",
     9: "Progressive",
@@ -136,7 +136,7 @@ PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 
 **Cluster ID → abbreviation mapping** (for display/labeling):
 - C0 Conservative, C1 Social Democrat, C2 Solidarity, C3 Nationalist,
-  C4 Liberal, C5 Reform, C6 Center, C7 Blue Dogs (dissolved),
+  C4 Liberal, C5 Populist, C6 Civic Union Party, C7 Blue Dogs (dissolved),
   C8 DSA, C9 Progressive
 
 ---
@@ -232,7 +232,7 @@ SCENARIOS = {
 # Comparison:  SCENARIOS_ROOT / "scenario_comparison.csv"
 ```
 
-Scenario A is effectively identical to the baseline (C7 already dissolved). It exists as a confirmation run. Scenario B additionally dissolves C2 (Solidarity, ~160 seats → redistributed).
+Scenario A is effectively identical to the baseline (C7 already dissolved). It exists as a confirmation run. Scenario B additionally dissolves C2 (Solidarity, 130 seats → redistributed).
 
 ---
 

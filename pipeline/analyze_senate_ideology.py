@@ -51,8 +51,8 @@ PURE_CENTROIDS = {
     "STY": cent_by_name["STY"],
     "NAT": cent_by_name["NAT"],
     "LIB": cent_by_name["LIB"],
-    "REF": cent_by_name["REF"],
-    "CTR": cent_by_name["CTR"],
+    "POP": cent_by_name["POP"],
+    "CUP": cent_by_name["CUP"],
     "DSA": cent_by_name["DSA"],
     "PRG": cent_by_name["PRG"],
 }
@@ -67,11 +67,11 @@ def blend_centroid(primary_name: str, secondary_name: str,
 # ── Missing blend definitions (from senate simulation mean weights) ────────────
 MISSING_BLENDS = {
     # name         primary  secondary  w_pri   w_sec
-    "CON/REF": ("CON", "REF", 0.69, 0.31),
+    "CON/POP": ("CON", "POP", 0.69, 0.31),
     "SD/LIB":  ("SD",  "LIB", 0.51, 0.49),
-    "SD/CTR":  ("SD",  "CTR", 0.57, 0.43),
+    "SD/CUP":  ("SD",  "CUP", 0.57, 0.43),
     "CON/NAT": ("CON", "NAT", 0.51, 0.49),
-    "LIB/CTR": ("LIB", "CTR", 0.60, 0.40),
+    "LIB/CUP": ("LIB", "CUP", 0.60, 0.40),
     "STY/CON": ("STY", "CON", 0.57, 0.43),
 }
 
@@ -105,12 +105,12 @@ print("=" * 70)
 
 # Only show senate-relevant types (pure + blends that win seats)
 SENATE_TYPES = [
-    "CON","CON/CTR","CON/NAT","CON/REF","CON/SD","CON/STY",
-    "SD","SD/CON","SD/CTR","SD/LIB","SD/STY",
-    "STY","STY/CON","STY/REF","STY/SD",
-    "REF","REF/STY",
-    "LIB","LIB/CTR",
-    "CTR",
+    "CON","CON/CUP","CON/NAT","CON/POP","CON/SD","CON/STY",
+    "SD","SD/CON","SD/CUP","SD/LIB","SD/STY",
+    "STY","STY/CON","STY/POP","STY/SD",
+    "POP","POP/STY",
+    "LIB","LIB/CUP",
+    "CUP",
 ]
 # build square distance matrix for just these
 sub_labels = [l for l in SENATE_TYPES if l in centroids_df.index]
@@ -143,9 +143,9 @@ def coalition_of(label: str) -> str:
     if label.startswith("CON"):   return "CON"
     if label.startswith("SD"):    return "SD"
     if label.startswith("STY"):   return "STY"
-    if label.startswith("REF"):   return "REF"
+    if label.startswith("POP"):   return "POP"
     if label.startswith("LIB"):   return "LIB"
-    if label.startswith("CTR"):   return "CTR"
+    if label.startswith("CUP"):   return "CUP"
     if label in ("NAT","DSA","PRG"): return label
     return "OTHER"
 

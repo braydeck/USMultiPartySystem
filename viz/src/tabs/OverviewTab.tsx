@@ -119,7 +119,7 @@ export function OverviewTab({
   houseSeats, senateVotes, houseVotes,
   clusters, fptpStates, stateMap, clusterSpreads,
 }: Props) {
-  const condWinner = rawMultiElection.condorcetWinner; // e.g. "CTR_1"
+  const condWinner = rawMultiElection.condorcetWinner; // e.g. "CUP_1"
   const irvWinner  = rawMultiElection.irvWinner;       // e.g. "SD_1"
   const condParty  = condWinner.split('_')[0];
   const irvParty   = irvWinner.split('_')[0];

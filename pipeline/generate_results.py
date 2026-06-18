@@ -30,19 +30,19 @@ RESULTS.mkdir(parents=True, exist_ok=True)
 
 CLUSTER_NAMES = {
     0: "CON", 1: "SD", 2: "STY", 3: "NAT", 4: "LIB",
-    5: "REF", 6: "CTR", 7: "C7", 8: "DSA", 9: "PRG",
+    5: "POP", 6: "CUP", 7: "C7", 8: "DSA", 9: "PRG",
 }
 
 PARTY_COLORS = {
     "DSA": "#E6194B", "PRG": "#F032E6", "LIB": "#911EB4",
-    "SD":  "#4363D8", "CTR": "#A9A9A9", "STY": "#3CB44B",
-    "REF": "#F58231", "CON": "#9A6324", "NAT": "#000000",
+    "SD":  "#4363D8", "CUP": "#A9A9A9", "STY": "#3CB44B",
+    "POP": "#F58231", "CON": "#9A6324", "NAT": "#000000",
     "C7":  "#888888",
 }
 
 # ── Factor scores for all senate/house-relevant party types ───────────────────
 # Source: senate_candidate_factor_centroids.csv + main candidate_factor_centroids.csv
-# Computed types (REF/SD, CTR/LIB, PRG/DSA) derived from weighted cluster centroids.
+# Computed types (POP/SD, CUP/LIB, PRG/DSA) derived from weighted cluster centroids.
 # Format: [F1, F2, F3, F4, F5]
 TYPE_SCORES = {
     # Pure clusters (all scenarios)
@@ -51,35 +51,35 @@ TYPE_SCORES = {
     "STY":     [-0.4460,  0.6579,  0.1333,  0.1645, -0.0623],
     "NAT":     [ 0.7366,  0.4278, -0.2078,  0.4573,  1.5101],
     "LIB":     [-0.4623, -0.7437, -0.0862, -0.3230, -0.9496],
-    "REF":     [ 0.2023,  0.7593, -0.2061,  0.1470,  0.9903],
-    "CTR":     [ 0.2658, -0.8166, -0.1744,  0.1296,  0.0387],
+    "POP":     [ 0.2023,  0.7593, -0.2061,  0.1470,  0.9903],
+    "CUP":     [ 0.2658, -0.8166, -0.1744,  0.1296,  0.0387],
     "DSA":     [-1.3034,  0.5040,  0.0761, -0.3869, -0.8740],
     "PRG":     [-1.2600, -0.6338, -0.2057, -0.3869, -0.9900],
     # Co-occurrence blends from senate centroids (w_primary = 0.70)
-    "CON/CTR": [ 0.5768, -0.3248,  0.0024,  0.1848,  0.2890],
+    "CON/CUP": [ 0.5768, -0.3248,  0.0024,  0.1848,  0.2890],
     "CON/NAT": [ 0.7523,  0.1976, -0.0453,  0.3356,  0.9656],
-    "CON/REF": [ 0.5922,  0.2192,  0.0126,  0.1964,  0.6122],
+    "CON/POP": [ 0.5922,  0.2192,  0.0126,  0.1964,  0.6122],
     "CON/SD":  [ 0.2357, -0.0274,  0.1021, -0.0349, -0.0105],
     "CON/STY": [ 0.2577,  0.2627,  0.1202,  0.1959,  0.2304],
     "SD/CON":  [ 0.1529, -0.0280,  0.1007, -0.0743, -0.0809],
-    "SD/CTR":  [-0.1219, -0.3694, -0.0228, -0.1408, -0.3048],
+    "SD/CUP":  [-0.1219, -0.3694, -0.0228, -0.1408, -0.3048],
     "SD/LIB":  [-0.4378, -0.3808,  0.0044, -0.3341, -0.7529],
     "SD/STY":  [-0.4247,  0.1956,  0.1053, -0.1767, -0.3984],
     "STY/CON": [ 0.0758,  0.3649,  0.1236,  0.1878,  0.1547],
-    "STY/REF": [-0.1543,  0.7035, -0.0194,  0.1566,  0.4114],
+    "STY/POP": [-0.1543,  0.7035, -0.0194,  0.1566,  0.4114],
     "STY/SD":  [-0.4301,  0.3129,  0.1124, -0.0901, -0.3132],
-    "REF/STY": [-0.0376,  0.7218, -0.0805,  0.1535,  0.6008],
-    "LIB/CTR": [-0.1711, -0.7729, -0.1215, -0.1420, -0.5543],
-    # Computed: REF/SD wildcard (w = 0.55)
-    "REF/SD":  [
+    "POP/STY": [-0.0376,  0.7218, -0.0805,  0.1535,  0.6008],
+    "LIB/CUP": [-0.1711, -0.7729, -0.1215, -0.1420, -0.5543],
+    # Computed: POP/SD wildcard (w = 0.55)
+    "POP/SD":  [
         0.55 * 0.2023 + 0.45 * (-0.4143),   # F1 = -0.075
         0.55 * 0.7593 + 0.45 * (-0.0321),   # F2 =  0.403
         0.55 * (-0.2061) + 0.45 * 0.0915,   # F3 = -0.072
         0.55 * 0.1470 + 0.45 * (-0.3447),   # F4 = -0.074
         0.55 * 0.9903 + 0.45 * (-0.5640),   # F5 =  0.291
     ],
-    # Computed: CTR/LIB wildcard (w = 0.50)
-    "CTR/LIB": [
+    # Computed: CUP/LIB wildcard (w = 0.50)
+    "CUP/LIB": [
         0.50 * 0.2658 + 0.50 * (-0.4623),   # F1 = -0.098
         0.50 * (-0.8166) + 0.50 * (-0.7437),# F2 = -0.780
         0.50 * (-0.1744) + 0.50 * (-0.0862),# F3 = -0.130
@@ -452,7 +452,7 @@ def create_vote_model():
         (house_prof["variable"].str.startswith("CC24_"))
     ].set_index("variable")
 
-    PURE_TYPES      = ["CON", "SD", "STY", "CTR", "REF", "LIB", "DSA", "PRG"]
+    PURE_TYPES      = ["CON", "SD", "STY", "CUP", "POP", "LIB", "DSA", "PRG"]
     SENATE_MAJORITY = 26
 
     cond_pure_seats = (

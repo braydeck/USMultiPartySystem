@@ -54,8 +54,8 @@ CANDIDATES = [
     {"code": "MRJ",     "name": "STY",     "primary": 2, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "BE",      "name": "NAT",     "primary": 3, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "CO",      "name": "LIB",     "primary": 4, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
-    {"code": "DH",      "name": "REF",     "primary": 5, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
-    {"code": "LK",      "name": "CTR",     "primary": 6, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
+    {"code": "DH",      "name": "POP",     "primary": 5, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
+    {"code": "LK",      "name": "CUP",     "primary": 6, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "ZN",      "name": "DSA",     "primary": 8, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "JR",      "name": "PRG",     "primary": 9, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
 ]

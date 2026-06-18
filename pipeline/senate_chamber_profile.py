@@ -31,28 +31,28 @@ PURE_TYPES = {
     "CON": "c0",
     "SD":  "c1",
     "STY": "c2",
-    "REF": "c5",
-    "CTR": "c6",
+    "POP": "c5",
+    "CUP": "c6",
     "LIB": "c4",
 }
 
 # ── New senate blends not in blend_stats.csv ────────────────────────────────
 # (label, primary_col, secondary_col, w_primary)
 NEW_BLENDS = [
-    ("CON/REF",  "c0", "c5", 0.6900),
+    ("CON/POP",  "c0", "c5", 0.6900),
     ("CON/NAT",  "c0", "c3", 0.5100),
-    ("LIB/CTR",  "c4", "c6", 0.6000),
-    ("REF/SD",   "c5", "c1", 0.5500),
-    ("CTR/LIB",  "c6", "c4", 0.5000),
+    ("LIB/CUP",  "c4", "c6", 0.6000),
+    ("POP/SD",   "c5", "c1", 0.5500),
+    ("CUP/LIB",  "c6", "c4", 0.5000),
     ("PRG/DSA",  "c9", "c8", 0.7000),
 ]
 
 # ── Existing blends to pull from blend_stats.csv ───────────────────────────
 EXISTING_BLENDS = [
-    "CON/CTR", "CON/SD", "CON/STY",
-    "SD/STY",  "SD/CON", "SD/CTR", "SD/LIB",
-    "STY/REF", "STY/SD", "STY/CON",
-    "REF/STY",
+    "CON/CUP", "CON/SD", "CON/STY",
+    "SD/STY",  "SD/CON", "SD/CUP", "SD/LIB",
+    "STY/POP", "STY/SD", "STY/CON",
+    "POP/STY",
 ]
 
 # Column order for output

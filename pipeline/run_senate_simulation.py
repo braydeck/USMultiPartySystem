@@ -30,7 +30,7 @@ OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "senate"
 
 # ── Party abbreviations (C7 Blue Dogs excluded — permanently dissolved) ────────
 PARTY_ABBR      = {0:"CON", 1:"SD", 2:"STY", 3:"NAT", 4:"LIB",
-                   5:"REF", 6:"CTR", 8:"DSA", 9:"PRG"}
+                   5:"POP", 6:"CUP", 8:"DSA", 9:"PRG"}
 ACTIVE_CLUSTERS = sorted(PARTY_ABBR.keys())   # [0,1,2,3,4,5,6,8,9]
 PROB_COLS       = [f"prob_cluster_{k}" for k in range(10)]
 
@@ -251,8 +251,8 @@ def candidate_position(c: dict, cluster_centroids: np.ndarray) -> np.ndarray:
     """Candidate's location in 5-D factor space.
 
     Pure candidate sits on its cluster centroid; coalition candidate sits at
-    w_primary * centroid_primary + w_secondary * centroid_secondary. A REF/STY
-    candidate at w_primary=0.7 is 30% of the way from REF toward STY in factor
+    w_primary * centroid_primary + w_secondary * centroid_secondary. A POP/STY
+    candidate at w_primary=0.7 is 30% of the way from POP toward STY in factor
     space — a literal position, not a discount factor on cluster membership.
     """
     p = c["primary_cluster"]
@@ -275,7 +275,7 @@ def score_candidates(voter_factors: np.ndarray,
     (score = w_p · p_primary + w_s · p_secondary), which gave pure candidates
     a 1.0 multiplier on their own cluster and made coalition candidates
     structurally unable to compete for first-preference votes. Positional
-    scoring lets a voter near the STY centroid rank SD/STY and REF/STY
+    scoring lets a voter near the STY centroid rank SD/STY and POP/STY
     symmetrically based on actual factor-space proximity, not on a label
     asymmetry hidden inside the score weights.
     """

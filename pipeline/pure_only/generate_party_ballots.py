@@ -29,8 +29,8 @@ PARTIES = [
     {"code": "STY", "cluster": 2},
     {"code": "NAT", "cluster": 3},
     {"code": "LIB", "cluster": 4},
-    {"code": "REF", "cluster": 5},
-    {"code": "CTR", "cluster": 6},
+    {"code": "POP", "cluster": 5},
+    {"code": "CUP", "cluster": 6},
     {"code": "DSA", "cluster": 8},
     {"code": "PRG", "cluster": 9},
 ]

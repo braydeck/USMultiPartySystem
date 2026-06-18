@@ -8,7 +8,7 @@ Output: data/outputs/factor_deviation/profiles/fd_policy_comparison.csv
 
 Columns:
   variable, domain, question, metric, overall,
-  CON, SD, STY, NAT, LIB, REF, CTR, DSA, PRG,   ← 9 base parties
+  CON, SD, STY, NAT, LIB, POP, CUP, DSA, PRG,   ← 9 base parties
   CON_hi_so, CON_lo_so, ...,                       ← 62 axis variants
   [all 71 cand cols in CSV order]
 

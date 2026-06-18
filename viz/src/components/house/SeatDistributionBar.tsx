@@ -12,7 +12,7 @@ interface Props {
 export function SeatDistributionBar({ seats: rawSeats }: Props) {
   const seats = [...rawSeats].filter(s => s.national > 0).sort((a, b) => b.national - a.national);
 
-  const partyCode = (s: HouseSeat) => CLUSTER_TO_PARTY[String(s.party)] ?? 'CTR';
+  const partyCode = (s: HouseSeat) => CLUSTER_TO_PARTY[String(s.party)] ?? 'CUP';
   const color = (s: HouseSeat) => PARTY_COLORS[partyCode(s)] ?? '#6b7280';
 
   const data = seats.map(s => ({

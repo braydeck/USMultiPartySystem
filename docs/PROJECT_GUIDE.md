@@ -23,8 +23,8 @@ Party IDs (C0–C9) are derived from DPGMM clustering. C7 (Blue Dogs) is **perma
 | C2 | Solidarity | Disaffected working-class left |
 | C3 | Nationalist | Populist right, immigration focus |
 | C4 | Liberal | College-educated moderates |
-| C5 | Reform | Right-of-center reformists |
-| C6 | Center | True centrists / cross-pressured |
+| C5 | Populist | Right-of-center reformists |
+| C6 | Civic Union Party | True centrists / cross-pressured |
 | C7 | Blue Dogs *(dissolved)* | Conservative Democrats — dissolved |
 | C8 | DSA | Progressive left |
 | C9 | Progressive | Progressive elite |
@@ -164,7 +164,7 @@ Compact heatmap view across all parties simultaneously.
 
 **Scenario A** — Same as baseline (C7 dissolved). Re-run to confirm equivalence.
 
-**Scenario B** — Both C7 and C2 (Solidarity) dissolved. Tests what happens when both a center-right minor party and the disaffected-left party dissolve, redistributing ~175 seats.
+**Scenario B** — Both C7 and C2 (Solidarity) dissolved. Tests what happens when both a center-right minor party and the disaffected-left party dissolve, redistributing Solidarity's 130 seats (C7 already holds none).
 
 ---
 

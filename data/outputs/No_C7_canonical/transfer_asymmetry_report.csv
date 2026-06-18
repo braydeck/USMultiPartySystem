@@ -1,45 +1,45 @@
 party_i,party_j,i_to_j_pct,j_to_i_pct,asymmetry,total_flow
-C2 Solidarity,C5 Reform,4.1324,3.8434,0.289,7.9757
-C3 Nationalist,C5 Reform,6.028,1.8516,4.1764,7.8796
+C2 Solidarity,C5 Populist,4.1324,3.8434,0.289,7.9757
+C3 Nationalist,C5 Populist,6.028,1.8516,4.1764,7.8796
 C1 Social Democrat,C2 Solidarity,3.2698,3.4201,-0.1503,6.6899
 C4 Liberal,C9 Progressive,0.507,5.83,-5.323,6.337
-C0 Conservative,C5 Reform,3.9271,1.8799,2.0472,5.8071
+C0 Conservative,C5 Populist,3.9271,1.8799,2.0472,5.8071
 C1 Social Democrat,C4 Liberal,2.2576,3.4169,-1.1593,5.6746
 C1 Social Democrat,C8 DSA,1.1022,3.8558,-2.7536,4.958
-C0 Conservative,C6 Center,3.0832,1.8024,1.2807,4.8856
+C0 Conservative,C6 Civic Union Party,3.0832,1.8024,1.2807,4.8856
 C0 Conservative,C3 Nationalist,1.6977,2.6301,-0.9324,4.3278
 C2 Solidarity,C8 DSA,0.7874,3.4208,-2.6335,4.2082
-C2 Solidarity,C6 Center,2.0691,1.9458,0.1233,4.0148
-C4 Liberal,C6 Center,2.1515,1.7406,0.4109,3.892
-C5 Reform,C6 Center,1.2397,2.5397,-1.3,3.7794
+C2 Solidarity,C6 Civic Union Party,2.0691,1.9458,0.1233,4.0148
+C4 Liberal,C6 Civic Union Party,2.1515,1.7406,0.4109,3.892
+C5 Populist,C6 Civic Union Party,1.2397,2.5397,-1.3,3.7794
 C4 Liberal,C8 DSA,1.2122,2.149,-0.9368,3.3612
 C8 DSA,C9 Progressive,0.8437,2.2086,-1.3649,3.0522
-C1 Social Democrat,C6 Center,1.1725,1.696,-0.5235,2.8686
+C1 Social Democrat,C6 Civic Union Party,1.1725,1.696,-0.5235,2.8686
 C0 Conservative,C2 Solidarity,2.1055,0.6613,1.4442,2.7667
-C3 Nationalist,C6 Center,1.8274,0.9,0.9274,2.7273
-C1 Social Democrat,C5 Reform,1.2514,0.5392,0.7121,1.7906
+C3 Nationalist,C6 Civic Union Party,1.8274,0.9,0.9274,2.7273
+C1 Social Democrat,C5 Populist,1.2514,0.5392,0.7121,1.7906
 C2 Solidarity,C4 Liberal,0.7101,0.7549,-0.0448,1.4651
-C4 Liberal,C5 Reform,0.2702,1.1942,-0.924,1.4644
+C4 Liberal,C5 Populist,0.2702,1.1942,-0.924,1.4644
 C0 Conservative,C1 Social Democrat,0.826,0.4492,0.3768,1.2752
 C2 Solidarity,C3 Nationalist,0.5253,0.7116,-0.1862,1.2369
-C5 Reform,C8 DSA,0.4914,0.6526,-0.1611,1.144
-C6 Center,C8 DSA,0.0673,0.9504,-0.8831,1.0177
+C5 Populist,C8 DSA,0.4914,0.6526,-0.1611,1.144
+C6 Civic Union Party,C8 DSA,0.0673,0.9504,-0.8831,1.0177
 C3 Nationalist,C8 DSA,0.6133,0.364,0.2493,0.9773
 C1 Social Democrat,C9 Progressive,0.2115,0.6478,-0.4363,0.8592
 C3 Nationalist,C4 Liberal,0.3505,0.2692,0.0813,0.6197
 C2 Solidarity,C9 Progressive,0.0515,0.4477,-0.3962,0.4992
-C5 Reform,C9 Progressive,0.4871,0.0101,0.477,0.4972
-C6 Center,C9 Progressive,0.0109,0.4672,-0.4563,0.478
+C5 Populist,C9 Progressive,0.4871,0.0101,0.477,0.4972
+C6 Civic Union Party,C9 Progressive,0.0109,0.4672,-0.4563,0.478
 C0 Conservative,C4 Liberal,0.1924,0.1942,-0.0017,0.3866
 C3 Nationalist,C9 Progressive,0.1384,0.2471,-0.1087,0.3854
 C1 Social Democrat,C3 Nationalist,0.3746,0.0061,0.3685,0.3807
 C0 Conservative,C8 DSA,0.116,0.1176,-0.0017,0.2336
 C0 Conservative,C9 Progressive,0.0605,0.0228,0.0378,0.0833
-C6 Center,C7 Blue Dogs,0.0,0.0,0.0,0.0
+C6 Civic Union Party,C7 Blue Dogs,0.0,0.0,0.0,0.0
 C7 Blue Dogs,C8 DSA,0.0,0.0,0.0,0.0
 C7 Blue Dogs,C9 Progressive,0.0,0.0,0.0,0.0
 C2 Solidarity,C7 Blue Dogs,0.0,0.0,0.0,0.0
-C5 Reform,C7 Blue Dogs,0.0,0.0,0.0,0.0
+C5 Populist,C7 Blue Dogs,0.0,0.0,0.0,0.0
 C0 Conservative,C7 Blue Dogs,0.0,0.0,0.0,0.0
 C4 Liberal,C7 Blue Dogs,0.0,0.0,0.0,0.0
 C3 Nationalist,C7 Blue Dogs,0.0,0.0,0.0,0.0

@@ -542,8 +542,8 @@ function mapMatrixKeyToParty(key: string): string | null {
     'C2 Solidarity': 'STY',
     'C3 Nationalist': 'NAT',
     'C4 Liberal': 'LIB',
-    'C5 Reform': 'REF',
-    'C6 Center': 'CTR',
+    'C5 Populist': 'POP',
+    'C6 Civic Union Party': 'CUP',
     'C8 DSA': 'DSA',
     'C9 Progressive': 'PRG',
   };
