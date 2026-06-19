@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
+import { useUrlState } from '../hooks/useUrlState';
 import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -477,7 +478,9 @@ function getSectionTitle(key: string): string {
 }
 
 export function CompareTab({ clusters, fdProfiles }: Props) {
-  const [selected, setSelected] = useState<string[]>([]);
+  // Selection lives in the URL (?cmp=STY,SD,DSA) so it is deep-linkable (e.g. from the quiz).
+  const [cmp, setCmp] = useUrlState<string>('cmp', '', { push: false });
+  const selected = useMemo(() => (cmp ? cmp.split(',').filter(Boolean) : []), [cmp]);
   const [minGap, setMinGap] = useState(15);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [expandedFactors, setExpandedFactors] = useState<Set<string>>(new Set());
@@ -501,11 +504,11 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
 
   const addParty = (code: string) => {
     if (selected.includes(code)) return;
-    setSelected(prev => [...prev, code]);
+    setCmp([...selected, code].join(','));
   };
 
   const removeParty = (code: string) => {
-    setSelected(prev => prev.filter(c => c !== code));
+    setCmp(selected.filter(c => c !== code).join(','));
   };
 
   const toggleFactorExpand = (f: string) => {
@@ -595,8 +598,8 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-1">Party Comparison</h2>
         <p className="text-muted-foreground text-sm">
-          Compare any number of parties across all policy domains. Amber rows highlight where
-          parties differ by ≥{minGap}pp and sort to the top of each section.
+          Compare one or more parties across all policy domains. Amber rows highlight where
+          any two selected parties differ by ≥{minGap}pp, and sort to the top of each section.
         </p>
       </div>
 

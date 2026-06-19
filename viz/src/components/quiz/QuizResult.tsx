@@ -31,6 +31,10 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
   // Defining positions: the party's biggest deviations from the national average.
   const positions = (cluster.keyPositions ?? []).slice(0, 5);
 
+  // "See details" deep-links into the party comparison: this party + the two closest matches.
+  const compareCodes = (ranking && ranking.length ? ranking.map(r => r.party) : [cluster.party]).join(',');
+  const goToCompare = () => resetUrlParams({ tab: 'parties', section: 'compare', cmp: compareCodes });
+
   async function handleShare() {
     if (navigator.share) {
       try {
@@ -120,8 +124,8 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
         <Button onClick={handleShare} className="w-full py-3 text-white" style={{ backgroundColor: color }}>
           {copied ? '✓ Link copied' : 'Share your result'}
         </Button>
-        <Button onClick={() => resetUrlParams({ tab: 'house' })} variant="secondary" className="w-full py-3">
-          Explore the full simulation →
+        <Button onClick={goToCompare} variant="secondary" className="w-full py-3">
+          {shared ? `See ${cluster.partyName} in detail →` : 'See the details: you vs your closest parties →'}
         </Button>
         <div className="flex items-center justify-between pt-1 text-sm">
           <button onClick={onRetake} className="text-muted-foreground hover:text-foreground underline">

@@ -22,7 +22,7 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
   const [sortFactor, setSortFactor] = useUrlState<SortFactor>('sort', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
   const [cardMode, setCardMode] = useUrlState<'strength' | 'percentile'>('mode', 'strength', { allowed: ['strength', 'percentile'] });
   const [sortDir, setSortDir] = useUrlState<'asc' | 'desc'>('dir', 'desc', { allowed: ['asc', 'desc'] });
-  const [section, setSection] = useUrlState<Section>('section', 'profiles', { allowed: ['profiles', 'compare'] });
+  const [section, setSection] = useUrlState<Section>('section', 'compare', { allowed: ['profiles', 'compare'] });
 
   function toggleSort(f: SortFactor) {
     if (sortFactor === f) {
