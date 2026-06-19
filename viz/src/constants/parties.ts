@@ -39,15 +39,15 @@ export const PARTY_TAGLINES: Record<string, string> = {
 // One-to-two sentence descriptions: who the cluster is and what it supports.
 // Keep these factual (positions, demographics) — no editorial commentary.
 export const PARTY_BLURBS: Record<string, string> = {
-  PRG: 'The urban, college-educated left. Strongly progressive on taxes, climate, immigration, and civil liberties. Trusts elections and institutions.',
-  DSA: 'The young, urban democratic-socialist left. Strongly progressive on economics and culture, secular, and skeptical of elections and institutions.',
-  LIB: 'The older, professional-class left. Progressive on economics, climate, and civil liberties. Supports border enforcement.',
-  SD:  'The working-class, racially diverse center-left. Backs the safety net, clean energy, and a Dreamer pathway, along with border enforcement.',
+  PRG: 'The urban, college-educated left. Strongly progressive on taxes, climate, immigration, social justice, and civil liberties. Trusts elections and institutions.',
+  DSA: 'The young, urban, anti-establishment left. Strongly progressive on economics and culture, and secular. Strongly skeptical of elections and institutions.',
+  LIB: 'The older, professional-class left. Progressive on economics, climate, and civil liberties. Supports border enforcement and opposes cutting police.',
+  SD:  'The working-class, racially diverse center-left. Backs the safety net, clean energy, and a Dreamer pathway, along with border enforcement. More moderate on social issues than other Left parties.',
   STY: 'Young, majority non-white, lowest-income, and religiously traditional. Economically progressive on Medicaid and infrastructure, and skeptical of elections and institutions.',
-  CUP: 'The religious, mostly-white moderate. Centrist on economics and culture, law-and-order, and trusting of elections.',
+  CUP: 'The religious, mostly-white moderate. Centrist on economics and culture, but place emphasis on law-and-order. The most institutionalist party.',
   CON: 'The pre-Trump, Reaganite right. Low-tax and law-and-order; trusts elections and backs universal background checks.',
-  POP: 'The populist right. Immigration-restrictionist, skeptical of elections, and religiously traditional. Some support raising corporate taxes.',
-  NAT: 'The far right. Strongly anti-immigration, religiously traditional, low-tax, and skeptical of elections.',
+  POP: 'The populist right. Immigration-restrictionist, skeptical of elections, and religiously traditional. Support Medicaid expansion.',
+  NAT: 'The far right. Strongly anti-immigration, religiously traditional, low-tax, high racial and gender resentment, and skeptical of elections.',
 };
 
 export const CLUSTER_TO_PARTY: Record<string, string> = {
