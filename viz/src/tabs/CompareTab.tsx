@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES } from '../constants/parties';
@@ -477,16 +477,46 @@ function getSectionTitle(key: string): string {
   return key;
 }
 
+const COMPARE_STORE_KEY = 'stv:compareFilters';
+interface SavedCompare {
+  cmp?: string;
+  minGap?: number;
+  divergeOnly?: boolean;
+  factorScale?: 'strength' | 'percentile';
+  showNatAvg?: boolean;
+}
+function loadSavedCompare(): SavedCompare {
+  try { return JSON.parse(localStorage.getItem(COMPARE_STORE_KEY) || '{}'); } catch { return {}; }
+}
+function saveCompare(s: SavedCompare) {
+  try { localStorage.setItem(COMPARE_STORE_KEY, JSON.stringify(s)); } catch { /* private mode / quota — ignore */ }
+}
+
 export function CompareTab({ clusters, fdProfiles }: Props) {
   // Selection lives in the URL (?cmp=STY,SD,DSA) so it is deep-linkable (e.g. from the quiz).
+  // Selection + filters are also persisted to localStorage and restored on return, since
+  // tab navigation clears the query string.
+  const saved = useMemo(loadSavedCompare, []);
   const [cmp, setCmp] = useUrlState<string>('cmp', '', { push: false });
   const selected = useMemo(() => (cmp ? cmp.split(',').filter(Boolean) : []), [cmp]);
-  const [minGap, setMinGap] = useState(15);
+  const [minGap, setMinGap] = useState(saved.minGap ?? 15);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [expandedFactors, setExpandedFactors] = useState<Set<string>>(new Set());
-  const [showNatAvg, setShowNatAvg] = useState(true);
-  const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>('strength');
-  const [divergeOnly, setDivergeOnly] = useState(false);
+  const [showNatAvg, setShowNatAvg] = useState(saved.showNatAvg ?? true);
+  const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>(saved.factorScale ?? 'strength');
+  const [divergeOnly, setDivergeOnly] = useState(saved.divergeOnly ?? false);
+
+  // Restore the last selection when arriving with an empty URL (e.g. via tab nav, which
+  // clears query params). A deep-link / shared ?cmp=... takes precedence over the saved one.
+  useEffect(() => {
+    if (!cmp && saved.cmp) setCmp(saved.cmp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist selection + filters for next time.
+  useEffect(() => {
+    saveCompare({ cmp, minGap, divergeOnly, factorScale, showNatAvg });
+  }, [cmp, minGap, divergeOnly, factorScale, showNatAvg]);
 
   // Build option list: pure parties in F5_ORDER, then FD candidates grouped by party
   const pureOptions = F5_ORDER
