@@ -2,31 +2,87 @@ import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, PARTY_TAGLINES } from '../constants/parties';
 
-const FACTORS = [
+// Sorted by discriminating power (η²): how much of a factor's variance is explained
+// by which party you're in. Higher = it sorts people into parties more cleanly.
+interface FactorDef {
+  short: string; label: string; color: string; eta: number; bw: number;
+  strength: string; hi: string; lo: string; note?: string;
+  items: { loading: number; q: string }[];
+}
+const FACTORS: FactorDef[] = [
   {
-    short: 'SO', label: 'Security & Order', color: '#1d4ed8',
-    hi: 'Pro-police, tougher sentencing, strong military',
-    lo: 'Reform policing, de-escalation, diplomacy-first',
-  },
-  {
-    short: 'ES', label: 'Electoral Skepticism', color: '#7c3aed',
-    hi: 'Questions election integrity, anti-establishment media',
-    lo: 'Trusts institutions, accepts electoral outcomes',
-  },
-  {
-    short: 'GD', label: 'Government Distrust', color: '#b45309',
-    hi: 'Government is inefficient and overreaches',
-    lo: 'Government can solve problems, trusts agencies',
-  },
-  {
-    short: 'RT', label: 'Religious Traditionalism', color: '#dc2626',
-    hi: 'Faith-informed policy, traditional family structures',
-    lo: 'Secular policy, pluralist social norms',
-  },
-  {
-    short: 'PC', label: 'Populist Conservatism', color: '#92400e',
+    short: 'PC', label: 'Populist Conservatism', color: '#92400e', eta: 0.736, bw: 1.67,
+    strength: 'Strongest sorter. Parties sit about 1.7× farther apart than the spread within each one.',
     hi: 'Anti-elite, nationalist, culturally conservative',
     lo: 'Cosmopolitan, progressive on culture and economics',
+    note: 'Most items load negatively: the survey coded progressive answers as higher numbers, so a negative loading means a high factor score predicts the conservative answer.',
+    items: [
+      { loading: -0.62, q: 'Racial problems in the U.S. are rare, isolated situations' },
+      { loading: -0.56, q: 'Community policing and civilian oversight' },
+      { loading: -0.54, q: 'Pathway to citizenship for Dreamers' },
+      { loading: -0.53, q: 'Let tax rates on $400k+ earners rise' },
+      { loading: -0.52, q: 'Legal status for long-term undocumented immigrants' },
+      { loading: -0.44, q: 'Progressive racial and cultural attitudes' },
+      { loading: -0.37, q: 'Infrastructure spending' },
+      { loading: +0.34, q: 'Continue post-9/11 surveillance programs' },
+      { loading: -0.27, q: 'Deny asylum to Central American seekers' },
+      { loading: -0.24, q: 'Extend the 2017 tax cuts' },
+    ],
+  },
+  {
+    short: 'SO', label: 'Security & Order', color: '#1d4ed8', eta: 0.701, bw: 1.53,
+    strength: 'Nearly as strong. The main law-and-order axis.',
+    hi: 'Pro-police, tougher sentencing, strong military',
+    lo: 'Reform policing, de-escalation, diplomacy-first',
+    items: [
+      { loading: +0.73, q: 'Increase the number of police officers by 10%' },
+      { loading: +0.71, q: 'Increase border patrols on the US-Mexico border' },
+      { loading: +0.66, q: 'Deny asylum to those seeking it from Central America' },
+      { loading: +0.65, q: 'Oppose decreasing the number of police officers' },
+      { loading: +0.49, q: 'Continue post-9/11 surveillance programs' },
+      { loading: +0.32, q: 'Oppose legal status for undocumented immigrants' },
+      { loading: +0.31, q: 'Oppose the Dreamer pathway to citizenship' },
+      { loading: +0.27, q: 'Immigration enforcement measures' },
+      { loading: +0.26, q: 'Extend the 2017 tax cuts' },
+    ],
+  },
+  {
+    short: 'ES', label: 'Electoral Skepticism', color: '#7c3aed', eta: 0.375, bw: 0.775,
+    strength: 'Cross-cutting. Within-party noise is larger than the gap between parties, and it cuts across left and right.',
+    hi: 'Questions election integrity, anti-establishment media',
+    lo: 'Trusts institutions, accepts electoral outcomes',
+    items: [
+      { loading: +0.90, q: 'State and local elections are not run fairly' },
+      { loading: +0.73, q: 'U.S. elections are not run fairly' },
+      { loading: +0.38, q: 'Low trust in state government' },
+      { loading: +0.24, q: 'Low trust in the federal government' },
+    ],
+  },
+  {
+    short: 'RT', label: 'Religious Traditionalism', color: '#dc2626', eta: 0.305, bw: 0.663,
+    strength: 'Moderate. Sorts parties mainly on abortion and marriage, with substantial within-party noise.',
+    hi: 'Faith-informed policy, traditional family structures',
+    lo: 'Secular policy, pluralist social norms',
+    items: [
+      { loading: +0.69, q: 'Frequency of church attendance' },
+      { loading: +0.69, q: 'Stricter limits on how many weeks abortion is legal' },
+      { loading: +0.65, q: 'Oppose requiring states to recognize same-sex marriage' },
+      { loading: +0.49, q: 'Oppose federal protection of abortion access' },
+      { loading: +0.30, q: 'Oppose infrastructure spending' },
+      { loading: +0.30, q: 'Immigration enforcement measures' },
+    ],
+  },
+  {
+    short: 'GD', label: 'Government Distrust', color: '#b45309', eta: 0.057, bw: 0.246,
+    strength: 'Essentially non-differentiating: every party scores Medium, so it is not used to place you in the quiz.',
+    hi: 'Government is inefficient and overreaches',
+    lo: 'Government can solve problems, trusts agencies',
+    items: [
+      { loading: +0.66, q: 'Low trust in the federal government' },
+      { loading: +0.48, q: 'Low trust in state government' },
+      { loading: -0.32, q: 'Oppose post-9/11 surveillance programs' },
+      { loading: +0.27, q: 'Oppose legal status for undocumented immigrants' },
+    ],
   },
 ];
 
@@ -243,27 +299,56 @@ export function AboutTab() {
             <div className="px-5 py-4 border-b border-border/50 bg-muted">
               <div className="font-semibold text-foreground">The 5 Ideological Dimensions</div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                These are latent factors, not imposed categories: patterns that emerge from how survey responses correlate with each other.
+                Latent factors that emerge from how survey responses correlate, ordered by how strongly each one sorts people into parties (η²). Expand a factor to see the survey items that define it and how heavily each one weighs (its loading).
               </p>
             </div>
             <div className="divide-y divide-slate-100">
-              {FACTORS.map(f => (
-                <div key={f.short} className="flex items-start gap-4 px-5 py-4">
-                  <div
-                    className="text-xs font-bold font-mono px-2 py-1 rounded shrink-0 mt-0.5"
-                    style={{ backgroundColor: f.color + '18', color: f.color }}
-                  >
-                    {f.short}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-foreground text-sm mb-1">{f.label}</div>
-                    <div className="flex gap-6 text-xs text-muted-foreground">
-                      <span><span className="font-medium text-muted-foreground">High:</span> {f.hi}</span>
-                      <span><span className="font-medium text-muted-foreground">Low:</span> {f.lo}</span>
+              {FACTORS.map(f => {
+                const etaPct = Math.round(f.eta * 100);
+                return (
+                  <div key={f.short} className="flex items-start gap-4 px-5 py-4">
+                    <div
+                      className="text-xs font-bold font-mono px-2 py-1 rounded shrink-0 mt-0.5"
+                      style={{ backgroundColor: f.color + '18', color: f.color }}
+                    >
+                      {f.short}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="font-semibold text-foreground text-sm">{f.label}</div>
+                        <div className="text-[11px] text-muted-foreground font-mono shrink-0">η² = {f.eta.toFixed(2)}</div>
+                      </div>
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-2" title={`η² = ${f.eta.toFixed(3)} (B/W ${f.bw})`}>
+                        <div className="h-full rounded-full" style={{ width: `${etaPct}%`, backgroundColor: f.color }} />
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">{f.strength}</p>
+                      <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground mb-2">
+                        <span><span className="font-medium text-muted-foreground">High:</span> {f.hi}</span>
+                        <span><span className="font-medium text-muted-foreground">Low:</span> {f.lo}</span>
+                      </div>
+                      <details className="mt-1">
+                        <summary className="text-xs font-medium cursor-pointer text-muted-foreground hover:text-foreground select-none">
+                          {f.items.length} survey items that define it
+                        </summary>
+                        {f.note && <p className="text-[11px] text-muted-foreground mt-2 italic leading-relaxed">{f.note}</p>}
+                        <ul className="mt-2 space-y-1">
+                          {f.items.map((it, i) => (
+                            <li key={i} className="flex items-start gap-2 text-xs">
+                              <span
+                                className="font-mono shrink-0 w-11 text-right tabular-nums"
+                                style={{ color: it.loading >= 0 ? '#16a34a' : '#dc2626' }}
+                              >
+                                {it.loading >= 0 ? '+' : ''}{it.loading.toFixed(2)}
+                              </span>
+                              <span className="text-foreground leading-snug">{it.q}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
 
