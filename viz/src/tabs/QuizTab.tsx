@@ -3,7 +3,7 @@ import type { QuizQuestion as QuizQuestionType, ClusterProfile, HouseSeat } from
 import { QuizQuestion } from '../components/quiz/QuizQuestion';
 import { QuizProgress } from '../components/quiz/QuizProgress';
 import { QuizResult, type RankEntry } from '../components/quiz/QuizResult';
-import { scoreQuiz } from '../utils/quizScoring';
+import { classifyQuiz, type SpreadRow } from '../utils/quizScoring';
 import { useUrlState } from '../hooks/useUrlState';
 import { F5_ORDER } from '../constants/parties';
 import { Card } from '@/components/ui/card';
@@ -13,9 +13,10 @@ interface Props {
   questions: QuizQuestionType[];
   clusters: ClusterProfile[];
   houseSeats: HouseSeat[];
+  spreads: SpreadRow[];
 }
 
-export function QuizTab({ questions, clusters, houseSeats }: Props) {
+export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [current, setCurrent] = useState(0);
   const [ranking, setRanking] = useState<RankEntry[] | null>(null);
@@ -37,13 +38,13 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
     if (current < questions.length - 1) {
       setCurrent(c => c + 1);
     } else {
-      const scores = scoreQuiz(questions, answers);
-      const top3: RankEntry[] = scores.slice(0, 3).map(s => {
+      const scores = classifyQuiz(questions, answers, spreads);
+      const top: RankEntry[] = scores.slice(0, 4).map(s => {
         const cl = clusters.find(c => c.id === s.clusterId);
-        return { party: cl?.party ?? '', partyName: cl?.partyName ?? '', score: s.score };
+        return { party: cl?.party ?? '', partyName: cl?.partyName ?? '', prob: s.prob };
       });
-      setRanking(top3);
-      if (top3[0].party) setResultParty(top3[0].party);
+      setRanking(top);
+      if (top[0].party) setResultParty(top[0].party);
     }
   }
 

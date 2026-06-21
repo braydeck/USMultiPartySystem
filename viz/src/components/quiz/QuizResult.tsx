@@ -6,7 +6,7 @@ import { resetUrlParams } from '../../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-export interface RankEntry { party: string; partyName: string; score: number }
+export interface RankEntry { party: string; partyName: string; prob: number }
 
 interface Props {
   cluster: ClusterProfile;
@@ -22,7 +22,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
   const color = PARTY_COLORS[cluster.party] ?? '#6b7280';
   const tagline = PARTY_TAGLINES[cluster.party] ?? '';
   const blurb = PARTY_BLURBS[cluster.party] ?? '';
-  const isBlend = !!ranking && ranking.length > 1 && Math.abs(ranking[0].score - ranking[1].score) < 0.03;
+  const isBlend = !!ranking && ranking.length > 1 && (ranking[0].prob - ranking[1].prob) < 0.08;
   const [copied, setCopied] = useState(false);
 
   const shareUrl = `https://usmultipartysystem.pages.dev/r/${cluster.party}`;
@@ -75,7 +75,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
 
       {!shared && ranking && ranking.length > 1 && (
         <div className="mb-6">
-          <div className="text-sm font-semibold text-foreground mb-2">Your closest matches</div>
+          <div className="text-sm font-semibold text-foreground mb-2">Estimated chance you're each party</div>
           <div className="space-y-1.5">
             {ranking.map(r => {
               const c = PARTY_COLORS[r.party] ?? '#6b7280';
@@ -83,12 +83,15 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
                 <div key={r.party} className="flex items-center gap-2">
                   <span className="w-36 shrink-0 text-sm text-foreground">{r.partyName}</span>
                   <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${Math.round(r.score * 100)}%`, backgroundColor: c }} />
+                    <div className="h-full rounded-full" style={{ width: `${Math.round(r.prob * 100)}%`, backgroundColor: c }} />
                   </div>
-                  <span className="w-10 text-right text-xs text-muted-foreground tabular-nums">{Math.round(r.score * 100)}%</span>
+                  <span className="w-10 text-right text-xs text-muted-foreground tabular-nums">{Math.round(r.prob * 100)}%</span>
                 </div>
               );
             })}
+          </div>
+          <div className="text-xs text-muted-foreground mt-2">
+            Estimated by placing your answers in the model's 5-factor space and comparing to each party's distribution (a soft classification, like the model uses, from this {''}quiz subset).
           </div>
         </div>
       )}

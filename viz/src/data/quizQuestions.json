@@ -1,25 +1,9 @@
 [
   {
-    "variable": "CC24_340f",
-    "factor": "F1",
-    "question": "Deny asylum for illegal border crossings",
-    "domain": "Immigration",
-    "clusterSupport": {
-      "0": 0.998,
-      "1": 0.395,
-      "2": 0.396,
-      "3": 1.0,
-      "4": 0.294,
-      "5": 0.871,
-      "6": 0.821,
-      "8": 0.0,
-      "9": 0.001
-    }
-  },
-  {
     "variable": "CC24_321d",
     "factor": "F1",
-    "question": "Increase police by 10%",
+    "loading": 0.734,
+    "question": "Increase the number of police by 10%",
     "domain": "Police & Guns",
     "clusterSupport": {
       "0": 0.997,
@@ -36,7 +20,8 @@
   {
     "variable": "CC24_323b",
     "factor": "F1",
-    "question": "Increase border patrols",
+    "loading": 0.705,
+    "question": "Increase border patrols on the US-Mexico border",
     "domain": "Immigration",
     "clusterSupport": {
       "0": 0.995,
@@ -51,93 +36,117 @@
     }
   },
   {
-    "variable": "CC24_323a",
-    "factor": "F5",
-    "question": "Grant legal status to long-term undocumented immigrants",
+    "variable": "CC24_340f",
+    "factor": "F1",
+    "loading": 0.664,
+    "question": "Deny asylum to people crossing the border illegally",
     "domain": "Immigration",
     "clusterSupport": {
-      "0": 0.302,
-      "1": 0.827,
-      "2": 0.751,
-      "3": 0.002,
-      "4": 0.983,
-      "5": 0.123,
-      "6": 0.6,
-      "8": 0.994,
-      "9": 1.0
+      "0": 0.998,
+      "1": 0.395,
+      "2": 0.396,
+      "3": 1.0,
+      "4": 0.294,
+      "5": 0.871,
+      "6": 0.821,
+      "8": 0.0,
+      "9": 0.001
     }
   },
   {
-    "variable": "CC24_323d",
-    "factor": "F5",
-    "question": "Permanent status/pathway for Dreamers",
-    "domain": "Immigration",
-    "clusterSupport": {
-      "0": 0.53,
-      "1": 0.984,
-      "2": 0.867,
-      "3": 0.003,
-      "4": 1.0,
-      "5": 0.277,
-      "6": 0.723,
-      "8": 1.0,
-      "9": 1.0
-    }
-  },
-  {
-    "variable": "CC24_341c",
-    "factor": "F5",
-    "question": "Allow rates on $400k+ earners to rise to 35%",
-    "domain": "Taxes & Economy",
-    "clusterSupport": {
-      "0": 0.525,
-      "1": 0.864,
-      "2": 0.587,
-      "3": 0.076,
-      "4": 0.98,
-      "5": 0.38,
-      "6": 0.621,
-      "8": 0.996,
-      "9": 1.0
-    }
-  },
-  {
-    "variable": "CC24_341b",
-    "factor": "F5",
-    "question": "Raise corporate income tax from 21% to 28%",
-    "domain": "Taxes & Economy",
-    "clusterSupport": {
-      "0": 0.388,
-      "1": 0.804,
-      "2": 0.534,
-      "3": 0.067,
-      "4": 0.907,
-      "5": 0.336,
-      "6": 0.53,
-      "8": 0.885,
-      "9": 0.973
-    }
-  },
-  {
-    "variable": "CC24_321b",
-    "factor": "F5",
-    "question": "Easier concealed-carry permits",
+    "variable": "CC24_321e",
+    "factor": "F1",
+    "loading": 0.653,
+    "question": "Cut the number of police by 10% and shift the funding elsewhere",
     "domain": "Police & Guns",
     "clusterSupport": {
-      "0": 0.549,
-      "1": 0.202,
-      "2": 0.366,
-      "3": 0.918,
-      "4": 0.073,
-      "5": 0.679,
-      "6": 0.442,
-      "8": 0.019,
-      "9": 0.011
+      "0": 0.019,
+      "1": 0.395,
+      "2": 0.391,
+      "3": 0.001,
+      "4": 0.356,
+      "5": 0.195,
+      "6": 0.166,
+      "8": 0.872,
+      "9": 0.756
+    }
+  },
+  {
+    "variable": "CC24_421_2_agree",
+    "factor": "F2",
+    "loading": 0.901,
+    "question": "Your 2024 state and local elections were run fairly",
+    "domain": "Elections & Trust",
+    "clusterSupport": {
+      "0": 0.811,
+      "1": 0.804,
+      "2": 0.39,
+      "3": 0.627,
+      "4": 1.0,
+      "5": 0.42,
+      "6": 1.0,
+      "8": 0.578,
+      "9": 1.0
+    }
+  },
+  {
+    "variable": "CC24_421_1_agree",
+    "factor": "F2",
+    "loading": 0.726,
+    "question": "U.S. elections are run fairly",
+    "domain": "Elections & Trust",
+    "clusterSupport": {
+      "0": 0.64,
+      "1": 0.618,
+      "2": 0.355,
+      "3": 0.479,
+      "4": 0.945,
+      "5": 0.364,
+      "6": 0.938,
+      "8": 0.328,
+      "9": 0.908
+    }
+  },
+  {
+    "variable": "CC24_424",
+    "factor": "F2",
+    "loading": 0.38,
+    "question": "I have little trust in my state government",
+    "domain": "Elections & Trust",
+    "clusterSupport": {
+      "0": 0.434,
+      "1": 0.42,
+      "2": 0.557,
+      "3": 0.585,
+      "4": 0.278,
+      "5": 0.653,
+      "6": 0.254,
+      "8": 0.639,
+      "9": 0.312
+    }
+  },
+  {
+    "variable": "CC24_423",
+    "factor": "F2",
+    "loading": 0.24,
+    "question": "I have little trust in the federal government",
+    "domain": "Elections & Trust",
+    "clusterSupport": {
+      "0": 0.668,
+      "1": 0.559,
+      "2": 0.613,
+      "3": 0.875,
+      "4": 0.437,
+      "5": 0.804,
+      "6": 0.348,
+      "8": 0.808,
+      "9": 0.598
     }
   },
   {
     "variable": "pew_churatd",
     "factor": "F4",
+    "loading": 0.688,
     "question": "I attend religious services regularly",
     "domain": "Religion",
     "clusterSupport": {
@@ -153,25 +162,9 @@
     }
   },
   {
-    "variable": "CC24_340c",
-    "factor": "F4",
-    "question": "Federal recognition of same-sex & interracial marriages",
-    "domain": "Civil Liberties",
-    "clusterSupport": {
-      "0": 0.478,
-      "1": 0.959,
-      "2": 0.543,
-      "3": 0.265,
-      "4": 0.973,
-      "5": 0.434,
-      "6": 0.558,
-      "8": 0.985,
-      "9": 0.999
-    }
-  },
-  {
     "variable": "CC24_325_median",
     "factor": "F4",
+    "loading": 0.688,
     "question": "Abortion should be legal:",
     "domain": "Abortion",
     "clusterSupport": {
@@ -209,36 +202,110 @@
     ]
   },
   {
-    "variable": "CC24_421_1_agree",
-    "factor": "F2",
-    "question": "Elections in the U.S. are fair",
-    "domain": "Elections & Trust",
+    "variable": "CC24_340c",
+    "factor": "F4",
+    "loading": 0.651,
+    "question": "Require states to recognize same-sex and interracial marriages",
+    "domain": "Civil Liberties",
     "clusterSupport": {
-      "0": 0.64,
-      "1": 0.618,
-      "2": 0.355,
-      "3": 0.479,
-      "4": 0.945,
-      "5": 0.364,
-      "6": 0.938,
-      "8": 0.328,
-      "9": 0.908
+      "0": 0.478,
+      "1": 0.959,
+      "2": 0.543,
+      "3": 0.265,
+      "4": 0.973,
+      "5": 0.434,
+      "6": 0.558,
+      "8": 0.985,
+      "9": 0.999
     }
   },
   {
-    "variable": "CC24_421_2_agree",
-    "factor": "F2",
-    "question": "2024 state/local election was fair",
-    "domain": "Elections & Trust",
+    "variable": "CC24_440b_agree",
+    "factor": "F5",
+    "loading": 0.616,
+    "question": "Racial problems in the U.S. are rare, isolated situations",
+    "domain": "Racial & Gender",
     "clusterSupport": {
-      "0": 0.811,
-      "1": 0.804,
-      "2": 0.39,
-      "3": 0.627,
+      "0": 0.411,
+      "1": 0.088,
+      "2": 0.188,
+      "3": 0.746,
+      "4": 0.02,
+      "5": 0.453,
+      "6": 0.344,
+      "8": 0.0,
+      "9": 0.0
+    }
+  },
+  {
+    "variable": "CC24_321b",
+    "factor": "F5",
+    "loading": 0.557,
+    "question": "Make it easier to get a concealed-carry permit",
+    "domain": "Police & Guns",
+    "clusterSupport": {
+      "0": 0.549,
+      "1": 0.202,
+      "2": 0.366,
+      "3": 0.918,
+      "4": 0.073,
+      "5": 0.679,
+      "6": 0.442,
+      "8": 0.019,
+      "9": 0.011
+    }
+  },
+  {
+    "variable": "CC24_323d",
+    "factor": "F5",
+    "loading": 0.54,
+    "question": "A permanent pathway to citizenship for Dreamers",
+    "domain": "Immigration",
+    "clusterSupport": {
+      "0": 0.53,
+      "1": 0.984,
+      "2": 0.867,
+      "3": 0.003,
       "4": 1.0,
-      "5": 0.42,
-      "6": 1.0,
-      "8": 0.578,
+      "5": 0.277,
+      "6": 0.723,
+      "8": 1.0,
+      "9": 1.0
+    }
+  },
+  {
+    "variable": "CC24_341c",
+    "factor": "F5",
+    "loading": 0.534,
+    "question": "Let tax rates on income over $400k rise to 35%",
+    "domain": "Taxes & Economy",
+    "clusterSupport": {
+      "0": 0.525,
+      "1": 0.864,
+      "2": 0.587,
+      "3": 0.076,
+      "4": 0.98,
+      "5": 0.38,
+      "6": 0.621,
+      "8": 0.996,
+      "9": 1.0
+    }
+  },
+  {
+    "variable": "CC24_323a",
+    "factor": "F5",
+    "loading": 0.52,
+    "question": "Grant legal status to long-term undocumented immigrants",
+    "domain": "Immigration",
+    "clusterSupport": {
+      "0": 0.302,
+      "1": 0.827,
+      "2": 0.751,
+      "3": 0.002,
+      "4": 0.983,
+      "5": 0.123,
+      "6": 0.6,
+      "8": 0.994,
       "9": 1.0
     }
   }

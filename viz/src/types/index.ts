@@ -136,6 +136,8 @@ export interface ClusterProfile {
 export interface QuizQuestion {
   variable: string;
   factor: string;
+  /** EFA loading magnitude on its factor; used to weight the factor-position estimate. */
+  loading: number;
   question: string;
   domain: string;
   clusterSupport: Record<string, number>;
