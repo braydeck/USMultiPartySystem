@@ -274,24 +274,6 @@
     }
   },
   {
-    "variable": "CC24_324b",
-    "factor": "F4",
-    "loading": 0.297,
-    "question": "Allow abortion only in cases of rape, incest, or to save the mother's life",
-    "domain": "Abortion",
-    "clusterSupport": {
-      "0": 0.726,
-      "1": 0.369,
-      "2": 0.568,
-      "3": 0.722,
-      "4": 0.257,
-      "5": 0.604,
-      "6": 0.654,
-      "8": 0.142,
-      "9": 0.061
-    }
-  },
-  {
     "variable": "CC24_440b_agree",
     "factor": "F5",
     "loading": 0.616,

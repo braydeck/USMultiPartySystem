@@ -48,7 +48,8 @@ QUESTIONS = [
     ("CC24_325_median", "F4", 0.688, "Abortion should be legal:"),
     ("CC24_340c", "F4", 0.651, "Require states to recognize same-sex and interracial marriages"),
     ("CC24_340b", "F4", 0.489, "Pass a federal law protecting access to abortion"),
-    ("CC24_324b", "F4", 0.297, "Allow abortion only in cases of rape, incest, or to save the mother's life"),
+    # CC24_324b ("abortion only in rape/incest/life") dropped: lowest F4 loading and redundant
+    # with the abortion-by-weeks item, whose most-restrictive option says the same thing.
     # F5 — Populist Conservatism
     ("CC24_440b_agree", "F5", 0.616, "Racial problems in the U.S. are rare, isolated situations"),
     ("CC24_321b", "F5", 0.557, "Make it easier to get a concealed-carry permit"),
