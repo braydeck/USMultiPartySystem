@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useUrlState, resetUrlParams } from './hooks/useUrlState';
 import { PrimaryTab } from './tabs/PrimaryTab';
 import { SenateTab } from './tabs/SenateTab';
@@ -85,7 +86,11 @@ const TABS = [
 type TabId = typeof TABS[number]['id'];
 
 export default function App() {
-  const [tab] = useUrlState<TabId>('tab', 'about', { allowed: TABS.map(t => t.id) });
+  // On mobile, land on the Party Quiz (the shareable hook) by default; desktop opens on About.
+  const mobileDefault: TabId =
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 'quiz' : 'about';
+  const [tab] = useUrlState<TabId>('tab', mobileDefault, { allowed: TABS.map(t => t.id) });
+  const [menuOpen, setMenuOpen] = useState(false);
   // Tab navigation resets the query string so a tab's filters don't follow you to the next tab.
   const setTab = (next: TabId) => resetUrlParams(next === 'about' ? {} : { tab: next });
 
@@ -105,7 +110,8 @@ export default function App() {
       {/* Nav tabs — sticky */}
       <header className="border-b border-border bg-card/95 backdrop-blur sticky top-0 z-20">
         <nav aria-label="Main navigation" className="max-w-7xl mx-auto px-4 py-1.5">
-          <div className="relative">
+          {/* Desktop: horizontal tab strip */}
+          <div className="relative hidden sm:block">
             <TabsList className="overflow-x-auto pb-px" aria-label="Section tabs">
               {TABS.map(t => (
                 <TabsTrigger key={t.id} value={t.id}>
@@ -114,6 +120,38 @@ export default function App() {
               ))}
             </TabsList>
             <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white" aria-hidden="true" />
+          </div>
+
+          {/* Mobile: hamburger menu */}
+          <div className="sm:hidden">
+            <button
+              type="button"
+              onClick={() => setMenuOpen(o => !o)}
+              aria-expanded={menuOpen}
+              aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              className="w-full flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+            >
+              <span>{TABS.find(t => t.id === tab)?.label ?? 'Menu'}</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                {menuOpen ? <path d="M6 6l12 12M6 18L18 6" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+              </svg>
+            </button>
+            {menuOpen && (
+              <div className="mt-1 flex flex-col rounded-md border border-border bg-card shadow-lg overflow-hidden">
+                {TABS.map(t => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => { setTab(t.id); setMenuOpen(false); }}
+                    className={`text-left px-3 py-2.5 text-sm transition-colors ${
+                      tab === t.id ? 'bg-slate-900 text-white font-medium' : 'text-foreground hover:bg-muted'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </nav>
       </header>
