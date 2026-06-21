@@ -25,7 +25,7 @@ WEEKS_OPTIONS = [
     {"value": 0.6, "label": "Up to about 24 weeks (viability)"},
     {"value": 0.375, "label": "Up to about 15 weeks"},
     {"value": 0.15, "label": "Up to about 6 weeks"},
-    {"value": 0.0, "label": "Only for rape, incest, or the mother's life"},
+    {"value": 0.0, "label": "Never legal, or only for rape, incest, or the mother's life"},
 ]
 
 # Full set: every answerable item that loads |λ|>0.2, assigned to its top differentiating
