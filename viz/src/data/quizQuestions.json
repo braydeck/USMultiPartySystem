@@ -72,6 +72,42 @@
     }
   },
   {
+    "variable": "CC24_340e",
+    "factor": "F1",
+    "loading": 0.493,
+    "question": "Renew the post-9/11 government surveillance programs",
+    "domain": "Civil Liberties",
+    "clusterSupport": {
+      "0": 0.451,
+      "1": 0.364,
+      "2": 0.303,
+      "3": 0.095,
+      "4": 0.43,
+      "5": 0.214,
+      "6": 0.457,
+      "8": 0.183,
+      "9": 0.038
+    }
+  },
+  {
+    "variable": "CC24_341a",
+    "factor": "F1",
+    "loading": 0.26,
+    "question": "Extend the 2017 tax cuts",
+    "domain": "Taxes & Economy",
+    "clusterSupport": {
+      "0": 0.851,
+      "1": 0.489,
+      "2": 0.605,
+      "3": 0.938,
+      "4": 0.33,
+      "5": 0.757,
+      "6": 0.764,
+      "8": 0.288,
+      "9": 0.117
+    }
+  },
+  {
     "variable": "CC24_421_2_agree",
     "factor": "F2",
     "loading": 0.901,
@@ -220,6 +256,42 @@
     }
   },
   {
+    "variable": "CC24_340b",
+    "factor": "F4",
+    "loading": 0.489,
+    "question": "Pass a federal law protecting access to abortion",
+    "domain": "Abortion",
+    "clusterSupport": {
+      "0": 0.487,
+      "1": 0.827,
+      "2": 0.532,
+      "3": 0.315,
+      "4": 0.888,
+      "5": 0.435,
+      "6": 0.539,
+      "8": 0.941,
+      "9": 0.957
+    }
+  },
+  {
+    "variable": "CC24_324b",
+    "factor": "F4",
+    "loading": 0.297,
+    "question": "Allow abortion only in cases of rape, incest, or to save the mother's life",
+    "domain": "Abortion",
+    "clusterSupport": {
+      "0": 0.726,
+      "1": 0.369,
+      "2": 0.568,
+      "3": 0.722,
+      "4": 0.257,
+      "5": 0.604,
+      "6": 0.654,
+      "8": 0.142,
+      "9": 0.061
+    }
+  },
+  {
     "variable": "CC24_440b_agree",
     "factor": "F5",
     "loading": 0.616,
@@ -307,6 +379,42 @@
       "6": 0.6,
       "8": 0.994,
       "9": 1.0
+    }
+  },
+  {
+    "variable": "CC24_440c_agree",
+    "factor": "F5",
+    "loading": 0.437,
+    "question": "Women seek to gain power by getting control over men",
+    "domain": "Racial & Gender",
+    "clusterSupport": {
+      "0": 0.309,
+      "1": 0.111,
+      "2": 0.245,
+      "3": 0.489,
+      "4": 0.035,
+      "5": 0.411,
+      "6": 0.292,
+      "8": 0.004,
+      "9": 0.0
+    }
+  },
+  {
+    "variable": "CC24_341d",
+    "factor": "F5",
+    "loading": 0.365,
+    "question": "Spend $150 billion a year on infrastructure",
+    "domain": "Taxes & Economy",
+    "clusterSupport": {
+      "0": 0.784,
+      "1": 0.907,
+      "2": 0.709,
+      "3": 0.549,
+      "4": 0.974,
+      "5": 0.613,
+      "6": 0.797,
+      "8": 0.955,
+      "9": 0.995
     }
   }
 ]

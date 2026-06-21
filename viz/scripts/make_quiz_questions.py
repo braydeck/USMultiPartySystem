@@ -28,13 +28,16 @@ WEEKS_OPTIONS = [
     {"value": 0.0, "label": "Only for rape, incest, or the mother's life"},
 ]
 
-# (variable, factor, loading magnitude, question override or None)
+# Full set: every answerable item that loads |λ|>0.2, assigned to its top differentiating
+# factor (F1/F2/F4/F5; F3 dropped). (variable, factor, loading magnitude, question override)
 QUESTIONS = [
     # F1 — Security & Order
     ("CC24_321d", "F1", 0.734, "Increase the number of police by 10%"),
     ("CC24_323b", "F1", 0.705, "Increase border patrols on the US-Mexico border"),
     ("CC24_340f", "F1", 0.664, "Deny asylum to people crossing the border illegally"),
     ("CC24_321e", "F1", 0.653, "Cut the number of police by 10% and shift the funding elsewhere"),
+    ("CC24_340e", "F1", 0.493, "Renew the post-9/11 government surveillance programs"),
+    ("CC24_341a", "F1", 0.260, "Extend the 2017 tax cuts"),
     # F2 — Electoral Skepticism
     ("CC24_421_2_agree", "F2", 0.901, "Your 2024 state and local elections were run fairly"),
     ("CC24_421_1_agree", "F2", 0.726, "U.S. elections are run fairly"),
@@ -44,12 +47,16 @@ QUESTIONS = [
     ("pew_churatd", "F4", 0.688, "I attend religious services regularly"),
     ("CC24_325_median", "F4", 0.688, "Abortion should be legal:"),
     ("CC24_340c", "F4", 0.651, "Require states to recognize same-sex and interracial marriages"),
+    ("CC24_340b", "F4", 0.489, "Pass a federal law protecting access to abortion"),
+    ("CC24_324b", "F4", 0.297, "Allow abortion only in cases of rape, incest, or to save the mother's life"),
     # F5 — Populist Conservatism
     ("CC24_440b_agree", "F5", 0.616, "Racial problems in the U.S. are rare, isolated situations"),
     ("CC24_321b", "F5", 0.557, "Make it easier to get a concealed-carry permit"),
     ("CC24_323d", "F5", 0.540, "A permanent pathway to citizenship for Dreamers"),
     ("CC24_341c", "F5", 0.534, "Let tax rates on income over $400k rise to 35%"),
     ("CC24_323a", "F5", 0.520, "Grant legal status to long-term undocumented immigrants"),
+    ("CC24_440c_agree", "F5", 0.437, "Women seek to gain power by getting control over men"),
+    ("CC24_341d", "F5", 0.365, "Spend $150 billion a year on infrastructure"),
 ]
 
 profiles = json.loads(PROFILES.read_text())
