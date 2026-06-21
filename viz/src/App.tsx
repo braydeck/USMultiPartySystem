@@ -71,6 +71,7 @@ import type {
 
 const TABS = [
   { id: 'about',        label: 'What Is This?' },
+  { id: 'quiz',         label: 'Party Quiz' },
   { id: 'overview',     label: 'Overview' },
   { id: 'primary',      label: 'Presidential Primary' },
   { id: 'presidential', label: 'Presidential General' },
@@ -78,7 +79,6 @@ const TABS = [
   { id: 'house',        label: 'House' },
   { id: 'legislation',  label: 'Legislation' },
   { id: 'parties',      label: 'Parties' },
-  { id: 'quiz',         label: 'Who Are You?' },
   { id: 'rcv',          label: 'RCV Case Studies' },
 ] as const;
 
