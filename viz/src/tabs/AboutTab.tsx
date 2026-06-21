@@ -1,90 +1,15 @@
 import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, PARTY_TAGLINES } from '../constants/parties';
+import factorLoadingsData from '../data/factorLoadings.json';
 
-// Sorted by discriminating power (η²): how much of a factor's variance is explained
-// by which party you're in. Higher = it sorts people into parties more cleanly.
 interface FactorDef {
   short: string; label: string; color: string; eta: number; bw: number;
-  strength: string; hi: string; lo: string; note?: string;
-  items: { loading: number; q: string }[];
+  strength: string; hi: string; lo: string; note?: string; factor: string;
+  items: { loading: number; question: string }[];
 }
-const FACTORS: FactorDef[] = [
-  {
-    short: 'PC', label: 'Populist Conservatism', color: '#92400e', eta: 0.736, bw: 1.67,
-    strength: 'Strongest sorter. Parties sit about 1.7× farther apart than the spread within each one.',
-    hi: 'Anti-elite, nationalist, culturally conservative',
-    lo: 'Cosmopolitan, progressive on culture and economics',
-    note: 'Most items load negatively: the survey coded progressive answers as higher numbers, so a negative loading means a high factor score predicts the conservative answer.',
-    items: [
-      { loading: -0.62, q: 'Racial problems in the U.S. are rare, isolated situations' },
-      { loading: -0.56, q: 'Community policing and civilian oversight' },
-      { loading: -0.54, q: 'Pathway to citizenship for Dreamers' },
-      { loading: -0.53, q: 'Let tax rates on $400k+ earners rise' },
-      { loading: -0.52, q: 'Legal status for long-term undocumented immigrants' },
-      { loading: -0.44, q: 'Progressive racial and cultural attitudes' },
-      { loading: -0.37, q: 'Infrastructure spending' },
-      { loading: +0.34, q: 'Continue post-9/11 surveillance programs' },
-      { loading: -0.27, q: 'Deny asylum to Central American seekers' },
-      { loading: -0.24, q: 'Extend the 2017 tax cuts' },
-    ],
-  },
-  {
-    short: 'SO', label: 'Security & Order', color: '#1d4ed8', eta: 0.701, bw: 1.53,
-    strength: 'Nearly as strong. The main law-and-order axis.',
-    hi: 'Pro-police, tougher sentencing, strong military',
-    lo: 'Reform policing, de-escalation, diplomacy-first',
-    items: [
-      { loading: +0.73, q: 'Increase the number of police officers by 10%' },
-      { loading: +0.71, q: 'Increase border patrols on the US-Mexico border' },
-      { loading: +0.66, q: 'Deny asylum to those seeking it from Central America' },
-      { loading: +0.65, q: 'Oppose decreasing the number of police officers' },
-      { loading: +0.49, q: 'Continue post-9/11 surveillance programs' },
-      { loading: +0.32, q: 'Oppose legal status for undocumented immigrants' },
-      { loading: +0.31, q: 'Oppose the Dreamer pathway to citizenship' },
-      { loading: +0.27, q: 'Immigration enforcement measures' },
-      { loading: +0.26, q: 'Extend the 2017 tax cuts' },
-    ],
-  },
-  {
-    short: 'ES', label: 'Electoral Skepticism', color: '#7c3aed', eta: 0.375, bw: 0.775,
-    strength: 'Cross-cutting. Within-party noise is larger than the gap between parties, and it cuts across left and right.',
-    hi: 'Questions election integrity, anti-establishment media',
-    lo: 'Trusts institutions, accepts electoral outcomes',
-    items: [
-      { loading: +0.90, q: 'State and local elections are not run fairly' },
-      { loading: +0.73, q: 'U.S. elections are not run fairly' },
-      { loading: +0.38, q: 'Low trust in state government' },
-      { loading: +0.24, q: 'Low trust in the federal government' },
-    ],
-  },
-  {
-    short: 'RT', label: 'Religious Traditionalism', color: '#dc2626', eta: 0.305, bw: 0.663,
-    strength: 'Moderate. Sorts parties mainly on abortion and marriage, with substantial within-party noise.',
-    hi: 'Faith-informed policy, traditional family structures',
-    lo: 'Secular policy, pluralist social norms',
-    items: [
-      { loading: +0.69, q: 'Frequency of church attendance' },
-      { loading: +0.69, q: 'Stricter limits on how many weeks abortion is legal' },
-      { loading: +0.65, q: 'Oppose requiring states to recognize same-sex marriage' },
-      { loading: +0.49, q: 'Oppose federal protection of abortion access' },
-      { loading: +0.30, q: 'Oppose infrastructure spending' },
-      { loading: +0.30, q: 'Immigration enforcement measures' },
-    ],
-  },
-  {
-    short: 'GD', label: 'Government Distrust', color: '#b45309', eta: 0.057, bw: 0.246,
-    strength: 'Essentially non-differentiating: every party scores Medium, so it is not used to place you in the quiz.',
-    hi: 'Government is inefficient and overreaches',
-    lo: 'Government can solve problems, trusts agencies',
-    items: [
-      { loading: +0.66, q: 'Low trust in the federal government' },
-      { loading: +0.48, q: 'Low trust in state government' },
-      { loading: -0.32, q: 'Oppose post-9/11 surveillance programs' },
-      { loading: +0.27, q: 'Oppose legal status for undocumented immigrants' },
-    ],
-  },
-];
+// Generated from analysis/efa/efa_loadings_k5_final.csv + clusterProfiles (make_factor_reference.py).
+const FACTORS = factorLoadingsData as FactorDef[];
 
 const VOTING_SYSTEMS = [
   {
@@ -340,7 +265,7 @@ export function AboutTab() {
                               >
                                 {it.loading >= 0 ? '+' : ''}{it.loading.toFixed(2)}
                               </span>
-                              <span className="text-foreground leading-snug">{it.q}</span>
+                              <span className="text-foreground leading-snug">{it.question}</span>
                             </li>
                           ))}
                         </ul>

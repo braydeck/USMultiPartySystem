@@ -109,7 +109,7 @@ Key relationships:
 | CC24_340e | +0.493 | Support continuing post-9/11 surveillance programs |
 | CC24_323a | +0.319 | Oppose granting legal status to undocumented immigrants |
 | CC24_323d | +0.313 | Oppose Dreamer pathway to citizenship |
-| CC24_324b | +0.268 | Support immigration enforcement measures |
+| CC24_324b | +0.268 | Permit abortion only in rape/incest/life-danger cases |
 | CC24_341a | +0.260 | Support extending 2017 Trump tax cuts |
 
 ### F2 — Electoral Skepticism
@@ -151,7 +151,7 @@ Key relationships:
 | CC24_340c | +0.651 | Oppose requiring states to recognize same-sex marriages |
 | CC24_340b | +0.489 | Oppose federal protections prohibiting abortion restrictions |
 | CC24_341d | +0.300 | Oppose infrastructure spending |
-| CC24_324b | +0.297 | Support immigration enforcement |
+| CC24_324b | +0.297 | Permit abortion only in rape/incest/life-danger cases |
 | CC24_341c | +0.285 | Oppose allowing $400k+ tax rates to rise |
 | CC24_341a | +0.240 | Support extending 2017 Trump tax cuts |
 | CC24_303 | +0.219 | Perceive prices as higher |
@@ -163,11 +163,11 @@ Key relationships:
 | Item | Loading | Survey Question | High F5 → |
 |------|---------|----------------|-----------|
 | CC24_440b | −0.616 | Racial problems are rare/isolated | Agree (conservative) |
-| CC24_321b | −0.557 | Community policing / oversight | Oppose (pro-police) |
+| CC24_321b | −0.557 | Easier concealed-carry permits | Support (pro-gun) |
 | CC24_323d | −0.540 | Dreamer pathway to citizenship | Oppose |
 | CC24_341c | −0.534 | Allow $400k+ tax rates to rise | Oppose (fiscal conservative) |
 | CC24_323a | −0.520 | Legal status for undocumented immigrants | Oppose |
-| CC24_440c | −0.437 | Progressive racial/cultural attitudes | Disagree |
+| CC24_440c | −0.437 | Women seek to gain power by getting control over men | Agree (conservative) |
 | CC24_341d | −0.365 | Infrastructure spending | Oppose |
 | CC24_340e | +0.341 | Post-9/11 surveillance programs | Support |
 | CC24_340f | −0.271 | Deny asylum to Central American seekers | Support |
