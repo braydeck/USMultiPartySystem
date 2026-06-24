@@ -21,3 +21,6 @@ data/raw/2020 CES Base/CES20_Common_OUTPUT_vv.csv
 # ANES data (removed — not used; redistribution-restricted)
 data/raw/2024 anes data/
 *anes_timeseries*
+
+# Post recommendations / drafts (keep locally only)
+results/post_recs/
