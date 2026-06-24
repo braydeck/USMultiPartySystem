@@ -181,9 +181,14 @@ export function PrimaryTab({
 
       {/* State Vote Shares */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          State Vote Shares
-        </h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+            State Vote Shares
+          </h3>
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground bg-muted rounded px-1.5 py-0.5">
+            {data.stageLabels[stage] ?? stage}
+          </span>
+        </div>
         <p className="text-xs text-muted-foreground mb-3">
           States light up as their pod votes. Bars show first-choice vote proportions. Hover for breakdown.
         </p>

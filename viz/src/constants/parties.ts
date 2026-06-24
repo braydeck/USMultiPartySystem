@@ -135,10 +135,10 @@ export function getFDColor(party: string, direction: 'base' | 'hi' | 'lo'): stri
   return base;
 }
 
-/** Given a senator_code like "CON" or "STY_lo_ae", return the primary party code */
+/** Given a code like "CON", "STY_lo_ae", "CON_1", or "CON/POP", return the base party code */
 export function getPrimaryParty(code: string): string {
   if (!code) return '';
-  return code.split('/')[0];
+  return code.split('/')[0].split('_')[0];
 }
 
 /** Use blend color for composite codes, pure party color for singles */
