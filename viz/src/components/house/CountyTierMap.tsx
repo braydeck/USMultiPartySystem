@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { DistrictResult } from '../../types';
-import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -343,8 +343,8 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
                 >
                   <div className="flex items-center justify-between">
                     <span
-                      className="text-xs font-bold px-1.5 py-0.5 rounded text-white"
-                      style={{ backgroundColor: tierColor }}
+                      className="text-xs font-bold px-1.5 py-0.5 rounded chip-text"
+                      style={{ backgroundColor: tierColor, color: getContrastText(tierColor) }}
                     >
                       {TIER_LABELS[d.densityTier]?.split(' ')[0]}
                     </span>
@@ -356,8 +356,8 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
                     {d.elected.map((party, i) => (
                       <span
                         key={i}
-                        className="text-xs font-bold px-1.5 py-0.5 rounded text-white"
-                        style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }}
+                        className="text-xs font-bold px-1.5 py-0.5 rounded chip-text"
+                        style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280', color: getContrastText(PARTY_COLORS[party] ?? '#6b7280') }}
                         title={PARTY_NAMES[party] ?? party}
                       >
                         {party}

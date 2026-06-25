@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { PARTY_COLORS, F5_ORDER, PARTY_NAMES } from '../../constants/parties';
+import { PARTY_COLORS, F5_ORDER, PARTY_NAMES, getContrastText } from '../../constants/parties';
 
 interface Source {
   party: string;
@@ -146,7 +146,7 @@ export function VariantAttractionChart({ data }: Props) {
                                   className="relative"
                                 >
                                   {widthPct >= 20 && (
-                                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-sm">
+                                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold drop-shadow-sm chip-text" style={{ color: getContrastText(sColor) }}>
                                       {s.party}
                                     </span>
                                   )}

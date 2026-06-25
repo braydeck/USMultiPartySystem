@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useUrlState } from '../hooks/useUrlState';
 import type { RCVData, RCVRace, HouseStateEntry } from '../types';
-import { PARTY_COLORS, F5_ORDER } from '../constants/parties';
+import { PARTY_COLORS, F5_ORDER, getContrastText } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
@@ -269,7 +269,7 @@ function CesSimPanel({ stateAbbr, houseStateMap }: { stateAbbr: 'AK' | 'ME'; hou
                   minWidth: 4,
                 }}
               >
-                {pct >= 12 && <span className="text-white text-xs font-bold">{party}</span>}
+                {pct >= 12 && <span className="text-xs font-bold chip-text" style={{ color: getContrastText(PARTY_COLORS[party] ?? '#6b7280') }}>{party}</span>}
               </div>
             );
           })}
@@ -372,8 +372,8 @@ function RaceCard({ race, defaultOpen = true }: { race: RCVRace; defaultOpen?: b
                 {race.stvElected.map((cand, i) => (
                   <span
                     key={i}
-                    className="text-sm font-semibold px-3 py-1 rounded-full text-white"
-                    style={{ backgroundColor: candidateColor(cand) }}
+                    className="text-sm font-semibold px-3 py-1 rounded-full chip-text"
+                    style={{ backgroundColor: candidateColor(cand), color: getContrastText(candidateColor(cand)) }}
                   >
                     {cand}
                   </span>
@@ -416,8 +416,8 @@ function CombinedDelegation({ cd1, cd2, year }: { cd1: RCVRace; cd2: RCVRace; ye
         {combined.map((cand, i) => (
           <span
             key={i}
-            className="text-sm font-semibold px-3 py-1 rounded-full text-white"
-            style={{ backgroundColor: candidateColor(cand) }}
+            className="text-sm font-semibold px-3 py-1 rounded-full chip-text"
+            style={{ backgroundColor: candidateColor(cand), color: getContrastText(candidateColor(cand)) }}
           >
             {cand}
           </span>
@@ -427,8 +427,8 @@ function CombinedDelegation({ cd1, cd2, year }: { cd1: RCVRace; cd2: RCVRace; ye
         {dems.map((c, i) => (
           <div
             key={i}
-            className="flex items-center justify-center text-white"
-            style={{ width: `${100 / combined.length}%`, backgroundColor: candidateColor(c) }}
+            className="flex items-center justify-center chip-text"
+            style={{ width: `${100 / combined.length}%`, backgroundColor: candidateColor(c), color: getContrastText(candidateColor(c)) }}
           >
             {c.split(' ').pop()}
           </div>
@@ -436,8 +436,8 @@ function CombinedDelegation({ cd1, cd2, year }: { cd1: RCVRace; cd2: RCVRace; ye
         {reps.map((c, i) => (
           <div
             key={i}
-            className="flex items-center justify-center text-white"
-            style={{ width: `${100 / combined.length}%`, backgroundColor: candidateColor(c) }}
+            className="flex items-center justify-center chip-text"
+            style={{ width: `${100 / combined.length}%`, backgroundColor: candidateColor(c), color: getContrastText(candidateColor(c)) }}
           >
             {c.split(' ').pop()}
           </div>

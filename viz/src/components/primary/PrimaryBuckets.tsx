@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/parties';
 
 interface BucketSource { party: string; pct: number }
 interface BucketDest { code: string; pct: number }
@@ -30,8 +30,8 @@ function CandidatePill({ code, party, dimmed }: { code: string; party: string; d
   const color = PARTY_COLORS[party] ?? '#6b7280';
   return (
     <span
-      className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded text-white leading-none shrink-0"
-      style={{ backgroundColor: color, opacity: dimmed ? 0.4 : 1 }}
+      className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
+      style={{ backgroundColor: color, color: getContrastText(color), opacity: dimmed ? 0.4 : 1 }}
     >
       {code}
     </span>
@@ -176,8 +176,8 @@ function WinnerBar({ w, onTip }: {
                 }}
               >
                 {widthPct > 12 && (
-                  <span className="text-[8px] font-bold text-white truncate px-0.5"
-                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                  <span className="text-[8px] font-bold truncate px-0.5 chip-text"
+                    style={{ color: getContrastText(seg.color), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                     {seg.label} {seg.pct.toFixed(1)}%
                   </span>
                 )}
@@ -246,8 +246,8 @@ function EliminatedRow({ e, onTip }: { e: BucketEliminated; onTip: (t: TooltipIn
                   }}
                 >
                   {d.pct > 12 && (
-                    <span className="text-[8px] font-bold text-white truncate px-0.5"
-                      style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                    <span className="text-[8px] font-bold truncate px-0.5 chip-text"
+                      style={{ color: getContrastText(destColor), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                       {d.code} {d.pct.toFixed(0)}%
                     </span>
                   )}

@@ -1,5 +1,5 @@
 import type { HouseSeat } from '../../types';
-import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER, getContrastText } from '../../constants/parties';
 
 // 2024 House composition (approximate)
 const FPTP_HOUSE = { GOP: 220, DEM: 215 };
@@ -116,7 +116,7 @@ export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double' }: Props) {
                 style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}
               >
                 {pct >= 5 && (
-                  <span className="text-white text-xs font-bold leading-tight text-center px-0.5">
+                  <span className="text-xs font-bold leading-tight text-center px-0.5 chip-text" style={{ color: getContrastText(color) }}>
                     {party}<br />{pct.toFixed(1)}%
                   </span>
                 )}
@@ -153,7 +153,7 @@ export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double' }: Props) {
                     style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}
                   >
                     {pct >= 5 && (
-                      <span className="text-white text-[10px] font-bold leading-tight text-center px-0.5">
+                      <span className="text-[10px] font-bold leading-tight text-center px-0.5 chip-text" style={{ color: getContrastText(color) }}>
                         {pct.toFixed(1)}%
                       </span>
                     )}

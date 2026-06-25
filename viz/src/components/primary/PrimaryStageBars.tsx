@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+import { PARTY_COLORS, F5_ORDER, getContrastText } from '../../constants/parties';
 import type { FDPrimaryData } from '../../types';
 
 interface Props {
@@ -98,8 +98,8 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
                 return (
                   <div
                     key={c.code}
-                    className="flex items-center gap-1 rounded-md px-2 py-1 text-white text-xs font-semibold"
-                    style={{ backgroundColor: color }}
+                    className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold chip-text"
+                    style={{ backgroundColor: color, color: getContrastText(color) }}
                     title={`${c.code}: ${c.pct.toFixed(1)}%`}
                   >
                     <span>{c.code}</span>

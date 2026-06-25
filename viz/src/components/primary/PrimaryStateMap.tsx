@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { getBlendColor, F5_ORDER, getPrimaryParty } from '../../constants/parties';
+import { getBlendColor, F5_ORDER, getPrimaryParty, getContrastText } from '../../constants/parties';
 import type { PrimaryStageShares, FDPrimaryData } from '../../types';
 
 const STAGE_PODS: Record<string, Set<string>> = {
@@ -99,8 +99,8 @@ export function PrimaryStateMap({ stageShares, stage, primaryData }: Props) {
             return (
               <div key={code} className="flex items-center gap-1.5">
                 <span
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white leading-none shrink-0"
-                  style={{ backgroundColor: color }}
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
+                  style={{ backgroundColor: color, color: getContrastText(color) }}
                 >
                   {code}
                 </span>

@@ -9,6 +9,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Subtle dark halo so uniform white chip/label text stays legible on light fills
+   (e.g. SD). Tune or zero out --chip-text-shadow to dial the "ghosting". */
+:root {
+  --chip-text-shadow: 0 0 7px rgba(0, 0, 0, 1);
+}
+.chip-text {
+  text-shadow: var(--chip-text-shadow);
+}
+
 @layer base {
   :root {
     --background: 210 40% 98%;

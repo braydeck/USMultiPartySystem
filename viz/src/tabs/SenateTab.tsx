@@ -10,7 +10,7 @@ import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER } from '../constants/parties';
+import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER, getContrastText } from '../constants/parties';
 import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
@@ -69,7 +69,7 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
             <div key={party} className="flex items-center justify-center"
               style={{ width: `${pct}%`, backgroundColor: color }}>
               {pct >= 6 && (
-                <span className="text-white text-[10px] font-bold">{party} {n}</span>
+                <span className="text-[10px] font-bold chip-text" style={{ color: getContrastText(color) }}>{party} {n}</span>
               )}
             </div>
           );

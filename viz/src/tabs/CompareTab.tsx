@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
-import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES } from '../constants/parties';
+import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -643,8 +643,8 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
             return (
               <span
                 key={code}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold text-white"
-                style={{ backgroundColor: color }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold chip-text"
+                style={{ backgroundColor: color, color: getContrastText(color) }}
               >
                 {code}
                 <span className="font-normal opacity-75 text-xs hidden sm:inline">— {label}</span>

@@ -1,5 +1,5 @@
 import type { HouseSeat } from '../../types';
-import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER, getContrastText } from '../../constants/parties';
 
 interface Props {
   seats: HouseSeat[];
@@ -62,7 +62,7 @@ export function UrbSubRurChart({ seats }: Props) {
                     }}
                   >
                     {pct >= 6 && (
-                      <span className="text-white text-xs font-bold">{party}</span>
+                      <span className="text-xs font-bold chip-text" style={{ color: getContrastText(color) }}>{party}</span>
                     )}
                   </div>
                 );

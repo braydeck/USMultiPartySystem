@@ -1,13 +1,14 @@
 export const PARTY_COLORS: Record<string, string> = {
-  PRG: '#1e3a8a',  // deep navy (cool, leftmost)
-  DSA: '#60a5fa',  // steel blue (light — sits between two darker blues)
-  LIB: '#1d4ed8',  // royal blue (dark — contrasts with adjacent SD cyan)
-  SD:  '#06b6d4',  // bright cyan/teal
-  STY: '#16a34a',  // green (centrist left anchor)
-  CUP: '#a16207',  // dark yellow (centrist right anchor)
-  CON: '#ea580c',  // orange-red
-  POP: '#dc2626',  // crimson
-  NAT: '#7f1d1d',  // deep maroon (warm, rightmost)
+  // Cool left (green→blue), distinct center (violet, brown), warm right (orange→red)
+  PRG: '#15803d',  // lively green, deep (leftmost)
+  DSA: '#22c55e',  // lively green, bright
+  LIB: '#0284c7',  // rich azure
+  SD:  '#38bdf8',  // vivid sky blue
+  STY: '#8a70b8',  // violet (center)
+  CUP: '#825a27',  // brown (center)
+  CON: '#e68c2c',  // orange
+  POP: '#d34812',  // red-orange
+  NAT: '#a01d2a',  // deep red (rightmost)
 };
 
 export const F5_ORDER = ['PRG','DSA','LIB','SD','STY','CUP','CON','POP','NAT'] as const;
@@ -107,6 +108,35 @@ export function getBlendColor(code: string): string {
     }
   }
   return PARTY_COLORS[code] ?? '#6b7280';
+}
+
+// Global chip/label text policy — single knob, flip and reload to compare:
+//   'auto'  – per-chip: dark text on light fills, white otherwise (max readability, least uniform)
+//   'white' – always white (uniform; unreadable on light fills like SD)
+//   'dark'  – always near-black (uniform; unreadable on dark fills like PRG/NAT)
+//   any hex – force one exact color everywhere, e.g. '#475569' (medium grey)
+export const CHIP_TEXT: string = 'white';
+
+const CHIP_TEXT_WHITE = '#ffffff';
+const CHIP_TEXT_DARK = '#0f172a';
+
+/** Readable text color for a party-colored chip/label background. Honors CHIP_TEXT;
+ * in 'auto' mode picks dark vs white by WCAG luminance (light fills like SD get dark text). */
+export function getContrastText(bg: string): string {
+  if (CHIP_TEXT === 'white') return CHIP_TEXT_WHITE;
+  if (CHIP_TEXT === 'dark') return CHIP_TEXT_DARK;
+  if (CHIP_TEXT !== 'auto') return CHIP_TEXT; // explicit hex override
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(bg);
+  if (!m) return CHIP_TEXT_WHITE;
+  const lin = (v: number) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  const L =
+    0.2126 * lin(parseInt(m[1], 16)) +
+    0.7152 * lin(parseInt(m[2], 16)) +
+    0.0722 * lin(parseInt(m[3], 16));
+  return L > 0.45 ? CHIP_TEXT_DARK : CHIP_TEXT_WHITE;
 }
 
 /** Lighten a hex color by mixing toward white at the given amount (0–1) */

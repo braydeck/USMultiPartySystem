@@ -7,7 +7,7 @@ import { PrimaryStateMap } from '../components/primary/PrimaryStateMap';
 import PrimaryBuckets from '../components/primary/PrimaryBuckets';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
-import { PARTY_NAMES, PARTY_COLORS, F5_ORDER, getBlendColor } from '../constants/parties';
+import { PARTY_NAMES, PARTY_COLORS, F5_ORDER, getBlendColor, getContrastText } from '../constants/parties';
 import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
@@ -107,13 +107,13 @@ export function PrimaryTab({
         </div>
       </StickyControlBar>
       <p className="text-xs text-muted-foreground">{PIPELINE_DESC[pipeline]}</p>
-      <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+      <div className="flex flex-wrap gap-1.5">
         {F5_ORDER.map(p => (
-          <span key={p} className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-sm"
-              style={{ backgroundColor: PARTY_COLORS[p] }}
-            />
+          <span
+            key={p}
+            className="px-1.5 py-0.5 rounded text-[10px] font-semibold leading-none chip-text"
+            style={{ backgroundColor: PARTY_COLORS[p], color: getContrastText(PARTY_COLORS[p]) }}
+          >
             {PARTY_NAMES[p] ?? p}
           </span>
         ))}
@@ -166,8 +166,8 @@ export function PrimaryTab({
                     title={`${code}: ${(pct * 100).toFixed(1)}%`}
                   >
                     {w > 5 && (
-                      <span className="text-white text-xs font-bold px-0.5 truncate"
-                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                      <span className="text-xs font-bold px-0.5 truncate chip-text"
+                        style={{ color: getContrastText(color), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                         {code} {(pct * 100).toFixed(1)}%
                       </span>
                     )}

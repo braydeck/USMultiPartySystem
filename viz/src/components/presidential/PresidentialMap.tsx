@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { getBlendColor, F5_ORDER, getPrimaryParty, buildDisplayLabels } from '../../constants/parties';
+import { getBlendColor, F5_ORDER, getPrimaryParty, buildDisplayLabels, getContrastText } from '../../constants/parties';
 import type { PresidentialStateWinner, HouseStateEntry } from '../../types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,8 +106,8 @@ function NationalShareBar({
               title={`${labels[code] ?? code}: ${(pct * 100).toFixed(1)}%`}
             >
               {w > 6 && (
-                <span className="text-white text-xs font-bold px-0.5 truncate"
-                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                <span className="text-xs font-bold px-0.5 truncate chip-text"
+                  style={{ color: getContrastText(color), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                   {labels[code] ?? code} {(pct * 100).toFixed(1)}%
                 </span>
               )}
@@ -177,8 +177,8 @@ function ProportionalCartogram({
             return (
               <div key={code} className="flex items-center gap-1.5">
                 <span
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white leading-none shrink-0"
-                  style={{ backgroundColor: color }}
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
+                  style={{ backgroundColor: color, color: getContrastText(color) }}
                 >
                   {labels[code] ?? code}
                 </span>
@@ -333,7 +333,7 @@ function WinnerCartogram({
               onMouseLeave={() => setHoverBar(null)}
             >
               {pct >= 6 && (
-                <span className="text-white text-xs font-bold px-0.5">
+                <span className="text-xs font-bold px-0.5 chip-text" style={{ color: getContrastText(getBlendColor(rawCode)) }}>
                   {isBarHover ? `${states} states` : `${displayCode} ${evs}`}
                 </span>
               )}

@@ -4,7 +4,7 @@ import type {
   FPTPState, HouseStateEntry,
 } from '../types';
 import {
-  PARTY_COLORS, PARTY_NAMES, F5_ORDER,
+  PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText,
 } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
@@ -84,7 +84,7 @@ function SenateBar({ seats, label }: { seats: FDSenateSeat[]; label: string }) {
               className="flex items-center justify-center overflow-hidden"
               style={{ width: `${pct}%`, backgroundColor: PARTY_COLORS[party] ?? '#6b7280', minWidth: pct < 2 ? 2 : 0 }}
             >
-              {pct >= 6 && <span className="text-white text-xs font-bold">{party}</span>}
+              {pct >= 6 && <span className="text-xs font-bold chip-text" style={{ color: getContrastText(PARTY_COLORS[party] ?? '#6b7280') }}>{party}</span>}
             </div>
           );
         })}

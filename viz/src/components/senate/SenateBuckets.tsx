@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
 
 interface Source { party: string; pct: number }
@@ -19,8 +19,8 @@ function CandidatePill({ code, party, dimmed }: { code: string; party: string; d
   const color = PARTY_COLORS[party] ?? '#6b7280';
   return (
     <span
-      className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded text-white leading-none shrink-0"
-      style={{ backgroundColor: color, opacity: dimmed ? 0.4 : 1 }}
+      className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
+      style={{ backgroundColor: color, color: getContrastText(color), opacity: dimmed ? 0.4 : 1 }}
     >
       {code}
     </span>
@@ -93,8 +93,8 @@ export default function SenateBuckets({ data, method }: Props) {
                           width: `${w}%`, backgroundColor: color, opacity: 0.85,
                         }}>
                           {w > 12 && (
-                            <span className="text-[8px] font-bold text-white truncate px-0.5"
-                              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                            <span className="text-[8px] font-bold truncate px-0.5 chip-text"
+                              style={{ color: getContrastText(color), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                               First-choice {a.avgFirstChoice.toFixed(1)}%
                             </span>
                           )}
@@ -111,8 +111,8 @@ export default function SenateBuckets({ data, method }: Props) {
                           borderLeft: '0.5px solid rgba(255,255,255,0.5)',
                         }}>
                           {w > 8 && (
-                            <span className="text-[8px] font-bold text-white truncate px-0.5"
-                              style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                            <span className="text-[8px] font-bold truncate px-0.5 chip-text"
+                              style={{ color: getContrastText(PARTY_COLORS[s.party] ?? '#6b7280'), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                               ← {s.party} {s.pct.toFixed(1)}%
                             </span>
                           )}
@@ -174,8 +174,8 @@ export default function SenateBuckets({ data, method }: Props) {
                         width: `${w}%`, backgroundColor: winnerColor, opacity: 0.85,
                       }}>
                         {w > 12 && (
-                          <span className="text-[8px] font-bold text-white truncate px-0.5"
-                            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                          <span className="text-[8px] font-bold truncate px-0.5 chip-text"
+                            style={{ color: getContrastText(winnerColor), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                             First-choice {winner.firstChoice.toFixed(1)}%
                           </span>
                         )}
@@ -192,8 +192,8 @@ export default function SenateBuckets({ data, method }: Props) {
                         borderLeft: '0.5px solid rgba(255,255,255,0.5)',
                       }}>
                         {w > 8 && (
-                          <span className="text-[8px] font-bold text-white truncate px-0.5"
-                            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                          <span className="text-[8px] font-bold truncate px-0.5 chip-text"
+                            style={{ color: getContrastText(PARTY_COLORS[s.party] ?? '#6b7280'), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                             ← {s.party} {s.pct.toFixed(1)}%
                           </span>
                         )}
