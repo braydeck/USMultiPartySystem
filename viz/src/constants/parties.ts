@@ -1,7 +1,7 @@
 export const PARTY_COLORS: Record<string, string> = {
   PRG: '#1e3a8a',  // deep navy (cool, leftmost)
-  LIB: '#1d4ed8',  // royal blue
-  DSA: '#60a5fa',  // steel blue
+  DSA: '#1d4ed8',  // royal blue
+  LIB: '#60a5fa',  // steel blue
   SD:  '#06b6d4',  // bright cyan/teal
   STY: '#16a34a',  // green (centrist left anchor)
   CUP: '#a16207',  // dark yellow (centrist right anchor)
@@ -10,7 +10,7 @@ export const PARTY_COLORS: Record<string, string> = {
   NAT: '#7f1d1d',  // deep maroon (warm, rightmost)
 };
 
-export const F5_ORDER = ['PRG','LIB','DSA','SD','STY','CUP','CON','POP','NAT'] as const;
+export const F5_ORDER = ['PRG','DSA','LIB','SD','STY','CUP','CON','POP','NAT'] as const;
 
 export const PARTY_NAMES: Record<string, string> = {
   CON: 'Conservative',

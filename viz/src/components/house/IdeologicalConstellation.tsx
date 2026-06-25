@@ -182,7 +182,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         { from: -2.0, to: -1.5, label: 'Strongly', side: 'low' },
         { from: -1.5, to: -1.0, label: 'Moderately', side: 'low' },
         { from: -1.0, to: -0.5, label: 'Leans',    side: 'low' },
-        { from: -0.5, to:  0.5, label: 'Centrist',   side: 'mid' },
+        { from: -0.5, to:  0.5, label: 'Mixed',   side: 'mid' },
         { from:  0.5, to:  1.0, label: 'Leans',    side: 'high' },
         { from:  1.0, to:  1.5, label: 'Moderately',  side: 'high' },
         { from:  1.5, to:  2.0, label: 'Strongly', side: 'high' },

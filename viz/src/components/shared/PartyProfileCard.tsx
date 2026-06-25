@@ -15,7 +15,7 @@ function zDescriptor(factor: string, z: number): string {
   if (!poles) return '';
   const az = Math.abs(z);
   const direction = z >= 0 ? poles.high : poles.low;
-  if (az < 0.5) return 'Centrist';
+  if (az < 0.5) return 'Mixed';
   if (az < 1.0) return `Leans ${direction.toLowerCase()}`;
   if (az < 1.5) return `Moderately ${direction.toLowerCase()}`;
   if (az < 2.0) return `Strongly ${direction.toLowerCase()}`;
@@ -90,7 +90,7 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
             <div key={f}>
               <div className="flex items-center justify-between text-xs gap-2 mb-0.5">
                 <span className="text-muted-foreground shrink-0">{label}</span>
-                <span className="font-medium" style={{ color: desc === 'Centrist' ? '#6b7280' : barColor }}>{desc}</span>
+                <span className="font-medium" style={{ color: desc === 'Mixed' ? '#6b7280' : barColor }}>{desc}</span>
               </div>
               <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                 {isHigh ? (
