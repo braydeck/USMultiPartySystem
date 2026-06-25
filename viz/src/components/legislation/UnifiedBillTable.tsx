@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { VoteModelRow } from '../../types';
-import { getBlendColor } from '../../constants/parties';
+import { getBlendColor, getPrimaryParty } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -111,8 +111,12 @@ const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
   'factorDev+triple':   'houseFDTripleProbPass',
 };
 
+type SortKey = 'bill' | 'house' | 'senate' | 'pres' | 'overall';
+const GRID = 'md:grid-cols-[1fr_140px_140px_130px_140px]';
+
 export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod, presWinner, wyoming = 'double' }: Props) {
   const [domain, setDomain] = useState<string>('All');
+  const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'overall', dir: 'desc' });
 
   const combo          = `${pipeline}+${senateMethod}`;
   const senateProbField = SENATE_PROB_FIELD[combo];
@@ -120,6 +124,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
   const presSignField   = PRES_SIGN_FIELD[combo];
   const presPctField    = PRES_PCT_FIELD[combo];
   const presColor       = getBlendColor(presWinner);
+  const presLabel       = `President: ${getPrimaryParty(presWinner)}`;
 
   const houseByVar  = useMemo(() => Object.fromEntries(houseRows.map(r => [r.variable, r])),  [houseRows]);
   const senateByVar = useMemo(() => Object.fromEntries(senateRows.map(r => [r.variable, r])), [senateRows]);
@@ -135,9 +140,60 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
     return ['All', ...Array.from(d).sort()];
   }, [houseRows, senateRows]);
 
-  const filtered = domain === 'All'
-    ? allVars
-    : allVars.filter(v => (houseByVar[v] ?? senateByVar[v])?.domain === domain);
+  // Build per-bill row data with an overall "becomes law" probability = House × Senate × President.
+  const rows = useMemo(() => {
+    return allVars
+      .filter(v => domain === 'All' || (houseByVar[v] ?? senateByVar[v])?.domain === domain)
+      .map(variable => {
+        const hr = houseByVar[variable];
+        const sr = senateByVar[variable];
+        const ref = hr ?? sr;
+        const houseProb  = hr?.[houseProbField] as number | undefined;
+        const senateProb = sr?.[senateProbField] as number | undefined;
+        const signs      = (sr?.[presSignField] as string | undefined) ?? '';
+        const presPct    = sr?.[presPctField] as number | undefined;
+        // President is a decision gate, not a probability: Signs passes it through (×1),
+        // Vetoes blocks the bill from becoming law (×0).
+        const presProb   = signs ? (signs === 'SIGN' ? 1 : 0) : undefined;
+        const overall    = (houseProb != null && senateProb != null && presProb != null)
+          ? houseProb * senateProb * presProb : undefined;
+        return { variable, ref, houseProb, senateProb, signs, presPct, presProb, overall };
+      })
+      .filter((r): r is typeof r & { ref: VoteModelRow } => !!r.ref);
+  }, [allVars, domain, houseByVar, senateByVar, houseProbField, senateProbField, presSignField, presPctField]);
+
+  const sorted = useMemo(() => {
+    const arr = [...rows];
+    const dir = sort.dir === 'desc' ? -1 : 1;
+    if (sort.key === 'bill') {
+      arr.sort((a, b) => dir * a.ref.question.localeCompare(b.ref.question));
+      return arr;
+    }
+    const pick = (r: typeof rows[number]) =>
+      sort.key === 'house' ? r.houseProb : sort.key === 'senate' ? r.senateProb
+      : sort.key === 'pres' ? r.presPct : r.overall;
+    arr.sort((a, b) => {
+      const av = pick(a), bv = pick(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;   // undefined always sorts to the bottom
+      if (bv == null) return -1;
+      return dir * (av - bv);
+    });
+    return arr;
+  }, [rows, sort]);
+
+  function toggleSort(key: SortKey) {
+    setSort(s => s.key === key ? { key, dir: s.dir === 'desc' ? 'asc' : 'desc' } : { key, dir: 'desc' });
+  }
+  const arrow = (key: SortKey) => sort.key === key ? (sort.dir === 'desc' ? ' ↓' : ' ↑') : '';
+  const sortBtn = (key: SortKey, label: string, extra = '') =>
+    <button
+      type="button"
+      onClick={() => toggleSort(key)}
+      className={`uppercase tracking-widest hover:text-foreground transition-colors ${sort.key === key ? 'text-foreground font-semibold' : ''} ${extra}`}
+    >
+      {label}{arrow(key)}
+    </button>;
 
   return (
     <div>
@@ -154,32 +210,26 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
         ))}
       </div>
 
-      <div className="hidden md:grid grid-cols-[1fr_150px_150px_120px] gap-x-3 items-center px-3 py-1 text-xs text-muted-foreground uppercase tracking-widest border-b border-border mb-1">
-        <div>Bill</div>
-        <div>House</div>
-        <div>Senate</div>
-        <div
-          className="text-center font-bold truncate"
+      <div className={`hidden md:grid grid-cols-[1fr_140px_140px_130px_140px] gap-x-3 items-center px-3 py-1 text-xs text-muted-foreground border-b border-border mb-1`}>
+        {sortBtn('bill', 'Bill', 'text-left')}
+        {sortBtn('house', 'House')}
+        {sortBtn('senate', 'Senate')}
+        <button
+          type="button"
+          onClick={() => toggleSort('pres')}
+          className={`uppercase tracking-widest truncate hover:opacity-80 transition-opacity ${sort.key === 'pres' ? 'font-bold' : 'font-bold'}`}
           style={{ color: presColor }}
           title={presWinner}
         >
-          {presWinner}
-        </div>
+          {presLabel}{arrow('pres')}
+        </button>
+        {sortBtn('overall', 'Overall')}
       </div>
 
       <div className="space-y-0.5">
-        {filtered.map(variable => {
-          const hr  = houseByVar[variable];
-          const sr  = senateByVar[variable];
-          const ref = hr ?? sr;
-          if (!ref) return null;
-
-          const houseProb    = hr?.[houseProbField] as number | undefined;
+        {sorted.map(({ variable, ref, houseProb, senateProb, signs, presPct, overall }) => {
           const houseLabel   = getBayesianLabel([houseProb]);
-          const senateProb   = sr?.[senateProbField] as number | undefined;
           const senateLabel  = getBayesianLabel([senateProb]);
-          const signs        = (sr?.[presSignField] as string | undefined) ?? '';
-          const presPct      = sr?.[presPctField] as number | undefined;
 
           const chamberSplit = getDirection(houseLabel) !== 'uncertain' &&
                                getDirection(senateLabel) !== 'uncertain' &&
@@ -188,7 +238,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
           return (
             <div
               key={variable}
-              className={`flex flex-col md:grid md:grid-cols-[1fr_150px_150px_120px] gap-x-3 items-start md:items-center py-2 px-3 rounded text-sm ${
+              className={`flex flex-col md:grid ${GRID} gap-x-3 items-start md:items-center py-2 px-3 rounded text-sm ${
                 chamberSplit
                   ? 'bg-amber-50 border border-amber-200'
                   : 'bg-white border border-border/50 hover:bg-slate-50'
@@ -229,6 +279,10 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                 ) : (
                   <span className="text-slate-300 text-xs">—</span>
                 )}
+              </div>
+
+              <div className="mt-1 md:mt-0">
+                <ProbBar prob={overall} />
               </div>
             </div>
           );
