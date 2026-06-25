@@ -1,7 +1,7 @@
 export const PARTY_COLORS: Record<string, string> = {
   PRG: '#1e3a8a',  // deep navy (cool, leftmost)
-  DSA: '#1d4ed8',  // royal blue
-  LIB: '#60a5fa',  // steel blue
+  DSA: '#60a5fa',  // steel blue (light — sits between two darker blues)
+  LIB: '#1d4ed8',  // royal blue (dark — contrasts with adjacent SD cyan)
   SD:  '#06b6d4',  // bright cyan/teal
   STY: '#16a34a',  // green (centrist left anchor)
   CUP: '#a16207',  // dark yellow (centrist right anchor)
