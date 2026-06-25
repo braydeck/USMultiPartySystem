@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useUrlState, resetUrlParams } from './hooks/useUrlState';
-import { PrimaryTab } from './tabs/PrimaryTab';
 import { SenateTab } from './tabs/SenateTab';
 import { HouseTab } from './tabs/HouseTab';
 import { QuizTab } from './tabs/QuizTab';
 import { PartiesTab } from './tabs/PartiesTab';
-import { PresidentialTab } from './tabs/PresidentialTab';
+import { PresidencyTab } from './tabs/PresidencyTab';
 import { LegislationTab } from './tabs/LegislationTab';
 import { AboutTab } from './tabs/AboutTab';
 import { OverviewTab } from './tabs/OverviewTab';
@@ -70,29 +69,39 @@ import type {
   DistrictResult, RCVData,
 } from './types';
 
-const TABS = [
-  { id: 'about',        label: 'What Is This?' },
-  { id: 'quiz',         label: 'Party Quiz' },
-  { id: 'overview',     label: 'Overview' },
-  { id: 'primary',      label: 'Presidential Primary' },
-  { id: 'presidential', label: 'Presidential General' },
-  { id: 'senate',       label: 'Senate' },
-  { id: 'house',        label: 'House' },
-  { id: 'legislation',  label: 'Legislation' },
-  { id: 'parties',      label: 'Parties' },
-  { id: 'rcv',          label: 'RCV Case Studies' },
+// Top-level tabs shown directly in the nav strip.
+const TOP_TABS = [
+  { id: 'about',    label: 'What Is This?' },
+  { id: 'quiz',     label: 'Party Quiz' },
+  { id: 'overview', label: 'Overview' },
+  { id: 'parties',  label: 'Parties' },
 ] as const;
 
-type TabId = typeof TABS[number]['id'];
+// Simulation scenarios, collapsed into the "Scenarios" dropdown.
+const SCENARIO_TABS = [
+  { id: 'presidency',  label: 'Presidency' },
+  { id: 'senate',      label: 'Senate' },
+  { id: 'house',       label: 'House' },
+  { id: 'legislation', label: 'Legislation' },
+  { id: 'rcv',         label: 'IRV Case Studies' },
+] as const;
+
+const ALL_TABS = [...TOP_TABS, ...SCENARIO_TABS] as const;
+
+type TabId = typeof ALL_TABS[number]['id'];
 
 export default function App() {
   // On mobile, land on the Party Quiz (the shareable hook) by default; desktop opens on About.
   const mobileDefault: TabId =
     typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 'quiz' : 'about';
-  const [tab] = useUrlState<TabId>('tab', mobileDefault, { allowed: TABS.map(t => t.id) });
+  const [tab] = useUrlState<TabId>('tab', mobileDefault, { allowed: ALL_TABS.map(t => t.id) });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scenariosOpen, setScenariosOpen] = useState(false);
   // Tab navigation resets the query string so a tab's filters don't follow you to the next tab.
   const setTab = (next: TabId) => resetUrlParams(next === 'about' ? {} : { tab: next });
+
+  const isScenario = SCENARIO_TABS.some(t => t.id === tab);
+  const activeLabel = ALL_TABS.find(t => t.id === tab)?.label ?? 'Menu';
 
   return (
     <TooltipProvider>
@@ -110,16 +119,49 @@ export default function App() {
       {/* Nav tabs — sticky */}
       <header className="border-b border-border bg-card/95 backdrop-blur sticky top-0 z-20">
         <nav aria-label="Main navigation" className="max-w-7xl mx-auto px-4 py-1.5">
-          {/* Desktop: horizontal tab strip */}
-          <div className="relative hidden sm:block">
-            <TabsList className="overflow-x-auto pb-px" aria-label="Section tabs">
-              {TABS.map(t => (
+          {/* Desktop: tab strip + Scenarios dropdown */}
+          <div className="hidden sm:flex items-center gap-1">
+            <TabsList aria-label="Section tabs">
+              {TOP_TABS.map(t => (
                 <TabsTrigger key={t.id} value={t.id}>
                   {t.label}
                 </TabsTrigger>
               ))}
             </TabsList>
-            <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white" aria-hidden="true" />
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setScenariosOpen(o => !o)}
+                aria-expanded={scenariosOpen}
+                aria-haspopup="true"
+                className={`inline-flex items-center gap-1 whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
+                  isScenario ? 'bg-secondary text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                }`}
+              >
+                {isScenario ? SCENARIO_TABS.find(t => t.id === tab)?.label : 'Scenarios'}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              {scenariosOpen && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setScenariosOpen(false)} aria-hidden="true" />
+                  <div className="absolute left-0 mt-1 z-40 min-w-[200px] flex flex-col rounded-md border border-border bg-card shadow-lg overflow-hidden py-1">
+                    {SCENARIO_TABS.map(t => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => { setTab(t.id); setScenariosOpen(false); }}
+                        className={`text-left px-3 py-2 text-sm transition-colors ${
+                          tab === t.id ? 'bg-slate-900 text-white font-medium' : 'text-foreground hover:bg-muted'
+                        }`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Mobile: hamburger menu */}
@@ -131,14 +173,29 @@ export default function App() {
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               className="w-full flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
             >
-              <span>{TABS.find(t => t.id === tab)?.label ?? 'Menu'}</span>
+              <span>{activeLabel}</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                 {menuOpen ? <path d="M6 6l12 12M6 18L18 6" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
               </svg>
             </button>
             {menuOpen && (
               <div className="mt-1 flex flex-col rounded-md border border-border bg-card shadow-lg overflow-hidden">
-                {TABS.map(t => (
+                {TOP_TABS.map(t => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => { setTab(t.id); setMenuOpen(false); }}
+                    className={`text-left px-3 py-2.5 text-sm transition-colors ${
+                      tab === t.id ? 'bg-slate-900 text-white font-medium' : 'text-foreground hover:bg-muted'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+                <div className="px-3 pt-2 pb-1 mt-1 border-t border-border/50 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Scenarios
+                </div>
+                {SCENARIO_TABS.map(t => (
                   <button
                     key={t.id}
                     type="button"
@@ -174,32 +231,33 @@ export default function App() {
             fptpStates={fptpDisproportionalityData as FPTPState[]}
             stateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
             clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
+            onNavigate={(t) => setTab(t as TabId)}
           />
         )}
-        {tab === 'primary' && (
-          <PrimaryTab
-            factorDev={fdPrimaryData as unknown as FDPrimaryData}
-            factorDevStateWinners={fdPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
-            factorDevStageShares={fdPrimaryStageSharesData as unknown as Record<string, PrimaryStageShares>}
-            factorDevBuckets={fdPrimaryBucketsData}
-            factorDevSankey={fdPrimarySankeyData as unknown as PrimarySankeyData}
-            pureMulti={pureMultiPrimaryData as unknown as FDPrimaryData}
-            pureMultiStateWinners={pureMultiPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>}
-            pureMultiStageShares={pureMultiPrimaryStageSharesData as unknown as Record<string, PrimaryStageShares>}
-            pureMultiSankey={pureMultiPrimarySankeyData as unknown as PrimarySankeyData}
-            pureMultiBuckets={pureMultiPrimaryBucketsData}
-            clusters={clusterProfilesData as ClusterProfile[]}
-            clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
-          />
-        )}
-        {tab === 'presidential' && (
-          <PresidentialTab
-            factorDev={fdPresidentialElectionData as unknown as PresidentialElection}
-            rawMulti={rawMultiPresidentialElectionData as unknown as PresidentialElection}
-            clusters={clusterProfilesData as ClusterProfile[]}
-            fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
-            senateVotes={senateVoteModelData as VoteModelRow[]}
-            houseStateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
+        {tab === 'presidency' && (
+          <PresidencyTab
+            generalProps={{
+              factorDev: fdPresidentialElectionData as unknown as PresidentialElection,
+              rawMulti: rawMultiPresidentialElectionData as unknown as PresidentialElection,
+              clusters: clusterProfilesData as ClusterProfile[],
+              fdProfiles: fdProfilesData as unknown as Record<string, FDCandidateProfile>,
+              senateVotes: senateVoteModelData as VoteModelRow[],
+              houseStateMap: houseStateMapData as unknown as Record<string, HouseStateEntry>,
+            }}
+            primaryProps={{
+              factorDev: fdPrimaryData as unknown as FDPrimaryData,
+              factorDevStateWinners: fdPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>,
+              factorDevStageShares: fdPrimaryStageSharesData as unknown as Record<string, PrimaryStageShares>,
+              factorDevBuckets: fdPrimaryBucketsData,
+              factorDevSankey: fdPrimarySankeyData as unknown as PrimarySankeyData,
+              pureMulti: pureMultiPrimaryData as unknown as FDPrimaryData,
+              pureMultiStateWinners: pureMultiPrimaryStateWinnersData as unknown as Record<string, PrimaryStateWinner>,
+              pureMultiStageShares: pureMultiPrimaryStageSharesData as unknown as Record<string, PrimaryStageShares>,
+              pureMultiSankey: pureMultiPrimarySankeyData as unknown as PrimarySankeyData,
+              pureMultiBuckets: pureMultiPrimaryBucketsData,
+              clusters: clusterProfilesData as ClusterProfile[],
+              clusterSpreads: clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[],
+            }}
           />
         )}
         {tab === 'senate' && (

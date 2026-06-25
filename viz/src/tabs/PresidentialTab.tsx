@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useUrlState } from '../hooks/useUrlState';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
 import { Card } from '@/components/ui/card';
@@ -19,6 +19,8 @@ interface Props {
   fdProfiles: Record<string, FDCandidateProfile>;
   senateVotes: VoteModelRow[];
   houseStateMap: Record<string, HouseStateEntry>;
+  /** Optional control rendered first in the sticky control bar (e.g. the Presidency View toggle). */
+  controlBarExtra?: ReactNode;
 }
 
 const PRES_LABELS = PIPELINE_LABELS;
@@ -40,7 +42,7 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
   );
 }
 
-export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, houseStateMap }: Props) {
+export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, houseStateMap, controlBarExtra }: Props) {
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const data = scenario === 'rawMulti' ? rawMulti : factorDev;
 
@@ -89,6 +91,7 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, ho
       </div>
 
       <StickyControlBar>
+        {controlBarExtra}
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} />
       </StickyControlBar>

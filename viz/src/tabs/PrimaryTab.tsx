@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useUrlState, useUrlNumber } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,8 @@ interface Props {
   pureMultiBuckets: BucketData;
   clusters: ClusterProfile[];
   clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
+  /** Optional control rendered first in the sticky control bar (e.g. the Presidency View toggle). */
+  controlBarExtra?: ReactNode;
 }
 
 type Pipeline = 'factorDev' | 'rawMulti';
@@ -35,7 +37,7 @@ type Pipeline = 'factorDev' | 'rawMulti';
 export function PrimaryTab({
   factorDev, factorDevStageShares, factorDevBuckets,
   pureMulti, pureMultiStageShares, pureMultiBuckets,
-  clusters, clusterSpreads,
+  clusters, clusterSpreads, controlBarExtra,
 }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -88,6 +90,7 @@ export function PrimaryTab({
 
       {/* Sticky controls */}
       <StickyControlBar>
+        {controlBarExtra}
         <ToggleGroup label="Scenario"
           value={pipeline}
           onChange={(p) => { setPipeline(p); setStageIdx(0); }}

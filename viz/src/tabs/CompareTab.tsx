@@ -643,11 +643,11 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
             return (
               <span
                 key={code}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold chip-text"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold chip-text-soft"
                 style={{ backgroundColor: color, color: getContrastText(color) }}
               >
                 {code}
-                <span className="font-normal opacity-75 text-xs hidden sm:inline">— {label}</span>
+                <span className="font-normal text-xs hidden sm:inline">— {label}</span>
                 <button
                   onClick={() => removeParty(code)}
                   className="ml-0.5 opacity-70 hover:opacity-100 leading-none"

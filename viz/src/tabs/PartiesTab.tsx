@@ -53,8 +53,8 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
 
       <StickyControlBar>
         <ToggleGroup label="View" value={section} onChange={setSection}
-          options={['profiles', 'compare'] as const}
-          labels={{ profiles: 'Party Profiles', compare: 'Compare Policies' }} />
+          options={['compare', 'profiles'] as const}
+          labels={{ compare: 'Compare Policies', profiles: 'Party Profiles' }} />
       </StickyControlBar>
 
       {section === 'profiles' && (

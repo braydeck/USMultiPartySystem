@@ -31,6 +31,21 @@ interface Props {
   fptpStates: FPTPState[];
   stateMap: Record<string, HouseStateEntry>;
   clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
+  onNavigate: (tab: string) => void;
+}
+
+// Prominent call-to-action card linking to a full scenario tab.
+function DiveCard({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex w-full items-center justify-between rounded-lg border-2 border-indigo-200 bg-indigo-50/60 px-4 py-3 text-left transition-colors hover:border-indigo-300 hover:bg-indigo-100"
+    >
+      <span className="text-sm font-semibold text-indigo-900">{label}</span>
+      <span className="text-lg text-indigo-500 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+    </button>
+  );
 }
 
 // ── Reusable sub-components ────────────────────────────────────────────────
@@ -118,6 +133,7 @@ export function OverviewTab({
   rawMultiSenateCond, rawMultiSenateIRV,
   houseSeats, senateVotes, houseVotes,
   clusters, fptpStates, stateMap, clusterSpreads,
+  onNavigate,
 }: Props) {
   const condWinner = rawMultiElection.condorcetWinner; // e.g. "CUP_1"
   const irvWinner  = rawMultiElection.irvWinner;       // e.g. "SD_1"
@@ -159,6 +175,9 @@ export function OverviewTab({
       <Card className="p-5 border-2 border-indigo-200">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">House of Representatives</h3>
         <FPTPvsSTV seats={houseSeats} />
+        <div className="mt-4">
+          <DiveCard label="Dive into the House →" onClick={() => onNavigate('house')} />
+        </div>
       </Card>
 
       {/* Section 2 — Senate */}
@@ -167,6 +186,9 @@ export function OverviewTab({
         <FptpSenateBar />
         <SenateBar seats={rawMultiSenateCond} label="Condorcet" />
         <SenateBar seats={rawMultiSenateIRV} label="IRV" />
+        <div className="pt-1">
+          <DiveCard label="Dive into the Senate →" onClick={() => onNavigate('senate')} />
+        </div>
       </Card>
 
       {/* Section 3 — State disproportionality callouts */}
@@ -246,6 +268,8 @@ export function OverviewTab({
             </div>
           </Card>
         )}
+
+        <DiveCard label="Dive into the Presidency →" onClick={() => onNavigate('presidency')} />
       </div>
 
       {/* Section 5 — Ideological Constellation */}
