@@ -106,6 +106,8 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
         <QuizQuestion
           question={q.question}
           domain={q.domain}
+          section={q.section}
+          instruction={q.instruction}
           selected={answers[current] ?? null}
           onSelect={handleSelect}
           options={q.options}

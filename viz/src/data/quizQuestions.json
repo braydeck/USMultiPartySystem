@@ -3,8 +3,10 @@
     "variable": "CC24_321d",
     "factor": "F1",
     "loading": 0.734,
-    "question": "Increase the number of police by 10%",
+    "question": "Increase the number of police on the street by 10 percent, even if it means fewer funds for other public services",
     "domain": "Police & Guns",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
     "clusterSupport": {
       "0": 0.997,
       "1": 0.314,
@@ -15,50 +17,34 @@
       "6": 0.651,
       "8": 0.003,
       "9": 0.004
-    }
-  },
-  {
-    "variable": "CC24_323b",
-    "factor": "F1",
-    "loading": 0.705,
-    "question": "Increase border patrols on the US-Mexico border",
-    "domain": "Immigration",
-    "clusterSupport": {
-      "0": 0.995,
-      "1": 0.722,
-      "2": 0.648,
-      "3": 1.0,
-      "4": 0.753,
-      "5": 0.891,
-      "6": 0.932,
-      "8": 0.183,
-      "9": 0.406
-    }
-  },
-  {
-    "variable": "CC24_340f",
-    "factor": "F1",
-    "loading": 0.664,
-    "question": "Deny asylum to people crossing the border illegally",
-    "domain": "Immigration",
-    "clusterSupport": {
-      "0": 0.998,
-      "1": 0.395,
-      "2": 0.396,
-      "3": 1.0,
-      "4": 0.294,
-      "5": 0.871,
-      "6": 0.821,
-      "8": 0.0,
-      "9": 0.001
-    }
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
   },
   {
     "variable": "CC24_321e",
     "factor": "F1",
     "loading": 0.653,
-    "question": "Cut the number of police by 10% and shift the funding elsewhere",
+    "question": "Decrease the number of police on the street by 10 percent, and increase funding for other public services",
     "domain": "Police & Guns",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
     "clusterSupport": {
       "0": 0.019,
       "1": 0.395,
@@ -69,14 +55,224 @@
       "6": 0.166,
       "8": 0.872,
       "9": 0.756
-    }
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_321b",
+    "factor": "F5",
+    "loading": 0.557,
+    "question": "Make it easier for people to obtain concealed-carry permit",
+    "domain": "Police & Guns",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
+    "clusterSupport": {
+      "0": 0.549,
+      "1": 0.202,
+      "2": 0.366,
+      "3": 0.918,
+      "4": 0.073,
+      "5": 0.679,
+      "6": 0.442,
+      "8": 0.019,
+      "9": 0.011
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_323b",
+    "factor": "F1",
+    "loading": 0.705,
+    "question": "Increase the number of border patrols on the US-Mexican border",
+    "domain": "Immigration",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
+    "clusterSupport": {
+      "0": 0.995,
+      "1": 0.722,
+      "2": 0.648,
+      "3": 1.0,
+      "4": 0.753,
+      "5": 0.891,
+      "6": 0.932,
+      "8": 0.183,
+      "9": 0.406
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_340f",
+    "factor": "F1",
+    "loading": 0.664,
+    "question": "Deny access to asylum for immigrants who cross the US-Mexico border illegally",
+    "domain": "Immigration",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
+    "clusterSupport": {
+      "0": 0.998,
+      "1": 0.395,
+      "2": 0.396,
+      "3": 1.0,
+      "4": 0.294,
+      "5": 0.871,
+      "6": 0.821,
+      "8": 0.0,
+      "9": 0.001
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_323a",
+    "factor": "F5",
+    "loading": 0.52,
+    "question": "Grant legal status to all illegal immigrants who have held jobs and paid taxes for at least 3 years, and not been convicted of any felony crimes",
+    "domain": "Immigration",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
+    "clusterSupport": {
+      "0": 0.302,
+      "1": 0.827,
+      "2": 0.751,
+      "3": 0.002,
+      "4": 0.983,
+      "5": 0.123,
+      "6": 0.6,
+      "8": 0.994,
+      "9": 1.0
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_323d",
+    "factor": "F5",
+    "loading": 0.54,
+    "question": "Provide permanent resident status to children of immigrants who were brought to the United States by their parents (also known as Dreamers). Provide these immigrants a pathway to citizenship if they meet the citizenship requirements and have committed no crimes",
+    "domain": "Immigration",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
+    "clusterSupport": {
+      "0": 0.53,
+      "1": 0.984,
+      "2": 0.867,
+      "3": 0.003,
+      "4": 1.0,
+      "5": 0.277,
+      "6": 0.723,
+      "8": 1.0,
+      "9": 1.0
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
   },
   {
     "variable": "CC24_340e",
     "factor": "F1",
     "loading": 0.493,
-    "question": "Renew the post-9/11 government surveillance programs",
+    "question": "Renew the federal surveillance programs that were adopted after 9/11 and that allow the government to search private electronic data without a search warrant",
     "domain": "Civil Liberties",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
     "clusterSupport": {
       "0": 0.451,
       "1": 0.364,
@@ -87,14 +283,34 @@
       "6": 0.457,
       "8": 0.183,
       "9": 0.038
-    }
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
   },
   {
     "variable": "CC24_341a",
     "factor": "F1",
     "loading": 0.26,
-    "question": "Extend the 2017 tax cuts",
+    "question": "Extend the tax cuts enacted in 2017, which reduced individual and corporate income tax rates and limited deductions on mortgage interest and state and local taxes",
     "domain": "Taxes & Economy",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
     "clusterSupport": {
       "0": 0.851,
       "1": 0.489,
@@ -105,32 +321,186 @@
       "6": 0.764,
       "8": 0.288,
       "9": 0.117
-    }
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
   },
   {
-    "variable": "CC24_421_2_agree",
-    "factor": "F2",
-    "loading": 0.901,
-    "question": "Your 2024 state and local elections were run fairly",
-    "domain": "Elections & Trust",
+    "variable": "CC24_341c",
+    "factor": "F5",
+    "loading": 0.534,
+    "question": "Allow tax rates on those earning $400,000 or more a year to rise to 35 percent",
+    "domain": "Taxes & Economy",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
     "clusterSupport": {
-      "0": 0.811,
-      "1": 0.804,
-      "2": 0.39,
-      "3": 0.627,
-      "4": 1.0,
-      "5": 0.42,
-      "6": 1.0,
-      "8": 0.578,
+      "0": 0.525,
+      "1": 0.864,
+      "2": 0.587,
+      "3": 0.076,
+      "4": 0.98,
+      "5": 0.38,
+      "6": 0.621,
+      "8": 0.996,
       "9": 1.0
-    }
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_341d",
+    "factor": "F5",
+    "loading": 0.365,
+    "question": "Spend $150 billion a year for 8 years on construction and repair of roads and bridges, rail, public transit, airports, water systems, broadband internet, and electric grid",
+    "domain": "Taxes & Economy",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
+    "clusterSupport": {
+      "0": 0.784,
+      "1": 0.907,
+      "2": 0.709,
+      "3": 0.549,
+      "4": 0.974,
+      "5": 0.613,
+      "6": 0.797,
+      "8": 0.955,
+      "9": 0.995
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_340c",
+    "factor": "F4",
+    "loading": 0.651,
+    "question": "Require that all federal agencies recognize same-sex marriages and interracial marriages",
+    "domain": "Civil Liberties",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
+    "clusterSupport": {
+      "0": 0.478,
+      "1": 0.959,
+      "2": 0.543,
+      "3": 0.265,
+      "4": 0.973,
+      "5": 0.434,
+      "6": 0.558,
+      "8": 0.985,
+      "9": 0.999
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_340b",
+    "factor": "F4",
+    "loading": 0.489,
+    "question": "Prohibit government restrictions on the provision of, and access to, abortion services",
+    "domain": "Abortion",
+    "section": "Policy Proposals",
+    "instruction": "Do you support or oppose each proposal \u2014 and how strongly?",
+    "clusterSupport": {
+      "0": 0.487,
+      "1": 0.827,
+      "2": 0.532,
+      "3": 0.315,
+      "4": 0.888,
+      "5": 0.435,
+      "6": 0.539,
+      "8": 0.941,
+      "9": 0.957
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly support"
+      },
+      {
+        "value": 0.75,
+        "label": "Support"
+      },
+      {
+        "value": 0.25,
+        "label": "Oppose"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly oppose"
+      }
+    ]
   },
   {
     "variable": "CC24_421_1_agree",
     "factor": "F2",
     "loading": 0.726,
-    "question": "U.S. elections are run fairly",
+    "question": "Elections in the U.S. are fair",
     "domain": "Elections & Trust",
+    "section": "Statements",
+    "instruction": "Rate your level of agreement.",
     "clusterSupport": {
       "0": 0.64,
       "1": 0.618,
@@ -141,32 +511,164 @@
       "6": 0.938,
       "8": 0.328,
       "9": 0.908
-    }
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly agree"
+      },
+      {
+        "value": 0.75,
+        "label": "Somewhat agree"
+      },
+      {
+        "value": 0.5,
+        "label": "Neither agree nor disagree"
+      },
+      {
+        "value": 0.25,
+        "label": "Somewhat disagree"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly disagree"
+      }
+    ]
   },
   {
-    "variable": "CC24_424",
+    "variable": "CC24_421_2_agree",
     "factor": "F2",
-    "loading": 0.38,
-    "question": "I have little trust in my state government",
+    "loading": 0.901,
+    "question": "Your state or local government conducted a fair and accurate election in 2024",
     "domain": "Elections & Trust",
+    "section": "Statements",
+    "instruction": "Rate your level of agreement.",
     "clusterSupport": {
-      "0": 0.434,
-      "1": 0.42,
-      "2": 0.557,
-      "3": 0.585,
-      "4": 0.278,
-      "5": 0.653,
-      "6": 0.254,
-      "8": 0.639,
-      "9": 0.312
-    }
+      "0": 0.811,
+      "1": 0.804,
+      "2": 0.39,
+      "3": 0.627,
+      "4": 1.0,
+      "5": 0.42,
+      "6": 1.0,
+      "8": 0.578,
+      "9": 1.0
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly agree"
+      },
+      {
+        "value": 0.75,
+        "label": "Somewhat agree"
+      },
+      {
+        "value": 0.5,
+        "label": "Neither agree nor disagree"
+      },
+      {
+        "value": 0.25,
+        "label": "Somewhat disagree"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly disagree"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_440b_agree",
+    "factor": "F5",
+    "loading": 0.616,
+    "question": "Racial problems in the U.S. are rare, isolated situations",
+    "domain": "Racial & Gender",
+    "section": "Statements",
+    "instruction": "Rate your level of agreement.",
+    "clusterSupport": {
+      "0": 0.411,
+      "1": 0.088,
+      "2": 0.188,
+      "3": 0.746,
+      "4": 0.02,
+      "5": 0.453,
+      "6": 0.344,
+      "8": 0.0,
+      "9": 0.0
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly agree"
+      },
+      {
+        "value": 0.75,
+        "label": "Somewhat agree"
+      },
+      {
+        "value": 0.5,
+        "label": "Neither agree nor disagree"
+      },
+      {
+        "value": 0.25,
+        "label": "Somewhat disagree"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly disagree"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_440c_agree",
+    "factor": "F5",
+    "loading": 0.437,
+    "question": "Women seek to gain power by getting control over men",
+    "domain": "Racial & Gender",
+    "section": "Statements",
+    "instruction": "Rate your level of agreement.",
+    "clusterSupport": {
+      "0": 0.309,
+      "1": 0.111,
+      "2": 0.245,
+      "3": 0.489,
+      "4": 0.035,
+      "5": 0.411,
+      "6": 0.292,
+      "8": 0.004,
+      "9": 0.0
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "Strongly agree"
+      },
+      {
+        "value": 0.75,
+        "label": "Somewhat agree"
+      },
+      {
+        "value": 0.5,
+        "label": "Neither agree nor disagree"
+      },
+      {
+        "value": 0.25,
+        "label": "Somewhat disagree"
+      },
+      {
+        "value": 0.0,
+        "label": "Strongly disagree"
+      }
+    ]
   },
   {
     "variable": "CC24_423",
     "factor": "F2",
     "loading": 0.24,
-    "question": "I have little trust in the federal government",
+    "question": "How much trust do you have in the federal government in Washington when it comes to handling the nation's problems?",
     "domain": "Elections & Trust",
+    "section": "Trust in Government",
+    "instruction": "Rate your level of trust.",
     "clusterSupport": {
       "0": 0.668,
       "1": 0.559,
@@ -177,14 +679,72 @@
       "6": 0.348,
       "8": 0.808,
       "9": 0.598
-    }
+    },
+    "options": [
+      {
+        "value": 0.0,
+        "label": "A great deal"
+      },
+      {
+        "value": 0.33,
+        "label": "A fair amount"
+      },
+      {
+        "value": 0.67,
+        "label": "Not very much"
+      },
+      {
+        "value": 1.0,
+        "label": "None at all"
+      }
+    ]
+  },
+  {
+    "variable": "CC24_424",
+    "factor": "F2",
+    "loading": 0.38,
+    "question": "How much trust do you have in the government of the state where you live when it comes to handling the state's problems?",
+    "domain": "Elections & Trust",
+    "section": "Trust in Government",
+    "instruction": "Rate your level of trust.",
+    "clusterSupport": {
+      "0": 0.434,
+      "1": 0.42,
+      "2": 0.557,
+      "3": 0.585,
+      "4": 0.278,
+      "5": 0.653,
+      "6": 0.254,
+      "8": 0.639,
+      "9": 0.312
+    },
+    "options": [
+      {
+        "value": 0.0,
+        "label": "A great deal"
+      },
+      {
+        "value": 0.33,
+        "label": "A fair amount"
+      },
+      {
+        "value": 0.67,
+        "label": "Not very much"
+      },
+      {
+        "value": 1.0,
+        "label": "None at all"
+      }
+    ]
   },
   {
     "variable": "pew_churatd",
     "factor": "F4",
     "loading": 0.688,
-    "question": "I attend religious services regularly",
+    "question": "Aside from weddings and funerals, how often do you attend religious services?",
     "domain": "Religion",
+    "section": "Religion & Abortion",
+    "instruction": "Choose the answer that fits you best.",
     "clusterSupport": {
       "0": 0.31,
       "1": 0.118,
@@ -195,14 +755,42 @@
       "6": 0.351,
       "8": 0.065,
       "9": 0.075
-    }
+    },
+    "options": [
+      {
+        "value": 1.0,
+        "label": "More than once a week"
+      },
+      {
+        "value": 0.8,
+        "label": "Once a week"
+      },
+      {
+        "value": 0.5,
+        "label": "Once or twice a month"
+      },
+      {
+        "value": 0.25,
+        "label": "A few times a year"
+      },
+      {
+        "value": 0.1,
+        "label": "Seldom"
+      },
+      {
+        "value": 0.0,
+        "label": "Never"
+      }
+    ]
   },
   {
     "variable": "CC24_325_median",
     "factor": "F4",
     "loading": 0.688,
-    "question": "Abortion should be legal:",
+    "question": "Until what point in a pregnancy do you think a woman should be legally allowed to obtain an abortion? (A normal pregnancy runs up to about 40 weeks.)",
     "domain": "Abortion",
+    "section": "Religion & Abortion",
+    "instruction": "Choose the answer that fits you best.",
     "clusterSupport": {
       "0": 0.25,
       "1": 0.45,
@@ -236,167 +824,5 @@
         "label": "Never legal, or only for rape, incest, or the mother's life"
       }
     ]
-  },
-  {
-    "variable": "CC24_340c",
-    "factor": "F4",
-    "loading": 0.651,
-    "question": "Require states to recognize same-sex and interracial marriages",
-    "domain": "Civil Liberties",
-    "clusterSupport": {
-      "0": 0.478,
-      "1": 0.959,
-      "2": 0.543,
-      "3": 0.265,
-      "4": 0.973,
-      "5": 0.434,
-      "6": 0.558,
-      "8": 0.985,
-      "9": 0.999
-    }
-  },
-  {
-    "variable": "CC24_340b",
-    "factor": "F4",
-    "loading": 0.489,
-    "question": "Pass a federal law protecting access to abortion",
-    "domain": "Abortion",
-    "clusterSupport": {
-      "0": 0.487,
-      "1": 0.827,
-      "2": 0.532,
-      "3": 0.315,
-      "4": 0.888,
-      "5": 0.435,
-      "6": 0.539,
-      "8": 0.941,
-      "9": 0.957
-    }
-  },
-  {
-    "variable": "CC24_440b_agree",
-    "factor": "F5",
-    "loading": 0.616,
-    "question": "Racial problems in the U.S. are rare, isolated situations",
-    "domain": "Racial & Gender",
-    "clusterSupport": {
-      "0": 0.411,
-      "1": 0.088,
-      "2": 0.188,
-      "3": 0.746,
-      "4": 0.02,
-      "5": 0.453,
-      "6": 0.344,
-      "8": 0.0,
-      "9": 0.0
-    }
-  },
-  {
-    "variable": "CC24_321b",
-    "factor": "F5",
-    "loading": 0.557,
-    "question": "Make it easier to get a concealed-carry permit",
-    "domain": "Police & Guns",
-    "clusterSupport": {
-      "0": 0.549,
-      "1": 0.202,
-      "2": 0.366,
-      "3": 0.918,
-      "4": 0.073,
-      "5": 0.679,
-      "6": 0.442,
-      "8": 0.019,
-      "9": 0.011
-    }
-  },
-  {
-    "variable": "CC24_323d",
-    "factor": "F5",
-    "loading": 0.54,
-    "question": "A permanent pathway to citizenship for Dreamers",
-    "domain": "Immigration",
-    "clusterSupport": {
-      "0": 0.53,
-      "1": 0.984,
-      "2": 0.867,
-      "3": 0.003,
-      "4": 1.0,
-      "5": 0.277,
-      "6": 0.723,
-      "8": 1.0,
-      "9": 1.0
-    }
-  },
-  {
-    "variable": "CC24_341c",
-    "factor": "F5",
-    "loading": 0.534,
-    "question": "Let tax rates on income over $400k rise to 35%",
-    "domain": "Taxes & Economy",
-    "clusterSupport": {
-      "0": 0.525,
-      "1": 0.864,
-      "2": 0.587,
-      "3": 0.076,
-      "4": 0.98,
-      "5": 0.38,
-      "6": 0.621,
-      "8": 0.996,
-      "9": 1.0
-    }
-  },
-  {
-    "variable": "CC24_323a",
-    "factor": "F5",
-    "loading": 0.52,
-    "question": "Grant legal status to long-term undocumented immigrants",
-    "domain": "Immigration",
-    "clusterSupport": {
-      "0": 0.302,
-      "1": 0.827,
-      "2": 0.751,
-      "3": 0.002,
-      "4": 0.983,
-      "5": 0.123,
-      "6": 0.6,
-      "8": 0.994,
-      "9": 1.0
-    }
-  },
-  {
-    "variable": "CC24_440c_agree",
-    "factor": "F5",
-    "loading": 0.437,
-    "question": "Women seek to gain power by getting control over men",
-    "domain": "Racial & Gender",
-    "clusterSupport": {
-      "0": 0.309,
-      "1": 0.111,
-      "2": 0.245,
-      "3": 0.489,
-      "4": 0.035,
-      "5": 0.411,
-      "6": 0.292,
-      "8": 0.004,
-      "9": 0.0
-    }
-  },
-  {
-    "variable": "CC24_341d",
-    "factor": "F5",
-    "loading": 0.365,
-    "question": "Spend $150 billion a year on infrastructure",
-    "domain": "Taxes & Economy",
-    "clusterSupport": {
-      "0": 0.784,
-      "1": 0.907,
-      "2": 0.709,
-      "3": 0.549,
-      "4": 0.974,
-      "5": 0.613,
-      "6": 0.797,
-      "8": 0.955,
-      "9": 0.995
-    }
   }
 ]

@@ -140,8 +140,12 @@ export interface QuizQuestion {
   loading: number;
   question: string;
   domain: string;
+  /** Conceptual group (e.g. "Policy Proposals") used to batch items in the quiz. */
+  section?: string;
+  /** How-to-answer prompt shown for the section (e.g. "Rate your level of agreement."). */
+  instruction?: string;
   clusterSupport: Record<string, number>;
-  /** Optional custom answer scale (e.g. abortion-by-weeks). Defaults to the 5-point agree/disagree scale. */
+  /** Answer scale; each option's value is on the 0-1 clusterSupport axis. */
   options?: { value: number; label: string }[];
 }
 

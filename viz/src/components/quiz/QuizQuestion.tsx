@@ -5,6 +5,8 @@ interface Option { value: number; label: string }
 interface Props {
   question: string;
   domain: string;
+  section?: string;
+  instruction?: string;
   selected: number | null;
   onSelect: (v: number) => void;
   options?: Option[];
@@ -18,11 +20,14 @@ const DEFAULT_OPTIONS: Option[] = [
   { value: 0, label: 'Strongly Disagree' },
 ];
 
-export function QuizQuestion({ question, domain, selected, onSelect, options }: Props) {
+export function QuizQuestion({ question, domain, section, instruction, selected, onSelect, options }: Props) {
   const OPTIONS = options ?? DEFAULT_OPTIONS;
   return (
     <div aria-live="polite">
-      <div className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{domain}</div>
+      <div className="text-xs text-muted-foreground uppercase tracking-widest mb-1">
+        {section ?? domain}{section && domain ? ` · ${domain}` : ''}
+      </div>
+      {instruction && <div className="text-sm text-muted-foreground mb-3">{instruction}</div>}
       <h3 className="text-xl font-semibold text-foreground mb-6 leading-snug">{question}</h3>
       <div className="flex flex-col gap-2">
         {OPTIONS.map(opt => (
