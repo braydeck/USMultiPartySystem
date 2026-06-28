@@ -7,6 +7,8 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
 **Dropped item:** CC24_340a — near-Heywood condition (λ=−0.947); removed from ITEMS_25 to produce final ITEMS_24 set
 **Files:** `Claude/analysis/efa/efa_loadings_k5_final.csv`, `Claude/analysis/efa/efa_phi_k5_final.csv`
 
+**Why k=5 (not k=4):** A 4-factor solution yields three clean factors (enforcement; a merged election+government *trust* factor; merged religion+values) plus an **uninterpretable junk factor** — mixed loadings dominated by the homeless post-9/11 surveillance item, soaking up under-extraction leftover. k=5 spends that degree of freedom on a *meaningful* split instead (Electoral Skepticism vs Government Distrust). The trade-off: k=5's Government Distrust barely discriminates parties (η²=0.057) — but a weak-yet-clean dimension (benign ballast) is preferable to a junk dimension that injects incoherent variance into clustering. See **Robustness** below.
+
 ---
   ---
   Exact Population Shares
@@ -271,3 +273,58 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 4. **DSA and PRG are near-identical on F4 and F5** — Both score −0.387 on F4 and approximately −0.87/−0.99 on F5. Their main distinction is F1 (DSA: −1.303, PRG: −1.260) and F2 (DSA: +0.504, PRG: −0.634) — DSA distrusts elections; PRG trusts them.
 
 5. **CON and CUP diverge sharply on F2** — CON scores −0.024 (Medium) while CUP scores −0.817 (Very Low). Despite having similar seat counts and both being "right-of-center," they are on opposite sides of the electoral skepticism divide.
+
+---
+
+## Robustness: choice of k and residualization
+
+The production typology rests on three modeling choices that aren't forced by the data alone: **k=5 factors** (parallel analysis was borderline between 4 and 5), **F1-residualization** of the two culture factors (F4, F5) before clustering, and the **DPGMM** itself. Because Government Distrust (F3) has near-zero discriminating power (η²=0.057) and Electoral Skepticism already carries the trust signal, k=4 is a defensible alternative. To check whether the nine parties are real structure or artifacts of these choices, we re-ran the full pipeline (polychoric → PAF → oblimin → Thomson scores → DPGMM) under three variants — **k=5 no-resid, k=4 resid, k=4 no-resid** — and matched each variant's clusters back to the production parties in the common 24-item space.
+
+> Reproduction is approximate: listwise N=45,214 (vs production 45,707 — "Not sure" on the government-trust items mapped to the scale midpoint), oblimin rather than the stored solution, DPGMM stochasticity. Treat magnitudes as indicative; the qualitative survival pattern is stable. Scripts: `analysis/efa/{compare_k4_vs_k5_clustering, cluster_survival_k4_k5, build_cluster_explorer_data}.py`; interactive write-up: `analysis/efa/cluster_explorer.html`.
+
+### What survives
+
+| Party | k=5 no-resid | k=4 resid | k=4 no-resid |
+|---|---|---|---|
+| SD, STY, POP, CON, NAT | preserved | preserved | preserved |
+| CUP | preserved | **split → CON** | **split → CON** |
+| PRG | absorbed (→DSA) | preserved | preserved |
+| LIB | **split** | **split** | **split** |
+| DSA | **split** | **split** | **split** |
+
+All four variants still produce 10 well-populated DPGMM clusters — k=4 does **not** break the clustering. What changes is *which* groups form.
+
+### Findings
+
+1. **Robust core (real structure):** SD, STY, POP, CON, NAT survive in every variant, residualized or not, k=4 or k=5. Crucially this includes **STY**, the cross-cutting flagship (left-ish enforcement + high electoral skepticism + religious traditionalism) — it is not an artifact of the modeling choices.
+
+2. **The cross-cutting structure survives without residualization.** In every variant there are simultaneously left-skeptic, right-skeptic, and right-trusting clusters — electoral skepticism stays orthogonal to the enforcement (left–right) axis. Residualization *sharpens* separation (it moves ~40% of assignments, ARI≈0.60 vs baseline) but does not *create* the cross-cutting result.
+
+3. **The left bloc is weakly separated.** PRG, DSA, LIB, SD sit close together in policy space (pairwise cosine ≈ 0.72–0.77). LIB and DSA split in every variant; PRG wobbles. Only k=5 + residualization pulls the left quartet cleanly apart — they are the least robust groupings in the typology.
+
+4. **Civic Union (CUP) requires k=5.** At k=4, Electoral Skepticism and Government Distrust merge into one trust factor, and CUP — the institutionalist defined by trusting *both* elections and government — loses the dimension that distinguishes it and is absorbed into Conservative. CUP only stands alone when the two trust dimensions are kept separate. **This is the concrete payoff of k=5**, despite Government Distrust's low standalone η².
+
+5. **Net:** the production choice (k=5 + residualization) is the only configuration that resolves all nine parties. The dominant, cross-cutting structure is robust; the *full nine-way resolution* specifically depends on separating the trust dimensions (rescues CUP) and residualizing the culture factors (rescues the left quartet).
+
+### Cluster strength (assignment confidence)
+
+Strength = weighted mean of each cluster's max posterior probability (how cleanly members are assigned), from the production posteriors in `typology_cluster_assignments.csv`. The centroid-separation/silhouette proxy was tried and **discarded** — it contradicts this measure (it under-rates STY, which is centrally located but confidently assigned), because DPGMM uses full-covariance Gaussians, not round blobs.
+
+| weakest → strongest | conf |
+|---|--:|
+| CUP | 0.66 |
+| C7 (Blue Dog) | 0.70 |
+| CON / SD / LIB | 0.74 |
+| PRG | 0.76 |
+| POP / NAT | 0.80 |
+| STY / DSA | 0.81 |
+
+Residualized vs non-residualized clusterings have ~the same average confidence (≈0.77 either way) — residualization changes *which* clusters form, not their cohesion. Government Distrust is never residualized (only F4/F5 are), so its η² is essentially unchanged by the residualization choice (≈0.06 production; 0.28→0.26 in the reproduction): not residualizing does **not** rescue its discriminating power.
+
+### Decisions (and the reasoning)
+
+**Keep C7 (Blue Dogs) excluded → 9 parties.** C7's assignment confidence (0.70) is second-lowest but *not* the lowest — CUP (0.66) is lower and is kept. The deciding factor is interpretability, not confidence: CUP is low-confidence but has a clear identity (the institutionalist), whereas C7 is the *ambiguous middle* spanning the CON/CUP boundary with no distinct platform. A 10th "leftover" party weakens the typology more than it adds. **Caveat to carry:** dropping C7 sends a real cross-pressured constituency — the "law-and-order Democrat" (high enforcement, progressive on race, pro-institution, Democratic-leaning) — into Conservative, where it's mislabeled. This is a known representation gap, surfaced by the no-residualization run (where those voters re-coalesce as a distinct blend).
+
+**Keep residualization on.** By cluster confidence the two paradigms are a near-tie (≈0.77), so residualization isn't a quality trade — it's a structure choice, and the residualized version resolves the full nine (especially the weakly-separated left quartet LIB/DSA/PRG, which collapses without it). What non-residualization "adds" is mostly the left bloc merging into coarser groups, plus the one law-and-order-Democrat blend — which is ~40% the already-dropped Blue Dogs. Trading clean left-party separation to re-surface the ambiguous group we rejected is a bad trade. Residualization also has a principled basis: removing the dominant enforcement axis's pull on the culture factors lets them vary independently of left–right, which is what lets the *other* cross-cutting structure (STY) show up cleanly rather than smeared along the main axis.
+
+> Interactive write-up of this comparison: `analysis/efa/cluster_explorer.html` (built by `build_cluster_explorer_{data,html}.py`); strength re-fit in `cluster_confidence_k5.py`; survival/correspondence in `cluster_survival_k4_k5.py` and `compare_k4_vs_k5_clustering.py`.

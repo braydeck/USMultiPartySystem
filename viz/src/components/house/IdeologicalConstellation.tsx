@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 import type { ConstellationNode, TransferMatrix } from '../../types';
 import { getBlendColor, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
+import { ToggleGroup } from '../shared/ToggleGroup';
+import { vikForZ, vikForPctile } from '../../lib/vik';
 
 interface ClusterSpread {
   party: string;
@@ -18,6 +20,11 @@ interface Props {
 const THRESHOLD = 1.5;
 const FACTORS = ['F1', 'F2', 'F3', 'F4', 'F5'] as const;
 const ALL_AXES = [...FACTORS, 'seats'] as const;
+
+const SCALE_LABELS: Record<'strength' | 'percentile', string> = {
+  strength: 'σ Strength',
+  percentile: '% Percentile',
+};
 
 function ControlSection({
   label, options, value, onChange,
@@ -55,8 +62,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
   const [xFactor, setXFactor] = useState('F5');
   const [yFactor, setYFactor] = useState('F1');
-  const [sizeFactor, setSizeFactor] = useState('F2');
-  const [colorMode, setColorMode] = useState('F4');
+  const [sizeFactor, setSizeFactor] = useState('F4');
+  const [colorMode, setColorMode] = useState('F2');
   const [equalSize, setEqualSize] = useState(false);
   const [scaleMode, setScaleMode] = useState<'strength' | 'percentile'>('strength');
   const [enabledParties, setEnabledParties] = useState<Set<string>>(() => new Set(F5_ORDER));
@@ -153,16 +160,18 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .attr('width', W - PAD_L - PAD_R).attr('height', H - PAD_T - PAD_B)
       .attr('fill', '#f8fafc').attr('rx', 4);
 
-    // Color scale — per-factor data range so each factor uses the full cividis spectrum
-    const cVals = nodes.map(n => getVal(n, colorMode === 'party' ? 'F5' : colorMode));
-    const cMin = d3.min(cVals) ?? -1;
-    const cMax = d3.max(cVals) ?? 1;
-    const cScale = d3.scaleSequential(d3.interpolateCividis)
-      .domain([cMin, cMax === cMin ? cMin + 1 : cMax]);
-
+    // Color scale — vik diverging, centered on zero (strength) / 50% (percentile),
+    // so hue reads as signed strength rather than rank within the current selection.
     const getColor = (n: ConstellationNode) => {
       if (colorMode === 'party') return getBlendColor(n.id);
-      return cScale(getVal(n, colorMode));
+      const v = getVal(n, colorMode);
+      return scaleMode === 'percentile' ? vikForPctile(v) : vikForZ(v);
+    };
+
+    // Darker outline so light/middling fills don't wash out against the canvas.
+    const getStroke = (n: ConstellationNode) => {
+      const c = d3.color(getColor(n));
+      return c ? c.darker(1.4).formatHex() : getColor(n);
     };
 
     // Text color: always dark with white outline for readability
@@ -390,7 +399,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .attr('r', d => rScale(getVal(d, sizeFactor)))
       .attr('fill', d => getColor(d))
       .attr('fill-opacity', 0.55)
-      .attr('stroke', d => getColor(d))
+      .attr('stroke', d => getStroke(d))
       .attr('stroke-width', 1.5)
       .style('cursor', 'pointer')
       .on('mouseenter', function (_e, d) {
@@ -490,7 +499,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             ))}
           </div>
           {colorMode !== 'party' && (
-            <span className="text-xs text-muted-foreground mt-1 block">cividis scale</span>
+            <span className="text-xs text-muted-foreground mt-1 block">vik scale</span>
           )}
         </div>
       </div>
@@ -499,12 +508,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       <div className="flex-1 min-w-0">
         {/* Scale + Party toggles */}
         <div className="flex flex-wrap items-center gap-1 mb-2">
-          <Button onClick={() => setScaleMode(scaleMode === 'strength' ? 'percentile' : 'strength')}
-            variant={scaleMode === 'percentile' ? 'default' : 'secondary'}
-            size="sm"
-            className="mr-1 h-6 text-[10px]">
-            {scaleMode === 'strength' ? 'σ Strength' : '% Percentile'}
-          </Button>
+          <ToggleGroup label="Scale" value={scaleMode} onChange={setScaleMode}
+            options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
         </div>
         <div className="flex flex-wrap gap-1 mb-2">
           {F5_ORDER.map(p => {

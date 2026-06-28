@@ -1,6 +1,6 @@
 import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
-import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, PARTY_TAGLINES } from '../constants/parties';
+import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, PARTY_TAGLINES, etaPurple } from '../constants/parties';
 import factorLoadingsData from '../data/factorLoadings.json';
 
 interface FactorDef {
@@ -53,7 +53,7 @@ const SCENARIOS = [
     color: '#ea580c',
     desc: '9 base candidates + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like SD_hi_so (a Social Democrat who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
     insight: 'Models intra-party ideological diversity. Voters can express a preference not just for a party, but for a faction within it.',
-    candidates: 'SD · SD_hi_so · SD_lo_so · SD_hi_ae · ...',
+    candidates: 'SD · SD_hi_so · SD_lo_so · SD_hi_es · ...',
   },
 ];
 
@@ -134,16 +134,16 @@ export function AboutTab() {
               What if Americans voted in a 9-party proportional system in 2028, using their actual political beliefs?
             </p>
             <p className="text-slate-300 text-sm leading-relaxed">
-              The US runs winner-take-all elections that compress a complex, multi-dimensional electorate into two parties. This simulation asks the obvious next question: if the rules changed, which parties would emerge from the real distribution of American opinion, and who would govern? It's the empirical core of a larger argument, that our two-party split is an artifact of the voting rules, not the country itself.
+              The US runs winner-take-all elections that compress a complex, multi-dimensional electorate into two parties. This simulation shows what parties could emerge from a proportional distribution of American opinion. This is the empirical core of a larger argument, that our two-party split is an artifact of the voting rules, not the country itself. Emerging parties are ideologically cross-cutting and often surprising.
             </p>
           </Card>
 
           {/* Three pillars */}
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { accent: '#1d4ed8', icon: '◎', title: 'Real Survey Data', body: 'Drawn from the 2024 Cooperative Election Study: 60,000 respondents, ~100 policy questions. Real voters, real preferences.' },
-              { accent: '#16a34a', icon: '◈', title: 'Empirical Party System', body: 'Parties aren\'t invented. They emerge from factor analysis and clustering of the survey data, each one a statistically distinct voter type.' },
-              { accent: '#ea580c', icon: '◆', title: 'Modern Voting Theory', body: 'Elections run via STV, IRV, and Condorcet: systems designed to produce the greatest good for the greatest number. STV already runs in Ireland, Australia, Cambridge, and Portland.' },
+              { accent: '#1d4ed8', icon: '◎', title: '2024 Pre-Election Survey Data', body: 'Drawn from the 2024 Cooperative Election Study: 60,000 respondents, ~100 policy questions. Real voters, real preferences.' },
+              { accent: '#16a34a', icon: '◈', title: '"Party" System derived from clusters', body: 'Parties aren\'t invented. They emerge from factor analysis and clustering of the survey data, each one a statistically distinct voter type.' },
+              { accent: '#ea580c', icon: '◆', title: 'Proportional and Preferential Voting', body: 'Elections run via STV, IRV, and Condorcet: systems designed to produce the greatest good for the greatest number. STV already runs in Ireland, Australia, Cambridge, and Portland.' },
             ].map(p => (
               <Card key={p.title} className="p-5">
                 <div className="text-2xl mb-2" style={{ color: p.accent }}>{p.icon}</div>
@@ -176,16 +176,23 @@ export function AboutTab() {
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">What each tab shows</div>
             <div className="space-y-2.5">
               {[
-                { tab: 'Presidential Primary', desc: 'A 4-round STV primary across regional pods. Watch candidates from 9+ parties consolidate into a final field.' },
-                { tab: 'Presidential General', desc: 'Head-to-head general election between the primary finalists. IRV and Condorcet often pick different winners, and that gap is the story.' },
-                { tab: 'Senate',   desc: 'Per-state elections for 51 seats (one per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.' },
-                { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type. Includes a representation gap analysis.' },
-                { tab: 'Legislation', desc: 'Given the simulated chambers, which bills pass? Uses a Normal approximation of chamber vote counts to produce passage probabilities.' },
-                { tab: 'Compare', desc: 'Policy-by-policy comparison across up to 4 parties or crossover candidates.' },
-              ].map(r => (
-                <div key={r.tab} className="flex gap-3 text-sm">
-                  <span className="font-semibold text-foreground w-44 shrink-0">{r.tab}</span>
-                  <span className="text-muted-foreground leading-snug">{r.desc}</span>
+                { tab: 'Party Quiz', desc: 'Answer the actual CES survey questions and see which of the nine parties your factor scores land closest to.', group: '' },
+                { tab: 'Overview', desc: 'A proportional government at a glance: how each chamber\'s composition shifts moving from winner-take-all to STV.', group: '' },
+                { tab: 'Parties', desc: 'The nine parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties or crossover candidates.', group: '' },
+                { tab: 'Presidency', desc: 'A 4-round STV primary that consolidates a 9+ party field into finalists, then a head-to-head general where IRV and Condorcet often pick different winners.', group: 'Scenarios' },
+                { tab: 'Senate',   desc: 'Per-state elections for 51 seats (one per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.', group: 'Scenarios' },
+                { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type, with a representation-gap analysis.', group: 'Scenarios' },
+                { tab: 'Legislation', desc: 'Given the simulated chambers, which bills pass? A Normal approximation of chamber vote counts produces passage probabilities.', group: 'Scenarios' },
+                { tab: 'IRV Case Studies', desc: 'Alaska and Maine—the only states using ranked-choice voting for federal elections—comparing IRV with the Condorcet winner and a multi-seat STV what-if.', group: 'Scenarios' },
+              ].map((r, i, arr) => (
+                <div key={r.tab}>
+                  {r.group && arr[i - 1]?.group !== r.group && (
+                    <div className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest mt-3 mb-1.5">Under the {r.group} menu</div>
+                  )}
+                  <div className="flex gap-3 text-sm">
+                    <span className="font-semibold text-foreground w-44 shrink-0">{r.tab}</span>
+                    <span className="text-muted-foreground leading-snug">{r.desc}</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -244,7 +251,7 @@ export function AboutTab() {
                         <div className="text-[11px] text-muted-foreground font-mono shrink-0">η² = {f.eta.toFixed(2)}</div>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-2" title={`η² = ${f.eta.toFixed(3)} (B/W ${f.bw})`}>
-                        <div className="h-full rounded-full" style={{ width: `${etaPct}%`, backgroundColor: f.color }} />
+                        <div className="h-full rounded-full" style={{ width: `${etaPct}%`, backgroundColor: etaPurple(f.eta) }} />
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">{f.strength}</p>
                       <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground mb-2">
@@ -492,6 +499,10 @@ export function AboutTab() {
                   body: 'The 40/35/25 within-party split is a modeling assumption, not empirical data. It prevents the top candidate from sweeping all same-party ballots, but the specific values are illustrative.',
                 },
                 {
+                  label: 'Senate is 51 seats, not 102',
+                  body: 'The Senate normally has 100 seats with staggered six-year terms, so any single election fills only about a third of them. This simulation instead elects one senator per state plus DC (51 seats) in a single snapshot, because it is modeling what kind of senator each state\'s 2024 electorate would choose—not reconstructing the real class-by-class election calendar.',
+                },
+                {
                   label: 'House districts are idealized',
                   body: 'Districts are assigned urban/suburban/rural tiers based on census geography. Actual multi-member STV districts would be drawn differently, and gerrymandering is not modeled.',
                 },
@@ -555,18 +566,6 @@ export function AboutTab() {
         </div>
       )}
 
-      <div className="border-t border-border pt-5 mt-2 text-center text-xs text-muted-foreground">
-        Built by <span className="font-medium text-foreground">Brayden Decker</span>
-        <span className="mx-2 text-slate-300">·</span>
-        <a
-          href="https://brayden-decker-contact.pages.dev/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-indigo-600 hover:underline"
-        >
-          Contact me ↗
-        </a>
-      </div>
     </div>
   );
 }

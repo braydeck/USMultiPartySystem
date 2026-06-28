@@ -10,20 +10,20 @@ interface Props {
 const VARIANT_ORDER = [
   'base',
   'hi_so', 'lo_so',
-  'hi_ae', 'lo_ae',
+  'hi_es', 'lo_es',
   'hi_pc', 'lo_pc',
 ] as const;
 type VariantKey = typeof VARIANT_ORDER[number];
 
 const AXIS_PATTERN_ID: Record<string, string> = {
   so: 'pvb_stripe_so',
-  ae: 'pvb_stripe_ae',
+  es: 'pvb_stripe_es',
   pc: 'pvb_stripe_pc',
 };
 
 const AXIS_FULL: Record<string, string> = {
   so: 'Security & Order',
-  ae: 'Anti-Establishment',
+  es: 'Electoral Skepticism',
   pc: 'Populist Conservatism',
 };
 
@@ -118,8 +118,8 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
             <pattern id="pvb_stripe_so" patternUnits="userSpaceOnUse" width="8" height="8">
               <line x1="0" y1="8" x2="8" y2="0" stroke="rgba(255,255,255,0.40)" strokeWidth="2.2" />
             </pattern>
-            {/* Horizontal stripes — AE axis */}
-            <pattern id="pvb_stripe_ae" patternUnits="userSpaceOnUse" width="8" height="8">
+            {/* Horizontal stripes — ES axis */}
+            <pattern id="pvb_stripe_es" patternUnits="userSpaceOnUse" width="8" height="8">
               <line x1="0" y1="4" x2="8" y2="4" stroke="rgba(255,255,255,0.40)" strokeWidth="2.2" />
             </pattern>
             {/* Vertical stripes — PC axis */}

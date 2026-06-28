@@ -22,7 +22,7 @@ interface Props {
 }
 
 const AXIS_LABEL: Record<string, string> = {
-  so: 'Security', ae: 'Anti-Estab', pc: 'Conservatism', rt: 'Religion',
+  so: 'Security', es: 'Elec. Skepticism', pc: 'Conservatism', rt: 'Religion',
 };
 
 function variantLabel(v: VariantData): string {

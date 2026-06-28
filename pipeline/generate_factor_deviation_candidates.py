@@ -13,7 +13,7 @@ making the ±0.048 deviation negligible.
 
 Active axes and qualifying parties (within/inter SD ratio >= 0.70):
   so  — Security & Order (F1)      → SD (0.72), STY (0.75)
-  ae  — Anti-Establishment (F2)    → DSA (1.16), SD (0.88), STY (1.47),
+  es  — Electoral Skepticism (F2)  → DSA (1.16), SD (0.88), STY (1.47),
                                       CON (0.91), POP (1.39), NAT (1.39)
   pc  — Populist Conservatism (F5) → LIB (0.72), SD (0.86), STY (1.21),
                                       CUP (0.99), CON (0.86), POP (1.09)
@@ -23,13 +23,13 @@ Deviation = 25% of the inter-party SD on each factor.
 Candidate count:
   PRG  — base only                   =  1
   LIB  — base + PC×2                 =  3
-  DSA  — base + AE×2                 =  3
-  SD   — base + SO×2 + AE×2 + PC×2  =  7
-  STY  — base + SO×2 + AE×2 + PC×2  =  7
+  DSA  — base + ES×2                 =  3
+  SD   — base + SO×2 + ES×2 + PC×2  =  7
+  STY  — base + SO×2 + ES×2 + PC×2  =  7
   CUP  — base + PC×2                 =  3
-  CON  — base + AE×2 + PC×2         =  5
-  POP  — base + AE×2 + PC×2         =  5
-  NAT  — base + AE×2                 =  3
+  CON  — base + ES×2 + PC×2         =  5
+  POP  — base + ES×2 + PC×2         =  5
+  NAT  — base + ES×2                 =  3
   Total                               = 37
 
 Outputs:
@@ -69,15 +69,15 @@ PARTIES = list(PURE_CODES.keys())
 
 # Parties that qualify for each axis (within-party SD / inter-party SD >= 0.70)
 SO_PARTIES = {"SD", "STY"}
-AE_PARTIES = {"DSA", "SD", "STY", "CON", "POP", "NAT"}
+ES_PARTIES = {"DSA", "SD", "STY", "CON", "POP", "NAT"}
 PC_PARTIES = {"LIB", "SD", "STY", "CUP", "CON", "POP"}
 
-AXIS_PARTIES = {"so": SO_PARTIES, "ae": AE_PARTIES, "pc": PC_PARTIES}
+AXIS_PARTIES = {"so": SO_PARTIES, "es": ES_PARTIES, "pc": PC_PARTIES}
 
 # Factor axis → column name (F3 and F4 excluded — inter-party SD too small)
-AXIS_FACTOR_IDX = {"so": 0, "ae": 1, "pc": 4}
+AXIS_FACTOR_IDX = {"so": 0, "es": 1, "pc": 4}
 AXIS_FACTOR_COL = {"so": "F1_security_order",
-                   "ae": "F2_electoral_skepticism",
+                   "es": "F2_electoral_skepticism",
                    "pc": "F5_populist_conservatism"}
 
 DEVIATION_PCT = 0.25   # fraction of inter-party SD

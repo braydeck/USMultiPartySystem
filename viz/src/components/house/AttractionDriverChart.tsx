@@ -26,7 +26,7 @@ const FACTOR_COLOR: Record<string, string> = {
 };
 
 const AXIS_LABEL: Record<string, string> = {
-  so: 'Security', ae: 'Anti-Estab', pc: 'Conservatism', rt: 'Religion',
+  so: 'Security', es: 'Elec. Skepticism', pc: 'Conservatism', rt: 'Religion',
 };
 
 export function AttractionDriverChart({ data }: Props) {

@@ -8,7 +8,7 @@ interface Props {
 const AXIS_COLORS: Record<string, string> = {
   base: '#64748b',
   so:   '#3b82f6',
-  ae:   '#8b5cf6',
+  es:   '#8b5cf6',
   pc:   '#f59e0b',
   rt:   '#ef4444',
 };
@@ -16,7 +16,7 @@ const AXIS_COLORS: Record<string, string> = {
 const AXIS_LABELS: Record<string, string> = {
   base: 'Base',
   so:   'Security (SO)',
-  ae:   'Anti-Estab (AE)',
+  es:   'Elec. Skepticism (ES)',
   pc:   'Ideology (PC)',
   rt:   'Religion (RT)',
 };
@@ -33,7 +33,7 @@ export function VariantImpactChart({ seats }: Props) {
   }
 
   const maxSeats = Math.max(...Object.values(partyTotal), 1);
-  const axes = ['base', 'so', 'ae', 'pc', 'rt'];
+  const axes = ['base', 'so', 'es', 'pc', 'rt'];
 
   return (
     <div className="space-y-1">

@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
-import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText } from '../constants/parties';
+import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText, etaPurple } from '../constants/parties';
+import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -34,6 +35,16 @@ const DOMAINS = [
 
 const FACTORS = ['F1', 'F2', 'F3', 'F4', 'F5'] as const;
 type FactorKey = typeof FACTORS[number];
+
+// Discriminatory value (η²): how strongly each factor sorts voters into parties.
+// Source: factorLoadings.json (same metric shown in the About → Methodology section).
+const FACTOR_ETA: Record<string, number> = Object.fromEntries(
+  (factorLoadingsData as { factor: string; eta: number }[]).map(f => [f.factor, f.eta])
+);
+// Factors ordered by discriminatory value, strongest first (F5, F1, F2, F4, F3).
+const FACTORS_BY_DISCRIMINATION = [...FACTORS].sort(
+  (a, b) => (FACTOR_ETA[b] ?? 0) - (FACTOR_ETA[a] ?? 0)
+) as FactorKey[];
 
 interface VarEntry {
   key: string;
@@ -295,6 +306,14 @@ function FactorDotRow({
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm font-semibold text-foreground">{FACTOR_LABELS[factor]}</span>
         <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1 rounded">{FACTOR_SHORT[factor]}</span>
+        {FACTOR_ETA[factor] !== undefined && (
+          <span className="ml-auto flex items-center gap-1.5" title={`Discriminatory value: η² = ${FACTOR_ETA[factor].toFixed(3)} — how strongly this factor sorts voters into parties`}>
+            <span className="text-[10px] text-muted-foreground font-mono">η² {FACTOR_ETA[factor].toFixed(2)}</span>
+            <span className="block w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+              <span className="block h-full rounded-full" style={{ width: `${FACTOR_ETA[factor] * 100}%`, backgroundColor: etaPurple(FACTOR_ETA[factor]) }} />
+            </span>
+          </span>
+        )}
       </div>
       <svg width="100%" height={FACTOR_H} style={{ overflow: 'visible' }}>
         {/* Tier boundary ticks */}
@@ -698,6 +717,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                 <span className="text-xs text-muted-foreground ml-3">
                   {factorScale === 'strength' ? 'Strongly >1.5σ · Moderately 1.0σ · Leans 0.5σ · Mixed <0.5σ' : '0% = lowest · 50% = median · 100% = highest'}
                 </span>
+                <span className="text-[10px] text-muted-foreground ml-3">ordered by discriminatory value (η²)</span>
               </div>
               <div className="flex gap-1">
                 <Button onClick={() => setFactorScale('strength')}
@@ -713,7 +733,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
               </div>
             </div>
             <div className="divide-y divide-border/50">
-              {FACTORS.map(f => {
+              {FACTORS_BY_DISCRIMINATION.map(f => {
                 const isExpanded = expandedFactors.has(f);
                 return (
                   <div key={f}>

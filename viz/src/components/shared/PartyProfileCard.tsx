@@ -1,5 +1,6 @@
 import type { ClusterProfile } from '../../types';
 import { getBlendColor, FACTOR_POLES } from '../../constants/parties';
+import { vikForZ, vikForPctile } from '../../lib/vik';
 import { Card } from '@/components/ui/card';
 
 const FACTOR_SHORT_LABEL: Record<string, string> = {
@@ -56,23 +57,24 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
 
           if (mode === 'percentile' && pctile != null) {
             const isHigh = pctile >= 50;
-            const barColor = isHigh ? '#dc2626' : '#2563eb';
+            const fill = vikForPctile(pctile);
+            const textColor = isHigh ? '#b91c1c' : '#1d4ed8';
             const desc = pctileDescriptor(f, pctile);
 
             return (
               <div key={f}>
                 <div className="flex items-center justify-between text-xs gap-2 mb-0.5">
                   <span className="text-muted-foreground shrink-0">{label}</span>
-                  <span className="font-medium" style={{ color: barColor }}>{desc}</span>
+                  <span className="font-medium" style={{ color: textColor }}>{desc}</span>
                 </div>
-                {/* 0-100 bar: red fills left→right for high, blue fills right→left for low */}
+                {/* 0-100 bar, vik-colored: blue at low pole → red at high pole */}
                 <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                   {isHigh ? (
                     <div className="absolute top-0 left-0 h-full rounded-l-full"
-                      style={{ width: `${pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
+                      style={{ width: `${pctile}%`, backgroundColor: fill }} />
                   ) : (
                     <div className="absolute top-0 right-0 h-full rounded-r-full"
-                      style={{ width: `${100 - pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
+                      style={{ width: `${100 - pctile}%`, backgroundColor: fill }} />
                   )}
                   {/* Median marker at 50% */}
                   <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
@@ -84,21 +86,22 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
           // Strength mode (default)
           const desc = zDescriptor(f, z);
           const isHigh = z >= 0;
-          const barColor = isHigh ? '#dc2626' : '#2563eb';
+          const fill = vikForZ(z);
+          const textColor = desc === 'Mixed' ? '#6b7280' : (isHigh ? '#b91c1c' : '#1d4ed8');
           const barPct = Math.min(Math.abs(z) / 2.5 * 50, 50);
           return (
             <div key={f}>
               <div className="flex items-center justify-between text-xs gap-2 mb-0.5">
                 <span className="text-muted-foreground shrink-0">{label}</span>
-                <span className="font-medium" style={{ color: desc === 'Mixed' ? '#6b7280' : barColor }}>{desc}</span>
+                <span className="font-medium" style={{ color: textColor }}>{desc}</span>
               </div>
               <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                 {isHigh ? (
                   <div className="absolute top-0 h-full rounded-r-full"
-                    style={{ left: '50%', width: `${barPct}%`, backgroundColor: barColor, opacity: 0.5 }} />
+                    style={{ left: '50%', width: `${barPct}%`, backgroundColor: fill }} />
                 ) : (
                   <div className="absolute top-0 h-full rounded-l-full"
-                    style={{ left: `${50 - barPct}%`, width: `${barPct}%`, backgroundColor: barColor, opacity: 0.5 }} />
+                    style={{ left: `${50 - barPct}%`, width: `${barPct}%`, backgroundColor: fill }} />
                 )}
                 <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
               </div>

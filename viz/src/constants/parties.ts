@@ -25,16 +25,17 @@ export const PARTY_NAMES: Record<string, string> = {
   PRG: 'Progressive',
 };
 
+// Condensed from PARTY_BLURBS — keep factual (positions), no editorial/comparative phrasing.
 export const PARTY_TAGLINES: Record<string, string> = {
-  PRG: 'Climate action, social justice, universal programs',
-  LIB: 'Civil liberties, regulated markets, global engagement',
-  DSA: 'Worker power, economic equality, public ownership',
-  SD:  'Strong safety net, institutional reform, center-left',
-  STY: 'Cross-cutting populism, skeptical of both establishments',
-  CUP: 'Moderate on economics and culture, institutionalist',
-  CON: 'Free markets, traditional values, national sovereignty',
-  POP: 'Anti-establishment right, immigration restriction',
-  NAT: 'Cultural conservatism, economic nationalism, strong borders',
+  PRG: 'Progressive on taxes, climate, and civil liberties; trusts elections',
+  LIB: 'Progressive on economics and climate; backs border enforcement and police',
+  DSA: 'Progressive on economics and culture, secular, election-skeptic',
+  SD:  'Safety net, clean energy, and a Dreamer pathway with border enforcement',
+  STY: 'Economically progressive and religiously traditional; election-skeptic',
+  CUP: 'Centrist on economics and culture; law-and-order institutionalists',
+  CON: 'Low-tax, law-and-order; trusts elections and backs background checks',
+  POP: 'Immigration-restrictionist and election-skeptic; backs Medicaid expansion',
+  NAT: 'Anti-immigration, religiously traditional, low-tax, and election-skeptic',
 };
 
 // One-to-two sentence descriptions: who the cluster is and what it supports.
@@ -87,7 +88,7 @@ function blendHex(hex1: string, hex2: string, w1 = 0.65): string {
 /** Returns color for a party code.
  * Active formats:
  *   "CON"        — pure party, exact party color
- *   "STY_lo_ae"  — FD variant, returns base party color
+ *   "STY_lo_es"  — FD variant, returns base party color
  *   "STY_1"      — pure multi variant, returns base party color
  */
 export function getBlendColor(code: string): string {
@@ -98,7 +99,7 @@ export function getBlendColor(code: string): string {
     const c2 = PARTY_COLORS[parts[1]] ?? '#6b7280';
     return blendHex(c1, c2);
   }
-  // FD/multi variant: underscore with lowercase suffix (e.g. STY_lo_ae, STY_1)
+  // FD/multi variant: underscore with lowercase suffix (e.g. STY_lo_es, STY_1)
   if (code.includes('_')) {
     const [base, lean] = code.split('_', 2);
     if (lean === lean.toLowerCase() && PARTY_COLORS[base]) {
@@ -165,7 +166,7 @@ export function getFDColor(party: string, direction: 'base' | 'hi' | 'lo'): stri
   return base;
 }
 
-/** Given a code like "CON", "STY_lo_ae", "CON_1", or "CON/POP", return the base party code */
+/** Given a code like "CON", "STY_lo_es", "CON_1", or "CON/POP", return the base party code */
 export function getPrimaryParty(code: string): string {
   if (!code) return '';
   return code.split('/')[0].split('_')[0];
@@ -220,6 +221,13 @@ export const FACTOR_SHORT: Record<string, string> = {
   F4: 'RT',
   F5: 'PC',
 };
+
+/** Single-hue purple ramp for discriminatory strength (η², ~0–0.8): light = weak, dark = strong. */
+export function etaPurple(eta: number): string {
+  const t = Math.max(0, Math.min(1, eta / 0.8));
+  const lightness = 86 - t * 50;  // 86% (weak) → 36% (strong)
+  return `hsl(271, 64%, ${lightness}%)`;
+}
 
 export const FACTOR_POLES: Record<string, { low: string; high: string }> = {
   F1: { low: 'Civil Libertarian', high: 'Law & Order' },

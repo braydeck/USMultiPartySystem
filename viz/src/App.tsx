@@ -69,11 +69,10 @@ import type {
   DistrictResult, RCVData,
 } from './types';
 
-// Top-level tabs shown directly in the nav strip.
+// Top-level tabs shown directly in the nav strip, before the Scenarios dropdown.
 const TOP_TABS = [
-  { id: 'about',    label: 'What Is This?' },
-  { id: 'quiz',     label: 'Party Quiz' },
   { id: 'overview', label: 'Overview' },
+  { id: 'quiz',     label: 'Party Quiz' },
   { id: 'parties',  label: 'Parties' },
 ] as const;
 
@@ -86,19 +85,22 @@ const SCENARIO_TABS = [
   { id: 'rcv',         label: 'IRV Case Studies' },
 ] as const;
 
-const ALL_TABS = [...TOP_TABS, ...SCENARIO_TABS] as const;
+// Shown last in the nav, after the Scenarios dropdown.
+const ABOUT_TAB = { id: 'about', label: 'What Is This?' } as const;
+
+const ALL_TABS = [...TOP_TABS, ...SCENARIO_TABS, ABOUT_TAB] as const;
 
 type TabId = typeof ALL_TABS[number]['id'];
 
 export default function App() {
-  // On mobile, land on the Party Quiz (the shareable hook) by default; desktop opens on About.
-  const mobileDefault: TabId =
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 'quiz' : 'about';
-  const [tab] = useUrlState<TabId>('tab', mobileDefault, { allowed: ALL_TABS.map(t => t.id) });
+  // On mobile, land on the Party Quiz (the shareable hook) by default; desktop opens on Overview.
+  const landingDefault: TabId =
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 'quiz' : 'overview';
+  const [tab] = useUrlState<TabId>('tab', landingDefault, { allowed: ALL_TABS.map(t => t.id) });
   const [menuOpen, setMenuOpen] = useState(false);
   const [scenariosOpen, setScenariosOpen] = useState(false);
   // Tab navigation resets the query string so a tab's filters don't follow you to the next tab.
-  const setTab = (next: TabId) => resetUrlParams(next === 'about' ? {} : { tab: next });
+  const setTab = (next: TabId) => resetUrlParams({ tab: next });
 
   const isScenario = SCENARIO_TABS.some(t => t.id === tab);
   const activeLabel = ALL_TABS.find(t => t.id === tab)?.label ?? 'Menu';
@@ -162,6 +164,10 @@ export default function App() {
                 </>
               )}
             </div>
+
+            <TabsList aria-label="About">
+              <TabsTrigger value={ABOUT_TAB.id}>{ABOUT_TAB.label}</TabsTrigger>
+            </TabsList>
           </div>
 
           {/* Mobile: hamburger menu */}
@@ -207,6 +213,15 @@ export default function App() {
                     {t.label}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => { setTab(ABOUT_TAB.id); setMenuOpen(false); }}
+                  className={`text-left px-3 py-2.5 text-sm transition-colors border-t border-border/50 mt-1 ${
+                    tab === ABOUT_TAB.id ? 'bg-slate-900 text-white font-medium' : 'text-foreground hover:bg-muted'
+                  }`}
+                >
+                  {ABOUT_TAB.label}
+                </button>
               </div>
             )}
           </div>
@@ -339,6 +354,18 @@ export default function App() {
       <footer className="border-t border-border mt-12 py-8 text-center text-xs text-muted-foreground">
         <SocialLinks />
         <p className="mt-4">
+          Built by <span className="font-medium text-foreground">Brayden Decker</span>
+          <span className="mx-2 text-slate-300">·</span>
+          <a
+            href="https://brayden-decker-contact.pages.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-indigo-600 hover:underline"
+          >
+            Contact me ↗
+          </a>
+        </p>
+        <p className="mt-1">
           Built on CES 2024 survey data · 10-party STV simulation · 873 / 1,726 House seats · 51 Senate seats
         </p>
       </footer>

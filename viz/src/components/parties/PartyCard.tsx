@@ -1,5 +1,6 @@
 import type { ClusterProfile } from '../../types';
 import { PARTY_COLORS, FACTOR_POLES, FACTOR_LABELS } from '../../constants/parties';
+import { vikForZ, vikForPctile } from '../../lib/vik';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -32,9 +33,11 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
   const color = PARTY_COLORS[cluster.party] ?? '#6b7280';
   const positions = cluster.keyPositions ?? [];
 
-  const taxCut = cluster.variables['CC24_341a']?.pct;
-  const immigration = cluster.variables['CC24_323b']?.pct;
-  const church = cluster.variables['pew_churatd']?.pct;
+  // Stand-in items for the top three discriminating factors (η²):
+  // F5 Populist Conservatism, F1 Security & Order, F2 Electoral Skepticism.
+  const racialProblems = cluster.variables['CC24_440b_agree']?.pct;
+  const increasePolice = cluster.variables['CC24_321d']?.pct;
+  const electionsFair = cluster.variables['CC24_421_1_agree']?.pct;
 
   return (
     <Card className="overflow-hidden flex flex-col" style={{ borderColor: color + '55' }}>
@@ -60,21 +63,22 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
 
             if (mode === 'percentile' && pctile != null) {
               const isHigh = pctile >= 50;
-              const barColor = isHigh ? '#dc2626' : '#2563eb';
+              const fill = vikForPctile(pctile);
+              const textColor = isHigh ? '#b91c1c' : '#1d4ed8';
               const desc = pctDesc(f, pctile);
               return (
                 <div key={f}>
                   <div className="flex items-center justify-between text-xs mb-0.5">
                     <span className="text-muted-foreground">{FACTOR_LABELS[f]}</span>
-                    <span className="font-medium" style={{ color: barColor }}>{desc}</span>
+                    <span className="font-medium" style={{ color: textColor }}>{desc}</span>
                   </div>
                   <div className="relative h-3 bg-muted rounded-full overflow-hidden">
                     {isHigh ? (
                       <div className="absolute top-0 left-0 h-full rounded-l-full"
-                        style={{ width: `${pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
+                        style={{ width: `${pctile}%`, backgroundColor: fill }} />
                     ) : (
                       <div className="absolute top-0 right-0 h-full rounded-r-full"
-                        style={{ width: `${100 - pctile}%`, backgroundColor: barColor, opacity: 0.4 }} />
+                        style={{ width: `${100 - pctile}%`, backgroundColor: fill }} />
                     )}
                     <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
                   </div>
@@ -84,21 +88,22 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
 
             const desc = zDesc(f, z);
             const isHigh = z >= 0;
-            const barColor = isHigh ? '#dc2626' : '#2563eb';
+            const fill = vikForZ(z);
+            const textColor = desc === 'Mixed' ? '#6b7280' : (isHigh ? '#b91c1c' : '#1d4ed8');
             const barPct = Math.min(Math.abs(z) / 2.5 * 50, 50);
             return (
               <div key={f}>
                 <div className="flex items-center justify-between text-xs mb-0.5">
                   <span className="text-muted-foreground">{FACTOR_LABELS[f]}</span>
-                  <span className="font-medium" style={{ color: desc === 'Mixed' ? '#6b7280' : barColor }}>{desc}</span>
+                  <span className="font-medium" style={{ color: textColor }}>{desc}</span>
                 </div>
                 <div className="relative h-3 bg-muted rounded-full overflow-hidden">
                   {isHigh ? (
                     <div className="absolute top-0 h-full rounded-r-full"
-                      style={{ left: '50%', width: `${barPct}%`, backgroundColor: barColor, opacity: 0.45 }} />
+                      style={{ left: '50%', width: `${barPct}%`, backgroundColor: fill }} />
                   ) : (
                     <div className="absolute top-0 h-full rounded-l-full"
-                      style={{ left: `${50 - barPct}%`, width: `${barPct}%`, backgroundColor: barColor, opacity: 0.45 }} />
+                      style={{ left: `${50 - barPct}%`, width: `${barPct}%`, backgroundColor: fill }} />
                   )}
                   <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
                 </div>
@@ -128,19 +133,19 @@ export function PartyCard({ cluster, mode = 'strength' }: Props) {
         )}
 
         <div className="grid grid-cols-3 gap-2 mt-3">
-          {taxCut !== undefined && <StatPill label="Tax Cuts" value={taxCut} color={color} />}
-          {immigration !== undefined && <StatPill label="Border" value={immigration} color={color} />}
-          {church !== undefined && <StatPill label="Church" value={church} color={color} />}
+          {racialProblems !== undefined && <StatPill label="Racial problems rare" value={racialProblems} color={color} title="Racial problems in the U.S. are rare, isolated situations" />}
+          {increasePolice !== undefined && <StatPill label="Increase police" value={increasePolice} color={color} title="Increase police by 10%" />}
+          {electionsFair !== undefined && <StatPill label="Elections fair" value={electionsFair} color={color} title="Elections in the U.S. are fair" />}
         </div>
       </div>
     </Card>
   );
 }
 
-function StatPill({ label, value, color }: { label: string; value: number; color: string }) {
+function StatPill({ label, value, color, title }: { label: string; value: number; color: string; title?: string }) {
   return (
-    <div className="text-center rounded bg-muted py-2 px-1">
-      <div className="text-xs text-muted-foreground mb-0.5">{label}</div>
+    <div className="text-center rounded bg-muted py-2 px-1" title={title}>
+      <div className="text-[11px] leading-tight text-muted-foreground mb-0.5">{label}</div>
       <div className="text-sm font-semibold" style={{ color }}>{Math.round(value)}%</div>
     </div>
   );

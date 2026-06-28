@@ -39,7 +39,7 @@ PARTY_TO_CLUSTER = {"CON": 0, "SD": 1, "STY": 2, "NAT": 3, "LIB": 4,
 # Axis → column in the FD candidate CSV
 AXIS_CAND_COL = {
     "so": "F1_security_order",
-    "ae": "F2_electoral_skepticism",
+    "es": "F2_electoral_skepticism",
     "rt": "F4_religious_traditionalism",
     "pc": "F5_populist_conservatism",
 }
@@ -117,7 +117,7 @@ def main():
     }
 
     print(f"\nBase party factor positions used for OLS x-axis:")
-    print(f"  {'Party':<6}  {'so(F1)':>8}  {'ae(F2)':>8}  {'rt(F4)':>8}  {'pc(F5)':>8}")
+    print(f"  {'Party':<6}  {'so(F1)':>8}  {'es(F2)':>8}  {'rt(F4)':>8}  {'pc(F5)':>8}")
     for p in PARTY_ORDER:
         print(f"  {p:<6}  " + "  ".join(f"{x_by_axis[ax][PARTY_ORDER.index(p)]:>8.4f}" for ax in AXES))
 
@@ -142,7 +142,7 @@ def main():
     # Spot-check
     SPOT_VARS = {"CC24_323b", "CC24_421_2", "CC24_340f", "CC24_325", "CC24_321d"}
     print(f"\n  Slope spot-check (high-loading items):")
-    print(f"  {'Variable':<14}  {'stat_label':<22}  {'so(F1)':>8}  {'ae(F2)':>8}  "
+    print(f"  {'Variable':<14}  {'stat_label':<22}  {'so(F1)':>8}  {'es(F2)':>8}  "
           f"{'rt(F4)':>8}  {'pc(F5)':>8}")
     for idx, row in stats_df.iterrows():
         if row["variable"] in SPOT_VARS and row["type"] in ("binary", "ordinal"):
@@ -235,7 +235,7 @@ def main():
     print(f"\n{thin}")
     print("FACTOR SENSITIVITY SUMMARY")
     print(thin)
-    axis_labels = {"so": "F1 Security/Order", "ae": "F2 Anti-Estab", "rt": "F4 Relig/Trad", "pc": "F5 Pop/Con"}
+    axis_labels = {"so": "F1 Security/Order", "es": "F2 Elec. Skepticism", "rt": "F4 Relig/Trad", "pc": "F5 Pop/Con"}
     for axis in AXES:
         col  = f"factor_sensitive_{axis}"
         n    = int(out_df[col].sum())

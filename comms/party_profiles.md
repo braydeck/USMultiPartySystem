@@ -30,12 +30,12 @@ Each field is then counted two ways: **Instant Runoff Voting (IRV)**, which elim
 
 | Scenario | Winner | Final margin |
 |----------|--------|-------------|
-| Crossover IRV | **STY_hi_so** (Solidarity, tough on security) | 60.3% vs. SD_lo_ae 39.7% |
-| Crossover Condorcet | **STY_hi_so** (same candidate) | Beats all opponents; closest: SD_lo_ae at 39.7% |
+| Crossover IRV | **STY_hi_so** (Solidarity, tough on security) | 60.3% vs. SD_lo_es 39.7% |
+| Crossover Condorcet | **STY_hi_so** (same candidate) | Beats all opponents; closest: SD_lo_es at 39.7% |
 | Pure partisan IRV | **SD_1** (Social Democrat) | 54.4% vs. CON_1 45.6% |
 | Pure partisan Condorcet | **STY_1** (Solidarity, pure) | Beats all opponents; closest: SD_1 at 40.9% |
 
-In the crossover field, both methods converge on the same president: a Solidarity candidate who breaks from the party base by running tougher on security. STY_hi_so's factor profile shifts Security & Order from the base STY position of −0.45 to −0.27 — still left of center on enforcement, but meaningfully less anti-police than the median Solidarity voter. This is the Solidarity candidate who can credibly promise working-class economic policy while also promising not to defund anyone's local police department. In the final IRV round, STY_hi_so defeats SD_lo_ae (a Social Democrat who softens on enforcement) by 60–40 after absorbing transfers from eliminated Conservative and Populist voters who prefer any candidate with security credibility over a pure civil-libertarian Social Democrat.
+In the crossover field, both methods converge on the same president: a Solidarity candidate who breaks from the party base by running tougher on security. STY_hi_so's factor profile shifts Security & Order from the base STY position of −0.45 to −0.27 — still left of center on enforcement, but meaningfully less anti-police than the median Solidarity voter. This is the Solidarity candidate who can credibly promise working-class economic policy while also promising not to defund anyone's local police department. In the final IRV round, STY_hi_so defeats SD_lo_es (a Social Democrat who softens on enforcement) by 60–40 after absorbing transfers from eliminated Conservative and Populist voters who prefer any candidate with security credibility over a pure civil-libertarian Social Democrat.
 
 In the pure partisan field, the two methods diverge. IRV elects a **Social Democrat** — SD_1 wins the final round 54.4% to 45.6% against CON_1 after Solidarity is eliminated in round 3 and its transfers split roughly evenly. Condorcet elects a **pure Solidarity partisan** — STY_1 beats every other candidate in head-to-head matchups, including SD_1 by a margin of 18 points. The divergence illustrates a structural property: IRV penalizes candidates who aren't many voters' first choice (STY_1 starts in third at 18.4%) even when those candidates would beat everyone one-on-one.
 
@@ -173,7 +173,7 @@ Solidarity is the most politically disorienting party in the system, and arguabl
 - Just 35.5% of STY believe national elections are run fairly — as skeptical as Populist (36.4%) — yet only 16.3% voted for Trump in 2020 and 44% didn't vote at all. STY's electoral skepticism comes from the left, not the right: for a majority non-white, lowest-income, female-majority party, distrust of institutions reflects lived experience of exclusion rather than election denialism.
 - STY is the only party that combines majority non-white membership, majority female membership, the lowest income in the system, and 37.7% born-again evangelical identity — a demographic profile that fits no existing political coalition and explains why they are estranged from both parties rather than firmly attached to either.
 
-**Senate seats:** STY dominates under Condorcet — where broad head-to-head acceptability matters most — and competes strongly under IRV. Crossover Condorcet: 34 seats (the largest total in any scenario, overwhelmingly through the establishment-friendly STY_lo_ae variant). Crossover IRV: 19 seats. Pure partisan Condorcet: 33 seats. Pure partisan IRV: 11 seats. STY's Condorcet dominance reflects its position as the spatial median of the multi-party field — the party that the most other voters can tolerate even if it isn't their first choice.
+**Senate seats:** STY dominates under Condorcet — where broad head-to-head acceptability matters most — and competes strongly under IRV. Crossover Condorcet: 34 seats (the largest total in any scenario, overwhelmingly through the establishment-friendly STY_lo_es variant). Crossover IRV: 19 seats. Pure partisan Condorcet: 33 seats. Pure partisan IRV: 11 seats. STY's Condorcet dominance reflects its position as the spatial median of the multi-party field — the party that the most other voters can tolerate even if it isn't their first choice.
 
 ---
 
@@ -221,7 +221,7 @@ Conservatives are the largest party in the system and the dominant force on the 
 - 93.8% of Conservatives support universal background checks on gun sales — better than nine in ten. This is the signature cross-cutting finding for CON: a party that is 39.2% gun-owning and 99.5% pro-border-patrol nonetheless backs a policy their partisan analog in the two-party system has blocked for decades. Their gun politics are about ownership and rights, not about blocking all regulation.
 - 64.0% of Conservatives believe national elections are run fairly — almost exactly the national average (62.8%) — reflecting an institutional conservatism that CON shares with CUP but not with POP (36.4% believe elections fair) or NAT (47.9%).
 
-**Senate seats:** CON wins few seats under Condorcet but breaks through under IRV — especially in the pure partisan field where its strong first-choice base survives elimination rounds. Crossover Condorcet: 1 seat *(Tennessee — via CON_lo_pc, a Conservative softened on populism)*. Crossover IRV: 3 seats *(Idaho via CON_hi_pc, Oklahoma via CON_lo_ae, Wyoming via base CON)*. Pure partisan Condorcet: 1 seat *(Tennessee)*. Pure partisan IRV: 11 seats *(Arkansas, Idaho, Indiana, Iowa, Kentucky, Michigan, Montana, North Carolina, North Dakota, Ohio, Tennessee)*. The IRV–Condorcet gap is dramatic: CON accumulates first-choice votes in contested states but loses head-to-head matchups to the centrist STY and SD candidates who attract broader second-choice support.
+**Senate seats:** CON wins few seats under Condorcet but breaks through under IRV — especially in the pure partisan field where its strong first-choice base survives elimination rounds. Crossover Condorcet: 1 seat *(Tennessee — via CON_lo_pc, a Conservative softened on populism)*. Crossover IRV: 3 seats *(Idaho via CON_hi_pc, Oklahoma via CON_lo_es, Wyoming via base CON)*. Pure partisan Condorcet: 1 seat *(Tennessee)*. Pure partisan IRV: 11 seats *(Arkansas, Idaho, Indiana, Iowa, Kentucky, Michigan, Montana, North Carolina, North Dakota, Ohio, Tennessee)*. The IRV–Condorcet gap is dramatic: CON accumulates first-choice votes in contested states but loses head-to-head matchups to the centrist STY and SD candidates who attract broader second-choice support.
 
 ---
 
@@ -245,7 +245,7 @@ Populist is the Tea Party and MAGA populism stripped of the Republican establish
 - Just 44.2% of Populist support increasing police funding — the lowest of any right-leaning party and far below Conservative (99.7%) — and 19.5% actively want to cut it. Populist's anti-establishment suspicion extends even to law enforcement, the one institution the two-party right treats as sacrosanct.
 - 80.4% support universal background checks despite being among the most immigration-restrictionist parties — suggesting gun-regulation opposition in the two-party system reflects partisan packaging more than genuine voter preference.
 
-**Senate seats:** POP wins seats primarily through its establishment-friendly crossover variant (POP_lo_ae), which tones down anti-establishment rhetoric enough to attract transfers from moderate voters. Crossover Condorcet: 5 seats *(Idaho, North Dakota, Oklahoma, South Dakota, Wyoming)*. Crossover IRV: 1 seat *(North Dakota)*. Pure partisan Condorcet: 1 seat *(Idaho)*. Pure partisan IRV: 2 seats *(Arizona, Wyoming)*. POP's Condorcet success in the crossover field reflects a surprising dynamic: when a Populist candidate dials back institutional distrust, the resulting profile — fiscally populist, immigration-restrictionist, but trusting enough of elections to seem governable — commands a plurality in deeply conservative states.
+**Senate seats:** POP wins seats primarily through its establishment-friendly crossover variant (POP_lo_es), which tones down anti-establishment rhetoric enough to attract transfers from moderate voters. Crossover Condorcet: 5 seats *(Idaho, North Dakota, Oklahoma, South Dakota, Wyoming)*. Crossover IRV: 1 seat *(North Dakota)*. Pure partisan Condorcet: 1 seat *(Idaho)*. Pure partisan IRV: 2 seats *(Arizona, Wyoming)*. POP's Condorcet success in the crossover field reflects a surprising dynamic: when a Populist candidate dials back institutional distrust, the resulting profile — fiscally populist, immigration-restrictionist, but trusting enough of elections to seem governable — commands a plurality in deeply conservative states.
 
 ---
 
@@ -281,16 +281,16 @@ Three axes produce all the variation: **Security & Order** (tougher or softer on
 
 ---
 
-### STY_lo_ae — The Establishment Solidarity Senator
+### STY_lo_es — The Establishment Solidarity Senator
 **Condorcet: 20 seats · IRV: 10 seats**
 
 *A Solidarity senator who tones down anti-establishment rhetoric and signals trust in institutions.*
 
-This is the most successful crossover type in the system. By shifting from STY's base Electoral Skepticism of +0.66 down to +0.51, this candidate keeps Solidarity's working-class economics, its skepticism of police expansion, and its multi-racial coalition — while dropping just enough institutional distrust to become broadly acceptable in head-to-head matchups against every other candidate. Under Condorcet, STY_lo_ae wins 20 states spanning every region: Alabama, Alaska, Arkansas, California, Colorado, Indiana, Kentucky, Michigan, Montana, Nebraska, New Jersey, New Mexico, New York, North Carolina, Ohio, Oregon, Texas, Virginia, Washington, and Wisconsin. Under IRV, where first-choice intensity matters more, the count drops to 10 as SD variants absorb some of these states.
+This is the most successful crossover type in the system. By shifting from STY's base Electoral Skepticism of +0.66 down to +0.51, this candidate keeps Solidarity's working-class economics, its skepticism of police expansion, and its multi-racial coalition — while dropping just enough institutional distrust to become broadly acceptable in head-to-head matchups against every other candidate. Under Condorcet, STY_lo_es wins 20 states spanning every region: Alabama, Alaska, Arkansas, California, Colorado, Indiana, Kentucky, Michigan, Montana, Nebraska, New Jersey, New Mexico, New York, North Carolina, Ohio, Oregon, Texas, Virginia, Washington, and Wisconsin. Under IRV, where first-choice intensity matters more, the count drops to 10 as SD variants absorb some of these states.
 
 **Factor profile:** F1 −0.45 (anti-enforcement) · F2 +0.51 (mildly skeptical) · F4 +0.17 (moderate religious) · F5 −0.06 (near-center)
 
-**Why it works:** Condorcet rewards the candidate who offends the fewest voters. STY_lo_ae is still a Solidarity candidate — still working-class, still pro-Medicaid, still anti-police-expansion — but the establishment-friendliness means center-right voters rank it ahead of more extreme options. When every head-to-head matchup is resolved, the candidate nobody hates beats the candidates half the electorate loves and half despises.
+**Why it works:** Condorcet rewards the candidate who offends the fewest voters. STY_lo_es is still a Solidarity candidate — still working-class, still pro-Medicaid, still anti-police-expansion — but the establishment-friendliness means center-right voters rank it ahead of more extreme options. When every head-to-head matchup is resolved, the candidate nobody hates beats the candidates half the electorate loves and half despises.
 
 ---
 
@@ -299,7 +299,7 @@ This is the most successful crossover type in the system. By shifting from STY's
 
 *A Social Democrat who runs softer on security — more skeptical of policing, less supportive of enforcement.*
 
-SD_lo_so shifts Security & Order from SD's base of −0.41 down to −0.60, deepening the civil-libertarian streak while keeping SD's progressive economics, institutional trust, and secular profile. Under IRV, this candidate dominates the blue-state corridor: California, Colorado, Illinois, Minnesota, New Hampshire, New Jersey, New Mexico, New York, Oregon, Pennsylvania, and Washington. Under Condorcet, it wins only New Hampshire — the rest of those states go to the broadly-acceptable STY_lo_ae instead.
+SD_lo_so shifts Security & Order from SD's base of −0.41 down to −0.60, deepening the civil-libertarian streak while keeping SD's progressive economics, institutional trust, and secular profile. Under IRV, this candidate dominates the blue-state corridor: California, Colorado, Illinois, Minnesota, New Hampshire, New Jersey, New Mexico, New York, Oregon, Pennsylvania, and Washington. Under Condorcet, it wins only New Hampshire — the rest of those states go to the broadly-acceptable STY_lo_es instead.
 
 **Factor profile:** F1 −0.60 (strongly anti-enforcement) · F2 −0.03 (trusts elections) · F4 −0.35 (secular) · F5 −0.56 (progressive)
 
@@ -307,16 +307,16 @@ SD_lo_so shifts Security & Order from SD's base of −0.41 down to −0.60, deep
 
 ---
 
-### SD_lo_ae — The Establishment Social Democrat
+### SD_lo_es — The Establishment Social Democrat
 **Condorcet: 4 seats · IRV: 10 seats**
 
 *A Social Democrat who signals institutional trust and tones down anti-establishment sentiment.*
 
-SD_lo_ae shifts Electoral Skepticism from SD's base of −0.03 to −0.18 — a subtle move that makes the candidate even more trusting of elections than base SD. This resonates in states where the center-left electorate wants progressive economics without populist grievance. Under IRV, it wins: Arizona, Delaware, DC, Kansas, Maryland, Massachusetts, Michigan, Vermont, Virginia, and Wisconsin. Under Condorcet: DC, Illinois, Massachusetts, Vermont.
+SD_lo_es shifts Electoral Skepticism from SD's base of −0.03 to −0.18 — a subtle move that makes the candidate even more trusting of elections than base SD. This resonates in states where the center-left electorate wants progressive economics without populist grievance. Under IRV, it wins: Arizona, Delaware, DC, Kansas, Maryland, Massachusetts, Michigan, Vermont, Virginia, and Wisconsin. Under Condorcet: DC, Illinois, Massachusetts, Vermont.
 
 **Factor profile:** F1 −0.41 (anti-enforcement) · F2 −0.18 (trusts elections) · F4 −0.35 (secular) · F5 −0.56 (progressive)
 
-**Why it works:** In states with large educated-professional populations (Massachusetts, Virginia, Maryland), the establishment-friendly Social Democrat wins by being the candidate most associated with institutional stability. Where SD_lo_so appeals to the libertarian left, SD_lo_ae appeals to the institutional left.
+**Why it works:** In states with large educated-professional populations (Massachusetts, Virginia, Maryland), the establishment-friendly Social Democrat wins by being the candidate most associated with institutional stability. Where SD_lo_so appeals to the libertarian left, SD_lo_es appeals to the institutional left.
 
 ---
 
@@ -359,16 +359,16 @@ SD_hi_so shifts Security & Order from SD's base of −0.41 to −0.23, making a 
 
 ---
 
-### POP_lo_ae — The Establishment Populist Senator
+### POP_lo_es — The Establishment Populist Senator
 **Condorcet: 5 seats · IRV: 1 seat**
 
 *A Populist senator who tones down anti-establishment rhetoric and signals trust in institutions.*
 
-POP_lo_ae shifts Electoral Skepticism from POP's base of +0.76 down to +0.61 — still deeply skeptical by any standard, but measurably less hostile to institutions than the pure Populist position. This candidate keeps Populist's immigration restrictionism, fiscal populism, and cultural conservatism while becoming just acceptable enough to win in deeply red states. Under Condorcet: Idaho, North Dakota, Oklahoma, South Dakota, Wyoming. Under IRV: only North Dakota.
+POP_lo_es shifts Electoral Skepticism from POP's base of +0.76 down to +0.61 — still deeply skeptical by any standard, but measurably less hostile to institutions than the pure Populist position. This candidate keeps Populist's immigration restrictionism, fiscal populism, and cultural conservatism while becoming just acceptable enough to win in deeply red states. Under Condorcet: Idaho, North Dakota, Oklahoma, South Dakota, Wyoming. Under IRV: only North Dakota.
 
 **Factor profile:** F1 +0.20 (moderate enforcement) · F2 +0.61 (electorally skeptical) · F4 +0.15 (moderate religious) · F5 +0.99 (strongly conservative)
 
-**Why it works:** In the five most conservative states in the system, no center-left candidate wins a head-to-head matchup. POP_lo_ae wins by being the rightmost candidate that has moderated enough to beat CON variants one-on-one. Under IRV, only North Dakota produces enough first-choice Populist votes to survive elimination — in the other four states, first-choice CON voters outnumber POP voters, and IRV rewards that first-choice lead.
+**Why it works:** In the five most conservative states in the system, no center-left candidate wins a head-to-head matchup. POP_lo_es wins by being the rightmost candidate that has moderated enough to beat CON variants one-on-one. Under IRV, only North Dakota produces enough first-choice Populist votes to survive elimination — in the other four states, first-choice CON voters outnumber POP voters, and IRV rewards that first-choice lead.
 
 ---
 
@@ -380,9 +380,9 @@ Several types win a small number of seats:
 
 **STY (base)** — Condorcet: 2 *(Maryland, Mississippi)* · IRV: 0. The unshifted Solidarity candidate wins in two states where the base profile is already close to the state median.
 
-**STY_hi_pc** (Solidarity, more populist-conservative) — Condorcet: 1 *(Arizona)* · IRV: 0. A Solidarity candidate who shifts rightward on immigration — notable for winning Arizona, which goes to SD_lo_ae under IRV.
+**STY_hi_pc** (Solidarity, more populist-conservative) — Condorcet: 1 *(Arizona)* · IRV: 0. A Solidarity candidate who shifts rightward on immigration — notable for winning Arizona, which goes to SD_lo_es under IRV.
 
-**SD_hi_ae** (Social Democrat, more anti-establishment) — Condorcet: 0 · IRV: 2 *(Connecticut, Maine)*. An SD candidate who signals more institutional skepticism, winning in New England under IRV.
+**SD_hi_es** (Social Democrat, more anti-establishment) — Condorcet: 0 · IRV: 2 *(Connecticut, Maine)*. An SD candidate who signals more institutional skepticism, winning in New England under IRV.
 
 **SD (base)** — Condorcet: 1 *(Iowa)* · IRV: 2 *(Georgia, Iowa)*. The unshifted Social Democrat wins where the base profile matches the state.
 
@@ -392,7 +392,7 @@ Several types win a small number of seats:
 
 **CON_hi_pc** (Conservative, more populist) — Condorcet: 0 · IRV: 1 *(Idaho)*. A hard-right Conservative who survives IRV in the most conservative state outside the deep South.
 
-**CON_lo_ae** (Conservative, establishment-friendly) — Condorcet: 0 · IRV: 1 *(Oklahoma)*.
+**CON_lo_es** (Conservative, establishment-friendly) — Condorcet: 0 · IRV: 1 *(Oklahoma)*.
 
 **CON (base)** — Condorcet: 0 · IRV: 1 *(Wyoming)*.
 
@@ -406,7 +406,7 @@ When candidates run only on the pure party platform — no axis shifts, no cross
 
 ### Condorcet: STY Dominance
 
-Under Condorcet, Solidarity wins 33 of 51 seats — a near-supermajority driven by the same dynamic that makes STY_lo_ae the dominant crossover type: Solidarity sits at the spatial median of the nine-party field, and in head-to-head matchups against every other party, more voters prefer STY than oppose it.
+Under Condorcet, Solidarity wins 33 of 51 seats — a near-supermajority driven by the same dynamic that makes STY_lo_es the dominant crossover type: Solidarity sits at the spatial median of the nine-party field, and in head-to-head matchups against every other party, more voters prefer STY than oppose it.
 
 | Party | Seats | States |
 |-------|-------|--------|
@@ -456,57 +456,57 @@ States where both methods elect the same party are in plain text. The **21 state
 
 | State | Condorcet | IRV |
 |-------|-----------|-----|
-| Alabama | STY_lo_ae | STY_lo_ae |
-| Alaska | STY_lo_ae | STY_lo_ae |
-| **Arizona** | **STY_hi_pc** | **SD_lo_ae** |
-| Arkansas | STY_lo_ae | STY_lo_ae |
-| **California** | **STY_lo_ae** | **SD_lo_so** |
-| **Colorado** | **STY_lo_ae** | **SD_lo_so** |
-| **Connecticut** | **STY_lo_pc** | **SD_hi_ae** |
-| Delaware* | SD_hi_so | SD_lo_ae |
-| DC | SD_lo_ae | SD_lo_ae |
+| Alabama | STY_lo_es | STY_lo_es |
+| Alaska | STY_lo_es | STY_lo_es |
+| **Arizona** | **STY_hi_pc** | **SD_lo_es** |
+| Arkansas | STY_lo_es | STY_lo_es |
+| **California** | **STY_lo_es** | **SD_lo_so** |
+| **Colorado** | **STY_lo_es** | **SD_lo_so** |
+| **Connecticut** | **STY_lo_pc** | **SD_hi_es** |
+| Delaware* | SD_hi_so | SD_lo_es |
+| DC | SD_lo_es | SD_lo_es |
 | Florida | STY_lo_pc | STY_lo_pc |
 | **Georgia** | **STY_lo_pc** | **SD** |
 | Hawaii | STY_lo_pc | STY_lo_pc |
-| **Idaho** | **POP_lo_ae** | **CON_hi_pc** |
-| Illinois* | SD_lo_ae | SD_lo_so |
-| Indiana | STY_lo_ae | STY_lo_ae |
+| **Idaho** | **POP_lo_es** | **CON_hi_pc** |
+| Illinois* | SD_lo_es | SD_lo_so |
+| Indiana | STY_lo_es | STY_lo_es |
 | Iowa | SD | SD |
-| **Kansas** | **STY_lo_so** | **SD_lo_ae** |
-| Kentucky | STY_lo_ae | STY_lo_ae |
+| **Kansas** | **STY_lo_so** | **SD_lo_es** |
+| Kentucky | STY_lo_es | STY_lo_es |
 | Louisiana | STY_hi_so | STY_hi_so |
-| Maine* | SD_hi_so | SD_hi_ae |
-| **Maryland** | **STY** | **SD_lo_ae** |
-| Massachusetts | SD_lo_ae | SD_lo_ae |
-| **Michigan** | **STY_lo_ae** | **SD_lo_ae** |
+| Maine* | SD_hi_so | SD_hi_es |
+| **Maryland** | **STY** | **SD_lo_es** |
+| Massachusetts | SD_lo_es | SD_lo_es |
+| **Michigan** | **STY_lo_es** | **SD_lo_es** |
 | Minnesota* | SD_hi_so | SD_lo_so |
 | Mississippi* | STY | STY_lo_pc |
 | Missouri | STY_hi_so | STY_hi_so |
-| Montana | STY_lo_ae | STY_lo_ae |
-| Nebraska | STY_lo_ae | STY_lo_ae |
+| Montana | STY_lo_es | STY_lo_es |
+| Nebraska | STY_lo_es | STY_lo_es |
 | **Nevada** | **STY_hi_so** | **SD_lo_pc** |
 | New Hampshire | SD_lo_so | SD_lo_so |
-| **New Jersey** | **STY_lo_ae** | **SD_lo_so** |
-| **New Mexico** | **STY_lo_ae** | **SD_lo_so** |
-| **New York** | **STY_lo_ae** | **SD_lo_so** |
-| North Carolina | STY_lo_ae | STY_lo_ae |
-| North Dakota | POP_lo_ae | POP_lo_ae |
-| Ohio | STY_lo_ae | STY_lo_ae |
-| **Oklahoma** | **POP_lo_ae** | **CON_lo_ae** |
-| **Oregon** | **STY_lo_ae** | **SD_lo_so** |
+| **New Jersey** | **STY_lo_es** | **SD_lo_so** |
+| **New Mexico** | **STY_lo_es** | **SD_lo_so** |
+| **New York** | **STY_lo_es** | **SD_lo_so** |
+| North Carolina | STY_lo_es | STY_lo_es |
+| North Dakota | POP_lo_es | POP_lo_es |
+| Ohio | STY_lo_es | STY_lo_es |
+| **Oklahoma** | **POP_lo_es** | **CON_lo_es** |
+| **Oregon** | **STY_lo_es** | **SD_lo_so** |
 | Pennsylvania* | SD_hi_so | SD_lo_so |
 | Rhode Island | SD_hi_so | SD_hi_so |
 | South Carolina | STY_hi_so | STY_hi_so |
-| **South Dakota** | **POP_lo_ae** | **CUP_hi_pc** |
+| **South Dakota** | **POP_lo_es** | **CUP_hi_pc** |
 | **Tennessee** | **CON_lo_pc** | **STY_hi_so** |
-| Texas | STY_lo_ae | STY_lo_ae |
+| Texas | STY_lo_es | STY_lo_es |
 | Utah | STY_lo_so | STY_lo_so |
-| Vermont | SD_lo_ae | SD_lo_ae |
-| **Virginia** | **STY_lo_ae** | **SD_lo_ae** |
-| **Washington** | **STY_lo_ae** | **SD_lo_so** |
+| Vermont | SD_lo_es | SD_lo_es |
+| **Virginia** | **STY_lo_es** | **SD_lo_es** |
+| **Washington** | **STY_lo_es** | **SD_lo_so** |
 | West Virginia | STY_hi_so | STY_hi_so |
-| **Wisconsin** | **STY_lo_ae** | **SD_lo_ae** |
-| **Wyoming** | **POP_lo_ae** | **CON** |
+| **Wisconsin** | **STY_lo_es** | **SD_lo_es** |
+| **Wyoming** | **POP_lo_es** | **CON** |
 
 ### State-by-State: Pure Partisan Field
 
@@ -687,23 +687,23 @@ Sorted by F5, most populist-conservative first. Crossover types that win senate 
 |------|-------------|-----------|-------------|------------|--------------|------------|
 | NAT | Nationalist | +0.737 | +0.428 | −0.208 | +0.457 | **+1.510** |
 | POP | Populist | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
-| POP_lo_ae | Populist, establishment-friendly | +0.202 | +0.613 | −0.206 | +0.147 | +0.990 |
+| POP_lo_es | Populist, establishment-friendly | +0.202 | +0.613 | −0.206 | +0.147 | +0.990 |
 | CON_hi_pc | Conservative, more populist | +0.767 | −0.024 | +0.111 | +0.219 | +0.653 |
 | CON | Conservative | +0.767 | −0.024 | +0.111 | +0.219 | +0.442 |
-| CON_lo_ae | Conservative, establishment-friendly | +0.767 | −0.170 | +0.111 | +0.219 | +0.442 |
+| CON_lo_es | Conservative, establishment-friendly | +0.767 | −0.170 | +0.111 | +0.219 | +0.442 |
 | CON_lo_pc | Conservative, less populist | +0.767 | −0.024 | +0.111 | +0.219 | +0.232 |
 | CUP_hi_pc | Civic Union Party, more populist | +0.266 | −0.817 | −0.174 | +0.130 | +0.250 |
 | STY_hi_pc | Solidarity, more populist | −0.446 | +0.658 | +0.133 | +0.165 | +0.149 |
 | CUP | Civic Union Party | +0.266 | −0.817 | −0.174 | +0.130 | +0.039 |
 | STY | Solidarity (base) | −0.446 | +0.658 | +0.133 | +0.165 | −0.062 |
-| STY_lo_ae | Solidarity, establishment-friendly | −0.446 | +0.512 | +0.133 | +0.165 | −0.062 |
+| STY_lo_es | Solidarity, establishment-friendly | −0.446 | +0.512 | +0.133 | +0.165 | −0.062 |
 | STY_hi_so | Solidarity, tough on security | −0.265 | +0.658 | +0.133 | +0.165 | −0.062 |
 | STY_lo_so | Solidarity, soft on security | −0.627 | +0.658 | +0.133 | +0.165 | −0.062 |
 | STY_lo_pc | Solidarity, less populist | −0.446 | +0.658 | +0.133 | +0.165 | −0.273 |
-| SD_hi_ae | Soc. Democrat, anti-establishment | −0.414 | +0.114 | +0.091 | −0.345 | −0.564 |
+| SD_hi_es | Soc. Democrat, anti-establishment | −0.414 | +0.114 | +0.091 | −0.345 | −0.564 |
 | SD_hi_so | Soc. Democrat, tough on security | −0.234 | −0.032 | +0.091 | −0.345 | −0.564 |
 | SD | Social Democrat (base) | −0.414 | −0.032 | +0.091 | −0.345 | −0.564 |
-| SD_lo_ae | Soc. Democrat, establishment-friendly | −0.414 | −0.178 | +0.091 | −0.345 | −0.564 |
+| SD_lo_es | Soc. Democrat, establishment-friendly | −0.414 | −0.178 | +0.091 | −0.345 | −0.564 |
 | SD_lo_so | Soc. Democrat, soft on security | −0.595 | −0.032 | +0.091 | −0.345 | −0.564 |
 | SD_lo_pc | Soc. Democrat, less populist | −0.414 | −0.032 | +0.091 | −0.345 | −0.775 |
 | DSA | Democratic Socialists | −1.303 | +0.504 | +0.076 | −0.387 | −0.874 |

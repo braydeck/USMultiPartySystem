@@ -111,12 +111,12 @@ const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
   'factorDev+triple':   'houseFDTripleProbPass',
 };
 
-type SortKey = 'bill' | 'house' | 'senate' | 'pres' | 'overall';
-const GRID = 'md:grid-cols-[1fr_140px_140px_130px_140px]';
+type SortKey = 'bill' | 'house' | 'senate' | 'pres';
+const GRID = 'md:grid-cols-[1fr_150px_150px_150px]';
 
 export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod, presWinner, wyoming = 'double' }: Props) {
   const [domain, setDomain] = useState<string>('All');
-  const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'overall', dir: 'desc' });
+  const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'senate', dir: 'desc' });
 
   const combo          = `${pipeline}+${senateMethod}`;
   const senateProbField = SENATE_PROB_FIELD[combo];
@@ -140,7 +140,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
     return ['All', ...Array.from(d).sort()];
   }, [houseRows, senateRows]);
 
-  // Build per-bill row data with an overall "becomes law" probability = House × Senate × President.
+  // Build per-bill row data: House/Senate pass probabilities + the president's sign chance.
   const rows = useMemo(() => {
     return allVars
       .filter(v => domain === 'All' || (houseByVar[v] ?? senateByVar[v])?.domain === domain)
@@ -152,12 +152,9 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
         const senateProb = sr?.[senateProbField] as number | undefined;
         const signs      = (sr?.[presSignField] as string | undefined) ?? '';
         const presPct    = sr?.[presPctField] as number | undefined;
-        // President is a decision gate, not a probability: Signs passes it through (×1),
-        // Vetoes blocks the bill from becoming law (×0).
-        const presProb   = signs ? (signs === 'SIGN' ? 1 : 0) : undefined;
-        const overall    = (houseProb != null && senateProb != null && presProb != null)
-          ? houseProb * senateProb * presProb : undefined;
-        return { variable, ref, houseProb, senateProb, signs, presPct, presProb, overall };
+        // The president's coalition-support % is the chance they sign (>50% → signs).
+        const presProb   = presPct !== undefined ? presPct / 100 : undefined;
+        return { variable, ref, houseProb, senateProb, signs, presPct, presProb };
       })
       .filter((r): r is typeof r & { ref: VoteModelRow } => !!r.ref);
   }, [allVars, domain, houseByVar, senateByVar, houseProbField, senateProbField, presSignField, presPctField]);
@@ -170,8 +167,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
       return arr;
     }
     const pick = (r: typeof rows[number]) =>
-      sort.key === 'house' ? r.houseProb : sort.key === 'senate' ? r.senateProb
-      : sort.key === 'pres' ? r.presPct : r.overall;
+      sort.key === 'house' ? r.houseProb : sort.key === 'senate' ? r.senateProb : r.presPct;
     arr.sort((a, b) => {
       const av = pick(a), bv = pick(b);
       if (av == null && bv == null) return 0;
@@ -210,24 +206,23 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
         ))}
       </div>
 
-      <div className={`hidden md:grid grid-cols-[1fr_140px_140px_130px_140px] gap-x-3 items-center px-3 py-1 text-xs text-muted-foreground border-b border-border mb-1`}>
+      <div className={`hidden md:grid grid-cols-[1fr_150px_150px_150px] gap-x-3 items-center px-3 py-1 text-xs text-muted-foreground border-b border-border mb-1`}>
         {sortBtn('bill', 'Bill', 'text-left')}
         {sortBtn('house', 'House')}
         {sortBtn('senate', 'Senate')}
         <button
           type="button"
           onClick={() => toggleSort('pres')}
-          className={`uppercase tracking-widest truncate hover:opacity-80 transition-opacity ${sort.key === 'pres' ? 'font-bold' : 'font-bold'}`}
+          className="uppercase tracking-widest truncate font-bold hover:opacity-80 transition-opacity"
           style={{ color: presColor }}
           title={presWinner}
         >
           {presLabel}{arrow('pres')}
         </button>
-        {sortBtn('overall', 'Overall')}
       </div>
 
       <div className="space-y-0.5">
-        {sorted.map(({ variable, ref, houseProb, senateProb, signs, presPct, overall }) => {
+        {sorted.map(({ variable, ref, houseProb, senateProb, signs, presProb }) => {
           const houseLabel   = getBayesianLabel([houseProb]);
           const senateLabel  = getBayesianLabel([senateProb]);
 
@@ -259,11 +254,12 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                 <VerdictBadge label={senateLabel} />
               </div>
 
-              <div className="mt-1 md:mt-0 flex flex-col items-center gap-0.5">
-                {signs ? (
+              <div className="mt-1 md:mt-0 flex flex-col gap-1">
+                {presProb !== undefined ? (
                   <>
+                    <ProbBar prob={presProb} />
                     <span
-                      className="text-xs font-bold px-2 py-0.5 rounded border whitespace-nowrap"
+                      className="text-xs font-bold px-2 py-0.5 rounded border whitespace-nowrap self-start"
                       style={
                         signs === 'SIGN'
                           ? { backgroundColor: presColor + '18', color: presColor, borderColor: presColor + '55' }
@@ -272,17 +268,10 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                     >
                       {signs === 'SIGN' ? 'Signs' : 'Vetoes'}
                     </span>
-                    {presPct !== undefined && (
-                      <span className="text-xs text-muted-foreground font-mono">{Math.round(presPct)}%</span>
-                    )}
                   </>
                 ) : (
                   <span className="text-slate-300 text-xs">—</span>
                 )}
-              </div>
-
-              <div className="mt-1 md:mt-0">
-                <ProbBar prob={overall} />
               </div>
             </div>
           );
