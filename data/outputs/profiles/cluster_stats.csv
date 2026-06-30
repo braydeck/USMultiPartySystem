@@ -284,3 +284,51 @@ presvote16post,Voting History,categorical_dist,% Did not vote,2016 Presidential 
 gunown,Demographics,categorical_dist,% Personally owns,Personal gun ownership,27.39,39.18,18.17,18.83,54.91,17.01,37.32,28.97,22.66,9.79,11.38
 gunown,Demographics,categorical_dist,"% HH owns, not me",Personal gun ownership,12.64,12.78,13.26,14.22,8.48,11.63,15.34,13.01,11.45,16.42,8.27
 gunown,Demographics,categorical_dist,% No one in HH,Personal gun ownership,59.96,48.05,68.57,66.96,36.61,71.36,47.35,58.03,65.89,73.8,80.35
+CC24_308a_1,Foreign Policy & Defense,binary,% Supporting,Ukraine: stay out of the conflict,21.4043,25.1755,13.7962,31.8735,32.0889,3.7292,46.8362,21.1019,9.6281,8.7256,1.0078
+CC24_308a_2,Foreign Policy & Defense,binary,% Supporting,Ukraine: send humanitarian aid,53.1971,41.4902,65.1926,41.1253,31.0097,81.5249,24.6649,51.9293,63.3125,78.9366,91.0802
+CC24_308a_3,Foreign Policy & Defense,binary,% Supporting,Ukraine: impose economic sanctions on Russia,42.0953,36.1352,48.0826,21.4033,33.0662,72.4542,18.8425,36.2039,51.7954,53.1622,82.9781
+CC24_308a_4,Foreign Policy & Defense,binary,% Supporting,Ukraine: provide arms to Ukraine,34.3883,24.2973,42.2655,19.8988,17.2827,71.4535,10.0274,30.99,45.8177,43.116,72.5404
+CC24_308a_5,Foreign Policy & Defense,binary,% Supporting,Ukraine: send non-combat military advisors,23.0066,12.8933,30.5099,16.5251,6.829,47.2861,6.5472,18.1385,26.681,38.3736,54.8433
+CC24_308a_6,Foreign Policy & Defense,binary,% Supporting,Ukraine: send significant force to fight Russia,5.3059,4.1207,6.8655,5.0869,1.8115,7.6333,1.9826,7.2216,6.4693,7.3157,7.1645
+CC24_308a_7,Foreign Policy & Defense,binary,% Supporting,Ukraine: negotiate a Russia–Ukraine peace accord,42.1805,41.0121,40.7772,33.1325,45.3883,50.7587,31.1783,43.3319,47.8077,49.6744,51.7727
+CC24_308a_8,Foreign Policy & Defense,binary,% Supporting,Ukraine: fund post-war reconstruction,38.5015,22.3416,52.2214,32.1734,13.2997,66.1004,16.0357,32.7376,40.9348,67.66,82.9939
+CC24_308b_1,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: stay out of the conflict,20.4254,22.0341,17.8738,30.9431,19.8597,7.405,42.2287,22.3336,13.2926,9.568,1.9274
+CC24_308b_2,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: send humanitarian aid,48.1844,36.3746,59.1346,40.05,25.9208,74.4471,21.3135,43.9565,54.7946,74.4732,89.0017
+CC24_308b_3,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: provide arms to Israel,27.171,44.8746,12.453,10.9359,62.4177,18.2499,27.282,32.6296,28.6624,2.9922,8.4178
+CC24_308b_4,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: provide arms to Hamas,1.5772,0.4733,1.3017,2.2802,0.4107,0.5462,1.0666,1.8998,0.7295,7.9674,2.6509
+CC24_308b_5,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: send US Navy & troops to contain the conflict,23.359,25.2843,22.065,14.6017,25.5197,35.3117,12.1602,22.1628,25.9397,23.6978,32.6156
+CC24_308b_6,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: send non-combat military support to Israel,17.497,24.939,12.3379,9.9957,28.7974,17.2578,11.9478,22.7096,20.9182,6.2154,11.5166
+CC24_308b_7,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: send non-combat military support to Gaza,8.42,3.1829,10.3164,7.6114,1.3311,12.0401,2.712,4.1406,5.6088,33.2683,22.036
+CC24_308b_8,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: negotiate a peace settlement,48.4476,35.6879,58.0275,38.71,27.6233,75.8799,26.9374,45.1175,58.8064,69.95,86.0887
+CC24_308b_9,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: fund post-war reconstruction,39.6509,24.1882,50.9433,34.4931,14.3551,66.186,16.2829,32.9629,38.4513,75.2884,87.1181
+CC24_420_1,Foreign Policy & Defense,binary,% Supporting,Use US troops: to ensure the oil supply,19.9388,30.3681,13.2316,15.7196,29.943,12.1163,21.3235,27.7952,22.7712,4.499,4.9626
+CC24_420_2,Foreign Policy & Defense,binary,% Supporting,Use US troops: to destroy a terrorist camp,53.7889,65.5863,47.0046,37.3644,71.5812,57.0156,52.7554,57.9973,64.6558,27.0826,42.289
+CC24_420_3,Foreign Policy & Defense,binary,% Supporting,Use US troops: to stop genocide or civil war,36.0682,28.1639,42.5016,28.6721,18.7009,52.6893,21.3648,35.8356,40.5785,56.2707,63.6881
+CC24_420_4,Foreign Policy & Defense,binary,% Supporting,Use US troops: to spread democracy,17.0782,15.5265,19.9635,16.0253,8.9632,27.1093,9.5491,19.2428,27.8322,12.3527,17.0968
+CC24_420_5,Foreign Policy & Defense,binary,% Supporting,Use US troops: to protect allies under attack,67.1555,69.1851,70.8931,54.1653,64.6917,80.36,53.339,68.0275,78.5663,60.2606,77.8096
+CC24_420_6,Foreign Policy & Defense,binary,% Supporting,Use US troops: to help the UN uphold international law,42.7481,28.76,56.5575,36.3859,11.4175,69.0934,21.2671,46.1995,53.4884,61.9905,78.1257
+CC24_420_7,Foreign Policy & Defense,binary,% Supporting,Use US troops: for none of these reasons,13.7798,11.6884,13.1295,24.6253,14.4687,6.6509,23.5373,8.9978,5.7029,15.2842,8.0274
+CC24_323c,Immigration,binary,% Supporting,Build a wall between the U.S. and Mexico,53.7449,90.6899,21.5508,38.758,99.2727,9.9912,87.1068,71.6153,60.149,1.8119,1.3809
+CC24_324a,Abortion,binary,% Supporting,Always allow abortion as a matter of personal choice,61.1403,37.4475,86.6544,67.8181,13.3566,92.5993,37.2053,51.4052,70.3669,98.4658,98.1971
+CC24_324c,Abortion,binary,% Supporting,Make abortion illegal in all circumstances,11.551,13.445,4.7286,16.914,21.0429,2.8384,21.0683,15.7698,7.6834,2.1078,0.7506
+CC24_324d,Abortion,binary,% Supporting,Expand abortion access and affordability,60.2694,35.808,87.0749,65.7309,11.1428,93.1673,33.303,51.6026,73.5679,97.7345,97.9296
+CC24_340a,Abortion,binary,% Supporting,Protect access to contraception (Congress bill),72.2478,64.59,83.1319,58.4822,61.5329,87.7079,61.8565,65.3806,76.3871,93.4437,94.8298
+CC24_443_1,Government Spending,binary,% Supporting,Increase state spending on welfare,34.0608,16.3783,45.2929,39.1474,4.0065,49.8351,19.3126,30.6515,28.5921,73.6137,74.2099
+CC24_443_2,Government Spending,binary,% Supporting,Increase state spending on health care,65.0052,51.2638,81.5942,69.472,20.8562,85.2225,46.0293,64.2111,77.2123,92.7545,92.6864
+CC24_443_3,Government Spending,binary,% Supporting,Increase state spending on education,65.3182,53.6171,80.9395,67.0564,26.0616,85.917,45.4842,65.6833,72.4111,90.9684,92.8068
+CC24_443_4,Government Spending,binary,% Supporting,Increase state spending on law enforcement,53.6542,82.1257,37.2432,39.6615,82.5487,40.0169,50.7902,66.893,79.0757,5.395,8.296
+CC24_443_5,Government Spending,binary,% Supporting,Increase state spending on transportation & infrastructure,66.4146,61.9104,71.2839,57.3751,55.2496,81.9176,51.4249,66.7916,72.8589,77.7104,87.9119
+vote16_clinton,Voting History,binary,% Supporting,2016: Hillary Clinton (D),29.1583,8.0665,44.6582,26.4288,1.9848,67.3624,6.0181,23.9379,41.7663,44.5329,67.8126
+vote16_trump,Voting History,binary,% Supporting,2016: Donald Trump (R),31.9506,61.682,7.0363,13.4108,77.2615,4.5955,47.6948,38.3501,28.8469,1.469,0.5226
+vote16_third,Voting History,binary,% Supporting,2016: Third-party / other,5.4037,4.2952,5.9522,5.2279,4.8564,6.1864,5.4958,5.2647,4.8302,7.2213,6.6311
+vote16_dnv,Voting History,binary,% Supporting,2016: Did not vote,33.4874,25.9563,42.3533,54.9325,15.8973,21.8557,40.7913,32.4472,24.5565,46.7768,25.0338
+vote20_biden,Voting History,binary,% Supporting,2020: Joe Biden (D),40.1226,11.865,61.7746,37.883,1.6954,85.4021,9.7549,33.1987,56.5724,70.5107,88.6564
+vote20_trump,Voting History,binary,% Supporting,2020: Donald Trump (R),35.8352,69.3812,6.7274,16.3297,89.3735,2.7977,58.2204,41.8725,27.2946,0.4181,0.4015
+vote20_third,Voting History,binary,% Supporting,2020: Third-party / other,1.6237,1.7125,1.9372,1.754,1.1337,0.8941,1.7075,1.8367,1.2034,1.5608,2.3648
+vote20_dnv,Voting History,binary,% Supporting,2020: Did not vote,22.4185,17.0413,29.5608,44.0333,7.7973,10.906,30.3172,23.092,14.9296,27.5103,8.5773
+appr_biden,Voting History,binary,% Supporting,2024: Approve of Joe Biden (job),40.0894,10.447,66.2212,40.4463,0.2732,87.5717,8.4501,33.3807,57.9158,62.9862,83.4684
+appr_harris,Voting History,binary,% Supporting,2024: Approve of Kamala Harris (job),44.1324,11.3218,74.7121,47.2944,0.317,90.509,10.0718,34.9944,60.8918,74.593,90.4482
+vote24_harris,Voting History,binary,% Supporting,2024: Kamala Harris (D),47.8325,10.8921,81.582,55.2986,0.097,94.4002,11.4412,34.3684,64.6936,93.6737,97.0758
+vote24_trump,Voting History,binary,% Supporting,2024: Donald Trump (R),47.1306,85.2948,11.9099,30.2711,98.5907,3.8817,81.775,61.6386,33.0183,0.1172,0.2457
+vote24_third,Voting History,binary,% Supporting,2024: Third-party / other,1.932,1.8557,2.1342,3.3042,0.7875,0.8272,2.173,2.2404,0.9734,3.2974,2.1395
+vote24_dnv,Voting History,binary,% Supporting,2024: Did not vote,3.0364,1.7858,4.3253,10.6542,0.5148,0.8267,4.7012,1.3421,1.7519,3.3976,0.5311

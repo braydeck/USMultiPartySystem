@@ -188,10 +188,10 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
       </StickyControlBar>
 
-      {/* FPTP vs STV Senate Comparison */}
+      {/* FPTP vs Preferential Senate Comparison */}
       <Card className="p-5 border-2 border-indigo-200 space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          FPTP Today vs STV Senate
+          FPTP Today vs Preferential Senate
         </h3>
         {/* FPTP Today */}
         <SenateCompBar label="FPTP Today" segments={[
@@ -199,13 +199,13 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           { party: 'GOP', n: 53, color: '#dc2626' },
         ]} total={100} />
         {/* RM Condorcet */}
-        <SenateCompBar label="RM Condorcet" seats={condorcetRawMulti} />
+        <SenateCompBar label="Condorcet" seats={condorcetRawMulti} />
         {/* RM IRV */}
-        <SenateCompBar label="RM IRV" seats={irvRawMulti} />
+        <SenateCompBar label="IRV" seats={irvRawMulti} />
         {/* FD bars */}
         {isFD && <>
-          <SenateCompBar label="FD Condorcet" seats={condorcetFD} />
-          <SenateCompBar label="FD IRV" seats={irvFD} />
+          <SenateCompBar label="Condorcet" seats={condorcetFD} />
+          <SenateCompBar label="IRV" seats={irvFD} />
         </>}
       </Card>
 

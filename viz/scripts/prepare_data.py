@@ -869,38 +869,8 @@ def collect_cluster_variables(rows):
             except (ValueError, TypeError):
                 pass
 
-    # Phase 4: race and gender4 categorical breakdowns
-    RACE_CATS   = {"% White", "% Black", "% Hispanic", "% Asian", "% Native American", "% Multiracial"}
-    GENDER_CATS = {"% Man", "% Woman", "% Non-binary"}
-    DEMO_VARS   = {"race": RACE_CATS, "gender4": GENDER_CATS}
-    for base_var, cats in DEMO_VARS.items():
-        for r in rows:
-            if r["variable"] != base_var:
-                continue
-            lbl = r.get("stat_label", "")
-            if lbl not in cats:
-                continue
-            suffix   = lbl.replace("% ", "").replace(" ", "_").lower()
-            synth    = f"{base_var}_{suffix}"
-            label_q  = f"Party base is {lbl.replace('% ', '').lower()}"
-            try:
-                overall = float(r.get("overall", 0) or 0)
-            except (ValueError, TypeError):
-                overall = 0
-            for cid in cluster_ids:
-                try:
-                    val = float(r.get(f"c{cid}", 0) or 0)
-                    result[cid][synth] = {
-                        "pct": round(val, 1),
-                        "question": label_q,
-                        "domain": "Demographics",
-                        "diffPp": round(val - overall, 1),
-                        "overall": round(overall, 1),
-                    }
-                except (ValueError, TypeError):
-                    pass
-
     # Phase 5: categorical_dist variables mapped to new demographic domains
+    # (race/gender breakdowns are all enumerated below; no generic "Party base is X" leftover phase)
     CAT_INCLUSIONS = [
         # (variable, stat_label, new_domain, new_question, synth_key)
         # --- Household ---
@@ -917,6 +887,7 @@ def collect_cluster_variables(rows):
         ('race', '% Black',                       'Race & Ethnicity', 'Black',                           'race_black'),
         ('race', '% Hispanic',                    'Race & Ethnicity', 'Hispanic',                        'race_hispanic'),
         ('race', '% Asian',                       'Race & Ethnicity', 'Asian',                           'race_asian'),
+        ('race', '% Native American',             'Race & Ethnicity', 'Native American',                 'race_native_american'),
         ('race', '% Multiracial',                 'Race & Ethnicity', 'Multiracial',                     'race_multiracial'),
         ('immstat', '% Immigrant, naturalized',   'Race & Ethnicity', 'Immigrant (naturalized citizen)', 'immstat_nat'),
         ('immstat', '% Immigrant, not citizen',   'Race & Ethnicity', 'Immigrant (not yet a citizen)',   'immstat_nc'),
@@ -946,11 +917,8 @@ def collect_cluster_variables(rows):
         ('union',   '% Current member',   'Economics', 'Current union member',       'union_current'),
         ('union',   '% Former member',    'Economics', 'Former union member',        'union_former'),
         ('unionhh', '% Currently member', 'Economics', 'Household has union member', 'unionhh_current'),
-        # --- Voting History ---
-        ('presvote20post', '% Biden',        'Voting History', 'Voted Biden (2020)',  'vote20_biden'),
-        ('presvote20post', '% Trump',        'Voting History', 'Voted Trump (2020)',  'vote20_trump'),
-        ('presvote20post', '% Did not vote', 'Voting History', 'Did not vote (2020)', 'vote20_dnv'),
-        ('presvote16post', '% Did not vote', 'Voting History', 'Did not vote (2016)', 'vote16_dnv'),
+        # --- Voting History: now built directly from the CES by pipeline/add_compare_items.py
+        #     (2016/2020/2024 vote shares incl. third-party sums + Biden/Harris approval) ---
         # --- Other ---
         ('gunown', '% No one in HH',    'Other', 'No gun in household',   'gunown_none'),
         ('gunown', '% Personally owns', 'Other', 'Personally owns a gun', 'gunown_personal'),
@@ -1016,6 +984,8 @@ def collect_cluster_variables(rows):
         'investor':  ('Economics',       'Owns stocks or mutual funds'),
         'child18':   ('Household',       'Has children under 18'),
         'CC24_323f': ('Taxes & Economy', 'Forgive up to $20k of student loan debt per person'),
+        'milstat_1': ('Other',           'Currently serving in the military'),
+        'milstat_3': ('Other',           'Previously served in the military'),
     }
     for cid in cluster_ids:
         for var, (new_domain, new_question) in BINARY_REMAP.items():

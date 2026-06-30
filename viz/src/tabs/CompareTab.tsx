@@ -13,12 +13,14 @@ interface Props {
 
 const DOMAINS = [
   'Taxes & Economy',
+  'Government Spending',
   'Immigration',
   'Police & Guns',
   'Abortion',
   'Environment & Climate',
   'Healthcare & Housing',
   'Civil Liberties',
+  'Foreign Policy & Defense',
   'Elections & Trust',
   'Racial & Gender',
   'Religion',
@@ -85,16 +87,83 @@ const SECTION_QUESTION_ORDER: Record<string, string[]> = {
     'Lives in: city', 'Lives in: suburb', 'Lives in: town/small city', 'Lives in: rural area',
   ],
   'Voting History': [
-    'Voted Biden (2020)', 'Voted Trump (2020)', 'Did not vote (2020)', 'Did not vote (2016)',
+    '2016: Hillary Clinton (D)', '2016: Donald Trump (R)', '2016: Third-party / other', '2016: Did not vote',
+    '2020: Joe Biden (D)', '2020: Donald Trump (R)', '2020: Third-party / other', '2020: Did not vote',
+    '2024: Kamala Harris (D)', '2024: Donald Trump (R)', '2024: Third-party / other', '2024: Did not vote',
+    '2024: Approve of Joe Biden (job)', '2024: Approve of Kamala Harris (job)',
   ],
   Abortion: [
     'Median abortion cutoff (weeks)',
+    'Always allow abortion as a matter of personal choice',
+    'Expand abortion access and affordability',
     'Permit abortion only in rape/incest/life danger cases',
+    'Make abortion illegal in all circumstances',
     'Prohibit restrictions on abortion access (Congress bill)',
+    'Protect access to contraception (Congress bill)',
     'Prohibit abortion-inducing drugs by mail',
     'Prohibit women traveling to another state for abortion',
   ],
+  'Government Spending': [
+    'Increase state spending on welfare',
+    'Increase state spending on health care',
+    'Increase state spending on education',
+    'Increase state spending on law enforcement',
+    'Increase state spending on transportation & infrastructure',
+  ],
+  'Foreign Policy & Defense': [
+    'Ukraine: stay out of the conflict',
+    'Ukraine: send humanitarian aid',
+    'Ukraine: impose economic sanctions on Russia',
+    'Ukraine: provide arms to Ukraine',
+    'Ukraine: send non-combat military advisors',
+    'Ukraine: send significant force to fight Russia',
+    'Ukraine: negotiate a Russia–Ukraine peace accord',
+    'Ukraine: fund post-war reconstruction',
+    'Israel/Gaza: stay out of the conflict',
+    'Israel/Gaza: send humanitarian aid',
+    'Israel/Gaza: provide arms to Israel',
+    'Israel/Gaza: provide arms to Hamas',
+    'Israel/Gaza: send US Navy & troops to contain the conflict',
+    'Israel/Gaza: send non-combat military support to Israel',
+    'Israel/Gaza: send non-combat military support to Gaza',
+    'Israel/Gaza: negotiate a peace settlement',
+    'Israel/Gaza: fund post-war reconstruction',
+    'Use US troops: to ensure the oil supply',
+    'Use US troops: to destroy a terrorist camp',
+    'Use US troops: to stop genocide or civil war',
+    'Use US troops: to spread democracy',
+    'Use US troops: to protect allies under attack',
+    'Use US troops: to help the UN uphold international law',
+    'Use US troops: for none of these reasons',
+  ],
 };
+
+// Domains whose items are several distinct "Prefix: option" batteries that should
+// render under sub-headers with the prefix stripped from each row.
+const SUBGROUPED_DOMAINS = new Set(['Foreign Policy & Defense', 'Voting History']);
+const MULTISELECT_DOMAINS = new Set(['Foreign Policy & Defense']);  // bars can sum >100%
+const SUBGROUP_LABELS: Record<string, string> = {
+  'Ukraine': 'U.S. response to Russia–Ukraine',
+  'Israel/Gaza': 'U.S. response to Israel–Gaza',
+  'Use US troops': 'When to use U.S. military force',
+  '2016': '2016 presidential vote',
+  '2020': '2020 presidential vote',
+  '2024': '2024 election & approval',
+};
+
+interface SubGroup { header: string | null; label: string; multi: boolean; items: VarEntry[]; }
+function buildSubgroups(domain: string, vars: VarEntry[]): SubGroup[] {
+  if (!SUBGROUPED_DOMAINS.has(domain)) return [{ header: null, label: '', multi: false, items: vars }];
+  const groups: SubGroup[] = [];
+  const idx = new Map<string, number>();
+  for (const v of vars) {
+    const pfx = v.question.includes(': ') ? v.question.split(': ')[0] : '';
+    if (!idx.has(pfx)) { idx.set(pfx, groups.length); groups.push({ header: pfx, label: SUBGROUP_LABELS[pfx] ?? pfx, multi: MULTISELECT_DOMAINS.has(domain), items: [] }); }
+    groups[idx.get(pfx)!].items.push(v);
+  }
+  return groups;
+}
+const stripPrefix = (q: string) => (q.includes(': ') ? q.split(': ').slice(1).join(': ') : q);
 
 function getVariables(
   code: string,
@@ -828,28 +897,41 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                     </button>
 
                     {!collapsed && (
-                      <div className="border-t border-border/50 grid grid-cols-1 sm:grid-cols-2">
-                        {vars.map((v, i) => (
-                          <div
-                            key={v.key}
-                            className={[
-                              i >= 2 ? 'border-t border-border/50' : '',
-                              i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
-                            ].filter(Boolean).join(' ')}
-                          >
-                            <DotTrack
-                              question={v.question}
-                              factor={v.factor}
-                              factors={v.factors}
-                              highlighted={v.highlighted}
-                              pcts={v.pcts}
-                              codes={selected}
-                
-                              maxVal={v.maxVal}
-                              unit={v.unit}
-                              overall={v.overall}
-                              showNatAvg={showNatAvg}
-                            />
+                      <div className="border-t border-border/50">
+                        {buildSubgroups(sectionKey, vars).map(grp => (
+                          <div key={grp.header ?? 'main'}>
+                            {grp.header && (
+                              <div className="px-4 pt-3 pb-1.5 bg-slate-50 border-t border-border/50">
+                                <div className="text-xs font-semibold text-foreground">{grp.label}</div>
+                                {grp.multi && (
+                                  <div className="text-[11px] text-muted-foreground">Select all that apply — share of each party choosing this option (can exceed 100%)</div>
+                                )}
+                              </div>
+                            )}
+                            <div className="grid grid-cols-1 sm:grid-cols-2">
+                              {grp.items.map((v, i) => (
+                                <div
+                                  key={v.key}
+                                  className={[
+                                    i >= 2 ? 'border-t border-border/50' : '',
+                                    i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
+                                  ].filter(Boolean).join(' ')}
+                                >
+                                  <DotTrack
+                                    question={grp.header ? stripPrefix(v.question) : v.question}
+                                    factor={v.factor}
+                                    factors={v.factors}
+                                    highlighted={v.highlighted}
+                                    pcts={v.pcts}
+                                    codes={selected}
+                                    maxVal={v.maxVal}
+                                    unit={v.unit}
+                                    overall={v.overall}
+                                    showNatAvg={showNatAvg}
+                                  />
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>
