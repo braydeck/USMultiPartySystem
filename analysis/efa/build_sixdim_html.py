@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Render the 5-D vs 6-D comparison infographic from sixdim_data.json."""
+import json
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent.parent.parent
+D=json.load(open(ROOT/'analysis/efa/sixdim_data.json'))
+DATA_JSON=json.dumps(D)
+HTML=r"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STV — 5-factor vs 6-factor (adding foreign policy)</title>
+<style>
+:root{--ink:#0f172a;--fg2:#475569;--fg3:#94a3b8;--bg:#f8fafc;--card:#fff;--line:#e2e8f0;--sunken:#f1f5f9;
+ --good:#16a34a;--good-bg:#dcfce7;--split:#d97706;--split-bg:#fef3c7;--absorb:#64748b;--absorb-bg:#e2e8f0;
+ --hi:#b91c1c;--lo:#1d4ed8;--fp:#0d9488;
+ font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 28px 100px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--fp)}
+h1{font-size:34px;font-weight:800;letter-spacing:-.02em;margin:.2em 0 .15em}h1 em{font-style:normal;color:var(--fp)}
+.sub{color:var(--fg2);font-size:15px;max-width:800px}
+.meta{display:flex;gap:22px;flex-wrap:wrap;font-size:12px;color:var(--fg3);border-top:1px solid var(--line);margin-top:18px;padding-top:12px}
+h2{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:0}
+section{border-top:1px solid var(--line);margin-top:40px;padding-top:24px}
+.lede{color:var(--fg2);font-size:14px;max-width:820px;margin:.4em 0 18px}
+.statrow{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:150px}
+.stat .l{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3)}
+.stat .v{font-size:24px;font-weight:800}
+table.sm{border-collapse:collapse;width:100%;font-size:13px}
+table.sm th,table.sm td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--line)}
+table.sm th{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--fg3);font-weight:700}
+table.sm td.party{text-align:left;font-weight:700}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.verdict{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+.v-preserved{background:var(--good-bg);color:var(--good)}.v-split{background:var(--split-bg);color:var(--split)}.v-absorbed{background:var(--absorb-bg);color:var(--absorb)}
+.cdelta{font-weight:700}.cdelta.up{color:var(--good)}.cdelta.dn{color:var(--hi)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.cc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;border-top:4px solid var(--ctop,#94a3b8)}
+.cc h3{margin:0 0 2px;font-size:16px;font-weight:700}.cc .wt{font-size:12px;color:var(--fg3);font-weight:600}
+.comp{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.pill{font-size:11px;font-weight:700;color:#fff;padding:2px 8px;border-radius:999px}
+.fac .row{display:grid;grid-template-columns:74px 1fr 34px;align-items:center;gap:8px;margin:3px 0}
+.fac .lab{font-size:11px;color:var(--fg2);text-align:right}.fac .fv{font-size:11px;color:var(--fg3)}
+.track{position:relative;height:12px;background:var(--sunken);border-radius:6px;overflow:hidden}
+.mid{position:absolute;left:50%;top:0;width:1px;height:100%;background:#cbd5e1}.fill{position:absolute;top:0;height:100%;border-radius:6px;opacity:.85}
+.strength{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;color:var(--fg2)}
+.sbar{flex:1;height:8px;background:var(--sunken);border-radius:4px;overflow:hidden}.sfill{height:100%;background:var(--lo);border-radius:4px}
+.more{font-size:12px;color:var(--lo);cursor:pointer;font-weight:600;margin-top:6px;display:inline-block}
+.detail{display:none;margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}.detail.on{display:block}
+.sech{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--fg3);font-weight:700;margin:10px 0 6px}
+.pol .row{display:grid;grid-template-columns:1fr 110px 40px;align-items:center;gap:8px;margin:2px 0;font-size:11.5px}
+.pol .pl{color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar{position:relative;height:10px;background:var(--sunken);border-radius:5px}.pfill{position:absolute;left:0;top:0;height:100%;border-radius:5px;background:#cbd5e1}
+.demo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.demo .d{background:var(--sunken);border-radius:8px;padding:7px 9px}
+.demo .dl{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg3)}.demo .dv{font-size:15px;font-weight:700}
+.callout{background:#fff;border:1px solid var(--line);border-left:4px solid var(--fp);border-radius:0 10px 10px 0;padding:14px 18px;margin:10px 0;font-size:13.5px;color:var(--fg2)}.callout b{color:var(--ink)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--fg2);margin:10px 0}
+.note{font-size:11.5px;color:var(--fg3);font-style:italic;margin-top:10px}
+</style></head><body><div class="wrap">
+<div class="eyebrow">EFA robustness · adding a 6th dimension</div>
+<h1>What if foreign policy were a <em>factor</em>?</h1>
+<p class="sub">A controlled rebuild: cluster on the five production factors <b>plus</b> a foreign-policy engagement↔isolationism score (PCA of the Ukraine / Israel–Gaza / use-of-force batteries), scaled to a typical factor's strength. Everything else — sample, the five factor scores, DPGMM settings — is identical to production, so any change is attributable to the 6th dimension alone. Question: do the nine parties survive, does a new isolationist split appear, and are the clusters stronger or weaker?</p>
+<div class="meta"><span id="m-n"></span><span>Baseline = production 9 parties (5-D)</span><span>Strength = DPGMM assignment confidence</span></div>
+
+<section>
+<h2>Headline</h2>
+<div class="statrow" id="stats"></div>
+<div id="findings"></div>
+</section>
+
+<section>
+<h2>Do the nine parties survive the 6th dimension?</h2>
+<p class="lede"><b>Preserved</b> = one 6-D cluster still captures the party; <b>split</b> = scatters; <b>absorbed</b> = folded into another. Strength columns are the assignment confidence of each party's cluster (5-D production vs its best 6-D match).</p>
+<div id="matrix"></div>
+<div class="legend"><span><span class="dot" style="background:var(--good)"></span>Preserved</span><span><span class="dot" style="background:var(--split)"></span>Split</span><span><span class="dot" style="background:var(--absorb)"></span>Absorbed</span></div>
+</section>
+
+<section>
+<h2>The 6-D clusters</h2>
+<p class="lede">Each card shows the 6-D cluster's makeup (which production parties it draws from), its factor profile including <span style="color:var(--fp);font-weight:700">foreign-policy engagement</span>, and — on expand — policy and demographics. Watch whether any cluster is defined by the FP axis.</p>
+<div class="grid" id="sixdim"></div>
+</section>
+
+<section>
+<h2>Reference — the production 9 parties (5-D)</h2>
+<div class="grid" id="baseline"></div>
+</section>
+<p class="note" id="foot"></p>
+</div>
+<script>
+const DATA=__DATA__;
+const PC={PRG:'#15803d',DSA:'#22c55e',LIB:'#0284c7',SD:'#38bdf8',STY:'#8a70b8',CUP:'#825a27',CON:'#e68c2c',POP:'#d34812',NAT:'#a01d2a',C7:'#9ca3af'};
+const PNAME={PRG:'Progressive',DSA:'Dem. Socialist',LIB:'Liberal',SD:'Social Democrat',STY:'Solidarity',CUP:'Civic Union',CON:'Conservative',POP:'Populist',NAT:'Nationalist',C7:'Blue Dog'};
+const ORDER=['PRG','DSA','LIB','SD','STY','CUP','POP','CON','NAT'];
+const POL=DATA.pol_items, FN=DATA.factor_names;
+const DEMO=[['ideo','Ideology 1-5'],['dem','% Dem'],['rep','% Rep'],['ind','% Ind'],['age','Median age'],['female','% women'],['college','% 4-yr deg'],['lowinc','% <$50k'],['white','% White'],['black','% Black'],['hisp','% Hispanic'],['city','% big-city'],['rural','% rural'],['bornagain','% born-again']];
+const base={}; DATA.baseline.forEach(r=>base[r.party]=r);
+document.getElementById('m-n').textContent='N = '+DATA.meta.N.toLocaleString();
+function facBar(name,val){const isFP=name==='FPengage';const t=Math.max(-2,Math.min(2,val))/2,wd=Math.abs(t)*50,left=t>=0?50:50-wd;
+  const col=isFP?'#0d9488':(t>=0?'#b91c1c':'#1d4ed8');
+  return `<div class="row"><div class="lab"${isFP?' style="color:#0d9488;font-weight:700"':''}>${name}</div><div class="track"><div class="mid"></div><div class="fill" style="left:${left}%;width:${wd}%;background:${col}"></div></div><div class="fv">${val>=0?'+':''}${val.toFixed(1)}</div></div>`;}
+function compPills(c){return Object.entries(c).map(([p,v])=>`<span class="pill" style="background:${PC[p]||'#94a3b8'}">${p} ${v}%</span>`).join('');}
+function strengthRow(conf){return conf==null?'':`<div class="strength"><span>strength</span><div class="sbar"><div class="sfill" style="width:${Math.round((conf-0.5)/0.4*100)}%"></div></div><b>${conf.toFixed(2)}</b></div>`;}
+function polRows(rec,baseParty){const b=baseParty?base[baseParty]:null;
+  return POL.map(it=>{const v=rec.pol[it.key],bv=b?b.pol[it.key]:null,dev=(bv!=null&&v!=null)?Math.round(v-bv):null;
+    let f=''; if(dev!=null&&Math.abs(dev)>=10)f=`<span class="cdelta ${dev>0?'dn':'up'}">${dev>0?'+':''}${dev}</span>`;
+    const mark=bv!=null?`<div style="position:absolute;top:-2px;width:2px;height:14px;background:#0f172a;left:${bv}%"></div>`:'';
+    return `<div class="row"><span class="pl" title="${it.label}">${it.label}</span><div class="pbar"><div class="pfill" style="width:${v||0}%"></div>${mark}</div><div style="text-align:right">${v==null?'–':v+'%'} ${f}</div></div>`;}).join('');}
+function demoRows(rec){return DEMO.map(([k,l])=>`<div class="d"><div class="dl">${l}</div><div class="dv">${rec.demo[k]}${k==='age'||k==='ideo'?'':'%'}</div></div>`).join('');}
+function renderStats(){const c5=DATA.meta.conf5,c6=DATA.meta.conf6,surv=DATA.survival;
+  const npres=ORDER.filter(p=>surv[p]==='preserved').length;
+  document.getElementById('stats').innerHTML=
+   `<div class="stat"><div class="l">6-D effective clusters</div><div class="v">${DATA.meta.eff6}/10</div></div>
+    <div class="stat"><div class="l">parties preserved</div><div class="v">${npres}/9</div></div>
+    <div class="stat"><div class="l">mean strength 5-D → 6-D</div><div class="v">${c5.toFixed(2)} → ${c6.toFixed(2)}</div></div>`;}
+function renderFindings(){const surv=DATA.survival;
+  const pres=ORDER.filter(p=>surv[p]==='preserved'), broke=ORDER.filter(p=>surv[p]!=='preserved');
+  const d=(DATA.meta.conf6-DATA.meta.conf5);
+  document.getElementById('findings').innerHTML=
+   `<div class="callout"><b>${pres.length} of 9 parties survive</b> adding the foreign-policy dimension${broke.length?` — ${broke.map(p=>PNAME[p]).join(', ')} ${broke.length>1?'change':'changes'}`:''}. Overall cluster strength goes ${d>=0?'<b>up</b>':'<b>down</b>'} ${d>=0?'+':''}${(d*100).toFixed(0)} pts of mean assignment confidence (${d>=0?'cleaner':'noisier'} clusters with the 6th dimension).</div>`;}
+function renderMatrix(){let h='<table class="sm"><thead><tr><th class="party">Party</th><th>wt%</th><th>5-D conf</th><th>6-D conf</th><th>6-D outcome</th></tr></thead><tbody>';
+  ORDER.forEach(p=>{const b=base[p];const s=DATA.survival[p]||'absent';
+    // best matching 6-D cluster conf
+    let m6='';let bestconf=null;
+    DATA.sixdim.forEach(c=>{if((c.composition[p]||0)>0){if(bestconf==null||c.composition[p]>bestconf.share){bestconf={share:c.composition[p],conf:c.conf};}}});
+    const c6=bestconf?bestconf.conf:null;const dc=(c6!=null&&b)?(c6-b.conf):null;
+    h+=`<tr><td class="party"><span class="dot" style="background:${PC[p]}"></span>${PNAME[p]} <span style="color:#94a3b8">(${p})</span></td><td>${b?b.wtPct:''}%</td><td>${b?b.conf.toFixed(2):''}</td><td>${c6!=null?c6.toFixed(2):''} ${dc!=null&&Math.abs(dc)>=0.02?`<span class="cdelta ${dc>0?'up':'dn'}">${dc>0?'+':''}${dc.toFixed(2)}</span>`:''}</td><td><span class="verdict v-${s}">${s}</span></td></tr>`;});
+  h+='</tbody></table>';document.getElementById('matrix').innerHTML=h;}
+function clusterCard(rec){const c=rec.composition,ks=Object.keys(c);
+  let title,topbar='#94a3b8',baseParty=null;
+  if(ks.length===1||(ks.length>1&&c[ks[0]]>=60)){baseParty=ks[0];title=`${PNAME[ks[0]]} <span style="color:#94a3b8;font-weight:600">(${ks[0]}${ks.length>1?'-led':''})</span>`;topbar=PC[ks[0]];}
+  else{title='Blend — '+ks.slice(0,3).join(' + ');topbar=PC[ks[0]]||'#0d9488';}
+  const uid='s_'+rec.id;
+  return `<div class="cc" style="--ctop:${topbar}"><h3>${title}</h3><div class="wt">${rec.wtPct}% · cluster ${rec.id}</div>
+   <div class="comp">${compPills(c)}</div>${strengthRow(rec.conf)}
+   <div class="fac">${FN.map(n=>facBar(n,rec.factors[n])).join('')}</div>
+   <span class="more" onclick="document.getElementById('det_${uid}').classList.toggle('on')">▸ policy &amp; demographics${baseParty?' (Δ vs '+baseParty+')':''}</span>
+   <div class="detail" id="det_${uid}"><div class="sech">Policy support${baseParty?' · marker = baseline, ≥10pt shift flagged':''}</div><div class="pol">${polRows(rec,baseParty)}</div>
+   <div class="sech">Demographics</div><div class="demo">${demoRows(rec)}</div></div></div>`;}
+function renderSixdim(){document.getElementById('sixdim').innerHTML=[...DATA.sixdim].sort((a,b)=>b.wtPct-a.wtPct).map(clusterCard).join('');}
+function renderBaseline(){document.getElementById('baseline').innerHTML=ORDER.concat(['C7']).map(p=>{const r=base[p];if(!r)return '';const uid='b_'+p;
+  return `<div class="cc" style="--ctop:${PC[p]}"><h3>${PNAME[p]} <span style="color:#94a3b8;font-weight:600">(${p})</span></h3><div class="wt">${r.wtPct}%</div>${strengthRow(r.conf)}
+   <div class="fac">${FN.map(n=>facBar(n,r.factors[n])).join('')}</div>
+   <span class="more" onclick="document.getElementById('det_${uid}').classList.toggle('on')">▸ policy &amp; demographics</span>
+   <div class="detail" id="det_${uid}"><div class="sech">Policy support</div><div class="pol">${polRows(r,null)}</div><div class="sech">Demographics</div><div class="demo">${demoRows(r)}</div></div></div>`;}).join('');}
+document.getElementById('foot').textContent='Reproduction note: 6-D = production 5 factor scores (raw) + foreign-policy PC1 z-scored to the median factor SD; DPGMM n_components=10, dirichlet_process, n_init=5, seed 42. Scripts: analysis/efa/sixdim_cluster.py, build_sixdim_{data,html}.py.';
+renderStats();renderFindings();renderMatrix();renderSixdim();renderBaseline();
+</script></body></html>"""
+open(ROOT/'analysis/efa/sixdim_explorer.html','w').write(HTML.replace('__DATA__',DATA_JSON))
+print("wrote analysis/efa/sixdim_explorer.html")

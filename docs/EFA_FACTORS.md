@@ -328,3 +328,39 @@ Residualized vs non-residualized clusterings have ~the same average confidence (
 **Keep residualization on.** By cluster confidence the two paradigms are a near-tie (≈0.77), so residualization isn't a quality trade — it's a structure choice, and the residualized version resolves the full nine (especially the weakly-separated left quartet LIB/DSA/PRG, which collapses without it). What non-residualization "adds" is mostly the left bloc merging into coarser groups, plus the one law-and-order-Democrat blend — which is ~40% the already-dropped Blue Dogs. Trading clean left-party separation to re-surface the ambiguous group we rejected is a bad trade. Residualization also has a principled basis: removing the dominant enforcement axis's pull on the culture factors lets them vary independently of left–right, which is what lets the *other* cross-cutting structure (STY) show up cleanly rather than smeared along the main axis.
 
 > Interactive write-up of this comparison: `analysis/efa/cluster_explorer.html` (built by `build_cluster_explorer_{data,html}.py`); strength re-fit in `cluster_confidence_k5.py`; survival/correspondence in `cluster_survival_k4_k5.py` and `compare_k4_vs_k5_clustering.py`.
+
+---
+
+## Orthogonal cleavages outside the factor model
+
+The 5 factors and the 9 parties are a **domestic-policy** typology. A separate question is whether items *excluded* from the EFA hide a coherent dimension the model misses. Tested with a method suited to the data — PCA on binary indicators + communality (weighted R² of each excluded item on the 5 factor scores), **not** polychoric EFA. Scripts: `analysis/efa/explore_foreign_policy.py`, `explore_extra_dims.py`.
+
+**Excluded *clean* (EFA-compatible) items carry no hidden dimension.** Of ~30 support/oppose and agree/disagree items left out, the strongly-polarized ones are already well explained by the 5 factors (build-the-wall R²=0.54, racial-resentment 0.48–0.50, climate 0.39–0.45, assault-rifle ban 0.39) — redundant, so excluding them was parsimony/balance, not loss. The low-communality ones don't cohere into a factor (pairwise |r| mostly <0.3); they're either **valence issues** (background checks R²=0.13 at 93% support; mental-health spending; expand Medicaid — broadly popular, little discriminating signal) or the one genuinely off-axis thread below. Re-including any of these would not improve the model.
+
+**Foreign policy is a real, mostly-orthogonal cleavage — engagement ↔ isolationism.** PCA on the Ukraine / Israel–Gaza / use-of-force batteries gives a coherent PC1 (~25% variance): every engagement action loads one way, "stay out / none" the other. It correlates only modestly with the domestic factors (F5 −0.33, F2 −0.29, F1 −0.26, F3 ≈ 0) and separates the 9 clusters at **η²=0.18 — on par with Religious Traditionalism (F4=0.181) and 3× the retained Government Distrust (F3=0.061)**. It cross-cuts the parties: isolationism is highest at the *anti-establishment* poles — populist-right **POP** and economically-left **STY** meet at the isolationist end, despite sitting opposite on left–right. It was correctly kept out of the polychoric EFA for the **data-shape** reason (multi-select / the mechanical "none" anti-correlation), not for lack of signal.
+
+**Housing/zoning is a faint second off-axis thread.** "Relax zoning for apartments" has R²=0.04 with the five factors (essentially unrelated) and correlates 0.31 with affordable-housing — a YIMBY–NIMBY cleavage structurally like foreign policy, but only 2–3 items, far too thin to anchor a stable factor.
+
+**Decision:** treat foreign-policy engagement (and, faintly, housing) as **documented orthogonal overlays** — cross-cutting cleavages the two-party frame erases, present even inside the 9 domestic-policy parties — not as new factors or clustering inputs. The discipline: fix the validated domestic foundation, add dimensions as overlays, never as foundation-changers.
+
+---
+
+## The 6-D foreign-policy variant: fracturing the middle
+
+We tested what happens if foreign policy were a *party-defining* sixth dimension, not just an overlay — clustering on the five production factor scores **plus** a foreign-policy engagement↔isolationism score (PCA of the Ukraine / Israel–Gaza / use-of-force batteries), scaled to a typical factor's strength, everything else held to production (`analysis/efa/sixdim_cluster.py`; explorer `sixdim_explorer.html`; coalition view `coalition_fracture.html`).
+
+**It does not break the system.** 10 well-populated clusters; mean assignment confidence **0.752 vs 0.755** (statistically identical to the 5-D parties). ARI vs production = 0.54. So foreign policy is a "free" dimension — it carves new structure without degrading the existing clusters.
+
+**It fractures the cross-pressured middle, not the poles.** Counting how many 6-D clusters each production party spreads across (≥15% of its members):
+
+| stable poles (1 cluster) | fractured middle (2–3 clusters) |
+|---|---|
+| PRG, DSA, LIB, CON, NAT | STY (3), SD (2), CUP (2), POP (2), C7 (2) |
+
+The ideological poles hold; the cross-pressured center splits along engagement↔isolationism. The signature new entity is an **isolationist bloc** (POP 37 / STY 36 / CON 11, FP engagement −1.78) — drawn from the populist right *and* the economic left, united only by "stay out." SD splits into an **internationalist wing** (SD/LIB, FP +0.92) and a lower-engagement SD/STY group; STY fragments three ways.
+
+**Legislation effect (party-discipline House, seats ∝ population).** The electorate is identical, so most outcomes hold — but the re-sorted blocs, voting as units, **flip two knife-edge immigration bills toward restriction**: *grant legal status to undocumented* 60%→49% (fails, despite 59% popular) and *deny asylum* 50%→59% (passes). Foreign-policy votes also become more decisive/whippable (the isolationist bloc votes cohesively instead of splitting inside every party). The flips come from bloc mechanics under perfect party discipline, not changed minds — a reminder that *party structure*, not just opinion, decides near-even bills.
+
+**C7 (Blue Dogs), revisited.** C7's members split **65% into a Conservative-led cluster, 26% into a Liberal-led one** — left and right. C7 is Democratic by identity (45% Dem, very racially progressive, values −1.09) but enforcement-hawkish, so an enforcement-dominated clustering drags it rightward. This is the representation gap in miniature: drop C7 and these Democratic-leaning voters get folded into Conservative. It also fits the broader pattern — **the cross-pressured middle and the left are far more fractious than the right** (CON/NAT solid everywhere; LIB/DSA/SD/STY/CUP/POP/C7 all split under one lens or another).
+
+**Decision.** Keep the **5-D, residualized, 9-party model as the backbone** (it's the validated foundation the whole simulation runs on). Foreign policy stays a **documented overlay** for the current "what parties would emerge from today's opinion" framing. The 6-D run is preserved as the **forward-looking "where this is heading" variant**: it shows the foreign-policy realignment is latent in the data and would fracture the middle into more partisan camps *if* foreign policy keeps rising in salience — but its headline new group (the everyone-who-wants-to-stay-out bloc) is a real *cleavage*, not yet a plausible governing *party* (it agrees on one issue and little else). Cohesion can't decide between 5-D and 6-D (they tie at ~0.75); plausibility favors the 5-D parties as coalitions, with the 6-D as the scenario for an emerging populist/nationalist foreign-policy axis.

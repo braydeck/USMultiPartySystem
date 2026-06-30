@@ -1,0 +1,695 @@
+{
+ "groups": {
+  "cur:SD": {
+   "wtPct": 14.1,
+   "factors": {
+    "enforce": -0.41,
+    "elecSkep": -0.03,
+    "govDist": 0.09,
+    "relig": -0.25,
+    "values": -0.33,
+    "FPengage": 0.09
+   },
+   "bills": {
+    "CC24_341c": 86.0,
+    "CC24_328e": 93.0,
+    "CC24_443_1": 45.0,
+    "CC24_323a": 83.0,
+    "CC24_323d": 98.0,
+    "CC24_323b": 72.0,
+    "CC24_340f": 39.0,
+    "CC24_321d": 31.0,
+    "CC24_340c": 96.0,
+    "CC24_308a_4": 42.0,
+    "CC24_308a_3": 48.0,
+    "CC24_308b_3": 12.0,
+    "CC24_420_5": 71.0,
+    "CC24_420_2": 47.0,
+    "CC24_308a_1": 14.0
+   },
+   "kind": "current"
+  },
+  "cur:STY": {
+   "wtPct": 12.4,
+   "factors": {
+    "enforce": -0.45,
+    "elecSkep": 0.66,
+    "govDist": 0.13,
+    "relig": 0.26,
+    "values": 0.19,
+    "FPengage": -0.53
+   },
+   "bills": {
+    "CC24_341c": 59.0,
+    "CC24_328e": 84.0,
+    "CC24_443_1": 39.0,
+    "CC24_323a": 75.0,
+    "CC24_323d": 87.0,
+    "CC24_323b": 65.0,
+    "CC24_340f": 40.0,
+    "CC24_321d": 35.0,
+    "CC24_340c": 54.0,
+    "CC24_308a_4": 20.0,
+    "CC24_308a_3": 21.0,
+    "CC24_308b_3": 11.0,
+    "CC24_420_5": 54.0,
+    "CC24_420_2": 37.0,
+    "CC24_308a_1": 32.0
+   },
+   "kind": "current"
+  },
+  "cur:POP": {
+   "wtPct": 9.0,
+   "factors": {
+    "enforce": 0.2,
+    "elecSkep": 0.76,
+    "govDist": -0.21,
+    "relig": 0.1,
+    "values": 0.88,
+    "FPengage": -0.88
+   },
+   "bills": {
+    "CC24_341c": 38.0,
+    "CC24_328e": 66.0,
+    "CC24_443_1": 19.0,
+    "CC24_323a": 12.0,
+    "CC24_323d": 28.0,
+    "CC24_323b": 89.0,
+    "CC24_340f": 87.0,
+    "CC24_321d": 44.0,
+    "CC24_340c": 43.0,
+    "CC24_308a_4": 10.0,
+    "CC24_308a_3": 19.0,
+    "CC24_308b_3": 27.0,
+    "CC24_420_5": 53.0,
+    "CC24_420_2": 53.0,
+    "CC24_308a_1": 47.0
+   },
+   "kind": "current"
+  },
+  "cur:CON": {
+   "wtPct": 19.2,
+   "factors": {
+    "enforce": 0.77,
+    "elecSkep": -0.02,
+    "govDist": 0.11,
+    "relig": 0.05,
+    "values": 0.01,
+    "FPengage": -0.38
+   },
+   "bills": {
+    "CC24_341c": 53.0,
+    "CC24_328e": 67.0,
+    "CC24_443_1": 16.0,
+    "CC24_323a": 30.0,
+    "CC24_323d": 53.0,
+    "CC24_323b": 99.0,
+    "CC24_340f": 100.0,
+    "CC24_321d": 100.0,
+    "CC24_340c": 48.0,
+    "CC24_308a_4": 24.0,
+    "CC24_308a_3": 36.0,
+    "CC24_308b_3": 45.0,
+    "CC24_420_5": 69.0,
+    "CC24_420_2": 66.0,
+    "CC24_308a_1": 25.0
+   },
+   "kind": "current"
+  },
+  "6D:POP/STY": {
+   "wtPct": 10.2,
+   "factors": {
+    "enforce": 0.08,
+    "elecSkep": 0.54,
+    "govDist": -0.07,
+    "relig": 0.21,
+    "values": 0.55,
+    "FPengage": -0.39
+   },
+   "bills": {
+    "CC24_341c": 45.0,
+    "CC24_328e": 71.0,
+    "CC24_443_1": 25.0,
+    "CC24_323a": 35.0,
+    "CC24_323d": 53.0,
+    "CC24_323b": 85.0,
+    "CC24_340f": 76.0,
+    "CC24_321d": 48.0,
+    "CC24_340c": 43.0,
+    "CC24_308a_4": 15.0,
+    "CC24_308a_3": 25.0,
+    "CC24_308b_3": 29.0,
+    "CC24_420_5": 64.0,
+    "CC24_420_2": 56.0,
+    "CC24_308a_1": 19.0
+   },
+   "comp": {
+    "POP": 53,
+    "STY": 36
+   },
+   "id": 0,
+   "kind": "sixdim"
+  },
+  "6D:LIB/C7": {
+   "wtPct": 8.5,
+   "factors": {
+    "enforce": -0.1,
+    "elecSkep": -0.76,
+    "govDist": -0.08,
+    "relig": -0.33,
+    "values": -0.94,
+    "FPengage": 0.65
+   },
+   "bills": {
+    "CC24_341c": 99.0,
+    "CC24_328e": 95.0,
+    "CC24_443_1": 43.0,
+    "CC24_323a": 99.0,
+    "CC24_323d": 100.0,
+    "CC24_323b": 87.0,
+    "CC24_340f": 48.0,
+    "CC24_321d": 55.0,
+    "CC24_340c": 97.0,
+    "CC24_308a_4": 73.0,
+    "CC24_308a_3": 72.0,
+    "CC24_308b_3": 22.0,
+    "CC24_420_5": 85.0,
+    "CC24_420_2": 61.0,
+    "CC24_308a_1": 1.0
+   },
+   "comp": {
+    "LIB": 76,
+    "C7": 19
+   },
+   "id": 1,
+   "kind": "sixdim"
+  },
+  "6D:NAT": {
+   "wtPct": 10.6,
+   "factors": {
+    "enforce": 0.74,
+    "elecSkep": 0.4,
+    "govDist": -0.21,
+    "relig": 0.28,
+    "values": 1.06,
+    "FPengage": -0.58
+   },
+   "bills": {
+    "CC24_341c": 9.0,
+    "CC24_328e": 39.0,
+    "CC24_443_1": 4.0,
+    "CC24_323a": 1.0,
+    "CC24_323d": 1.0,
+    "CC24_323b": 100.0,
+    "CC24_340f": 100.0,
+    "CC24_321d": 100.0,
+    "CC24_340c": 27.0,
+    "CC24_308a_4": 18.0,
+    "CC24_308a_3": 33.0,
+    "CC24_308b_3": 62.0,
+    "CC24_420_5": 65.0,
+    "CC24_420_2": 72.0,
+    "CC24_308a_1": 32.0
+   },
+   "comp": {
+    "NAT": 91
+   },
+   "id": 2,
+   "kind": "sixdim"
+  },
+  "6D:PRG/LIB": {
+   "wtPct": 6.0,
+   "factors": {
+    "enforce": -1.23,
+    "elecSkep": -0.66,
+    "govDist": -0.19,
+    "relig": -0.09,
+    "values": -0.28,
+    "FPengage": 1.02
+   },
+   "bills": {
+    "CC24_341c": 100.0,
+    "CC24_328e": 99.0,
+    "CC24_443_1": 74.0,
+    "CC24_323a": 100.0,
+    "CC24_323d": 100.0,
+    "CC24_323b": 44.0,
+    "CC24_340f": 1.0,
+    "CC24_321d": 0.0,
+    "CC24_340c": 100.0,
+    "CC24_308a_4": 80.0,
+    "CC24_308a_3": 89.0,
+    "CC24_308b_3": 10.0,
+    "CC24_420_5": 83.0,
+    "CC24_420_2": 48.0,
+    "CC24_308a_1": 0.0
+   },
+   "comp": {
+    "PRG": 83,
+    "LIB": 16
+   },
+   "id": 3,
+   "kind": "sixdim"
+  },
+  "6D:DSA": {
+   "wtPct": 6.1,
+   "factors": {
+    "enforce": -1.32,
+    "elecSkep": 0.37,
+    "govDist": 0.07,
+    "relig": -0.09,
+    "values": -0.14,
+    "FPengage": 0.33
+   },
+   "bills": {
+    "CC24_341c": 100.0,
+    "CC24_328e": 99.0,
+    "CC24_443_1": 73.0,
+    "CC24_323a": 100.0,
+    "CC24_323d": 100.0,
+    "CC24_323b": 16.0,
+    "CC24_340f": 0.0,
+    "CC24_321d": 0.0,
+    "CC24_340c": 99.0,
+    "CC24_308a_4": 41.0,
+    "CC24_308a_3": 52.0,
+    "CC24_308b_3": 3.0,
+    "CC24_420_5": 58.0,
+    "CC24_420_2": 25.0,
+    "CC24_308a_1": 7.0
+   },
+   "comp": {
+    "DSA": 88
+   },
+   "id": 4,
+   "kind": "sixdim"
+  },
+  "6D:CON/C7": {
+   "wtPct": 22.7,
+   "factors": {
+    "enforce": 0.75,
+    "elecSkep": -0.21,
+    "govDist": 0.17,
+    "relig": 0.01,
+    "values": -0.21,
+    "FPengage": -0.24
+   },
+   "bills": {
+    "CC24_341c": 60.0,
+    "CC24_328e": 72.0,
+    "CC24_443_1": 19.0,
+    "CC24_323a": 43.0,
+    "CC24_323d": 64.0,
+    "CC24_323b": 99.0,
+    "CC24_340f": 100.0,
+    "CC24_321d": 100.0,
+    "CC24_340c": 53.0,
+    "CC24_308a_4": 28.0,
+    "CC24_308a_3": 39.0,
+    "CC24_308b_3": 44.0,
+    "CC24_420_5": 73.0,
+    "CC24_420_2": 67.0,
+    "CC24_308a_1": 19.0
+   },
+   "comp": {
+    "CON": 73,
+    "C7": 18
+   },
+   "id": 5,
+   "kind": "sixdim"
+  },
+  "6D:SD/STY": {
+   "wtPct": 12.4,
+   "factors": {
+    "enforce": -0.53,
+    "elecSkep": 0.51,
+    "govDist": 0.29,
+    "relig": -0.07,
+    "values": -0.15,
+    "FPengage": -0.32
+   },
+   "bills": {
+    "CC24_341c": 79.0,
+    "CC24_328e": 92.0,
+    "CC24_443_1": 45.0,
+    "CC24_323a": 88.0,
+    "CC24_323d": 98.0,
+    "CC24_323b": 63.0,
+    "CC24_340f": 31.0,
+    "CC24_321d": 30.0,
+    "CC24_340c": 84.0,
+    "CC24_308a_4": 24.0,
+    "CC24_308a_3": 26.0,
+    "CC24_308b_3": 8.0,
+    "CC24_420_5": 61.0,
+    "CC24_420_2": 39.0,
+    "CC24_308a_1": 17.0
+   },
+   "comp": {
+    "SD": 49,
+    "STY": 44
+   },
+   "id": 6,
+   "kind": "sixdim"
+  },
+  "6D:POP/STY/CON (isolationist)": {
+   "wtPct": 7.9,
+   "factors": {
+    "enforce": -0.03,
+    "elecSkep": 0.7,
+    "govDist": -0.02,
+    "relig": 0.04,
+    "values": 0.42,
+    "FPengage": -1.78
+   },
+   "bills": {
+    "CC24_341c": 56.0,
+    "CC24_328e": 77.0,
+    "CC24_443_1": 28.0,
+    "CC24_323a": 47.0,
+    "CC24_323d": 57.0,
+    "CC24_323b": 78.0,
+    "CC24_340f": 68.0,
+    "CC24_321d": 46.0,
+    "CC24_340c": 52.0,
+    "CC24_308a_4": 0.0,
+    "CC24_308a_3": 0.0,
+    "CC24_308b_3": 1.0,
+    "CC24_420_5": 24.0,
+    "CC24_420_2": 22.0,
+    "CC24_308a_1": 96.0
+   },
+   "comp": {
+    "POP": 37,
+    "STY": 36,
+    "CON": 11
+   },
+   "id": 7,
+   "kind": "sixdim"
+  },
+  "6D:CUP": {
+   "wtPct": 7.3,
+   "factors": {
+    "enforce": 0.18,
+    "elecSkep": -0.83,
+    "govDist": -0.3,
+    "relig": 0.12,
+    "values": 0.0,
+    "FPengage": -0.3
+   },
+   "bills": {
+    "CC24_341c": 59.0,
+    "CC24_328e": 77.0,
+    "CC24_443_1": 29.0,
+    "CC24_323a": 58.0,
+    "CC24_323d": 68.0,
+    "CC24_323b": 91.0,
+    "CC24_340f": 78.0,
+    "CC24_321d": 60.0,
+    "CC24_340c": 54.0,
+    "CC24_308a_4": 29.0,
+    "CC24_308a_3": 33.0,
+    "CC24_308b_3": 31.0,
+    "CC24_420_5": 66.0,
+    "CC24_420_2": 55.0,
+    "CC24_308a_1": 21.0
+   },
+   "comp": {
+    "CUP": 81
+   },
+   "id": 8,
+   "kind": "sixdim"
+  },
+  "6D:SD/LIB": {
+   "wtPct": 8.3,
+   "factors": {
+    "enforce": -0.49,
+    "elecSkep": -0.32,
+    "govDist": -0.09,
+    "relig": -0.21,
+    "values": -0.36,
+    "FPengage": 0.92
+   },
+   "bills": {
+    "CC24_341c": 86.0,
+    "CC24_328e": 94.0,
+    "CC24_443_1": 50.0,
+    "CC24_323a": 78.0,
+    "CC24_323d": 99.0,
+    "CC24_323b": 74.0,
+    "CC24_340f": 36.0,
+    "CC24_321d": 25.0,
+    "CC24_340c": 97.0,
+    "CC24_308a_4": 73.0,
+    "CC24_308a_3": 81.0,
+    "CC24_308b_3": 20.0,
+    "CC24_420_5": 88.0,
+    "CC24_420_2": 61.0,
+    "CC24_308a_1": 0.0
+   },
+   "comp": {
+    "SD": 76,
+    "LIB": 12
+   },
+   "id": 9,
+   "kind": "sixdim"
+  }
+ },
+ "bills": [
+  {
+   "key": "CC24_341c",
+   "label": "Raise taxes on $400k+ earners",
+   "kind": "sup"
+  },
+  {
+   "key": "CC24_328e",
+   "label": "Expand Medicaid",
+   "kind": "sup"
+  },
+  {
+   "key": "CC24_443_1",
+   "label": "Increase welfare spending",
+   "kind": "inc"
+  },
+  {
+   "key": "CC24_323a",
+   "label": "Grant legal status to undocumented",
+   "kind": "sup"
+  },
+  {
+   "key": "CC24_323d",
+   "label": "Pathway for Dreamers",
+   "kind": "sup"
+  },
+  {
+   "key": "CC24_323b",
+   "label": "Increase border patrols",
+   "kind": "sup"
+  },
+  {
+   "key": "CC24_340f",
+   "label": "Deny asylum at the border",
+   "kind": "sup"
+  },
+  {
+   "key": "CC24_321d",
+   "label": "Increase police by 10%",
+   "kind": "sup"
+  },
+  {
+   "key": "CC24_340c",
+   "label": "Recognize same-sex marriage",
+   "kind": "sup"
+  },
+  {
+   "key": "CC24_308a_4",
+   "label": "Arm Ukraine",
+   "kind": "sel"
+  },
+  {
+   "key": "CC24_308a_3",
+   "label": "Sanction Russia",
+   "kind": "sel"
+  },
+  {
+   "key": "CC24_308b_3",
+   "label": "Arm Israel",
+   "kind": "sel"
+  },
+  {
+   "key": "CC24_420_5",
+   "label": "Use troops to protect allies",
+   "kind": "sel"
+  },
+  {
+   "key": "CC24_420_2",
+   "label": "Use troops vs terrorism",
+   "kind": "sel"
+  },
+  {
+   "key": "CC24_308a_1",
+   "label": "Ukraine: stay out",
+   "kind": "sel"
+  }
+ ],
+ "factor_names": [
+  "enforce",
+  "elecSkep",
+  "govDist",
+  "relig",
+  "values",
+  "FPengage"
+ ],
+ "legislation": [
+  {
+   "key": "CC24_341c",
+   "label": "Raise taxes on $400k+ earners",
+   "overall": 65.0,
+   "house9": 80.0,
+   "house6": 79.0,
+   "pass9": true,
+   "pass6": true,
+   "flip": false
+  },
+  {
+   "key": "CC24_328e",
+   "label": "Expand Medicaid",
+   "overall": 79.0,
+   "house9": 90.0,
+   "house6": 89.0,
+   "pass9": true,
+   "pass6": true,
+   "flip": false
+  },
+  {
+   "key": "CC24_443_1",
+   "label": "Increase welfare spending",
+   "overall": 34.0,
+   "house9": 12.0,
+   "house6": 12.0,
+   "pass9": false,
+   "pass6": false,
+   "flip": false
+  },
+  {
+   "key": "CC24_323a",
+   "label": "Grant legal status to undocumented",
+   "overall": 59.0,
+   "house9": 60.0,
+   "house6": 49.0,
+   "pass9": true,
+   "pass6": false,
+   "flip": true
+  },
+  {
+   "key": "CC24_323d",
+   "label": "Pathway for Dreamers",
+   "overall": 70.0,
+   "house9": 80.0,
+   "house6": 89.0,
+   "pass9": true,
+   "pass6": true,
+   "flip": false
+  },
+  {
+   "key": "CC24_323b",
+   "label": "Increase border patrols",
+   "overall": 80.0,
+   "house9": 88.0,
+   "house6": 88.0,
+   "pass9": true,
+   "pass6": true,
+   "flip": false
+  },
+  {
+   "key": "CC24_340f",
+   "label": "Deny asylum at the border",
+   "overall": 63.0,
+   "house9": 50.0,
+   "house6": 59.0,
+   "pass9": false,
+   "pass6": true,
+   "flip": true
+  },
+  {
+   "key": "CC24_321d",
+   "label": "Increase police by 10%",
+   "overall": 57.0,
+   "house9": 40.0,
+   "house6": 49.0,
+   "pass9": false,
+   "pass6": false,
+   "flip": false
+  },
+  {
+   "key": "CC24_340c",
+   "label": "Recognize same-sex marriage",
+   "overall": 66.0,
+   "house9": 60.0,
+   "house6": 79.0,
+   "pass9": true,
+   "pass6": true,
+   "flip": false
+  },
+  {
+   "key": "CC24_308a_4",
+   "label": "Arm Ukraine",
+   "overall": 34.0,
+   "house9": 16.0,
+   "house6": 23.0,
+   "pass9": false,
+   "pass6": false,
+   "flip": false
+  },
+  {
+   "key": "CC24_308a_3",
+   "label": "Sanction Russia",
+   "overall": 42.0,
+   "house9": 22.0,
+   "house6": 29.0,
+   "pass9": false,
+   "pass6": false,
+   "flip": false
+  },
+  {
+   "key": "CC24_308b_3",
+   "label": "Arm Israel",
+   "overall": 27.0,
+   "house9": 10.0,
+   "house6": 11.0,
+   "pass9": false,
+   "pass6": false,
+   "flip": false
+  },
+  {
+   "key": "CC24_420_5",
+   "label": "Use troops to protect allies",
+   "overall": 67.0,
+   "house9": 100.0,
+   "house6": 92.0,
+   "pass9": true,
+   "pass6": true,
+   "flip": false
+  },
+  {
+   "key": "CC24_420_2",
+   "label": "Use troops vs terrorism",
+   "overall": 54.0,
+   "house9": 59.0,
+   "house6": 68.0,
+   "pass9": true,
+   "pass6": true,
+   "flip": false
+  },
+  {
+   "key": "CC24_308a_1",
+   "label": "Ukraine: stay out",
+   "overall": 21.0,
+   "house9": 0.0,
+   "house6": 8.0,
+   "pass9": false,
+   "pass6": false,
+   "flip": false
+  }
+ ]
+}
