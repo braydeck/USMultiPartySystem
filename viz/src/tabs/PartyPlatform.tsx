@@ -45,10 +45,16 @@ interface Row {
   question: string;
   domain: string;
   overall: number;
+  maxVal: number;              // axis maximum (100 for %, 40 for abortion weeks, etc.)
+  unit: string;                // display suffix ('%', 'wks', …)
   cells: Record<string, Cell>; // by party code
   qualifiers: string[];        // parties for whom this is a defining plank
-  maxStrength: number;         // max |pct-50| among qualifiers, for sorting
+  maxStrength: number;         // max normalized |value-50| among qualifiers, for sorting
 }
+
+// Normalize a value onto a 0–100 scale so non-percentage items (e.g. abortion
+// cutoff in weeks, maxVal 40) share the same consensus/deviation thresholds.
+const norm = (val: number, maxVal: number) => (maxVal === 100 ? val : (val / maxVal) * 100);
 
 export function PartyPlatform({ clusters }: Props) {
   const parties = F5_ORDER.filter(p => clusters.some(c => c.party === p));
@@ -91,14 +97,15 @@ export function PartyPlatform({ clusters }: Props) {
       const cl = clusters.find(c => c.party === code);
       if (!cl) continue;
       for (const [key, v0] of Object.entries(cl.variables ?? {})) {
-        const v = v0 as { pct?: number; overall?: number; diffPp?: number; domain?: string; question?: string };
+        const v = v0 as { pct?: number; overall?: number; diffPp?: number; domain?: string; question?: string; maxVal?: number; unit?: string };
         if (!v || typeof v !== 'object' || v.pct == null || !v.domain || !domainSet.has(v.domain)) continue;
+        const maxVal = v.maxVal ?? 100;
         let row = byKey.get(key);
         if (!row) {
-          row = { key, question: v.question ?? key, domain: v.domain, overall: v.overall ?? 0, cells: {}, qualifiers: [], maxStrength: 0 };
+          row = { key, question: v.question ?? key, domain: v.domain, overall: v.overall ?? 0, maxVal, unit: v.unit ?? '%', cells: {}, qualifiers: [], maxStrength: 0 };
           byKey.set(key, row);
         }
-        const q = qualifies(v.pct, v.overall ?? v.pct, filter);
+        const q = qualifies(norm(v.pct, maxVal), norm(v.overall ?? v.pct, maxVal), filter);
         row.cells[code] = { pct: v.pct, diffPp: v.diffPp ?? 0, qualifies: q };
         if (q) row.qualifiers.push(code);
       }
@@ -106,7 +113,7 @@ export function PartyPlatform({ clusters }: Props) {
     const out: Record<string, Row[]> = {};
     for (const row of byKey.values()) {
       if (row.qualifiers.length === 0) continue;
-      row.maxStrength = Math.max(...row.qualifiers.map(c => Math.abs(row.cells[c]!.pct - 50)));
+      row.maxStrength = Math.max(...row.qualifiers.map(c => Math.abs(norm(row.cells[c]!.pct, row.maxVal) - 50)));
       (out[row.domain] ??= []).push(row);
     }
     // Shared planks first (surfaces overlap), then by strength.
@@ -251,22 +258,26 @@ export function PartyPlatform({ clusters }: Props) {
                           if (!cell || !cell.qualifies) {
                             return <div key={code} className={`${base} text-center text-slate-300 text-xs`} aria-hidden="true">·</div>;
                           }
-                          const high = cell.pct >= 50;
-                          const arrowColor = isView ? (high ? '#16a34a' : '#dc2626') : NEUTRAL_BAR;
+                          const isPct = row.unit === '%';
+                          const high = norm(cell.pct, row.maxVal) >= 50;
+                          const arrowColor = isView && isPct ? (high ? '#16a34a' : '#dc2626') : NEUTRAL_BAR;
                           const cellColor = PARTY_COLORS[code] ?? '#6b7280';
+                          const diff = cell.pct - row.overall;
+                          const suffix = isPct ? '' : ` ${row.unit}`;
                           return (
                             <div key={code} className={base}>
                               <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                                 <div className="absolute top-0 left-0 h-full rounded-full"
-                                  style={{ width: `${cell.pct}%`, backgroundColor: cellColor }} />
+                                  style={{ width: `${norm(cell.pct, row.maxVal)}%`, backgroundColor: cellColor }} />
                                 <div className="absolute top-0 h-full w-0.5 bg-slate-500"
-                                  style={{ left: `${row.overall}%` }} title={`National avg ${Math.round(row.overall)}%`} />
+                                  style={{ left: `${norm(row.overall, row.maxVal)}%` }}
+                                  title={`National avg ${Math.round(row.overall)}${isPct ? '%' : suffix}`} />
                               </div>
                               <div className="flex items-center gap-1 mt-1 text-[11px] tabular-nums">
                                 <span style={{ color: arrowColor }} aria-hidden="true">{high ? '▲' : '▼'}</span>
-                                <span className="font-semibold text-foreground">{Math.round(cell.pct)}%</span>
+                                <span className="font-semibold text-foreground">{Math.round(cell.pct)}{isPct ? '%' : suffix}</span>
                                 <span className="text-muted-foreground">
-                                  {cell.diffPp >= 0 ? '+' : ''}{Math.round(cell.diffPp)}
+                                  {diff >= 0 ? '+' : ''}{Math.round(diff)}{suffix}
                                 </span>
                               </div>
                             </div>
