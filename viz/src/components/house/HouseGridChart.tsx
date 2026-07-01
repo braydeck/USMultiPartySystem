@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+import { PARTY_COLORS, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import type { HouseStateEntry, DistrictResult } from '../../types';
 
 interface Props {
@@ -76,6 +76,13 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
     return out;
   }, [districtResults]);
 
+  // Parties actually present across states (so the highlight legend only lists real parties).
+  const presentParties = useMemo(() => {
+    const s = new Set<string>();
+    for (const e of Object.values(stateMap)) for (const p of Object.keys(e.seats ?? {})) s.add(p);
+    return s;
+  }, [stateMap]);
+
   const maxRow = Math.max(...Object.values(STATE_GRID).map(([r]) => r));
   const maxCol = Math.max(...Object.values(STATE_GRID).map(([, c]) => c));
 
@@ -113,7 +120,7 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
       {/* Party highlight filter */}
       <div className="flex flex-wrap gap-1.5 mb-3">
         <span className="text-xs text-muted-foreground self-center mr-1">Highlight:</span>
-        {F5_ORDER.map(p => (
+        {F5_ORDER.filter(p => presentParties.has(p)).map(p => (
           <button
             key={p}
             onClick={() => setActiveParty(activeParty === p ? null : p)}

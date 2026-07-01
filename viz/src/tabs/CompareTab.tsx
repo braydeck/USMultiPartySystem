@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
-import { getBlendColor, PARTY_NAMES, F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText, etaPurple } from '../constants/parties';
+import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText, etaPurple } from '../constants/parties';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -771,7 +771,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
         </div>
         {selected.length === 0 && (
           <p className="text-xs text-muted-foreground mt-2">
-            Try: PRG + NAT (maximum divergence) · SD + CON (presidential rivals) · SD_hi_so + SD (crossover vs base)
+            Try: PRG + NAT (maximum divergence) · LBR + CON (presidential rivals) · LBR_hi_so + LBR (crossover vs base)
           </p>
         )}
       </Card>

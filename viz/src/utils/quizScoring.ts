@@ -4,7 +4,7 @@ import { CLUSTER_TO_PARTY } from '../constants/parties';
 export type SpreadRow = { party: string; n: number; [key: string]: string | number };
 interface ScoreResult { clusterId: string; prob: number }
 
-const ACTIVE = ['0', '1', '2', '3', '4', '5', '6', '8', '9'];
+const ACTIVE = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 // F3 (Government Distrust) is omitted — non-differentiating (every party scores Medium).
 const FACTORS = ['F1', 'F2', 'F4', 'F5'];
 // Temperature softens the 5-D Gaussian posterior into honest match-strengths rather than

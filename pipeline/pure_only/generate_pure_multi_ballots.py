@@ -33,14 +33,19 @@ Outputs
   data/outputs/pure_multi/state_candidate_profiles.csv
 """
 
+import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
+# When INCLUDE_C7=1, activate the C7/WFP party (cluster 7) and write to a
+# parallel pure_multi_c7 output dir so canonical 9-party outputs are untouched.
+INCLUDE_C7 = os.environ.get("INCLUDE_C7") == "1"
+
 BASE_DIR        = Path(__file__).parent.parent.parent
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "pure_multi"
+OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / ("pure_multi_c7" if INCLUDE_C7 else "pure_multi")
 
 PROB_COLS  = [f"prob_cluster_{k}" for k in range(10)]
 FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
@@ -100,6 +105,14 @@ CANDIDATES = [
     {"code": "PRG_2", "party": "PRG", "cluster": 9, "prominence": 0.35},
     {"code": "PRG_3", "party": "PRG", "cluster": 9, "prominence": 0.25},
 ]
+
+if INCLUDE_C7:
+    # ── WFP (C7 / Blue Dogs, cluster 7): 3 candidates ──
+    CANDIDATES += [
+        {"code": "WFP_1", "party": "WFP", "cluster": 7, "prominence": 0.40},
+        {"code": "WFP_2", "party": "WFP", "cluster": 7, "prominence": 0.35},
+        {"code": "WFP_3", "party": "WFP", "cluster": 7, "prominence": 0.25},
+    ]
 
 N_CANDIDATES = len(CANDIDATES)
 CAND_CODES   = [c["code"] for c in CANDIDATES]
@@ -253,7 +266,7 @@ def main():
     print(table.to_string())
 
     print("\nWithin-party first-choice splits (verify 40/35/25):")
-    for party in ["CON", "SD", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"]:
+    for party in ["CON", "SD", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"] + (["WFP"] if INCLUDE_C7 else []):
         codes = [f"{party}_{i}" for i in (1, 2, 3)]
         totals = {c: fc_counts.get(c, 0) for c in codes}
         party_total = sum(totals.values())

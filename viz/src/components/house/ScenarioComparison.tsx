@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { HouseSeat, HouseStateEntry } from '../../types';
-import { PARTY_COLORS, F5_ORDER, CLUSTER_TO_PARTY } from '../../constants/parties';
+import { PARTY_COLORS, F5_ORDER_WFP as F5_ORDER, CLUSTER_TO_PARTY } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
 
 interface Props {

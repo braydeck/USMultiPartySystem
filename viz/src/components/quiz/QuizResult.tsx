@@ -26,7 +26,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
   const [copied, setCopied] = useState(false);
 
   const shareUrl = `https://usmultipartysystem.pages.dev/r/${cluster.party}`;
-  const shareText = `I'm ${cluster.partyName} in a 9-party America. Which party are you?`;
+  const shareText = `I'm ${cluster.partyName} in a multi-party America. Which party are you?`;
 
   // Defining positions: the party's biggest deviations from the national average.
   const positions = (cluster.keyPositions ?? []).slice(0, 5);

@@ -1,5 +1,5 @@
 import type { HouseSeat } from '../../types';
-import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER, getContrastText } from '../../constants/parties';
+import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER, getContrastText } from '../../constants/parties';
 
 interface Props {
   seats: HouseSeat[];

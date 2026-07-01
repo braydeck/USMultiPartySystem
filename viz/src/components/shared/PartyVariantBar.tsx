@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import type { FDHouseSeat } from '../../types';
-import { F5_ORDER, getFDColor } from '../../constants/parties';
+import { F5_ORDER_WFP as F5_ORDER, getFDColor } from '../../constants/parties';
 
 interface Props {
   seats: FDHouseSeat[];

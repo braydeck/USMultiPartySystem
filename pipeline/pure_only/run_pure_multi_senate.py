@@ -21,16 +21,20 @@ Outputs to data/outputs/pure_multi/senate/:
   senate_condorcet_results.csv   — Ranked Pairs matchup detail per state
 """
 
+import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from itertools import combinations
 
+INCLUDE_C7     = os.environ.get("INCLUDE_C7") == "1"
+_SUB           = "pure_multi_c7" if INCLUDE_C7 else "pure_multi"
+
 BASE_DIR       = Path(__file__).parent.parent.parent
 TYPOLOGY_PATH  = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_PATH       = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-STATE_PROFILES = BASE_DIR / "data" / "outputs" / "pure_multi" / "state_candidate_profiles.csv"
-OUTPUT_DIR     = BASE_DIR / "data" / "outputs" / "pure_multi" / "senate"
+STATE_PROFILES = BASE_DIR / "data" / "outputs" / _SUB / "state_candidate_profiles.csv"
+OUTPUT_DIR     = BASE_DIR / "data" / "outputs" / _SUB / "senate"
 
 # ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
 POSITIONAL_SIGMA = 0.35
@@ -48,7 +52,7 @@ PROMINENCE_3 = [0.40, 0.35, 0.25]
 PROMINENCE_2 = [0.60, 0.40]
 PROMINENCE_1 = [1.00]
 
-# ── Party → cluster index (C7/BLB excluded) ───────────────────────────────────
+# ── Party → cluster index (C7/BLB excluded unless INCLUDE_C7) ─────────────────
 PARTY_CLUSTER = {
     "CON": 0,
     "SD":  1,
@@ -60,6 +64,8 @@ PARTY_CLUSTER = {
     "DSA": 8,
     "PRG": 9,
 }
+if INCLUDE_C7:
+    PARTY_CLUSTER["WFP"] = 7   # Working Families Party (Blue Dogs / cluster 7)
 
 STV_SURVIVORS   = 5
 MIN_RESPONDENTS = 10

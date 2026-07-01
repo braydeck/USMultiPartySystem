@@ -3,7 +3,8 @@ import { useUrlState } from '../hooks/useUrlState';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
-import { PIPELINE_LABELS } from '../constants/labels';
+import { PIPELINE_LABELS, WFP_LABELS } from '../constants/labels';
+import type { WfpMode } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
@@ -19,6 +20,9 @@ interface Props {
   fdProfiles: Record<string, FDCandidateProfile>;
   senateVotes: VoteModelRow[];
   houseStateMap: Record<string, HouseStateEntry>;
+  rawMultiWFP: PresidentialElection;
+  clustersWFP: ClusterProfile[];
+  senateVotesWFP: VoteModelRow[];
   /** Optional control rendered first in the sticky control bar (e.g. the Presidency View toggle). */
   controlBarExtra?: ReactNode;
 }
@@ -42,18 +46,26 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
   );
 }
 
-export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, houseStateMap, controlBarExtra }: Props) {
+export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, houseStateMap,
+                                  rawMultiWFP, clustersWFP, senateVotesWFP, controlBarExtra }: Props) {
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
-  const data = scenario === 'rawMulti' ? rawMulti : factorDev;
+  const [wfp, setWfp] = useUrlState<WfpMode>('wfp', 'off', { allowed: ['off', 'on'] });
+
+  // WFP data exists only for the Party-Line (rawMulti) path.
+  const wfpActive   = wfp === 'on' && scenario === 'rawMulti';
+  const rawMultiEff  = wfpActive ? rawMultiWFP : rawMulti;
+  const effClusters  = wfpActive ? clustersWFP : clusters;
+  const effSenateVotes = wfpActive ? senateVotesWFP : senateVotes;
+  const data = scenario === 'rawMulti' ? rawMultiEff : factorDev;
 
   const clusterByParty = useMemo(
-    () => Object.fromEntries(clusters.map(c => [c.party, c])),
-    [clusters],
+    () => Object.fromEntries(effClusters.map(c => [c.party, c])),
+    [effClusters],
   );
 
   // Raw Multi winners
-  const rmCondWinner = rawMulti.condorcetWinner;
-  const rmIrvWinner  = rawMulti.irvWinner;
+  const rmCondWinner = rawMultiEff.condorcetWinner;
+  const rmIrvWinner  = rawMultiEff.irvWinner;
   const rmCondParty  = rmCondWinner.split('_')[0];
   const rmIrvParty   = rmIrvWinner.split('_')[0];
   const rmSameWinner = rmCondWinner === rmIrvWinner;
@@ -61,9 +73,9 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, ho
   // Build Raw Multi display labels (CON_1 → CON when sole numbered variant)
   const rmLabels = useMemo(() => {
     const codes = new Set<string>();
-    for (const r of rawMulti.irvRounds) for (const c of r.candidates) codes.add(c.code);
+    for (const r of rawMultiEff.irvRounds) for (const c of r.candidates) codes.add(c.code);
     return buildDisplayLabels(codes);
-  }, [rawMulti]);
+  }, [rawMultiEff]);
   const rmLabel = (code: string) => rmLabels[code] ?? code;
 
   // Factor Dev winner (same for both methods)
@@ -72,12 +84,12 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, ho
 
   // Bills where Raw Multi Condorcet and IRV presidents act differently
   const divergentBills = useMemo(
-    () => senateVotes.filter(r =>
+    () => effSenateVotes.filter(r =>
       r.presRawMultiCondSigns !== undefined &&
       r.presRawMultiIRVSigns  !== undefined &&
       r.presRawMultiCondSigns !== r.presRawMultiIRVSigns,
     ),
-    [senateVotes],
+    [effSenateVotes],
   );
 
   return (
@@ -94,6 +106,8 @@ export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, ho
         {controlBarExtra}
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} />
+        <ToggleGroup label="WFP" value={wfp} onChange={setWfp}
+          options={['off', 'on'] as const} labels={WFP_LABELS} />
       </StickyControlBar>
 
       {/* Presidential Outcomes — scenario-dependent */}

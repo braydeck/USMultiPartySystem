@@ -3,6 +3,8 @@ import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { PartyCard } from '../components/parties/PartyCard';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { FACTOR_LABELS } from '../constants/parties';
+import { WFP_LABELS } from '../constants/labels';
+import type { WfpMode } from '../constants/labels';
 import { CompareTab } from './CompareTab';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +13,7 @@ import { StickyControlBar } from '../components/shared/StickyControlBar';
 
 interface Props {
   clusters: ClusterProfile[];
+  clustersWFP: ClusterProfile[];
   clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
   fdProfiles: Record<string, FDCandidateProfile>;
 }
@@ -18,11 +21,14 @@ interface Props {
 type SortFactor = 'F1' | 'F2' | 'F3' | 'F4' | 'F5';
 type Section = 'profiles' | 'compare';
 
-export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
+export function PartiesTab({ clusters, clustersWFP, clusterSpreads, fdProfiles }: Props) {
   const [sortFactor, setSortFactor] = useUrlState<SortFactor>('sort', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
   const [cardMode, setCardMode] = useUrlState<'strength' | 'percentile'>('mode', 'strength', { allowed: ['strength', 'percentile'] });
   const [sortDir, setSortDir] = useUrlState<'asc' | 'desc'>('dir', 'desc', { allowed: ['asc', 'desc'] });
   const [section, setSection] = useUrlState<Section>('section', 'compare', { allowed: ['profiles', 'compare'] });
+  const [wfp, setWfp] = useUrlState<WfpMode>('wfp', 'off', { allowed: ['off', 'on'] });
+
+  const effClusters = wfp === 'on' ? clustersWFP : clusters;
 
   function toggleSort(f: SortFactor) {
     if (sortFactor === f) {
@@ -33,7 +39,7 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
     }
   }
 
-  const sorted = [...clusters]
+  const sorted = [...effClusters]
     .filter(c => c.party)
     .sort((a, b) => {
       const diff = (a as any)[sortFactor] - (b as any)[sortFactor];
@@ -45,9 +51,9 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-1">Parties</h2>
         <p className="text-muted-foreground text-sm">
-          A 10-cluster model of the American electorate, with the Blue Dog remnant (C7) merged
-          into adjacent clusters. Each party reflects a distinct ideological constellation
-          derived from CES 2024 survey data.
+          {wfp === 'on'
+            ? 'A 10-cluster model of the American electorate, including the Blue Dog remnant (C7) as the provisional Working Families Party. Each party reflects a distinct ideological constellation derived from CES 2024 survey data.'
+            : 'A 10-cluster model of the American electorate, with the Blue Dog remnant (C7) merged into adjacent clusters. Each party reflects a distinct ideological constellation derived from CES 2024 survey data.'}
         </p>
       </div>
 
@@ -55,6 +61,8 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
         <ToggleGroup label="View" value={section} onChange={setSection}
           options={['compare', 'profiles'] as const}
           labels={{ compare: 'Compare Policies', profiles: 'Party Profiles' }} />
+        <ToggleGroup label="WFP" value={wfp} onChange={setWfp}
+          options={['off', 'on'] as const} labels={WFP_LABELS} />
       </StickyControlBar>
 
       {section === 'profiles' && (
@@ -116,7 +124,7 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
       )}
 
       {section === 'compare' && (
-        <CompareTab clusters={clusters} fdProfiles={fdProfiles} />
+        <CompareTab clusters={effClusters} fdProfiles={fdProfiles} />
       )}
     </div>
   );

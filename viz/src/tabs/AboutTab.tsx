@@ -45,15 +45,15 @@ const SCENARIOS = [
     color: '#1d4ed8',
     desc: 'Each of the 9 parties fields exactly 3 intra-party candidates with a 40/35/25 first-choice split. All three share identical ideological positions; only prominence (name recognition) differs.',
     insight: 'Isolates the structural effect of proportional voting itself. Same-party candidates compete on prominence, not ideology.',
-    candidates: 'SD_1, SD_2, SD_3 · CON_1, CON_2, CON_3 · ...',
+    candidates: 'LBR_1, LBR_2, LBR_3 · CON_1, CON_2, CON_3 · ...',
   },
   {
     name: 'Crossover',
     tag: '37 candidates',
     color: '#ea580c',
-    desc: '9 base candidates + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like SD_hi_so (a Social Democrat who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
+    desc: '9 base candidates + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like LBR_hi_so (a Labor candidate who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
     insight: 'Models intra-party ideological diversity. Voters can express a preference not just for a party, but for a faction within it.',
-    candidates: 'SD · SD_hi_so · SD_lo_so · SD_hi_es · ...',
+    candidates: 'LBR · LBR_hi_so · LBR_lo_so · LBR_hi_es · ...',
   },
 ];
 
@@ -451,7 +451,7 @@ export function AboutTab() {
               {[
                 { q: 'Do intra-party factions matter?', a: 'If Crossover and Party-Line produce very different senate compositions, ideological variance within parties is electorally significant. If results converge, party label dominates.' },
                 { q: 'Which parties benefit from crossover candidates?', a: 'Some parties gain seats by splitting their ideological space; crossover variants attract voters who\'d otherwise vote adjacent. Others lose seats to vote-splitting.' },
-                { q: 'Does the presidential winner change?', a: 'Often yes. The Crossover field\'s STY_hi_so and the Party-Line field\'s SD_1 are different candidacies: one is a security-minded Solidarity candidate, the other the Social Democrat baseline.' },
+                { q: 'Does the presidential winner change?', a: 'Often yes. The Crossover field\'s STY_hi_so and the Party-Line field\'s LBR_1 are different candidacies: one is a security-minded Solidarity candidate, the other the Labor baseline.' },
               ].map(r => (
                 <div key={r.q} className="flex gap-3">
                   <div className="text-muted-foreground shrink-0 mt-0.5">→</div>

@@ -60,6 +60,17 @@ import fdDistrictStvResultsTripleData from './data/fdDistrictStvResultsTriple.js
 import houseStateMapTripleData from './data/houseStateMapTriple.json';
 import districtCountyMapTripleData from './data/districtCountyMapTriple.json';
 
+// WFP (C7) parallel 10-party dataset — swapped in by the per-tab WFP toggle.
+import houseSeatsWFPData from './data/houseSeatsWFP.json';
+import houseVoteModelWFPData from './data/houseVoteModelWFP.json';
+import senateVoteModelWFPData from './data/senateVoteModelWFP.json';
+import houseStateMapWFPData from './data/houseStateMapWFP.json';
+import clusterProfilesWFPData from './data/clusterProfilesWFP.json';
+import pureMultiSenateCondorcetWFPData from './data/pureMultiSenateCondorcetWFP.json';
+import pureMultiSenateIRVWFPData from './data/pureMultiSenateIRVWFP.json';
+import rawMultiPresidentialElectionWFPData from './data/rawMultiPresidentialElectionWFP.json';
+import districtStvResultsWFPData from './data/districtStvResultsWFP.json';
+
 import type {
   PrimaryStateWinner, PrimaryStageShares, VoteModelRow, HouseSeat,
   HouseStateEntry, CoalitionProfile, TransferMatrix, ClusterProfile,
@@ -258,6 +269,9 @@ export default function App() {
               fdProfiles: fdProfilesData as unknown as Record<string, FDCandidateProfile>,
               senateVotes: senateVoteModelData as VoteModelRow[],
               houseStateMap: houseStateMapData as unknown as Record<string, HouseStateEntry>,
+              rawMultiWFP: rawMultiPresidentialElectionWFPData as unknown as PresidentialElection,
+              clustersWFP: clusterProfilesWFPData as ClusterProfile[],
+              senateVotesWFP: senateVoteModelWFPData as VoteModelRow[],
             }}
             primaryProps={{
               factorDev: fdPrimaryData as unknown as FDPrimaryData,
@@ -281,6 +295,10 @@ export default function App() {
             irvFD={fdSenateIRVData as unknown as FDSenateSeat[]}
             condorcetRawMulti={pureMultiSenateCondorcetData as unknown as FDSenateSeat[]}
             irvRawMulti={pureMultiSenateIRVData as unknown as FDSenateSeat[]}
+            condorcetRawMultiWFP={pureMultiSenateCondorcetWFPData as unknown as FDSenateSeat[]}
+            irvRawMultiWFP={pureMultiSenateIRVWFPData as unknown as FDSenateSeat[]}
+            voteModelWFP={senateVoteModelWFPData as VoteModelRow[]}
+            clustersWFP={clusterProfilesWFPData as ClusterProfile[]}
             voteModel={senateVoteModelData as VoteModelRow[]}
             clusters={clusterProfilesData as ClusterProfile[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
@@ -296,6 +314,11 @@ export default function App() {
           <HouseTab
             seats={houseSeatsData as HouseSeat[]}
             seatsProbBased={houseSeatsProbBasedData as HouseSeat[]}
+            seatsWFP={houseSeatsWFPData as HouseSeat[]}
+            voteModelWFP={houseVoteModelWFPData as VoteModelRow[]}
+            stateMapWFP={houseStateMapWFPData as unknown as Record<string, HouseStateEntry>}
+            clustersWFP={clusterProfilesWFPData as ClusterProfile[]}
+            districtResultsWFP={districtStvResultsWFPData as unknown as Record<string, DistrictResult[]>}
             coalitions={coalitionProfilesData as CoalitionProfile[]}
             transfers={transferMatrixData as unknown as TransferMatrix}
             voteModel={houseVoteModelData as VoteModelRow[]}
@@ -332,11 +355,15 @@ export default function App() {
             senateVotes={senateVoteModelData as VoteModelRow[]}
             fdElection={fdPresidentialElectionData as unknown as PresidentialElection}
             rawMultiElection={rawMultiPresidentialElectionData as unknown as PresidentialElection}
+            houseVotesWFP={houseVoteModelWFPData as VoteModelRow[]}
+            senateVotesWFP={senateVoteModelWFPData as VoteModelRow[]}
+            rawMultiElectionWFP={rawMultiPresidentialElectionWFPData as unknown as PresidentialElection}
           />
         )}
         {tab === 'parties' && (
           <PartiesTab
             clusters={clusterProfilesData as ClusterProfile[]}
+            clustersWFP={clusterProfilesWFPData as ClusterProfile[]}
             clusterSpreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
           />
@@ -344,8 +371,8 @@ export default function App() {
         {tab === 'quiz' && (
           <QuizTab
             questions={quizQuestionsData as QuizQuestion[]}
-            clusters={clusterProfilesData as ClusterProfile[]}
-            houseSeats={houseSeatsData as HouseSeat[]}
+            clusters={clusterProfilesWFPData as ClusterProfile[]}
+            houseSeats={houseSeatsWFPData as HouseSeat[]}
             spreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
           />
         )}

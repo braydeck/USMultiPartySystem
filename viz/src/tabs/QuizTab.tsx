@@ -5,7 +5,7 @@ import { QuizProgress } from '../components/quiz/QuizProgress';
 import { QuizResult, type RankEntry } from '../components/quiz/QuizResult';
 import { classifyQuiz, type SpreadRow } from '../utils/quizScoring';
 import { useUrlState } from '../hooks/useUrlState';
-import { F5_ORDER } from '../constants/parties';
+import { F5_ORDER_WFP } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -22,7 +22,7 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
   const [ranking, setRanking] = useState<RankEntry[] | null>(null);
   // Result party lives in the URL so it can be deep-linked / shared (?result=STY).
   const [resultParty, setResultParty] = useUrlState<string>('result', '', {
-    allowed: [...F5_ORDER],
+    allowed: [...F5_ORDER_WFP],
     push: true,
   });
 
@@ -96,7 +96,7 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-1">Which Party Are You?</h2>
         <p className="text-muted-foreground text-sm">
-          {questions.length} questions to find which of the 9 parties best matches your political values.
+          {questions.length} questions to find which of the 10 parties best matches your political values.
         </p>
       </div>
 

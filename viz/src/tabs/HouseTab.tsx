@@ -20,8 +20,9 @@ import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { CLUSTER_TO_PARTY, F5_ORDER, FACTOR_LABELS } from '../constants/parties';
-import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
+import { CLUSTER_TO_PARTY, partyOrder, FACTOR_LABELS } from '../constants/parties';
+import { PIPELINE_LABELS, WYOMING_LABELS, WFP_LABELS } from '../constants/labels';
+import type { WfpMode } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 
@@ -50,23 +51,35 @@ interface Props {
   districtResultsTriple: Record<string, DistrictResult[]>;
   fdDistrictResultsTriple: Record<string, DistrictResult[]>;
   districtCountyMapTriple: Record<string, string[]>;
+  seatsWFP: HouseSeat[];
+  voteModelWFP: VoteModelRow[];
+  stateMapWFP: Record<string, HouseStateEntry>;
+  clustersWFP: ClusterProfile[];
+  districtResultsWFP: Record<string, DistrictResult[]>;
 }
 
 type WyomingRule = 'double' | 'triple';
 
-export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple }: Props) {
-  const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
-  const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
+export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple, seatsWFP, voteModelWFP, stateMapWFP, clustersWFP, districtResultsWFP }: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
+  const [wfp, setWfp] = useUrlState<WfpMode>('wfp', 'off', { allowed: ['off', 'on'] });
+
+  // WFP data exists only for the Party-Line + Double-Wyoming path.
+  const wfpActive = wfp === 'on' && scenario === 'rawMulti' && wyoming === 'double';
+  const effClusters = wfpActive ? clustersWFP : clusters;
+  const effVoteModel = wfpActive ? voteModelWFP : voteModel;
+
+  const clusterByParty = useMemo(() => Object.fromEntries(effClusters.map(c => [c.party, c])), [effClusters]);
+  const orderedClusters = useMemo(() => partyOrder(wfpActive).map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty, wfpActive]);
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
   const [seatShareState, setSeatShareState] = useUrlState<string>('state', 'national');
 
   const fdSeatsAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
-    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, SD: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
-    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Social Democrat',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
+    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
+    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
     for (const s of fdHouseSeats) {
       const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
       if (cluster < 0) continue;
@@ -90,8 +103,8 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
   // FD aggregation for triple Wyoming
   const fdSeatsTripleAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
-    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, SD: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
-    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Social Democrat',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
+    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
+    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
     for (const s of fdHouseSeatsTriple) {
       const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
       if (cluster < 0) continue;
@@ -129,14 +142,14 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
 
   const activeSeats = useMemo(() => {
     if (wyoming === 'triple') return scenario === 'rawMulti' ? seatsTriple : fdSeatsTripleAggregated;
-    return scenario === 'rawMulti' ? seats : fdSeatsAggregated;
-  }, [wyoming, scenario, seats, seatsTriple, fdSeatsAggregated, fdSeatsTripleAggregated]);
+    return scenario === 'rawMulti' ? (wfpActive ? seatsWFP : seats) : fdSeatsAggregated;
+  }, [wyoming, scenario, seats, seatsTriple, fdSeatsAggregated, fdSeatsTripleAggregated, wfpActive, seatsWFP]);
   const activeTotalSeats = activeSeats.reduce((s, r) => s + r.national, 0);
   const activeDistrictResults = wyoming === 'triple'
     ? (scenario === 'factorDev' ? fdDistrictResultsTriple : districtResultsTriple)
-    : (scenario === 'factorDev' ? fdDistrictResults : districtResults);
+    : (scenario === 'factorDev' ? fdDistrictResults : (wfpActive ? districtResultsWFP : districtResults));
   const activeDistrictCountyMap = wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap;
-  const activeStateMap = wyoming === 'triple' ? stateMapTriple : stateMap;
+  const activeStateMap = wyoming === 'triple' ? stateMapTriple : (wfpActive ? stateMapWFP : stateMap);
   const activeFdHouseSeats = wyoming === 'triple' ? fdHouseSeatsTriple : fdHouseSeats;
   const activeFdSeatsByCode = useMemo(() => {
     const map: Record<string, number> = {};
@@ -147,7 +160,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
   const parliamentSegments: ParliamentSegment[] = activeSeats
     .filter(s => s.national > 0)
     .map(s => {
-      const code = CLUSTER_TO_PARTY[String(s.party)] ?? '';
+      const code = s.party === 7 ? 'OAO' : (CLUSTER_TO_PARTY[String(s.party)] ?? '');
       const fVal = (clusterByParty[code] as unknown as Record<string, number>)?.[parliamentFactor] ?? 0;
       return { code, seats: s.national, fVal };
     })
@@ -169,6 +182,8 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
+        <ToggleGroup label="WFP" value={wfp} onChange={setWfp}
+          options={['off', 'on'] as const} labels={WFP_LABELS} />
       </StickyControlBar>
 
       {/* ═══════════════════════════════════════════════════════════════════════
@@ -326,6 +341,11 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
                 }));
               return fdNodes.length > 0 ? fdNodes : [];
             }
+            if (wfpActive) {
+              return effClusters
+                .filter(c => (c as any).seatsHouse > 0)
+                .map(c => clusterToNode(c));
+            }
             return coalitions
               .filter(c => c.seatsHouse > 0)
               .map(c => clusterToNode(c));
@@ -342,7 +362,7 @@ export function HouseTab({ seats, coalitions, transfers, voteModel, stateMap, cl
         <p className="text-xs text-muted-foreground mb-3">
           Probability of passage based on the House seat composition.
         </p>
-        <BillSimulator rows={voteModel} probField={
+        <BillSimulator rows={effVoteModel} probField={
           wyoming === 'triple'
             ? (scenario === 'rawMulti' ? 'houseRawMultiTripleProbPass' : 'houseFDTripleProbPass')
             : (scenario === 'rawMulti' ? 'houseRawMultiProbPass' : 'houseFDProbPass')

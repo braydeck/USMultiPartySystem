@@ -9,28 +9,28 @@ import { StickyControlBar } from '../components/shared/StickyControlBar';
 // Real candidate → closest simulation-party mapping for coloring
 const CANDIDATE_PARTY: Record<string, string> = {
   // Alaska House
-  'Mary Peltola':     'SD',
+  'Mary Peltola':     'LBR',
   'Nick Begich':      'CON',
   'Sarah Palin':      'NAT',
   'Chris Bye':        'LIB',
   'Eric Hafner':      'LIB',
-  'Al Gross':         'SD',
+  'Al Gross':         'LBR',
   // Alaska Senate
   'Lisa Murkowski':   'CUP',
   'Kelly Tshibaka':   'CON',
-  'Patricia Chesbro': 'SD',
+  'Patricia Chesbro': 'LBR',
   'Buzz Kelley':      'POP',
   // Alaska Governor
   'Mike Dunleavy':    'CON',
   'Bill Walker':      'CUP',
-  'Les Gara':         'SD',
+  'Les Gara':         'LBR',
   'Charlie Pierce':   'POP',
   // Maine CD1
   'Chellie Pingree':  'PRG',
   'Ed Thelander':     'CON',
   'Ron Russell':      'CON',
   // Maine CD2
-  'Jared Golden':     'SD',
+  'Jared Golden':     'LBR',
   'Bruce Poliquin':   'CON',
   'Tiffany Bond':     'LIB',
   'William Hoar':     'PRG',
@@ -398,7 +398,7 @@ function CombinedDelegation({ cd1, cd2, year }: { cd1: RCVRace; cd2: RCVRace; ye
   if (combined.length === 0) return null;
 
   // Count D vs R using party mapping
-  const DEM_PARTIES = new Set(['SD', 'PRG', 'LIB', 'DSA']);
+  const DEM_PARTIES = new Set(['LBR', 'PRG', 'LIB', 'DSA']);
   const dems = combined.filter(c => DEM_PARTIES.has(CANDIDATE_PARTY[c] ?? ''));
   const reps = combined.filter(c => !DEM_PARTIES.has(CANDIDATE_PARTY[c] ?? ''));
 

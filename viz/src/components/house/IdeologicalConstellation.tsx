@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import type { ConstellationNode, TransferMatrix } from '../../types';
-import { getBlendColor, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER } from '../../constants/parties';
+import { getBlendColor, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../shared/ToggleGroup';
 import { vikForZ, vikForPctile } from '../../lib/vik';
@@ -75,6 +75,9 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       return next;
     });
   };
+
+  // Parties present in the data, so the legend only lists real parties (incl. WFP when on).
+  const presentParties = new Set(inputNodes.map(n => n.id.split('_')[0]));
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
@@ -512,7 +515,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
         </div>
         <div className="flex flex-wrap gap-1 mb-2">
-          {F5_ORDER.map(p => {
+          {F5_ORDER.filter(p => presentParties.has(p)).map(p => {
             const on = enabledParties.has(p);
             const color = PARTY_COLORS[p];
             return (
@@ -543,7 +546,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 function mapMatrixKeyToParty(key: string): string | null {
   const map: Record<string, string> = {
     'C0 Conservative': 'CON',
-    'C1 Social Democrat': 'SD',
+    'C1 Social Democrat': 'LBR',
     'C2 Solidarity': 'STY',
     'C3 Nationalist': 'NAT',
     'C4 Liberal': 'LIB',

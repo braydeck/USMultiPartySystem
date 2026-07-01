@@ -14,7 +14,7 @@ export function PartyProfileGrid({ clusters }: Props) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Nine-Party Profiles</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Party Profiles</h3>
           <p className="text-xs text-muted-foreground">
             {mode === 'strength'
               ? 'Intensity of each ideological position (σ from zero = factor model center).'

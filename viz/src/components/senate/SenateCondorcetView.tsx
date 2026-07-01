@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { PARTY_COLORS, PARTY_NAMES, F5_ORDER } from '../../constants/parties';
+import { PARTY_COLORS, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import { CondorcetMatrix } from '../presidential/CondorcetMatrix';
 import type { CondorcetMatchup } from '../../types';
 import { Button } from '@/components/ui/button';

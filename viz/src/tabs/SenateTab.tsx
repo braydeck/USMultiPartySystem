@@ -10,8 +10,9 @@ import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER, getContrastText } from '../constants/parties';
-import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
+import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER, partyOrder, getContrastText } from '../constants/parties';
+import { PIPELINE_LABELS, METHOD_LABELS, WFP_LABELS } from '../constants/labels';
+import type { WfpMode } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import SenateBuckets from '../components/senate/SenateBuckets';
@@ -25,6 +26,10 @@ interface Props {
   irvFD:             FDSenateSeat[];
   condorcetRawMulti: FDSenateSeat[];
   irvRawMulti:       FDSenateSeat[];
+  condorcetRawMultiWFP: FDSenateSeat[];
+  irvRawMultiWFP:       FDSenateSeat[];
+  voteModelWFP:         VoteModelRow[];
+  clustersWFP:          ClusterProfile[];
   voteModel:         VoteModelRow[];
   clusters:          ClusterProfile[];
   fdProfiles:        Record<string, FDCandidateProfile>;
@@ -80,12 +85,21 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
 }
 
 export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
+                             condorcetRawMultiWFP, irvRawMultiWFP, voteModelWFP, clustersWFP,
                              voteModel, clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers,
                              senateBuckets, senateCondorcet }: Props) {
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
+  const [wfp, setWfp] = useUrlState<WfpMode>('wfp', 'off', { allowed: ['off', 'on'] });
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
+
+  // WFP data exists only for the Party-Line (rawMulti) path.
+  const wfpActive = wfp === 'on' && pipeline === 'rawMulti';
+  const condRM = wfpActive ? condorcetRawMultiWFP : condorcetRawMulti;
+  const irvRM  = wfpActive ? irvRawMultiWFP : irvRawMulti;
+  const effVoteModel = wfpActive ? voteModelWFP : voteModel;
+  const effClusters  = wfpActive ? clustersWFP : clusters;
 
   const scenario: SenateScenario =
     pipeline === 'factorDev'
@@ -95,8 +109,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   const SEAT_MAP: Record<SenateScenario, SenateSeat[]> = {
     condFD:       condorcetFD        as unknown as SenateSeat[],
     irvFD:        irvFD              as unknown as SenateSeat[],
-    condRawMulti: condorcetRawMulti  as unknown as SenateSeat[],
-    irvRawMulti:  irvRawMulti        as unknown as SenateSeat[],
+    condRawMulti: condRM             as unknown as SenateSeat[],
+    irvRawMulti:  irvRM              as unknown as SenateSeat[],
   };
   const activeSeats = SEAT_MAP[scenario];
 
@@ -106,10 +120,10 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   }
 
   const clusterByParty = useMemo(
-    () => Object.fromEntries(clusters.map(c => [c.party, c])),
-    [clusters]
+    () => Object.fromEntries(effClusters.map(c => [c.party, c])),
+    [effClusters]
   );
-  const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
+  const orderedClusters = useMemo(() => partyOrder(wfpActive).map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty, wfpActive]);
 
   function getFactorScore(code: string, factor: string): number {
     const zKey = `z_${factor}`;
@@ -125,11 +139,11 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
 
   const globalRange = useMemo((): [number, number] => {
     const vals = [
-      ...clusters.map(c => (c as unknown as Record<string, number>)[parliamentFactor] ?? 0),
+      ...effClusters.map(c => (c as unknown as Record<string, number>)[parliamentFactor] ?? 0),
       ...Object.values(fdProfiles).map(p => (p as unknown as Record<string, number>)[parliamentFactor] ?? 0),
     ];
     return vals.length > 0 ? [Math.min(...vals), Math.max(...vals)] : [-2, 2];
-  }, [clusters, fdProfiles, parliamentFactor]);
+  }, [effClusters, fdProfiles, parliamentFactor]);
 
   const parliamentSegments: ParliamentSegment[] = Object.entries(seatCounts)
     .map(([code, seats]) => {
@@ -144,8 +158,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
     const fdSeats =
       scenario === 'condFD' ? condorcetFD :
       scenario === 'irvFD' ? irvFD :
-      scenario === 'condRawMulti' ? condorcetRawMulti :
-      irvRawMulti;
+      scenario === 'condRawMulti' ? condRM :
+      irvRM;
     const countByCode: Record<string, FDHouseSeat> = {};
     for (const seat of fdSeats) {
       const key = seat.senatorCode;
@@ -159,7 +173,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
       countByCode[key].national += 1;
     }
     return Object.values(countByCode);
-  }, [condorcetFD, irvFD, condorcetRawMulti, irvRawMulti, scenario]);
+  }, [condorcetFD, irvFD, condRM, irvRM, scenario]);
 
   const constellationNodes: ConstellationNode[] = Object.entries(seatCounts)
     .map(([code, seats]) => ({
@@ -186,6 +200,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
+        <ToggleGroup label="WFP" value={wfp} onChange={setWfp}
+          options={['off', 'on'] as const} labels={WFP_LABELS} />
       </StickyControlBar>
 
       {/* FPTP vs Preferential Senate Comparison */}
@@ -199,9 +215,9 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           { party: 'GOP', n: 53, color: '#dc2626' },
         ]} total={100} />
         {/* RM Condorcet */}
-        <SenateCompBar label="Condorcet" seats={condorcetRawMulti} />
+        <SenateCompBar label="Condorcet" seats={condRM} />
         {/* RM IRV */}
-        <SenateCompBar label="IRV" seats={irvRawMulti} />
+        <SenateCompBar label="IRV" seats={irvRM} />
         {/* FD bars */}
         {isFD && <>
           <SenateCompBar label="Condorcet" seats={condorcetFD} />
@@ -289,7 +305,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         <p className="text-xs text-muted-foreground mb-4">
           Highlighted rows show bills the senate passes but the president vetoes.
         </p>
-        <VoteModelTable rows={voteModel} scenario={scenario} />
+        <VoteModelTable rows={effVoteModel} scenario={scenario} />
       </Card>
 
       {/* FD Analysis section */}

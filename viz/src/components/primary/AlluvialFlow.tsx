@@ -43,7 +43,7 @@ const F5_ORDER = [
   'PRG', 'PRG_dsa',
   'LIB', 'LIB_dsa', 'LIB_sd',
   'DSA', 'DSA_prg', 'DSA_lib',
-  'SD',  'SD_lib', 'SD_sty',
+  'LBR', 'LBR_lib', 'LBR_sty',
   'STY', 'STY_sd', 'STY_ctr',
   'CUP', 'CUP_sty', 'CUP_con',
   'CON', 'CON_ctr', 'CON_ref',

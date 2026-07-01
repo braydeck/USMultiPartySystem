@@ -10,6 +10,8 @@ from collections import defaultdict
 OUTPUTS          = Path(__file__).parent.parent.parent / "data" / "outputs"
 FD_DIR           = OUTPUTS / "factor_deviation"
 PURE_MULTI_DIR   = OUTPUTS / "pure_multi"
+# Parallel 10-party run (C7/WFP activated) — produced by INCLUDE_C7=1 pipeline.
+PURE_MULTI_C7_DIR = OUTPUTS / "pure_multi_c7"
 FD_TRIPLE_DIR         = OUTPUTS / "factor_deviation_triple"
 PURE_MULTI_TRIPLE_DIR = OUTPUTS / "pure_multi_triple"
 RESULTS          = Path(__file__).parent.parent.parent / "results"
@@ -38,7 +40,7 @@ NATIONAL_POP_SHARES = {
 
 
 PARTY_NAMES = {
-    "CON": "Conservative", "SD": "Social Democrat", "STY": "Solidarity",
+    "CON": "Conservative", "SD": "Labor", "STY": "Solidarity",
     "NAT": "Nationalist", "LIB": "Liberal", "POP": "Populist",
     "CUP": "Civic Union Party", "DSA": "Democratic Socialists", "PRG": "Progressive",
 }
@@ -70,6 +72,7 @@ _LF_CLUSTER_MAP: dict = {
 _PURE_CLUSTER: dict = {
     "CON": 0, "SD": 1, "STY": 2, "NAT": 3, "LIB": 4,
     "POP": 5, "CUP": 6, "DSA": 8, "PRG": 9,
+    "WFP": 7,   # Working Families Party (cluster 7) — only present in C7 runs
 }
 
 def _lf_senator_support(code: str, cluster_row: dict) -> float:
@@ -153,7 +156,7 @@ def _lf_prob_pass(seat_counts: dict, cluster_by_var: dict, majority: int = 26) -
 
 
 # ---------- senateVoteModel.json ----------
-def build_senate_vote_model():
+def build_senate_vote_model(rm_dir=PURE_MULTI_DIR, out_name="senateVoteModel.json"):
     rows = read_csv(RESULTS / "vote_model.csv")
 
     # Load cluster stats for vote model computation
@@ -210,11 +213,11 @@ def build_senate_vote_model():
 
     # ── Raw Multi presidential winners ───────────────────────────────────────
     rm_irv_winner = None
-    for r in read_csv(PURE_MULTI_DIR / "irv" / "irv_presidential_national_2028.csv"):
+    for r in read_csv(rm_dir / "irv" / "irv_presidential_national_2028.csv"):
         if r.get("winner", "").strip() == "True":
             rm_irv_winner = r["candidate_code"]   # e.g. "SD_1"
     rm_cond_winner = None
-    _rm_cm = list(read_csv(PURE_MULTI_DIR / "irv" / "condorcet_matchups_2028.csv"))
+    _rm_cm = list(read_csv(rm_dir / "irv" / "condorcet_matchups_2028.csv"))
     if _rm_cm:
         rm_cond_winner = _rm_cm[0].get("condorcet_winner") or None   # e.g. "CUP_1"
 
@@ -235,10 +238,10 @@ def build_senate_vote_model():
 
     # Raw Multi senate seat counts (strip _N suffix to aggregate by pure party)
     cond_rm_seats, irv_rm_seats = {}, {}
-    for r in read_csv(PURE_MULTI_DIR / "senate" / "senate_composition.csv"):
+    for r in read_csv(rm_dir / "senate" / "senate_composition.csv"):
         party = r["senator_code"].rsplit("_", 1)[0]
         cond_rm_seats[party] = cond_rm_seats.get(party, 0) + 1
-    for r in read_csv(PURE_MULTI_DIR / "senate" / "senate_irv_composition.csv"):
+    for r in read_csv(rm_dir / "senate" / "senate_irv_composition.csv"):
         party = r["senator_code"].rsplit("_", 1)[0]
         irv_rm_seats[party] = irv_rm_seats.get(party, 0) + 1
 
@@ -331,17 +334,22 @@ def build_senate_vote_model():
             "houseStvProbPass": stv_house_results.get(var, {}).get("prob_pass", 0.0),
             "houseStvVerdict":  stv_house_results.get(var, {}).get("verdict", "N/A"),
         })
-    write_json(out, "senateVoteModel.json")
+    write_json(out, out_name)
 
 
 # ---------- houseSeats.json ----------
-def build_house_seats():
-    rows = read_csv(OUTPUTS / "pure_multi" / "house" / "stv_seat_summary.csv")
+def build_house_seats(src_csv=None, out_name="houseSeats.json",
+                      include_c7=False, pop_shares=None):
+    if src_csv is None:
+        src_csv = OUTPUTS / "pure_multi" / "house" / "stv_seat_summary.csv"
+    if pop_shares is None:
+        pop_shares = NATIONAL_POP_SHARES
+    rows = read_csv(src_csv)
     out = []
     for r in rows:
-        if int(r["party"]) == 7:  # skip Blue Dogs (C7 — merged into adjacent clusters)
-            continue
         cluster = int(r["party"])
+        if cluster == 7 and not include_c7:  # skip Blue Dogs (C7) in canonical 9-party
+            continue
         out.append({
             "party": cluster,
             "partyName": r["party_name"],
@@ -350,9 +358,9 @@ def build_house_seats():
             "rural": int(r["RURAL"]),
             "national": int(r["NATIONAL"]),
             "pctNational": float(r["pct_national"]),
-            "pctPopulation": NATIONAL_POP_SHARES.get(cluster, 0.0),
+            "pctPopulation": pop_shares.get(cluster, 0.0),
         })
-    write_json(out, "houseSeats.json")
+    write_json(out, out_name)
 
 
 def build_house_transfers():
@@ -492,7 +500,8 @@ def build_house_seats_gauss():
 
 
 # ---------- houseVoteModel.json ----------
-def build_house_vote_model():
+def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json",
+                           include_c7=False):
     rows = read_csv(OUTPUTS / "house_vote_model.csv")
 
     # Load cluster stats for State STV house probability computation
@@ -516,9 +525,9 @@ def build_house_vote_model():
     _cluster_to_party = {v: k for k, v in _PURE_CLUSTER.items()}
     rm_house_seats: dict = {}
     rm_house_total = 0
-    for r in read_csv(PURE_MULTI_DIR / "house" / "stv_seat_summary.csv"):
+    for r in read_csv(rm_dir / "house" / "stv_seat_summary.csv"):
         cluster = int(r["party"])
-        if cluster == 7:
+        if cluster == 7 and not include_c7:
             continue
         code = _cluster_to_party.get(cluster, str(cluster))
         rm_house_seats[code] = rm_house_seats.get(code, 0) + int(r["NATIONAL"])
@@ -589,12 +598,16 @@ def build_house_vote_model():
             "houseFDTripleProbPass":       fdt["prob_pass"],
             "houseFDTripleVerdict":        fdt["verdict"],
         })
-    write_json(out, "houseVoteModel.json")
+    write_json(out, out_name)
 
 
 # ---------- houseStateMap.json ----------
-def _compute_state_pop_shares() -> dict:
-    """Compute soft-weighted population shares per state, renormalized excl C7."""
+def _compute_state_pop_shares(include_c7: bool = False) -> dict:
+    """Compute soft-weighted population shares per state.
+
+    Canonical (include_c7=False): C7 dropped and remaining 9 renormalized to 100%.
+    WFP (include_c7=True): C7 kept as WFP; all 10 clusters sum to ~100% (no renorm).
+    """
     import numpy as np
     efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
     typ_path = Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"
@@ -602,6 +615,8 @@ def _compute_state_pop_shares() -> dict:
     typ_rows = read_csv(typ_path)
 
     PARTY_CODES = {0: "CON", 1: "SD", 2: "STY", 3: "NAT", 4: "LIB", 5: "POP", 6: "CUP", 8: "DSA", 9: "PRG"}
+    if include_c7:
+        PARTY_CODES = {**PARTY_CODES, 7: "WFP"}
     result: dict = {}
     states = set()
     for r in efa_rows:
@@ -623,7 +638,7 @@ def _compute_state_pop_shares() -> dict:
         for k in range(10):
             col = f"prob_cluster_{k}"
             val = sum(float(typ_rows[i].get(col, 0)) * ws[j] for j, i in enumerate(idxs)) / total_w * 100
-            if k == 7:
+            if k == 7 and not include_c7:
                 c7_share = val
             elif k in PARTY_CODES:
                 shares[PARTY_CODES[k]] = val
@@ -635,21 +650,25 @@ def _compute_state_pop_shares() -> dict:
     return result
 
 
-def build_house_state_map():
+def build_house_state_map(src_dir=None, out_name="houseStateMap.json", include_c7=False):
     """Aggregate house STV results by state to find plurality party per state."""
-    rows = read_csv(OUTPUTS / "pure_multi" / "house" / "stv_results_by_district.csv")
+    if src_dir is None:
+        src_dir = OUTPUTS / "pure_multi"
+    rows = read_csv(src_dir / "house" / "stv_results_by_district.csv")
     pod_path = OUTPUTS / "state_pod_assignments.csv"
+    if not pod_path.exists():
+        pod_path = src_dir / "state_pod_assignments.csv"
     if not pod_path.exists():
         pod_path = PURE_MULTI_DIR / "state_pod_assignments.csv"
     pod_rows = read_csv(pod_path) if pod_path.exists() else []
     abbr_by_fips = {r["state_fips"].zfill(2): r["state_abbr"] for r in pod_rows}
 
-    state_pop_shares = _compute_state_pop_shares()
+    state_pop_shares = _compute_state_pop_shares(include_c7=include_c7)
 
     state_seats = defaultdict(lambda: defaultdict(int))
     for row in rows:
         fips = row["state_fips"].zfill(2)
-        for i in range(9):
+        for i in range(20):
             v = row.get(f"elected_{i}", "").strip()
             if v:
                 state_seats[fips][v] += 1
@@ -665,7 +684,7 @@ def build_house_state_map():
             "seats": dict(counts),
             "popShares": state_pop_shares.get(fips, {}),
         }
-    write_json(out, "houseStateMap.json")
+    write_json(out, out_name)
 
 
 # ---------- coalitionProfiles.json ----------
@@ -704,7 +723,7 @@ def build_transfer_matrix():
 
 
 # ---------- clusterProfiles.json ----------
-def collect_cluster_variables(rows):
+def collect_cluster_variables(rows, include_c7=False):
     """Build a variable dict for each cluster covering all binary/likert policy vars + demographics.
 
     Sources:
@@ -713,7 +732,7 @@ def collect_cluster_variables(rows):
       - pew_churatd: weekly+ church attendance (% More than once/week + % Once/week)
       - race / gender4 categorical: specific buckets included as demographic facts
     """
-    cluster_ids = [str(i) for i in range(10) if str(i) != "7"]
+    cluster_ids = [str(i) for i in range(10) if include_c7 or str(i) != "7"]
     result = {cid: {} for cid in cluster_ids}
 
     # Phase 1: binary and binary_agree
@@ -1100,11 +1119,43 @@ def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=4, min_diff
                 break
     return out
 
-def build_cluster_profiles():
-    rows = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
-    clusters = {str(i): {"id": str(i), "variables": {}} for i in range(10) if str(i) != "7"}
+def _compute_cluster7_factors() -> dict:
+    """Weighted-mean FS_F1..F5 centroid for cluster 7 (matches how coalition
+    profiles derive each party's factor position). Returns {'F1':..,'F5':..}."""
+    efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
+    typo_path = Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"
+    efa_rows = read_csv(str(efa_path))
+    typo_rows = read_csv(str(typo_path))
+    factor_map = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
+    if efa_rows and "FS_F4" not in efa_rows[0]:
+        factor_map["F4"] = "FS_F4_resid"
+        factor_map["F5"] = "FS_F5_resid"
 
-    all_vars = collect_cluster_variables(rows)
+    def _val(row_idx, col):
+        v = efa_rows[row_idx].get(col)
+        if v is None or v == "":
+            v = typo_rows[row_idx].get(col)
+        return float(v or 0)
+
+    out = {}
+    for fk, col in factor_map.items():
+        num = den = 0.0
+        for i, tr in enumerate(typo_rows):
+            if str(tr.get("cluster", "")).strip() in ("7", "7.0"):
+                w = float(efa_rows[i].get("commonpostweight", 1) or 0)
+                num += _val(i, col) * w
+                den += w
+        out[fk] = round(num / den, 4) if den else 0.0
+    return out
+
+
+def build_cluster_profiles(include_c7=False, out_name="clusterProfiles.json",
+                           house_summary_csv=None):
+    rows = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
+    clusters = {str(i): {"id": str(i), "variables": {}}
+                for i in range(10) if include_c7 or str(i) != "7"}
+
+    all_vars = collect_cluster_variables(rows, include_c7=include_c7)
     for cid in clusters:
         clusters[cid]["variables"] = all_vars.get(cid, {})
 
@@ -1130,6 +1181,21 @@ def build_cluster_profiles():
                 "F4": float(r["F4_religious_traditionalism"]),
                 "F5": float(r["F5_populist_conservatism"]),
             }
+
+    # Cluster 7 (WFP) has no coalition_type_profiles row — derive its factor
+    # centroid from EFA scores and seats from the C7 house summary.
+    if include_c7 and "7" in clusters:
+        clusters["7"]["party"] = "OAO"
+        clusters["7"]["partyName"] = "Order and Opportunity Party"
+        _f = _compute_cluster7_factors()
+        clusters["7"].update(_f)
+        cluster_factors["7"] = _f
+        seats_c7 = 0
+        if house_summary_csv and Path(house_summary_csv).exists():
+            for r in read_csv(house_summary_csv):
+                if int(r["party"]) == 7:
+                    seats_c7 = int(r["NATIONAL"])
+        clusters["7"]["seatsHouse"] = seats_c7
 
     # Compute percentile ranks AND z-scores (SDs from population mean)
     efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
@@ -1166,7 +1232,7 @@ def build_cluster_profiles():
     for cid in clusters:
         clusters[cid]["keyPositions"] = compute_key_positions_vs_neighbors(rows, cid, cluster_factors)
 
-    write_json(list(clusters.values()), "clusterProfiles.json")
+    write_json(list(clusters.values()), out_name)
 
 
 def _extract_policy_vars(rows, get_val, max_vars=None):
@@ -1373,7 +1439,7 @@ def build_quiz():
 # ---------- fdSenateCondorcet.json + fdSenateIRV.json ----------
 _FD_PARTY_CLUSTER = {
     "CON": "0", "SD": "1", "STY": "2", "NAT": "3", "LIB": "4",
-    "POP": "5", "CUP": "6", "DSA": "8", "PRG": "9",
+    "POP": "5", "CUP": "6", "DSA": "8", "PRG": "9", "WFP": "7",
 }
 
 def build_fd_senate():
@@ -1761,9 +1827,10 @@ def build_fd_presidential_election():
 
 
 # ---------- rawMultiPresidentialElection.json ----------
-def build_raw_multi_presidential_election():
+def build_raw_multi_presidential_election(src_dir=PURE_MULTI_DIR,
+                                          out_name="rawMultiPresidentialElection.json"):
     """Raw Multi general election: national IRV rounds, Condorcet matchups, per-state winners."""
-    irv_dir = PURE_MULTI_DIR / "irv"
+    irv_dir = src_dir / "irv"
 
     irv_rows      = read_csv(irv_dir / "irv_presidential_national_2028.csv")
     rounds_by_num = defaultdict(list)
@@ -1814,7 +1881,10 @@ def build_raw_multi_presidential_election():
             condorcet_winner = r["condorcet_winner"]
 
     state_rows  = read_csv(irv_dir / "irv_presidential_states_2028.csv")
-    pod_rows    = read_csv(PURE_MULTI_DIR / "state_pod_assignments.csv")
+    pod_path    = src_dir / "state_pod_assignments.csv"
+    if not pod_path.exists():
+        pod_path = PURE_MULTI_DIR / "state_pod_assignments.csv"   # pods are party-independent
+    pod_rows    = read_csv(pod_path) if pod_path.exists() else []
     pod_by_fips = {r["state_fips"].zfill(2): r["pod"] for r in pod_rows}
 
     irv_state_winners = {}
@@ -1845,7 +1915,7 @@ def build_raw_multi_presidential_election():
         "condorcetMatchups": condorcet_matchups,
         "condorcetWinner":   condorcet_winner,
         "irvStateWinners":   irv_state_winners,
-    }, "rawMultiPresidentialElection.json")
+    }, out_name)
 
 
 # ---------- fdProfiles.json ----------
@@ -2587,7 +2657,9 @@ def build_senate_condorcet():
     }, "senateCondorcet.json")
 
 
-def build_pure_multi_senate():
+def build_pure_multi_senate(src_dir=PURE_MULTI_DIR,
+                            cond_name="pureMultiSenateCondorcet.json",
+                            irv_name="pureMultiSenateIRV.json"):
     """Pure multi senate compositions. senator_code is 'PARTY_N'; party from senator_party col."""
     def _extract(rows):
         out = []
@@ -2608,10 +2680,10 @@ def build_pure_multi_senate():
             })
         return out
 
-    cond_rows = read_csv(PURE_MULTI_DIR / "senate" / "senate_composition.csv")
-    irv_rows  = read_csv(PURE_MULTI_DIR / "senate" / "senate_irv_composition.csv")
-    write_json(_extract(cond_rows), "pureMultiSenateCondorcet.json")
-    write_json(_extract(irv_rows),  "pureMultiSenateIRV.json")
+    cond_rows = read_csv(src_dir / "senate" / "senate_composition.csv")
+    irv_rows  = read_csv(src_dir / "senate" / "senate_irv_composition.csv")
+    write_json(_extract(cond_rows), cond_name)
+    write_json(_extract(irv_rows),  irv_name)
 
 
 def build_fptp_disproportionality():
@@ -2637,18 +2709,20 @@ def build_fptp_disproportionality():
     write_json(out, "fptpDisproportionality.json")
 
 
-def build_district_stv_results():
+def build_district_stv_results(src_csv=None, out_name="districtStvResults.json"):
     """Group district-level STV results by state FIPS for county tier map."""
-    path = OUTPUTS / "pure_multi" / "house" / "stv_results_by_district.csv"
+    if src_csv is None:
+        src_csv = OUTPUTS / "pure_multi" / "house" / "stv_results_by_district.csv"
+    path = src_csv
     if not path.exists():
-        print(f"  Skipping districtStvResults (not found: {path})")
-        write_json({}, "districtStvResults.json")
+        print(f"  Skipping {out_name} (not found: {path})")
+        write_json({}, out_name)
         return
     rows = read_csv(path)
     by_state: dict = {}
     for r in rows:
         state_fips = str(r["state_fips"]).zfill(2)
-        elected = [r[f"elected_{i}"] for i in range(9) if r.get(f"elected_{i}")]
+        elected = [r[f"elected_{i}"] for i in range(20) if r.get(f"elected_{i}")]
         entry = {
             "districtId":  r["district_id"],
             "densityTier": r["density_tier"],
@@ -2657,7 +2731,7 @@ def build_district_stv_results():
             "nRespondents": int(r["n_respondents"]),
         }
         by_state.setdefault(state_fips, []).append(entry)
-    write_json(by_state, "districtStvResults.json")
+    write_json(by_state, out_name)
 
 
 def build_fd_district_stv_results():
@@ -2919,6 +2993,123 @@ def build_district_county_map_triple():
     write_json(result, "districtCountyMapTriple.json")
 
 
+def _national_pop_shares_10() -> dict:
+    """Soft-weighted national population share per cluster across all 10 clusters
+    (sums to ~100). Used for WFP houseSeats pctPopulation."""
+    efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
+    typo_path = Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"
+    efa_rows = read_csv(str(efa_path))
+    typo_rows = read_csv(str(typo_path))
+    total_w = sum(float(r.get("commonpostweight", 1) or 0) for r in efa_rows)
+    shares = {}
+    for k in range(10):
+        col = f"prob_cluster_{k}"
+        num = sum(float(typo_rows[i].get(col, 0) or 0) * float(efa_rows[i].get("commonpostweight", 1) or 0)
+                  for i in range(len(typo_rows)))
+        shares[k] = round(num / total_w * 100, 2) if total_w else 0.0
+    return shares
+
+
+def _cluster_by_var_support() -> dict:
+    """{variable: cluster_stats_row} for binary '% Supporting' policy items."""
+    cluster_rows = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
+    return {r["variable"]: r for r in cluster_rows
+            if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"}
+
+
+def build_senate_vote_model_wfp(src):
+    """senateVoteModelWFP.json — clone of senateVoteModel.json with only the
+    Raw-Multi senate + president columns recomputed from the C7 run."""
+    with open(DATA_OUT / "senateVoteModel.json", encoding="utf-8") as f:
+        base = json.load(f)
+    cbv = _cluster_by_var_support()
+
+    rm_irv_winner = None
+    for r in read_csv(src / "irv" / "irv_presidential_national_2028.csv"):
+        if r.get("winner", "").strip() == "True":
+            rm_irv_winner = r["candidate_code"]
+    rm_cond_winner = None
+    _cm = list(read_csv(src / "irv" / "condorcet_matchups_2028.csv"))
+    if _cm:
+        rm_cond_winner = _cm[0].get("condorcet_winner") or None
+
+    def _party(c):
+        return c.rsplit("_", 1)[0] if c else ""
+
+    cond_seats, irv_seats = {}, {}
+    for r in read_csv(src / "senate" / "senate_composition.csv"):
+        p = r["senator_code"].rsplit("_", 1)[0]; cond_seats[p] = cond_seats.get(p, 0) + 1
+    for r in read_csv(src / "senate" / "senate_irv_composition.csv"):
+        p = r["senator_code"].rsplit("_", 1)[0]; irv_seats[p] = irv_seats.get(p, 0) + 1
+    cond_res = _lf_prob_pass(cond_seats, cbv)
+    irv_res  = _lf_prob_pass(irv_seats,  cbv)
+    irv_party, cond_party = _party(rm_irv_winner), _party(rm_cond_winner)
+
+    for row in base:
+        var  = row["variable"]
+        crow = cbv.get(var)
+        if crow:
+            irv_sup  = _lf_senator_support(irv_party,  crow)
+            cond_sup = _lf_senator_support(cond_party, crow)
+            row["presRawMultiIRVSigns"]  = "SIGN" if irv_sup  > 50 else "VETO"
+            row["presRawMultiIRVPct"]    = round(irv_sup, 2)
+            row["presRawMultiCondSigns"] = "SIGN" if cond_sup > 50 else "VETO"
+            row["presRawMultiCondPct"]   = round(cond_sup, 2)
+        row["condRawMultiProbPass"] = cond_res.get(var, {}).get("prob_pass", 0.0)
+        row["condRawMultiVerdict"]  = cond_res.get(var, {}).get("verdict", "N/A")
+        row["irvRawMultiProbPass"]  = irv_res.get(var, {}).get("prob_pass", 0.0)
+        row["irvRawMultiVerdict"]   = irv_res.get(var, {}).get("verdict", "N/A")
+    write_json(base, "senateVoteModelWFP.json")
+
+
+def build_house_vote_model_wfp(src):
+    """houseVoteModelWFP.json — clone of houseVoteModel.json with only the
+    Raw-Multi house column recomputed from the C7 run (WFP seats included)."""
+    with open(DATA_OUT / "houseVoteModel.json", encoding="utf-8") as f:
+        base = json.load(f)
+    cbv = _cluster_by_var_support()
+    _cluster_to_party = {v: k for k, v in _PURE_CLUSTER.items()}
+
+    rm_seats, total = {}, 0
+    for r in read_csv(src / "house" / "stv_seat_summary.csv"):
+        cl   = int(r["party"])
+        code = _cluster_to_party.get(cl, str(cl))
+        rm_seats[code] = rm_seats.get(code, 0) + int(r["NATIONAL"])
+        total += int(r["NATIONAL"])
+    maj = total // 2 + 1
+    res = _lf_prob_pass(rm_seats, cbv, majority=maj)
+    for row in base:
+        var = row["variable"]
+        row["houseRawMultiProbPass"] = res.get(var, {}).get("prob_pass", 0.0)
+        row["houseRawMultiVerdict"]  = res.get(var, {}).get("verdict", "N/A")
+    write_json(base, "houseVoteModelWFP.json")
+
+
+def build_wfp_variants():
+    """Emit parallel *WFP.json from the 10-party (C7/WFP) pipeline run.
+    Canonical 9-party JSON is untouched; the viz toggle swaps to these files."""
+    src = PURE_MULTI_C7_DIR
+    if not (src / "house" / "stv_seat_summary.csv").exists():
+        print("  Skipping WFP variants (no pure_multi_c7 outputs found)")
+        return
+    print("Preparing WFP (C7) variant data...")
+    c7_pop = _national_pop_shares_10()
+    house_summary = src / "house" / "stv_seat_summary.csv"
+    build_house_seats(src_csv=house_summary, out_name="houseSeatsWFP.json",
+                      include_c7=True, pop_shares=c7_pop)
+    build_house_state_map(src_dir=src, out_name="houseStateMapWFP.json", include_c7=True)
+    build_district_stv_results(src_csv=src / "house" / "stv_results_by_district.csv",
+                               out_name="districtStvResultsWFP.json")
+    build_pure_multi_senate(src_dir=src, cond_name="pureMultiSenateCondorcetWFP.json",
+                            irv_name="pureMultiSenateIRVWFP.json")
+    build_raw_multi_presidential_election(src_dir=src,
+                                          out_name="rawMultiPresidentialElectionWFP.json")
+    build_senate_vote_model_wfp(src)
+    build_house_vote_model_wfp(src)
+    build_cluster_profiles(include_c7=True, out_name="clusterProfilesWFP.json",
+                           house_summary_csv=house_summary)
+
+
 if __name__ == "__main__":
     print("Preparing data...")
     build_senate_vote_model()
@@ -2961,4 +3152,6 @@ if __name__ == "__main__":
     build_district_stv_results_triple()
     build_fd_district_stv_results_triple()
     build_district_county_map_triple()
+    # WFP (C7) parallel dataset — only emits if pure_multi_c7 outputs exist
+    build_wfp_variants()
     print("Done.")
