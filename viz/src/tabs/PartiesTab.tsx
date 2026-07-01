@@ -4,6 +4,7 @@ import { PartyCard } from '../components/parties/PartyCard';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { FACTOR_LABELS } from '../constants/parties';
 import { CompareTab } from './CompareTab';
+import { PartyPlatform } from './PartyPlatform';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
@@ -16,13 +17,13 @@ interface Props {
 }
 
 type SortFactor = 'F1' | 'F2' | 'F3' | 'F4' | 'F5';
-type Section = 'profiles' | 'compare';
+type Section = 'profiles' | 'compare' | 'platform';
 
 export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
   const [sortFactor, setSortFactor] = useUrlState<SortFactor>('sort', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
   const [cardMode, setCardMode] = useUrlState<'strength' | 'percentile'>('mode', 'strength', { allowed: ['strength', 'percentile'] });
   const [sortDir, setSortDir] = useUrlState<'asc' | 'desc'>('dir', 'desc', { allowed: ['asc', 'desc'] });
-  const [section, setSection] = useUrlState<Section>('section', 'compare', { allowed: ['profiles', 'compare'] });
+  const [section, setSection] = useUrlState<Section>('section', 'compare', { allowed: ['profiles', 'compare', 'platform'] });
 
   const effClusters = clusters;
 
@@ -55,8 +56,8 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
 
       <StickyControlBar>
         <ToggleGroup label="View" value={section} onChange={setSection}
-          options={['compare', 'profiles'] as const}
-          labels={{ compare: 'Compare Policies', profiles: 'Party Profiles' }} />
+          options={['compare', 'platform', 'profiles'] as const}
+          labels={{ compare: 'Compare Policies', platform: 'Party Platform', profiles: 'Party Profiles' }} />
       </StickyControlBar>
 
       {section === 'profiles' && (
@@ -119,6 +120,10 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
 
       {section === 'compare' && (
         <CompareTab clusters={effClusters} fdProfiles={fdProfiles} />
+      )}
+
+      {section === 'platform' && (
+        <PartyPlatform clusters={effClusters} />
       )}
     </div>
   );

@@ -1,0 +1,165 @@
+import { useMemo, useState } from 'react';
+import type { ClusterProfile } from '../types';
+import { useUrlState } from '../hooks/useUrlState';
+import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constants/parties';
+import { Card } from '@/components/ui/card';
+
+interface Props {
+  clusters: ClusterProfile[];
+}
+
+// Political/social policy domains only — a platform is positions, not demographics
+// or vote history. Ordered for display.
+const POLICY_DOMAINS = [
+  'Taxes & Economy',
+  'Government Spending',
+  'Healthcare & Housing',
+  'Immigration',
+  'Police & Guns',
+  'Civil Liberties',
+  'Abortion',
+  'Racial & Gender',
+  'Environment & Climate',
+  'Foreign Policy & Defense',
+  'Elections & Trust',
+  'Religion',
+];
+const POLICY_SET = new Set(POLICY_DOMAINS);
+
+interface Plank {
+  question: string;
+  domain: string;
+  pct: number;      // % of the party's (core) members who support
+  overall: number;  // national average support
+  diffPp: number;   // deviation from national
+}
+
+export function PartyPlatform({ clusters }: Props) {
+  const parties = F5_ORDER.filter(p => clusters.some(c => c.party === p));
+  const [party, setParty] = useUrlState<string>('platform', parties[0] ?? 'CON', { allowed: [...parties] });
+  // Dials: a plank must be a strong stance (≥X% for OR ≥X% against) and/or distinctive.
+  const [minStrength, setMinStrength] = useState(75);
+  const [minDev, setMinDev] = useState(25);
+  const [mode, setMode] = useState<'both' | 'either'>('both');
+
+  const cluster = clusters.find(c => c.party === party);
+  const color = PARTY_COLORS[party] ?? '#6b7280';
+
+  const planksByDomain = useMemo(() => {
+    const out: Record<string, Plank[]> = {};
+    if (!cluster) return out;
+    for (const v of Object.values(cluster.variables ?? {})) {
+      if (!v || typeof v !== 'object') continue;
+      const { pct, overall, diffPp, domain, question } = v as Plank & { question: string; domain: string };
+      if (pct == null || !POLICY_SET.has(domain)) continue;
+      const strong = pct >= minStrength || pct <= 100 - minStrength;
+      const distinct = Math.abs(diffPp ?? 0) >= minDev;
+      const pass = mode === 'both' ? (strong && distinct) : (strong || distinct);
+      if (!pass) continue;
+      (out[domain] ??= []).push({ question, domain, pct, overall: overall ?? 0, diffPp: diffPp ?? 0 });
+    }
+    for (const d of Object.keys(out)) out[d].sort((a, b) => Math.abs(b.pct - 50) - Math.abs(a.pct - 50));
+    return out;
+  }, [cluster, minStrength, minDev, mode]);
+
+  const total = Object.values(planksByDomain).reduce((s, a) => s + a.length, 0);
+
+  return (
+    <div className="space-y-6">
+      {/* Party selector */}
+      <div className="flex flex-wrap gap-1.5">
+        {parties.map(p => {
+          const on = p === party;
+          const c = PARTY_COLORS[p] ?? '#6b7280';
+          return (
+            <button key={p} onClick={() => setParty(p)}
+              className="text-xs font-semibold px-2.5 py-1 rounded-full border transition-all"
+              style={{
+                borderColor: c,
+                color: on ? getContrastText(c) : c,
+                backgroundColor: on ? c : 'transparent',
+              }}>
+              {PARTY_NAMES[p] ?? p}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Dials */}
+      <Card className="p-4">
+        <div className="grid sm:grid-cols-[1fr_1fr_auto] gap-4 items-end">
+          <label className="block">
+            <div className="flex justify-between text-xs mb-1">
+              <span className="text-muted-foreground">Strong stance threshold</span>
+              <span className="font-mono font-semibold" style={{ color }}>≥{minStrength}% for / against</span>
+            </div>
+            <input type="range" min={50} max={100} step={5} value={minStrength}
+              onChange={e => setMinStrength(Number(e.target.value))}
+              className="w-full" style={{ accentColor: color }} />
+          </label>
+          <label className="block">
+            <div className="flex justify-between text-xs mb-1">
+              <span className="text-muted-foreground">Deviation from national</span>
+              <span className="font-mono font-semibold" style={{ color }}>≥{minDev} pts</span>
+            </div>
+            <input type="range" min={0} max={50} step={5} value={minDev}
+              onChange={e => setMinDev(Number(e.target.value))}
+              className="w-full" style={{ accentColor: color }} />
+          </label>
+          <div className="flex gap-1">
+            {(['both', 'either'] as const).map(m => (
+              <button key={m} onClick={() => setMode(m)}
+                className={`text-xs px-2.5 py-1.5 rounded-md border ${mode === m ? 'bg-secondary text-foreground font-semibold' : 'text-muted-foreground'}`}>
+                {m === 'both' ? 'Strong + distinctive' : 'Strong or distinctive'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          The <span className="font-semibold" style={{ color }}>{PARTY_NAMES[party] ?? party}</span> platform:
+          positions its core (most-likely) members hold strongly and/or that set it apart from the national
+          average. {total} plank{total !== 1 ? 's' : ''} at the current thresholds.
+        </p>
+      </Card>
+
+      {/* Planks by domain */}
+      {total === 0 && (
+        <p className="text-sm text-muted-foreground">No positions meet these thresholds — try loosening the dials.</p>
+      )}
+      {POLICY_DOMAINS.filter(d => planksByDomain[d]?.length).map(domain => (
+        <div key={domain}>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">{domain}</h3>
+          <div className="space-y-2">
+            {planksByDomain[domain].map((p, i) => {
+              const supports = p.pct >= 50;
+              return (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="shrink-0 w-5 text-center font-bold"
+                    style={{ color: supports ? '#16a34a' : '#dc2626' }} aria-hidden="true">
+                    {supports ? '▲' : '▼'}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-foreground leading-snug">{p.question}</div>
+                    {/* bar: party fill + national-average marker */}
+                    <div className="relative h-2 bg-muted rounded-full overflow-hidden mt-1">
+                      <div className="absolute top-0 left-0 h-full rounded-full"
+                        style={{ width: `${p.pct}%`, backgroundColor: color }} />
+                      <div className="absolute top-0 h-full w-0.5 bg-slate-500"
+                        style={{ left: `${p.overall}%` }} title={`National avg ${Math.round(p.overall)}%`} />
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right tabular-nums" style={{ width: 96 }}>
+                    <div className="text-sm font-semibold" style={{ color }}>{Math.round(p.pct)}%</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      nat {Math.round(p.overall)}% · {p.diffPp >= 0 ? '+' : ''}{Math.round(p.diffPp)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
