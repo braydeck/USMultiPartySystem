@@ -67,9 +67,10 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
           )}
         </div>
         <div className="px-6 py-4 space-y-1">
-          {(['F1','F2','F3','F4','F5'] as const).map(f => (
-            <FactorBar key={f} factor={f} value={(cluster as unknown as Record<string, number>)[f]} />
-          ))}
+          {(['F1','F2','F3','F4','F5'] as const).map(f => {
+            const rec = cluster as unknown as Record<string, number>;
+            return <FactorBar key={f} factor={f} value={rec[`z_${f}`] ?? rec[f]} />;
+          })}
         </div>
       </Card>
 

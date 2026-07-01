@@ -1043,9 +1043,15 @@ def collect_cluster_variables(rows, include_c7=True):
 
     return result
 
+# "What sets a party apart" should surface political/social *views*, not demographics
+# or voting behavior.
+_NON_POLICY_DOMAINS = {"Voting History", "Demographics", "Employment & Labor"}
+
+
 def compute_key_positions(rows, cid, n=4):
     """Return top-n data-driven policy positions that most differentiate this cluster."""
-    binary_rows = [r for r in rows if r["type"] == "binary"]
+    binary_rows = [r for r in rows if r["type"] == "binary"
+                   and r.get("domain") not in _NON_POLICY_DOMAINS]
     diffs = []
     for r in binary_rows:
         try:
@@ -1084,7 +1090,8 @@ def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=4, min_diff
     distances.sort()
     neighbor_cids = [c2 for _, c2 in distances[:2]]
 
-    binary_rows = [r for r in rows if r["type"] == "binary"]
+    binary_rows = [r for r in rows if r["type"] == "binary"
+                   and r.get("domain") not in _NON_POLICY_DOMAINS]
     diffs = []
     for r in binary_rows:
         try:

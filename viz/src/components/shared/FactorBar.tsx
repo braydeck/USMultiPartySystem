@@ -2,36 +2,36 @@ import { FACTOR_LABELS, FACTOR_POLES } from '../../constants/parties';
 
 interface Props {
   factor: string;
-  value: number; // -2 to +2 range
+  value: number; // z-score, roughly -2.5 to +2.5
 }
 
-function barColor(v: number): string {
-  if (v > 0.8) return '#ef4444';
-  if (v > 0.3) return '#f97316';
-  if (v > -0.3) return '#6b7280';
-  if (v > -0.8) return '#3b82f6';
-  return '#1d4ed8';
-}
-
+// Diverging from a centered zero: left = blue (low pole), right = red (high pole).
 export function FactorBar({ factor, value }: Props) {
   const label = FACTOR_LABELS[factor] ?? factor;
-  const pct = Math.round(((value + 2) / 4) * 100);
-  const color = barColor(value);
   const poles = FACTOR_POLES[factor];
+  const isHigh = value >= 0;
+  const barPct = Math.min((Math.abs(value) / 2.5) * 50, 50);
+  const mixed = Math.abs(value) < 0.3;
+  const color = mixed ? '#94a3b8' : (isHigh ? '#dc2626' : '#2563eb');
+  const textColor = mixed ? '#6b7280' : color;
 
   return (
     <div className="mb-2">
       <div className="flex justify-between text-xs mb-1">
         <span className="text-muted-foreground">{label}</span>
-        <span style={{ color }} className="font-mono font-semibold">
+        <span style={{ color: textColor }} className="font-mono font-semibold">
           {value >= 0 ? '+' : ''}{value.toFixed(2)}
         </span>
       </div>
-      <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${pct}%`, backgroundColor: color }}
-        />
+      <div className="relative h-2.5 bg-muted rounded-full overflow-hidden">
+        {isHigh ? (
+          <div className="absolute top-0 h-full rounded-r-full transition-all"
+            style={{ left: '50%', width: `${barPct}%`, backgroundColor: color }} />
+        ) : (
+          <div className="absolute top-0 h-full rounded-l-full transition-all"
+            style={{ left: `${50 - barPct}%`, width: `${barPct}%`, backgroundColor: color }} />
+        )}
+        <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400" />
       </div>
       {poles && (
         <div className="flex justify-between text-muted-foreground mt-0.5" style={{ fontSize: 9 }}>
