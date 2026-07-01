@@ -1485,6 +1485,22 @@ def build_fd_house_seats():
 
 
 
+def _build_trajectory_pcts(diag_rows):
+    """Per-(candidate_code, stage) first-choice % from optional 'trajectories'
+    diagnostic rows. The current primary diagnostics are transfer-format, so this
+    is normally empty and callers fall back to the per-stage vote_pct in
+    primary_results — which is the correct trajectory value."""
+    out = {}
+    for r in diag_rows:
+        if r.get("diagnostic") != "trajectories":
+            continue
+        try:
+            out[(r.get("candidate_code", ""), r.get("phase", ""))] = float(r.get("vote_pct") or 0)
+        except (ValueError, TypeError):
+            pass
+    return out
+
+
 # ---------- fdPrimary.json ----------
 def build_fd_primary():
     """Stage-by-stage data for the 71-candidate FD primary run."""

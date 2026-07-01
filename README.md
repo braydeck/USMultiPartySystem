@@ -234,49 +234,60 @@ All outputs are under `data/outputs/`.
 
 All scripts live in `pipeline/` and use relative paths anchored to the project root.
 
-```bash
-# ── Base ballots / apportionment (shared cache) ─────────────────────────────
-python3 pipeline/stv_main.py                       # Build ballots_checkpoint + apportionment
-python3 pipeline/stv_main.py --steps 3,4,5         # Resume from ballot checkpoint
+All 10 clusters are active parties (C7 = **Order and Opportunity Party**). The election
+sims + `prepare_data.py` are the reproducible path; they read `data/processed/*.csv` and
+the geography checkpoint in `data/outputs/No_C7_canonical/` (party-independent).
 
-# ── Party-line field (pure_multi) ───────────────────────────────────────────
+```bash
+# ── Base geography checkpoint (already cached; rebuilds ballots + apportionment) ──
+python3 pipeline/stv_main.py
+
+# ── Party-line field (pure_multi): ballots, primary, president, house, senate ──
 python3 pipeline/pure_only/generate_pure_multi_ballots.py
-python3 pipeline/pure_only/run_pure_multi_house_stv.py     # → pure_multi/house/
-python3 pipeline/pure_only/run_pure_multi_senate.py        # → pure_multi/senate/ (Condorcet + IRV)
+python3 pipeline/pure_only/generate_party_ballots.py       # single-candidate ballots (transfers)
+python3 pipeline/pure_only/run_pure_multi_primary.py
+python3 pipeline/pure_only/run_pure_multi_presidential.py
+python3 pipeline/pure_only/run_pure_multi_house_stv.py             # → pure_multi/house/
+python3 pipeline/pure_only/run_pure_multi_house_stv.py --triple    # → pure_multi_triple/house/
+python3 pipeline/pure_only/run_pure_multi_senate.py               # → pure_multi/senate/ (Condorcet + IRV)
 
 # ── Crossover field (factor_deviation) ──────────────────────────────────────
-python3 pipeline/generate_factor_deviation_candidates.py
+python3 pipeline/generate_factor_deviation_candidates.py   # OAO fields base only (small party)
 python3 pipeline/generate_factor_deviation_ballots.py
+python3 pipeline/generate_factor_deviation_stats.py        # per-candidate policy support
 python3 pipeline/run_fd_house_stv.py                       # → factor_deviation/house/
+python3 pipeline/run_fd_house_stv.py --triple
 python3 pipeline/run_fd_senate_simulation.py               # → factor_deviation/senate/ (Condorcet + IRV)
+python3 pipeline/run_fd_primary_2028.py
+python3 pipeline/run_fd_irv_2028.py                        # FD presidential
 
-# ── Shared analysis ─────────────────────────────────────────────────────────
+# ── Canonical house + shared profiles ───────────────────────────────────────
+python3 pipeline/run_house_canonical.py            # → No_C7_canonical/ (party-card seats)
 python3 pipeline/house_chamber_profile.py          # House chamber policy aggregate
-python3 pipeline/senate_chamber_profile.py         # Senate chamber policy aggregate
-python3 pipeline/chamber_vote_model.py             # 37-item bill passage probabilities
-python3 pipeline/cross_chamber_coalitions.py       # Secondary coalition diagnostic
+python3 pipeline/generate_blend_stats.py           # blended-type policy support (senate analysis)
 
 # ── Visualization ──────────────────────────────────────────────────────────
-cd viz && python3 scripts/prepare_data.py          # Regenerate JSON from outputs
+cd viz && python3 scripts/prepare_data.py          # Regenerate all JSON from outputs
 npm run dev                                        # Dev server
 npm run build                                      # Production build → dist/
 ```
 
+> **Legacy senate vote-model chain** (`senate_chamber_profile.py` → `chamber_vote_model.py`
+> → `generate_results.py`, plus `cross_chamber_coalitions.py`) produces analysis CSVs and
+> depends on the archived single-candidate `pure_only/senate/` run. It is **not required**
+> for the viz: `prepare_data.py` recomputes every Legislation column (Party-Line, Crossover,
+> Triple — House and Senate) directly from the native seat counts × per-cluster policy
+> support, so those numbers reflect the current 10-party chambers without the old chain.
+
 ### Data provenance / regeneration notes
 
-The 10-party model (all 10 clusters active, C7 = **Order and Opportunity Party**) is
-regenerated natively by the scripts above; `stv_main.py`'s checkpoints
-(`data/outputs/No_C7_canonical/`) are party-independent geography and are reused.
-
-Some intermediate outputs were archived in an earlier cleanup and live under
-`data/outputs/archive/` and `pipeline/archive/` (e.g. `stv_main.py`,
-`generate_blend_stats.py`, `blend_stats.csv`, the single-candidate `pure_only/senate/`
-run, `results/vote_model.csv`). Those predate the party renames (Reform→Populist,
-Center→Civic Union, SD→Labor, C7→OAO), so the senate-blend / vote-model chain is not
-regenerated from them. Instead, `prepare_data.py` keeps the committed vote-model JSON
-structure and recomputes every scenario column (Party-Line, Crossover, Triple — House
-and Senate) directly from the native seat counts × per-cluster policy support, so the
-legislation probabilities reflect the current 10-party chambers.
+`stv_main.py` and `generate_blend_stats.py` were archived in an earlier cleanup and have
+been restored to `pipeline/` and re-keyed to the current party codes. The only piece still
+archive-only is the single-candidate `pure_only/senate/` run, which feeds the **legacy**
+senate vote-model chain (see the note above) and is superseded by `prepare_data.py`'s
+recompute. Older archived copies under `data/outputs/archive/` and `pipeline/archive/`
+predate three party renames (Reform→Populist, Center→Civic Union, SD→Labor, C7→OAO) and
+should not be restored as-is.
 
 ---
 
@@ -291,6 +302,7 @@ scikit-learn
 pyreadstat      # Stata .dta reading
 pyarrow         # Parquet I/O for ballot checkpoint
 plotly          # HTML cluster profile visualizations
+openpyxl        # Excel read for county density-tier map
 ```
 
 ---
