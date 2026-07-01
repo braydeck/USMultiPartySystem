@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { qualifies, sigActive, type AlignMode, type SignatureFilter } from '../lib/signature';
+import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText, etaPurple } from '../constants/parties';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
@@ -141,32 +142,7 @@ const SECTION_QUESTION_ORDER: Record<string, string[]> = {
   ],
 };
 
-// Domains whose items are several distinct "Prefix: option" batteries that should
-// render under sub-headers with the prefix stripped from each row.
-const SUBGROUPED_DOMAINS = new Set(['Foreign Policy & Defense', 'Voting History']);
-const MULTISELECT_DOMAINS = new Set(['Foreign Policy & Defense']);  // bars can sum >100%
-const SUBGROUP_LABELS: Record<string, string> = {
-  'Ukraine': 'U.S. response to Russia–Ukraine',
-  'Israel/Gaza': 'U.S. response to Israel–Gaza',
-  'Use US troops': 'When to use U.S. military force',
-  '2016': '2016 presidential vote',
-  '2020': '2020 presidential vote',
-  '2024': '2024 election & approval',
-};
-
-interface SubGroup { header: string | null; label: string; multi: boolean; items: VarEntry[]; }
-function buildSubgroups(domain: string, vars: VarEntry[]): SubGroup[] {
-  if (!SUBGROUPED_DOMAINS.has(domain)) return [{ header: null, label: '', multi: false, items: vars }];
-  const groups: SubGroup[] = [];
-  const idx = new Map<string, number>();
-  for (const v of vars) {
-    const pfx = v.question.includes(': ') ? v.question.split(': ')[0] : '';
-    if (!idx.has(pfx)) { idx.set(pfx, groups.length); groups.push({ header: pfx, label: SUBGROUP_LABELS[pfx] ?? pfx, multi: MULTISELECT_DOMAINS.has(domain), items: [] }); }
-    groups[idx.get(pfx)!].items.push(v);
-  }
-  return groups;
-}
-const stripPrefix = (q: string) => (q.includes(': ') ? q.split(': ').slice(1).join(': ') : q);
+// Sub-header grouping for "Prefix: option" batteries — see lib/subgroups.
 
 function getVariables(
   code: string,

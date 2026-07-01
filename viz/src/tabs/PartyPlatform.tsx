@@ -3,6 +3,7 @@ import type { ClusterProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constants/parties';
 import { qualifies, type AlignMode, type SignatureFilter } from '../lib/signature';
+import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -246,11 +247,21 @@ export function PartyPlatform({ clusters }: Props) {
                 <div key={domain}>
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">{domain}</h3>
                   <div>
-                    {rowsByDomain[domain].map((row, ri) => (
+                    {buildSubgroups(domain, rowsByDomain[domain]).map(grp => (
+                    <div key={grp.header ?? 'main'}>
+                    {grp.header && (
+                      <div className="mt-3 mb-1">
+                        <div className="text-xs font-semibold text-foreground">{grp.label}</div>
+                        {grp.multi && (
+                          <div className="text-[11px] text-muted-foreground">Multiple selections allowed — shares can exceed 100%.</div>
+                        )}
+                      </div>
+                    )}
+                    {grp.items.map((row, ri) => (
                       <div key={row.key}
                         className={`flex gap-4 items-start rounded transition-colors hover:bg-muted/60 ${ri % 2 === 1 ? 'bg-muted/25' : ''}`}>
                         <div className="flex-[2] min-w-[160px] text-right text-sm text-foreground leading-snug py-2 pl-2">
-                          {row.question}
+                          {grp.header ? stripPrefix(row.question) : row.question}
                         </div>
                         {selected.map(code => {
                           const cell = row.cells[code];
@@ -287,6 +298,8 @@ export function PartyPlatform({ clusters }: Props) {
                           );
                         })}
                       </div>
+                    ))}
+                    </div>
                     ))}
                   </div>
                 </div>
