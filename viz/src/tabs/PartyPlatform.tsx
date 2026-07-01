@@ -51,6 +51,7 @@ interface Row {
   cells: Record<string, Cell>; // by party code
   qualifiers: string[];        // parties for whom this is a defining plank
   maxStrength: number;         // max normalized |value-50| among qualifiers, for sorting
+  diverges: boolean;           // selected parties don't share an identical defining stance
 }
 
 // Normalize a value onto a 0–100 scale so non-percentage items (e.g. abortion
@@ -75,6 +76,7 @@ export function PartyPlatform({ clusters }: Props) {
   const [alignMode, setAlignMode] = useState<AlignMode>('deviant');
   const [minStrength, setMinStrength] = useState(70);
   const [minDev, setMinDev] = useState(25);
+  const [divergeOnly, setDivergeOnly] = useState(false);
 
   const multi = selected.length > 1;
   const barColor = multi ? NEUTRAL_BAR : (PARTY_COLORS[selected[0]] ?? '#6b7280');
@@ -100,7 +102,7 @@ export function PartyPlatform({ clusters }: Props) {
         const maxVal = v.maxVal ?? 100;
         let row = byKey.get(key);
         if (!row) {
-          row = { key, question: v.question ?? key, domain: v.domain, overall: v.overall ?? 0, maxVal, unit: v.unit ?? '%', cells: {}, qualifiers: [], maxStrength: 0 };
+          row = { key, question: v.question ?? key, domain: v.domain, overall: v.overall ?? 0, maxVal, unit: v.unit ?? '%', cells: {}, qualifiers: [], maxStrength: 0, diverges: false };
           byKey.set(key, row);
         }
         const q = qualifies(norm(v.pct, maxVal), norm(v.overall ?? v.pct, maxVal), filter);
@@ -112,6 +114,14 @@ export function PartyPlatform({ clusters }: Props) {
     for (const row of byKey.values()) {
       if (row.qualifiers.length === 0) continue;
       row.maxStrength = Math.max(...row.qualifiers.map(c => Math.abs(norm(row.cells[c]!.pct, row.maxVal) - 50)));
+      // Divergence: the selected parties don't all share the same defining stance.
+      // Token per party: 'none' (not a defining plank), 'high' (strong for), 'low' (strong against).
+      const stances = new Set(selected.map(code => {
+        const c = row.cells[code];
+        if (!c || !c.qualifies) return 'none';
+        return norm(c.pct, row.maxVal) >= 50 ? 'high' : 'low';
+      }));
+      row.diverges = stances.size > 1;
       (out[row.domain] ??= []).push(row);
     }
     // Shared planks first (surfaces overlap), then by strength.
@@ -121,7 +131,18 @@ export function PartyPlatform({ clusters }: Props) {
     return out;
   }, [selected, clusters, minStrength, minDev, useConsensus, useAlign, alignMode, domainSet]);
 
-  const total = Object.values(rowsByDomain).reduce((s, a) => s + a.length, 0);
+  // "Divergences only" keeps rows where the parties differ in defining stance (multi only).
+  const shownByDomain = useMemo(() => {
+    if (!divergeOnly || !multi) return rowsByDomain;
+    const out: Record<string, Row[]> = {};
+    for (const [d, rows] of Object.entries(rowsByDomain)) {
+      const f = rows.filter(r => r.diverges);
+      if (f.length) out[d] = f;
+    }
+    return out;
+  }, [rowsByDomain, divergeOnly, multi]);
+
+  const total = Object.values(shownByDomain).reduce((s, a) => s + a.length, 0);
   const noun = category === 'views' ? 'position' : category === 'voting' ? 'pattern' : 'trait';
 
   return (
@@ -151,6 +172,13 @@ export function PartyPlatform({ clusters }: Props) {
               {CATEGORY_LABELS[c]}
             </button>
           ))}
+          {multi && (
+            <button onClick={() => setDivergeOnly(v => !v)}
+              title="Only items where the selected parties differ — one defines it and another doesn't, or they define it in opposite directions."
+              className={`text-xs px-2.5 py-1 rounded-md border ml-auto ${divergeOnly ? 'bg-secondary text-foreground font-semibold' : 'text-muted-foreground'}`}>
+              {divergeOnly ? '✓ ' : ''}Divergences only
+            </button>
+          )}
         </div>
         <div className="grid sm:grid-cols-2 gap-5 items-end">
           <div style={{ opacity: useConsensus ? 1 : 0.45 }}>
@@ -202,7 +230,7 @@ export function PartyPlatform({ clusters }: Props) {
           </span>
           {selected.length > 0 && (
             <> — {total} {noun}{total !== 1 ? 's' : ''} where {multi ? 'a selected party' : 'this party'} is
-            {' '}{[useConsensus && 'strongly held', useAlign && (alignMode === 'deviant' ? 'deviant from the U.S.' : 'mainstream')].filter(Boolean).join(' + ') || 'shown (no filter)'}.</>
+            {' '}{[useConsensus && 'strongly held', useAlign && (alignMode === 'deviant' ? 'deviant from the U.S.' : 'mainstream')].filter(Boolean).join(' + ') || 'shown (no filter)'}{divergeOnly && multi ? ', where they diverge' : ''}.</>
           )}
         </p>
       </Card>
@@ -241,13 +269,13 @@ export function PartyPlatform({ clusters }: Props) {
               })}
             </div>
 
-            {domainOrder.filter(d => rowsByDomain[d]?.length).map(domain => {
+            {domainOrder.filter(d => shownByDomain[d]?.length).map(domain => {
               const isView = VIEW_SET.has(domain);
               return (
                 <div key={domain}>
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">{domain}</h3>
                   <div>
-                    {buildSubgroups(domain, rowsByDomain[domain]).map(grp => (
+                    {buildSubgroups(domain, shownByDomain[domain]).map(grp => (
                     <div key={grp.header ?? 'main'}>
                     {grp.header && (
                       <div className="mt-3 mb-1">
