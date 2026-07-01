@@ -8,42 +8,51 @@ interface Props {
   clusters: ClusterProfile[];
 }
 
-// Political/social policy domains only — a platform is positions, not demographics
-// or vote history. Ordered for display.
-const POLICY_DOMAINS = [
-  'Taxes & Economy',
-  'Government Spending',
-  'Healthcare & Housing',
-  'Immigration',
-  'Police & Guns',
-  'Civil Liberties',
-  'Abortion',
-  'Racial & Gender',
-  'Environment & Climate',
-  'Foreign Policy & Defense',
-  'Elections & Trust',
-  'Religion',
+// Domain groups, in display order.
+const VIEW_DOMAINS = [
+  'Taxes & Economy', 'Government Spending', 'Healthcare & Housing', 'Immigration',
+  'Police & Guns', 'Civil Liberties', 'Abortion', 'Racial & Gender',
+  'Environment & Climate', 'Foreign Policy & Defense', 'Elections & Trust', 'Religion',
 ];
-const POLICY_SET = new Set(POLICY_DOMAINS);
+const DEMO_DOMAINS = [
+  'Race & Ethnicity', 'Gender & Sexuality', 'Education', 'Economics',
+  'Household', 'Employment & Labor', 'Other',
+];
+const VOTING_DOMAINS = ['Voting History'];
+
+type Category = 'views' | 'demographics' | 'voting' | 'all';
+const CATEGORY_DOMAINS: Record<Category, string[]> = {
+  views: VIEW_DOMAINS,
+  demographics: DEMO_DOMAINS,
+  voting: VOTING_DOMAINS,
+  all: [...VIEW_DOMAINS, ...DEMO_DOMAINS, ...VOTING_DOMAINS],
+};
+const CATEGORY_LABELS: Record<Category, string> = {
+  views: 'Views', demographics: 'Demographics', voting: 'Voting history', all: 'All',
+};
+const VIEW_SET = new Set(VIEW_DOMAINS);
 
 interface Plank {
   question: string;
   domain: string;
-  pct: number;      // % of the party's (core) members who support
-  overall: number;  // national average support
+  pct: number;      // % of the party's (core) members
+  overall: number;  // national average
   diffPp: number;   // deviation from national
 }
 
 export function PartyPlatform({ clusters }: Props) {
   const parties = F5_ORDER.filter(p => clusters.some(c => c.party === p));
   const [party, setParty] = useUrlState<string>('platform', parties[0] ?? 'CON', { allowed: [...parties] });
-  // Dials: a plank must be a strong stance (≥X% for OR ≥X% against) and/or distinctive.
+  const [category, setCategory] = useState<Category>('views');
+  // Dials: a plank must be strongly held (≥X% or ≤100−X%) and/or distinctive (|Δ|≥Y).
   const [minStrength, setMinStrength] = useState(75);
   const [minDev, setMinDev] = useState(25);
   const [mode, setMode] = useState<'both' | 'either'>('both');
 
   const cluster = clusters.find(c => c.party === party);
   const color = PARTY_COLORS[party] ?? '#6b7280';
+  const domainOrder = CATEGORY_DOMAINS[category];
+  const domainSet = useMemo(() => new Set(domainOrder), [domainOrder]);
 
   const planksByDomain = useMemo(() => {
     const out: Record<string, Plank[]> = {};
@@ -51,7 +60,7 @@ export function PartyPlatform({ clusters }: Props) {
     for (const v of Object.values(cluster.variables ?? {})) {
       if (!v || typeof v !== 'object') continue;
       const { pct, overall, diffPp, domain, question } = v as Plank & { question: string; domain: string };
-      if (pct == null || !POLICY_SET.has(domain)) continue;
+      if (pct == null || !domainSet.has(domain)) continue;
       const strong = pct >= minStrength || pct <= 100 - minStrength;
       const distinct = Math.abs(diffPp ?? 0) >= minDev;
       const pass = mode === 'both' ? (strong && distinct) : (strong || distinct);
@@ -60,9 +69,10 @@ export function PartyPlatform({ clusters }: Props) {
     }
     for (const d of Object.keys(out)) out[d].sort((a, b) => Math.abs(b.pct - 50) - Math.abs(a.pct - 50));
     return out;
-  }, [cluster, minStrength, minDev, mode]);
+  }, [cluster, minStrength, minDev, mode, domainSet]);
 
   const total = Object.values(planksByDomain).reduce((s, a) => s + a.length, 0);
+  const noun = category === 'views' ? 'position' : category === 'voting' ? 'pattern' : 'trait';
 
   return (
     <div className="space-y-6">
@@ -74,11 +84,7 @@ export function PartyPlatform({ clusters }: Props) {
           return (
             <button key={p} onClick={() => setParty(p)}
               className="text-xs font-semibold px-2.5 py-1 rounded-full border transition-all"
-              style={{
-                borderColor: c,
-                color: on ? getContrastText(c) : c,
-                backgroundColor: on ? c : 'transparent',
-              }}>
+              style={{ borderColor: c, color: on ? getContrastText(c) : c, backgroundColor: on ? c : 'transparent' }}>
               {PARTY_NAMES[p] ?? p}
             </button>
           );
@@ -87,15 +93,23 @@ export function PartyPlatform({ clusters }: Props) {
 
       {/* Dials */}
       <Card className="p-4">
+        <div className="flex flex-wrap gap-1 mb-4">
+          <span className="text-xs text-muted-foreground self-center mr-1 uppercase tracking-widest">Show</span>
+          {(['views', 'demographics', 'voting', 'all'] as const).map(c => (
+            <button key={c} onClick={() => setCategory(c)}
+              className={`text-xs px-2.5 py-1 rounded-md border ${category === c ? 'bg-secondary text-foreground font-semibold' : 'text-muted-foreground'}`}>
+              {CATEGORY_LABELS[c]}
+            </button>
+          ))}
+        </div>
         <div className="grid sm:grid-cols-[1fr_1fr_auto] gap-4 items-end">
           <label className="block">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-muted-foreground">Strong stance threshold</span>
-              <span className="font-mono font-semibold" style={{ color }}>≥{minStrength}% for / against</span>
+              <span className="text-muted-foreground">Consensus threshold</span>
+              <span className="font-mono font-semibold" style={{ color }}>≥{minStrength}% or ≤{100 - minStrength}%</span>
             </div>
             <input type="range" min={50} max={100} step={5} value={minStrength}
-              onChange={e => setMinStrength(Number(e.target.value))}
-              className="w-full" style={{ accentColor: color }} />
+              onChange={e => setMinStrength(Number(e.target.value))} className="w-full" style={{ accentColor: color }} />
           </label>
           <label className="block">
             <div className="flex justify-between text-xs mb-1">
@@ -103,8 +117,7 @@ export function PartyPlatform({ clusters }: Props) {
               <span className="font-mono font-semibold" style={{ color }}>≥{minDev} pts</span>
             </div>
             <input type="range" min={0} max={50} step={5} value={minDev}
-              onChange={e => setMinDev(Number(e.target.value))}
-              className="w-full" style={{ accentColor: color }} />
+              onChange={e => setMinDev(Number(e.target.value))} className="w-full" style={{ accentColor: color }} />
           </label>
           <div className="flex gap-1">
             {(['both', 'either'] as const).map(m => (
@@ -116,50 +129,53 @@ export function PartyPlatform({ clusters }: Props) {
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-3">
-          The <span className="font-semibold" style={{ color }}>{PARTY_NAMES[party] ?? party}</span> platform:
-          positions its core (most-likely) members hold strongly and/or that set it apart from the national
-          average. {total} plank{total !== 1 ? 's' : ''} at the current thresholds.
+          <span className="font-semibold" style={{ color }}>{PARTY_NAMES[party] ?? party}</span> —
+          {' '}{category === 'views' ? 'positions' : category === 'voting' ? 'voting patterns' : category === 'demographics' ? 'demographics' : 'positions & traits'} its
+          core (most-likely) members hold strongly and/or that set it apart from the national average.
+          {' '}{total} {noun}{total !== 1 ? 's' : ''} at the current thresholds.
         </p>
       </Card>
 
-      {/* Planks by domain */}
       {total === 0 && (
-        <p className="text-sm text-muted-foreground">No positions meet these thresholds — try loosening the dials.</p>
+        <p className="text-sm text-muted-foreground">Nothing meets these thresholds — try loosening the dials.</p>
       )}
-      {POLICY_DOMAINS.filter(d => planksByDomain[d]?.length).map(domain => (
-        <div key={domain}>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">{domain}</h3>
-          <div className="space-y-2">
-            {planksByDomain[domain].map((p, i) => {
-              const supports = p.pct >= 50;
-              return (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="shrink-0 w-5 text-center font-bold"
-                    style={{ color: supports ? '#16a34a' : '#dc2626' }} aria-hidden="true">
-                    {supports ? '▲' : '▼'}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm text-foreground leading-snug">{p.question}</div>
-                    {/* bar: party fill + national-average marker */}
-                    <div className="relative h-2 bg-muted rounded-full overflow-hidden mt-1">
-                      <div className="absolute top-0 left-0 h-full rounded-full"
-                        style={{ width: `${p.pct}%`, backgroundColor: color }} />
-                      <div className="absolute top-0 h-full w-0.5 bg-slate-500"
-                        style={{ left: `${p.overall}%` }} title={`National avg ${Math.round(p.overall)}%`} />
+      {domainOrder.filter(d => planksByDomain[d]?.length).map(domain => {
+        const isView = VIEW_SET.has(domain);
+        return (
+          <div key={domain}>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">{domain}</h3>
+            <div className="space-y-2">
+              {planksByDomain[domain].map((p, i) => {
+                const high = p.pct >= 50;                      // majority holds / above 50%
+                // Views: green ▲ supports / red ▼ opposes. Other categories: neutral majority/minority.
+                const arrowColor = isView ? (high ? '#16a34a' : '#dc2626') : (high ? color : '#94a3b8');
+                return (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="shrink-0 w-5 text-center font-bold" style={{ color: arrowColor }} aria-hidden="true">
+                      {high ? '▲' : '▼'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-foreground leading-snug">{p.question}</div>
+                      <div className="relative h-2 bg-muted rounded-full overflow-hidden mt-1">
+                        <div className="absolute top-0 left-0 h-full rounded-full"
+                          style={{ width: `${p.pct}%`, backgroundColor: color }} />
+                        <div className="absolute top-0 h-full w-0.5 bg-slate-500"
+                          style={{ left: `${p.overall}%` }} title={`National avg ${Math.round(p.overall)}%`} />
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right tabular-nums" style={{ width: 96 }}>
+                      <div className="text-sm font-semibold" style={{ color }}>{Math.round(p.pct)}%</div>
+                      <div className="text-[10px] text-muted-foreground">
+                        nat {Math.round(p.overall)}% · {p.diffPp >= 0 ? '+' : ''}{Math.round(p.diffPp)}
+                      </div>
                     </div>
                   </div>
-                  <div className="shrink-0 text-right tabular-nums" style={{ width: 96 }}>
-                    <div className="text-sm font-semibold" style={{ color }}>{Math.round(p.pct)}%</div>
-                    <div className="text-[10px] text-muted-foreground">
-                      nat {Math.round(p.overall)}% · {p.diffPp >= 0 ? '+' : ''}{Math.round(p.diffPp)}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
