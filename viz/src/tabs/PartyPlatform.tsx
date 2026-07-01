@@ -44,10 +44,11 @@ export function PartyPlatform({ clusters }: Props) {
   const parties = F5_ORDER.filter(p => clusters.some(c => c.party === p));
   const [party, setParty] = useUrlState<string>('platform', parties[0] ?? 'CON', { allowed: [...parties] });
   const [category, setCategory] = useState<Category>('views');
-  // Dials: a plank must be strongly held (≥X% or ≤100−X%) and/or distinctive (|Δ|≥Y).
+  // Two independent filters — enable either or both (both = signature planks).
+  const [useConsensus, setUseConsensus] = useState(true);
+  const [useDeviation, setUseDeviation] = useState(true);
   const [minStrength, setMinStrength] = useState(75);
   const [minDev, setMinDev] = useState(25);
-  const [mode, setMode] = useState<'both' | 'either'>('both');
 
   const cluster = clusters.find(c => c.party === party);
   const color = PARTY_COLORS[party] ?? '#6b7280';
@@ -63,13 +64,13 @@ export function PartyPlatform({ clusters }: Props) {
       if (pct == null || !domainSet.has(domain)) continue;
       const strong = pct >= minStrength || pct <= 100 - minStrength;
       const distinct = Math.abs(diffPp ?? 0) >= minDev;
-      const pass = mode === 'both' ? (strong && distinct) : (strong || distinct);
+      const pass = (!useConsensus || strong) && (!useDeviation || distinct);
       if (!pass) continue;
       (out[domain] ??= []).push({ question, domain, pct, overall: overall ?? 0, diffPp: diffPp ?? 0 });
     }
     for (const d of Object.keys(out)) out[d].sort((a, b) => Math.abs(b.pct - 50) - Math.abs(a.pct - 50));
     return out;
-  }, [cluster, minStrength, minDev, mode, domainSet]);
+  }, [cluster, minStrength, minDev, useConsensus, useDeviation, domainSet]);
 
   const total = Object.values(planksByDomain).reduce((s, a) => s + a.length, 0);
   const noun = category === 'views' ? 'position' : category === 'voting' ? 'pattern' : 'trait';
@@ -102,30 +103,28 @@ export function PartyPlatform({ clusters }: Props) {
             </button>
           ))}
         </div>
-        <div className="grid sm:grid-cols-[1fr_1fr_auto] gap-4 items-end">
-          <label className="block">
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-muted-foreground">Consensus threshold</span>
-              <span className="font-mono font-semibold" style={{ color }}>≥{minStrength}% or ≤{100 - minStrength}%</span>
-            </div>
-            <input type="range" min={50} max={100} step={5} value={minStrength}
+        <div className="grid sm:grid-cols-2 gap-5 items-end">
+          <div style={{ opacity: useConsensus ? 1 : 0.45 }}>
+            <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
+              <input type="checkbox" checked={useConsensus} onChange={e => setUseConsensus(e.target.checked)}
+                style={{ accentColor: color }} />
+              <span className="font-semibold text-foreground">Consensus</span>
+              <span className="text-muted-foreground">— held by</span>
+              <span className="font-mono font-semibold ml-auto" style={{ color }}>≥{minStrength}% or ≤{100 - minStrength}%</span>
+            </label>
+            <input type="range" min={50} max={100} step={5} value={minStrength} disabled={!useConsensus}
               onChange={e => setMinStrength(Number(e.target.value))} className="w-full" style={{ accentColor: color }} />
-          </label>
-          <label className="block">
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-muted-foreground">Deviation from national</span>
-              <span className="font-mono font-semibold" style={{ color }}>≥{minDev} pts</span>
-            </div>
-            <input type="range" min={0} max={50} step={5} value={minDev}
+          </div>
+          <div style={{ opacity: useDeviation ? 1 : 0.45 }}>
+            <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
+              <input type="checkbox" checked={useDeviation} onChange={e => setUseDeviation(e.target.checked)}
+                style={{ accentColor: color }} />
+              <span className="font-semibold text-foreground">Deviation</span>
+              <span className="text-muted-foreground">— from national</span>
+              <span className="font-mono font-semibold ml-auto" style={{ color }}>≥{minDev} pts</span>
+            </label>
+            <input type="range" min={0} max={50} step={5} value={minDev} disabled={!useDeviation}
               onChange={e => setMinDev(Number(e.target.value))} className="w-full" style={{ accentColor: color }} />
-          </label>
-          <div className="flex gap-1">
-            {(['both', 'either'] as const).map(m => (
-              <button key={m} onClick={() => setMode(m)}
-                className={`text-xs px-2.5 py-1.5 rounded-md border ${mode === m ? 'bg-secondary text-foreground font-semibold' : 'text-muted-foreground'}`}>
-                {m === 'both' ? 'Strong + distinctive' : 'Strong or distinctive'}
-              </button>
-            ))}
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-3">
