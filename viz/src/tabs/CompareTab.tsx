@@ -64,9 +64,6 @@ interface VarEntry {
   sigMatch: boolean;     // ≥1 qualifier under the active signature filter
 }
 
-// The 12 policy/social domains (the rest of DOMAINS are demographic/structural).
-const POLICY_DOMAINS = new Set(DOMAINS.slice(0, 12));
-
 // Natural ordering for demographic/structural sections
 const SECTION_QUESTION_ORDER: Record<string, string[]> = {
   Education: [
@@ -737,30 +734,6 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
     return grouped;
   }, [selected, clusters, fdProfiles, minGap, useConsensus, consPct, useAlign, alignMode, alignPp]);
 
-  // Per-party signature: its qualifying planks (policy/social only), strongest first.
-  // "Strongest" = biggest deviation in Deviant mode, most one-sided otherwise.
-  const signatures = useMemo(() => {
-    const out: Record<string, { question: string; pct: number; dev: number }[]> = {};
-    if (!sigOn) return out;
-    for (const [domain, vars] of Object.entries(sectionVarMap)) {
-      if (!POLICY_DOMAINS.has(domain)) continue;
-      for (const v of vars) {
-        for (const code of v.qualifiers) {
-          const pct = v.pcts[code]!;
-          (out[code] ??= []).push({ question: v.question, pct, dev: pct - (v.overall ?? pct) });
-        }
-      }
-    }
-    for (const code of Object.keys(out)) {
-      out[code].sort((a, b) =>
-        alignMode === 'deviant' && useAlign
-          ? Math.abs(b.dev) - Math.abs(a.dev)
-          : Math.abs(b.pct - 50) - Math.abs(a.pct - 50),
-      );
-    }
-    return out;
-  }, [sectionVarMap, sigOn, alignMode, useAlign]);
-
   // Ordered section keys
   const sectionKeys = useMemo(() => {
     return DOMAINS.filter(d => (sectionVarMap[d]?.length ?? 0) > 0);
@@ -949,43 +922,6 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
               pp from U.S.
             </label>
           </div>
-
-          {/* Per-party signature summary */}
-          {sigOn && Object.keys(signatures).length > 0 && (
-            <Card className="p-4">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-                {alignMode === 'deviant' && useAlign ? 'What sets each party apart' : 'Each party’s defining planks'}
-                {useConsensus && <span className="normal-case font-normal tracking-normal"> · held by ≥{consPct}%</span>}
-                {useAlign && <span className="normal-case font-normal tracking-normal"> · {alignMode === 'deviant' ? `≥${alignPp}` : `≤${alignPp}`}pp from U.S.</span>}
-              </div>
-              <div className="space-y-2">
-                {selected.filter(c => signatures[c]?.length).map(code => {
-                  const color = getBlendColor(code);
-                  return (
-                    <div key={code} className="flex items-start gap-2">
-                      <span className="shrink-0 text-xs font-bold px-2 py-0.5 rounded-full chip-text-soft"
-                        style={{ backgroundColor: color, color: getContrastText(color) }}>
-                        {code}
-                      </span>
-                      <div className="flex flex-wrap gap-1 min-w-0">
-                        {signatures[code].slice(0, 6).map(s => (
-                          <span key={s.question} className="text-[11px] bg-muted text-foreground rounded px-1.5 py-0.5">
-                            {s.question}
-                            <span className="text-muted-foreground font-mono ml-1">
-                              {Math.round(s.pct)}%{useAlign && alignMode === 'deviant' ? ` (${s.dev >= 0 ? '+' : ''}${Math.round(s.dev)})` : ''}
-                            </span>
-                          </span>
-                        ))}
-                        {signatures[code].length > 6 && (
-                          <span className="text-[11px] text-muted-foreground self-center">+{signatures[code].length - 6} more</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Card>
-          )}
 
           {/* Sections */}
           {sectionKeys.length === 0 ? (
