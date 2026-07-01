@@ -253,11 +253,12 @@ export function PartyPlatform({ clusters }: Props) {
                           }
                           const high = cell.pct >= 50;
                           const arrowColor = isView ? (high ? '#16a34a' : '#dc2626') : NEUTRAL_BAR;
+                          const cellColor = PARTY_COLORS[code] ?? '#6b7280';
                           return (
                             <div key={code} className={base}>
                               <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                                 <div className="absolute top-0 left-0 h-full rounded-full"
-                                  style={{ width: `${cell.pct}%`, backgroundColor: barColor }} />
+                                  style={{ width: `${cell.pct}%`, backgroundColor: cellColor }} />
                                 <div className="absolute top-0 h-full w-0.5 bg-slate-500"
                                   style={{ left: `${row.overall}%` }} title={`National avg ${Math.round(row.overall)}%`} />
                               </div>
