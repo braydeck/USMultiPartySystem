@@ -122,7 +122,7 @@ export function PartyPlatform({ clusters }: Props) {
               <input type="checkbox" checked={useDeviation} onChange={e => setUseDeviation(e.target.checked)}
                 style={{ accentColor: color }} />
               <span className="font-semibold text-foreground">{devMode === 'far' ? 'Distinctive' : 'Mainstream'}</span>
-              <span className="text-muted-foreground">— {devMode === 'far' ? 'differs from' : 'close to'} national</span>
+              <span className="text-muted-foreground">— {devMode === 'far' ? 'differs from' : 'close to'} national average</span>
               <span className="font-mono font-semibold ml-auto" style={{ color }}>
                 {devMode === 'far' ? '≥' : '≤'}{minDev} pts
               </span>
@@ -144,7 +144,7 @@ export function PartyPlatform({ clusters }: Props) {
         <p className="text-xs text-muted-foreground mt-3">
           <span className="font-semibold" style={{ color }}>{PARTY_NAMES[party] ?? party}</span> —
           {' '}{category === 'views' ? 'positions' : category === 'voting' ? 'voting patterns' : category === 'demographics' ? 'demographics' : 'positions & traits'} its
-          core (most-likely) members, filtered by the criteria above
+          core members, filtered by the criteria above
           ({[useConsensus && 'strongly held', useDeviation && (devMode === 'far' ? 'distinctive' : 'mainstream')].filter(Boolean).join(' + ') || 'no filter'}).
           {' '}{total} {noun}{total !== 1 ? 's' : ''} shown.
         </p>

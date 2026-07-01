@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useUrlState, resetUrlParams } from './hooks/useUrlState';
+import { useUrlState, resetUrlParams, urlForParams } from './hooks/useUrlState';
 import { SenateTab } from './tabs/SenateTab';
 import { HouseTab } from './tabs/HouseTab';
 import { QuizTab } from './tabs/QuizTab';
@@ -9,8 +9,8 @@ import { LegislationTab } from './tabs/LegislationTab';
 import { AboutTab } from './tabs/AboutTab';
 import { OverviewTab } from './tabs/OverviewTab';
 import { RCVTab } from './tabs/RCVTab';
-import { Tabs, TabsList, TabsTrigger } from './components/ui/tabs';
 import { TooltipProvider } from './components/ui/tooltip';
+import { StateLink } from './components/shared/StateLink';
 import { SocialLinks } from './components/SocialLinks';
 
 import senateVoteModelData from './data/senateVoteModel.json';
@@ -93,6 +93,13 @@ const ALL_TABS = [...TOP_TABS, ...SCENARIO_TABS, ABOUT_TAB] as const;
 
 type TabId = typeof ALL_TABS[number]['id'];
 
+// Nav tab styling — mirrors the shadcn TabsTrigger classes, with active state applied
+// conditionally since these are now real links rather than Radix triggers.
+const NAV_TAB_BASE =
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2';
+const navTabClass = (active: boolean) =>
+  `${NAV_TAB_BASE} ${active ? 'bg-secondary text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`;
+
 export default function App() {
   // On mobile, land on the Party Quiz (the shareable hook) by default; desktop opens on Overview.
   const landingDefault: TabId =
@@ -108,7 +115,7 @@ export default function App() {
 
   return (
     <TooltipProvider>
-    <Tabs value={tab} onValueChange={v => setTab(v as TabId)} className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:bg-card focus:text-foreground focus:px-4 focus:py-2 focus:rounded-md focus:shadow-lg focus:border focus:border-border">
         Skip to content
       </a>
@@ -124,13 +131,16 @@ export default function App() {
         <nav aria-label="Main navigation" className="max-w-7xl mx-auto px-4 py-1.5">
           {/* Desktop: tab strip + Scenarios dropdown */}
           <div className="hidden sm:flex items-center gap-1">
-            <TabsList aria-label="Section tabs">
+            <div className="inline-flex items-center gap-1">
               {TOP_TABS.map(t => (
-                <TabsTrigger key={t.id} value={t.id}>
+                <StateLink key={t.id} href={urlForParams({ tab: t.id }, true)}
+                  onNavigate={() => setTab(t.id)}
+                  aria-current={tab === t.id ? 'page' : undefined}
+                  className={navTabClass(tab === t.id)}>
                   {t.label}
-                </TabsTrigger>
+                </StateLink>
               ))}
-            </TabsList>
+            </div>
 
             <div className="relative">
               <button
@@ -150,25 +160,29 @@ export default function App() {
                   <div className="fixed inset-0 z-30" onClick={() => setScenariosOpen(false)} aria-hidden="true" />
                   <div className="absolute left-0 mt-1 z-40 min-w-[200px] flex flex-col rounded-md border border-border bg-card shadow-lg overflow-hidden py-1">
                     {SCENARIO_TABS.map(t => (
-                      <button
+                      <StateLink
                         key={t.id}
-                        type="button"
-                        onClick={() => { setTab(t.id); setScenariosOpen(false); }}
+                        href={urlForParams({ tab: t.id }, true)}
+                        onNavigate={() => { setTab(t.id); setScenariosOpen(false); }}
+                        aria-current={tab === t.id ? 'page' : undefined}
                         className={`text-left px-3 py-2 text-sm transition-colors ${
                           tab === t.id ? 'bg-slate-900 text-white font-medium' : 'text-foreground hover:bg-muted'
                         }`}
                       >
                         {t.label}
-                      </button>
+                      </StateLink>
                     ))}
                   </div>
                 </>
               )}
             </div>
 
-            <TabsList aria-label="About">
-              <TabsTrigger value={ABOUT_TAB.id}>{ABOUT_TAB.label}</TabsTrigger>
-            </TabsList>
+            <StateLink href={urlForParams({ tab: ABOUT_TAB.id }, true)}
+              onNavigate={() => setTab(ABOUT_TAB.id)}
+              aria-current={tab === ABOUT_TAB.id ? 'page' : undefined}
+              className={navTabClass(tab === ABOUT_TAB.id)}>
+              {ABOUT_TAB.label}
+            </StateLink>
           </div>
 
           {/* Mobile: hamburger menu */}
@@ -188,41 +202,44 @@ export default function App() {
             {menuOpen && (
               <div className="mt-1 flex flex-col rounded-md border border-border bg-card shadow-lg overflow-hidden">
                 {TOP_TABS.map(t => (
-                  <button
+                  <StateLink
                     key={t.id}
-                    type="button"
-                    onClick={() => { setTab(t.id); setMenuOpen(false); }}
+                    href={urlForParams({ tab: t.id }, true)}
+                    onNavigate={() => { setTab(t.id); setMenuOpen(false); }}
+                    aria-current={tab === t.id ? 'page' : undefined}
                     className={`text-left px-3 py-2.5 text-sm transition-colors ${
                       tab === t.id ? 'bg-slate-900 text-white font-medium' : 'text-foreground hover:bg-muted'
                     }`}
                   >
                     {t.label}
-                  </button>
+                  </StateLink>
                 ))}
                 <div className="px-3 pt-2 pb-1 mt-1 border-t border-border/50 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                   Scenarios
                 </div>
                 {SCENARIO_TABS.map(t => (
-                  <button
+                  <StateLink
                     key={t.id}
-                    type="button"
-                    onClick={() => { setTab(t.id); setMenuOpen(false); }}
+                    href={urlForParams({ tab: t.id }, true)}
+                    onNavigate={() => { setTab(t.id); setMenuOpen(false); }}
+                    aria-current={tab === t.id ? 'page' : undefined}
                     className={`text-left px-3 py-2.5 text-sm transition-colors ${
                       tab === t.id ? 'bg-slate-900 text-white font-medium' : 'text-foreground hover:bg-muted'
                     }`}
                   >
                     {t.label}
-                  </button>
+                  </StateLink>
                 ))}
-                <button
-                  type="button"
-                  onClick={() => { setTab(ABOUT_TAB.id); setMenuOpen(false); }}
+                <StateLink
+                  href={urlForParams({ tab: ABOUT_TAB.id }, true)}
+                  onNavigate={() => { setTab(ABOUT_TAB.id); setMenuOpen(false); }}
+                  aria-current={tab === ABOUT_TAB.id ? 'page' : undefined}
                   className={`text-left px-3 py-2.5 text-sm transition-colors border-t border-border/50 mt-1 ${
                     tab === ABOUT_TAB.id ? 'bg-slate-900 text-white font-medium' : 'text-foreground hover:bg-muted'
                   }`}
                 >
                   {ABOUT_TAB.label}
-                </button>
+                </StateLink>
               </div>
             )}
           </div>
@@ -370,7 +387,7 @@ export default function App() {
           Built on CES 2024 survey data · 10-party STV simulation · 873 / 1,726 House seats · 51 Senate seats
         </p>
       </footer>
-    </Tabs>
+    </div>
     </TooltipProvider>
   );
 }

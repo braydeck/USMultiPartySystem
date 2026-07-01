@@ -47,6 +47,24 @@ export function resetUrlParams(next: Record<string, string>, push = true) {
   window.dispatchEvent(new Event(URL_STATE_EVENT));
 }
 
+/**
+ * Build (without navigating) the URL string that would result from applying these
+ * param updates to the current location. Powers real <a href> links so tabs and
+ * sections support "open in new tab" / middle-click. A null/empty value drops the
+ * param; reset=true clears all existing params first (matches resetUrlParams, for
+ * tab navigation that shouldn't carry a tab's filters forward).
+ */
+export function urlForParams(updates: Record<string, string | null>, reset = false): string {
+  const url = new URL(window.location.href);
+  const params = reset ? new URLSearchParams() : new URLSearchParams(url.search);
+  for (const [k, v] of Object.entries(updates)) {
+    if (!v) params.delete(k);
+    else params.set(k, v);
+  }
+  const qs = params.toString();
+  return `${url.pathname}${qs ? `?${qs}` : ''}${url.hash}`;
+}
+
 interface Options<T extends string> {
   /** If set, URL values outside this list fall back to the default (guards hand-edited URLs). */
   allowed?: readonly T[];

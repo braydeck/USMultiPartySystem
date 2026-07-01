@@ -1,4 +1,4 @@
-import { useUrlState } from '../hooks/useUrlState';
+import { useUrlState, urlForParams } from '../hooks/useUrlState';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { PartyCard } from '../components/parties/PartyCard';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
@@ -57,7 +57,8 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
       <StickyControlBar>
         <ToggleGroup label="View" value={section} onChange={setSection}
           options={['compare', 'platform', 'profiles'] as const}
-          labels={{ compare: 'Compare Policies', platform: 'Party Platform', profiles: 'Party Profiles' }} />
+          labels={{ compare: 'Compare Policies', platform: 'Party Platform', profiles: 'Party Profiles' }}
+          hrefFor={v => urlForParams({ section: v === 'compare' ? null : v })} />
       </StickyControlBar>
 
       {section === 'profiles' && (
