@@ -3046,6 +3046,36 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
         row["condRawMultiVerdict"]  = cond_res.get(var, {}).get("verdict", "N/A")
         row["irvRawMultiProbPass"]  = irv_res.get(var, {}).get("prob_pass", 0.0)
         row["irvRawMultiVerdict"]   = irv_res.get(var, {}).get("verdict", "N/A")
+
+    # ── Crossover (FD) senate columns from the native FD run (OAO-inclusive) ──
+    fd_stats = read_csv(FD_DIR / "profiles" / "factor_deviation_stats.csv")
+    fd_by_var = {r["variable"]: r for r in fd_stats
+                 if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"
+                 and r.get("variable", "").startswith("CC24_")}
+    cond_fd, irv_fd = {}, {}
+    for r in read_csv(FD_DIR / "senate" / "senate_composition.csv"):
+        cond_fd[r["senator_code"]] = cond_fd.get(r["senator_code"], 0) + 1
+    for r in read_csv(FD_DIR / "senate" / "senate_irv_composition.csv"):
+        irv_fd[r["senator_code"]] = irv_fd.get(r["senator_code"], 0) + 1
+    fd_cond, fd_irv = _fd_prob_pass(cond_fd, fd_by_var), _fd_prob_pass(irv_fd, fd_by_var)
+    fd_irv_w = None
+    for r in read_csv(FD_DIR / "irv" / "irv_presidential_national_2028.csv"):
+        if r.get("winner", "").strip() == "True":
+            fd_irv_w = r["candidate_code"]
+    _fcm = list(read_csv(FD_DIR / "irv" / "condorcet_matchups_2028.csv"))
+    fd_cond_w = _fcm[0].get("condorcet_winner") if _fcm else None
+    for row in base:
+        var = row["variable"]; frow = fd_by_var.get(var)
+        row["condFDProbPass"] = fd_cond.get(var, {}).get("prob_pass", 0.0)
+        row["condFDVerdict"]  = fd_cond.get(var, {}).get("verdict", "N/A")
+        row["irvFDProbPass"]  = fd_irv.get(var, {}).get("prob_pass", 0.0)
+        row["irvFDVerdict"]   = fd_irv.get(var, {}).get("verdict", "N/A")
+        if frow:
+            isup = float(frow.get(fd_irv_w) or 0) if fd_irv_w else 0.0
+            csup = float(frow.get(fd_cond_w) or 0) if fd_cond_w else 0.0
+            row["presFDIRVSigns"]  = "SIGN" if isup > 50 else "VETO"; row["presFDIRVPct"]  = round(isup, 2)
+            row["presFDCondSigns"] = "SIGN" if csup > 50 else "VETO"; row["presFDCondPct"] = round(csup, 2)
+            row["presFDSigns"] = row["presFDIRVSigns"]; row["presFDPct"] = row["presFDIRVPct"]
     write_json(base, out_name)
 
 
@@ -3065,10 +3095,32 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json"):
         total += int(r["NATIONAL"])
     maj = total // 2 + 1
     res = _lf_prob_pass(rm_seats, cbv, majority=maj)
+
+    def _house_res(csv_path, by_code):
+        seats, tot = {}, 0
+        if not Path(csv_path).exists():
+            return {}
+        for r in read_csv(csv_path):
+            code = r["party"] if by_code else _cluster_to_party.get(int(r["party"]), str(r["party"]))
+            seats[code] = seats.get(code, 0) + int(r["NATIONAL"])
+            tot += int(r["NATIONAL"])
+        return _lf_prob_pass(seats, cbv, majority=tot // 2 + 1) if tot else {}
+
+    fd_res  = _house_res(FD_DIR / "house" / "stv_seat_summary.csv", by_code=True)
+    rmt_res = _house_res(PURE_MULTI_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=False)
+    fdt_res = _house_res(FD_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=True)
     for row in base:
         var = row["variable"]
         row["houseRawMultiProbPass"] = res.get(var, {}).get("prob_pass", 0.0)
         row["houseRawMultiVerdict"]  = res.get(var, {}).get("verdict", "N/A")
+        row["houseFDProbPass"] = fd_res.get(var, {}).get("prob_pass", 0.0)
+        row["houseFDVerdict"]  = fd_res.get(var, {}).get("verdict", "N/A")
+        if rmt_res:
+            row["houseRawMultiTripleProbPass"] = rmt_res.get(var, {}).get("prob_pass", 0.0)
+            row["houseRawMultiTripleVerdict"]  = rmt_res.get(var, {}).get("verdict", "N/A")
+        if fdt_res:
+            row["houseFDTripleProbPass"] = fdt_res.get(var, {}).get("prob_pass", 0.0)
+            row["houseFDTripleVerdict"]  = fdt_res.get(var, {}).get("verdict", "N/A")
     write_json(base, out_name)
 
 

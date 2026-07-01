@@ -262,6 +262,22 @@ npm run dev                                        # Dev server
 npm run build                                      # Production build → dist/
 ```
 
+### Data provenance / regeneration notes
+
+The 10-party model (all 10 clusters active, C7 = **Order and Opportunity Party**) is
+regenerated natively by the scripts above; `stv_main.py`'s checkpoints
+(`data/outputs/No_C7_canonical/`) are party-independent geography and are reused.
+
+Some intermediate outputs were archived in an earlier cleanup and live under
+`data/outputs/archive/` and `pipeline/archive/` (e.g. `stv_main.py`,
+`generate_blend_stats.py`, `blend_stats.csv`, the single-candidate `pure_only/senate/`
+run, `results/vote_model.csv`). Those predate the party renames (Reform→Populist,
+Center→Civic Union, SD→Labor, C7→OAO), so the senate-blend / vote-model chain is not
+regenerated from them. Instead, `prepare_data.py` keeps the committed vote-model JSON
+structure and recomputes every scenario column (Party-Line, Crossover, Triple — House
+and Senate) directly from the native seat counts × per-cluster policy support, so the
+legislation probabilities reflect the current 10-party chambers.
+
 ---
 
 ## Dependencies

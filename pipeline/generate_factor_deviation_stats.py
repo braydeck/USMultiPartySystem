@@ -31,10 +31,10 @@ FD_CANDIDATES = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_
 OUT_DIR       = BASE_DIR / "data" / "outputs" / "factor_deviation" / "profiles"
 OUT_PATH      = OUT_DIR / "factor_deviation_stats.csv"
 
-# 9 active parties in cluster order (c7=Blue Dogs excluded)
-PARTY_ORDER      = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"]
+# 10 active parties in cluster order
+PARTY_ORDER      = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
 PARTY_TO_CLUSTER = {"CON": 0, "LBR": 1, "STY": 2, "NAT": 3, "LIB": 4,
-                     "POP": 5, "CUP": 6, "DSA": 8, "PRG": 9}
+                     "POP": 5, "CUP": 6, "OAO": 7, "DSA": 8, "PRG": 9}
 
 # Axis → column in the FD candidate CSV
 AXIS_CAND_COL = {
