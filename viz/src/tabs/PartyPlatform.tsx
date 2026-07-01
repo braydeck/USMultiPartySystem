@@ -47,6 +47,7 @@ export function PartyPlatform({ clusters }: Props) {
   // Two independent filters — enable either or both (both = signature planks).
   const [useConsensus, setUseConsensus] = useState(true);
   const [useDeviation, setUseDeviation] = useState(true);
+  const [devMode, setDevMode] = useState<'far' | 'close'>('far'); // far = distinctive, close = mainstream
   const [minStrength, setMinStrength] = useState(75);
   const [minDev, setMinDev] = useState(25);
 
@@ -63,14 +64,15 @@ export function PartyPlatform({ clusters }: Props) {
       const { pct, overall, diffPp, domain, question } = v as Plank & { question: string; domain: string };
       if (pct == null || !domainSet.has(domain)) continue;
       const strong = pct >= minStrength || pct <= 100 - minStrength;
-      const distinct = Math.abs(diffPp ?? 0) >= minDev;
-      const pass = (!useConsensus || strong) && (!useDeviation || distinct);
+      const absDev = Math.abs(diffPp ?? 0);
+      const devOk = devMode === 'far' ? absDev >= minDev : absDev <= minDev;
+      const pass = (!useConsensus || strong) && (!useDeviation || devOk);
       if (!pass) continue;
       (out[domain] ??= []).push({ question, domain, pct, overall: overall ?? 0, diffPp: diffPp ?? 0 });
     }
     for (const d of Object.keys(out)) out[d].sort((a, b) => Math.abs(b.pct - 50) - Math.abs(a.pct - 50));
     return out;
-  }, [cluster, minStrength, minDev, useConsensus, useDeviation, domainSet]);
+  }, [cluster, minStrength, minDev, useConsensus, useDeviation, devMode, domainSet]);
 
   const total = Object.values(planksByDomain).reduce((s, a) => s + a.length, 0);
   const noun = category === 'views' ? 'position' : category === 'voting' ? 'pattern' : 'trait';
@@ -119,19 +121,32 @@ export function PartyPlatform({ clusters }: Props) {
             <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
               <input type="checkbox" checked={useDeviation} onChange={e => setUseDeviation(e.target.checked)}
                 style={{ accentColor: color }} />
-              <span className="font-semibold text-foreground">Deviation</span>
-              <span className="text-muted-foreground">— from national</span>
-              <span className="font-mono font-semibold ml-auto" style={{ color }}>≥{minDev} pts</span>
+              <span className="font-semibold text-foreground">{devMode === 'far' ? 'Distinctive' : 'Mainstream'}</span>
+              <span className="text-muted-foreground">— {devMode === 'far' ? 'differs from' : 'close to'} national</span>
+              <span className="font-mono font-semibold ml-auto" style={{ color }}>
+                {devMode === 'far' ? '≥' : '≤'}{minDev} pts
+              </span>
             </label>
-            <input type="range" min={0} max={50} step={5} value={minDev} disabled={!useDeviation}
-              onChange={e => setMinDev(Number(e.target.value))} className="w-full" style={{ accentColor: color }} />
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1 shrink-0">
+                {(['far', 'close'] as const).map(m => (
+                  <button key={m} onClick={() => setDevMode(m)} disabled={!useDeviation}
+                    className={`text-[10px] px-1.5 py-0.5 rounded border ${devMode === m ? 'bg-secondary text-foreground font-semibold' : 'text-muted-foreground'}`}>
+                    {m === 'far' ? '≥ differs' : '≤ close'}
+                  </button>
+                ))}
+              </div>
+              <input type="range" min={0} max={50} step={5} value={minDev} disabled={!useDeviation}
+                onChange={e => setMinDev(Number(e.target.value))} className="flex-1" style={{ accentColor: color }} />
+            </div>
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-3">
           <span className="font-semibold" style={{ color }}>{PARTY_NAMES[party] ?? party}</span> —
           {' '}{category === 'views' ? 'positions' : category === 'voting' ? 'voting patterns' : category === 'demographics' ? 'demographics' : 'positions & traits'} its
-          core (most-likely) members hold strongly and/or that set it apart from the national average.
-          {' '}{total} {noun}{total !== 1 ? 's' : ''} at the current thresholds.
+          core (most-likely) members, filtered by the criteria above
+          ({[useConsensus && 'strongly held', useDeviation && (devMode === 'far' ? 'distinctive' : 'mainstream')].filter(Boolean).join(' + ') || 'no filter'}).
+          {' '}{total} {noun}{total !== 1 ? 's' : ''} shown.
         </p>
       </Card>
 
