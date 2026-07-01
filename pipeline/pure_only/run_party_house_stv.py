@@ -30,7 +30,7 @@ OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "pure_multi" / "house"
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from party_stv import run_multi_seat_stv
 
-PARTY_CODES = ["CON", "SD", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"]
+PARTY_CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"]
 PARTY_IDX   = {c: i for i, c in enumerate(PARTY_CODES)}
 N_PARTIES   = len(PARTY_CODES)
 
@@ -39,7 +39,7 @@ PARTY_LABELS = {
     3: "Nationalist",  4: "Liberal",         5: "Populist",
     6: "Civic Union Party",       8: "DSA",             9: "Progressive",
 }
-CODE_TO_CLUSTER = {"CON":0,"SD":1,"STY":2,"NAT":3,"LIB":4,"POP":5,"CUP":6,"DSA":8,"PRG":9}
+CODE_TO_CLUSTER = {"CON":0,"LBR":1,"STY":2,"NAT":3,"LIB":4,"POP":5,"CUP":6,"DSA":8,"PRG":9}
 
 MIN_RESPONDENTS = 5
 

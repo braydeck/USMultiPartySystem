@@ -131,7 +131,7 @@ colors_base = {
     'DSA': '#E6194B',  # Magenta/Pinkish-Purple
     'PRG': '#F032E6',  # Hot Pink
     'LIB': '#911EB4',  # Purple
-    'SD':  '#4363D8',  # Solid Blue
+    'LBR':  '#4363D8',  # Solid Blue
     'CTR': '#A9A9A9',  # Mid Grey
     'STY': '#3CB44B',  # Green
     'REF': '#F58231',  # Orange

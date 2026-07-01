@@ -14,20 +14,16 @@ Outputs to data/outputs/pure_multi/irv/:
   irv_presidential_states_2028.csv     — IRV winner + runner-up per state
 """
 
-import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from itertools import combinations
 
-INCLUDE_C7   = os.environ.get("INCLUDE_C7") == "1"
-_SUB         = "pure_multi_c7" if INCLUDE_C7 else "pure_multi"
-
 BASE_DIR     = Path(__file__).parent.parent.parent
-BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _SUB / "presidential_ballots.csv"
-PRIMARY_PATH = BASE_DIR / "data" / "outputs" / _SUB / "primary_results_2028.csv"
+BALLOTS_PATH = BASE_DIR / "data" / "outputs" / "pure_multi" / "presidential_ballots.csv"
+PRIMARY_PATH = BASE_DIR / "data" / "outputs" / "pure_multi" / "primary_results_2028.csv"
 EFA_PATH     = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / _SUB / "irv"
+OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / "pure_multi" / "irv"
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",

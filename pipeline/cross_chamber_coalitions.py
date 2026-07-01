@@ -89,7 +89,7 @@ FACTOR_POLES = {
 HOUSE_ONLY_NAMES = {"NAT", "DSA", "PRG"}
 
 # Pure party names that appear in BOTH chambers (senate + house seats)
-BOTH_CHAMBERS = {"CON", "SD", "STY", "POP", "LIB", "CUP"}
+BOTH_CHAMBERS = {"CON", "LBR", "STY", "POP", "LIB", "CUP"}
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -168,7 +168,7 @@ house_seats_raw = pd.read_csv(
 # Normalise names: stv_seat_summary uses full names, we need short names
 NAME_MAP = {
     "Conservative":   "CON",
-    "Social Democrat":"SD",
+    "Social Democrat":"LBR",
     "Solidarity":     "STY",
     "Nationalist":    "NAT",
     "Liberal":        "LIB",
@@ -176,12 +176,11 @@ NAME_MAP = {
     "Civic Union Party":         "CUP",
     "DSA":            "DSA",
     "Progressive":    "PRG",
-    "Blue Dogs":      "C7",   # excluded (0 seats)
+    "Order and Opportunity Party": "OAO",
 }
 house_seats_raw["type"] = house_seats_raw["type"].map(NAME_MAP)
 house_seats = (house_seats_raw
                .dropna(subset=["type"])
-               .query("type != 'C7'")
                .set_index("type")["seats_house"])
 
 # ── Merge seat counts ─────────────────────────────────────────────────────────

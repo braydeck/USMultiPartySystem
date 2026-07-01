@@ -30,7 +30,7 @@ EFA_SCORES_PATH  = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 CENTROIDS_PATH   = BASE_DIR / "data" / "outputs" / "light_fusion_centroids.csv"
 OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "light_fusion" / "senate"
 
-PARTY_ABBR   = {0:"CON", 1:"SD", 2:"STY", 3:"NAT", 4:"LIB",
+PARTY_ABBR   = {0:"CON", 1:"LBR", 2:"STY", 3:"NAT", 4:"LIB",
                 5:"REF", 6:"CTR", 8:"DSA", 9:"PRG"}
 FACTOR_COLS  = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 CENTROID_COLS = ["F1_security_order", "F2_electoral_skepticism",
@@ -38,7 +38,7 @@ CENTROID_COLS = ["F1_security_order", "F2_electoral_skepticism",
                  "F5_populist_conservatism"]
 
 # Pure party candidate_name values (to identify pure rows in centroids CSV)
-PURE_NAMES = set(PARTY_ABBR.values())  # {"CON", "SD", "STY", ...}
+PURE_NAMES = set(PARTY_ABBR.values())  # {"CON", "LBR", "STY", ...}
 
 STV_SURVIVORS   = 5
 MIN_RESPONDENTS = 10
@@ -60,8 +60,8 @@ FIPS_TO_ABBR = {
 # Used to annotate output metadata; same adjacency pairs as primary simulation
 LF_CLUSTER_MAP = {
     "PRG_dsa": (9, 8), "DSA_prg": (8, 9), "DSA_lib": (8, 4),
-    "LIB_dsa": (4, 8), "LIB_sd":  (4, 1), "SD_lib":  (1, 4),
-    "SD_sty":  (1, 2), "STY_sd":  (2, 1), "STY_ctr": (2, 6),
+    "LIB_dsa": (4, 8), "LIB_sd":  (4, 1), "LBR_lib":  (1, 4),
+    "LBR_sty":  (1, 2), "STY_sd":  (2, 1), "STY_ctr": (2, 6),
     "CTR_sty": (6, 2), "CTR_con": (6, 0), "CON_ctr": (0, 6),
     "CON_ref": (0, 5), "REF_con": (5, 0), "REF_nat": (5, 3),
     "NAT_ref": (3, 5),
@@ -305,7 +305,7 @@ def main():
     name_to_abbr = {v: v for v in PURE_NAMES}  # identity for pure names
     def normalize_code(row):
         if row["candidate_name"] in PURE_NAMES:
-            return row["candidate_name"]   # already clean: "CON", "SD", etc.
+            return row["candidate_name"]   # already clean: "CON", "LBR", etc.
         return row["candidate_code"]       # light fusion: "STY_ctr", etc.
 
     centroids_df["code"] = centroids_df.apply(normalize_code, axis=1)

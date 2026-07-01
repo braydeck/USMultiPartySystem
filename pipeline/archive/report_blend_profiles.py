@@ -32,7 +32,7 @@ SENATE_CANDS    = BASE_DIR / "data" / "outputs" / "senate" / "state_senate_candi
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "senate"
 
 # ── Cluster mappings ─────────────────────────────────────────────────────────
-PARTY_ABBR = {0: "CON", 1: "SD", 2: "STY", 3: "NAT",
+PARTY_ABBR = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT",
               4: "LIB", 5: "REF", 6: "CTR", 8: "DSA", 9: "PRG"}
 PARTY_IDX  = {v: k for k, v in PARTY_ABBR.items()}
 ACTIVE_CLUSTERS = [0, 1, 2, 3, 4, 5, 6, 8, 9]

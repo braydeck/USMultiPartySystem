@@ -50,7 +50,7 @@ FIPS_TO_ABBR = {
 CANDIDATES = [
     # ── Congressional Stable (pure) — PURE-ONLY VARIANT ──
     {"code": "RH",      "name": "CON",     "primary": 0, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
-    {"code": "MW",      "name": "SD",      "primary": 1, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
+    {"code": "MW",      "name": "LBR",      "primary": 1, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "MRJ",     "name": "STY",     "primary": 2, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "BE",      "name": "NAT",     "primary": 3, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "CO",      "name": "LIB",     "primary": 4, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},

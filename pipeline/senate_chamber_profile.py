@@ -29,11 +29,12 @@ SENATE_DIR  = BASE / "data" / "outputs" / "senate"
 # ── Pure type columns: label → cluster_stats column ────────────────────────
 PURE_TYPES = {
     "CON": "c0",
-    "SD":  "c1",
+    "LBR":  "c1",
     "STY": "c2",
     "POP": "c5",
     "CUP": "c6",
     "LIB": "c4",
+    "OAO": "c7",
 }
 
 # ── New senate blends not in blend_stats.csv ────────────────────────────────
@@ -42,16 +43,16 @@ NEW_BLENDS = [
     ("CON/POP",  "c0", "c5", 0.6900),
     ("CON/NAT",  "c0", "c3", 0.5100),
     ("LIB/CUP",  "c4", "c6", 0.6000),
-    ("POP/SD",   "c5", "c1", 0.5500),
+    ("POP/LBR",   "c5", "c1", 0.5500),
     ("CUP/LIB",  "c6", "c4", 0.5000),
     ("PRG/DSA",  "c9", "c8", 0.7000),
 ]
 
 # ── Existing blends to pull from blend_stats.csv ───────────────────────────
 EXISTING_BLENDS = [
-    "CON/CUP", "CON/SD", "CON/STY",
-    "SD/STY",  "SD/CON", "SD/CUP", "SD/LIB",
-    "STY/POP", "STY/SD", "STY/CON",
+    "CON/CUP", "CON/LBR", "CON/STY",
+    "LBR/STY",  "LBR/CON", "LBR/CUP", "LBR/LIB",
+    "STY/POP", "STY/LBR", "STY/CON",
     "POP/STY",
 ]
 

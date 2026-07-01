@@ -42,7 +42,7 @@ MIN_RESPONDENTS  = 10
 
 CANDIDATES = [
     {"name": "CON", "cluster": 0},
-    {"name": "SD",  "cluster": 1},
+    {"name": "LBR",  "cluster": 1},
     {"name": "STY", "cluster": 2},
     {"name": "NAT", "cluster": 3},
     {"name": "LIB", "cluster": 4},

@@ -20,7 +20,7 @@ from pathlib import Path
 
 # ── Cluster index mapping ──────────────────────────────────────────────────
 CLUSTER_NAMES = {
-    0: "CON", 1: "SD", 2: "STY", 3: "NAT", 4: "LIB",
+    0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
     5: "REF", 6: "CTR", 7: "C7",  8: "DSA", 9: "PRG",
 }
 
@@ -29,15 +29,15 @@ CLUSTER_NAMES = {
 # in the senate simulation (cooc + wildcard winners).
 BLENDS = [
     ("CON/CTR",  0, 6, 0.6231),  # n=8,  range 0.50–0.70
-    ("CON/SD",   0, 1, 0.5545),  # n=7,  range 0.55–0.57
+    ("CON/LBR",   0, 1, 0.5545),  # n=7,  range 0.55–0.57
     ("CON/STY",  0, 2, 0.5800),  # n=5,  range 0.55–0.70
-    ("SD/STY",   1, 2, 0.6684),  # n=11, range 0.57–0.70
-    ("SD/CON",   1, 0, 0.5208),  # n=3,  range 0.50–0.56
-    ("SD/DSA",   1, 8, 0.5000),  # n=1,  equal cluster shares
-    ("SD/CTR",   1, 6, 0.5000),  # n=1,  equal cluster shares
-    ("SD/LIB",   1, 4, 0.5000),  # n=1,  equal cluster shares
+    ("LBR/STY",   1, 2, 0.6684),  # n=11, range 0.57–0.70
+    ("LBR/CON",   1, 0, 0.5208),  # n=3,  range 0.50–0.56
+    ("LBR/DSA",   1, 8, 0.5000),  # n=1,  equal cluster shares
+    ("LBR/CTR",   1, 6, 0.5000),  # n=1,  equal cluster shares
+    ("LBR/LIB",   1, 4, 0.5000),  # n=1,  equal cluster shares
     ("STY/REF",  2, 5, 0.5500),  # n=4,  range 0.50–0.70
-    ("STY/SD",   2, 1, 0.5000),  # n=3,  equal cluster shares
+    ("STY/LBR",   2, 1, 0.5000),  # n=3,  equal cluster shares
     ("STY/CON",  2, 0, 0.5923),  # n=1,  wildcard weight
     ("REF/STY",  5, 2, 0.6311),  # n=2,  range 0.56–0.70
 ]
@@ -82,12 +82,12 @@ def main():
     print(f"Blend columns: {blend_labels}")
 
     # ── Spot-check: CON/SD row for CC24_341a (extend 2017 tax cuts) ──
-    con_sd = next(b for b in BLENDS if b[0] == "CON/SD")
+    con_sd = next(b for b in BLENDS if b[0] == "CON/LBR")
     _, cp, cs, wp = con_sd
     ws = 1.0 - wp
     check = out_df[(out_df["variable"] == "CC24_341a") & (out_df["stat_label"] == "% Supporting")]
     if not check.empty:
-        val = check["CON/SD"].iloc[0]
+        val = check["CON/LBR"].iloc[0]
         src = df[(df["variable"] == "CC24_341a") & (df["stat_label"] == "% Supporting")]
         c0  = src[f"c{cp}"].iloc[0]
         c1  = src[f"c{cs}"].iloc[0]

@@ -17,21 +17,21 @@ SCENARIOS_ROOT = BASE_DIR / "data" / "outputs"                  # parent for all
 # ── Party labels ───────────────────────────────────────────────────────────────
 PARTY_LABELS = {
     0: "Conservative",
-    1: "Social Democrat",
+    1: "Labor",
     2: "Solidarity",
     3: "Nationalist",
     4: "Liberal",
     5: "Populist",
     6: "Civic Union Party",
-    7: "Blue Dogs",      # dissolved — see DISSOLVED_PARTIES
+    7: "Order and Opportunity Party",
     8: "DSA",
     9: "Progressive",
 }
 N_PARTIES  = 10
 PROB_COLS  = [f"prob_cluster_{k}" for k in range(N_PARTIES)]
 
-# C7 (Blue Dogs) is permanently dissolved — treated as pre-eliminated in all STV runs
-DISSOLVED_PARTIES = [7]
+# All 10 clusters are active parties (C7 reintroduced as Order and Opportunity Party).
+DISSOLVED_PARTIES = []
 
 # ── Items used for listwise deletion (replicates efa_update.py) ───────────────
 ITEMS_25 = [

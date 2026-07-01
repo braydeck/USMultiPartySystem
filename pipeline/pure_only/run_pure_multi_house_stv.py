@@ -23,22 +23,18 @@ Outputs to data/outputs/pure_multi/house/:
                                 (elected_k values are base party codes, not candidate codes)
 """
 
-import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
 import sys
 
-INCLUDE_C7       = os.environ.get("INCLUDE_C7") == "1"
-_SUB             = "pure_multi_c7" if INCLUDE_C7 else "pure_multi"
-
 BASE_DIR         = Path(__file__).parent.parent.parent
 CHECKPOINT_PATH  = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
 EFA_PATH         = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY_PATH    = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
-OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / _SUB / "house"
+OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "pure_multi" / "house"
 VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 
@@ -84,25 +80,22 @@ def n_candidates_for_district(share: float, n_seats: int) -> int:
 # ── Party → cluster index (C7/BLB excluded unless INCLUDE_C7) ─────────────────
 PARTY_CLUSTER = {
     "CON": 0,
-    "SD":  1,
+    "LBR":  1,
     "STY": 2,
     "NAT": 3,
     "LIB": 4,
     "POP": 5,
     "CUP": 6,
+    "OAO": 7,
     "DSA": 8,
     "PRG": 9,
 }
 
 PARTY_LABELS = {
-    0: "Conservative", 1: "Social Democrat", 2: "Solidarity",
+    0: "Conservative", 1: "Labor", 2: "Solidarity",
     3: "Nationalist",  4: "Liberal",         5: "Populist",
-    6: "Civic Union Party",       8: "DSA",             9: "Progressive",
+    6: "Civic Union Party", 7: "Order and Opportunity Party", 8: "DSA", 9: "Progressive",
 }
-
-if INCLUDE_C7:
-    PARTY_CLUSTER["WFP"] = 7   # Working Families Party (Blue Dogs / cluster 7)
-    PARTY_LABELS[7] = "Working Families Party"
 
 MIN_RESPONDENTS = 5
 

@@ -44,23 +44,23 @@ CANDIDATES = [
     {"code": "ZN",      "primary": 8, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "JR",      "primary": 9, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     # ── Governor/Senate Stable (senate-derived blends) ──
-    {"code": "SD_STY",  "primary": 1, "secondary": 2, "w_primary": 0.67, "w_secondary": 0.33},
+    {"code": "LBR_STY",  "primary": 1, "secondary": 2, "w_primary": 0.67, "w_secondary": 0.33},
     {"code": "CON_CTR", "primary": 0, "secondary": 6, "w_primary": 0.62, "w_secondary": 0.38},
     {"code": "CON_SD",  "primary": 0, "secondary": 1, "w_primary": 0.55, "w_secondary": 0.45},
     {"code": "CON_STY", "primary": 0, "secondary": 2, "w_primary": 0.58, "w_secondary": 0.42},
     {"code": "STY_REF", "primary": 2, "secondary": 5, "w_primary": 0.55, "w_secondary": 0.45},
-    {"code": "SD_CON",  "primary": 1, "secondary": 0, "w_primary": 0.52, "w_secondary": 0.48},
+    {"code": "LBR_CON",  "primary": 1, "secondary": 0, "w_primary": 0.52, "w_secondary": 0.48},
     {"code": "STY_SD",  "primary": 2, "secondary": 1, "w_primary": 0.50, "w_secondary": 0.50},
     {"code": "REF_STY", "primary": 5, "secondary": 2, "w_primary": 0.63, "w_secondary": 0.37},
 ]
 
 CAND_NAMES = {
-    "RH":      "CON",     "MW":      "SD",      "MRJ":     "STY",
+    "RH":      "CON",     "MW":      "LBR",      "MRJ":     "STY",
     "BE":      "NAT",     "CO":      "LIB",     "DH":      "REF",
     "LK":      "CTR",     "ZN":      "DSA",     "JR":      "PRG",
-    "SD_STY":  "SD/STY",  "CON_CTR": "CON/CTR", "CON_SD":  "CON/SD",
-    "CON_STY": "CON/STY", "STY_REF": "STY/REF", "SD_CON":  "SD/CON",
-    "STY_SD":  "STY/SD",  "REF_STY": "REF/STY",
+    "LBR_STY":  "LBR/STY",  "CON_CTR": "CON/CTR", "CON_SD":  "CON/LBR",
+    "CON_STY": "CON/STY", "STY_REF": "STY/REF", "LBR_CON":  "LBR/CON",
+    "STY_SD":  "STY/LBR",  "REF_STY": "REF/STY",
 }
 
 # ── 24 EFA items + 2 supplementary = 26 profile items ─────────────────────────
@@ -85,7 +85,7 @@ FACTOR_COLS = {
 }
 
 # Finalists to highlight in console output
-FINALISTS = ["CON_SD", "SD_CON", "SD_STY", "CON_STY", "REF_STY"]
+FINALISTS = ["CON_SD", "LBR_CON", "LBR_STY", "CON_STY", "REF_STY"]
 
 
 # ─────────────────────────────────────────────────────────────────────────────

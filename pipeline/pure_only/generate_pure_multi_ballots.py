@@ -33,19 +33,14 @@ Outputs
   data/outputs/pure_multi/state_candidate_profiles.csv
 """
 
-import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# When INCLUDE_C7=1, activate the C7/WFP party (cluster 7) and write to a
-# parallel pure_multi_c7 output dir so canonical 9-party outputs are untouched.
-INCLUDE_C7 = os.environ.get("INCLUDE_C7") == "1"
-
 BASE_DIR        = Path(__file__).parent.parent.parent
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / ("pure_multi_c7" if INCLUDE_C7 else "pure_multi")
+OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "pure_multi"
 
 PROB_COLS  = [f"prob_cluster_{k}" for k in range(10)]
 FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
@@ -73,9 +68,9 @@ CANDIDATES = [
     {"code": "CON_2", "party": "CON", "cluster": 0, "prominence": 0.35},
     {"code": "CON_3", "party": "CON", "cluster": 0, "prominence": 0.25},
     # ── SD: 3 candidates ──
-    {"code": "SD_1",  "party": "SD",  "cluster": 1, "prominence": 0.40},
-    {"code": "SD_2",  "party": "SD",  "cluster": 1, "prominence": 0.35},
-    {"code": "SD_3",  "party": "SD",  "cluster": 1, "prominence": 0.25},
+    {"code": "LBR_1",  "party": "LBR",  "cluster": 1, "prominence": 0.40},
+    {"code": "LBR_2",  "party": "LBR",  "cluster": 1, "prominence": 0.35},
+    {"code": "LBR_3",  "party": "LBR",  "cluster": 1, "prominence": 0.25},
     # ── STY: 3 candidates ──
     {"code": "STY_1", "party": "STY", "cluster": 2, "prominence": 0.40},
     {"code": "STY_2", "party": "STY", "cluster": 2, "prominence": 0.35},
@@ -104,15 +99,9 @@ CANDIDATES = [
     {"code": "PRG_1", "party": "PRG", "cluster": 9, "prominence": 0.40},
     {"code": "PRG_2", "party": "PRG", "cluster": 9, "prominence": 0.35},
     {"code": "PRG_3", "party": "PRG", "cluster": 9, "prominence": 0.25},
+    # ── OAO (Order and Opportunity Party, cluster 7): single candidate (small party) ──
+    {"code": "OAO_1", "party": "OAO", "cluster": 7, "prominence": 1.00},
 ]
-
-if INCLUDE_C7:
-    # ── WFP (C7 / Blue Dogs, cluster 7): 3 candidates ──
-    CANDIDATES += [
-        {"code": "WFP_1", "party": "WFP", "cluster": 7, "prominence": 0.40},
-        {"code": "WFP_2", "party": "WFP", "cluster": 7, "prominence": 0.35},
-        {"code": "WFP_3", "party": "WFP", "cluster": 7, "prominence": 0.25},
-    ]
 
 N_CANDIDATES = len(CANDIDATES)
 CAND_CODES   = [c["code"] for c in CANDIDATES]
@@ -266,7 +255,7 @@ def main():
     print(table.to_string())
 
     print("\nWithin-party first-choice splits (verify 40/35/25):")
-    for party in ["CON", "SD", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"] + (["WFP"] if INCLUDE_C7 else []):
+    for party in ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"]:
         codes = [f"{party}_{i}" for i in (1, 2, 3)]
         totals = {c: fc_counts.get(c, 0) for c in codes}
         party_total = sum(totals.values())

@@ -33,7 +33,7 @@ OUTPUT_DIR    = BASE_DIR / "data" / "outputs" / "light_fusion"
 CANDIDATES = [
     # ── Pure Party Candidates ──
     {"code": "RH",      "name": "CON",     "primary": 0, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
-    {"code": "MW",      "name": "SD",      "primary": 1, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
+    {"code": "MW",      "name": "LBR",      "primary": 1, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "MRJ",     "name": "STY",     "primary": 2, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "BE",      "name": "NAT",     "primary": 3, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "CO",      "name": "LIB",     "primary": 4, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
@@ -47,8 +47,8 @@ CANDIDATES = [
     {"code": "DSA_lib", "name": "DSA_lib", "primary": 8, "secondary": 4, "w_primary": 0.80, "w_secondary": 0.20},
     {"code": "LIB_dsa", "name": "LIB_dsa", "primary": 4, "secondary": 8, "w_primary": 0.80, "w_secondary": 0.20},
     {"code": "LIB_sd",  "name": "LIB_sd",  "primary": 4, "secondary": 1, "w_primary": 0.80, "w_secondary": 0.20},
-    {"code": "SD_lib",  "name": "SD_lib",  "primary": 1, "secondary": 4, "w_primary": 0.80, "w_secondary": 0.20},
-    {"code": "SD_sty",  "name": "SD_sty",  "primary": 1, "secondary": 2, "w_primary": 0.80, "w_secondary": 0.20},
+    {"code": "LBR_lib",  "name": "LBR_lib",  "primary": 1, "secondary": 4, "w_primary": 0.80, "w_secondary": 0.20},
+    {"code": "LBR_sty",  "name": "LBR_sty",  "primary": 1, "secondary": 2, "w_primary": 0.80, "w_secondary": 0.20},
     {"code": "STY_sd",  "name": "STY_sd",  "primary": 2, "secondary": 1, "w_primary": 0.80, "w_secondary": 0.20},
     {"code": "STY_ctr", "name": "STY_ctr", "primary": 2, "secondary": 6, "w_primary": 0.80, "w_secondary": 0.20},
     {"code": "CTR_sty", "name": "CTR_sty", "primary": 6, "secondary": 2, "w_primary": 0.80, "w_secondary": 0.20},

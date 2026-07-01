@@ -151,7 +151,7 @@ def run_multi_seat_stv(ballots: np.ndarray, weights: np.ndarray,
 def expand_slots(seats: dict, party_codes: list) -> list:
     """Expand {party_idx: n_seats} into a list of slot labels.
 
-    E.g., {0: 2, 1: 1} → ["CON_1", "CON_2", "SD_1"]
+    E.g., {0: 2, 1: 1} → ["CON_1", "CON_2", "LBR_1"]
     """
     slots = []
     for p_idx in sorted(seats.keys()):

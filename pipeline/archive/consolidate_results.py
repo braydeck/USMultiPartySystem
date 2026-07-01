@@ -27,7 +27,7 @@ BASE_DIR    = Path(__file__).parent.parent
 RESULTS_DIR = BASE_DIR / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-CLUSTER_NAMES = {0: "CON", 1: "SD", 2: "STY", 3: "NAT", 4: "LIB",
+CLUSTER_NAMES = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
                  5: "REF", 6: "CTR", 7: "BD", 8: "DSA", 9: "PRG"}
 
 

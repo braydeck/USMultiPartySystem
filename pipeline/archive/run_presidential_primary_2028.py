@@ -41,7 +41,7 @@ OUTPUT_DIR       = BASE_DIR / "data" / "outputs"
 CANDIDATES = [
     # ── Congressional Stable (pure) ──
     {"code": "RH",      "name": "CON",     "primary": 0, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
-    {"code": "MW",      "name": "SD",      "primary": 1, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
+    {"code": "MW",      "name": "LBR",      "primary": 1, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "MRJ",     "name": "STY",     "primary": 2, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "BE",      "name": "NAT",     "primary": 3, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "CO",      "name": "LIB",     "primary": 4, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
@@ -50,23 +50,23 @@ CANDIDATES = [
     {"code": "ZN",      "name": "DSA",     "primary": 8, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     {"code": "JR",      "name": "PRG",     "primary": 9, "secondary": None, "w_primary": 1.00, "w_secondary": 0.00},
     # ── Governor/Senate Stable (senate-derived blends) ──
-    {"code": "SD_STY",  "name": "SD/STY",  "primary": 1, "secondary": 2, "w_primary": 0.67, "w_secondary": 0.33},
+    {"code": "LBR_STY",  "name": "LBR/STY",  "primary": 1, "secondary": 2, "w_primary": 0.67, "w_secondary": 0.33},
     {"code": "CON_CTR", "name": "CON/CTR", "primary": 0, "secondary": 6, "w_primary": 0.62, "w_secondary": 0.38},
-    {"code": "CON_SD",  "name": "CON/SD",  "primary": 0, "secondary": 1, "w_primary": 0.55, "w_secondary": 0.45},
+    {"code": "CON_SD",  "name": "CON/LBR",  "primary": 0, "secondary": 1, "w_primary": 0.55, "w_secondary": 0.45},
     {"code": "CON_STY", "name": "CON/STY", "primary": 0, "secondary": 2, "w_primary": 0.58, "w_secondary": 0.42},
     {"code": "STY_REF", "name": "STY/REF", "primary": 2, "secondary": 5, "w_primary": 0.55, "w_secondary": 0.45},
-    {"code": "SD_CON",  "name": "SD/CON",  "primary": 1, "secondary": 0, "w_primary": 0.52, "w_secondary": 0.48},
-    {"code": "STY_SD",  "name": "STY/SD",  "primary": 2, "secondary": 1, "w_primary": 0.50, "w_secondary": 0.50},
+    {"code": "LBR_CON",  "name": "LBR/CON",  "primary": 1, "secondary": 0, "w_primary": 0.52, "w_secondary": 0.48},
+    {"code": "STY_SD",  "name": "STY/LBR",  "primary": 2, "secondary": 1, "w_primary": 0.50, "w_secondary": 0.50},
     {"code": "REF_STY", "name": "REF/STY", "primary": 5, "secondary": 2, "w_primary": 0.63, "w_secondary": 0.37},
     # ── New senate-represented blends (senate mean weights) ──
     {"code": "CON_REF", "name": "CON/REF", "primary": 0, "secondary": 5, "w_primary": 0.69, "w_secondary": 0.31},
-    {"code": "SD_LIB",  "name": "SD/LIB",  "primary": 1, "secondary": 4, "w_primary": 0.51, "w_secondary": 0.49},
-    {"code": "SD_CTR",  "name": "SD/CTR",  "primary": 1, "secondary": 6, "w_primary": 0.57, "w_secondary": 0.43},
+    {"code": "LBR_LIB",  "name": "LBR/LIB",  "primary": 1, "secondary": 4, "w_primary": 0.51, "w_secondary": 0.49},
+    {"code": "LBR_CTR",  "name": "LBR/CTR",  "primary": 1, "secondary": 6, "w_primary": 0.57, "w_secondary": 0.43},
 ]
 CAND_CODES = [c["code"] for c in CANDIDATES]
 CAND_NAMES = {
     "RH":      "CON",
-    "MW":      "SD",
+    "MW":      "LBR",
     "MRJ":     "STY",
     "BE":      "NAT",
     "CO":      "LIB",
@@ -74,17 +74,17 @@ CAND_NAMES = {
     "LK":      "CTR",
     "ZN":      "DSA",
     "JR":      "PRG",
-    "SD_STY":  "SD/STY",
+    "LBR_STY":  "LBR/STY",
     "CON_CTR": "CON/CTR",
-    "CON_SD":  "CON/SD",
+    "CON_SD":  "CON/LBR",
     "CON_STY": "CON/STY",
     "STY_REF": "STY/REF",
-    "SD_CON":  "SD/CON",
-    "STY_SD":  "STY/SD",
+    "LBR_CON":  "LBR/CON",
+    "STY_SD":  "STY/LBR",
     "REF_STY": "REF/STY",
     "CON_REF": "CON/REF",
-    "SD_LIB":  "SD/LIB",
-    "SD_CTR":  "SD/CTR",
+    "LBR_LIB":  "LBR/LIB",
+    "LBR_CTR":  "LBR/CTR",
 }
 N_CANDIDATES = len(CANDIDATES)
 

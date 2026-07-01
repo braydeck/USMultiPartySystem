@@ -47,7 +47,7 @@ cent_by_name = existing.set_index("candidate_name")[FACTOR_COLS].to_dict("index"
 # Pure cluster centroid look-up by name
 PURE_CENTROIDS = {
     "CON": cent_by_name["CON"],
-    "SD":  cent_by_name["SD"],
+    "LBR":  cent_by_name["LBR"],
     "STY": cent_by_name["STY"],
     "NAT": cent_by_name["NAT"],
     "LIB": cent_by_name["LIB"],
@@ -68,8 +68,8 @@ def blend_centroid(primary_name: str, secondary_name: str,
 MISSING_BLENDS = {
     # name         primary  secondary  w_pri   w_sec
     "CON/POP": ("CON", "POP", 0.69, 0.31),
-    "SD/LIB":  ("SD",  "LIB", 0.51, 0.49),
-    "SD/CUP":  ("SD",  "CUP", 0.57, 0.43),
+    "LBR/LIB":  ("LBR",  "LIB", 0.51, 0.49),
+    "LBR/CUP":  ("LBR",  "CUP", 0.57, 0.43),
     "CON/NAT": ("CON", "NAT", 0.51, 0.49),
     "LIB/CUP": ("LIB", "CUP", 0.60, 0.40),
     "STY/CON": ("STY", "CON", 0.57, 0.43),
@@ -105,9 +105,9 @@ print("=" * 70)
 
 # Only show senate-relevant types (pure + blends that win seats)
 SENATE_TYPES = [
-    "CON","CON/CUP","CON/NAT","CON/POP","CON/SD","CON/STY",
-    "SD","SD/CON","SD/CUP","SD/LIB","SD/STY",
-    "STY","STY/CON","STY/POP","STY/SD",
+    "CON","CON/CUP","CON/NAT","CON/POP","CON/LBR","CON/STY",
+    "LBR","LBR/CON","LBR/CUP","LBR/LIB","LBR/STY",
+    "STY","STY/CON","STY/POP","STY/LBR",
     "POP","POP/STY",
     "LIB","LIB/CUP",
     "CUP",
@@ -141,7 +141,7 @@ irv_winners.columns = ["state","label"]
 def coalition_of(label: str) -> str:
     """Map a candidate label to its top-level coalition."""
     if label.startswith("CON"):   return "CON"
-    if label.startswith("SD"):    return "SD"
+    if label.startswith("LBR"):    return "LBR"
     if label.startswith("STY"):   return "STY"
     if label.startswith("POP"):   return "POP"
     if label.startswith("LIB"):   return "LIB"

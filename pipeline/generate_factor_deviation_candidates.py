@@ -56,7 +56,7 @@ FACTOR_COLS = [
 # Pure-party candidate codes in the existing centroids file
 PURE_CODES = {
     "CON": "RH",
-    "SD":  "MW",
+    "LBR":  "MW",
     "STY": "MRJ",
     "NAT": "BE",
     "LIB": "CO",
@@ -68,11 +68,21 @@ PURE_CODES = {
 PARTIES = list(PURE_CODES.keys())
 
 # Parties that qualify for each axis (within-party SD / inter-party SD >= 0.70)
-SO_PARTIES = {"SD", "STY"}
-ES_PARTIES = {"DSA", "SD", "STY", "CON", "POP", "NAT"}
-PC_PARTIES = {"LIB", "SD", "STY", "CUP", "CON", "POP"}
+SO_PARTIES = {"LBR", "STY"}
+ES_PARTIES = {"DSA", "LBR", "STY", "CON", "POP", "NAT"}
+PC_PARTIES = {"LIB", "LBR", "STY", "CUP", "CON", "POP"}
 
 AXIS_PARTIES = {"so": SO_PARTIES, "es": ES_PARTIES, "pc": PC_PARTIES}
+
+# OAO (cluster 7) is a small party: base candidate only, no crossover variants.
+# Centroid = weighted FS_F1..F5 mean of cluster 7 (matches clusterSpreads).
+OAO_CENTROID = {
+    "F1_security_order":          0.7235,
+    "F2_electoral_skepticism":   -0.6288,
+    "F3_government_distrust":      0.2912,
+    "F4_religious_traditionalism": -0.1322,
+    "F5_populist_conservatism":   -0.6845,
+}
 
 # Factor axis → column name (F3 and F4 excluded — inter-party SD too small)
 AXIS_FACTOR_IDX = {"so": 0, "es": 1, "pc": 4}
@@ -161,6 +171,17 @@ def main():
                     **factors,
                 })
                 total += 1
+
+    # OAO (cluster 7): base candidate only, no variants (small party)
+    rows.append({
+        "candidate_code": "OAO",
+        "candidate_name": "OAO",
+        "party":          "OAO",
+        "axis":           "base",
+        "direction":      "base",
+        **{col: round(OAO_CENTROID[col], 4) for col in FACTOR_COLS},
+    })
+    total += 1
 
     print(f"\nGenerated {total} candidates:")
     for p in PARTIES:

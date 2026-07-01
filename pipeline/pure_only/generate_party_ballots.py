@@ -25,7 +25,7 @@ OUTPUT_DIR  = BASE_DIR / "data" / "outputs" / "pure_multi"
 
 PARTIES = [
     {"code": "CON", "cluster": 0},
-    {"code": "SD",  "cluster": 1},
+    {"code": "LBR",  "cluster": 1},
     {"code": "STY", "cluster": 2},
     {"code": "NAT", "cluster": 3},
     {"code": "LIB", "cluster": 4},

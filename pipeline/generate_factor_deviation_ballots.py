@@ -34,8 +34,8 @@ PROB_COLS         = [f"prob_cluster_{k}" for k in range(10)]
 
 # Party → cluster index (C7/BLB excluded)
 PARTY_CLUSTER = {
-    "CON": 0, "SD": 1, "STY": 2, "NAT": 3, "LIB": 4,
-    "POP": 5, "CUP": 6, "DSA": 8, "PRG": 9,
+    "CON": 0, "LBR": 1, "STY": 2, "NAT": 3, "LIB": 4,
+    "POP": 5, "CUP": 6, "OAO": 7, "DSA": 8, "PRG": 9,
 }
 
 # Corresponding columns in the candidate CSV

@@ -37,7 +37,7 @@ FACTOR_COLS = [
 # Pure party cluster index → candidate_code (from generate_presidential_ballots.py)
 PURE_CODES = {0: "RH", 1: "MW", 2: "MRJ", 3: "BE", 4: "CO", 5: "DH", 6: "LK", 8: "ZN", 9: "JR"}
 # Cluster index → party abbreviation
-CLUSTER_PARTY = {0: "CON", 1: "SD", 2: "STY", 3: "NAT", 4: "LIB", 5: "REF", 6: "CTR", 8: "DSA", 9: "PRG"}
+CLUSTER_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB", 5: "REF", 6: "CTR", 8: "DSA", 9: "PRG"}
 
 # Light fusion definitions: (code, primary_cluster, secondary_cluster)
 # F5 adjacency order: PRG(-0.99), LIB(-0.95), DSA(-0.87), SD(-0.56), STY(-0.06),
@@ -48,8 +48,8 @@ LIGHT_FUSION = [
     ("DSA_lib", 8, 4),   # DSA leaning LIB
     ("LIB_dsa", 4, 8),   # LIB leaning DSA
     ("LIB_sd",  4, 1),   # LIB leaning SD
-    ("SD_lib",  1, 4),   # SD leaning LIB
-    ("SD_sty",  1, 2),   # SD leaning STY
+    ("LBR_lib",  1, 4),   # SD leaning LIB
+    ("LBR_sty",  1, 2),   # SD leaning STY
     ("STY_sd",  2, 1),   # STY leaning SD
     ("STY_ctr", 2, 6),   # STY leaning CTR
     ("CTR_sty", 6, 2),   # CTR leaning STY

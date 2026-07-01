@@ -12,15 +12,15 @@ export const PARTY_COLORS: Record<string, string> = {
   OAO: '#000000',  // Order and Opportunity Party (C7) — provisional black
 };
 
-export const F5_ORDER = ['PRG','DSA','LIB','LBR','STY','CUP','CON','POP','NAT'] as const;
+// Left→right order for all 10 parties (OAO after Labor, before STY).
+export const F5_ORDER = ['PRG','DSA','LIB','LBR','OAO','STY','CUP','CON','POP','NAT'] as const;
 
-// Left→right order including the toggleable Order and Opportunity Party (C7),
-// placed after Labor (LBR) and before STY.
-export const F5_ORDER_WFP = ['PRG','DSA','LIB','LBR','OAO','STY','CUP','CON','POP','NAT'] as const;
+// Back-compat alias (previously toggled the 10th party); now identical to F5_ORDER.
+export const F5_ORDER_WFP = F5_ORDER;
 
-/** Party ordering for the active view: includes OAO (C7) only when the toggle is on. */
-export function partyOrder(wfpOn: boolean): readonly string[] {
-  return wfpOn ? F5_ORDER_WFP : F5_ORDER;
+/** Party ordering (all 10 parties). Arg retained for call-site compatibility. */
+export function partyOrder(_wfpOn?: boolean): readonly string[] {
+  return F5_ORDER;
 }
 
 export const PARTY_NAMES: Record<string, string> = {

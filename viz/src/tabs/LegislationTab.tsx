@@ -5,33 +5,22 @@ import { LegislationDivergences } from '../components/legislation/LegislationDiv
 import { Card } from '@/components/ui/card';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS, WFP_LABELS } from '../constants/labels';
-import type { Pipeline, Method, WyomingRule, WfpMode } from '../constants/labels';
+import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS } from '../constants/labels';
+import type { Pipeline, Method, WyomingRule } from '../constants/labels';
 
 interface Props {
   houseVotes: VoteModelRow[];
   senateVotes: VoteModelRow[];
   fdElection: PresidentialElection;
   rawMultiElection: PresidentialElection;
-  houseVotesWFP: VoteModelRow[];
-  senateVotesWFP: VoteModelRow[];
-  rawMultiElectionWFP: PresidentialElection;
 }
 
-export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiElection,
-                                 houseVotesWFP, senateVotesWFP, rawMultiElectionWFP }: Props) {
+export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiElection }: Props) {
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
-  const [wfp,      setWfp]      = useUrlState<WfpMode>('wfp', 'off', { allowed: ['off', 'on'] });
 
-  // WFP data exists only for the Party-Line + Double-Wyoming path.
-  const wfpActive = wfp === 'on' && pipeline === 'rawMulti' && wyoming === 'double';
-  const effHouseVotes  = wfpActive ? houseVotesWFP  : houseVotes;
-  const effSenateVotes = wfpActive ? senateVotesWFP : senateVotes;
-  const effRawMulti    = wfpActive ? rawMultiElectionWFP : rawMultiElection;
-
-  const election = pipeline === 'rawMulti' ? effRawMulti : fdElection;
+  const election = pipeline === 'rawMulti' ? rawMultiElection : fdElection;
   const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
 
   return (
@@ -51,13 +40,11 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Senate Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
-        <ToggleGroup label="WFP" value={wfp} onChange={setWfp}
-          options={['off', 'on'] as const} labels={WFP_LABELS} />
       </StickyControlBar>
 
       <LegislationDivergences
-        houseVotes={effHouseVotes}
-        senateVotes={effSenateVotes}
+        houseVotes={houseVotes}
+        senateVotes={senateVotes}
         election={election}
         pipeline={pipeline}
         wyoming={wyoming}
@@ -71,8 +58,8 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
           Bayesian verdicts: 45–55% = Tossup · 55–65% = Possibly · 65–80% = Likely · 80%+ = Clearly
         </p>
         <UnifiedBillTable
-          houseRows={effHouseVotes}
-          senateRows={effSenateVotes}
+          houseRows={houseVotes}
+          senateRows={senateVotes}
           pipeline={pipeline}
           senateMethod={method}
           presWinner={presWinner}
