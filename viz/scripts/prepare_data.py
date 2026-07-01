@@ -71,7 +71,7 @@ _LF_CLUSTER_MAP: dict = {
     "NAT_ref": (3, 5),
 }
 _PURE_CLUSTER: dict = {
-    "CON": 0, "SD": 1, "STY": 2, "NAT": 3, "LIB": 4,
+    "CON": 0, "LBR": 1, "STY": 2, "NAT": 3, "LIB": 4,
     "POP": 5, "CUP": 6, "DSA": 8, "PRG": 9,
     "OAO": 7,   # Order and Opportunity Party (cluster 7)
 }
@@ -252,7 +252,7 @@ def build_senate_vote_model(rm_dir=PURE_MULTI_DIR, out_name="senateVoteModel.jso
     # Corrected pure presidential signing — actual winner is SD, not STY as in legacy vote_model.csv
     presPure_signs, presPure_pct = {}, {}
     for var, crow in cluster_by_var.items():
-        sd_sup = _lf_senator_support("SD", crow)
+        sd_sup = _lf_senator_support("LBR", crow)
         presPure_signs[var] = "SIGN" if sd_sup > 50 else "VETO"
         presPure_pct[var]   = round(sd_sup, 2)
 
@@ -424,7 +424,7 @@ def build_fd_variant_attraction():
     ballot_rows = read_csv(str(ballot_path))
     typology_rows = read_csv(str(Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"))
 
-    CLUSTER_TO_PARTY = {"0":"CON","1":"SD","2":"STY","3":"NAT","4":"LIB","5":"POP","6":"CUP","7":"C7","8":"DSA","9":"PRG"}
+    CLUSTER_TO_PARTY = {"0":"CON","1":"LBR","2":"STY","3":"NAT","4":"LIB","5":"POP","6":"CUP","7":"OAO","8":"DSA","9":"PRG"}
 
     # variant → {source_party: weighted_count}
     variant_sources: dict = {}
@@ -434,7 +434,7 @@ def build_fd_variant_attraction():
         variant = br.get("rank_1", "")
         cluster = typology_rows[i].get("cluster", "")
         home = CLUSTER_TO_PARTY.get(str(cluster), "")
-        if home == "C7" or not home:
+        if home == "OAO" or not home:
             continue
         w = float(typology_rows[i].get("commonpostweight", 1))
         if variant not in variant_sources:
@@ -614,7 +614,7 @@ def _compute_state_pop_shares(include_c7: bool = True) -> dict:
     efa_rows = read_csv(efa_path)
     typ_rows = read_csv(typ_path)
 
-    PARTY_CODES = {0: "CON", 1: "SD", 2: "STY", 3: "NAT", 4: "LIB", 5: "POP", 6: "CUP", 8: "DSA", 9: "PRG"}
+    PARTY_CODES = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB", 5: "POP", 6: "CUP", 8: "DSA", 9: "PRG"}
     if include_c7:
         PARTY_CODES = {**PARTY_CODES, 7: "OAO"}
     result: dict = {}
@@ -1426,7 +1426,7 @@ def build_quiz():
 
 # ---------- fdSenateCondorcet.json + fdSenateIRV.json ----------
 _FD_PARTY_CLUSTER = {
-    "CON": "0", "SD": "1", "STY": "2", "NAT": "3", "LIB": "4",
+    "CON": "0", "LBR": "1", "STY": "2", "NAT": "3", "LIB": "4",
     "POP": "5", "CUP": "6", "DSA": "8", "PRG": "9", "OAO": "7",
 }
 
@@ -2479,7 +2479,7 @@ def build_senate_buckets():
     cond_winner = {r["state_fips"].zfill(2): r["senator_code"] for r in cond_rows}
     irv_winner  = {r["state_fips"].zfill(2): r["senator_code"]  for r in irv_rows}
 
-    PARTIES = ["CON", "CUP", "DSA", "LIB", "NAT", "PRG", "POP", "SD", "STY"]
+    PARTIES = ["CON", "CUP", "DSA", "LIB", "NAT", "PRG", "POP", "LBR", "STY", "OAO"]
 
     # Build per-state finalist bucket data
     states = {}  # fips → {finalists: [...], condWinner, irvWinner}
@@ -2565,7 +2565,7 @@ def build_senate_condorcet():
     """National-average Condorcet matrix + per-state matchups for senate finalists."""
     cond_rows = read_csv(PURE_MULTI_DIR / "senate" / "senate_condorcet_results.csv")
 
-    PARTIES = ["PRG", "LIB", "DSA", "SD", "STY", "CUP", "CON", "POP", "NAT"]
+    PARTIES = ["PRG", "LIB", "DSA", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
 
     # Per-state matchups (for drill-down)
     states = {}

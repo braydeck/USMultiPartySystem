@@ -31,6 +31,7 @@ PARTIES = [
     {"code": "LIB", "cluster": 4},
     {"code": "POP", "cluster": 5},
     {"code": "CUP", "cluster": 6},
+    {"code": "OAO", "cluster": 7},
     {"code": "DSA", "cluster": 8},
     {"code": "PRG", "cluster": 9},
 ]
