@@ -62,7 +62,7 @@ export const PARTY_BLURBS: Record<string, string> = {
   CON: 'The pre-Trump, Reaganite right. Low-tax and law-and-order; trusts elections and backs universal background checks.',
   POP: 'The populist right. Immigration-restrictionist, skeptical of elections, and religiously traditional. Support Medicaid expansion.',
   NAT: 'The far right. Strongly anti-immigration, religiously traditional, low-tax, high racial and gender resentment, and skeptical of elections.',
-  OAO: 'The C7 cluster, reintroduced as the Order and Opportunity Party. Economically progressive and law-and-order, secular, and trusting of elections and institutions. Toggle-only while we test its effect on outcomes.',
+  OAO: 'Among the most law-and-order parties of any — strong on policing, security, and order — while economically progressive on taxes, spending, and the safety net. Secular, and strongly trusts elections and institutions.',
 };
 
 export const CLUSTER_TO_PARTY: Record<string, string> = {
