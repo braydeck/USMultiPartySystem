@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { ClusterProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constants/parties';
+import { qualifies, type AlignMode } from '../lib/signature';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -44,10 +45,12 @@ export function PartyPlatform({ clusters }: Props) {
   const parties = F5_ORDER.filter(p => clusters.some(c => c.party === p));
   const [party, setParty] = useUrlState<string>('platform', parties[0] ?? 'CON', { allowed: [...parties] });
   const [category, setCategory] = useState<Category>('views');
-  // Two independent filters — enable either or both (both = signature planks).
+  // Two independent axes of a party's signature — enable either or both.
+  // Consensus = how unified the party is; Alignment = how far from the country
+  // (mainstream = close, deviant = far).
   const [useConsensus, setUseConsensus] = useState(true);
-  const [useDeviation, setUseDeviation] = useState(true);
-  const [devMode, setDevMode] = useState<'far' | 'close'>('far'); // far = distinctive, close = mainstream
+  const [useAlign, setUseAlign] = useState(true);
+  const [alignMode, setAlignMode] = useState<AlignMode>('deviant');
   const [minStrength, setMinStrength] = useState(75);
   const [minDev, setMinDev] = useState(25);
 
@@ -63,16 +66,15 @@ export function PartyPlatform({ clusters }: Props) {
       if (!v || typeof v !== 'object') continue;
       const { pct, overall, diffPp, domain, question } = v as Plank & { question: string; domain: string };
       if (pct == null || !domainSet.has(domain)) continue;
-      const strong = pct >= minStrength || pct <= 100 - minStrength;
-      const absDev = Math.abs(diffPp ?? 0);
-      const devOk = devMode === 'far' ? absDev >= minDev : absDev <= minDev;
-      const pass = (!useConsensus || strong) && (!useDeviation || devOk);
+      const pass = qualifies(pct, overall ?? pct, {
+        useConsensus, consPct: minStrength, useAlign, alignMode, alignPp: minDev,
+      });
       if (!pass) continue;
       (out[domain] ??= []).push({ question, domain, pct, overall: overall ?? 0, diffPp: diffPp ?? 0 });
     }
     for (const d of Object.keys(out)) out[d].sort((a, b) => Math.abs(b.pct - 50) - Math.abs(a.pct - 50));
     return out;
-  }, [cluster, minStrength, minDev, useConsensus, useDeviation, devMode, domainSet]);
+  }, [cluster, minStrength, minDev, useConsensus, useAlign, alignMode, domainSet]);
 
   const total = Object.values(planksByDomain).reduce((s, a) => s + a.length, 0);
   const noun = category === 'views' ? 'position' : category === 'voting' ? 'pattern' : 'trait';
@@ -117,35 +119,42 @@ export function PartyPlatform({ clusters }: Props) {
             <input type="range" min={50} max={100} step={5} value={minStrength} disabled={!useConsensus}
               onChange={e => setMinStrength(Number(e.target.value))} className="w-full" style={{ accentColor: color }} />
           </div>
-          <div style={{ opacity: useDeviation ? 1 : 0.45 }}>
+          <div style={{ opacity: useAlign ? 1 : 0.45 }}>
             <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
-              <input type="checkbox" checked={useDeviation} onChange={e => setUseDeviation(e.target.checked)}
+              <input type="checkbox" checked={useAlign} onChange={e => setUseAlign(e.target.checked)}
                 style={{ accentColor: color }} />
-              <span className="font-semibold text-foreground">{devMode === 'far' ? 'Distinctive' : 'Mainstream'}</span>
-              <span className="text-muted-foreground">— {devMode === 'far' ? 'differs from' : 'close to'} national average</span>
+              <span className="font-semibold text-foreground">{alignMode === 'deviant' ? 'Deviant' : 'Mainstream'}</span>
+              <span className="text-muted-foreground">— {alignMode === 'deviant' ? 'far from' : 'close to'} the U.S. average</span>
               <span className="font-mono font-semibold ml-auto" style={{ color }}>
-                {devMode === 'far' ? '≥' : '≤'}{minDev} pts
+                {alignMode === 'deviant' ? '≥' : '≤'}{minDev} pts
               </span>
             </label>
             <div className="flex items-center gap-2">
               <div className="flex gap-1 shrink-0">
-                {(['far', 'close'] as const).map(m => (
-                  <button key={m} onClick={() => setDevMode(m)} disabled={!useDeviation}
-                    className={`text-[10px] px-1.5 py-0.5 rounded border ${devMode === m ? 'bg-secondary text-foreground font-semibold' : 'text-muted-foreground'}`}>
-                    {m === 'far' ? '≥ differs' : '≤ close'}
+                {(['mainstream', 'deviant'] as const).map(m => (
+                  <button key={m} onClick={() => setAlignMode(m)} disabled={!useAlign}
+                    className={`text-[10px] px-1.5 py-0.5 rounded border ${alignMode === m ? 'bg-secondary text-foreground font-semibold' : 'text-muted-foreground'}`}>
+                    {m === 'mainstream' ? '≤ mainstream' : '≥ deviant'}
                   </button>
                 ))}
               </div>
-              <input type="range" min={0} max={50} step={5} value={minDev} disabled={!useDeviation}
+              <input type="range" min={0} max={50} step={5} value={minDev} disabled={!useAlign}
                 onChange={e => setMinDev(Number(e.target.value))} className="flex-1" style={{ accentColor: color }} />
             </div>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-3">
+        <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed border-t border-border/40 pt-2">
+          A party's <span className="font-semibold text-foreground">signature</span> is the mix of two things:
+          how strongly it holds a position (<span className="font-semibold text-foreground">Consensus</span>) and how far
+          that position sits from the country (<span className="font-semibold text-foreground">Mainstream</span> vs.
+          <span className="font-semibold text-foreground"> Deviant</span>). Some parties are defined by strongly-held
+          mainstream positions; others by where they break from the national average.
+        </p>
+        <p className="text-xs text-muted-foreground mt-2">
           <span className="font-semibold" style={{ color }}>{PARTY_NAMES[party] ?? party}</span> —
           {' '}{category === 'views' ? 'positions' : category === 'voting' ? 'voting patterns' : category === 'demographics' ? 'demographics' : 'positions & traits'} its
           core members, filtered by the criteria above
-          ({[useConsensus && 'strongly held', useDeviation && (devMode === 'far' ? 'distinctive' : 'mainstream')].filter(Boolean).join(' + ') || 'no filter'}).
+          ({[useConsensus && 'strongly held', useAlign && (alignMode === 'deviant' ? 'deviant from the U.S.' : 'mainstream')].filter(Boolean).join(' + ') || 'no filter'}).
           {' '}{total} {noun}{total !== 1 ? 's' : ''} shown.
         </p>
       </Card>

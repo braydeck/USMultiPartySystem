@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
+import { qualifies, sigActive, type AlignMode, type SignatureFilter } from '../lib/signature';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText, etaPurple } from '../constants/parties';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
@@ -59,7 +60,12 @@ interface VarEntry {
   factors: { factor: string; loading: number }[];
   maxVal: number;
   unit: string;
+  qualifiers: string[];  // selected parties whose position here is part of their signature
+  sigMatch: boolean;     // ≥1 qualifier under the active signature filter
 }
+
+// The 12 policy/social domains (the rest of DOMAINS are demographic/structural).
+const POLICY_DOMAINS = new Set(DOMAINS.slice(0, 12));
 
 // Natural ordering for demographic/structural sections
 const SECTION_QUESTION_ORDER: Record<string, string[]> = {
@@ -206,7 +212,7 @@ const ABOVE_Y       = POLICY_LINE_Y - DOT_R - 5;   // label baseline above dot
 const BELOW_Y       = POLICY_LINE_Y + DOT_R + 13;  // label baseline below dot
 
 function DotTrack({
-  question, factor, factors, highlighted, pcts, codes, maxVal = 100, unit = '%', overall, showNatAvg, loadingWeight,
+  question, factor, factors, highlighted, pcts, codes, maxVal = 100, unit = '%', overall, showNatAvg, loadingWeight, emphasized,
 }: {
   question: string;
   factor: string | null;
@@ -219,7 +225,9 @@ function DotTrack({
   overall?: number | null;
   showNatAvg?: boolean;
   loadingWeight?: number;
+  emphasized?: string[];
 }) {
+  const ringed = new Set(emphasized ?? []);
   const toPos  = (v: number) => (v / maxVal) * 100;  // value → 0-100% position
   const toDisp = (v: number) => unit === '%' ? `${Math.round(v)}%` : `${v % 1 === 0 ? v : v.toFixed(1)} ${unit}`;
 
@@ -308,8 +316,13 @@ function DotTrack({
           const above = idx % 2 === 0;
           const labelY = above ? ABOVE_Y : BELOW_Y;
           const anchor = pos < 12 ? 'start' : pos > 88 ? 'end' : 'middle';
+          const isRinged = ringed.has(code);
           return (
             <g key={code}>
+              {isRinged && (
+                <circle cx={`${pos}%`} cy={POLICY_LINE_Y} r={DOT_R + 3.5}
+                  fill="none" stroke={color} strokeWidth={2} />
+              )}
               <circle cx={`${pos}%`} cy={POLICY_LINE_Y} r={DOT_R}
                 fill={color} stroke="white" strokeWidth={2} />
               <text x={`${pos}%`} y={labelY} textAnchor={anchor} dominantBaseline="auto">
@@ -572,6 +585,11 @@ interface SavedCompare {
   divergeOnly?: boolean;
   factorScale?: 'strength' | 'percentile';
   showNatAvg?: boolean;
+  useConsensus?: boolean;
+  consPct?: number;
+  useAlign?: boolean;
+  alignMode?: AlignMode;
+  alignPp?: number;
 }
 function loadSavedCompare(): SavedCompare {
   try { return JSON.parse(localStorage.getItem(COMPARE_STORE_KEY) || '{}'); } catch { return {}; }
@@ -593,6 +611,14 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
   const [showNatAvg, setShowNatAvg] = useState(saved.showNatAvg ?? true);
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>(saved.factorScale ?? 'strength');
   const [divergeOnly, setDivergeOnly] = useState(saved.divergeOnly ?? false);
+  // Signature filter — a party's own distinctiveness vs. the country (independent of who else is selected).
+  const [useConsensus, setUseConsensus] = useState(saved.useConsensus ?? false);
+  const [consPct, setConsPct] = useState(saved.consPct ?? 75);
+  const [useAlign, setUseAlign] = useState(saved.useAlign ?? false);
+  const [alignMode, setAlignMode] = useState<AlignMode>(saved.alignMode ?? 'deviant');
+  const [alignPp, setAlignPp] = useState(saved.alignPp ?? 25);
+  const sigFilter: SignatureFilter = { useConsensus, consPct, useAlign, alignMode, alignPp };
+  const sigOn = sigActive(sigFilter);
 
   // Restore the last selection when arriving with an empty URL (e.g. via tab nav, which
   // clears query params). A deep-link / shared ?cmp=... takes precedence over the saved one.
@@ -603,8 +629,8 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
 
   // Persist selection + filters for next time.
   useEffect(() => {
-    saveCompare({ cmp, minGap, divergeOnly, factorScale, showNatAvg });
-  }, [cmp, minGap, divergeOnly, factorScale, showNatAvg]);
+    saveCompare({ cmp, minGap, divergeOnly, factorScale, showNatAvg, useConsensus, consPct, useAlign, alignMode, alignPp });
+  }, [cmp, minGap, divergeOnly, factorScale, showNatAvg, useConsensus, consPct, useAlign, alignMode, alignPp]);
 
   // Build option list: pure parties in F5_ORDER, then FD candidates grouped by party
   const pureOptions = F5_ORDER
@@ -676,11 +702,16 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
 
       const groupKey = entry.domain;
 
+      const qualifiers = selected.filter(
+        c => entry.pcts[c] !== undefined && qualifies(entry.pcts[c]!, entry.overall, sigFilter),
+      );
+
       if (!grouped[groupKey]) grouped[groupKey] = [];
       grouped[groupKey].push({
         key, question: entry.question, pcts: entry.pcts, overall: entry.overall,
         maxGap, highlighted: maxGap >= minGap, factor, factors,
         maxVal: entry.maxVal, unit: entry.unit,
+        qualifiers, sigMatch: qualifiers.length > 0,
       });
     }
 
@@ -704,7 +735,31 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
     }
 
     return grouped;
-  }, [selected, clusters, fdProfiles, minGap]);
+  }, [selected, clusters, fdProfiles, minGap, useConsensus, consPct, useAlign, alignMode, alignPp]);
+
+  // Per-party signature: its qualifying planks (policy/social only), strongest first.
+  // "Strongest" = biggest deviation in Deviant mode, most one-sided otherwise.
+  const signatures = useMemo(() => {
+    const out: Record<string, { question: string; pct: number; dev: number }[]> = {};
+    if (!sigOn) return out;
+    for (const [domain, vars] of Object.entries(sectionVarMap)) {
+      if (!POLICY_DOMAINS.has(domain)) continue;
+      for (const v of vars) {
+        for (const code of v.qualifiers) {
+          const pct = v.pcts[code]!;
+          (out[code] ??= []).push({ question: v.question, pct, dev: pct - (v.overall ?? pct) });
+        }
+      }
+    }
+    for (const code of Object.keys(out)) {
+      out[code].sort((a, b) =>
+        alignMode === 'deviant' && useAlign
+          ? Math.abs(b.dev) - Math.abs(a.dev)
+          : Math.abs(b.pct - 50) - Math.abs(a.pct - 50),
+      );
+    }
+    return out;
+  }, [sectionVarMap, sigOn, alignMode, useAlign]);
 
   // Ordered section keys
   const sectionKeys = useMemo(() => {
@@ -718,6 +773,9 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
         <p className="text-muted-foreground text-sm">
           Compare one or more parties across all policy domains. Amber rows highlight where
           any two selected parties differ by ≥{minGap}pp, and sort to the top of each section.
+          The <span className="font-medium text-foreground">Signature</span> filter below rings the
+          parties for whom a position is a defining plank — strongly held and either mainstream or
+          deviant from the country.
         </p>
       </div>
 
@@ -863,6 +921,72 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
             </label>
           </div>
 
+          {/* Signature filter — each party's own distinctiveness vs. the country */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span className="text-xs text-muted-foreground uppercase tracking-widest">Signature</span>
+            <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer">
+              <input type="checkbox" checked={useConsensus} onChange={e => setUseConsensus(e.target.checked)} />
+              <span className="font-medium">Consensus ≥</span>
+              <input type="number" min={50} max={100} value={consPct} disabled={!useConsensus}
+                onChange={e => setConsPct(Math.max(50, Math.min(100, Number(e.target.value))))}
+                className="w-14 border border-border rounded px-2 py-1 text-center font-mono bg-white disabled:opacity-50" />
+              <span className="text-muted-foreground">%</span>
+            </label>
+            <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer">
+              <input type="checkbox" checked={useAlign} onChange={e => setUseAlign(e.target.checked)} />
+              <span className="font-medium">Alignment</span>
+            </label>
+            <div className="flex gap-1">
+              <Button size="sm" variant={alignMode === 'mainstream' ? 'default' : 'secondary'} disabled={!useAlign}
+                onClick={() => setAlignMode('mainstream')}>≤ mainstream</Button>
+              <Button size="sm" variant={alignMode === 'deviant' ? 'default' : 'secondary'} disabled={!useAlign}
+                onClick={() => setAlignMode('deviant')}>≥ deviant</Button>
+            </div>
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <input type="number" min={0} max={100} value={alignPp} disabled={!useAlign}
+                onChange={e => setAlignPp(Math.max(0, Math.min(100, Number(e.target.value))))}
+                className="w-14 border border-border rounded px-2 py-1 text-center font-mono text-foreground bg-white disabled:opacity-50" />
+              pp from U.S.
+            </label>
+          </div>
+
+          {/* Per-party signature summary */}
+          {sigOn && Object.keys(signatures).length > 0 && (
+            <Card className="p-4">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                {alignMode === 'deviant' && useAlign ? 'What sets each party apart' : 'Each party’s defining planks'}
+                {useConsensus && <span className="normal-case font-normal tracking-normal"> · held by ≥{consPct}%</span>}
+                {useAlign && <span className="normal-case font-normal tracking-normal"> · {alignMode === 'deviant' ? `≥${alignPp}` : `≤${alignPp}`}pp from U.S.</span>}
+              </div>
+              <div className="space-y-2">
+                {selected.filter(c => signatures[c]?.length).map(code => {
+                  const color = getBlendColor(code);
+                  return (
+                    <div key={code} className="flex items-start gap-2">
+                      <span className="shrink-0 text-xs font-bold px-2 py-0.5 rounded-full chip-text-soft"
+                        style={{ backgroundColor: color, color: getContrastText(color) }}>
+                        {code}
+                      </span>
+                      <div className="flex flex-wrap gap-1 min-w-0">
+                        {signatures[code].slice(0, 6).map(s => (
+                          <span key={s.question} className="text-[11px] bg-muted text-foreground rounded px-1.5 py-0.5">
+                            {s.question}
+                            <span className="text-muted-foreground font-mono ml-1">
+                              {Math.round(s.pct)}%{useAlign && alignMode === 'deviant' ? ` (${s.dev >= 0 ? '+' : ''}${Math.round(s.dev)})` : ''}
+                            </span>
+                          </span>
+                        ))}
+                        {signatures[code].length > 6 && (
+                          <span className="text-[11px] text-muted-foreground self-center">+{signatures[code].length - 6} more</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
           {/* Sections */}
           {sectionKeys.length === 0 ? (
             <Card className="p-8 text-center text-muted-foreground text-sm">
@@ -872,10 +996,11 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
             <div className="space-y-3">
               {sectionKeys.map(sectionKey => {
                 const allVars = sectionVarMap[sectionKey] ?? [];
-                const vars = divergeOnly ? allVars.filter(v => v.highlighted) : allVars;
+                const vars = allVars.filter(v => (!divergeOnly || v.highlighted) && (!sigOn || v.sigMatch));
                 if (vars.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
                 const highlightCount = allVars.filter(v => v.highlighted).length;
+                const sigCount = allVars.filter(v => v.sigMatch).length;
 
                 return (
                   <Card key={sectionKey} className="overflow-hidden">
@@ -890,6 +1015,11 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                         {highlightCount > 0 && (
                           <span className="text-xs bg-amber-100 text-amber-700 font-medium rounded-full px-2 py-0.5">
                             {highlightCount} diverge
+                          </span>
+                        )}
+                        {sigOn && sigCount > 0 && (
+                          <span className="text-xs bg-indigo-100 text-indigo-700 font-medium rounded-full px-2 py-0.5">
+                            {sigCount} signature
                           </span>
                         )}
                       </div>
@@ -928,6 +1058,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                                     unit={v.unit}
                                     overall={v.overall}
                                     showNatAvg={showNatAvg}
+                                    emphasized={sigOn ? v.qualifiers : undefined}
                                   />
                                 </div>
                               ))}
