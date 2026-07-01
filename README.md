@@ -266,6 +266,10 @@ python3 pipeline/run_house_canonical.py            # → No_C7_canonical/ (party
 python3 pipeline/house_chamber_profile.py          # House chamber policy aggregate
 python3 pipeline/generate_blend_stats.py           # blended-type policy support (senate analysis)
 
+# ── Respondent-level extras (read the raw .dta directly) ────────────────────
+python3 pipeline/add_compare_items.py              # FP/abortion/voting items → cluster_stats.csv
+python3 pipeline/compute_cohesion.py               # per-cluster cohesion → viz/src/data/clusterCohesion.json
+
 # ── Visualization ──────────────────────────────────────────────────────────
 cd viz && python3 scripts/prepare_data.py          # Regenerate all JSON from outputs
 npm run dev                                        # Dev server
