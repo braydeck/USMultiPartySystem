@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ClusterProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constants/parties';
@@ -59,7 +59,8 @@ const norm = (val: number, maxVal: number) => (maxVal === 100 ? val : (val / max
 export function PartyPlatform({ clusters }: Props) {
   const parties = F5_ORDER.filter(p => clusters.some(c => c.party === p));
   // Selection is a comma list so it is deep-linkable and supports side-by-side comparison.
-  const [platform, setPlatform] = useUrlState<string>('platform', parties[0] ?? 'CON');
+  // Empty is a valid state (no party selected) so switching selections is frictionless.
+  const [platform, setPlatform] = useUrlState<string>('platform', '');
   const selected = useMemo(
     () => (platform ? platform.split(',').filter(p => (parties as readonly string[]).includes(p)) : []),
     [platform, parties],
@@ -69,9 +70,9 @@ export function PartyPlatform({ clusters }: Props) {
   // Consensus = how unified the party is; Alignment = how far from the country
   // (mainstream = close, deviant = far).
   const [useConsensus, setUseConsensus] = useState(true);
-  const [useAlign, setUseAlign] = useState(true);
+  const [useAlign, setUseAlign] = useState(false);
   const [alignMode, setAlignMode] = useState<AlignMode>('deviant');
-  const [minStrength, setMinStrength] = useState(75);
+  const [minStrength, setMinStrength] = useState(70);
   const [minDev, setMinDev] = useState(25);
 
   const multi = selected.length > 1;
@@ -81,12 +82,8 @@ export function PartyPlatform({ clusters }: Props) {
   const domainSet = useMemo(() => new Set(domainOrder), [domainOrder]);
 
   const toggleParty = (p: string) => {
-    if (selected.includes(p)) {
-      if (selected.length === 1) return; // keep at least one selected
-      setPlatform(selected.filter(x => x !== p).join(','));
-    } else {
-      setPlatform([...selected, p].join(','));
-    }
+    const next = selected.includes(p) ? selected.filter(x => x !== p) : [...selected, p];
+    setPlatform(next.join(','));
   };
 
   const filter: SignatureFilter = { useConsensus, consPct: minStrength, useAlign, alignMode, alignPp: minDev };
@@ -125,11 +122,6 @@ export function PartyPlatform({ clusters }: Props) {
 
   const total = Object.values(rowsByDomain).reduce((s, a) => s + a.length, 0);
   const noun = category === 'views' ? 'position' : category === 'voting' ? 'pattern' : 'trait';
-  const gridStyle = {
-    display: 'grid',
-    gridTemplateColumns: `minmax(180px, 2fr) repeat(${Math.max(selected.length, 1)}, minmax(120px, 1fr))`,
-    columnGap: '1rem',
-  } as const;
 
   return (
     <div className="space-y-6">
@@ -201,7 +193,7 @@ export function PartyPlatform({ clusters }: Props) {
           that position sits from the country (<span className="font-semibold text-foreground">Mainstream</span> vs.
           <span className="font-semibold text-foreground"> Deviant</span>). Some parties are defined by strongly-held
           mainstream positions; others by where they break from the national average.
-          {multi && ' Select up to ~3 parties — each row is a defining plank for at least one; a column fills only when it is a defining plank for that party.'}
+          {multi && ' Each row is a defining plank for at least one selected party; a column fills only when the plank is part of that party’s signature.'}
         </p>
         <p className="text-xs text-muted-foreground mt-2">
           <span className="font-semibold" style={{ color: accent }}>
@@ -223,38 +215,46 @@ export function PartyPlatform({ clusters }: Props) {
 
       {total > 0 && (
         <div className="overflow-x-auto">
-          <div style={{ minWidth: multi ? 180 + selected.length * 140 : undefined }} className="space-y-6">
-            {multi && (
-              <div style={gridStyle} className="items-end">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground pb-1">Position</div>
-                {selected.map(code => {
-                  const c = PARTY_COLORS[code] ?? '#6b7280';
-                  return (
-                    <div key={code} className="pl-3 border-l border-border/40">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full chip-text-soft"
-                        style={{ backgroundColor: c, color: getContrastText(c) }}>
-                        {code}
-                      </span>
-                    </div>
-                  );
-                })}
+          <div style={{ minWidth: multi ? 200 + selected.length * 130 : undefined }} className="space-y-6">
+            {/* Column headers + national-average legend */}
+            <div className="flex gap-4 items-end">
+              <div className="flex-[2] min-w-[160px] text-right">
+                {multi && <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Position</div>}
+                <div className="flex items-center justify-end gap-1 text-[10px] text-muted-foreground mt-0.5">
+                  <span className="relative inline-block w-1.5 h-3">
+                    <span className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 bg-slate-800 rounded" />
+                  </span>
+                  U.S. average
+                </div>
               </div>
-            )}
+              {multi && selected.map(code => {
+                const c = PARTY_COLORS[code] ?? '#6b7280';
+                return (
+                  <div key={code} className="flex-1 min-w-[110px] pl-3 border-l border-border/40">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full chip-text-soft"
+                      style={{ backgroundColor: c, color: getContrastText(c) }}>
+                      {code}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
 
             {domainOrder.filter(d => rowsByDomain[d]?.length).map(domain => {
               const isView = VIEW_SET.has(domain);
               return (
                 <div key={domain}>
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">{domain}</h3>
-                  <div style={gridStyle}>
+                  <div>
                     {rowsByDomain[domain].map((row, ri) => (
-                      <Fragment key={row.key}>
-                        <div className={`text-sm text-foreground leading-snug py-2 pr-2 ${ri > 0 ? 'border-t border-border/40' : ''}`}>
+                      <div key={row.key}
+                        className={`flex gap-4 items-start rounded transition-colors hover:bg-muted/60 ${ri % 2 === 1 ? 'bg-muted/25' : ''}`}>
+                        <div className="flex-[2] min-w-[160px] text-right text-sm text-foreground leading-snug py-2 pl-2">
                           {row.question}
                         </div>
                         {selected.map(code => {
                           const cell = row.cells[code];
-                          const base = `py-2 pl-3 border-l border-border/40 ${ri > 0 ? 'border-t' : ''}`;
+                          const base = 'flex-1 min-w-[110px] py-2 pl-3 border-l border-border/40';
                           if (!cell || !cell.qualifies) {
                             return <div key={code} className={`${base} text-center text-slate-300 text-xs`} aria-hidden="true">·</div>;
                           }
@@ -266,11 +266,14 @@ export function PartyPlatform({ clusters }: Props) {
                           const suffix = isPct ? '' : ` ${row.unit}`;
                           return (
                             <div key={code} className={base}>
-                              <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-                                <div className="absolute top-0 left-0 h-full rounded-full"
-                                  style={{ width: `${norm(cell.pct, row.maxVal)}%`, backgroundColor: cellColor }} />
-                                <div className="absolute top-0 h-full w-0.5 bg-slate-500"
-                                  style={{ left: `${norm(row.overall, row.maxVal)}%` }}
+                              {/* padded wrapper lets the national marker poke above/below the bar */}
+                              <div className="relative py-1">
+                                <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+                                  <div className="absolute top-0 left-0 h-full rounded-full"
+                                    style={{ width: `${norm(cell.pct, row.maxVal)}%`, backgroundColor: cellColor }} />
+                                </div>
+                                <div className="absolute top-0 bottom-0 w-[2px] bg-slate-800 rounded"
+                                  style={{ left: `${norm(row.overall, row.maxVal)}%`, transform: 'translateX(-1px)' }}
                                   title={`National avg ${Math.round(row.overall)}${isPct ? '%' : suffix}`} />
                               </div>
                               <div className="flex items-center gap-1 mt-1 text-[11px] tabular-nums">
@@ -283,7 +286,7 @@ export function PartyPlatform({ clusters }: Props) {
                             </div>
                           );
                         })}
-                      </Fragment>
+                      </div>
                     ))}
                   </div>
                 </div>
