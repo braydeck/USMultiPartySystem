@@ -3,6 +3,7 @@ import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { qualifies, sigActive, type AlignMode, type SignatureFilter } from '../lib/signature';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
+import { IntensityBar, IntensityLegend, intensityFor, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText, etaPurple } from '../constants/parties';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
@@ -545,6 +546,33 @@ function FactorItemsPanel({
   );
 }
 
+// Full-distribution cell for a multi-point item: national + each selected party as a
+// stacked bar (diverging bipolar via vik), so Maintain/Neither and intensity are visible
+// instead of the single collapsed dot.
+function IntensityCell({ item, codes, question }: { item: IntensityItem; codes: string[]; question: string }) {
+  const mid = item.middleIndex;
+  return (
+    <div className="px-3 py-3">
+      <div className="text-xs text-foreground leading-snug font-medium mb-2">{question}</div>
+      <div className="space-y-1">
+        {(['__NAT__', ...codes]).map(code => {
+          const shares = code === '__NAT__' ? item.national : item.parties[code];
+          if (!shares) return null;
+          const isNat = code === '__NAT__';
+          const color = isNat ? '#64748b' : getBlendColor(code);
+          return (
+            <div key={code} className="flex items-center gap-2">
+              <span className="w-12 shrink-0 text-[10px] font-bold text-right" style={{ color }}>{isNat ? 'U.S.' : code}</span>
+              <div className="flex-1 min-w-0"><IntensityBar item={item} shares={shares} /></div>
+              <span className="w-9 shrink-0 text-[10px] tabular-nums text-muted-foreground text-right">{mid != null ? `${Math.round(shares[mid])}%` : ''}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function getSectionTitle(key: string): string {
   if (key === 'Untagged') return 'Other / Untagged';
   if ((FACTORS as readonly string[]).includes(key)) return `${FACTOR_LABELS[key]} (${FACTOR_SHORT[key]})`;
@@ -950,8 +978,14 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                                 )}
                               </div>
                             )}
+                            {(() => {
+                              const gl = grp.items.map(v => intensityFor(v.key)).find(Boolean);
+                              return gl ? <div className="px-4 pt-2 pb-0.5 border-t border-border/40"><IntensityLegend item={gl} /></div> : null;
+                            })()}
                             <div className="grid grid-cols-1 sm:grid-cols-2">
-                              {grp.items.map((v, i) => (
+                              {grp.items.map((v, i) => {
+                                const iv = intensityFor(v.key);
+                                return (
                                 <div
                                   key={v.key}
                                   className={[
@@ -959,6 +993,9 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                                     i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
                                   ].filter(Boolean).join(' ')}
                                 >
+                                  {iv ? (
+                                    <IntensityCell item={iv} codes={selected} question={grp.header ? stripPrefix(v.question) : v.question} />
+                                  ) : (
                                   <DotTrack
                                     question={grp.header ? stripPrefix(v.question) : v.question}
                                     factor={v.factor}
@@ -972,8 +1009,10 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                                     showNatAvg={showNatAvg}
                                     emphasized={sigOn ? v.qualifiers : undefined}
                                   />
+                                  )}
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         ))}

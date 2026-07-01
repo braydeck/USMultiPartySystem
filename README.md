@@ -286,6 +286,17 @@ npm run build                                      # Production build → dist/
 
 ### Data provenance / regeneration notes
 
+**EFA/clustering use the full ordinal responses — the 0/1 collapse is display-only.**
+The typology is built from a polychoric correlation matrix (`analysis/efa/pipeline/run_efa.py`)
+and Bartlett factor scores from the standardized full-scale item matrix
+(`analysis/efa/pipeline/efa_update.py`): multi-point items enter at full resolution
+(reverse-coding only flips direction; "Not sure" on the 1–3 trust items is mapped to the
+scale midpoint, not dropped), so neutral/middle opinions are preserved in the factor scores
+and cluster assignments. Binarization to a single "% agree"/"% increase" happens only in the
+display layer (`add_compare_items.py`); `compute_intensity.py` recovers the full distributions
+for the viz. (An earlier commit message on the Intensity view wrongly stated the clustering
+ran on collapsed encodings — it does not.)
+
 `stv_main.py` and `generate_blend_stats.py` were archived in an earlier cleanup and have
 been restored to `pipeline/` and re-keyed to the current party codes. The only piece still
 archive-only is the single-candidate `pure_only/senate/` run, which feeds the **legacy**

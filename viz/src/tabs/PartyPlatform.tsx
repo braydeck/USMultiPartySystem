@@ -5,6 +5,7 @@ import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constan
 import { qualifies, type AlignMode, type SignatureFilter } from '../lib/signature';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { CohesionCard } from '../components/parties/CohesionCard';
+import { IntensityBar, IntensityLegend, intensityFor } from '../components/shared/IntensityBar';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -274,9 +275,11 @@ export function PartyPlatform({ clusters }: Props) {
 
             {domainOrder.filter(d => shownByDomain[d]?.length).map(domain => {
               const isView = VIEW_SET.has(domain);
+              const legendItem = shownByDomain[domain].map(r => intensityFor(r.key)).find(Boolean);
               return (
                 <div key={domain}>
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">{domain}</h3>
+                  {legendItem && <div className="mb-2"><IntensityLegend item={legendItem} /></div>}
                   <div>
                     {buildSubgroups(domain, shownByDomain[domain]).map(grp => (
                     <div key={grp.header ?? 'main'}>
@@ -299,6 +302,22 @@ export function PartyPlatform({ clusters }: Props) {
                           const base = 'flex-1 min-w-[110px] py-2 pl-3 border-l border-border/40';
                           if (!cell || !cell.qualifies) {
                             return <div key={code} className={`${base} text-center text-slate-300 text-xs`} aria-hidden="true">·</div>;
+                          }
+                          const iv = intensityFor(row.key);
+                          const ivShares = iv?.parties[code];
+                          if (iv && ivShares) {
+                            const mid = iv.middleIndex;
+                            const midWord = mid != null ? iv.labels[mid].split(' ')[0].toLowerCase() : '';
+                            return (
+                              <div key={code} className={base}>
+                                <div className="py-1"><IntensityBar item={iv} shares={ivShares} /></div>
+                                {mid != null && (
+                                  <div className="mt-1 text-[11px] tabular-nums text-muted-foreground">
+                                    <span className="text-foreground font-semibold">{Math.round(ivShares[mid])}%</span> {midWord}
+                                  </div>
+                                )}
+                              </div>
+                            );
                           }
                           const isPct = row.unit === '%';
                           const high = norm(cell.pct, row.maxVal) >= 50;
