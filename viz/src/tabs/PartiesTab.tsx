@@ -5,6 +5,7 @@ import { IdeologicalConstellation } from '../components/house/IdeologicalConstel
 import { FACTOR_LABELS } from '../constants/parties';
 import { CompareTab } from './CompareTab';
 import { PartyPlatform } from './PartyPlatform';
+import { IntensityView } from './IntensityView';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
@@ -17,13 +18,13 @@ interface Props {
 }
 
 type SortFactor = 'F1' | 'F2' | 'F3' | 'F4' | 'F5';
-type Section = 'profiles' | 'compare' | 'platform';
+type Section = 'profiles' | 'compare' | 'platform' | 'intensity';
 
 export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
   const [sortFactor, setSortFactor] = useUrlState<SortFactor>('sort', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
   const [cardMode, setCardMode] = useUrlState<'strength' | 'percentile'>('mode', 'strength', { allowed: ['strength', 'percentile'] });
   const [sortDir, setSortDir] = useUrlState<'asc' | 'desc'>('dir', 'desc', { allowed: ['asc', 'desc'] });
-  const [section, setSection] = useUrlState<Section>('section', 'compare', { allowed: ['profiles', 'compare', 'platform'] });
+  const [section, setSection] = useUrlState<Section>('section', 'compare', { allowed: ['profiles', 'compare', 'platform', 'intensity'] });
 
   const effClusters = clusters;
 
@@ -56,8 +57,8 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
 
       <StickyControlBar>
         <ToggleGroup label="View" value={section} onChange={setSection}
-          options={['compare', 'platform', 'profiles'] as const}
-          labels={{ compare: 'Compare Policies', platform: 'Party Platform', profiles: 'Party Profiles' }}
+          options={['compare', 'platform', 'intensity', 'profiles'] as const}
+          labels={{ compare: 'Compare Policies', platform: 'Party Platform', intensity: 'Intensity', profiles: 'Party Profiles' }}
           hrefFor={v => urlForParams({ section: v === 'compare' ? null : v })} />
       </StickyControlBar>
 
@@ -125,6 +126,10 @@ export function PartiesTab({ clusters, clusterSpreads, fdProfiles }: Props) {
 
       {section === 'platform' && (
         <PartyPlatform clusters={effClusters} />
+      )}
+
+      {section === 'intensity' && (
+        <IntensityView clusters={effClusters} />
       )}
     </div>
   );

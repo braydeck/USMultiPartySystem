@@ -1,0 +1,1783 @@
+{
+  "items": [
+    {
+      "variable": "CC24_443_1",
+      "question": "Increase state spending on welfare",
+      "domain": "Government Spending",
+      "kind": "diverging",
+      "labels": [
+        "Greatly increase",
+        "Slightly increase",
+        "Maintain",
+        "Slightly decrease",
+        "Greatly decrease"
+      ],
+      "middleIndex": 2,
+      "national": [
+        14.9,
+        19.1,
+        40.0,
+        13.7,
+        12.3
+      ],
+      "parties": {
+        "CON": [
+          5.7,
+          10.7,
+          39.9,
+          25.4,
+          18.4
+        ],
+        "LBR": [
+          16.7,
+          28.6,
+          45.7,
+          6.3,
+          2.7
+        ],
+        "STY": [
+          16.2,
+          23.0,
+          47.1,
+          8.6,
+          5.2
+        ],
+        "NAT": [
+          1.6,
+          2.4,
+          25.5,
+          24.9,
+          45.7
+        ],
+        "LIB": [
+          21.9,
+          28.0,
+          45.6,
+          3.7,
+          0.9
+        ],
+        "POP": [
+          8.0,
+          11.3,
+          37.9,
+          20.1,
+          22.7
+        ],
+        "CUP": [
+          12.5,
+          18.1,
+          44.3,
+          16.2,
+          8.9
+        ],
+        "OAO": [
+          13.0,
+          15.6,
+          52.2,
+          13.2,
+          6.0
+        ],
+        "DSA": [
+          41.2,
+          32.4,
+          25.5,
+          0.7,
+          0.3
+        ],
+        "PRG": [
+          40.4,
+          33.8,
+          25.4,
+          0.2,
+          0.1
+        ]
+      }
+    },
+    {
+      "variable": "CC24_443_2",
+      "question": "Increase state spending on health care",
+      "domain": "Government Spending",
+      "kind": "diverging",
+      "labels": [
+        "Greatly increase",
+        "Slightly increase",
+        "Maintain",
+        "Slightly decrease",
+        "Greatly decrease"
+      ],
+      "middleIndex": 2,
+      "national": [
+        37.3,
+        27.7,
+        26.4,
+        4.8,
+        3.8
+      ],
+      "parties": {
+        "CON": [
+          20.6,
+          30.7,
+          39.2,
+          6.3,
+          3.3
+        ],
+        "LBR": [
+          50.2,
+          31.4,
+          17.3,
+          0.7,
+          0.4
+        ],
+        "STY": [
+          40.2,
+          29.2,
+          24.8,
+          3.2,
+          2.6
+        ],
+        "NAT": [
+          6.4,
+          14.5,
+          46.0,
+          15.3,
+          17.9
+        ],
+        "LIB": [
+          55.6,
+          29.6,
+          13.4,
+          1.1,
+          0.3
+        ],
+        "POP": [
+          21.4,
+          24.6,
+          35.0,
+          10.4,
+          8.5
+        ],
+        "CUP": [
+          34.3,
+          29.9,
+          27.8,
+          5.7,
+          2.3
+        ],
+        "OAO": [
+          41.7,
+          35.5,
+          20.7,
+          1.7,
+          0.5
+        ],
+        "DSA": [
+          71.1,
+          21.6,
+          7.0,
+          0.2,
+          0.1
+        ],
+        "PRG": [
+          69.3,
+          23.4,
+          7.1,
+          0.2,
+          0.0
+        ]
+      }
+    },
+    {
+      "variable": "CC24_443_3",
+      "question": "Increase state spending on education",
+      "domain": "Government Spending",
+      "kind": "diverging",
+      "labels": [
+        "Greatly increase",
+        "Slightly increase",
+        "Maintain",
+        "Slightly decrease",
+        "Greatly decrease"
+      ],
+      "middleIndex": 2,
+      "national": [
+        39.0,
+        26.3,
+        25.3,
+        5.2,
+        4.2
+      ],
+      "parties": {
+        "CON": [
+          23.9,
+          29.8,
+          35.0,
+          7.4,
+          4.0
+        ],
+        "LBR": [
+          50.3,
+          30.7,
+          17.4,
+          1.3,
+          0.4
+        ],
+        "STY": [
+          39.8,
+          27.2,
+          25.8,
+          4.8,
+          2.4
+        ],
+        "NAT": [
+          11.2,
+          14.9,
+          38.7,
+          14.8,
+          20.4
+        ],
+        "LIB": [
+          57.3,
+          28.6,
+          13.3,
+          0.6,
+          0.2
+        ],
+        "POP": [
+          24.7,
+          20.8,
+          34.8,
+          9.9,
+          9.8
+        ],
+        "CUP": [
+          34.0,
+          31.6,
+          27.6,
+          5.2,
+          1.4
+        ],
+        "OAO": [
+          39.7,
+          32.7,
+          25.2,
+          1.9,
+          0.5
+        ],
+        "DSA": [
+          73.4,
+          17.6,
+          8.3,
+          0.2,
+          0.5
+        ],
+        "PRG": [
+          72.0,
+          20.8,
+          6.7,
+          0.5,
+          0.1
+        ]
+      }
+    },
+    {
+      "variable": "CC24_443_4",
+      "question": "Increase state spending on law enforcement",
+      "domain": "Government Spending",
+      "kind": "diverging",
+      "labels": [
+        "Greatly increase",
+        "Slightly increase",
+        "Maintain",
+        "Slightly decrease",
+        "Greatly decrease"
+      ],
+      "middleIndex": 2,
+      "national": [
+        25.3,
+        28.4,
+        31.4,
+        8.7,
+        6.2
+      ],
+      "parties": {
+        "CON": [
+          43.5,
+          38.6,
+          16.1,
+          1.0,
+          0.7
+        ],
+        "LBR": [
+          12.7,
+          24.5,
+          45.7,
+          12.9,
+          4.1
+        ],
+        "STY": [
+          15.3,
+          24.4,
+          43.8,
+          10.9,
+          5.6
+        ],
+        "NAT": [
+          44.8,
+          37.7,
+          15.3,
+          0.6,
+          1.6
+        ],
+        "LIB": [
+          13.7,
+          26.4,
+          43.8,
+          11.6,
+          4.7
+        ],
+        "POP": [
+          23.9,
+          26.9,
+          36.2,
+          7.2,
+          5.8
+        ],
+        "CUP": [
+          34.5,
+          32.4,
+          28.8,
+          3.6,
+          0.7
+        ],
+        "OAO": [
+          38.5,
+          40.6,
+          19.8,
+          1.0,
+          0.2
+        ],
+        "DSA": [
+          1.0,
+          4.4,
+          31.5,
+          27.4,
+          35.6
+        ],
+        "PRG": [
+          0.8,
+          7.4,
+          37.6,
+          28.1,
+          26.0
+        ]
+      }
+    },
+    {
+      "variable": "CC24_443_5",
+      "question": "Increase state spending on transportation & infrastructure",
+      "domain": "Government Spending",
+      "kind": "diverging",
+      "labels": [
+        "Greatly increase",
+        "Slightly increase",
+        "Maintain",
+        "Slightly decrease",
+        "Greatly decrease"
+      ],
+      "middleIndex": 2,
+      "national": [
+        32.0,
+        34.4,
+        29.7,
+        2.6,
+        1.3
+      ],
+      "parties": {
+        "CON": [
+          22.9,
+          39.0,
+          34.4,
+          2.8,
+          0.9
+        ],
+        "LBR": [
+          35.3,
+          35.9,
+          26.9,
+          1.4,
+          0.4
+        ],
+        "STY": [
+          26.5,
+          30.9,
+          36.8,
+          3.6,
+          2.2
+        ],
+        "NAT": [
+          20.8,
+          34.4,
+          35.3,
+          5.5,
+          3.9
+        ],
+        "LIB": [
+          46.9,
+          35.0,
+          17.3,
+          0.7,
+          0.1
+        ],
+        "POP": [
+          20.6,
+          30.8,
+          40.8,
+          5.2,
+          2.5
+        ],
+        "CUP": [
+          32.3,
+          34.5,
+          29.8,
+          2.1,
+          1.3
+        ],
+        "OAO": [
+          35.9,
+          37.0,
+          25.9,
+          1.1,
+          0.2
+        ],
+        "DSA": [
+          51.6,
+          26.1,
+          20.3,
+          1.7,
+          0.3
+        ],
+        "PRG": [
+          54.9,
+          33.0,
+          11.9,
+          0.2,
+          0.0
+        ]
+      }
+    },
+    {
+      "variable": "CC24_302",
+      "question": "Household income change past year (1=Increased a lot \u2026 5=Decreased a lot)",
+      "domain": "Taxes & Economy",
+      "kind": "diverging",
+      "labels": [
+        "Increased a lot",
+        "Increased somewhat",
+        "Stayed about the same",
+        "Decreased somewhat",
+        "Decreased a lot"
+      ],
+      "middleIndex": 2,
+      "national": [
+        3.0,
+        19.7,
+        50.3,
+        16.1,
+        10.8
+      ],
+      "parties": {
+        "CON": [
+          1.2,
+          12.1,
+          55.0,
+          20.4,
+          11.4
+        ],
+        "LBR": [
+          4.0,
+          25.8,
+          49.6,
+          12.7,
+          8.0
+        ],
+        "STY": [
+          3.3,
+          19.9,
+          46.9,
+          16.7,
+          13.1
+        ],
+        "NAT": [
+          1.1,
+          6.4,
+          48.8,
+          23.7,
+          19.9
+        ],
+        "LIB": [
+          4.9,
+          35.1,
+          50.1,
+          6.7,
+          3.4
+        ],
+        "POP": [
+          1.8,
+          11.7,
+          46.5,
+          22.0,
+          18.0
+        ],
+        "CUP": [
+          5.9,
+          18.0,
+          51.7,
+          16.0,
+          8.4
+        ],
+        "OAO": [
+          2.3,
+          22.8,
+          56.6,
+          11.9,
+          6.4
+        ],
+        "DSA": [
+          2.9,
+          25.2,
+          47.1,
+          15.2,
+          9.6
+        ],
+        "PRG": [
+          5.4,
+          34.8,
+          46.1,
+          7.9,
+          5.9
+        ]
+      }
+    },
+    {
+      "variable": "CC24_303",
+      "question": "Price change past year (1=Increased a lot \u2026 5=Decreased a lot)",
+      "domain": "Taxes & Economy",
+      "kind": "diverging",
+      "labels": [
+        "Increased a lot",
+        "Increased somewhat",
+        "Stayed about the same",
+        "Decreased somewhat",
+        "Decreased a lot"
+      ],
+      "middleIndex": 2,
+      "national": [
+        55.1,
+        32.6,
+        8.9,
+        3.0,
+        0.5
+      ],
+      "parties": {
+        "CON": [
+          74.0,
+          21.4,
+          3.2,
+          1.1,
+          0.4
+        ],
+        "LBR": [
+          39.7,
+          43.0,
+          12.3,
+          4.7,
+          0.2
+        ],
+        "STY": [
+          49.5,
+          32.6,
+          13.1,
+          3.5,
+          1.3
+        ],
+        "NAT": [
+          83.6,
+          14.2,
+          1.8,
+          0.1,
+          0.3
+        ],
+        "LIB": [
+          27.0,
+          50.7,
+          15.3,
+          6.8,
+          0.2
+        ],
+        "POP": [
+          72.5,
+          20.5,
+          4.1,
+          1.6,
+          1.3
+        ],
+        "CUP": [
+          58.0,
+          32.5,
+          8.2,
+          0.9,
+          0.5
+        ],
+        "OAO": [
+          50.3,
+          38.6,
+          8.1,
+          2.9,
+          0.1
+        ],
+        "DSA": [
+          43.2,
+          41.2,
+          11.9,
+          3.7,
+          0.1
+        ],
+        "PRG": [
+          23.8,
+          50.5,
+          18.3,
+          7.1,
+          0.3
+        ]
+      }
+    },
+    {
+      "variable": "CC24_440a",
+      "question": "White people have certain advantages because of their race",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        29.0,
+        22.8,
+        18.0,
+        10.3,
+        19.8
+      ],
+      "parties": {
+        "CON": [
+          6.9,
+          15.3,
+          26.6,
+          20.0,
+          31.2
+        ],
+        "LBR": [
+          40.1,
+          39.1,
+          13.4,
+          4.3,
+          3.1
+        ],
+        "STY": [
+          32.3,
+          28.2,
+          24.6,
+          6.5,
+          8.3
+        ],
+        "NAT": [
+          0.9,
+          3.2,
+          16.7,
+          17.7,
+          61.6
+        ],
+        "LIB": [
+          56.4,
+          32.3,
+          7.4,
+          1.9,
+          1.9
+        ],
+        "POP": [
+          9.4,
+          12.1,
+          22.3,
+          15.0,
+          41.2
+        ],
+        "CUP": [
+          16.1,
+          25.7,
+          23.8,
+          13.1,
+          21.2
+        ],
+        "OAO": [
+          22.5,
+          33.4,
+          23.6,
+          10.1,
+          10.4
+        ],
+        "DSA": [
+          76.8,
+          20.9,
+          1.7,
+          0.5,
+          0.1
+        ],
+        "PRG": [
+          81.0,
+          17.3,
+          1.2,
+          0.2,
+          0.4
+        ]
+      }
+    },
+    {
+      "variable": "CC24_440b",
+      "question": "Racial problems in the U.S. are rare, isolated situations",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        9.6,
+        17.3,
+        17.2,
+        27.2,
+        28.8
+      ],
+      "parties": {
+        "CON": [
+          12.1,
+          29.0,
+          25.1,
+          23.3,
+          10.5
+        ],
+        "LBR": [
+          1.7,
+          7.1,
+          13.3,
+          40.1,
+          37.8
+        ],
+        "STY": [
+          6.3,
+          12.5,
+          23.4,
+          29.6,
+          28.3
+        ],
+        "NAT": [
+          37.3,
+          37.3,
+          16.6,
+          7.2,
+          1.6
+        ],
+        "LIB": [
+          0.1,
+          1.9,
+          7.9,
+          38.8,
+          51.3
+        ],
+        "POP": [
+          17.7,
+          27.6,
+          24.5,
+          17.6,
+          12.6
+        ],
+        "CUP": [
+          10.1,
+          24.3,
+          22.9,
+          26.8,
+          15.9
+        ],
+        "OAO": [
+          2.2,
+          12.5,
+          16.1,
+          43.4,
+          25.8
+        ],
+        "DSA": [
+          0.0,
+          0.0,
+          0.9,
+          22.4,
+          76.7
+        ],
+        "PRG": [
+          0.0,
+          0.0,
+          0.1,
+          22.1,
+          77.9
+        ]
+      }
+    },
+    {
+      "variable": "CC24_440c",
+      "question": "Women seek to gain power by getting control over men",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        7.1,
+        15.5,
+        26.7,
+        17.7,
+        32.9
+      ],
+      "parties": {
+        "CON": [
+          8.4,
+          22.4,
+          34.8,
+          19.5,
+          14.8
+        ],
+        "LBR": [
+          2.2,
+          8.9,
+          25.2,
+          22.2,
+          41.4
+        ],
+        "STY": [
+          7.7,
+          16.8,
+          34.3,
+          17.5,
+          23.6
+        ],
+        "NAT": [
+          18.7,
+          30.2,
+          31.4,
+          10.5,
+          9.1
+        ],
+        "LIB": [
+          0.8,
+          2.7,
+          13.2,
+          20.4,
+          62.9
+        ],
+        "POP": [
+          14.9,
+          26.2,
+          33.2,
+          13.2,
+          12.5
+        ],
+        "CUP": [
+          9.6,
+          19.6,
+          29.8,
+          19.8,
+          21.2
+        ],
+        "OAO": [
+          3.2,
+          10.2,
+          28.8,
+          23.6,
+          34.2
+        ],
+        "DSA": [
+          0.1,
+          0.4,
+          6.8,
+          13.4,
+          79.4
+        ],
+        "PRG": [
+          0.0,
+          0.0,
+          2.7,
+          10.8,
+          86.5
+        ]
+      }
+    },
+    {
+      "variable": "CC24_440d",
+      "question": "Women are too easily offended",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        12.2,
+        22.7,
+        23.4,
+        15.9,
+        25.8
+      ],
+      "parties": {
+        "CON": [
+          17.1,
+          34.9,
+          27.9,
+          13.4,
+          6.7
+        ],
+        "LBR": [
+          3.4,
+          14.0,
+          23.7,
+          23.8,
+          35.0
+        ],
+        "STY": [
+          10.4,
+          22.3,
+          31.1,
+          17.3,
+          18.9
+        ],
+        "NAT": [
+          33.5,
+          35.7,
+          22.8,
+          5.1,
+          2.9
+        ],
+        "LIB": [
+          1.6,
+          7.6,
+          15.8,
+          22.4,
+          52.6
+        ],
+        "POP": [
+          22.7,
+          32.8,
+          27.5,
+          9.1,
+          7.9
+        ],
+        "CUP": [
+          14.7,
+          28.3,
+          25.0,
+          16.8,
+          15.2
+        ],
+        "OAO": [
+          6.0,
+          23.3,
+          28.9,
+          21.1,
+          20.7
+        ],
+        "DSA": [
+          0.3,
+          3.5,
+          7.5,
+          15.3,
+          73.4
+        ],
+        "PRG": [
+          0.1,
+          0.8,
+          6.7,
+          14.2,
+          78.3
+        ]
+      }
+    },
+    {
+      "variable": "CC24_441a",
+      "question": "Minorities should work their way up without special favors",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        27.8,
+        20.7,
+        19.8,
+        12.8,
+        18.9
+      ],
+      "parties": {
+        "CON": [
+          45.5,
+          31.2,
+          18.0,
+          3.4,
+          2.0
+        ],
+        "LBR": [
+          7.8,
+          15.6,
+          26.8,
+          25.0,
+          24.8
+        ],
+        "STY": [
+          18.2,
+          20.5,
+          32.7,
+          12.4,
+          16.3
+        ],
+        "NAT": [
+          65.6,
+          21.9,
+          11.0,
+          0.8,
+          0.7
+        ],
+        "LIB": [
+          5.1,
+          10.4,
+          16.6,
+          30.6,
+          37.2
+        ],
+        "POP": [
+          45.7,
+          25.4,
+          20.8,
+          3.3,
+          4.7
+        ],
+        "CUP": [
+          35.9,
+          28.0,
+          20.8,
+          8.4,
+          6.9
+        ],
+        "OAO": [
+          26.2,
+          31.3,
+          22.7,
+          12.3,
+          7.5
+        ],
+        "DSA": [
+          0.5,
+          2.9,
+          9.6,
+          21.4,
+          65.6
+        ],
+        "PRG": [
+          0.7,
+          1.6,
+          4.6,
+          20.0,
+          73.2
+        ]
+      }
+    },
+    {
+      "variable": "CC24_441b",
+      "question": "Slavery/discrimination makes it hard for Blacks to rise",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        24.5,
+        21.7,
+        15.5,
+        15.3,
+        23.0
+      ],
+      "parties": {
+        "CON": [
+          4.7,
+          12.7,
+          17.7,
+          26.7,
+          38.3
+        ],
+        "LBR": [
+          33.1,
+          36.1,
+          16.4,
+          9.0,
+          5.4
+        ],
+        "STY": [
+          24.5,
+          25.8,
+          26.8,
+          12.3,
+          10.6
+        ],
+        "NAT": [
+          0.8,
+          3.4,
+          9.1,
+          21.3,
+          65.4
+        ],
+        "LIB": [
+          47.4,
+          35.2,
+          7.9,
+          5.9,
+          3.5
+        ],
+        "POP": [
+          7.5,
+          12.4,
+          21.3,
+          18.9,
+          39.9
+        ],
+        "CUP": [
+          14.1,
+          22.9,
+          17.3,
+          20.3,
+          25.3
+        ],
+        "OAO": [
+          13.6,
+          30.7,
+          18.7,
+          20.0,
+          17.0
+        ],
+        "DSA": [
+          72.6,
+          22.6,
+          3.1,
+          0.6,
+          1.0
+        ],
+        "PRG": [
+          78.8,
+          18.9,
+          1.2,
+          0.7,
+          0.4
+        ]
+      }
+    },
+    {
+      "variable": "CC24_441e",
+      "question": "I resent when Whites deny racial discrimination exists",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        41.6,
+        21.1,
+        23.2,
+        5.6,
+        8.5
+      ],
+      "parties": {
+        "CON": [
+          22.4,
+          18.9,
+          36.4,
+          10.3,
+          12.1
+        ],
+        "LBR": [
+          48.8,
+          26.1,
+          20.1,
+          3.0,
+          2.0
+        ],
+        "STY": [
+          39.0,
+          23.9,
+          28.1,
+          5.3,
+          3.7
+        ],
+        "NAT": [
+          1.7,
+          6.1,
+          28.2,
+          14.3,
+          49.7
+        ],
+        "LIB": [
+          66.8,
+          20.3,
+          9.8,
+          0.5,
+          2.6
+        ],
+        "POP": [
+          19.8,
+          18.5,
+          31.1,
+          11.3,
+          19.4
+        ],
+        "CUP": [
+          37.9,
+          24.8,
+          22.0,
+          5.2,
+          10.1
+        ],
+        "OAO": [
+          43.4,
+          28.0,
+          22.9,
+          4.0,
+          1.7
+        ],
+        "DSA": [
+          76.9,
+          13.4,
+          7.7,
+          0.7,
+          1.3
+        ],
+        "PRG": [
+          83.7,
+          13.4,
+          2.0,
+          0.6,
+          0.3
+        ]
+      }
+    },
+    {
+      "variable": "CC24_441f",
+      "question": "Whites get away with offenses that African Americans wouldn't",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        41.1,
+        23.3,
+        17.4,
+        6.1,
+        12.1
+      ],
+      "parties": {
+        "CON": [
+          22.7,
+          16.6,
+          25.9,
+          11.7,
+          23.1
+        ],
+        "LBR": [
+          47.1,
+          31.6,
+          15.3,
+          3.2,
+          2.7
+        ],
+        "STY": [
+          41.6,
+          27.7,
+          22.5,
+          4.4,
+          3.8
+        ],
+        "NAT": [
+          1.4,
+          8.2,
+          13.2,
+          14.0,
+          63.2
+        ],
+        "LIB": [
+          64.8,
+          22.1,
+          7.5,
+          2.3,
+          3.3
+        ],
+        "POP": [
+          22.9,
+          16.5,
+          25.5,
+          8.7,
+          26.4
+        ],
+        "CUP": [
+          33.9,
+          26.4,
+          16.1,
+          9.3,
+          14.4
+        ],
+        "OAO": [
+          38.1,
+          28.2,
+          21.0,
+          8.2,
+          4.5
+        ],
+        "DSA": [
+          77.9,
+          16.4,
+          4.6,
+          0.2,
+          0.9
+        ],
+        "PRG": [
+          78.7,
+          18.8,
+          2.2,
+          0.1,
+          0.2
+        ]
+      }
+    },
+    {
+      "variable": "CC24_441g",
+      "question": "Whites don't understand the problems African Americans face",
+      "domain": "Racial & Gender",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        30.1,
+        25.7,
+        27.0,
+        8.0,
+        9.2
+      ],
+      "parties": {
+        "CON": [
+          16.6,
+          20.3,
+          34.6,
+          13.6,
+          15.0
+        ],
+        "LBR": [
+          31.3,
+          32.1,
+          29.6,
+          4.5,
+          2.4
+        ],
+        "STY": [
+          33.2,
+          26.9,
+          30.1,
+          6.0,
+          3.8
+        ],
+        "NAT": [
+          1.6,
+          5.7,
+          29.0,
+          19.2,
+          44.5
+        ],
+        "LIB": [
+          42.6,
+          32.1,
+          16.7,
+          5.4,
+          3.2
+        ],
+        "POP": [
+          18.1,
+          15.9,
+          33.6,
+          10.8,
+          21.6
+        ],
+        "CUP": [
+          24.2,
+          28.1,
+          22.9,
+          12.1,
+          12.8
+        ],
+        "OAO": [
+          26.8,
+          31.5,
+          31.2,
+          8.2,
+          2.2
+        ],
+        "DSA": [
+          61.5,
+          23.7,
+          12.7,
+          1.0,
+          1.2
+        ],
+        "PRG": [
+          59.0,
+          33.2,
+          6.2,
+          1.1,
+          0.5
+        ]
+      }
+    },
+    {
+      "variable": "CC24_421_1",
+      "question": "Elections in the U.S. are fair",
+      "domain": "Elections & Trust",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        25.1,
+        37.8,
+        18.6,
+        12.6,
+        5.9
+      ],
+      "parties": {
+        "CON": [
+          13.6,
+          50.4,
+          22.3,
+          11.9,
+          1.9
+        ],
+        "LBR": [
+          18.9,
+          43.0,
+          23.0,
+          11.9,
+          3.3
+        ],
+        "STY": [
+          9.1,
+          26.4,
+          31.1,
+          17.6,
+          15.8
+        ],
+        "NAT": [
+          7.8,
+          40.1,
+          22.9,
+          21.5,
+          7.6
+        ],
+        "LIB": [
+          67.5,
+          27.0,
+          3.2,
+          1.9,
+          0.4
+        ],
+        "POP": [
+          5.5,
+          30.9,
+          27.3,
+          22.1,
+          14.2
+        ],
+        "CUP": [
+          58.5,
+          35.3,
+          4.7,
+          1.4,
+          0.1
+        ],
+        "OAO": [
+          50.6,
+          41.6,
+          5.4,
+          1.8,
+          0.6
+        ],
+        "DSA": [
+          4.0,
+          28.7,
+          21.3,
+          30.7,
+          15.2
+        ],
+        "PRG": [
+          49.9,
+          40.8,
+          4.5,
+          2.8,
+          1.9
+        ]
+      }
+    },
+    {
+      "variable": "CC24_421_2",
+      "question": "2024 state/local election was fair",
+      "domain": "Elections & Trust",
+      "kind": "diverging",
+      "labels": [
+        "Strongly agree",
+        "Somewhat agree",
+        "Neither agree nor disagree",
+        "Somewhat disagree",
+        "Strongly disagree"
+      ],
+      "middleIndex": 2,
+      "national": [
+        45.4,
+        29.2,
+        17.4,
+        4.8,
+        3.1
+      ],
+      "parties": {
+        "CON": [
+          36.4,
+          44.7,
+          18.0,
+          0.9,
+          0.0
+        ],
+        "LBR": [
+          32.8,
+          47.6,
+          19.5,
+          0.1,
+          0.0
+        ],
+        "STY": [
+          11.8,
+          27.2,
+          38.7,
+          12.0,
+          10.2
+        ],
+        "NAT": [
+          29.6,
+          33.2,
+          18.6,
+          12.0,
+          6.6
+        ],
+        "LIB": [
+          99.5,
+          0.5,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "POP": [
+          12.2,
+          29.8,
+          32.3,
+          15.1,
+          10.6
+        ],
+        "CUP": [
+          96.9,
+          3.1,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "OAO": [
+          75.6,
+          24.4,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "DSA": [
+          11.9,
+          45.9,
+          27.7,
+          9.9,
+          4.6
+        ],
+        "PRG": [
+          98.9,
+          1.1,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "variable": "pew_churatd",
+      "question": "Church attendance (1=More than once/week \u2026 6=Never)",
+      "domain": "Religion",
+      "kind": "freq",
+      "labels": [
+        "More than once a week",
+        "Once a week",
+        "Once or twice a month",
+        "A few times a year",
+        "Seldom",
+        "Never"
+      ],
+      "middleIndex": null,
+      "national": [
+        6.9,
+        16.8,
+        6.6,
+        13.3,
+        21.3,
+        35.1
+      ],
+      "parties": {
+        "CON": [
+          9.7,
+          21.3,
+          8.2,
+          15.4,
+          21.0,
+          24.3
+        ],
+        "LBR": [
+          2.3,
+          9.5,
+          5.5,
+          13.2,
+          25.3,
+          44.2
+        ],
+        "STY": [
+          10.6,
+          20.6,
+          7.4,
+          13.8,
+          19.1,
+          28.6
+        ],
+        "NAT": [
+          11.6,
+          22.5,
+          6.1,
+          14.2,
+          19.9,
+          25.7
+        ],
+        "LIB": [
+          2.9,
+          11.1,
+          5.6,
+          11.0,
+          21.9,
+          47.5
+        ],
+        "POP": [
+          8.0,
+          19.6,
+          6.9,
+          13.5,
+          22.2,
+          29.7
+        ],
+        "CUP": [
+          10.8,
+          24.3,
+          8.7,
+          14.1,
+          17.8,
+          24.3
+        ],
+        "OAO": [
+          4.9,
+          17.6,
+          7.1,
+          13.2,
+          23.4,
+          33.7
+        ],
+        "DSA": [
+          0.8,
+          5.7,
+          3.1,
+          8.6,
+          21.6,
+          60.2
+        ],
+        "PRG": [
+          0.9,
+          6.6,
+          3.9,
+          10.2,
+          20.6,
+          57.9
+        ]
+      }
+    }
+  ]
+}
