@@ -46,7 +46,7 @@ def main():
 
     stats = pd.read_csv(STATS).drop_duplicates('variable').set_index('variable')
 
-    load = list(dict.fromkeys(ITEMS + ORDER + ['commonpostweight']))
+    load = list(dict.fromkeys(ITEMS + ORDER + ['pid3', 'commonpostweight']))
     df = pd.read_stata(DTA, columns=load, convert_categoricals=False)
     mask = df[ITEMS + ['commonpostweight']].notna().all(axis=1)
     dc = df[mask].reset_index(drop=True)
@@ -74,6 +74,23 @@ def main():
             return [0.0] * len(codes)
         return [round(w[ok & (r == c)].sum() / tot * 100, 1) for c, _ in codes]
 
+    pid = dc['pid3'].values
+
+    # Orientation: which scale end is the liberal pole? Anchor on Dem vs Rep mean.
+    # We reorder each diverging item so index 0 = most-liberal … last = most-conservative,
+    # so the viz can always color liberal→blue, conservative→red (left-right), regardless
+    # of whether "agree" is the liberal or conservative response on a given item.
+    def liberal_first_reversed(var, codes):
+        r = dc[var].values.astype(float)
+        cs = [c for c, _ in codes]
+        dem = np.isin(r, cs) & (pid == 1)
+        rep = np.isin(r, cs) & (pid == 2)
+        if w[dem].sum() == 0 or w[rep].sum() == 0:
+            return False
+        dem_mean = (w[dem] * r[dem]).sum() / w[dem].sum()
+        rep_mean = (w[rep] * r[rep]).sum() / w[rep].sum()
+        return dem_mean > rep_mean  # Dems lean toward high codes → high end is liberal → reverse
+
     items = []
     for var in ORDER:
         codes = substantive_codes(var)
@@ -82,6 +99,13 @@ def main():
             continue
         labels = [lab for _, lab in codes]
         kind = KIND[var]
+        national = shares(var, codes, np.ones(len(dc), bool))
+        parties = {CLUSTER_TO_PARTY[k]: shares(var, codes, cl == k) for k in range(10)}
+        # diverging items get oriented liberal→conservative; frequency scales stay natural
+        if kind == 'diverging' and liberal_first_reversed(var, codes):
+            labels = labels[::-1]
+            national = national[::-1]
+            parties = {k: v[::-1] for k, v in parties.items()}
         middle = len(codes) // 2 if kind == 'diverging' else None
         meta = stats.loc[var] if var in stats.index else None
         items.append({
@@ -91,8 +115,8 @@ def main():
             "kind": kind,
             "labels": labels,
             "middleIndex": middle,
-            "national": shares(var, codes, np.ones(len(dc), bool)),
-            "parties": {CLUSTER_TO_PARTY[k]: shares(var, codes, cl == k) for k in range(10)},
+            "national": national,
+            "parties": parties,
         })
 
     OUT.write_text(json.dumps({"items": items}, indent=2))

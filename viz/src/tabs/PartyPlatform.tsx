@@ -5,7 +5,7 @@ import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constan
 import { qualifies, type AlignMode, type SignatureFilter } from '../lib/signature';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { CohesionCard } from '../components/parties/CohesionCard';
-import { IntensityBar, IntensityLegend, intensityFor } from '../components/shared/IntensityBar';
+import { IntensityBar, IntensityLegend, intensityFor, splitShares } from '../components/shared/IntensityBar';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -306,14 +306,15 @@ export function PartyPlatform({ clusters }: Props) {
                           const iv = intensityFor(row.key);
                           const ivShares = iv?.parties[code];
                           if (iv && ivShares) {
-                            const mid = iv.middleIndex;
-                            const midWord = mid != null ? iv.labels[mid].split(' ')[0].toLowerCase() : '';
+                            const sp = splitShares(iv, ivShares);
                             return (
                               <div key={code} className={base}>
                                 <div className="py-1"><IntensityBar item={iv} shares={ivShares} /></div>
-                                {mid != null && (
-                                  <div className="mt-1 text-[11px] tabular-nums text-muted-foreground">
-                                    <span className="text-foreground font-semibold">{Math.round(ivShares[mid])}%</span> {midWord}
+                                {sp && (
+                                  <div className="mt-1 text-[10px] tabular-nums text-muted-foreground flex items-center gap-1">
+                                    <span className="font-semibold" style={{ color: '#1d4ed8' }}>{Math.round(sp.leftTotal)}%</span>
+                                    <span className="opacity-70">· {Math.round(sp.neutral)}% neither ·</span>
+                                    <span className="font-semibold" style={{ color: '#b91c1c' }}>{Math.round(sp.rightTotal)}%</span>
                                   </div>
                                 )}
                               </div>
