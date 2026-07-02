@@ -35,38 +35,46 @@ const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
 const poleWord = (label: string) => label.split(/[ /]/).pop()!.toLowerCase(); // "Strongly disagree" → "disagree"
 
 export interface Split {
-  neutral: number;
-  leftTotal: number;   // liberal side
-  rightTotal: number;  // conservative side
+  neutral: number | null; // null for even scales (no neutral category, e.g. 4-point trust)
+  leftTotal: number;
+  rightTotal: number;
   leftWord: string;
   rightWord: string;
 }
 
-/** Split a diverging item's shares into neutral / left(liberal) / right(conservative) totals. */
+/** Split a diverging item's shares into neutral / left / right totals. Even scales
+ *  (no neutral) split down the middle with neutral = null. */
 export function splitShares(item: IntensityItem, shares: number[]): Split | null {
+  if (item.kind !== 'diverging') return null;
   const m = item.middleIndex;
-  if (m == null) return null;
+  const n = shares.length;
+  const leftEnd = m != null ? m : n / 2;      // slice(0, leftEnd)
+  const rightStart = m != null ? m + 1 : n / 2;
   return {
-    neutral: shares[m],
-    leftTotal: sum(shares.slice(0, m)),
-    rightTotal: sum(shares.slice(m + 1)),
+    neutral: m != null ? shares[m] : null,
+    leftTotal: sum(shares.slice(0, leftEnd)),
+    rightTotal: sum(shares.slice(rightStart)),
     leftWord: poleWord(item.labels[0]),
-    rightWord: poleWord(item.labels[item.labels.length - 1]),
+    rightWord: poleWord(item.labels[n - 1]),
   };
 }
 
 interface Seg { left: number; width: number; color: string; label: string }
 
-// Diverging bar of the NON-neutral categories, centered on the lib/cons boundary (50%).
-// Liberal side extends left (blue), conservative extends right (red). 100% per side = half the track.
-function centeredSegs(shares: number[], labels: string[], m: number, colors: string[]): Seg[] {
+// Diverging bar of the NON-neutral categories, centered on the boundary (50%). Left side
+// extends left, right side right; 100% per side = half the track. A neutral middle (odd
+// scales) is excluded from the bar; even scales split contiguously at the center.
+function centeredSegs(shares: number[], labels: string[], m: number | null, colors: string[]): Seg[] {
   const S = 0.5;
+  const n = shares.length;
+  const leftEnd = m != null ? m - 1 : n / 2 - 1;
+  const rightStart = m != null ? m + 1 : n / 2;
   const seg = (i: number, left: number, width: number): Seg => ({ left, width, color: colors[i], label: `${labels[i]}: ${Math.round(shares[i])}%` });
   const segs: Seg[] = [];
   let x = 50;
-  for (let i = m - 1; i >= 0; i--) { const w = shares[i] * S; segs.push(seg(i, x - w, w)); x -= w; }
+  for (let i = leftEnd; i >= 0; i--) { const w = shares[i] * S; segs.push(seg(i, x - w, w)); x -= w; }
   let y = 50;
-  for (let i = m + 1; i < shares.length; i++) { const w = shares[i] * S; segs.push(seg(i, y, w)); y += w; }
+  for (let i = rightStart; i < n; i++) { const w = shares[i] * S; segs.push(seg(i, y, w)); y += w; }
   return segs;
 }
 
@@ -81,9 +89,9 @@ function seqSegs(shares: number[], labels: string[], colors: string[]): Seg[] {
  *  center the agree/disagree split on zero; frequency scales stack left→right. */
 export function IntensityBar({ item, shares, height = 14 }: { item: IntensityItem; shares: number[]; height?: number }) {
   const colors = catColors(item.kind, item.labels.length);
-  const diverging = item.kind === 'diverging' && item.middleIndex != null;
+  const diverging = item.kind === 'diverging';
   const segs = diverging
-    ? centeredSegs(shares, item.labels, item.middleIndex!, colors)
+    ? centeredSegs(shares, item.labels, item.middleIndex, colors)
     : seqSegs(shares, item.labels, colors);
   return (
     <div className="relative w-full rounded-sm overflow-hidden bg-muted" style={{ height }}>
@@ -98,16 +106,15 @@ export function IntensityBar({ item, shares, height = 14 }: { item: IntensityIte
 /** Legend showing the pole labels + colors (diverging), or the category ramp (freq). */
 export function IntensityLegend({ item }: { item: IntensityItem }) {
   const colors = catColors(item.kind, item.labels.length);
-  if (item.kind === 'diverging' && item.middleIndex != null) {
-    const m = item.middleIndex;
+  if (item.kind === 'diverging') {
+    const last = item.labels.length - 1;
     return (
       <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
         <span className="inline-flex items-center gap-1">
           <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: colors[0] }} />◀ {item.labels[0]}
         </span>
-        <span className="opacity-60">· center = neutral excluded ·</span>
         <span className="inline-flex items-center gap-1">
-          {item.labels[item.labels.length - 1]} ▶<span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: colors[m + 1] }} />
+          {item.labels[last]} ▶<span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: colors[last] }} />
         </span>
       </div>
     );

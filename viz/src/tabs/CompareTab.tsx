@@ -576,14 +576,16 @@ function IntensityCell({ item, codes, question }: { item: IntensityItem; codes: 
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
               <span className="w-11 shrink-0 font-bold text-right" style={{ color }}>{isNat ? 'U.S.' : code}</span>
-              {sp && (
+              {sp && (sp.neutral != null ? (
                 <div className="w-24 shrink-0 flex items-center gap-1">
                   <div className="relative h-3 flex-1 rounded-sm bg-muted overflow-hidden" title={`Neither ${Math.round(sp.neutral)}%`}>
                     <div className="absolute inset-y-0 left-0 bg-slate-400" style={{ width: `${sp.neutral}%` }} />
                   </div>
                   <span className="w-7 text-right text-foreground font-semibold">{Math.round(sp.neutral)}%</span>
                 </div>
-              )}
+              ) : (
+                <div className="w-24 shrink-0" />
+              ))}
               {sp && <span className="w-7 shrink-0 text-right font-semibold" style={{ color: BAM_LEFT }}>{Math.round(sp.leftTotal)}%</span>}
               <div className="flex-1 min-w-0"><IntensityBar item={item} shares={shares} /></div>
               {sp && <span className="w-7 shrink-0 font-semibold" style={{ color: BAM_RIGHT }}>{Math.round(sp.rightTotal)}%</span>}
@@ -945,7 +947,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                                   ].filter(Boolean).join(' ')}
                                 >
                                   {iv ? (
-                                    <IntensityCell item={iv} codes={selected} question={grp.header ? stripPrefix(v.question) : v.question} />
+                                    <IntensityCell item={iv} codes={selected} question={iv.question} />
                                   ) : (
                                   <DotTrack
                                     question={grp.header ? stripPrefix(v.question) : v.question}

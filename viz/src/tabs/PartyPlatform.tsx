@@ -257,7 +257,7 @@ export function PartyPlatform({ clusters, clusterSpreads }: Props) {
                       <div key={row.key}
                         className={`flex gap-4 items-start rounded transition-colors hover:bg-muted/60 ${ri % 2 === 1 ? 'bg-muted/25' : ''}`}>
                         <div className="flex-[2] min-w-[160px] text-right text-sm text-foreground leading-snug py-2 pl-2">
-                          {grp.header ? stripPrefix(row.question) : row.question}
+                          {intensityFor(row.key)?.question ?? (grp.header ? stripPrefix(row.question) : row.question)}
                         </div>
                         {selected.map(code => {
                           const cell = row.cells[code];
@@ -274,12 +274,14 @@ export function PartyPlatform({ clusters, clusterSpreads }: Props) {
                                 <div className="py-1"><IntensityBar item={iv} shares={ivShares} /></div>
                                 {sp && (
                                   <>
-                                    <div className="relative h-1.5 rounded-sm bg-muted overflow-hidden mt-0.5" title={`Neither ${Math.round(sp.neutral)}%`}>
-                                      <div className="absolute inset-y-0 left-0 bg-slate-400" style={{ width: `${sp.neutral}%` }} />
-                                    </div>
+                                    {sp.neutral != null && (
+                                      <div className="relative h-1.5 rounded-sm bg-muted overflow-hidden mt-0.5" title={`Neither ${Math.round(sp.neutral)}%`}>
+                                        <div className="absolute inset-y-0 left-0 bg-slate-400" style={{ width: `${sp.neutral}%` }} />
+                                      </div>
+                                    )}
                                     <div className="mt-0.5 text-[10px] tabular-nums flex items-center justify-between">
                                       <span className="font-semibold" style={{ color: BAM_LEFT }}>{Math.round(sp.leftTotal)}%</span>
-                                      <span className="text-muted-foreground">{Math.round(sp.neutral)}% neither</span>
+                                      {sp.neutral != null && <span className="text-muted-foreground">{Math.round(sp.neutral)}% neither</span>}
                                       <span className="font-semibold" style={{ color: BAM_RIGHT }}>{Math.round(sp.rightTotal)}%</span>
                                     </div>
                                   </>

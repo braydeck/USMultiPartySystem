@@ -30,12 +30,14 @@ ITEMS = [x for x in ITEMS_25 if x != 'CC24_340a']  # 24 EFA anchor (row alignmen
 SPEND = ['CC24_443_1','CC24_443_2','CC24_443_3','CC24_443_4','CC24_443_5']
 AGREE = ['CC24_440a','CC24_440b','CC24_440c','CC24_440d','CC24_441a','CC24_441b','CC24_441e','CC24_441f','CC24_441g','CC24_421_1','CC24_421_2']
 ECON = ['CC24_302','CC24_303']
+# 4-point trust scales (A great deal → None at all); note code 8 = "None at all" is real data.
+GOVTRUST = ['CC24_423','CC24_424']
 FREQ = ['pew_churatd']
-KIND = {**{v: 'diverging' for v in SPEND + AGREE + ECON}, **{v: 'freq' for v in FREQ}}
-ORDER = SPEND + ECON + AGREE + FREQ
+KIND = {**{v: 'diverging' for v in SPEND + AGREE + ECON + GOVTRUST}, **{v: 'freq' for v in FREQ}}
+ORDER = SPEND + ECON + AGREE + GOVTRUST + FREQ
 
 # label text that marks a code as non-substantive (dropped before shares)
-DROP = ('skipped', 'not asked', 'not sure', "don't know", 'dk')
+DROP = ('skipped', 'not asked', 'not sure', "don't know", 'dk', 'refused')
 
 
 def main():
@@ -60,7 +62,9 @@ def main():
         codes = []
         for c in sorted(int(k) for k in labs.keys()):
             txt = str(labs[c]).strip().lower()
-            if any(d in txt for d in DROP) or c in (8, 9, 98, 99):
+            # 9/98/99 are always non-substantive; 8 is dropped only when its label says so
+            # ("skipped" on the agree scales) — for the trust items 8 = "None at all" is real.
+            if any(d in txt for d in DROP) or c in (9, 98, 99):
                 continue
             codes.append((c, str(labs[c])))
         return codes
@@ -90,7 +94,8 @@ def main():
             labels = labels[::-1]
             national = national[::-1]
             parties = {k: v[::-1] for k, v in parties.items()}
-        middle = len(codes) // 2 if kind == 'diverging' else None
+        # odd scales have a true neutral middle; even scales (e.g. 4-point trust) split with none
+        middle = (len(codes) // 2 if len(codes) % 2 == 1 else None) if kind == 'diverging' else None
         meta = stats.loc[var] if var in stats.index else None
         items.append({
             "variable": var,
