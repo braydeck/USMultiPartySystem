@@ -2,13 +2,12 @@ import { useMemo, useState } from 'react';
 import type { ClusterProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constants/parties';
-import { qualifies } from '../lib/signature';
 import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
-import { IntensityBar, IntensityLegend, intensityFor, splitShares, BAM_LEFT, BAM_RIGHT } from '../components/shared/IntensityBar';
+import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT } from '../components/shared/IntensityBar';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -100,7 +99,7 @@ export function PartyPlatform({ clusters, clusterSpreads }: Props) {
           row = { key, question: v.question ?? key, domain: v.domain, overall: v.overall ?? 0, maxVal, unit: v.unit ?? '%', cells: {}, qualifiers: [], maxStrength: 0, diverges: false };
           byKey.set(key, row);
         }
-        const q = qualifies(norm(v.pct, maxVal), norm(v.overall ?? v.pct, maxVal), filter);
+        const q = passesFilter(key, code, v.pct, v.overall ?? v.pct, maxVal, filter);
         row.cells[code] = { pct: v.pct, diffPp: v.diffPp ?? 0, qualifies: q };
         if (q) row.qualifiers.push(code);
       }

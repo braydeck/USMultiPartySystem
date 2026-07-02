@@ -1,4 +1,5 @@
 import { bamForFrac } from '../../lib/bam';
+import type { SignatureFilter } from '../../lib/signature';
 import clusterIntensityData from '../../data/clusterIntensity.json';
 
 // Legible pole colors for the disagree(left)/agree(right) total labels.
@@ -57,6 +58,55 @@ export function splitShares(item: IntensityItem, shares: number[]): Split | null
     leftWord: poleWord(item.labels[0]),
     rightWord: poleWord(item.labels[n - 1]),
   };
+}
+
+const norm01 = (val: number, maxVal: number) => (maxVal === 100 ? val : (val / maxVal) * 100);
+
+// Pooled empirical distribution of each bucket's share across every diverging ordinal
+// item × party — used so the consensus threshold is applied as a percentile for these
+// items (a stance is "defining" if it's unusually high in agree, neutral, OR disagree).
+const POOL: Record<'left' | 'neutral' | 'right', number[]> = { left: [], neutral: [], right: [] };
+for (const it of INTENSITY_ITEMS) {
+  if (it.kind !== 'diverging') continue;
+  for (const code of Object.keys(it.parties)) {
+    const sp = splitShares(it, it.parties[code]);
+    if (!sp) continue;
+    POOL.left.push(sp.leftTotal);
+    POOL.right.push(sp.rightTotal);
+    if (sp.neutral != null) POOL.neutral.push(sp.neutral);
+  }
+}
+(['left', 'neutral', 'right'] as const).forEach(k => POOL[k].sort((a, b) => a - b));
+function bucketPercentile(bucket: 'left' | 'neutral' | 'right', p: number): number {
+  const a = POOL[bucket];
+  if (!a.length) return 101;
+  return a[Math.min(a.length - 1, Math.floor((p / 100) * a.length))];
+}
+
+/**
+ * Does a party's stance on one item pass the signature filter? Consensus is judged
+ * percentile-relative for ordinal (diverging) items — the slider value P means "top
+ * (100−P)% of that bucket's distribution" in agree, neutral, or disagree — and by the
+ * plain ≥P% / ≤(100−P)% rule for binary items. Alignment (deviance) is always the
+ * collapsed-pct deviation from the national average.
+ */
+export function passesFilter(key: string, code: string, pct: number, overall: number, maxVal: number, f: SignatureFilter): boolean {
+  const iv = intensityFor(key);
+  const shares = iv?.parties[code];
+  let consensusOk: boolean;
+  if (iv && iv.kind === 'diverging' && shares) {
+    const sp = splitShares(iv, shares)!;
+    consensusOk =
+      sp.leftTotal >= bucketPercentile('left', f.consPct) ||
+      sp.rightTotal >= bucketPercentile('right', f.consPct) ||
+      (sp.neutral != null && sp.neutral >= bucketPercentile('neutral', f.consPct));
+  } else {
+    const p = norm01(pct, maxVal);
+    consensusOk = p >= f.consPct || p <= 100 - f.consPct;
+  }
+  const dev = Math.abs(norm01(pct, maxVal) - norm01(overall ?? pct, maxVal));
+  const alignOk = f.alignMode === 'deviant' ? dev >= f.alignPp : dev <= f.alignPp;
+  return (!f.useConsensus || consensusOk) && (!f.useAlign || alignOk);
 }
 
 interface Seg { left: number; width: number; color: string; label: string }

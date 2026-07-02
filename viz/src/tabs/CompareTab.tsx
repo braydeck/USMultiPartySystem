@@ -5,9 +5,8 @@ import { sigActive } from '../lib/signature';
 import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
-import { qualifies } from '../lib/signature';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
-import { IntensityBar, IntensityLegend, intensityFor, splitShares, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
+import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
@@ -719,7 +718,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
       const groupKey = entry.domain;
 
       const qualifiers = selected.filter(
-        c => entry.pcts[c] !== undefined && qualifies(entry.pcts[c]!, entry.overall, sigFilter),
+        c => entry.pcts[c] !== undefined && passesFilter(key, c, entry.pcts[c]!, entry.overall ?? entry.pcts[c]!, entry.maxVal, sigFilter),
       );
 
       if (!grouped[groupKey]) grouped[groupKey] = [];
