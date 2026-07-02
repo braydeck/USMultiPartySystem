@@ -32,13 +32,14 @@ AGREE = ['CC24_440a','CC24_440b','CC24_440c','CC24_440d','CC24_441a','CC24_441b'
 ECON = ['CC24_302','CC24_303']
 # 4-point trust scales (A great deal → None at all); note code 8 = "None at all" is real data.
 GOVTRUST = ['CC24_423','CC24_424']
-FREQ = ['pew_churatd']
-KIND = {**{v: 'diverging' for v in SPEND + AGREE + ECON + GOVTRUST}, **{v: 'freq' for v in FREQ}}
+RELIGIMP = ['pew_religimp']   # 4-point: Very → Not at all important
+FREQ = ['pew_churatd','pew_prayer']  # frequency scales (sequential)
+KIND = {**{v: 'diverging' for v in SPEND + AGREE + ECON + GOVTRUST + RELIGIMP}, **{v: 'freq' for v in FREQ}}
 # Battery = a comparable group; percentile thresholds are computed within each.
 BATTERY = {**{v: 'spending' for v in SPEND}, **{v: 'agree' for v in AGREE},
            **{v: 'economy' for v in ECON}, **{v: 'trust' for v in GOVTRUST},
-           **{v: 'church' for v in FREQ}}
-ORDER = SPEND + ECON + AGREE + GOVTRUST + FREQ
+           **{v: 'religimp' for v in RELIGIMP}, 'pew_churatd': 'church', 'pew_prayer': 'prayer'}
+ORDER = SPEND + ECON + AGREE + GOVTRUST + RELIGIMP + FREQ
 
 # label text that marks a code as non-substantive (dropped before shares)
 DROP = ('skipped', 'not asked', 'not sure', "don't know", 'dk', 'refused')

@@ -151,11 +151,6 @@ pew_churatd,Religion,ordinal_dist,% 1–2x/month,Church attendance (1=More than 
 pew_churatd,Religion,ordinal_dist,% Few times/year,Church attendance (1=More than once/week … 6=Never),13.26,15.41,13.21,13.8,14.18,11.04,13.52,14.14,13.22,8.65,10.22
 pew_churatd,Religion,ordinal_dist,% Seldom,Church attendance (1=More than once/week … 6=Never),21.34,21.04,25.3,19.08,19.92,21.87,22.2,17.78,23.44,21.56,20.55
 pew_churatd,Religion,ordinal_dist,% Never,Church attendance (1=More than once/week … 6=Never),35.06,24.34,44.2,28.57,25.68,47.51,29.75,24.32,33.71,60.15,57.87
-pew_religimp,Religion,ordinal,Weighted mean,Importance of religion (1=Very important … 4=Not at all important),2.2895,1.8674,2.6814,2.0918,1.8132,2.7807,2.0313,1.9027,2.1934,3.2743,3.2704
-pew_religimp,Religion,ordinal_dist,% Very important,Importance of religion (1=Very important … 4=Not at all important),36.11,48.48,19.72,42.43,53.48,20.59,43.65,49.94,36.93,9.77,10.23
-pew_religimp,Religion,ordinal_dist,% Somewhat important,Importance of religion (1=Very important … 4=Not at all important),23.67,27.37,25.8,25.18,23.18,20.7,26.05,22.8,26.69,12.29,14.27
-pew_religimp,Religion,ordinal_dist,% Not too important,Importance of religion (1=Very important … 4=Not at all important),15.38,13.08,21.12,13.17,11.88,18.76,13.82,14.31,16.48,18.67,13.71
-pew_religimp,Religion,ordinal_dist,% Not at all important,Importance of religion (1=Very important … 4=Not at all important),24.84,11.07,33.37,19.22,11.46,39.95,16.48,12.95,19.9,59.27,61.78
 pew_bornagain,Religion,binary,% Supporting,Born-again or evangelical Christian,31.2824,42.5602,19.1665,37.7053,47.6868,14.1411,39.8736,43.0441,29.7182,7.2874,4.2843
 ideo5,Demographics,ordinal,Weighted mean,Ideological self-identification (1=Very Liberal … 5=Very Conservative),3.0532,3.8076,2.4795,2.9469,4.2101,2.1897,3.7281,3.3999,2.996,1.5715,1.6147
 ideo5,Demographics,ordinal_dist,% Very Liberal,Ideological self-identification (1=Very Liberal … 5=Very Conservative),12.68,1.19,14.0,7.75,0.47,21.77,2.89,4.27,5.15,57.11,51.44
@@ -332,3 +327,11 @@ vote24_harris,Voting History,binary,% Supporting,2024: Kamala Harris (D),47.8325
 vote24_trump,Voting History,binary,% Supporting,2024: Donald Trump (R),47.1306,85.2948,11.9099,30.2711,98.5907,3.8817,81.775,61.6386,33.0183,0.1172,0.2457
 vote24_third,Voting History,binary,% Supporting,2024: Third-party / other,1.932,1.8557,2.1342,3.3042,0.7875,0.8272,2.173,2.2404,0.9734,3.2974,2.1395
 vote24_dnv,Voting History,binary,% Supporting,2024: Did not vote,3.0364,1.7858,4.3253,10.6542,0.5148,0.8267,4.7012,1.3421,1.7519,3.3976,0.5311
+pew_religimp,Religion,binary,% Supporting,Religion is important (very or somewhat),59.7775,75.8518,45.5122,67.608,76.663,41.2942,69.6993,72.7405,63.6239,22.0652,24.5089
+pew_prayer,Faith,binary,% Supporting,Prays weekly or more often,55.4126,69.7852,42.227,60.8801,72.0766,40.7064,64.0834,65.5373,60.4446,23.7282,21.6071
+relig_protestant,Faith,binary,% Supporting,Protestant,33.2202,45.0716,22.1273,30.7556,49.5923,24.8645,36.1584,40.8537,37.3503,11.6526,13.3012
+relig_catholic,Faith,binary,% Supporting,Roman Catholic,18.0148,21.7225,17.6449,16.3723,19.3439,16.3913,17.4389,20.8112,25.0015,7.8266,10.0708
+relig_jewish,Faith,binary,% Supporting,Jewish,2.2874,1.566,2.0837,1.2461,1.4662,4.332,1.8703,1.9638,3.5922,3.1095,4.496
+relig_muslim,Faith,binary,% Supporting,Muslim,0.7784,0.4266,0.9115,2.0468,0.0486,0.519,0.8416,1.0085,0.3055,1.0927,0.2694
+relig_none,Faith,binary,% Supporting,Unaffiliated (none / atheist / agnostic),34.462,19.4247,46.2204,35.1451,19.2292,44.9258,30.5081,22.6032,24.705,67.9216,63.7066
+relig_other,Faith,binary,% Supporting,Other faith,11.2372,11.7886,11.012,14.4341,10.3198,8.9675,13.1827,12.7596,9.0455,8.3971,8.156

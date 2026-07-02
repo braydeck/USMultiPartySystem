@@ -36,6 +36,7 @@ const DOMAINS = [
   'Economics',
   'Gender & Sexuality',
   'Education',
+  'Faith',
   'Voting History',
   'Other',
   'Demographics',  // catch-all for any legacy vars

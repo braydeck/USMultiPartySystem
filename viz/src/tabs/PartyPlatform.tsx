@@ -23,7 +23,7 @@ const VIEW_DOMAINS = [
 ];
 const DEMO_DOMAINS = [
   'Race & Ethnicity', 'Gender & Sexuality', 'Education', 'Economics',
-  'Household', 'Employment & Labor', 'Other',
+  'Household', 'Employment & Labor', 'Faith', 'Other',
 ];
 const VOTING_DOMAINS = ['Voting History'];
 

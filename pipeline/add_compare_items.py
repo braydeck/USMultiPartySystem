@@ -82,8 +82,21 @@ NEW_CAT=[
 # 2024 vote = turnout (CC24_401: 5=voted) + choice (CC24_410), over the full sample so the
 # Harris/Trump/third/DNV shares sum to ~100% like the 2016/2020 recall items.
 VOTE24=['vote24_harris','vote24_trump','vote24_third','vote24_dnv']
-LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+['CC24_401','CC24_410']))
-EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24
+# Religion: importance (4-pt, view), prayer frequency (7-pt, demo), denomination (nominal, demo).
+# Emitted as binary "% Supporting" so they surface as rows; the ordinal ones (importance,
+# prayer) also get full distributions from compute_intensity.py, joined by variable code.
+FAITH="Faith"
+DENOM=[  # (synth_key, question, target religpew codes)
+ ('relig_protestant','Protestant',{1}),
+ ('relig_catholic','Roman Catholic',{2}),
+ ('relig_jewish','Jewish',{5}),
+ ('relig_muslim','Muslim',{6}),
+ ('relig_none','Unaffiliated (none / atheist / agnostic)',{9,10,11}),
+ ('relig_other','Other faith',{3,4,7,8,12}),
+]
+RELIG_LOAD=['pew_religimp','pew_prayer','religpew']
+LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410']))
+EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24+['pew_religimp','pew_prayer']+[d[0] for d in DENOM]
 
 def main():
     df=pd.read_stata(DTA, columns=ITEMS+LOADVARS+['commonpostweight'], convert_categoricals=False)
@@ -122,6 +135,18 @@ def main():
     rows.append(emit('vote24_trump', VW,'2024: Donald Trump (R)',    v24(ch==2)))
     rows.append(emit('vote24_third', VW,'2024: Third-party / other', v24(np.isin(ch,[3,4,5,6,8]))))
     rows.append(emit('vote24_dnv',   VW,'2024: Did not vote',        v24(t!=5)))
+    # Religion importance (very/somewhat important → 1); a "view"
+    ri=dc['pew_religimp'].values.astype(float)
+    rows.append(emit('pew_religimp','Religion','Religion is important (very or somewhat)',
+                     np.where(np.isin(ri,[1,2]),1.0,np.where(np.isin(ri,[3,4]),0.0,np.nan))))
+    # Prayer frequency (weekly or more, codes 1–4 → 1); a demographic
+    pr=dc['pew_prayer'].values.astype(float)
+    rows.append(emit('pew_prayer',FAITH,'Prays weekly or more often',
+                     np.where(np.isin(pr,[1,2,3,4]),1.0,np.where(np.isin(pr,[5,6,7]),0.0,np.nan))))
+    # Denomination buckets (nominal); each a demographic share over valid respondents
+    rp=dc['religpew'].values.astype(float); rp_valid=np.isin(rp,list(range(1,13)))
+    for key,q,tgt in DENOM:
+        rows.append(emit(key,FAITH,q,np.where(np.isin(rp,list(tgt)),1.0,np.where(rp_valid,0.0,np.nan))))
     newdf=pd.DataFrame(rows)
     stats=pd.read_csv(STATS)
     stats=stats[~stats['variable'].isin(EMITVARS)]  # idempotent
