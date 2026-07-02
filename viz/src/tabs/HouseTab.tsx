@@ -50,22 +50,13 @@ interface Props {
   districtResultsTriple: Record<string, DistrictResult[]>;
   fdDistrictResultsTriple: Record<string, DistrictResult[]>;
   districtCountyMapTriple: Record<string, string[]>;
-  seatsNoSTY: HouseSeat[];
-  stateMapNoSTY: Record<string, HouseStateEntry>;
-  districtResultsNoSTY: Record<string, DistrictResult[]>;
 }
 
 type WyomingRule = 'double' | 'triple';
 
-export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple, seatsNoSTY, stateMapNoSTY, districtResultsNoSTY}: Props) {
+export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
-  // No-STY scenario applies to the party-line, double-Wyoming path (what the pipeline ran).
-  const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
-  const noStyOn = nosty === 'on' && scenario === 'rawMulti' && wyoming === 'double';
-  const rmSeats = noStyOn ? seatsNoSTY : seats;
-  const rmStateMap = noStyOn ? stateMapNoSTY : stateMap;
-  const rmDistrict = noStyOn ? districtResultsNoSTY : districtResults;
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -139,14 +130,14 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
 
   const activeSeats = useMemo(() => {
     if (wyoming === 'triple') return scenario === 'rawMulti' ? seatsTriple : fdSeatsTripleAggregated;
-    return scenario === 'rawMulti' ? rmSeats : fdSeatsAggregated;
-  }, [wyoming, scenario, rmSeats, seatsTriple, fdSeatsAggregated, fdSeatsTripleAggregated]);
+    return scenario === 'rawMulti' ? seats : fdSeatsAggregated;
+  }, [wyoming, scenario, seats, seatsTriple, fdSeatsAggregated, fdSeatsTripleAggregated]);
   const activeTotalSeats = activeSeats.reduce((s, r) => s + r.national, 0);
   const activeDistrictResults = wyoming === 'triple'
     ? (scenario === 'factorDev' ? fdDistrictResultsTriple : districtResultsTriple)
-    : (scenario === 'factorDev' ? fdDistrictResults : rmDistrict);
+    : (scenario === 'factorDev' ? fdDistrictResults : districtResults);
   const activeDistrictCountyMap = wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap;
-  const activeStateMap = wyoming === 'triple' ? stateMapTriple : rmStateMap;
+  const activeStateMap = wyoming === 'triple' ? stateMapTriple : stateMap;
   const activeFdHouseSeats = wyoming === 'triple' ? fdHouseSeatsTriple : fdHouseSeats;
   const activeFdSeatsByCode = useMemo(() => {
     const map: Record<string, number> = {};
@@ -179,10 +170,6 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
-        {scenario === 'rawMulti' && wyoming === 'double' && (
-          <ToggleGroup label="Electorate" value={nosty} onChange={setNosty}
-            options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
-        )}
       </StickyControlBar>
 
       {/* ═══════════════════════════════════════════════════════════════════════
@@ -191,7 +178,7 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
 
       {/* Hero: FPTP vs STV */}
       <Card className="p-5 border-2 border-indigo-200">
-        <FPTPvsSTV seats={activeSeats} doubleSeats={rmSeats} wyoming={wyoming} />
+        <FPTPvsSTV seats={activeSeats} doubleSeats={seats} wyoming={wyoming} />
       </Card>
 
       {/* Population vs Seat Share */}
@@ -204,14 +191,14 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
           {scenario === 'factorDev' && ' Outlined = Crossover seat share for comparison.'}
         </p>
         <ScenarioComparison
-          rawMultiSeats={wyoming === 'triple' ? seatsTriple : rmSeats}
+          rawMultiSeats={wyoming === 'triple' ? seatsTriple : seats}
           fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
           scenario={scenario}
           wyoming={wyoming}
-          doubleSeats={rmSeats}
+          doubleSeats={seats}
           doubleFdSeats={fdSeatsAggregated}
           stateMap={activeStateMap}
-          doubleStateMap={rmStateMap}
+          doubleStateMap={stateMap}
           selectedState={seatShareState}
           onStateChange={setSeatShareState}
         />

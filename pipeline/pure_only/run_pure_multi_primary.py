@@ -19,7 +19,6 @@ Outputs:
   primary_diagnostics_2028.csv     — transfer flow data for Sankey
 """
 
-import os
 import sys
 import numpy as np
 import pandas as pd
@@ -28,10 +27,9 @@ from collections import defaultdict
 from itertools import combinations
 
 BASE_DIR     = Path(__file__).parent.parent.parent
-_TREE        = "pure_multi_nosty" if os.environ.get("NO_STY") == "1" else "pure_multi"
-BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _TREE / "presidential_ballots.csv"
+BALLOTS_PATH = BASE_DIR / "data" / "outputs" / "pure_multi" / "presidential_ballots.csv"
 EFA_PATH     = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / _TREE
+OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / "pure_multi"
 
 PARTY_OF = {}   # filled during load
 CAND_CODES = []

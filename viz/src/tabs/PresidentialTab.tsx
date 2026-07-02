@@ -15,7 +15,6 @@ import { PartyProfileCard } from '../components/shared/PartyProfileCard';
 interface Props {
   factorDev: PresidentialElection;
   rawMulti:  PresidentialElection;
-  rawMultiNoSTY: PresidentialElection;
   clusters:  ClusterProfile[];
   fdProfiles: Record<string, FDCandidateProfile>;
   senateVotes: VoteModelRow[];
@@ -43,13 +42,10 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
   );
 }
 
-export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, clusters, senateVotes, houseStateMap,
+export function PresidentialTab({ factorDev, rawMulti, clusters, senateVotes, houseStateMap,
                                   controlBarExtra }: Props) {
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
-  // No-STY scenario: Solidarity dissolved, its voters flow to the remaining 9 (party-line only).
-  const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
-  const rm = (nosty === 'on' && scenario === 'rawMulti') ? rawMultiNoSTY : rawMulti;
-  const data = scenario === 'rawMulti' ? rm : factorDev;
+  const data = scenario === 'rawMulti' ? rawMulti : factorDev;
 
   const clusterByParty = useMemo(
     () => Object.fromEntries(clusters.map(c => [c.party, c])),
@@ -57,8 +53,8 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, clusters, 
   );
 
   // Raw Multi winners
-  const rmCondWinner = rm.condorcetWinner;
-  const rmIrvWinner  = rm.irvWinner;
+  const rmCondWinner = rawMulti.condorcetWinner;
+  const rmIrvWinner  = rawMulti.irvWinner;
   const rmCondParty  = rmCondWinner.split('_')[0];
   const rmIrvParty   = rmIrvWinner.split('_')[0];
   const rmSameWinner = rmCondWinner === rmIrvWinner;
@@ -66,9 +62,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, clusters, 
   // Build Raw Multi display labels (CON_1 → CON when sole numbered variant)
   const rmLabels = useMemo(() => {
     const codes = new Set<string>();
-    for (const r of rm.irvRounds) for (const c of r.candidates) codes.add(c.code);
+    for (const r of rawMulti.irvRounds) for (const c of r.candidates) codes.add(c.code);
     return buildDisplayLabels(codes);
-  }, [rm]);
+  }, [rawMulti]);
   const rmLabel = (code: string) => rmLabels[code] ?? code;
 
   // Factor Dev winner (same for both methods)
@@ -99,10 +95,6 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, clusters, 
         {controlBarExtra}
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} />
-        {scenario === 'rawMulti' && (
-          <ToggleGroup label="Electorate" value={nosty} onChange={setNosty}
-            options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
-        )}
       </StickyControlBar>
 
       {/* Presidential Outcomes — scenario-dependent */}

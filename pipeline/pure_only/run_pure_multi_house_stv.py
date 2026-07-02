@@ -27,17 +27,14 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-import os
 import sys
 
 BASE_DIR         = Path(__file__).parent.parent.parent
-NO_STY           = os.environ.get("NO_STY") == "1"
-_TREE            = "pure_multi_nosty" if NO_STY else "pure_multi"
 CHECKPOINT_PATH  = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
 EFA_PATH         = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY_PATH    = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
-OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / _TREE / "house"
+OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "pure_multi" / "house"
 VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 
@@ -93,8 +90,6 @@ PARTY_CLUSTER = {
     "DSA": 8,
     "PRG": 9,
 }
-if NO_STY:
-    PARTY_CLUSTER = {k: v for k, v in PARTY_CLUSTER.items() if k != "STY"}
 
 PARTY_LABELS = {
     0: "Conservative", 1: "Labor", 2: "Solidarity",

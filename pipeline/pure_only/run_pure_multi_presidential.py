@@ -14,18 +14,16 @@ Outputs to data/outputs/pure_multi/irv/:
   irv_presidential_states_2028.csv     — IRV winner + runner-up per state
 """
 
-import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from itertools import combinations
 
 BASE_DIR     = Path(__file__).parent.parent.parent
-_TREE        = "pure_multi_nosty" if os.environ.get("NO_STY") == "1" else "pure_multi"
-BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _TREE / "presidential_ballots.csv"
-PRIMARY_PATH = BASE_DIR / "data" / "outputs" / _TREE / "primary_results_2028.csv"
+BALLOTS_PATH = BASE_DIR / "data" / "outputs" / "pure_multi" / "presidential_ballots.csv"
+PRIMARY_PATH = BASE_DIR / "data" / "outputs" / "pure_multi" / "primary_results_2028.csv"
 EFA_PATH     = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / _TREE / "irv"
+OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / "pure_multi" / "irv"
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",

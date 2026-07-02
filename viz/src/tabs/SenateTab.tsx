@@ -25,8 +25,6 @@ interface Props {
   irvFD:             FDSenateSeat[];
   condorcetRawMulti: FDSenateSeat[];
   irvRawMulti:       FDSenateSeat[];
-  condorcetRawMultiNoSTY: FDSenateSeat[];
-  irvRawMultiNoSTY:       FDSenateSeat[];
   voteModel:         VoteModelRow[];
   clusters:          ClusterProfile[];
   fdProfiles:        Record<string, FDCandidateProfile>;
@@ -82,17 +80,11 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
 }
 
 export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
-                             condorcetRawMultiNoSTY, irvRawMultiNoSTY,
                              voteModel, clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers,
                              senateBuckets, senateCondorcet }: Props) {
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
-  // No-STY scenario: Solidarity dissolved, its voters flow to the remaining 9 (party-line only).
-  const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
-  const noStyOn = nosty === 'on' && pipeline === 'rawMulti';
-  const condRM = noStyOn ? condorcetRawMultiNoSTY : condorcetRawMulti;
-  const irvRM = noStyOn ? irvRawMultiNoSTY : irvRawMulti;
 
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
 
@@ -105,8 +97,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   const SEAT_MAP: Record<SenateScenario, SenateSeat[]> = {
     condFD:       condorcetFD        as unknown as SenateSeat[],
     irvFD:        irvFD              as unknown as SenateSeat[],
-    condRawMulti: condRM             as unknown as SenateSeat[],
-    irvRawMulti:  irvRM              as unknown as SenateSeat[],
+    condRawMulti: condorcetRawMulti             as unknown as SenateSeat[],
+    irvRawMulti:  irvRawMulti              as unknown as SenateSeat[],
   };
   const activeSeats = SEAT_MAP[scenario];
 
@@ -154,8 +146,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
     const fdSeats =
       scenario === 'condFD' ? condorcetFD :
       scenario === 'irvFD' ? irvFD :
-      scenario === 'condRawMulti' ? condRM :
-      irvRM;
+      scenario === 'condRawMulti' ? condorcetRawMulti :
+      irvRawMulti;
     const countByCode: Record<string, FDHouseSeat> = {};
     for (const seat of fdSeats) {
       const key = seat.senatorCode;
@@ -169,7 +161,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
       countByCode[key].national += 1;
     }
     return Object.values(countByCode);
-  }, [condorcetFD, irvFD, condRM, irvRM, scenario]);
+  }, [condorcetFD, irvFD, condorcetRawMulti, irvRawMulti, scenario]);
 
   const constellationNodes: ConstellationNode[] = Object.entries(seatCounts)
     .map(([code, seats]) => ({
@@ -196,10 +188,6 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
-        {pipeline === 'rawMulti' && (
-          <ToggleGroup label="Electorate" value={nosty} onChange={setNosty}
-            options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
-        )}
       </StickyControlBar>
 
       {/* FPTP vs Preferential Senate Comparison */}
@@ -213,9 +201,9 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           { party: 'GOP', n: 53, color: '#dc2626' },
         ]} total={100} />
         {/* RM Condorcet */}
-        <SenateCompBar label="Condorcet" seats={condRM} />
+        <SenateCompBar label="Condorcet" seats={condorcetRawMulti} />
         {/* RM IRV */}
-        <SenateCompBar label="IRV" seats={irvRM} />
+        <SenateCompBar label="IRV" seats={irvRawMulti} />
         {/* FD bars */}
         {isFD && <>
           <SenateCompBar label="Condorcet" seats={condorcetFD} />

@@ -21,19 +21,16 @@ Outputs to data/outputs/pure_multi/senate/:
   senate_condorcet_results.csv   — Ranked Pairs matchup detail per state
 """
 
-import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from itertools import combinations
 
 BASE_DIR       = Path(__file__).parent.parent.parent
-NO_STY         = os.environ.get("NO_STY") == "1"
-_TREE          = "pure_multi_nosty" if NO_STY else "pure_multi"
 TYPOLOGY_PATH  = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_PATH       = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-STATE_PROFILES = BASE_DIR / "data" / "outputs" / _TREE / "state_candidate_profiles.csv"
-OUTPUT_DIR     = BASE_DIR / "data" / "outputs" / _TREE / "senate"
+STATE_PROFILES = BASE_DIR / "data" / "outputs" / "pure_multi" / "state_candidate_profiles.csv"
+OUTPUT_DIR     = BASE_DIR / "data" / "outputs" / "pure_multi" / "senate"
 
 # ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
 POSITIONAL_SIGMA = 0.35
@@ -64,8 +61,6 @@ PARTY_CLUSTER = {
     "DSA": 8,
     "PRG": 9,
 }
-if NO_STY:
-    PARTY_CLUSTER = {k: v for k, v in PARTY_CLUSTER.items() if k != "STY"}
 
 STV_SURVIVORS   = 5
 MIN_RESPONDENTS = 10

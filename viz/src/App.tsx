@@ -26,14 +26,6 @@ import fdSenateCondorcetData from './data/fdSenateCondorcet.json';
 import fdSenateIRVData from './data/fdSenateIRV.json';
 import pureMultiSenateCondorcetData from './data/pureMultiSenateCondorcet.json';
 import pureMultiSenateIRVData from './data/pureMultiSenateIRV.json';
-import pureMultiSenateCondorcetNoStyData from './data/pureMultiSenateCondorcetNoSTY.json';
-import pureMultiSenateIRVNoStyData from './data/pureMultiSenateIRVNoSTY.json';
-import rawMultiPresidentialElectionNoStyData from './data/rawMultiPresidentialElectionNoSTY.json';
-import houseSeatsNoStyData from './data/houseSeatsNoSTY.json';
-import houseStateMapNoStyData from './data/houseStateMapNoSTY.json';
-import districtStvResultsNoStyData from './data/districtStvResultsNoSTY.json';
-import houseVoteModelNoStyData from './data/houseVoteModelNoSTY.json';
-import senateVoteModelNoStyData from './data/senateVoteModelNoSTY.json';
 import senateBucketsData from './data/senateBuckets.json';
 import senateCondorcetData from './data/senateCondorcet.json';
 import fdHouseSeatsData from './data/fdHouseSeats.json';
@@ -280,7 +272,6 @@ export default function App() {
             generalProps={{
               factorDev: fdPresidentialElectionData as unknown as PresidentialElection,
               rawMulti: rawMultiPresidentialElectionData as unknown as PresidentialElection,
-              rawMultiNoSTY: rawMultiPresidentialElectionNoStyData as unknown as PresidentialElection,
               clusters: clusterProfilesData as ClusterProfile[],
               fdProfiles: fdProfilesData as unknown as Record<string, FDCandidateProfile>,
               senateVotes: senateVoteModelData as VoteModelRow[],
@@ -308,8 +299,6 @@ export default function App() {
             irvFD={fdSenateIRVData as unknown as FDSenateSeat[]}
             condorcetRawMulti={pureMultiSenateCondorcetData as unknown as FDSenateSeat[]}
             irvRawMulti={pureMultiSenateIRVData as unknown as FDSenateSeat[]}
-            condorcetRawMultiNoSTY={pureMultiSenateCondorcetNoStyData as unknown as FDSenateSeat[]}
-            irvRawMultiNoSTY={pureMultiSenateIRVNoStyData as unknown as FDSenateSeat[]}
             voteModel={senateVoteModelData as VoteModelRow[]}
             clusters={clusterProfilesData as ClusterProfile[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
@@ -347,9 +336,6 @@ export default function App() {
             districtResultsTriple={districtStvResultsTripleData as unknown as Record<string, DistrictResult[]>}
             fdDistrictResultsTriple={fdDistrictStvResultsTripleData as unknown as Record<string, DistrictResult[]>}
             districtCountyMapTriple={districtCountyMapTripleData as Record<string, string[]>}
-            seatsNoSTY={houseSeatsNoStyData as HouseSeat[]}
-            stateMapNoSTY={houseStateMapNoStyData as unknown as Record<string, HouseStateEntry>}
-            districtResultsNoSTY={districtStvResultsNoStyData as unknown as Record<string, DistrictResult[]>}
           />
         )}
         {tab === 'rcv' && (
@@ -364,9 +350,6 @@ export default function App() {
             senateVotes={senateVoteModelData as VoteModelRow[]}
             fdElection={fdPresidentialElectionData as unknown as PresidentialElection}
             rawMultiElection={rawMultiPresidentialElectionData as unknown as PresidentialElection}
-            houseVotesNoSTY={houseVoteModelNoStyData as VoteModelRow[]}
-            senateVotesNoSTY={senateVoteModelNoStyData as VoteModelRow[]}
-            rawMultiElectionNoSTY={rawMultiPresidentialElectionNoStyData as unknown as PresidentialElection}
           />
         )}
         {tab === 'parties' && (
