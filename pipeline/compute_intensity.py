@@ -34,6 +34,10 @@ ECON = ['CC24_302','CC24_303']
 GOVTRUST = ['CC24_423','CC24_424']
 FREQ = ['pew_churatd']
 KIND = {**{v: 'diverging' for v in SPEND + AGREE + ECON + GOVTRUST}, **{v: 'freq' for v in FREQ}}
+# Battery = a comparable group; percentile thresholds are computed within each.
+BATTERY = {**{v: 'spending' for v in SPEND}, **{v: 'agree' for v in AGREE},
+           **{v: 'economy' for v in ECON}, **{v: 'trust' for v in GOVTRUST},
+           **{v: 'church' for v in FREQ}}
 ORDER = SPEND + ECON + AGREE + GOVTRUST + FREQ
 
 # label text that marks a code as non-substantive (dropped before shares)
@@ -102,6 +106,7 @@ def main():
             "question": (meta["question"] if meta is not None else varlabels.get(var, var)),
             "domain": (meta["domain"] if meta is not None else "Other"),
             "kind": kind,
+            "battery": BATTERY[var],
             "labels": labels,
             "middleIndex": middle,
             "national": national,

@@ -5,6 +5,7 @@
       "question": "Increase state spending on welfare",
       "domain": "Government Spending",
       "kind": "diverging",
+      "battery": "spending",
       "labels": [
         "Greatly decrease",
         "Slightly decrease",
@@ -98,6 +99,7 @@
       "question": "Increase state spending on health care",
       "domain": "Government Spending",
       "kind": "diverging",
+      "battery": "spending",
       "labels": [
         "Greatly decrease",
         "Slightly decrease",
@@ -191,6 +193,7 @@
       "question": "Increase state spending on education",
       "domain": "Government Spending",
       "kind": "diverging",
+      "battery": "spending",
       "labels": [
         "Greatly decrease",
         "Slightly decrease",
@@ -284,6 +287,7 @@
       "question": "Increase state spending on law enforcement",
       "domain": "Government Spending",
       "kind": "diverging",
+      "battery": "spending",
       "labels": [
         "Greatly decrease",
         "Slightly decrease",
@@ -377,6 +381,7 @@
       "question": "Increase state spending on transportation & infrastructure",
       "domain": "Government Spending",
       "kind": "diverging",
+      "battery": "spending",
       "labels": [
         "Greatly decrease",
         "Slightly decrease",
@@ -470,6 +475,7 @@
       "question": "Household income change past year (1=Increased a lot \u2026 5=Decreased a lot)",
       "domain": "Taxes & Economy",
       "kind": "diverging",
+      "battery": "economy",
       "labels": [
         "Decreased a lot",
         "Decreased somewhat",
@@ -563,6 +569,7 @@
       "question": "Price change past year (1=Increased a lot \u2026 5=Decreased a lot)",
       "domain": "Taxes & Economy",
       "kind": "diverging",
+      "battery": "economy",
       "labels": [
         "Decreased a lot",
         "Decreased somewhat",
@@ -656,6 +663,7 @@
       "question": "White people have certain advantages because of their race",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -749,6 +757,7 @@
       "question": "Racial problems in the U.S. are rare, isolated situations",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -842,6 +851,7 @@
       "question": "Women seek to gain power by getting control over men",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -935,6 +945,7 @@
       "question": "Women are too easily offended",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -1028,6 +1039,7 @@
       "question": "Minorities should work their way up without special favors",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -1121,6 +1133,7 @@
       "question": "Slavery/discrimination makes it hard for Blacks to rise",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -1214,6 +1227,7 @@
       "question": "I resent when Whites deny racial discrimination exists",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -1307,6 +1321,7 @@
       "question": "Whites get away with offenses that African Americans wouldn't",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -1400,6 +1415,7 @@
       "question": "Whites don't understand the problems African Americans face",
       "domain": "Racial & Gender",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -1493,6 +1509,7 @@
       "question": "Elections in the U.S. are fair",
       "domain": "Elections & Trust",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -1586,6 +1603,7 @@
       "question": "2024 state/local election was fair",
       "domain": "Elections & Trust",
       "kind": "diverging",
+      "battery": "agree",
       "labels": [
         "Strongly disagree",
         "Somewhat disagree",
@@ -1679,6 +1697,7 @@
       "question": "Trust in federal government (1=Great deal \u2026 4=None at all)",
       "domain": "Elections & Trust",
       "kind": "diverging",
+      "battery": "trust",
       "labels": [
         "None at all",
         "Not very much",
@@ -1760,6 +1779,7 @@
       "question": "Trust in state government (1=Great deal \u2026 4=None at all)",
       "domain": "Elections & Trust",
       "kind": "diverging",
+      "battery": "trust",
       "labels": [
         "None at all",
         "Not very much",
@@ -1841,6 +1861,7 @@
       "question": "Church attendance (1=More than once/week \u2026 6=Never)",
       "domain": "Religion",
       "kind": "freq",
+      "battery": "church",
       "labels": [
         "More than once a week",
         "Once a week",

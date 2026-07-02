@@ -11,6 +11,7 @@ export interface IntensityItem {
   question: string;
   domain: string;
   kind: 'diverging' | 'freq';
+  battery: string;           // comparable group (agree / spending / trust / …) for per-battery percentiles
   labels: string[];          // ordered liberal(index 0) → conservative(last); neutral in middle
   middleIndex: number | null;
   national: number[];
@@ -62,24 +63,28 @@ export function splitShares(item: IntensityItem, shares: number[]): Split | null
 
 const norm01 = (val: number, maxVal: number) => (maxVal === 100 ? val : (val / maxVal) * 100);
 
-// Pooled empirical distribution of each bucket's share across every diverging ordinal
-// item × party — used so the consensus threshold is applied as a percentile for these
-// items (a stance is "defining" if it's unusually high in agree, neutral, OR disagree).
-const POOL: Record<'left' | 'neutral' | 'right', number[]> = { left: [], neutral: [], right: [] };
+// Empirical distribution of each bucket's share, pooled PER BATTERY (agree / spending /
+// trust / …) since neutral baselines differ sharply between batteries (spending "Maintain"
+// runs far higher than an agree scale's "Neither"). Consensus is then applied as a
+// within-battery percentile: a stance is "defining" if it's unusually high in agree,
+// neutral, OR disagree relative to other ordinal stances in the same battery.
+type Buckets = { left: number[]; neutral: number[]; right: number[] };
+const POOL: Record<string, Buckets> = {};
 for (const it of INTENSITY_ITEMS) {
   if (it.kind !== 'diverging') continue;
+  const b = (POOL[it.battery] ??= { left: [], neutral: [], right: [] });
   for (const code of Object.keys(it.parties)) {
     const sp = splitShares(it, it.parties[code]);
     if (!sp) continue;
-    POOL.left.push(sp.leftTotal);
-    POOL.right.push(sp.rightTotal);
-    if (sp.neutral != null) POOL.neutral.push(sp.neutral);
+    b.left.push(sp.leftTotal);
+    b.right.push(sp.rightTotal);
+    if (sp.neutral != null) b.neutral.push(sp.neutral);
   }
 }
-(['left', 'neutral', 'right'] as const).forEach(k => POOL[k].sort((a, b) => a - b));
-function bucketPercentile(bucket: 'left' | 'neutral' | 'right', p: number): number {
-  const a = POOL[bucket];
-  if (!a.length) return 101;
+for (const b of Object.values(POOL)) (['left', 'neutral', 'right'] as const).forEach(k => b[k].sort((x, y) => x - y));
+function bucketPercentile(battery: string, bucket: 'left' | 'neutral' | 'right', p: number): number {
+  const a = POOL[battery]?.[bucket];
+  if (!a || !a.length) return 101;
   return a[Math.min(a.length - 1, Math.floor((p / 100) * a.length))];
 }
 
@@ -97,9 +102,9 @@ export function passesFilter(key: string, code: string, pct: number, overall: nu
   if (iv && iv.kind === 'diverging' && shares) {
     const sp = splitShares(iv, shares)!;
     consensusOk =
-      sp.leftTotal >= bucketPercentile('left', f.consPct) ||
-      sp.rightTotal >= bucketPercentile('right', f.consPct) ||
-      (sp.neutral != null && sp.neutral >= bucketPercentile('neutral', f.consPct));
+      sp.leftTotal >= bucketPercentile(iv.battery, 'left', f.consPct) ||
+      sp.rightTotal >= bucketPercentile(iv.battery, 'right', f.consPct) ||
+      (sp.neutral != null && sp.neutral >= bucketPercentile(iv.battery, 'neutral', f.consPct));
   } else {
     const p = norm01(pct, maxVal);
     consensusOk = p >= f.consPct || p <= 100 - f.consPct;
