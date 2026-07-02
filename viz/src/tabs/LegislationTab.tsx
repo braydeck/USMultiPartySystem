@@ -13,14 +13,23 @@ interface Props {
   senateVotes: VoteModelRow[];
   fdElection: PresidentialElection;
   rawMultiElection: PresidentialElection;
+  houseVotesNoSTY: VoteModelRow[];
+  senateVotesNoSTY: VoteModelRow[];
+  rawMultiElectionNoSTY: PresidentialElection;
 }
 
-export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiElection }: Props) {
+export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiElection,
+                                 houseVotesNoSTY, senateVotesNoSTY, rawMultiElectionNoSTY }: Props) {
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
+  // No-STY scenario applies to the party-line, double-Wyoming path.
+  const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
+  const noStyOn = nosty === 'on' && pipeline === 'rawMulti' && wyoming === 'double';
+  const hVotes = noStyOn ? houseVotesNoSTY : houseVotes;
+  const sVotes = noStyOn ? senateVotesNoSTY : senateVotes;
 
-  const election = pipeline === 'rawMulti' ? rawMultiElection : fdElection;
+  const election = pipeline === 'rawMulti' ? (noStyOn ? rawMultiElectionNoSTY : rawMultiElection) : fdElection;
   const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
 
   return (
@@ -40,11 +49,15 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Senate Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
+        {pipeline === 'rawMulti' && wyoming === 'double' && (
+          <ToggleGroup label="Electorate" value={nosty} onChange={setNosty}
+            options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
+        )}
       </StickyControlBar>
 
       <LegislationDivergences
-        houseVotes={houseVotes}
-        senateVotes={senateVotes}
+        houseVotes={hVotes}
+        senateVotes={sVotes}
         election={election}
         pipeline={pipeline}
         wyoming={wyoming}
@@ -58,8 +71,8 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
           Bayesian verdicts: 45–55% = Tossup · 55–65% = Possibly · 65–80% = Likely · 80%+ = Clearly
         </p>
         <UnifiedBillTable
-          houseRows={houseVotes}
-          senateRows={senateVotes}
+          houseRows={hVotes}
+          senateRows={sVotes}
           pipeline={pipeline}
           senateMethod={method}
           presWinner={presWinner}

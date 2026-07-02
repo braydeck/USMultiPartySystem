@@ -3159,6 +3159,9 @@ def build_nosty_scenario():
     build_house_seats(src_csv=d / "house" / "stv_seat_summary.csv", out_name="houseSeatsNoSTY.json")
     build_house_state_map(src_dir=d, out_name="houseStateMapNoSTY.json")
     build_district_stv_results(src_csv=d / "house" / "stv_results_by_district.csv", out_name="districtStvResultsNoSTY.json")
+    # Legislation vote models — Raw-Multi chamber pass + president sign/veto recomputed from the no-STY run.
+    build_senate_vote_model_wfp(d, out_name="senateVoteModelNoSTY.json")
+    build_house_vote_model_wfp(d, out_name="houseVoteModelNoSTY.json")
 
 
 if __name__ == "__main__":

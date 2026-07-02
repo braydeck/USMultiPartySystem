@@ -154,8 +154,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
     const fdSeats =
       scenario === 'condFD' ? condorcetFD :
       scenario === 'irvFD' ? irvFD :
-      scenario === 'condRawMulti' ? condorcetRawMulti :
-      irvRawMulti;
+      scenario === 'condRawMulti' ? condRM :
+      irvRM;
     const countByCode: Record<string, FDHouseSeat> = {};
     for (const seat of fdSeats) {
       const key = seat.senatorCode;
@@ -169,7 +169,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
       countByCode[key].national += 1;
     }
     return Object.values(countByCode);
-  }, [condorcetFD, irvFD, condorcetRawMulti, irvRawMulti, scenario]);
+  }, [condorcetFD, irvFD, condRM, irvRM, scenario]);
 
   const constellationNodes: ConstellationNode[] = Object.entries(seatCounts)
     .map(([code, seats]) => ({
@@ -213,9 +213,9 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           { party: 'GOP', n: 53, color: '#dc2626' },
         ]} total={100} />
         {/* RM Condorcet */}
-        <SenateCompBar label="Condorcet" seats={condorcetRawMulti} />
+        <SenateCompBar label="Condorcet" seats={condRM} />
         {/* RM IRV */}
-        <SenateCompBar label="IRV" seats={irvRawMulti} />
+        <SenateCompBar label="IRV" seats={irvRM} />
         {/* FD bars */}
         {isFD && <>
           <SenateCompBar label="Condorcet" seats={condorcetFD} />

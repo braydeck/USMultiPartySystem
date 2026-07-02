@@ -32,6 +32,8 @@ import rawMultiPresidentialElectionNoStyData from './data/rawMultiPresidentialEl
 import houseSeatsNoStyData from './data/houseSeatsNoSTY.json';
 import houseStateMapNoStyData from './data/houseStateMapNoSTY.json';
 import districtStvResultsNoStyData from './data/districtStvResultsNoSTY.json';
+import houseVoteModelNoStyData from './data/houseVoteModelNoSTY.json';
+import senateVoteModelNoStyData from './data/senateVoteModelNoSTY.json';
 import senateBucketsData from './data/senateBuckets.json';
 import senateCondorcetData from './data/senateCondorcet.json';
 import fdHouseSeatsData from './data/fdHouseSeats.json';
@@ -362,6 +364,9 @@ export default function App() {
             senateVotes={senateVoteModelData as VoteModelRow[]}
             fdElection={fdPresidentialElectionData as unknown as PresidentialElection}
             rawMultiElection={rawMultiPresidentialElectionData as unknown as PresidentialElection}
+            houseVotesNoSTY={houseVoteModelNoStyData as VoteModelRow[]}
+            senateVotesNoSTY={senateVoteModelNoStyData as VoteModelRow[]}
+            rawMultiElectionNoSTY={rawMultiPresidentialElectionNoStyData as unknown as PresidentialElection}
           />
         )}
         {tab === 'parties' && (
