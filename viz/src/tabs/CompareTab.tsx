@@ -1,10 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
-import { qualifies, sigActive, type AlignMode, type SignatureFilter } from '../lib/signature';
+import { sigActive } from '../lib/signature';
+import { useSignatureFilter } from '../hooks/useSignatureFilter';
+import { SignatureFilters } from '../components/shared/SignatureFilters';
+import { PartySelector } from '../components/shared/PartySelector';
+import { qualifies } from '../lib/signature';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
-import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText, etaPurple } from '../constants/parties';
+import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -604,11 +608,6 @@ interface SavedCompare {
   divergeOnly?: boolean;
   factorScale?: 'strength' | 'percentile';
   showNatAvg?: boolean;
-  useConsensus?: boolean;
-  consPct?: number;
-  useAlign?: boolean;
-  alignMode?: AlignMode;
-  alignPp?: number;
 }
 function loadSavedCompare(): SavedCompare {
   try { return JSON.parse(localStorage.getItem(COMPARE_STORE_KEY) || '{}'); } catch { return {}; }
@@ -630,13 +629,9 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
   const [showNatAvg, setShowNatAvg] = useState(saved.showNatAvg ?? true);
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>(saved.factorScale ?? 'strength');
   const [divergeOnly, setDivergeOnly] = useState(saved.divergeOnly ?? false);
-  // Signature filter — a party's own distinctiveness vs. the country (independent of who else is selected).
-  const [useConsensus, setUseConsensus] = useState(saved.useConsensus ?? false);
-  const [consPct, setConsPct] = useState(saved.consPct ?? 75);
-  const [useAlign, setUseAlign] = useState(saved.useAlign ?? false);
-  const [alignMode, setAlignMode] = useState<AlignMode>(saved.alignMode ?? 'deviant');
-  const [alignPp, setAlignPp] = useState(saved.alignPp ?? 25);
-  const sigFilter: SignatureFilter = { useConsensus, consPct, useAlign, alignMode, alignPp };
+  // Signature filter shared with Party Platforms (URL params) so the two views agree.
+  const sig = useSignatureFilter();
+  const sigFilter = sig.filter;
   const sigOn = sigActive(sigFilter);
 
   // Restore the last selection when arriving with an empty URL (e.g. via tab nav, which
@@ -648,8 +643,8 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
 
   // Persist selection + filters for next time.
   useEffect(() => {
-    saveCompare({ cmp, minGap, divergeOnly, factorScale, showNatAvg, useConsensus, consPct, useAlign, alignMode, alignPp });
-  }, [cmp, minGap, divergeOnly, factorScale, showNatAvg, useConsensus, consPct, useAlign, alignMode, alignPp]);
+    saveCompare({ cmp, minGap, divergeOnly, factorScale, showNatAvg });
+  }, [cmp, minGap, divergeOnly, factorScale, showNatAvg]);
 
   // Build option list: pure parties in F5_ORDER, then FD candidates grouped by party
   const pureOptions = F5_ORDER
@@ -754,7 +749,7 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
     }
 
     return grouped;
-  }, [selected, clusters, fdProfiles, minGap, useConsensus, consPct, useAlign, alignMode, alignPp]);
+  }, [selected, clusters, fdProfiles, minGap, sig.useConsensus, sig.consPct, sig.useAlign, sig.alignMode, sig.alignPp]);
 
   // Ordered section keys
   const sectionKeys = useMemo(() => {
@@ -777,51 +772,12 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
       {/* Party selector */}
       <Card className="p-4">
         <div className="text-sm font-semibold text-foreground mb-3">Select parties to compare</div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {selected.map(code => {
-            const color = getBlendColor(code);
-            const label = PARTY_NAMES[code] ?? code;
-            return (
-              <span
-                key={code}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold chip-text-soft"
-                style={{ backgroundColor: color, color: getContrastText(color) }}
-              >
-                {code}
-                <span className="font-normal text-xs hidden sm:inline">— {label}</span>
-                <button
-                  onClick={() => removeParty(code)}
-                  className="ml-0.5 opacity-70 hover:opacity-100 leading-none"
-                  aria-label={`Remove ${label}`}
-                >
-                  ×
-                </button>
-              </span>
-            );
-          })}
-          <select
-            className="text-sm border border-border rounded px-2 py-1.5 text-foreground bg-white"
-            value=""
-            onChange={e => { if (e.target.value) addParty(e.target.value); }}
-            aria-label="Select party to add"
-          >
-            <option value="">+ Add party</option>
-            {pureOptions.filter(o => !selected.includes(o.code)).length > 0 && (
-              <optgroup label="Pure parties">
-                {pureOptions.filter(o => !selected.includes(o.code)).map(o => (
-                  <option key={o.code} value={o.code}>{o.code} — {o.label}</option>
-                ))}
-              </optgroup>
-            )}
-            {fdOptions.filter(o => !selected.includes(o.code)).length > 0 && (
-              <optgroup label="Crossover candidates">
-                {fdOptions.filter(o => !selected.includes(o.code)).map(o => (
-                  <option key={o.code} value={o.code}>{o.code}</option>
-                ))}
-              </optgroup>
-            )}
-          </select>
-        </div>
+        <PartySelector
+          selected={selected}
+          onToggle={code => (selected.includes(code) ? removeParty(code) : addParty(code))}
+          baseParties={pureOptions.map(o => o.code)}
+          crossover={fdOptions.map(o => ({ code: o.code, label: o.code }))}
+        />
         {selected.length === 0 && (
           <p className="text-xs text-muted-foreground mt-2">
             Try: PRG + NAT (maximum divergence) · LBR + CON (presidential rivals) · LBR_hi_so + LBR (crossover vs base)
@@ -916,34 +872,11 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
             </label>
           </div>
 
-          {/* Signature filter — each party's own distinctiveness vs. the country */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <span className="text-xs text-muted-foreground uppercase tracking-widest">Signature</span>
-            <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer">
-              <input type="checkbox" checked={useConsensus} onChange={e => setUseConsensus(e.target.checked)} />
-              <span className="font-medium">Consensus ≥</span>
-              <input type="number" min={50} max={100} value={consPct} disabled={!useConsensus}
-                onChange={e => setConsPct(Math.max(50, Math.min(100, Number(e.target.value))))}
-                className="w-14 border border-border rounded px-2 py-1 text-center font-mono bg-white disabled:opacity-50" />
-              <span className="text-muted-foreground">%</span>
-            </label>
-            <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer">
-              <input type="checkbox" checked={useAlign} onChange={e => setUseAlign(e.target.checked)} />
-              <span className="font-medium">Alignment</span>
-            </label>
-            <div className="flex gap-1">
-              <Button size="sm" variant={alignMode === 'mainstream' ? 'default' : 'secondary'} disabled={!useAlign}
-                onClick={() => setAlignMode('mainstream')}>≤ mainstream</Button>
-              <Button size="sm" variant={alignMode === 'deviant' ? 'default' : 'secondary'} disabled={!useAlign}
-                onClick={() => setAlignMode('deviant')}>≥ deviant</Button>
-            </div>
-            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <input type="number" min={0} max={100} value={alignPp} disabled={!useAlign}
-                onChange={e => setAlignPp(Math.max(0, Math.min(100, Number(e.target.value))))}
-                className="w-14 border border-border rounded px-2 py-1 text-center font-mono text-foreground bg-white disabled:opacity-50" />
-              pp from U.S.
-            </label>
-          </div>
+          {/* Signature filter — shared with Party Platforms */}
+          <Card className="p-4">
+            <div className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Signature filter</div>
+            <SignatureFilters s={sig} accent="#6366f1" />
+          </Card>
 
           {/* Sections */}
           {sectionKeys.length === 0 ? (

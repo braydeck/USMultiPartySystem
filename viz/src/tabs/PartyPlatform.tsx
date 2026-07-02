@@ -2,13 +2,18 @@ import { useMemo, useState } from 'react';
 import type { ClusterProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constants/parties';
-import { qualifies, type AlignMode, type SignatureFilter } from '../lib/signature';
+import { qualifies } from '../lib/signature';
+import { useSignatureFilter } from '../hooks/useSignatureFilter';
+import { SignatureFilters } from '../components/shared/SignatureFilters';
+import { PartySelector } from '../components/shared/PartySelector';
+import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, BAM_LEFT, BAM_RIGHT } from '../components/shared/IntensityBar';
 import { Card } from '@/components/ui/card';
 
 interface Props {
   clusters: ClusterProfile[];
+  clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
 }
 
 // Domain groups, in display order.
@@ -59,25 +64,16 @@ interface Row {
 // cutoff in weeks, maxVal 40) share the same consensus/deviation thresholds.
 const norm = (val: number, maxVal: number) => (maxVal === 100 ? val : (val / maxVal) * 100);
 
-export function PartyPlatform({ clusters }: Props) {
+export function PartyPlatform({ clusters, clusterSpreads }: Props) {
   const parties = F5_ORDER.filter(p => clusters.some(c => c.party === p));
-  // Selection is a comma list so it is deep-linkable and supports side-by-side comparison.
-  // Empty is a valid state (no party selected) so switching selections is frictionless.
-  const [platform, setPlatform] = useUrlState<string>('platform', '');
-  const selected = useMemo(
-    () => (platform ? platform.split(',').filter(p => (parties as readonly string[]).includes(p)) : []),
-    [platform, parties],
-  );
+  // Selection is shared with Compare Policies (?cmp=…) so it persists across the two views.
+  const [cmp, setCmp] = useUrlState<string>('cmp', '');
+  const full = useMemo(() => (cmp ? cmp.split(',').filter(Boolean) : []), [cmp]);
+  const selected = useMemo(() => full.filter(p => (parties as readonly string[]).includes(p)), [full, parties]);
   const [category, setCategory] = useState<Category>('views');
-  // Two independent axes of a party's signature — enable either or both.
-  // Consensus = how unified the party is; Alignment = how far from the country
-  // (mainstream = close, deviant = far).
-  const [useConsensus, setUseConsensus] = useState(true);
-  const [useAlign, setUseAlign] = useState(false);
-  const [alignMode, setAlignMode] = useState<AlignMode>('deviant');
-  const [minStrength, setMinStrength] = useState(70);
-  const [minDev, setMinDev] = useState(25);
   const [divergeOnly, setDivergeOnly] = useState(false);
+  const sig = useSignatureFilter();
+  const { filter } = sig;
 
   const multi = selected.length > 1;
   const barColor = multi ? NEUTRAL_BAR : (PARTY_COLORS[selected[0]] ?? '#6b7280');
@@ -85,12 +81,10 @@ export function PartyPlatform({ clusters }: Props) {
   const domainOrder = CATEGORY_DOMAINS[category];
   const domainSet = useMemo(() => new Set(domainOrder), [domainOrder]);
 
+  // Toggle a base party while preserving any crossover codes shared from Compare.
   const toggleParty = (p: string) => {
-    const next = selected.includes(p) ? selected.filter(x => x !== p) : [...selected, p];
-    setPlatform(next.join(','));
+    setCmp((full.includes(p) ? full.filter(x => x !== p) : [...full, p]).join(','));
   };
-
-  const filter: SignatureFilter = { useConsensus, consPct: minStrength, useAlign, alignMode, alignPp: minDev };
 
   const rowsByDomain = useMemo(() => {
     const byKey = new Map<string, Row>();
@@ -130,7 +124,7 @@ export function PartyPlatform({ clusters }: Props) {
       out[d].sort((a, b) => b.qualifiers.length - a.qualifiers.length || b.maxStrength - a.maxStrength);
     }
     return out;
-  }, [selected, clusters, minStrength, minDev, useConsensus, useAlign, alignMode, domainSet]);
+  }, [selected, clusters, sig.consPct, sig.alignPp, sig.useConsensus, sig.useAlign, sig.alignMode, domainSet]);
 
   // "Divergences only" keeps rows where the parties differ in defining stance (multi only).
   const shownByDomain = useMemo(() => {
@@ -148,20 +142,26 @@ export function PartyPlatform({ clusters }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Party selector — click to toggle; up to ~3 reads best */}
-      <div className="flex flex-wrap gap-1.5">
-        {parties.map(p => {
-          const on = selected.includes(p);
-          const c = PARTY_COLORS[p] ?? '#6b7280';
-          return (
-            <button key={p} onClick={() => toggleParty(p)}
-              className="text-xs font-semibold px-2.5 py-1 rounded-full border transition-all"
-              style={{ borderColor: c, color: on ? getContrastText(c) : c, backgroundColor: on ? c : 'transparent' }}>
-              {PARTY_NAMES[p] ?? p}
-            </button>
-          );
-        })}
-      </div>
+      {/* Ideological constellation — the overview map */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
+        <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+          Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses
+          {' '}<span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space — cross-pressured between those parties.
+        </p>
+        <IdeologicalConstellation
+          nodes={parties.map(code => {
+            const c = clusters.find(x => x.party === code)!;
+            return {
+              id: code, label: code, seats: c.seatsHouse,
+              F1: (c as any).z_F1 ?? 0, F2: (c as any).z_F2 ?? 0, F3: (c as any).z_F3 ?? 0, F4: (c as any).z_F4 ?? 0, F5: (c as any).z_F5 ?? 0,
+            };
+          })}
+          clusterSpreads={clusterSpreads}
+        />
+      </Card>
+
+      <PartySelector selected={full} onToggle={toggleParty} baseParties={parties} />
 
       {/* Dials */}
       <Card className="p-4">
@@ -181,42 +181,7 @@ export function PartyPlatform({ clusters }: Props) {
             </button>
           )}
         </div>
-        <div className="grid sm:grid-cols-2 gap-5 items-end">
-          <div style={{ opacity: useConsensus ? 1 : 0.45 }}>
-            <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
-              <input type="checkbox" checked={useConsensus} onChange={e => setUseConsensus(e.target.checked)}
-                style={{ accentColor: accent }} />
-              <span className="font-semibold text-foreground">Consensus</span>
-              <span className="text-muted-foreground">— held by</span>
-              <span className="font-mono font-semibold ml-auto" style={{ color: accent }}>≥{minStrength}% or ≤{100 - minStrength}%</span>
-            </label>
-            <input type="range" min={50} max={100} step={5} value={minStrength} disabled={!useConsensus}
-              onChange={e => setMinStrength(Number(e.target.value))} className="w-full" style={{ accentColor: accent }} />
-          </div>
-          <div style={{ opacity: useAlign ? 1 : 0.45 }}>
-            <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
-              <input type="checkbox" checked={useAlign} onChange={e => setUseAlign(e.target.checked)}
-                style={{ accentColor: accent }} />
-              <span className="font-semibold text-foreground">{alignMode === 'deviant' ? 'Deviant' : 'Mainstream'}</span>
-              <span className="text-muted-foreground">— {alignMode === 'deviant' ? 'far from' : 'close to'} the U.S. average</span>
-              <span className="font-mono font-semibold ml-auto" style={{ color: accent }}>
-                {alignMode === 'deviant' ? '≥' : '≤'}{minDev} pts
-              </span>
-            </label>
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1 shrink-0">
-                {(['mainstream', 'deviant'] as const).map(m => (
-                  <button key={m} onClick={() => setAlignMode(m)} disabled={!useAlign}
-                    className={`text-[10px] px-1.5 py-0.5 rounded border ${alignMode === m ? 'bg-secondary text-foreground font-semibold' : 'text-muted-foreground'}`}>
-                    {m === 'mainstream' ? '≤ mainstream' : '≥ deviant'}
-                  </button>
-                ))}
-              </div>
-              <input type="range" min={0} max={50} step={5} value={minDev} disabled={!useAlign}
-                onChange={e => setMinDev(Number(e.target.value))} className="flex-1" style={{ accentColor: accent }} />
-            </div>
-          </div>
-        </div>
+        <SignatureFilters s={sig} accent={accent} />
         <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed border-t border-border/40 pt-2">
           A party's <span className="font-semibold text-foreground">signature</span> is the mix of two things:
           how strongly it holds a position (<span className="font-semibold text-foreground">Consensus</span>) and how far
@@ -231,7 +196,7 @@ export function PartyPlatform({ clusters }: Props) {
           </span>
           {selected.length > 0 && (
             <> — {total} {noun}{total !== 1 ? 's' : ''} where {multi ? 'a selected party' : 'this party'} is
-            {' '}{[useConsensus && 'strongly held', useAlign && (alignMode === 'deviant' ? 'deviant from the U.S.' : 'mainstream')].filter(Boolean).join(' + ') || 'shown (no filter)'}{divergeOnly && multi ? ', where they diverge' : ''}.</>
+            {' '}{[sig.useConsensus && 'strongly held', sig.useAlign && (sig.alignMode === 'deviant' ? 'deviant from the U.S.' : 'mainstream')].filter(Boolean).join(' + ') || 'shown (no filter)'}{divergeOnly && multi ? ', where they diverge' : ''}.</>
           )}
         </p>
       </Card>
@@ -244,10 +209,10 @@ export function PartyPlatform({ clusters }: Props) {
       )}
 
       {total > 0 && (
-        <div className="overflow-x-auto">
-          <div style={{ minWidth: multi ? 200 + selected.length * 130 : undefined }} className="space-y-6">
-            {/* Column headers + national-average legend */}
-            <div className="flex gap-4 items-end px-4">
+        <div>
+          <div className="space-y-6">
+            {/* Column headers + national-average legend — floats on scroll so you remember who's compared */}
+            <div className="flex gap-4 items-end px-4 sticky top-[80px] z-10 bg-background/95 backdrop-blur-sm py-2 rounded-b-md">
               <div className="flex-[2] min-w-[160px] text-right">
                 {multi && <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Position</div>}
                 <div className="flex items-center justify-end gap-1 text-[10px] text-muted-foreground mt-0.5">
