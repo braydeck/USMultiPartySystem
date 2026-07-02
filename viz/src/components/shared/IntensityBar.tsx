@@ -1,5 +1,9 @@
-import { vikForPctile } from '../../lib/vik';
+import { bamForFrac } from '../../lib/bam';
 import clusterIntensityData from '../../data/clusterIntensity.json';
+
+// Legible pole colors for the disagree(left)/agree(right) total labels.
+export const BAM_LEFT = bamForFrac(0.12);   // magenta
+export const BAM_RIGHT = bamForFrac(0.88);  // green
 
 export interface IntensityItem {
   variable: string;
@@ -20,9 +24,10 @@ export const intensityFor = (key: string): IntensityItem | undefined => BY_VAR[k
 // Sequential ramp for non-bipolar frequency scales (church: most → least attendance).
 const SEQ = ['#0b3d91', '#2563eb', '#60a5fa', '#93c5fd', '#c7d7f5', '#eef2ff'];
 
-// Bipolar scales use vik (blue liberal pole → neutral center → red conservative pole).
+// Bipolar agree/disagree scales use bam (magenta → neutral → green) so the color does
+// not read as the political red/blue used for left–right elsewhere.
 export function catColors(kind: 'diverging' | 'freq', n: number): string[] {
-  if (kind === 'diverging') return Array.from({ length: n }, (_, i) => vikForPctile((i / (n - 1)) * 100));
+  if (kind === 'diverging') return Array.from({ length: n }, (_, i) => bamForFrac(i / (n - 1)));
   return Array.from({ length: n }, (_, i) => SEQ[Math.min(i, SEQ.length - 1)]);
 }
 

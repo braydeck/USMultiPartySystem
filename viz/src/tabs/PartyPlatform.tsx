@@ -5,7 +5,7 @@ import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constan
 import { qualifies, type AlignMode, type SignatureFilter } from '../lib/signature';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { CohesionCard } from '../components/parties/CohesionCard';
-import { IntensityBar, IntensityLegend, intensityFor, splitShares } from '../components/shared/IntensityBar';
+import { IntensityBar, IntensityLegend, intensityFor, splitShares, BAM_LEFT, BAM_RIGHT } from '../components/shared/IntensityBar';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -250,7 +250,7 @@ export function PartyPlatform({ clusters }: Props) {
         <div className="overflow-x-auto">
           <div style={{ minWidth: multi ? 200 + selected.length * 130 : undefined }} className="space-y-6">
             {/* Column headers + national-average legend */}
-            <div className="flex gap-4 items-end">
+            <div className="flex gap-4 items-end px-4">
               <div className="flex-[2] min-w-[160px] text-right">
                 {multi && <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Position</div>}
                 <div className="flex items-center justify-end gap-1 text-[10px] text-muted-foreground mt-0.5">
@@ -277,7 +277,7 @@ export function PartyPlatform({ clusters }: Props) {
               const isView = VIEW_SET.has(domain);
               const legendItem = shownByDomain[domain].map(r => intensityFor(r.key)).find(Boolean);
               return (
-                <div key={domain}>
+                <Card key={domain} className="p-4">
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-2">{domain}</h3>
                   {legendItem && <div className="mb-2"><IntensityLegend item={legendItem} /></div>}
                   <div>
@@ -311,11 +311,16 @@ export function PartyPlatform({ clusters }: Props) {
                               <div key={code} className={base}>
                                 <div className="py-1"><IntensityBar item={iv} shares={ivShares} /></div>
                                 {sp && (
-                                  <div className="mt-1 text-[10px] tabular-nums text-muted-foreground flex items-center gap-1">
-                                    <span className="font-semibold" style={{ color: '#1d4ed8' }}>{Math.round(sp.leftTotal)}%</span>
-                                    <span className="opacity-70">· {Math.round(sp.neutral)}% neither ·</span>
-                                    <span className="font-semibold" style={{ color: '#b91c1c' }}>{Math.round(sp.rightTotal)}%</span>
-                                  </div>
+                                  <>
+                                    <div className="relative h-1.5 rounded-sm bg-muted overflow-hidden mt-0.5" title={`Neither ${Math.round(sp.neutral)}%`}>
+                                      <div className="absolute inset-y-0 left-0 bg-slate-400" style={{ width: `${sp.neutral}%` }} />
+                                    </div>
+                                    <div className="mt-0.5 text-[10px] tabular-nums flex items-center justify-between">
+                                      <span className="font-semibold" style={{ color: BAM_LEFT }}>{Math.round(sp.leftTotal)}%</span>
+                                      <span className="text-muted-foreground">{Math.round(sp.neutral)}% neither</span>
+                                      <span className="font-semibold" style={{ color: BAM_RIGHT }}>{Math.round(sp.rightTotal)}%</span>
+                                    </div>
+                                  </>
                                 )}
                               </div>
                             );
@@ -353,7 +358,7 @@ export function PartyPlatform({ clusters }: Props) {
                     </div>
                     ))}
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>

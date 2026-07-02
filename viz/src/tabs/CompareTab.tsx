@@ -3,7 +3,7 @@ import type { ClusterProfile, FDCandidateProfile } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { qualifies, sigActive, type AlignMode, type SignatureFilter } from '../lib/signature';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
-import { IntensityBar, IntensityLegend, intensityFor, splitShares, type IntensityItem } from '../components/shared/IntensityBar';
+import { IntensityBar, IntensityLegend, intensityFor, splitShares, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, getContrastText, etaPurple } from '../constants/parties';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
@@ -554,7 +554,15 @@ function IntensityCell({ item, codes, question }: { item: IntensityItem; codes: 
     <div className="px-3 py-3">
       <div className="text-xs text-foreground leading-snug font-medium mb-1">{question}</div>
       <IntensityLegend item={item} />
-      <div className="space-y-1 mt-1.5">
+      {/* column header */}
+      <div className="flex items-center gap-2 text-[9px] text-muted-foreground uppercase tracking-wide mt-1.5 mb-0.5">
+        <span className="w-11 shrink-0" />
+        <span className="w-24 shrink-0 text-center">neither</span>
+        <span className="w-7 shrink-0" />
+        <span className="flex-1 text-center">distribution</span>
+        <span className="w-7 shrink-0" />
+      </div>
+      <div className="space-y-1">
         {(['__NAT__', ...codes]).map(code => {
           const shares = code === '__NAT__' ? item.national : item.parties[code];
           if (!shares) return null;
@@ -564,10 +572,17 @@ function IntensityCell({ item, codes, question }: { item: IntensityItem; codes: 
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
               <span className="w-11 shrink-0 font-bold text-right" style={{ color }}>{isNat ? 'U.S.' : code}</span>
-              {sp && <span className="w-[68px] shrink-0 text-right text-muted-foreground">neither <span className="text-foreground font-semibold">{Math.round(sp.neutral)}%</span></span>}
-              {sp && <span className="w-7 shrink-0 text-right font-semibold" style={{ color: '#1d4ed8' }}>{Math.round(sp.leftTotal)}%</span>}
+              {sp && (
+                <div className="w-24 shrink-0 flex items-center gap-1">
+                  <div className="relative h-3 flex-1 rounded-sm bg-muted overflow-hidden" title={`Neither ${Math.round(sp.neutral)}%`}>
+                    <div className="absolute inset-y-0 left-0 bg-slate-400" style={{ width: `${sp.neutral}%` }} />
+                  </div>
+                  <span className="w-7 text-right text-foreground font-semibold">{Math.round(sp.neutral)}%</span>
+                </div>
+              )}
+              {sp && <span className="w-7 shrink-0 text-right font-semibold" style={{ color: BAM_LEFT }}>{Math.round(sp.leftTotal)}%</span>}
               <div className="flex-1 min-w-0"><IntensityBar item={item} shares={shares} /></div>
-              {sp && <span className="w-7 shrink-0 font-semibold" style={{ color: '#b91c1c' }}>{Math.round(sp.rightTotal)}%</span>}
+              {sp && <span className="w-7 shrink-0 font-semibold" style={{ color: BAM_RIGHT }}>{Math.round(sp.rightTotal)}%</span>}
             </div>
           );
         })}
