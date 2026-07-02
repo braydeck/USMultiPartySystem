@@ -4,7 +4,6 @@ import { useUrlState } from '../hooks/useUrlState';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../constants/parties';
 import { qualifies, type AlignMode, type SignatureFilter } from '../lib/signature';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
-import { CohesionCard } from '../components/parties/CohesionCard';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, BAM_LEFT, BAM_RIGHT } from '../components/shared/IntensityBar';
 import { Card } from '@/components/ui/card';
 
@@ -236,8 +235,6 @@ export function PartyPlatform({ clusters }: Props) {
           )}
         </p>
       </Card>
-
-      {selected.length > 0 && <CohesionCard selected={selected} />}
 
       {selected.length === 0 && (
         <p className="text-sm text-muted-foreground">Select a party above to see its platform.</p>

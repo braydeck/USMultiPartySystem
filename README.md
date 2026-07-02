@@ -268,7 +268,6 @@ python3 pipeline/generate_blend_stats.py           # blended-type policy support
 
 # ── Respondent-level extras (read the raw .dta directly) ────────────────────
 python3 pipeline/add_compare_items.py              # FP/abortion/voting items → cluster_stats.csv
-python3 pipeline/compute_cohesion.py               # per-cluster cohesion → viz/src/data/clusterCohesion.json
 python3 pipeline/compute_intensity.py              # full multi-point distributions → viz/src/data/clusterIntensity.json
 
 # ── Visualization ──────────────────────────────────────────────────────────
