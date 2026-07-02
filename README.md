@@ -251,6 +251,14 @@ python3 pipeline/pure_only/run_pure_multi_house_stv.py             # → pure_mu
 python3 pipeline/pure_only/run_pure_multi_house_stv.py --triple    # → pure_multi_triple/house/
 python3 pipeline/pure_only/run_pure_multi_senate.py               # → pure_multi/senate/ (Condorcet + IRV)
 
+# ── "No Solidarity" scenario: cluster 2 dissolved, its voters flow to the ──────
+# remaining 9. NO_STY=1 drops STY candidates and redirects output to pure_multi_nosty/.
+NO_STY=1 python3 pipeline/pure_only/generate_pure_multi_ballots.py
+NO_STY=1 python3 pipeline/pure_only/run_pure_multi_primary.py
+NO_STY=1 python3 pipeline/pure_only/run_pure_multi_presidential.py
+NO_STY=1 python3 pipeline/pure_only/run_pure_multi_senate.py
+NO_STY=1 python3 pipeline/pure_only/run_pure_multi_house_stv.py    # → pure_multi_nosty/house/
+
 # ── Crossover field (factor_deviation) ──────────────────────────────────────
 python3 pipeline/generate_factor_deviation_candidates.py   # OAO fields base only (small party)
 python3 pipeline/generate_factor_deviation_ballots.py

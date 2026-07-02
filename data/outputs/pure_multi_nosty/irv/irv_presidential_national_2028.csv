@@ -1,0 +1,15 @@
+round,candidate_code,candidate_name,vote_total,vote_pct,eliminated,winner
+1,CON_1,CON_1,12736.9065,27.9127,False,False
+1,CUP_1,CUP_1,5559.6597,12.1839,True,False
+1,LBR_1,LBR_1,12328.7752,27.0183,False,False
+1,LIB_1,LIB_1,7359.8054,16.1289,False,False
+1,POP_1,POP_1,7645.9955,16.7561,False,False
+2,CON_1,CON_1,15015.484,32.9062,False,False
+2,LBR_1,LBR_1,13932.2577,30.5323,False,False
+2,LIB_1,LIB_1,7810.0962,17.1157,True,False
+2,POP_1,POP_1,8873.3044,19.4457,False,False
+3,CON_1,CON_1,15122.4846,33.1407,False,False
+3,LBR_1,LBR_1,21635.3532,47.4136,False,False
+3,POP_1,POP_1,8873.3044,19.4457,True,False
+4,CON_1,CON_1,20763.2883,45.5025,False,False
+4,LBR_1,LBR_1,24867.854,54.4975,False,True

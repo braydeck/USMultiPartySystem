@@ -33,6 +33,7 @@ Outputs
   data/outputs/pure_multi/state_candidate_profiles.csv
 """
 
+import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -40,7 +41,10 @@ from pathlib import Path
 BASE_DIR        = Path(__file__).parent.parent.parent
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "pure_multi"
+# NO_STY=1 dissolves Solidarity (cluster 2): its candidates are dropped and its voters
+# rank the remaining 9 parties by next-highest posterior. Output goes to a parallel tree.
+NO_STY          = os.environ.get("NO_STY") == "1"
+OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / ("pure_multi_nosty" if NO_STY else "pure_multi")
 
 PROB_COLS  = [f"prob_cluster_{k}" for k in range(10)]
 FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
@@ -102,6 +106,9 @@ CANDIDATES = [
     # ── OAO (Order and Opportunity Party, cluster 7): single candidate (small party) ──
     {"code": "OAO_1", "party": "OAO", "cluster": 7, "prominence": 1.00},
 ]
+
+if NO_STY:
+    CANDIDATES = [c for c in CANDIDATES if c["cluster"] != 2]
 
 N_CANDIDATES = len(CANDIDATES)
 CAND_CODES   = [c["code"] for c in CANDIDATES]

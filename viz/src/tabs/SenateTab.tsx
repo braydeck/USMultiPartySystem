@@ -25,6 +25,8 @@ interface Props {
   irvFD:             FDSenateSeat[];
   condorcetRawMulti: FDSenateSeat[];
   irvRawMulti:       FDSenateSeat[];
+  condorcetRawMultiNoSTY: FDSenateSeat[];
+  irvRawMultiNoSTY:       FDSenateSeat[];
   voteModel:         VoteModelRow[];
   clusters:          ClusterProfile[];
   fdProfiles:        Record<string, FDCandidateProfile>;
@@ -80,11 +82,17 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
 }
 
 export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
+                             condorcetRawMultiNoSTY, irvRawMultiNoSTY,
                              voteModel, clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers,
                              senateBuckets, senateCondorcet }: Props) {
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
+  // No-STY scenario: Solidarity dissolved, its voters flow to the remaining 9 (party-line only).
+  const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
+  const noStyOn = nosty === 'on' && pipeline === 'rawMulti';
+  const condRM = noStyOn ? condorcetRawMultiNoSTY : condorcetRawMulti;
+  const irvRM = noStyOn ? irvRawMultiNoSTY : irvRawMulti;
 
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
 
@@ -97,8 +105,8 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   const SEAT_MAP: Record<SenateScenario, SenateSeat[]> = {
     condFD:       condorcetFD        as unknown as SenateSeat[],
     irvFD:        irvFD              as unknown as SenateSeat[],
-    condRawMulti: condorcetRawMulti             as unknown as SenateSeat[],
-    irvRawMulti:  irvRawMulti              as unknown as SenateSeat[],
+    condRawMulti: condRM             as unknown as SenateSeat[],
+    irvRawMulti:  irvRM              as unknown as SenateSeat[],
   };
   const activeSeats = SEAT_MAP[scenario];
 
@@ -188,6 +196,10 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
+        {pipeline === 'rawMulti' && (
+          <ToggleGroup label="Electorate" value={nosty} onChange={setNosty}
+            options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
+        )}
       </StickyControlBar>
 
       {/* FPTP vs Preferential Senate Comparison */}
