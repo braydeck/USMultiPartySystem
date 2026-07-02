@@ -139,9 +139,9 @@ def main():
     ri=dc['pew_religimp'].values.astype(float)
     rows.append(emit('pew_religimp','Religion','Religion is important (very or somewhat)',
                      np.where(np.isin(ri,[1,2]),1.0,np.where(np.isin(ri,[3,4]),0.0,np.nan))))
-    # Prayer frequency (weekly or more, codes 1–4 → 1); a demographic
+    # Prayer frequency (weekly or more, codes 1–4 → 1); a religiosity view
     pr=dc['pew_prayer'].values.astype(float)
-    rows.append(emit('pew_prayer',FAITH,'Prays weekly or more often',
+    rows.append(emit('pew_prayer','Religion','Prays weekly or more often',
                      np.where(np.isin(pr,[1,2,3,4]),1.0,np.where(np.isin(pr,[5,6,7]),0.0,np.nan))))
     # Denomination buckets (nominal); each a demographic share over valid respondents
     rp=dc['religpew'].values.astype(float); rp_valid=np.isin(rp,list(range(1,13)))

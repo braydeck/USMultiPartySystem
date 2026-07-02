@@ -2047,7 +2047,7 @@
     {
       "variable": "pew_prayer",
       "question": "Prays weekly or more often",
-      "domain": "Faith",
+      "domain": "Religion",
       "kind": "freq",
       "battery": "prayer",
       "labels": [
