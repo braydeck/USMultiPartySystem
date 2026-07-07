@@ -637,7 +637,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
           selected={selected}
           onToggle={code => (selected.includes(code) ? removeParty(code) : addParty(code))}
           baseParties={pureOptions.map(o => o.code)}
-          crossover={fdOptions.map(o => ({ code: o.code, label: o.code }))}
+          crossover={fdOptions.filter(o => !pureOptions.some(p => p.code === o.code)).map(o => ({ code: o.code, label: o.code }))}
         />
       </div>
       {selected.length === 0 && (
