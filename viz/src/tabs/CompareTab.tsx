@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import type { ClusterProfile, FDCandidateProfile } from '../types';
+import type { ClusterProfile, FDCandidateProfile, ConstellationNode } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
 import { sigActive } from '../lib/signature';
 import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
+import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/button';
 interface Props {
   clusters: ClusterProfile[];
   fdProfiles: Record<string, FDCandidateProfile>;
+  clusterSpreads: { party: string; n: number; [key: string]: string | number }[];
 }
 
 const DOMAINS = [
@@ -550,8 +552,52 @@ function FactorItemsPanel({
   );
 }
 
+// Single-value item: the national average + each selected party as a stacked horizontal
+// bar on a shared 0–max axis. Replaces the dot-track — aligned bars, no occlusion, and it
+// scales to any number of parties by stacking. Matches the IntensityCell row layout.
+function StackedBarCell({ v, codes, sigOn, label }: { v: VarEntry; codes: string[]; sigOn: boolean; label: string }) {
+  const maxVal = v.maxVal || 100;
+  const unit = v.unit || '%';
+  const disp = (x: number) => (unit === '%' ? `${Math.round(x)}%` : `${x % 1 === 0 ? x : x.toFixed(1)} ${unit}`);
+  const rows: string[] = ['__NAT__', ...codes];
+  return (
+    <div className={`px-3 py-3 ${v.highlighted ? 'bg-amber-50' : ''}`}>
+      <div className="text-xs text-foreground leading-snug font-medium mb-2">
+        {v.factors && v.factors.length > 0
+          ? v.factors.map(f => (
+              <span key={f.factor} className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[f.factor]}</span>
+            ))
+          : v.factor
+            ? <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1.5 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[v.factor]}</span>
+            : null}
+        {label}
+      </div>
+      <div className="space-y-1">
+        {rows.map(code => {
+          const isNat = code === '__NAT__';
+          const val = isNat ? v.overall : v.pcts[code];
+          if (val == null) return null;
+          const color = isNat ? '#64748b' : getBlendColor(code);
+          const qualifies = sigOn && v.qualifiers.includes(code);
+          const pos = Math.min((val / maxVal) * 100, 100);
+          return (
+            <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+              <span className="w-11 shrink-0 font-bold text-right" style={{ color }}>{isNat ? 'U.S.' : code}</span>
+              <div className="flex-1 relative h-3 rounded-sm bg-muted overflow-hidden">
+                <div className="absolute inset-y-0 left-0 rounded-sm"
+                  style={{ width: `${pos}%`, backgroundColor: isNat ? '#cbd5e1' : color, opacity: sigOn && !qualifies && !isNat ? 0.45 : 1 }} />
+              </div>
+              <span className="w-11 shrink-0 text-right" style={{ color: isNat ? '#64748b' : 'inherit' }}>{disp(val)}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // Full-distribution cell for a multi-point item: national + each selected party as a
-// stacked bar (diverging bipolar via vik), so Maintain/Neither and intensity are visible
+// stacked bar (diverging bipolar via bam), so Maintain/Neither and intensity are visible
 // instead of the single collapsed dot.
 function IntensityCell({ item, codes, question }: { item: IntensityItem; codes: string[]; question: string }) {
   return (
@@ -618,7 +664,7 @@ function saveCompare(s: SavedCompare) {
   try { localStorage.setItem(COMPARE_STORE_KEY, JSON.stringify(s)); } catch { /* private mode / quota — ignore */ }
 }
 
-export function CompareTab({ clusters, fdProfiles }: Props) {
+export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   // Selection lives in the URL (?cmp=STY,SD,DSA) so it is deep-linkable (e.g. from the quiz).
   // Selection + filters are also persisted to localStorage and restored on return, since
   // tab navigation clears the query string.
@@ -758,16 +804,26 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
     return DOMAINS.filter(d => (sectionVarMap[d]?.length ?? 0) > 0);
   }, [sectionVarMap]);
 
+  // Constellation nodes — all parties, always shown as the overview map.
+  const constellationNodes = useMemo((): ConstellationNode[] =>
+    F5_ORDER.filter(code => clusters.some(c => c.party === code)).map(code => {
+      const c = clusters.find(x => x.party === code) as unknown as Record<string, number> & { seatsHouse?: number };
+      return {
+        id: code, label: code, seats: c.seatsHouse ?? 0,
+        F1: c.z_F1 ?? 0, F2: c.z_F2 ?? 0, F3: c.z_F3 ?? 0, F4: c.z_F4 ?? 0, F5: c.z_F5 ?? 0,
+      };
+    }), [clusters]);
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Party Comparison</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-1">Parties</h2>
         <p className="text-muted-foreground text-sm">
-          Compare one or more parties across all policy domains. Amber rows highlight where
-          any two selected parties differ by ≥{minGap}pp, and sort to the top of each section.
-          The <span className="font-medium text-foreground">Signature</span> filter below rings the
-          parties for whom a position is a defining plank — strongly held and either mainstream or
-          deviant from the country.
+          Select one party to see its platform, or several to compare — each row stacks the national
+          average and every selected party as a bar on a shared scale. The
+          {' '}<span className="font-medium text-foreground">Signature</span> filter keeps each party's
+          defining planks (strongly held, and mainstream or deviant from the country); amber rows are
+          where selected parties differ by ≥{minGap}pp.
         </p>
       </div>
 
@@ -785,6 +841,16 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
             Try: PRG + NAT (maximum divergence) · LBR + CON (presidential rivals) · LBR_hi_so + LBR (crossover vs base)
           </p>
         )}
+      </Card>
+
+      {/* Ideological constellation — the overview map, always shown */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
+        <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+          Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
+          <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space — cross-pressured between those parties.
+        </p>
+        <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
       </Card>
 
       {selected.length >= 1 && (
@@ -949,19 +1015,8 @@ export function CompareTab({ clusters, fdProfiles }: Props) {
                                   {iv ? (
                                     <IntensityCell item={iv} codes={selected} question={iv.question} />
                                   ) : (
-                                  <DotTrack
-                                    question={grp.header ? stripPrefix(v.question) : v.question}
-                                    factor={v.factor}
-                                    factors={v.factors}
-                                    highlighted={v.highlighted}
-                                    pcts={v.pcts}
-                                    codes={selected}
-                                    maxVal={v.maxVal}
-                                    unit={v.unit}
-                                    overall={v.overall}
-                                    showNatAvg={showNatAvg}
-                                    emphasized={sigOn ? v.qualifiers : undefined}
-                                  />
+                                    <StackedBarCell v={v} codes={selected} sigOn={sigOn}
+                                      label={grp.header ? stripPrefix(v.question) : v.question} />
                                   )}
                                 </div>
                                 );
