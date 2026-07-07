@@ -9,6 +9,7 @@ import { IdeologicalConstellation } from '../components/house/IdeologicalConstel
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
+import { vikForZ } from '../lib/vik';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -181,157 +182,11 @@ function rawToZ(val: number, factor: string): number {
   return val / (POP_SD[factor] || 1);
 }
 
-// ── Dot-on-track row for policy variables ─────────────────────────────────
-// maxVal: axis maximum (100 for %, 40 for weeks, etc.)
-// unit: display suffix ('' for pure %, 'wks', etc.)
 
-const POLICY_LINE_Y = 32;
-const POLICY_H      = 72;
-const DOT_R         = 5.5;
-const ABOVE_Y       = POLICY_LINE_Y - DOT_R - 5;   // label baseline above dot
-const BELOW_Y       = POLICY_LINE_Y + DOT_R + 13;  // label baseline below dot
 
-function DotTrack({
-  question, factor, factors, highlighted, pcts, codes, maxVal = 100, unit = '%', overall, showNatAvg, loadingWeight, emphasized,
-}: {
-  question: string;
-  factor: string | null;
-  factors?: { factor: string; loading: number }[];
-  highlighted: boolean;
-  pcts: Record<string, number>;
-  codes: string[];
-  maxVal?: number;
-  unit?: string;
-  overall?: number | null;
-  showNatAvg?: boolean;
-  loadingWeight?: number;
-  emphasized?: string[];
-}) {
-  const ringed = new Set(emphasized ?? []);
-  const toPos  = (v: number) => (v / maxVal) * 100;  // value → 0-100% position
-  const toDisp = (v: number) => unit === '%' ? `${Math.round(v)}%` : `${v % 1 === 0 ? v : v.toFixed(1)} ${unit}`;
-
-  const present = [...codes]
-    .filter(c => pcts[c] !== undefined)
-    .sort((a, b) => pcts[a]! - pcts[b]!);
-
-  const lo = present.length > 0 ? toPos(pcts[present[0]]!) : 0;
-  const hi = present.length > 0 ? toPos(pcts[present[present.length - 1]]!) : 0;
-
-  // Axis labels depend on scale
-  const midVal = maxVal / 2;
-  const axisL  = unit === '%' ? '0%' : `0 ${unit}`;
-  const axisMid = unit === '%' ? '50%' : `${midVal % 1 === 0 ? midVal : midVal.toFixed(0)} ${unit}`;
-  const axisR  = unit === '%' ? '100%' : `${maxVal} ${unit}`;
-
-  return (
-    <div className={`px-3 py-3 ${highlighted ? 'bg-amber-50' : 'hover:bg-muted/50'}`}>
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="text-xs text-foreground leading-snug flex-1 min-w-0 font-medium">
-          {loadingWeight !== undefined && (() => {
-            const absW = Math.abs(loadingWeight);
-            // Map |loading| 0.2–0.9 to opacity 0.3–1.0
-            const opacity = 0.3 + (Math.min(absW, 0.9) - 0.2) / 0.7 * 0.7;
-            // Bar width: 20–60px based on |loading|
-            const barWidth = 20 + (Math.min(absW, 0.9) - 0.2) / 0.7 * 40;
-            return (
-              <span className="inline-flex items-center gap-1 mr-2 align-middle">
-                <span
-                  className="inline-block h-[6px] rounded-full flex-shrink-0"
-                  style={{ width: barWidth, backgroundColor: `rgba(79, 70, 229, ${opacity})` }}
-                />
-                <span className="text-[9px] font-mono font-semibold text-indigo-600 whitespace-nowrap">
-                  {loadingWeight >= 0 ? '+' : ''}{loadingWeight.toFixed(2)}
-                </span>
-              </span>
-            );
-          })()}
-          {factors && factors.length > 0 ? (
-            factors.map(f => (
-              <span key={f.factor} className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">
-                {FACTOR_SHORT[f.factor]}
-              </span>
-            ))
-          ) : factor ? (
-            <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1.5 bg-muted text-muted-foreground align-middle">
-              {FACTOR_SHORT[factor]}
-            </span>
-          ) : null}
-          {question}
-        </div>
-      </div>
-      <svg width="100%" height={POLICY_H} style={{ overflow: 'visible' }}>
-        {/* 50% reference line */}
-        <line x1="50%" y1={3} x2="50%" y2={POLICY_LINE_Y + 5}
-          stroke="#94a3b8" strokeWidth={1} strokeDasharray="3,2" />
-        {/* National average marker */}
-        {showNatAvg && overall != null && (
-          <>
-            <line x1={`${toPos(overall)}%`} y1={POLICY_LINE_Y - 12}
-              x2={`${toPos(overall)}%`} y2={POLICY_LINE_Y + 12}
-              stroke="#059669" strokeWidth={2.5} />
-            <text x={`${toPos(overall)}%`} y={8}
-              textAnchor="middle" fontSize={8} fill="#059669" fontWeight="600">
-              All Americans: {toDisp(overall)}
-            </text>
-          </>
-        )}
-        {/* Base track */}
-        <line x1="1%" y1={POLICY_LINE_Y} x2="99%" y2={POLICY_LINE_Y}
-          stroke="#e2e8f0" strokeWidth={1.5} />
-        {/* Range span */}
-        {present.length > 1 && (
-          <line
-            x1={`${lo}%`} y1={POLICY_LINE_Y}
-            x2={`${hi}%`} y2={POLICY_LINE_Y}
-            stroke={highlighted ? '#fbbf24' : '#cbd5e1'}
-            strokeWidth={3} strokeLinecap="round"
-          />
-        )}
-        {/* Dots + combined inline labels */}
-        {present.map((code, idx) => {
-          const raw  = pcts[code]!;
-          const pos  = toPos(raw);
-          const color = getBlendColor(code);
-          const above = idx % 2 === 0;
-          const labelY = above ? ABOVE_Y : BELOW_Y;
-          const anchor = pos < 12 ? 'start' : pos > 88 ? 'end' : 'middle';
-          const isRinged = ringed.has(code);
-          return (
-            <g key={code}>
-              {isRinged && (
-                <circle cx={`${pos}%`} cy={POLICY_LINE_Y} r={DOT_R + 3.5}
-                  fill="none" stroke={color} strokeWidth={2} />
-              )}
-              <circle cx={`${pos}%`} cy={POLICY_LINE_Y} r={DOT_R}
-                fill={color} stroke="white" strokeWidth={2} />
-              <text x={`${pos}%`} y={labelY} textAnchor={anchor} dominantBaseline="auto">
-                <tspan fontWeight="700" fontSize={11} fill={color}>{code}</tspan>
-                <tspan fontSize={10} fill="#475569"> {toDisp(raw)}</tspan>
-              </text>
-            </g>
-          );
-        })}
-        {/* Axis */}
-        <text x="1%"  y={POLICY_H - 3} fontSize={8} fill="#94a3b8" textAnchor="start">{axisL}</text>
-        <text x="50%" y={POLICY_H - 3} fontSize={8} fill="#94a3b8" textAnchor="middle">{axisMid}</text>
-        <text x="99%" y={POLICY_H - 3} fontSize={8} fill="#94a3b8" textAnchor="end">{axisR}</text>
-      </svg>
-    </div>
-  );
-}
-
-// ── Dot-on-track row for factor scores (−2 to +2 scale) ───────────────────
-
-const FACTOR_LINE_Y = 33;
-const FACTOR_H      = 82;
-const FACTOR_DOT_R  = 6;
-const FACTOR_MIN    = -2.5;  // z-score range
-const FACTOR_MAX    =  2.5;
-const fvToPct = (v: number) => ((v - FACTOR_MIN) / (FACTOR_MAX - FACTOR_MIN)) * 100;
-const TIER_BOUNDS   = [-2.0, -1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0];
-
-function FactorDotRow({
+// ── Diverging factor-score bars: stacked per party, centered at the U.S. mean, blue
+// toward the low pole / red toward the high pole (vik) — the party-card FactorBar style.
+function FactorBarRow({
   factor, codes, clusters, fdProfiles, scaleMode,
 }: {
   factor: FactorKey;
@@ -341,28 +196,19 @@ function FactorDotRow({
   scaleMode: 'strength' | 'percentile';
 }) {
   const zToPctile = (z: number) => (1 / (1 + Math.exp(-1.7 * z))) * 100;
-
   const scored = codes
     .map(code => {
       const raw = getFactorScores(code, clusters, fdProfiles)?.[factor];
       if (raw === undefined) return null;
       const z = rawToZ(raw, factor);
-      // Also check for precomputed percentile
       const cl = clusters.find(c => c.party === code) ?? clusters.find(c => c.party === code.split('_')[0]);
-      const pctile = (cl as any)?.[`pctile_${factor}`] ?? zToPctile(z);
+      const pctile = (cl as unknown as Record<string, number>)?.[`pctile_${factor}`] ?? zToPctile(z);
       return { code, z, pctile };
     })
     .filter((s): s is { code: string; z: number; pctile: number } => s !== null)
     .sort((a, b) => a.z - b.z);
-
-  const isPercentile = scaleMode === 'percentile';
-  const toPos = isPercentile
-    ? (item: { z: number; pctile: number }) => item.pctile
-    : (item: { z: number; pctile: number }) => fvToPct(item.z);
-  const fmtVal = isPercentile
-    ? (item: { z: number; pctile: number }) => `${Math.round(item.pctile)}%`
-    : (item: { z: number; pctile: number }) => `${item.z >= 0 ? '+' : ''}${item.z.toFixed(1)}σ`;
-
+  const isPct = scaleMode === 'percentile';
+  const poles = FACTOR_POLES[factor];
   return (
     <div className="px-4 py-3">
       <div className="flex items-center gap-2 mb-2">
@@ -377,98 +223,41 @@ function FactorDotRow({
           </span>
         )}
       </div>
-      <svg width="100%" height={FACTOR_H} style={{ overflow: 'visible' }}>
-        {/* Tier boundary ticks */}
-        {!isPercentile && TIER_BOUNDS.map(v => (
-          <line key={v}
-            x1={`${fvToPct(v)}%`} y1={FACTOR_LINE_Y - 8}
-            x2={`${fvToPct(v)}%`} y2={FACTOR_LINE_Y + 8}
-            stroke={v === 0 ? '#94a3b8' : '#cbd5e1'}
-            strokeWidth={v === 0 ? 1.5 : 1} />
-        ))}
-        {isPercentile && (
-          <line x1="50%" y1={FACTOR_LINE_Y - 8} x2="50%" y2={FACTOR_LINE_Y + 8}
-            stroke="#94a3b8" strokeWidth={1.5} />
-        )}
-        {/* Base line */}
-        <line x1="1%" y1={FACTOR_LINE_Y} x2="99%" y2={FACTOR_LINE_Y}
-          stroke="#e2e8f0" strokeWidth={1.5} />
-        {/* Tier labels */}
-        {!isPercentile ? (
-          <>
-            {/* Zone background shading — intensity increases outward */}
-            {/* Mixed */}
-            <rect x={`${fvToPct(-0.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(0.5) - fvToPct(-0.5)}%`} height={20} fill="#f1f5f9" rx={3} />
-            {/* Leans */}
-            <rect x={`${fvToPct(0.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(1.0) - fvToPct(0.5)}%`} height={20} fill="#fecaca" opacity={0.25} rx={2} />
-            <rect x={`${fvToPct(-1.0)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-0.5) - fvToPct(-1.0)}%`} height={20} fill="#bfdbfe" opacity={0.25} rx={2} />
-            {/* Moderately */}
-            <rect x={`${fvToPct(1.0)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(1.5) - fvToPct(1.0)}%`} height={20} fill="#fca5a5" opacity={0.35} rx={2} />
-            <rect x={`${fvToPct(-1.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-1.0) - fvToPct(-1.5)}%`} height={20} fill="#93c5fd" opacity={0.35} rx={2} />
-            {/* Strongly */}
-            <rect x={`${fvToPct(1.5)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(FACTOR_MAX) - fvToPct(1.5)}%`} height={20} fill="#f87171" opacity={0.3} rx={2} />
-            <rect x={`${fvToPct(FACTOR_MIN)}%`} y={FACTOR_LINE_Y - 10} width={`${fvToPct(-1.5) - fvToPct(FACTOR_MIN)}%`} height={20} fill="#60a5fa" opacity={0.3} rx={2} />
-            {/* Zone labels at zone CENTERS */}
-            <text x={`${fvToPct(-1.75)}%`}  y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Strongly</text>
-            <text x={`${fvToPct(-1.25)}%`}  y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Moderately</text>
-            <text x={`${fvToPct(-0.75)}%`}  y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Leans</text>
-            <text x={`${fvToPct(0)}%`}      y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Mixed</text>
-            <text x={`${fvToPct(0.75)}%`}   y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Leans</text>
-            <text x={`${fvToPct(1.25)}%`}   y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Moderately</text>
-            <text x={`${fvToPct(1.75)}%`}   y={FACTOR_LINE_Y - 14} fontSize={7} fill="#94a3b8" textAnchor="middle">Strongly</text>
-            {/* Pole labels at ends */}
-            <text x="1%"  y={FACTOR_H - 4} fontSize={8} fill="#2563eb" fontWeight="600">
-              ← {FACTOR_POLES[factor]?.low ?? ''}
-            </text>
-            <text x="99%" y={FACTOR_H - 4} fontSize={8} fill="#dc2626" fontWeight="600" textAnchor="end">
-              {FACTOR_POLES[factor]?.high ?? ''} →
-            </text>
-          </>
-        ) : (
-          <>
-            <text x="1%"  y={FACTOR_H - 4} fontSize={8} fill="#2563eb" fontWeight="600">
-              ← {FACTOR_POLES[factor]?.low ?? ''} (0%)
-            </text>
-            <text x="50%" y={FACTOR_H - 4} fontSize={8} fill="#94a3b8" textAnchor="middle">50% (median)</text>
-            <text x="99%" y={FACTOR_H - 4} fontSize={8} fill="#dc2626" fontWeight="600" textAnchor="end">
-              {FACTOR_POLES[factor]?.high ?? ''} (100%) →
-            </text>
-          </>
-        )}
-        {/* Dots */}
-        {scored.map((item, idx) => {
-          const pct   = toPos(item);
-          const color = getBlendColor(item.code);
-          const above = idx % 2 === 0;
-          const labelY = above
-            ? FACTOR_LINE_Y + FACTOR_DOT_R + 13
-            : FACTOR_LINE_Y + FACTOR_DOT_R + 25;
-          const anchor = pct < 12 ? 'start' : pct > 88 ? 'end' : 'middle';
+      <div className="space-y-1">
+        {scored.map(({ code, z, pctile }) => {
+          const isHigh = isPct ? pctile >= 50 : z >= 0;
+          const w = isPct ? Math.abs(pctile - 50) : Math.min(Math.abs(z) / 2.5, 1) * 50;
+          const color = vikForZ(z);
+          const val = isPct ? `${Math.round(pctile)}%` : `${z >= 0 ? '+' : ''}${z.toFixed(1)}σ`;
           return (
-            <g key={item.code}>
-              <circle cx={`${pct}%`} cy={FACTOR_LINE_Y} r={FACTOR_DOT_R}
-                fill={color} stroke="white" strokeWidth={2} />
-              <text x={`${pct}%`} y={labelY} textAnchor={anchor}>
-                <tspan fontWeight="700" fontSize={11} fill={color}>{item.code}</tspan>
-                <tspan fontSize={10} fill="#475569"> {fmtVal(item)}</tspan>
-              </text>
-            </g>
+            <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+              <span className="w-11 shrink-0 font-bold text-right" style={{ color: getBlendColor(code) }}>{code}</span>
+              <div className="flex-1 relative h-3 rounded-sm bg-muted overflow-hidden">
+                <div className="absolute inset-y-0 rounded-sm" style={{ left: isHigh ? '50%' : `${50 - w}%`, width: `${w}%`, backgroundColor: color }} />
+                <div className="absolute top-0 bottom-0 w-px bg-slate-400" style={{ left: '50%' }} />
+              </div>
+              <span className="w-12 shrink-0 text-right font-semibold" style={{ color: z >= 0 ? '#b91c1c' : '#1d4ed8' }}>{val}</span>
+            </div>
           );
         })}
-      </svg>
+      </div>
+      <div className="flex justify-between text-[9px] mt-1.5">
+        <span style={{ color: '#2563eb' }}>← {poles?.low ?? ''}</span>
+        <span className="text-muted-foreground">{isPct ? '50% = median' : '0 = U.S. mean'}</span>
+        <span style={{ color: '#dc2626' }}>{poles?.high ?? ''} →</span>
+      </div>
     </div>
   );
 }
 
 function FactorItemsPanel({
-  factor, codes, clusters, fdProfiles, minGap, showNatAvg,
+  factor, codes, clusters, fdProfiles, minGap,
 }: {
   factor: string;
   codes: string[];
   clusters: ClusterProfile[];
   fdProfiles: Record<string, FDCandidateProfile>;
   minGap: number;
-  showNatAvg: boolean;
 }) {
   const items = FACTOR_ITEMS[factor] ?? [];
 
@@ -532,18 +321,14 @@ function FactorItemsPanel({
               i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
             ].filter(Boolean).join(' ')}
           >
-            <DotTrack
-              question={v.question}
-              factor={null}
-              highlighted={v.highlighted}
-              pcts={v.pcts}
+            <StackedBarCell
+              item={{
+                question: v.question, factor: null, pcts: v.pcts, overall: v.overall,
+                maxVal: v.maxVal, unit: v.unit, highlighted: v.highlighted, loadingWeight: v.loading,
+              }}
               codes={codes}
-
-              maxVal={v.maxVal}
-              unit={v.unit}
-              overall={v.overall}
-              showNatAvg={showNatAvg}
-              loadingWeight={v.loading}
+              sigOn={false}
+              label={v.question}
             />
           </div>
         ))}
@@ -552,33 +337,54 @@ function FactorItemsPanel({
   );
 }
 
+// Structural shape the bar cell needs — satisfied by both the section VarEntry and the
+// EFA-panel entries.
+interface BarItem {
+  question: string;
+  factor?: string | null;
+  factors?: { factor: string; loading: number }[];
+  pcts: Record<string, number>;
+  overall: number | null;
+  maxVal: number;
+  unit: string;
+  highlighted: boolean;
+  qualifiers?: string[];
+  loadingWeight?: number;
+}
+
 // Single-value item: the national average + each selected party as a stacked horizontal
 // bar on a shared 0–max axis. Replaces the dot-track — aligned bars, no occlusion, and it
 // scales to any number of parties by stacking. Matches the IntensityCell row layout.
-function StackedBarCell({ v, codes, sigOn, label }: { v: VarEntry; codes: string[]; sigOn: boolean; label: string }) {
-  const maxVal = v.maxVal || 100;
-  const unit = v.unit || '%';
+function StackedBarCell({ item, codes, sigOn, label }: { item: BarItem; codes: string[]; sigOn: boolean; label: string }) {
+  const maxVal = item.maxVal || 100;
+  const unit = item.unit || '%';
+  const qualifiers = item.qualifiers ?? [];
   const disp = (x: number) => (unit === '%' ? `${Math.round(x)}%` : `${x % 1 === 0 ? x : x.toFixed(1)} ${unit}`);
   const rows: string[] = ['__NAT__', ...codes];
   return (
-    <div className={`px-3 py-3 ${v.highlighted ? 'bg-amber-50' : ''}`}>
+    <div className={`px-3 py-3 ${item.highlighted ? 'bg-amber-50' : ''}`}>
       <div className="text-xs text-foreground leading-snug font-medium mb-2">
-        {v.factors && v.factors.length > 0
-          ? v.factors.map(f => (
+        {item.loadingWeight !== undefined && (
+          <span className="text-[9px] font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
+            {item.loadingWeight >= 0 ? '+' : ''}{item.loadingWeight.toFixed(2)}
+          </span>
+        )}
+        {item.factors && item.factors.length > 0
+          ? item.factors.map(f => (
               <span key={f.factor} className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[f.factor]}</span>
             ))
-          : v.factor
-            ? <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1.5 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[v.factor]}</span>
+          : item.factor
+            ? <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1.5 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[item.factor]}</span>
             : null}
         {label}
       </div>
       <div className="space-y-1">
         {rows.map(code => {
           const isNat = code === '__NAT__';
-          const val = isNat ? v.overall : v.pcts[code];
+          const val = isNat ? item.overall : item.pcts[code];
           if (val == null) return null;
           const color = isNat ? '#64748b' : getBlendColor(code);
-          const qualifies = sigOn && v.qualifiers.includes(code);
+          const qualifies = sigOn && qualifiers.includes(code);
           const pos = Math.min((val / maxVal) * 100, 100);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
@@ -655,7 +461,6 @@ interface SavedCompare {
   minGap?: number;
   divergeOnly?: boolean;
   factorScale?: 'strength' | 'percentile';
-  showNatAvg?: boolean;
 }
 function loadSavedCompare(): SavedCompare {
   try { return JSON.parse(localStorage.getItem(COMPARE_STORE_KEY) || '{}'); } catch { return {}; }
@@ -674,7 +479,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   const [minGap, setMinGap] = useState(saved.minGap ?? 15);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [expandedFactors, setExpandedFactors] = useState<Set<string>>(new Set());
-  const [showNatAvg, setShowNatAvg] = useState(saved.showNatAvg ?? true);
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>(saved.factorScale ?? 'strength');
   const [divergeOnly, setDivergeOnly] = useState(saved.divergeOnly ?? false);
   // Signature filter shared with Party Platforms (URL params) so the two views agree.
@@ -691,8 +495,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
   // Persist selection + filters for next time.
   useEffect(() => {
-    saveCompare({ cmp, minGap, divergeOnly, factorScale, showNatAvg });
-  }, [cmp, minGap, divergeOnly, factorScale, showNatAvg]);
+    saveCompare({ cmp, minGap, divergeOnly, factorScale });
+  }, [cmp, minGap, divergeOnly, factorScale]);
 
   // Build option list: pure parties in F5_ORDER, then FD candidates grouped by party
   const pureOptions = F5_ORDER
@@ -827,21 +631,21 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         </p>
       </div>
 
-      {/* Party selector */}
-      <Card className="p-4">
-        <div className="text-sm font-semibold text-foreground mb-3">Select parties to compare</div>
+      {/* Party selector — sticky so you can adjust the comparison while scrolling the items */}
+      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2">
         <PartySelector
           selected={selected}
           onToggle={code => (selected.includes(code) ? removeParty(code) : addParty(code))}
           baseParties={pureOptions.map(o => o.code)}
           crossover={fdOptions.map(o => ({ code: o.code, label: o.code }))}
         />
-        {selected.length === 0 && (
-          <p className="text-xs text-muted-foreground mt-2">
-            Try: PRG + NAT (maximum divergence) · LBR + CON (presidential rivals) · LBR_hi_so + LBR (crossover vs base)
-          </p>
-        )}
-      </Card>
+      </div>
+      {selected.length === 0 && (
+        <p className="text-xs text-muted-foreground">
+          Select a party for its platform, or several to compare. Try: PRG + NAT (maximum divergence) ·
+          LBR + CON (presidential rivals) · LBR_hi_so + LBR (crossover vs base).
+        </p>
+      )}
 
       {/* Ideological constellation — the overview map, always shown */}
       <Card className="p-4">
@@ -889,7 +693,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                       role="button"
                       aria-expanded={isExpanded}
                     >
-                      <FactorDotRow factor={f} codes={selected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
+                      <FactorBarRow factor={f} codes={selected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
                       <div className="flex items-center justify-center pb-2 gap-1">
                         <span className="text-muted-foreground text-[10px]">{isExpanded ? '▲' : '▼'}</span>
                         <span className="text-[10px] text-muted-foreground">
@@ -904,7 +708,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                         clusters={clusters}
                         fdProfiles={fdProfiles}
                         minGap={minGap}
-                        showNatAvg={showNatAvg}
                       />
                     )}
                   </div>
@@ -915,11 +718,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
           {/* Controls: highlight threshold + toggles */}
           <div className="flex flex-wrap items-start gap-3">
-            <Button onClick={() => setShowNatAvg(!showNatAvg)}
-              variant={showNatAvg ? 'default' : 'secondary'}
-              size="sm">
-              {showNatAvg ? '✓ National Avg' : 'National Avg'}
-            </Button>
             <Button onClick={() => setDivergeOnly(!divergeOnly)}
               variant={divergeOnly ? 'default' : 'secondary'}
               size="sm">
@@ -1015,7 +813,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                   {iv ? (
                                     <IntensityCell item={iv} codes={selected} question={iv.question} />
                                   ) : (
-                                    <StackedBarCell v={v} codes={selected} sigOn={sigOn}
+                                    <StackedBarCell item={v} codes={selected} sigOn={sigOn}
                                       label={grp.header ? stripPrefix(v.question) : v.question} />
                                   )}
                                 </div>
