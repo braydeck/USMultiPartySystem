@@ -25,6 +25,10 @@ import pandas as pd
 from pathlib import Path
 
 TURNOUT_WEIGHT = os.environ.get("TURNOUT_WEIGHT") == "1"
+# Gap-compression parameter λ ∈ [0,1]: each force's turnout moves toward parity as
+#   t_k(λ) = t_k + λ·(1 − t_k).  λ=0 = observed 2024 gaps (floor); λ=1 = full parity
+# (= full participation). Intermediate λ = the 'tuning fork' sensitivity sweep.
+TURNOUT_LAMBDA = float(os.environ.get("TURNOUT_LAMBDA", "0"))
 _BASE        = Path(__file__).parent.parent.parent
 _TURNOUT_CSV = _BASE / "data" / "processed" / "turnout_propensity.csv"
 
@@ -35,8 +39,8 @@ def turnout_multiplier(n: int) -> np.ndarray:
     """Per-row turnout multiplier aligned to the efa/ballot rows (length n).
 
     All-ones when TURNOUT_WEIGHT is off. When on, returns each row's per-cluster
-    validated turnout rate. Asserts row alignment (same 45,707-row order as
-    efa_factor_scores.csv) before returning.
+    validated turnout rate compressed toward parity by λ. Asserts row alignment
+    (same 45,707-row order as efa_factor_scores.csv) before returning.
     """
     if not TURNOUT_WEIGHT:
         return np.ones(n)
@@ -46,9 +50,19 @@ def turnout_multiplier(n: int) -> np.ndarray:
     assert len(_cache) == n, (
         f"turnout_propensity rows ({len(_cache)}) != data rows ({n}) — "
         "alignment broken; regenerate with compute_turnout_propensity.py")
-    return _cache["turnout_cluster"].values.astype(float)
+    t = _cache["turnout_cluster"].values.astype(float)
+    return t + TURNOUT_LAMBDA * (1.0 - t)   # compress the inter-force gap toward parity
 
 
 def output_tree(base_tree: str) -> str:
-    """Append the _turnout suffix to the output tree name when the knob is on."""
-    return base_tree + ("_turnout" if TURNOUT_WEIGHT else "")
+    """Append the _turnout[_lNN] suffix to the output tree when the knob is on.
+
+    λ=0 keeps the plain '_turnout' floor tree (back-compatible); λ>0 adds '_lNN'
+    (e.g. _l25) so each compression stop lands in its own parallel tree.
+    """
+    if not TURNOUT_WEIGHT:
+        return base_tree
+    suffix = "_turnout"
+    if TURNOUT_LAMBDA > 0:
+        suffix += f"_l{round(TURNOUT_LAMBDA * 100)}"
+    return base_tree + suffix

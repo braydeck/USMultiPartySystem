@@ -3187,6 +3187,14 @@ def build_turnout_scenario():
     _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")
 
 
+def build_turnout_lambda_scenario():
+    """Gap-compression sweep (the 'tuning fork'). λ=0 (Turnout) and λ=1 (base) already
+    exist; emit the intermediate stops *TurnoutL25/L50/L75.json — each force's turnout
+    moved 25/50/75% of the way toward parity — so the viz can show where winners flip."""
+    for l in (25, 50, 75):
+        _build_turnout_variant(OUTPUTS / f"pure_multi_turnout_l{l}", f"TurnoutL{l}")
+
+
 if __name__ == "__main__":
     print("Preparing data (native 10-party incl. OAO)...")
 
@@ -3227,6 +3235,7 @@ if __name__ == "__main__":
         build_fd_district_stv_results_triple, build_district_county_map_triple,
         build_nosty_scenario,
         build_turnout_scenario,
+        build_turnout_lambda_scenario,
     ):
         _run(fn)
     print("Done.")
