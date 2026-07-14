@@ -16,19 +16,16 @@ function PresCell({ signs, winner }: { signs: string | undefined; winner: string
   if (!signs) return <span className="text-slate-300 text-xs">—</span>;
   const color = getBlendColor(winner);
   return (
-    <div className="flex flex-col items-center gap-0.5">
-      <span
-        className="text-xs font-semibold px-1.5 py-0.5 rounded border whitespace-nowrap"
-        style={
-          signs === 'SIGN'
-            ? { backgroundColor: color + '18', color, borderColor: color + '55' }
-            : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
-        }
-      >
-        {signs === 'SIGN' ? '✓ Sign' : '✗ Veto'}
-      </span>
-      <span className="text-xs font-mono text-muted-foreground truncate max-w-[72px]" title={winner}>{winner}</span>
-    </div>
+    <span
+      className="text-xs font-semibold px-1.5 py-0.5 rounded border whitespace-nowrap"
+      style={
+        signs === 'SIGN'
+          ? { backgroundColor: color + '18', color, borderColor: color + '55' }
+          : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
+      }
+    >
+      {signs === 'SIGN' ? '✓ Sign' : '✗ Veto'}
+    </span>
   );
 }
 
@@ -127,20 +124,20 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         </p>
       </div>
 
-      <div className="hidden md:grid grid-cols-[1fr_90px_90px_90px_60px_60px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
+      <div className="hidden md:grid grid-cols-[1fr_90px_90px_90px_84px_84px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
         <div>Bill</div>
         <div className="text-center">House</div>
         <div className="text-center">Senate Cond</div>
         <div className="text-center">Senate IRV</div>
-        <div className="text-center" style={{ color: getBlendColor(condWinner) }}>Cond Pres</div>
-        <div className="text-center" style={{ color: getBlendColor(irvWinner) }}>IRV Pres</div>
+        <div className="text-center" style={{ color: getBlendColor(condWinner) }}>{condWinner.split('_')[0]} Pres</div>
+        <div className="text-center" style={{ color: getBlendColor(irvWinner) }}>{irvWinner.split('_')[0]} Pres</div>
       </div>
 
       <div className="divide-y divide-slate-100">
         {divergentBills.map(({ row, houseLabel, senateCondLabel, senateIRVLabel, condPresSign, irvPresSign, methodSplit }) => (
           <div
             key={row.variable}
-            className={`flex flex-col md:grid md:grid-cols-[1fr_90px_90px_90px_60px_60px] gap-x-2 items-start md:items-center px-4 py-2.5 ${
+            className={`flex flex-col md:grid md:grid-cols-[1fr_90px_90px_90px_84px_84px] gap-x-2 items-start md:items-center px-4 py-2.5 ${
               methodSplit ? 'bg-amber-50/40' : 'bg-white'
             }`}
           >

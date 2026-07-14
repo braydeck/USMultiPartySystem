@@ -3187,6 +3187,31 @@ def build_turnout_scenario():
     _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")
 
 
+def build_party_population():
+    """Each force's share of the adult population vs the as-cast 2024 electorate —
+    visualizes the turnout distortion (Solidarity shrinks, high-turnout blocs grow)."""
+    import pandas as pd
+    proc = Path(__file__).parent.parent.parent / "data" / "processed"
+    efa = pd.read_csv(proc / "efa_factor_scores.csv")
+    tp  = pd.read_csv(proc / "turnout_propensity.csv")
+    w   = efa["commonpostweight"].values
+    cluster = tp["cluster"].values
+    t   = tp["turnout_cluster"].values
+    vw  = w * t
+    CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
+    Wtot, Vtot = w.sum(), vw.sum()
+    rows = []
+    for k, code in enumerate(CODES):
+        m = cluster == k
+        rows.append({
+            "party": code,
+            "popShare": round(float(w[m].sum() / Wtot * 100), 2),
+            "voteShare": round(float(vw[m].sum() / Vtot * 100), 2),
+            "turnout": round(float(t[m][0] * 100), 1) if m.any() else 0.0,
+        })
+    write_json(rows, "partyPopulation.json")
+
+
 def build_turnout_lambda_scenario():
     """Gap-compression sweep (the 'tuning fork'). λ=0 (Turnout) and λ=1 (base) already
     exist; emit the intermediate stops *TurnoutL25/L50/L75.json — each force's turnout
@@ -3238,6 +3263,7 @@ if __name__ == "__main__":
         build_nosty_scenario,
         build_turnout_scenario,
         build_turnout_lambda_scenario,
+        build_party_population,
     ):
         _run(fn)
     print("Done.")

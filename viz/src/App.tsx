@@ -277,11 +277,11 @@ export default function App() {
           <OverviewTab
             fdElection={fdPresidentialElectionData as unknown as PresidentialElection}
             rawMultiElection={rawMultiPresidentialElectionData as unknown as PresidentialElection}
-            rawMultiSenateCond={pureMultiSenateCondorcetData as unknown as FDSenateSeat[]}
-            rawMultiSenateIRV={pureMultiSenateIRVData as unknown as FDSenateSeat[]}
+            rawMultiSenateCond={pureMultiSenateCondorcetTurnoutData as unknown as FDSenateSeat[]}
+            rawMultiSenateIRV={pureMultiSenateIRVTurnoutData as unknown as FDSenateSeat[]}
             fdSenateCond={fdSenateCondorcetData as unknown as FDSenateSeat[]}
             fdSenateIRV={fdSenateIRVData as unknown as FDSenateSeat[]}
-            houseSeats={houseSeatsData as HouseSeat[]}
+            houseSeats={houseSeatsTurnoutData as HouseSeat[]}
             senateVotes={senateVoteModelData as VoteModelRow[]}
             houseVotes={houseVoteModelData as VoteModelRow[]}
             clusters={clusterProfilesData as ClusterProfile[]}

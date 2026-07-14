@@ -14,6 +14,7 @@ import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PartyProfileCard } from '../components/shared/PartyProfileCard';
 import { VerdictBadge, getBayesianLabel } from '../components/legislation/UnifiedBillTable';
 import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
+import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
 
 const FPTP_SENATE = { DEM: 47, GOP: 53 };
 
@@ -171,6 +172,9 @@ export function OverviewTab({
           What would the US look like with proportional representation? Here&apos;s a summary across all chambers.
         </p>
       </div>
+
+      {/* Section 0 — Population breakdown */}
+      <PopulationBreakdown />
 
       {/* Section 1 — House FPTP vs STV */}
       <Card className="p-5 border-2 border-indigo-200">
