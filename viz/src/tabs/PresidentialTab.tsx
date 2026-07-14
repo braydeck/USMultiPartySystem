@@ -60,7 +60,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, rawMultiTu
   // No-STY scenario: Solidarity dissolved, its voters flow to the remaining 9 (party-line only).
   const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '100', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '25', '50', '75', '100'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   const rmOff = [rawMultiTurnout, presTL25, presTL50, presTL75, rawMulti] as unknown as PresidentialElection[];
   const rmOn  = [rawMultiNoStyTurnout, presNSTL25, presNSTL50, presNSTL75, rawMultiNoSTY] as unknown as PresidentialElection[];

@@ -89,7 +89,7 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
   // No-STY scenario applies to the party-line, double-Wyoming path (what the pipeline ran).
   const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '100', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '25', '50', '75', '100'] });
   const rmDouble = scenario === 'rawMulti' && wyoming === 'double';
   const noStyOn = nosty === 'on' && rmDouble;
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
