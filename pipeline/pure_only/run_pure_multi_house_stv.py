@@ -30,9 +30,12 @@ from pathlib import Path
 import os
 import sys
 
+sys.path.insert(0, str(Path(__file__).parent))
+from turnout_weights import turnout_multiplier, output_tree, TURNOUT_WEIGHT
+
 BASE_DIR         = Path(__file__).parent.parent.parent
 NO_STY           = os.environ.get("NO_STY") == "1"
-_TREE            = "pure_multi_nosty" if NO_STY else "pure_multi"
+_TREE            = output_tree("pure_multi_nosty" if NO_STY else "pure_multi")
 CHECKPOINT_PATH  = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
 EFA_PATH         = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
@@ -294,6 +297,9 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
     assert len(efa) == len(typology), f"Row mismatch: {len(efa)} vs {len(typology)}"
     voter_factors = efa[FACTOR_COLS].values.astype(np.float64)
     weights       = efa["commonpostweight"].values.astype(np.float64)
+    # Population weights build the district candidate pool (party field fixed across
+    # cells); count_weights add turnout so only vote-counting reflects participation.
+    count_weights = weights * turnout_multiplier(len(efa))
 
     print("Loading district apportionment…")
     apportion_df = pd.read_csv(apportionment_path)
@@ -385,9 +391,10 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
             mask   = state_mask
             N_dist = N_state
 
-        d_factors     = voter_factors[mask]
-        d_weights     = weights[mask]
-        d_prob_matrix = prob_matrix[mask]
+        d_factors       = voter_factors[mask]
+        d_weights       = weights[mask]          # population — district pool composition
+        d_count_weights = count_weights[mask]    # turnout-scaled — STV vote counting
+        d_prob_matrix   = prob_matrix[mask]
 
         # Build district-specific candidate pool using Droop-based thresholds
         d_shares    = np.average(d_prob_matrix, weights=d_weights, axis=0)
@@ -403,7 +410,7 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
 
         scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
         ballots   = generate_ballots(scores, rng, candidates)
-        elected   = run_stv(ballots, d_weights, cand_codes, n_seats_eff)
+        elected   = run_stv(ballots, d_count_weights, cand_codes, n_seats_eff)
 
         # Tally by base party (strip _N suffix)
         elected_parties = [code.rsplit("_", 1)[0] for code in elected]
@@ -425,7 +432,7 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
         # ── Prob-cluster scoring variant ───────────────────────────────────────
         prob_scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
         prob_ballots   = generate_ballots(prob_scores, rng_prob, candidates)
-        prob_elected   = run_stv(prob_ballots, d_weights, cand_codes, n_seats_eff)
+        prob_elected   = run_stv(prob_ballots, d_count_weights, cand_codes, n_seats_eff)
 
         prob_elected_parties = [code.rsplit("_", 1)[0] for code in prob_elected]
         for party in prob_elected_parties:
