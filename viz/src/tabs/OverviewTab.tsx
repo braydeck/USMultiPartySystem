@@ -13,6 +13,7 @@ import { IdeologicalConstellation } from '../components/house/IdeologicalConstel
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PartyProfileCard } from '../components/shared/PartyProfileCard';
 import { VerdictBadge, getBayesianLabel } from '../components/legislation/UnifiedBillTable';
+import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
 
 const FPTP_SENATE = { DEM: 47, GOP: 53 };
 
@@ -271,6 +272,9 @@ export function OverviewTab({
 
         <DiveCard label="Dive into the Presidency →" onClick={() => onNavigate('presidency')} />
       </div>
+
+      {/* Section 4b — Turnout robustness of the outcomes above */}
+      <TurnoutRobustnessCard />
 
       {/* Section 5 — Ideological Constellation */}
       <Card className="p-5">
