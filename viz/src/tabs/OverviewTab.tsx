@@ -123,7 +123,7 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
           : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
       }
     >
-      {signs === 'SIGN' ? 'Signs' : 'Vetoes'}
+      {signs === 'SIGN' ? 'Sign' : 'Veto'}
     </span>
   );
 }
@@ -234,7 +234,7 @@ export function OverviewTab({
               </p>
             </div>
 
-            <div className="hidden md:grid grid-cols-[1fr_88px_96px_96px_80px_80px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
+            <div className="hidden md:grid grid-cols-[1fr_84px_92px_92px_62px_62px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
               <div>Bill</div>
               <div className="text-center">House</div>
               <div className="text-center">Senate (C)</div>
@@ -252,7 +252,7 @@ export function OverviewTab({
                 return (
                   <div
                     key={r.variable}
-                    className="flex flex-col md:grid md:grid-cols-[1fr_88px_96px_96px_80px_80px] gap-x-2 items-start md:items-center px-4 py-2.5 bg-amber-50/30"
+                    className="flex flex-col md:grid md:grid-cols-[1fr_84px_92px_92px_62px_62px] gap-x-2 items-start md:items-center px-4 py-2.5 bg-amber-50/30"
                   >
                     <div className="min-w-0 mb-1 md:mb-0">
                       <div className="text-sm text-foreground leading-snug">{r.question}</div>

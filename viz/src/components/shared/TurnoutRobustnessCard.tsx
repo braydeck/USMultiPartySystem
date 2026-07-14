@@ -86,11 +86,9 @@ export function TurnoutRobustnessCard() {
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
         Turnout Robustness — Gap-Compression Sweep
       </h3>
-      <p className="text-xs text-muted-foreground mb-4 max-w-2xl">
-        How far does the <strong>participation gap</strong> between forces have to close for each office&apos;s
-        winner to change? Drag the slider from <em>observed 2024 turnout</em> (Solidarity 37%, PRG 83%) toward
-        <em> full parity</em>. This sweeps <em>relative</em> weight, not the aggregate turnout level — it&apos;s a
-        sensitivity check, not a forecast of where the real electorate lands.
+      <p className="text-xs text-muted-foreground mb-4">
+        How far must the turnout gap between forces close for each office&apos;s winner to change? Drag from
+        observed 2024 turnout toward parity. A sensitivity check, not a forecast.
       </p>
 
       {/* Slider */}
@@ -108,8 +106,7 @@ export function TurnoutRobustnessCard() {
           <span>Latent preference · parity (100%)</span>
         </div>
         <p className="text-[10px] text-emerald-700 mt-1">
-          ▉ Plausible post-reform range — PR closes the representation slice of the turnout gap, not the
-          income/education slice, so realistic closure is small (~0–30%).
+          ▉ Plausible post-reform range (~0–30%): PR closes the representation gap, not the income/education one.
         </p>
       </div>
 
@@ -146,20 +143,10 @@ export function TurnoutRobustnessCard() {
         </div>
       </div>
 
-      <div className="mt-4 space-y-1.5 text-[11px] text-muted-foreground max-w-2xl">
-        <p>
-          <strong>The Presidency is robust at every level</strong> — it doesn&apos;t depend on where the electorate
-          lands. The House delegation scales smoothly (Solidarity 82→129), so quote it as a range. The Senate is the
-          one genuinely <strong>contingent</strong> result: its plurality flips to Solidarity at ~25% — which sits
-          <em> inside</em> the plausible post-reform band — so whether Solidarity or Labour leads the Senate turns on
-          exactly the mobilization magnitude no one can measure. Call it a coin-flip, not a win.
-        </p>
-        <p>
-          Observed gaps (0%) is the conservative floor — it bakes in the suppression proportional representation
-          removes. The separate <em>No Solidarity</em> toggle answers a different question (coordination failure),
-          so it is not a test of Solidarity&apos;s viability.
-        </p>
-      </div>
+      <p className="mt-4 text-[11px] text-muted-foreground">
+        President robust everywhere. House scales smoothly (quote it as a range). The Senate is the one contingent
+        result — its flip sits <em>inside</em> the plausible band, so call it a coin-flip, not a win.
+      </p>
     </Card>
   );
 }

@@ -124,7 +124,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         </p>
       </div>
 
-      <div className="hidden md:grid grid-cols-[1fr_90px_90px_90px_84px_84px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
+      <div className="hidden md:grid grid-cols-[1fr_88px_88px_88px_62px_62px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
         <div>Bill</div>
         <div className="text-center">House</div>
         <div className="text-center">Senate Cond</div>
@@ -137,7 +137,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         {divergentBills.map(({ row, houseLabel, senateCondLabel, senateIRVLabel, condPresSign, irvPresSign, methodSplit }) => (
           <div
             key={row.variable}
-            className={`flex flex-col md:grid md:grid-cols-[1fr_90px_90px_90px_84px_84px] gap-x-2 items-start md:items-center px-4 py-2.5 ${
+            className={`flex flex-col md:grid md:grid-cols-[1fr_88px_88px_88px_62px_62px] gap-x-2 items-start md:items-center px-4 py-2.5 ${
               methodSplit ? 'bg-amber-50/40' : 'bg-white'
             }`}
           >

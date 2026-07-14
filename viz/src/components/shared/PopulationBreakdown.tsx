@@ -1,33 +1,33 @@
 import { Card } from '@/components/ui/card';
-import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../../constants/parties';
+import { PARTY_COLORS, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, getContrastText } from '../../constants/parties';
 import partyPopData from '../../data/partyPopulation.json';
 
 type Row = { party: string; popShare: number; voteShare: number; turnout: number };
 const DATA = partyPopData as Row[];
 
-// Left→right ideological order so the stack reads as a spectrum.
 const oidx = (p: string) => F5_ORDER.indexOf(p as typeof F5_ORDER[number]);
 const ORDER = [...DATA].sort((a, b) => oidx(a.party) - oidx(b.party));
 
-function StackedBar({ label, sub, valueKey }: { label: string; sub: string; valueKey: 'popShare' | 'voteShare' }) {
+function Bar({ title, sub, valueKey }: { title: string; sub: string; valueKey: 'popShare' | 'voteShare' }) {
   return (
-    <div>
-      <div className="flex items-baseline justify-between mb-1">
-        <span className="text-xs font-semibold text-foreground">{label}</span>
-        <span className="text-[11px] text-muted-foreground">{sub}</span>
+    <div className="flex items-center gap-3">
+      <div className="shrink-0 text-right" style={{ width: 80 }}>
+        <div className="text-xs font-semibold text-foreground">{title}</div>
+        <div className="text-xs text-muted-foreground">{sub}</div>
       </div>
-      <div className="flex h-9 w-full overflow-hidden rounded-md border border-border/50">
+      <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: 52 }}>
         {ORDER.map(r => {
           const pct = r[valueKey];
-          const color = PARTY_COLORS[r.party] ?? '#9ca3af';
+          const color = PARTY_COLORS[r.party] ?? '#6b7280';
           return (
-            <div key={r.party} className="flex items-center justify-center overflow-hidden"
-              style={{ width: `${pct}%`, background: color }}
-              title={`${PARTY_NAMES[r.party] ?? r.party}: ${pct}%`}>
-              {pct >= 6 && (
-                <span className="text-[10px] font-semibold leading-none px-0.5 truncate"
+            <div key={r.party}
+              title={`${PARTY_NAMES[r.party] ?? r.party}: ${pct}%`}
+              className="flex items-center justify-center overflow-hidden"
+              style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
+              {pct >= 4 && (
+                <span className="text-xs font-bold leading-tight text-center px-0.5 chip-text"
                   style={{ color: getContrastText(color) }}>
-                  {r.party}{pct >= 9 ? ` ${Math.round(pct)}` : ''}
+                  {r.party}<br />{pct.toFixed(0)}%
                 </span>
               )}
             </div>
@@ -41,31 +41,30 @@ function StackedBar({ label, sub, valueKey }: { label: string; sub: string; valu
 export function PopulationBreakdown() {
   return (
     <Card className="p-5">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
         Population Breakdown
-      </h3>
-      <p className="text-xs text-muted-foreground mb-4 max-w-2xl">
-        How the nine forces map onto the electorate. The top bar is each force&apos;s share of the adult
-        population; the bottom bar is its share of the people who actually voted in 2024. The gap between them
-        is the turnout distortion — Solidarity is 12% of the population but 7% of voters, while high-turnout
-        blocs (Progressive, Liberal, Nationalist) punch above their population weight.
-      </p>
-
-      <div className="space-y-3">
-        <StackedBar label="Adult population" sub="latent preference · everyone counted once" valueKey="popShare" />
-        <StackedBar label="2024 voters — as cast" sub="weighted by validated turnout" valueKey="voteShare" />
       </div>
 
-      {/* Legend + turnout */}
-      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5">
+      <div className="space-y-1">
+        <Bar title="Population" sub="all adults" valueKey="popShare" />
+        <Bar title="Voters" sub="as cast · 2024" valueKey="voteShare" />
+      </div>
+
+      {/* Legend — turnout only; the population→vote shift is shown by the two bars */}
+      <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3 pt-2 border-t border-border/50">
         {ORDER.map(r => (
-          <span key={r.party} className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <span className="w-2.5 h-2.5 rounded-sm" style={{ background: PARTY_COLORS[r.party] ?? '#9ca3af' }} />
-            <span className="text-foreground font-medium">{PARTY_NAMES[r.party] ?? r.party}</span>
-            <span>{r.popShare}%→{r.voteShare}% · {r.turnout}% turnout</span>
-          </span>
+          <div key={r.party} className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[r.party] ?? '#6b7280' }} />
+            <span className="text-xs text-foreground font-medium">{PARTY_NAMES[r.party] ?? r.party}</span>
+            <span className="text-xs text-muted-foreground">{r.turnout}% turnout</span>
+          </div>
         ))}
       </div>
+
+      <p className="text-xs text-muted-foreground mt-2">
+        Share of adults (top) vs share of people who actually voted in 2024 (bottom). The gap is the turnout
+        distortion: Solidarity falls from 12% of adults to 7% of voters, while high-turnout blocs grow.
+      </p>
     </Card>
   );
 }
