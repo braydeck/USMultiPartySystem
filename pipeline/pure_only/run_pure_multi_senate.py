@@ -22,18 +22,23 @@ Outputs to data/outputs/pure_multi/senate/:
 """
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from itertools import combinations
 
+sys.path.insert(0, str(Path(__file__).parent))
+from turnout_weights import turnout_multiplier, output_tree
+
 BASE_DIR       = Path(__file__).parent.parent.parent
 NO_STY         = os.environ.get("NO_STY") == "1"
-_TREE          = "pure_multi_nosty" if NO_STY else "pure_multi"
+_BALLOT_TREE   = "pure_multi_nosty" if NO_STY else "pure_multi"
+_OUT_TREE      = output_tree(_BALLOT_TREE)  # turnout-weighted output → parallel _turnout tree
 TYPOLOGY_PATH  = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_PATH       = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-STATE_PROFILES = BASE_DIR / "data" / "outputs" / _TREE / "state_candidate_profiles.csv"
-OUTPUT_DIR     = BASE_DIR / "data" / "outputs" / _TREE / "senate"
+STATE_PROFILES = BASE_DIR / "data" / "outputs" / _BALLOT_TREE / "state_candidate_profiles.csv"
+OUTPUT_DIR     = BASE_DIR / "data" / "outputs" / _OUT_TREE / "senate"
 
 # ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
 POSITIONAL_SIGMA = 0.35
@@ -456,7 +461,7 @@ def main():
     assert len(efa) == len(typology), f"Row mismatch: {len(efa)} vs {len(typology)}"
 
     inputstate    = efa["inputstate"].values.astype(int)
-    weights       = efa["commonpostweight"].values.astype(float)
+    weights       = efa["commonpostweight"].values.astype(float) * turnout_multiplier(len(efa))
     voter_factors = efa[FACTOR_COLS].values.astype(np.float64)
 
     print("Computing cluster centroids…")
