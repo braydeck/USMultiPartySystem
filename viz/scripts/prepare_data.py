@@ -12,6 +12,10 @@ FD_DIR           = OUTPUTS / "factor_deviation"
 PURE_MULTI_DIR   = OUTPUTS / "pure_multi"
 # Parallel run with Solidarity (cluster 2) dissolved — produced by NO_STY=1 pipeline.
 PURE_MULTI_NOSTY_DIR = OUTPUTS / "pure_multi_nosty"
+# 'Current participation' runs — ballots weighted by each cluster's validated 2024
+# turnout (TURNOUT_WEIGHT=1). Two coordination variants: all-parties and no-Solidarity.
+PURE_MULTI_TURNOUT_DIR       = OUTPUTS / "pure_multi_turnout"
+PURE_MULTI_NOSTY_TURNOUT_DIR = OUTPUTS / "pure_multi_nosty_turnout"
 # Parallel 10-party run (C7/WFP activated) — produced by INCLUDE_C7=1 pipeline.
 PURE_MULTI_C7_DIR = OUTPUTS / "pure_multi_c7"
 FD_TRIPLE_DIR         = OUTPUTS / "factor_deviation_triple"
@@ -3164,6 +3168,25 @@ def build_nosty_scenario():
     build_house_vote_model_wfp(d, out_name="houseVoteModelNoSTY.json")
 
 
+def _build_turnout_variant(d, suffix):
+    """Emit the *<suffix>.json family from a turnout-weighted pipeline tree `d`."""
+    build_raw_multi_presidential_election(src_dir=d, out_name=f"rawMultiPresidentialElection{suffix}.json")
+    build_pure_multi_senate(src_dir=d, cond_name=f"pureMultiSenateCondorcet{suffix}.json", irv_name=f"pureMultiSenateIRV{suffix}.json")
+    build_house_seats(src_csv=d / "house" / "stv_seat_summary.csv", out_name=f"houseSeats{suffix}.json")
+    build_house_state_map(src_dir=d, out_name=f"houseStateMap{suffix}.json")
+    build_district_stv_results(src_csv=d / "house" / "stv_results_by_district.csv", out_name=f"districtStvResults{suffix}.json")
+    build_senate_vote_model_wfp(d, out_name=f"senateVoteModel{suffix}.json")
+    build_house_vote_model_wfp(d, out_name=f"houseVoteModel{suffix}.json")
+
+
+def build_turnout_scenario():
+    """'Current participation' scenario: ballots weighted by each cluster's validated
+    2024 turnout (TURNOUT_WEIGHT=1 pipeline). Emits *Turnout.json (all parties) and
+    *NoStyTurnout.json (Solidarity dissolved) for the Participation × Coordination 2x2."""
+    _build_turnout_variant(PURE_MULTI_TURNOUT_DIR, "Turnout")
+    _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")
+
+
 if __name__ == "__main__":
     print("Preparing data (native 10-party incl. OAO)...")
 
@@ -3203,6 +3226,7 @@ if __name__ == "__main__":
         build_house_state_map_triple, build_district_stv_results_triple,
         build_fd_district_stv_results_triple, build_district_county_map_triple,
         build_nosty_scenario,
+        build_turnout_scenario,
     ):
         _run(fn)
     print("Done.")
