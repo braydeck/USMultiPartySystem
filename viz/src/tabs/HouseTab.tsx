@@ -53,19 +53,29 @@ interface Props {
   seatsNoSTY: HouseSeat[];
   stateMapNoSTY: Record<string, HouseStateEntry>;
   districtResultsNoSTY: Record<string, DistrictResult[]>;
+  seatsTurnout: HouseSeat[];
+  stateMapTurnout: Record<string, HouseStateEntry>;
+  districtResultsTurnout: Record<string, DistrictResult[]>;
+  seatsNoStyTurnout: HouseSeat[];
+  stateMapNoStyTurnout: Record<string, HouseStateEntry>;
+  districtResultsNoStyTurnout: Record<string, DistrictResult[]>;
 }
 
 type WyomingRule = 'double' | 'triple';
 
-export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple, seatsNoSTY, stateMapNoSTY, districtResultsNoSTY}: Props) {
+export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple, seatsNoSTY, stateMapNoSTY, districtResultsNoSTY, seatsTurnout, stateMapTurnout, districtResultsTurnout, seatsNoStyTurnout, stateMapNoStyTurnout, districtResultsNoStyTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // No-STY scenario applies to the party-line, double-Wyoming path (what the pipeline ran).
   const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
-  const noStyOn = nosty === 'on' && scenario === 'rawMulti' && wyoming === 'double';
-  const rmSeats = noStyOn ? seatsNoSTY : seats;
-  const rmStateMap = noStyOn ? stateMapNoSTY : stateMap;
-  const rmDistrict = noStyOn ? districtResultsNoSTY : districtResults;
+  // Participation: 'full' = latent preference; 'curr' = weighted by validated 2024 turnout (double-Wyoming party-line).
+  const [part, setPart] = useUrlState<'full' | 'curr'>('part', 'full', { allowed: ['full', 'curr'] });
+  const rmDouble = scenario === 'rawMulti' && wyoming === 'double';
+  const noStyOn = nosty === 'on' && rmDouble;
+  const currOn = part === 'curr' && rmDouble;
+  const rmSeats = currOn ? (noStyOn ? seatsNoStyTurnout : seatsTurnout) : (noStyOn ? seatsNoSTY : seats);
+  const rmStateMap = currOn ? (noStyOn ? stateMapNoStyTurnout : stateMapTurnout) : (noStyOn ? stateMapNoSTY : stateMap);
+  const rmDistrict = currOn ? (noStyOn ? districtResultsNoStyTurnout : districtResultsTurnout) : (noStyOn ? districtResultsNoSTY : districtResults);
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -180,7 +190,11 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         {scenario === 'rawMulti' && wyoming === 'double' && (
-          <ToggleGroup label="Electorate" value={nosty} onChange={setNosty}
+          <ToggleGroup label="Participation" value={part} onChange={setPart}
+            options={['full', 'curr'] as const} labels={{ full: 'Full', curr: 'Current turnout' }} />
+        )}
+        {scenario === 'rawMulti' && wyoming === 'double' && (
+          <ToggleGroup label="Coordination" value={nosty} onChange={setNosty}
             options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
         )}
       </StickyControlBar>

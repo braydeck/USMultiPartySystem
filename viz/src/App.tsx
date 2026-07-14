@@ -34,6 +34,23 @@ import houseStateMapNoStyData from './data/houseStateMapNoSTY.json';
 import districtStvResultsNoStyData from './data/districtStvResultsNoSTY.json';
 import houseVoteModelNoStyData from './data/houseVoteModelNoSTY.json';
 import senateVoteModelNoStyData from './data/senateVoteModelNoSTY.json';
+// Current-participation (validated-turnout-weighted) datasets — turnout axis of the 2x2.
+import pureMultiSenateCondorcetTurnoutData from './data/pureMultiSenateCondorcetTurnout.json';
+import pureMultiSenateIRVTurnoutData from './data/pureMultiSenateIRVTurnout.json';
+import rawMultiPresidentialElectionTurnoutData from './data/rawMultiPresidentialElectionTurnout.json';
+import houseSeatsTurnoutData from './data/houseSeatsTurnout.json';
+import houseStateMapTurnoutData from './data/houseStateMapTurnout.json';
+import districtStvResultsTurnoutData from './data/districtStvResultsTurnout.json';
+import houseVoteModelTurnoutData from './data/houseVoteModelTurnout.json';
+import senateVoteModelTurnoutData from './data/senateVoteModelTurnout.json';
+import pureMultiSenateCondorcetNoStyTurnoutData from './data/pureMultiSenateCondorcetNoStyTurnout.json';
+import pureMultiSenateIRVNoStyTurnoutData from './data/pureMultiSenateIRVNoStyTurnout.json';
+import rawMultiPresidentialElectionNoStyTurnoutData from './data/rawMultiPresidentialElectionNoStyTurnout.json';
+import houseSeatsNoStyTurnoutData from './data/houseSeatsNoStyTurnout.json';
+import houseStateMapNoStyTurnoutData from './data/houseStateMapNoStyTurnout.json';
+import districtStvResultsNoStyTurnoutData from './data/districtStvResultsNoStyTurnout.json';
+import houseVoteModelNoStyTurnoutData from './data/houseVoteModelNoStyTurnout.json';
+import senateVoteModelNoStyTurnoutData from './data/senateVoteModelNoStyTurnout.json';
 import senateBucketsData from './data/senateBuckets.json';
 import senateCondorcetData from './data/senateCondorcet.json';
 import fdHouseSeatsData from './data/fdHouseSeats.json';
@@ -281,6 +298,8 @@ export default function App() {
               factorDev: fdPresidentialElectionData as unknown as PresidentialElection,
               rawMulti: rawMultiPresidentialElectionData as unknown as PresidentialElection,
               rawMultiNoSTY: rawMultiPresidentialElectionNoStyData as unknown as PresidentialElection,
+              rawMultiTurnout: rawMultiPresidentialElectionTurnoutData as unknown as PresidentialElection,
+              rawMultiNoStyTurnout: rawMultiPresidentialElectionNoStyTurnoutData as unknown as PresidentialElection,
               clusters: clusterProfilesData as ClusterProfile[],
               fdProfiles: fdProfilesData as unknown as Record<string, FDCandidateProfile>,
               senateVotes: senateVoteModelData as VoteModelRow[],
@@ -310,6 +329,10 @@ export default function App() {
             irvRawMulti={pureMultiSenateIRVData as unknown as FDSenateSeat[]}
             condorcetRawMultiNoSTY={pureMultiSenateCondorcetNoStyData as unknown as FDSenateSeat[]}
             irvRawMultiNoSTY={pureMultiSenateIRVNoStyData as unknown as FDSenateSeat[]}
+            condorcetRawMultiTurnout={pureMultiSenateCondorcetTurnoutData as unknown as FDSenateSeat[]}
+            irvRawMultiTurnout={pureMultiSenateIRVTurnoutData as unknown as FDSenateSeat[]}
+            condorcetRawMultiNoStyTurnout={pureMultiSenateCondorcetNoStyTurnoutData as unknown as FDSenateSeat[]}
+            irvRawMultiNoStyTurnout={pureMultiSenateIRVNoStyTurnoutData as unknown as FDSenateSeat[]}
             voteModel={senateVoteModelData as VoteModelRow[]}
             clusters={clusterProfilesData as ClusterProfile[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
@@ -350,6 +373,12 @@ export default function App() {
             seatsNoSTY={houseSeatsNoStyData as HouseSeat[]}
             stateMapNoSTY={houseStateMapNoStyData as unknown as Record<string, HouseStateEntry>}
             districtResultsNoSTY={districtStvResultsNoStyData as unknown as Record<string, DistrictResult[]>}
+            seatsTurnout={houseSeatsTurnoutData as HouseSeat[]}
+            stateMapTurnout={houseStateMapTurnoutData as unknown as Record<string, HouseStateEntry>}
+            districtResultsTurnout={districtStvResultsTurnoutData as unknown as Record<string, DistrictResult[]>}
+            seatsNoStyTurnout={houseSeatsNoStyTurnoutData as HouseSeat[]}
+            stateMapNoStyTurnout={houseStateMapNoStyTurnoutData as unknown as Record<string, HouseStateEntry>}
+            districtResultsNoStyTurnout={districtStvResultsNoStyTurnoutData as unknown as Record<string, DistrictResult[]>}
           />
         )}
         {tab === 'rcv' && (
@@ -367,6 +396,12 @@ export default function App() {
             houseVotesNoSTY={houseVoteModelNoStyData as VoteModelRow[]}
             senateVotesNoSTY={senateVoteModelNoStyData as VoteModelRow[]}
             rawMultiElectionNoSTY={rawMultiPresidentialElectionNoStyData as unknown as PresidentialElection}
+            houseVotesTurnout={houseVoteModelTurnoutData as VoteModelRow[]}
+            senateVotesTurnout={senateVoteModelTurnoutData as VoteModelRow[]}
+            rawMultiElectionTurnout={rawMultiPresidentialElectionTurnoutData as unknown as PresidentialElection}
+            houseVotesNoStyTurnout={houseVoteModelNoStyTurnoutData as VoteModelRow[]}
+            senateVotesNoStyTurnout={senateVoteModelNoStyTurnoutData as VoteModelRow[]}
+            rawMultiElectionNoStyTurnout={rawMultiPresidentialElectionNoStyTurnoutData as unknown as PresidentialElection}
           />
         )}
         {tab === 'parties' && (
