@@ -27,11 +27,15 @@ from pathlib import Path
 from collections import defaultdict
 from itertools import combinations
 
+sys.path.insert(0, str(Path(__file__).parent))
+from turnout_weights import turnout_multiplier, output_tree
+
 BASE_DIR     = Path(__file__).parent.parent.parent
-_TREE        = "pure_multi_nosty" if os.environ.get("NO_STY") == "1" else "pure_multi"
-BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _TREE / "presidential_ballots.csv"
+_BALLOT_TREE = "pure_multi_nosty" if os.environ.get("NO_STY") == "1" else "pure_multi"
+_OUT_TREE    = output_tree(_BALLOT_TREE)  # turnout-weighted output → parallel _turnout tree
+BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _BALLOT_TREE / "presidential_ballots.csv"
 EFA_PATH     = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / _TREE
+OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / _OUT_TREE
 
 PARTY_OF = {}   # filled during load
 CAND_CODES = []
@@ -242,9 +246,10 @@ def main():
     print("PURE MULTI PRIMARY — 27 candidates, multi-seat STV")
     print("=" * 70)
 
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     ballots, codes, code_idx = load_ballots()
     efa     = pd.read_csv(EFA_PATH)
-    weights = efa["commonpostweight"].values.astype(np.float64)
+    weights = efa["commonpostweight"].values.astype(np.float64) * turnout_multiplier(len(efa))
     N = len(ballots)
     n_cands = len(codes)
     print(f"  {N:,} ballots, {n_cands} candidates")

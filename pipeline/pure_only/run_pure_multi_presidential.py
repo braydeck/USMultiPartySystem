@@ -15,17 +15,22 @@ Outputs to data/outputs/pure_multi/irv/:
 """
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from itertools import combinations
 
+sys.path.insert(0, str(Path(__file__).parent))
+from turnout_weights import turnout_multiplier, output_tree
+
 BASE_DIR     = Path(__file__).parent.parent.parent
-_TREE        = "pure_multi_nosty" if os.environ.get("NO_STY") == "1" else "pure_multi"
-BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _TREE / "presidential_ballots.csv"
-PRIMARY_PATH = BASE_DIR / "data" / "outputs" / _TREE / "primary_results_2028.csv"
+_BALLOT_TREE = "pure_multi_nosty" if os.environ.get("NO_STY") == "1" else "pure_multi"
+_OUT_TREE    = output_tree(_BALLOT_TREE)
+BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _BALLOT_TREE / "presidential_ballots.csv"
+PRIMARY_PATH = BASE_DIR / "data" / "outputs" / _OUT_TREE / "primary_results_2028.csv"
 EFA_PATH     = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / _TREE / "irv"
+OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / _OUT_TREE / "irv"
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",
@@ -211,7 +216,7 @@ def main():
     N           = len(ballots_df)
     rank_cols   = [f for f in ballots_df.columns if f.startswith("rank_")]
     ballots_arr = ballots_df[rank_cols].values
-    weights     = efa["commonpostweight"].values.astype(float)
+    weights     = efa["commonpostweight"].values.astype(float) * turnout_multiplier(len(efa))
     state_fips  = efa["inputstate"].values.astype(int)
     assert len(efa) == N, f"Row count mismatch: {N} vs {len(efa)}"
     print(f"  {N:,} ballots loaded")
