@@ -4,9 +4,29 @@ import { UnifiedBillTable } from '../components/legislation/UnifiedBillTable';
 import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS } from '../constants/labels';
 import type { Pipeline, Method, WyomingRule } from '../constants/labels';
+// Gap-compression middle stops (λ=0.25/0.5/0.75); endpoints come via props.
+import houseVotesL25 from '../data/houseVoteModelTurnoutL25.json';
+import houseVotesL50 from '../data/houseVoteModelTurnoutL50.json';
+import houseVotesL75 from '../data/houseVoteModelTurnoutL75.json';
+import senateVotesL25 from '../data/senateVoteModelTurnoutL25.json';
+import senateVotesL50 from '../data/senateVoteModelTurnoutL50.json';
+import senateVotesL75 from '../data/senateVoteModelTurnoutL75.json';
+import presL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
+import presL50 from '../data/rawMultiPresidentialElectionTurnoutL50.json';
+import presL75 from '../data/rawMultiPresidentialElectionTurnoutL75.json';
+import houseVotesNoStyL25 from '../data/houseVoteModelNoStyTurnoutL25.json';
+import houseVotesNoStyL50 from '../data/houseVoteModelNoStyTurnoutL50.json';
+import houseVotesNoStyL75 from '../data/houseVoteModelNoStyTurnoutL75.json';
+import senateVotesNoStyL25 from '../data/senateVoteModelNoStyTurnoutL25.json';
+import senateVotesNoStyL50 from '../data/senateVoteModelNoStyTurnoutL50.json';
+import senateVotesNoStyL75 from '../data/senateVoteModelNoStyTurnoutL75.json';
+import presNoStyL25 from '../data/rawMultiPresidentialElectionNoStyTurnoutL25.json';
+import presNoStyL50 from '../data/rawMultiPresidentialElectionNoStyTurnoutL50.json';
+import presNoStyL75 from '../data/rawMultiPresidentialElectionNoStyTurnoutL75.json';
 
 interface Props {
   houseVotes: VoteModelRow[];
@@ -33,17 +53,21 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // No-STY scenario applies to the party-line, double-Wyoming path.
   const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
-  // Participation: 'full' = latent preference; 'curr' = weighted by validated 2024 turnout.
-  const [part, setPart] = useUrlState<'full' | 'curr'>('part', 'full', { allowed: ['full', 'curr'] });
+  // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
+  const [part, setPart] = useUrlState<string>('part', '100', { allowed: ['0', '25', '50', '75', '100'] });
   const rmDouble = pipeline === 'rawMulti' && wyoming === 'double';
   const noStyOn = nosty === 'on' && rmDouble;
-  const currOn = part === 'curr' && rmDouble;
-  const hVotes = currOn ? (noStyOn ? houseVotesNoStyTurnout : houseVotesTurnout) : (noStyOn ? houseVotesNoSTY : houseVotes);
-  const sVotes = currOn ? (noStyOn ? senateVotesNoStyTurnout : senateVotesTurnout) : (noStyOn ? senateVotesNoSTY : senateVotes);
-
-  const election = pipeline !== 'rawMulti' ? fdElection
-    : currOn ? (noStyOn ? rawMultiElectionNoStyTurnout : rawMultiElectionTurnout)
-             : (noStyOn ? rawMultiElectionNoSTY : rawMultiElection);
+  const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+  // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
+  const hOff = [houseVotesTurnout, houseVotesL25, houseVotesL50, houseVotesL75, houseVotes] as unknown as VoteModelRow[][];
+  const hOn  = [houseVotesNoStyTurnout, houseVotesNoStyL25, houseVotesNoStyL50, houseVotesNoStyL75, houseVotesNoSTY] as unknown as VoteModelRow[][];
+  const sOff = [senateVotesTurnout, senateVotesL25, senateVotesL50, senateVotesL75, senateVotes] as unknown as VoteModelRow[][];
+  const sOn  = [senateVotesNoStyTurnout, senateVotesNoStyL25, senateVotesNoStyL50, senateVotesNoStyL75, senateVotesNoSTY] as unknown as VoteModelRow[][];
+  const eOff = [rawMultiElectionTurnout, presL25, presL50, presL75, rawMultiElection] as unknown as PresidentialElection[];
+  const eOn  = [rawMultiElectionNoStyTurnout, presNoStyL25, presNoStyL50, presNoStyL75, rawMultiElectionNoSTY] as unknown as PresidentialElection[];
+  const hVotes = rmDouble ? (noStyOn ? hOn : hOff)[gi] : houseVotes;
+  const sVotes = rmDouble ? (noStyOn ? sOn : sOff)[gi] : senateVotes;
+  const election = pipeline !== 'rawMulti' ? fdElection : rmDouble ? (noStyOn ? eOn : eOff)[gi] : rawMultiElection;
   const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
 
   return (
@@ -64,8 +88,7 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
         <ToggleGroup label="Senate Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
         {pipeline === 'rawMulti' && wyoming === 'double' && (
-          <ToggleGroup label="Participation" value={part} onChange={setPart}
-            options={['full', 'curr'] as const} labels={{ full: 'Full', curr: 'Current turnout' }} />
+          <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}
         {pipeline === 'rawMulti' && wyoming === 'double' && (
           <ToggleGroup label="Coordination" value={nosty} onChange={setNosty}

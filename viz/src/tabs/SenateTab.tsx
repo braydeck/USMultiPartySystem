@@ -13,7 +13,21 @@ import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER, partyOrder, getContrastText } from '../constants/parties';
 import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+// Gap-compression middle stops (λ=0.25/0.5/0.75); endpoints come via props.
+import senCondL25 from '../data/pureMultiSenateCondorcetTurnoutL25.json';
+import senCondL50 from '../data/pureMultiSenateCondorcetTurnoutL50.json';
+import senCondL75 from '../data/pureMultiSenateCondorcetTurnoutL75.json';
+import senIrvL25 from '../data/pureMultiSenateIRVTurnoutL25.json';
+import senIrvL50 from '../data/pureMultiSenateIRVTurnoutL50.json';
+import senIrvL75 from '../data/pureMultiSenateIRVTurnoutL75.json';
+import senCondNoStyL25 from '../data/pureMultiSenateCondorcetNoStyTurnoutL25.json';
+import senCondNoStyL50 from '../data/pureMultiSenateCondorcetNoStyTurnoutL50.json';
+import senCondNoStyL75 from '../data/pureMultiSenateCondorcetNoStyTurnoutL75.json';
+import senIrvNoStyL25 from '../data/pureMultiSenateIRVNoStyTurnoutL25.json';
+import senIrvNoStyL50 from '../data/pureMultiSenateIRVNoStyTurnoutL50.json';
+import senIrvNoStyL75 from '../data/pureMultiSenateIRVNoStyTurnoutL75.json';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -96,17 +110,18 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // No-STY scenario: Solidarity dissolved, its voters flow to the remaining 9 (party-line only).
   const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
-  // Participation: 'full' = latent preference; 'curr' = weighted by validated 2024 turnout.
-  const [part, setPart] = useUrlState<'full' | 'curr'>('part', 'full', { allowed: ['full', 'curr'] });
+  // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
+  const [part, setPart] = useUrlState<string>('part', '100', { allowed: ['0', '25', '50', '75', '100'] });
   const rawMultiOn = pipeline === 'rawMulti';
   const noStyOn = nosty === 'on' && rawMultiOn;
-  const currOn = part === 'curr' && rawMultiOn;
-  const condRM = !rawMultiOn ? condorcetRawMulti
-    : currOn ? (noStyOn ? condorcetRawMultiNoStyTurnout : condorcetRawMultiTurnout)
-             : (noStyOn ? condorcetRawMultiNoSTY : condorcetRawMulti);
-  const irvRM = !rawMultiOn ? irvRawMulti
-    : currOn ? (noStyOn ? irvRawMultiNoStyTurnout : irvRawMultiTurnout)
-             : (noStyOn ? irvRawMultiNoSTY : irvRawMulti);
+  const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+  // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
+  const condOff = [condorcetRawMultiTurnout, senCondL25, senCondL50, senCondL75, condorcetRawMulti] as unknown as FDSenateSeat[][];
+  const condOn  = [condorcetRawMultiNoStyTurnout, senCondNoStyL25, senCondNoStyL50, senCondNoStyL75, condorcetRawMultiNoSTY] as unknown as FDSenateSeat[][];
+  const irvOff  = [irvRawMultiTurnout, senIrvL25, senIrvL50, senIrvL75, irvRawMulti] as unknown as FDSenateSeat[][];
+  const irvOn   = [irvRawMultiNoStyTurnout, senIrvNoStyL25, senIrvNoStyL50, senIrvNoStyL75, irvRawMultiNoSTY] as unknown as FDSenateSeat[][];
+  const condRM = !rawMultiOn ? condorcetRawMulti : (noStyOn ? condOn : condOff)[gi];
+  const irvRM  = !rawMultiOn ? irvRawMulti       : (noStyOn ? irvOn  : irvOff )[gi];
 
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
 
@@ -211,8 +226,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
         <ToggleGroup label="Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
         {pipeline === 'rawMulti' && (
-          <ToggleGroup label="Participation" value={part} onChange={setPart}
-            options={['full', 'curr'] as const} labels={{ full: 'Full', curr: 'Current turnout' }} />
+          <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}
         {pipeline === 'rawMulti' && (
           <ToggleGroup label="Coordination" value={nosty} onChange={setNosty}

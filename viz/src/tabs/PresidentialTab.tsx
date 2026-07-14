@@ -5,7 +5,15 @@ import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
 import { PIPELINE_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+// Gap-compression middle stops (λ=0.25/0.5/0.75); endpoints come via props.
+import presTL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
+import presTL50 from '../data/rawMultiPresidentialElectionTurnoutL50.json';
+import presTL75 from '../data/rawMultiPresidentialElectionTurnoutL75.json';
+import presNSTL25 from '../data/rawMultiPresidentialElectionNoStyTurnoutL25.json';
+import presNSTL50 from '../data/rawMultiPresidentialElectionNoStyTurnoutL50.json';
+import presNSTL75 from '../data/rawMultiPresidentialElectionNoStyTurnoutL75.json';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
@@ -51,12 +59,12 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, rawMultiTu
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   // No-STY scenario: Solidarity dissolved, its voters flow to the remaining 9 (party-line only).
   const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
-  // Participation: 'full' = every latent preference counts; 'curr' = weighted by validated 2024 turnout.
-  const [part, setPart] = useUrlState<'full' | 'curr'>('part', 'full', { allowed: ['full', 'curr'] });
-  const rm = scenario !== 'rawMulti' ? rawMulti
-    : part === 'curr'
-      ? (nosty === 'on' ? rawMultiNoStyTurnout : rawMultiTurnout)
-      : (nosty === 'on' ? rawMultiNoSTY : rawMulti);
+  // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
+  const [part, setPart] = useUrlState<string>('part', '100', { allowed: ['0', '25', '50', '75', '100'] });
+  const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+  const rmOff = [rawMultiTurnout, presTL25, presTL50, presTL75, rawMulti] as unknown as PresidentialElection[];
+  const rmOn  = [rawMultiNoStyTurnout, presNSTL25, presNSTL50, presNSTL75, rawMultiNoSTY] as unknown as PresidentialElection[];
+  const rm = scenario !== 'rawMulti' ? rawMulti : (nosty === 'on' ? rmOn : rmOff)[gi];
   const data = scenario === 'rawMulti' ? rm : factorDev;
 
   const clusterByParty = useMemo(
@@ -108,8 +116,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, rawMultiTu
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} />
         {scenario === 'rawMulti' && (
-          <ToggleGroup label="Participation" value={part} onChange={setPart}
-            options={['full', 'curr'] as const} labels={{ full: 'Full', curr: 'Current turnout' }} />
+          <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}
         {scenario === 'rawMulti' && (
           <ToggleGroup label="Coordination" value={nosty} onChange={setNosty}

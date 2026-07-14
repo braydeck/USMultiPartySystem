@@ -3190,9 +3190,11 @@ def build_turnout_scenario():
 def build_turnout_lambda_scenario():
     """Gap-compression sweep (the 'tuning fork'). λ=0 (Turnout) and λ=1 (base) already
     exist; emit the intermediate stops *TurnoutL25/L50/L75.json — each force's turnout
-    moved 25/50/75% of the way toward parity — so the viz can show where winners flip."""
+    moved 25/50/75% of the way toward parity — so the viz can show where winners flip.
+    Emitted for both coordination worlds (all-parties and no-Solidarity)."""
     for l in (25, 50, 75):
         _build_turnout_variant(OUTPUTS / f"pure_multi_turnout_l{l}", f"TurnoutL{l}")
+        _build_turnout_variant(OUTPUTS / f"pure_multi_nosty_turnout_l{l}", f"NoStyTurnoutL{l}")
 
 
 if __name__ == "__main__":

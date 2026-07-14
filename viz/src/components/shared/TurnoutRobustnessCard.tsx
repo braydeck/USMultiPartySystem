@@ -67,16 +67,19 @@ export function TurnoutRobustnessCard() {
     houseSTY: houseData.map(h => houseSTY(h)),
   }), []);
 
-  const rows = [
+  const winnerRows = [
     { office: 'President — Condorcet', winners: series.presCond, cur: presData[i].condorcetWinner,
       note: 'single national head-to-head' },
     { office: 'President — IRV', winners: series.presIrv, cur: presData[i].irvWinner,
       note: 'strongest first-choice base' },
     { office: 'Senate — Condorcet', winners: series.senPlur.map(p => p[0]), cur: series.senPlur[i][0],
-      note: `plurality of 51 · ${series.senPlur[i][0]} ${series.senPlur[i][1]}` },
-    { office: 'House — plurality', winners: series.houseTop, cur: series.houseTop[i],
-      note: `Solidarity ${series.houseSTY[i]} seats (${series.houseSTY[0]}→${series.houseSTY[series.houseSTY.length - 1]})` },
+      note: `plurality of 51 · ${series.senPlur[i][0]} ${series.senPlur[i][1]} seats` },
   ].map(r => ({ ...r, flip: flipGap(r.winners) }));
+
+  // House is a proportional chamber — plurality is uninformative. Track Solidarity's
+  // delegation, the quantity that actually moves.
+  const styLo = Math.min(...series.houseSTY), styHi = Math.max(...series.houseSTY);
+  const houseSwing = styHi - styLo;
 
   return (
     <Card className="p-5">
@@ -106,7 +109,7 @@ export function TurnoutRobustnessCard() {
         <div className="text-muted-foreground uppercase tracking-widest pb-1">Office</div>
         <div className="text-muted-foreground uppercase tracking-widest pb-1">Winner @ {STOPS[i]}%</div>
         <div className="text-muted-foreground uppercase tracking-widest pb-1 text-right">Verdict</div>
-        {rows.map(r => (
+        {winnerRows.map(r => (
           <div key={r.office} className="contents">
             <div className="py-2 border-t border-border/50">
               <div className="text-foreground font-medium leading-tight">{r.office}</div>
@@ -120,6 +123,19 @@ export function TurnoutRobustnessCard() {
             </div>
           </div>
         ))}
+        {/* House — proportional, so report Solidarity's delegation, not the plurality. */}
+        <div className="contents">
+          <div className="py-2 border-t border-border/50">
+            <div className="text-foreground font-medium leading-tight">House — Solidarity delegation</div>
+            <div className="text-[11px] text-muted-foreground">of 873 seats · plurality (CON) stable, composition is the story</div>
+          </div>
+          <div className="py-2 border-t border-border/50">
+            <span className="font-semibold" style={{ color: PARTY_COLORS.STY }}>{series.houseSTY[i]} seats</span>
+          </div>
+          <div className="py-2 border-t border-border/50 text-right">
+            <span className="font-semibold text-amber-600">{styLo}→{styHi} ({houseSwing})</span>
+          </div>
+        </div>
       </div>
 
       <div className="mt-4 space-y-1.5 text-[11px] text-muted-foreground max-w-2xl">
