@@ -35,6 +35,31 @@ import houseStateMapL30 from '../data/houseStateMapTurnoutL30.json';
 import houseDistL10 from '../data/districtStvResultsTurnoutL10.json';
 import houseDistL20 from '../data/districtStvResultsTurnoutL20.json';
 import houseDistL30 from '../data/districtStvResultsTurnoutL30.json';
+// Crossover (FD) + triple-Wyoming compression stops.
+import fdSeats0 from '../data/fdHouseSeatsTurnout.json';
+import fdSeats10 from '../data/fdHouseSeatsTurnoutL10.json';
+import fdSeats20 from '../data/fdHouseSeatsTurnoutL20.json';
+import fdSeats30 from '../data/fdHouseSeatsTurnoutL30.json';
+import fdDist0 from '../data/fdDistrictStvResultsTurnout.json';
+import fdDist10 from '../data/fdDistrictStvResultsTurnoutL10.json';
+import fdDist20 from '../data/fdDistrictStvResultsTurnoutL20.json';
+import fdDist30 from '../data/fdDistrictStvResultsTurnoutL30.json';
+import seatsTri0 from '../data/houseSeatsTripleTurnout.json';
+import seatsTri10 from '../data/houseSeatsTripleTurnoutL10.json';
+import seatsTri20 from '../data/houseSeatsTripleTurnoutL20.json';
+import seatsTri30 from '../data/houseSeatsTripleTurnoutL30.json';
+import distTri0 from '../data/districtStvResultsTripleTurnout.json';
+import distTri10 from '../data/districtStvResultsTripleTurnoutL10.json';
+import distTri20 from '../data/districtStvResultsTripleTurnoutL20.json';
+import distTri30 from '../data/districtStvResultsTripleTurnoutL30.json';
+import fdSeatsTri0 from '../data/fdHouseSeatsTripleTurnout.json';
+import fdSeatsTri10 from '../data/fdHouseSeatsTripleTurnoutL10.json';
+import fdSeatsTri20 from '../data/fdHouseSeatsTripleTurnoutL20.json';
+import fdSeatsTri30 from '../data/fdHouseSeatsTripleTurnoutL30.json';
+import fdDistTri0 from '../data/fdDistrictStvResultsTripleTurnout.json';
+import fdDistTri10 from '../data/fdDistrictStvResultsTripleTurnoutL10.json';
+import fdDistTri20 from '../data/fdDistrictStvResultsTripleTurnoutL20.json';
+import fdDistTri30 from '../data/fdDistrictStvResultsTripleTurnoutL30.json';
 
 interface Props {
   seats: HouseSeat[];
@@ -68,20 +93,23 @@ interface Props {
 
 type WyomingRule = 'double' | 'triple';
 
-export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
+export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
-  const rmDouble = scenario === 'rawMulti' && wyoming === 'double';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
-  const seatsStops = [seatsTurnout, houseSeatsL10, houseSeatsL20, houseSeatsL30] as unknown as HouseSeat[][];
-  const mapStops   = [stateMapTurnout, houseStateMapL10, houseStateMapL20, houseStateMapL30] as unknown as Record<string, HouseStateEntry>[];
-  const distStops  = [districtResultsTurnout, houseDistL10, houseDistL20, houseDistL30] as unknown as Record<string, DistrictResult[]>[];
-  const rmSeats    = rmDouble ? seatsStops[gi] : seats;
-  const rmStateMap = rmDouble ? mapStops[gi]   : stateMap;
-  const rmDistrict = rmDouble ? distStops[gi]  : districtResults;
+  // Compression stops [0,10,20,30] per scenario × Wyoming. Every cell now tracks the
+  // slider: RawMulti/Crossover × double/triple.
+  const rmSeats    = [seatsTurnout, houseSeatsL10, houseSeatsL20, houseSeatsL30][gi] as unknown as HouseSeat[];
+  const rmStateMap = [stateMapTurnout, houseStateMapL10, houseStateMapL20, houseStateMapL30][gi] as unknown as Record<string, HouseStateEntry>;
+  const rmDistrict = [districtResultsTurnout, houseDistL10, houseDistL20, houseDistL30][gi] as unknown as Record<string, DistrictResult[]>;
+  const fdSeatsGi        = [fdSeats0, fdSeats10, fdSeats20, fdSeats30][gi] as unknown as FDHouseSeat[];
+  const fdSeatsTripleGi  = [fdSeatsTri0, fdSeatsTri10, fdSeatsTri20, fdSeatsTri30][gi] as unknown as FDHouseSeat[];
+  const seatsTripleGi    = [seatsTri0, seatsTri10, seatsTri20, seatsTri30][gi] as unknown as HouseSeat[];
+  const fdDistrictGi       = [fdDist0, fdDist10, fdDist20, fdDist30][gi] as unknown as Record<string, DistrictResult[]>;
+  const fdDistrictTripleGi = [fdDistTri0, fdDistTri10, fdDistTri20, fdDistTri30][gi] as unknown as Record<string, DistrictResult[]>;
+  const districtTripleGi   = [distTri0, distTri10, distTri20, distTri30][gi] as unknown as Record<string, DistrictResult[]>;
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -93,7 +121,7 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
     const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
     const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',7:'Order and Opportunity Party',8:'DSA',9:'Progressive' };
-    for (const s of fdHouseSeats) {
+    for (const s of fdSeatsGi) {
       const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
       if (cluster < 0) continue;
       if (!byCluster[cluster]) byCluster[cluster] = { urban: 0, suburban: 0, rural: 0, national: 0 };
@@ -111,14 +139,14 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
       pctNational: v.national / fdTotal * 100,
       pctPopulation: seats.find(s => s.party === Number(k))?.pctPopulation ?? 0,
     }));
-  }, [fdHouseSeats, seats]);
+  }, [fdSeatsGi, seats]);
 
   // FD aggregation for triple Wyoming
   const fdSeatsTripleAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
     const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
     const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',7:'Order and Opportunity Party',8:'DSA',9:'Progressive' };
-    for (const s of fdHouseSeatsTriple) {
+    for (const s of fdSeatsTripleGi) {
       const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
       if (cluster < 0) continue;
       if (!byCluster[cluster]) byCluster[cluster] = { urban: 0, suburban: 0, rural: 0, national: 0 };
@@ -136,7 +164,7 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
       pctNational: v.national / fdTotal * 100,
       pctPopulation: seats.find(s => s.party === Number(k))?.pctPopulation ?? 0,
     }));
-  }, [fdHouseSeatsTriple, seats]);
+  }, [fdSeatsTripleGi, seats]);
 
   // Helper: convert cluster to percentile-based constellation node
   const clusterToNode = (c: CoalitionProfile | ClusterProfile) => {
@@ -154,16 +182,16 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
   };
 
   const activeSeats = useMemo(() => {
-    if (wyoming === 'triple') return scenario === 'rawMulti' ? seatsTriple : fdSeatsTripleAggregated;
+    if (wyoming === 'triple') return scenario === 'rawMulti' ? seatsTripleGi : fdSeatsTripleAggregated;
     return scenario === 'rawMulti' ? rmSeats : fdSeatsAggregated;
-  }, [wyoming, scenario, rmSeats, seatsTriple, fdSeatsAggregated, fdSeatsTripleAggregated]);
+  }, [wyoming, scenario, rmSeats, seatsTripleGi, fdSeatsAggregated, fdSeatsTripleAggregated]);
   const activeTotalSeats = activeSeats.reduce((s, r) => s + r.national, 0);
   const activeDistrictResults = wyoming === 'triple'
-    ? (scenario === 'factorDev' ? fdDistrictResultsTriple : districtResultsTriple)
-    : (scenario === 'factorDev' ? fdDistrictResults : rmDistrict);
+    ? (scenario === 'factorDev' ? fdDistrictTripleGi : districtTripleGi)
+    : (scenario === 'factorDev' ? fdDistrictGi : rmDistrict);
   const activeDistrictCountyMap = wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap;
   const activeStateMap = wyoming === 'triple' ? stateMapTriple : rmStateMap;
-  const activeFdHouseSeats = wyoming === 'triple' ? fdHouseSeatsTriple : fdHouseSeats;
+  const activeFdHouseSeats = wyoming === 'triple' ? fdSeatsTripleGi : fdSeatsGi;
   const activeFdSeatsByCode = useMemo(() => {
     const map: Record<string, number> = {};
     for (const s of activeFdHouseSeats) map[s.code] = s.national;
@@ -195,9 +223,7 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
-        {scenario === 'rawMulti' && wyoming === 'double' && (
-          <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
-        )}
+        <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
       </StickyControlBar>
 
       {/* ═══════════════════════════════════════════════════════════════════════
@@ -219,7 +245,7 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
           {scenario === 'factorDev' && ' Outlined = Crossover seat share for comparison.'}
         </p>
         <ScenarioComparison
-          rawMultiSeats={wyoming === 'triple' ? seatsTriple : rmSeats}
+          rawMultiSeats={wyoming === 'triple' ? seatsTripleGi : rmSeats}
           fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
           scenario={scenario}
           wyoming={wyoming}

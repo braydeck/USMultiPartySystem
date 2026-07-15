@@ -20,17 +20,21 @@ from pathlib import Path
 import sys
 
 BASE_DIR        = Path(__file__).parent.parent
+sys.path.insert(0, str(BASE_DIR / "pipeline" / "pure_only"))
+from turnout_weights import turnout_multiplier, output_tree  # noqa: E402
+
 CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT   = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
-OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation" / "house"
+# Turnout compression → parallel factor_deviation_turnout[_lNN] trees.
+OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / output_tree("factor_deviation") / "house"
 
 # Triple Wyoming variants
 CHECKPOINT_PATH_TRIPLE = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "ballots_checkpoint.parquet"
 APPORTIONMENT_TRIPLE   = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "district_apportionment.csv"
-OUTPUT_DIR_TRIPLE      = BASE_DIR / "data" / "outputs" / "factor_deviation_triple" / "house"
+OUTPUT_DIR_TRIPLE      = BASE_DIR / "data" / "outputs" / output_tree("factor_deviation_triple") / "house"
 
 VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 CAND_FACTOR_COLS  = [
@@ -180,7 +184,7 @@ def main(checkpoint_path=None, apportionment_path=None, output_dir=None, label="
     print("\nLoading EFA factor scores…")
     efa           = pd.read_csv(EFA_SCORES_PATH)
     voter_factors = efa[VOTER_FACTOR_COLS].values.astype(np.float64)
-    weights       = efa["commonpostweight"].values.astype(np.float64)
+    weights       = efa["commonpostweight"].values.astype(np.float64) * turnout_multiplier(len(efa))
 
     print("Loading typology cluster probabilities…")
     typology    = pd.read_csv(TYPOLOGY_PATH)

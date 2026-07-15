@@ -22,6 +22,15 @@ import senCondL30 from '../data/pureMultiSenateCondorcetTurnoutL30.json';
 import senIrvL10 from '../data/pureMultiSenateIRVTurnoutL10.json';
 import senIrvL20 from '../data/pureMultiSenateIRVTurnoutL20.json';
 import senIrvL30 from '../data/pureMultiSenateIRVTurnoutL30.json';
+// Crossover (FD) senate compression stops.
+import fdSenCond0 from '../data/fdSenateCondorcetTurnout.json';
+import fdSenCond10 from '../data/fdSenateCondorcetTurnoutL10.json';
+import fdSenCond20 from '../data/fdSenateCondorcetTurnoutL20.json';
+import fdSenCond30 from '../data/fdSenateCondorcetTurnoutL30.json';
+import fdSenIrv0 from '../data/fdSenateIRVTurnout.json';
+import fdSenIrv10 from '../data/fdSenateIRVTurnoutL10.json';
+import fdSenIrv20 from '../data/fdSenateIRVTurnoutL20.json';
+import fdSenIrv30 from '../data/fdSenateIRVTurnoutL30.json';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -89,8 +98,7 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
   );
 }
 
-export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
-                             condorcetRawMultiTurnout, irvRawMultiTurnout,
+export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
                              voteModel, clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers,
                              senateBuckets, senateCondorcet }: Props) {
@@ -100,11 +108,14 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
   const rawMultiOn = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
-  const condStops = [condorcetRawMultiTurnout, senCondL10, senCondL20, senCondL30] as unknown as FDSenateSeat[][];
-  const irvStops  = [irvRawMultiTurnout, senIrvL10, senIrvL20, senIrvL30] as unknown as FDSenateSeat[][];
-  const condRM = !rawMultiOn ? condorcetRawMulti : condStops[gi];
-  const irvRM  = !rawMultiOn ? irvRawMulti       : irvStops[gi];
+  // Compression stops [0,10,20,30] for each pipeline; condRM/irvRM are the ACTIVE
+  // scenario's Condorcet/IRV senate at the current turnout stop.
+  const rmCondStops = [condorcetRawMultiTurnout, senCondL10, senCondL20, senCondL30] as unknown as FDSenateSeat[][];
+  const rmIrvStops  = [irvRawMultiTurnout, senIrvL10, senIrvL20, senIrvL30] as unknown as FDSenateSeat[][];
+  const fdCondStops = [fdSenCond0, fdSenCond10, fdSenCond20, fdSenCond30] as unknown as FDSenateSeat[][];
+  const fdIrvStops  = [fdSenIrv0, fdSenIrv10, fdSenIrv20, fdSenIrv30] as unknown as FDSenateSeat[][];
+  const condRM = (rawMultiOn ? rmCondStops : fdCondStops)[gi];
+  const irvRM  = (rawMultiOn ? rmIrvStops  : fdIrvStops )[gi];
 
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
 
@@ -114,11 +125,12 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
       ? (method === 'condorcet' ? 'condFD' : 'irvFD')
       : (method === 'condorcet' ? 'condRawMulti' : 'irvRawMulti');
 
+  // condRM/irvRM already resolve to the active pipeline, so both scenarios map to them.
   const SEAT_MAP: Record<SenateScenario, SenateSeat[]> = {
-    condFD:       condorcetFD        as unknown as SenateSeat[],
-    irvFD:        irvFD              as unknown as SenateSeat[],
-    condRawMulti: condRM             as unknown as SenateSeat[],
-    irvRawMulti:  irvRM              as unknown as SenateSeat[],
+    condFD:       condRM as unknown as SenateSeat[],
+    irvFD:        irvRM  as unknown as SenateSeat[],
+    condRawMulti: condRM as unknown as SenateSeat[],
+    irvRawMulti:  irvRM  as unknown as SenateSeat[],
   };
   const activeSeats = SEAT_MAP[scenario];
 
@@ -163,11 +175,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
 
   // Variant seat data for PartyVariantBar
   const fdVariantSeats = useMemo((): FDHouseSeat[] => {
-    const fdSeats =
-      scenario === 'condFD' ? condorcetFD :
-      scenario === 'irvFD' ? irvFD :
-      scenario === 'condRawMulti' ? condRM :
-      irvRM;
+    const fdSeats = (method === 'condorcet' ? condRM : irvRM);
     const countByCode: Record<string, FDHouseSeat> = {};
     for (const seat of fdSeats) {
       const key = seat.senatorCode;
@@ -181,7 +189,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
       countByCode[key].national += 1;
     }
     return Object.values(countByCode);
-  }, [condorcetFD, irvFD, condRM, irvRM, scenario]);
+  }, [condRM, irvRM, method]);
 
   const constellationNodes: ConstellationNode[] = Object.entries(seatCounts)
     .map(([code, seats]) => ({
@@ -223,15 +231,9 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           { party: 'DEM', n: 47, color: '#1d4ed8' },
           { party: 'GOP', n: 53, color: '#dc2626' },
         ]} total={100} />
-        {/* RM Condorcet */}
+        {/* Active-scenario Condorcet + IRV at the current turnout stop */}
         <SenateCompBar label="Condorcet" seats={condRM} />
-        {/* RM IRV */}
         <SenateCompBar label="IRV" seats={irvRM} />
-        {/* FD bars */}
-        {isFD && <>
-          <SenateCompBar label="Condorcet" seats={condorcetFD} />
-          <SenateCompBar label="IRV" seats={irvFD} />
-        </>}
       </Card>
 
       {/* Parliament fan chart */}

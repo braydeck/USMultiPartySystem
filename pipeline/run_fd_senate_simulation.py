@@ -21,16 +21,21 @@ Outputs to data/outputs/factor_deviation/senate/:
   senate_condorcet_results.csv   — Ranked Pairs matchup detail
 """
 
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from itertools import combinations
 
 BASE_DIR        = Path(__file__).parent.parent
+sys.path.insert(0, str(BASE_DIR / "pipeline" / "pure_only"))
+from turnout_weights import turnout_multiplier, output_tree  # noqa: E402
+
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
 BALLOTS_PATH    = BASE_DIR / "data" / "outputs" / "factor_deviation" / "ballots.csv"
-OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation" / "senate"
+# Turnout compression → parallel factor_deviation_turnout[_lNN] tree; ballots unchanged.
+OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / output_tree("factor_deviation") / "senate"
 
 VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 CAND_FACTOR_COLS  = [
@@ -275,7 +280,7 @@ def main():
     print("\nLoading EFA factor scores…")
     efa        = pd.read_csv(EFA_SCORES_PATH)
     inputstate = efa["inputstate"].values.astype(int)
-    weights    = efa["commonpostweight"].values.astype(np.float64)
+    weights    = efa["commonpostweight"].values.astype(np.float64) * turnout_multiplier(len(efa))
     print(f"  {len(efa):,} respondents")
 
     print("Loading FD candidates…")

@@ -47,7 +47,7 @@ COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 # Triple Wyoming variants
 CHECKPOINT_PATH_TRIPLE  = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "ballots_checkpoint.parquet"
 APPORTIONMENT_TRIPLE    = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "district_apportionment.csv"
-OUTPUT_DIR_TRIPLE       = BASE_DIR / "data" / "outputs" / "pure_multi_triple" / "house"
+OUTPUT_DIR_TRIPLE       = BASE_DIR / "data" / "outputs" / output_tree("pure_multi_triple") / "house"
 COUNTY_DIST_PATH_TRIPLE = BASE_DIR / "data" / "processed" / "county_to_district_triple.csv"
 
 # ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───

@@ -1443,7 +1443,7 @@ _FD_PARTY_CLUSTER = {
     "POP": "5", "CUP": "6", "DSA": "8", "PRG": "9", "OAO": "7",
 }
 
-def build_fd_senate():
+def build_fd_senate(src_dir=FD_DIR, cond_name="fdSenateCondorcet.json", irv_name="fdSenateIRV.json"):
     """FD senate compositions. CSV uses senator_party/axis/dir instead of label/cluster cols."""
     def _extract(rows):
         out = []
@@ -1464,16 +1464,16 @@ def build_fd_senate():
             })
         return out
 
-    cond_rows = read_csv(FD_DIR / "senate" / "senate_composition.csv")
-    irv_rows  = read_csv(FD_DIR / "senate" / "senate_irv_composition.csv")
-    write_json(_extract(cond_rows), "fdSenateCondorcet.json")
-    write_json(_extract(irv_rows),  "fdSenateIRV.json")
+    cond_rows = read_csv(src_dir / "senate" / "senate_composition.csv")
+    irv_rows  = read_csv(src_dir / "senate" / "senate_irv_composition.csv")
+    write_json(_extract(cond_rows), cond_name)
+    write_json(_extract(irv_rows),  irv_name)
 
 
 # ---------- fdHouseSeats.json ----------
-def build_fd_house_seats():
+def build_fd_house_seats(src_dir=FD_DIR, out_name="fdHouseSeats.json"):
     """FD house seat summary. CSV uses candidate_code + party/axis/direction strings."""
-    rows = read_csv(FD_DIR / "house" / "stv_seat_summary.csv")
+    rows = read_csv(src_dir / "house" / "stv_seat_summary.csv")
     out = []
     for r in rows:
         out.append({
@@ -1487,7 +1487,7 @@ def build_fd_house_seats():
             "national":    int(r["NATIONAL"]),
             "pctNational": float(r["pct_national"]),
         })
-    write_json(out, "fdHouseSeats.json")
+    write_json(out, out_name)
 
 
 
@@ -2751,11 +2751,11 @@ def build_district_stv_results(src_csv=None, out_name="districtStvResults.json")
     write_json(by_state, out_name)
 
 
-def build_fd_district_stv_results():
+def build_fd_district_stv_results(src_dir=FD_DIR, out_name="fdDistrictStvResults.json"):
     """Group FD district-level STV results by state FIPS."""
-    path = FD_DIR / "house" / "stv_results_by_district.csv"
+    path = src_dir / "house" / "stv_results_by_district.csv"
     if not path.exists():
-        write_json({}, "fdDistrictStvResults.json")
+        write_json({}, out_name)
         return
     rows = read_csv(path)
     by_state: dict = {}
@@ -2773,7 +2773,7 @@ def build_fd_district_stv_results():
             "nRespondents": int(r["n_respondents"]),
         }
         by_state.setdefault(state_fips, []).append(entry)
-    write_json(by_state, "fdDistrictStvResults.json")
+    write_json(by_state, out_name)
 
 
 def build_district_county_map():
@@ -2864,11 +2864,11 @@ def build_rcv_results():
 # Triple Wyoming data builders
 # ══════════════════════════════════════════════════════════════════════════════
 
-def build_house_seats_triple():
-    path = PURE_MULTI_TRIPLE_DIR / "house" / "stv_seat_summary.csv"
+def build_house_seats_triple(src_dir=PURE_MULTI_TRIPLE_DIR, out_name="houseSeatsTriple.json"):
+    path = src_dir / "house" / "stv_seat_summary.csv"
     if not path.exists():
-        print(f"  Skipping houseSeatsTriple (not found: {path})")
-        write_json([], "houseSeatsTriple.json")
+        print(f"  Skipping {out_name} (not found: {path})")
+        write_json([], out_name)
         return
     rows = read_csv(path)
     pop_shares = _national_pop_shares_10()
@@ -2885,14 +2885,14 @@ def build_house_seats_triple():
             "pctNational": float(r["pct_national"]),
             "pctPopulation": pop_shares.get(cluster, 0.0),
         })
-    write_json(out, "houseSeatsTriple.json")
+    write_json(out, out_name)
 
 
-def build_fd_house_seats_triple():
-    path = FD_TRIPLE_DIR / "house" / "stv_seat_summary.csv"
+def build_fd_house_seats_triple(src_dir=FD_TRIPLE_DIR, out_name="fdHouseSeatsTriple.json"):
+    path = src_dir / "house" / "stv_seat_summary.csv"
     if not path.exists():
-        print(f"  Skipping fdHouseSeatsTriple (not found: {path})")
-        write_json([], "fdHouseSeatsTriple.json")
+        print(f"  Skipping {out_name} (not found: {path})")
+        write_json([], out_name)
         return
     rows = read_csv(path)
     out = []
@@ -2908,7 +2908,7 @@ def build_fd_house_seats_triple():
             "national":    int(r["NATIONAL"]),
             "pctNational": float(r["pct_national"]),
         })
-    write_json(out, "fdHouseSeatsTriple.json")
+    write_json(out, out_name)
 
 
 def build_house_state_map_triple():
@@ -2948,11 +2948,11 @@ def build_house_state_map_triple():
     write_json(out, "houseStateMapTriple.json")
 
 
-def build_district_stv_results_triple():
-    path = PURE_MULTI_TRIPLE_DIR / "house" / "stv_results_by_district.csv"
+def build_district_stv_results_triple(src_dir=PURE_MULTI_TRIPLE_DIR, out_name="districtStvResultsTriple.json"):
+    path = src_dir / "house" / "stv_results_by_district.csv"
     if not path.exists():
-        print(f"  Skipping districtStvResultsTriple (not found: {path})")
-        write_json({}, "districtStvResultsTriple.json")
+        print(f"  Skipping {out_name} (not found: {path})")
+        write_json({}, out_name)
         return
     rows = read_csv(path)
     by_state: dict = {}
@@ -2967,14 +2967,14 @@ def build_district_stv_results_triple():
             "nRespondents": int(r["n_respondents"]),
         }
         by_state.setdefault(state_fips, []).append(entry)
-    write_json(by_state, "districtStvResultsTriple.json")
+    write_json(by_state, out_name)
 
 
-def build_fd_district_stv_results_triple():
-    path = FD_TRIPLE_DIR / "house" / "stv_results_by_district.csv"
+def build_fd_district_stv_results_triple(src_dir=FD_TRIPLE_DIR, out_name="fdDistrictStvResultsTriple.json"):
+    path = src_dir / "house" / "stv_results_by_district.csv"
     if not path.exists():
-        print(f"  Skipping fdDistrictStvResultsTriple (not found: {path})")
-        write_json({}, "fdDistrictStvResultsTriple.json")
+        print(f"  Skipping {out_name} (not found: {path})")
+        write_json({}, out_name)
         return
     rows = read_csv(path)
     by_state: dict = {}
@@ -2991,7 +2991,7 @@ def build_fd_district_stv_results_triple():
             "nRespondents": int(r["n_respondents"]),
         }
         by_state.setdefault(state_fips, []).append(entry)
-    write_json(by_state, "fdDistrictStvResultsTriple.json")
+    write_json(by_state, out_name)
 
 
 def build_district_county_map_triple():
@@ -3246,6 +3246,24 @@ def build_turnout_lambda_scenario():
         build_pure_multi_primary_state_shares(d, f"pureMultiPrimaryStageSharesTurnoutL{l}.json")
 
 
+def build_turnout_crossover_triple():
+    """Turnout compression outside the RawMulti+double path: the Crossover (FD) senate
+    and house, plus the triple-Wyoming house for both pipelines — so the slider works
+    on every scenario × Wyoming combination. λ=0 → 'Turnout', 10/20/30 → 'TurnoutLNN'."""
+    for l, sfx in [(0, "Turnout"), (10, "TurnoutL10"), (20, "TurnoutL20"), (30, "TurnoutL30")]:
+        suf = "_turnout" if l == 0 else f"_turnout_l{l}"
+        fd  = OUTPUTS / ("factor_deviation" + suf)
+        fdt = OUTPUTS / ("factor_deviation_triple" + suf)
+        pmt = OUTPUTS / ("pure_multi_triple" + suf)
+        build_fd_senate(fd, f"fdSenateCondorcet{sfx}.json", f"fdSenateIRV{sfx}.json")
+        build_fd_house_seats(fd, f"fdHouseSeats{sfx}.json")
+        build_fd_district_stv_results(fd, f"fdDistrictStvResults{sfx}.json")
+        build_house_seats_triple(pmt, f"houseSeatsTriple{sfx}.json")
+        build_district_stv_results_triple(pmt, f"districtStvResultsTriple{sfx}.json")
+        build_fd_house_seats_triple(fdt, f"fdHouseSeatsTriple{sfx}.json")
+        build_fd_district_stv_results_triple(fdt, f"fdDistrictStvResultsTriple{sfx}.json")
+
+
 if __name__ == "__main__":
     print("Preparing data (native 10-party incl. OAO)...")
 
@@ -3287,6 +3305,7 @@ if __name__ == "__main__":
         build_nosty_scenario,
         build_turnout_scenario,
         build_turnout_lambda_scenario,
+        build_turnout_crossover_triple,
         build_party_population,
     ):
         _run(fn)
