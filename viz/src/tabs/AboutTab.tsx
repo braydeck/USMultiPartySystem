@@ -71,7 +71,7 @@ const STEPS = [
   {
     n: 3, color: '#16a34a',
     title: 'Voter Typology: 10 Clusters',
-    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents into 10 voter types based on their 5 factor scores. Each cluster becomes a party. Blue Dogs (C7) are excluded: too small, and ideologically absorbed by adjacent clusters.',
+    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents into 10 voter types based on their 5 factor scores. Each cluster becomes a party — including cluster 7 (Order & Opportunity), a cross-cutting law-and-order + economic-progressive bloc that sits diagonally to the usual left-right axis.',
   },
   {
     n: 4, color: '#ea580c',
@@ -85,18 +85,19 @@ const STEPS = [
   },
 ];
 
-type Section = 'overview' | 'data' | 'parties' | 'voting' | 'scenarios' | 'caveats';
+type Section = 'overview' | 'data' | 'parties' | 'voting' | 'scenarios' | 'turnout' | 'caveats';
 const SECTIONS: { id: Section; label: string }[] = [
-  { id: 'overview',  label: 'Overview'       },
-  { id: 'data',      label: 'Methodology'    },
-  { id: 'parties',   label: 'The 9 Parties'  },
-  { id: 'voting',    label: 'Voting Systems' },
-  { id: 'scenarios', label: 'Two Scenarios'  },
-  { id: 'caveats',   label: 'Caveats'        },
+  { id: 'overview',  label: 'Overview'        },
+  { id: 'data',      label: 'Methodology'     },
+  { id: 'parties',   label: 'The 10 Parties'  },
+  { id: 'voting',    label: 'Voting Systems'  },
+  { id: 'scenarios', label: 'Two Scenarios'   },
+  { id: 'turnout',   label: 'Turnout'         },
+  { id: 'caveats',   label: 'Caveats'         },
 ];
 
 export function AboutTab() {
-  const [active, setActive] = useUrlState<Section>('about', 'overview', { allowed: ['overview', 'data', 'parties', 'voting', 'scenarios', 'caveats'] });
+  const [active, setActive] = useUrlState<Section>('about', 'overview', { allowed: ['overview', 'data', 'parties', 'voting', 'scenarios', 'turnout', 'caveats'] });
 
   return (
     <div className="space-y-6">
@@ -131,7 +132,7 @@ export function AboutTab() {
           <Card className="bg-slate-900 text-white border-slate-700 px-6 py-8">
             <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">The premise</div>
             <p className="text-xl font-semibold leading-snug mb-4">
-              What if Americans voted in a 9-party proportional system in 2028, using their actual political beliefs?
+              What if Americans voted in a 10-party proportional system in 2028, using their actual political beliefs?
             </p>
             <p className="text-slate-300 text-sm leading-relaxed">
               The US runs winner-take-all elections that compress a complex, multi-dimensional electorate into two parties. This simulation shows what parties could emerge from a proportional distribution of American opinion. This is the empirical core of a larger argument, that our two-party split is an artifact of the voting rules, not the country itself. Emerging parties are ideologically cross-cutting and often surprising.
@@ -159,7 +160,7 @@ export function AboutTab() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
               {[
                 { n: '~60,000', label: 'Survey respondents' },
-                { n: '9',       label: 'Active parties' },
+                { n: '10',      label: 'Active parties' },
                 { n: '873',     label: 'House seats' },
                 { n: '51',      label: 'Senate seats' },
               ].map(s => (
@@ -176,7 +177,7 @@ export function AboutTab() {
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">What each tab shows</div>
             <div className="space-y-2.5">
               {[
-                { tab: 'Party Quiz', desc: 'Answer the actual CES survey questions and see which of the nine parties your factor scores land closest to.', group: '' },
+                { tab: 'Party Quiz', desc: 'Answer the actual CES survey questions and see which of the ten parties your factor scores land closest to.', group: '' },
                 { tab: 'Overview', desc: 'A proportional government at a glance: how each chamber\'s composition shifts moving from winner-take-all to STV.', group: '' },
                 { tab: 'Parties', desc: 'The nine parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties or crossover candidates.', group: '' },
                 { tab: 'Presidency', desc: 'A 4-round STV primary that consolidates a 9+ party field into finalists, then a head-to-head general where IRV and Condorcet often pick different winners.', group: 'Scenarios' },
@@ -346,9 +347,12 @@ export function AboutTab() {
           </div>
 
           <Card className="p-4 bg-amber-50 border-amber-200">
-            <div className="text-xs font-semibold text-amber-800 mb-1">Why 9 and not 10?</div>
+            <div className="text-xs font-semibold text-amber-800 mb-1">The 10th party: Order &amp; Opportunity</div>
             <p className="text-xs text-amber-700 leading-relaxed">
-              The DPGMM naturally produces 10 clusters. Cluster 7 (Blue Dogs, conservative Democrats) is dropped because it's small and ideologically spans the CON/CUP boundary. Including it produced unstable results and unclear ideological identity. All 9 remaining clusters are statistically robust and ideologically interpretable.
+              The DPGMM produces 10 clusters. Cluster 7 was originally set aside as ambiguous, but it&apos;s a
+              real, cross-cutting bloc — law-and-order on security paired with economic progressivism — that
+              doesn&apos;t sit cleanly on the left-right axis. It runs as the Order &amp; Opportunity Party (OAO), a
+              small but distinct force, so all 10 clusters are active.
             </p>
           </Card>
         </div>
@@ -462,6 +466,90 @@ export function AboutTab() {
                 </div>
               ))}
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* ── Turnout ──────────────────────────────────────────── */}
+      {active === 'turnout' && (
+        <div className="space-y-5">
+          <Card className="bg-slate-900 text-white border-slate-700 px-6 py-7">
+            <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">The turnout slider</div>
+            <p className="text-lg font-semibold leading-snug mb-3">
+              Elections aren&apos;t decided by the population — they&apos;re decided by whoever shows up. The
+              &ldquo;turnout gap closed&rdquo; slider lets you test how much that matters.
+            </p>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              The default counts every adult&apos;s preference once (latent electorate). But turnout is deeply
+              uneven, and it doesn&apos;t fall evenly across the forces. The slider sweeps that unevenness — from
+              observed 2024 turnout toward a more equal electorate — so you can see which results depend on it.
+            </p>
+          </Card>
+
+          <Card className="p-5">
+            <div className="font-semibold text-foreground mb-2">The turnout inversion</div>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+              Validated 2024 turnout runs <em>backwards</em> to force size. The high-intensity ideological poles
+              vote most — Progressive at 83%, Nationalist at 77% — while the large, cross-pressured center votes
+              least: Solidarity at just 37%. Winner-take-all converts that intensity gap directly into power. The
+              engaged extremes are over-represented and the disengaged center is under-represented, before a single
+              seat is even allocated.
+            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Because a force&apos;s share of voters equals its population share times its turnout relative to the
+              average, low turnout only costs you if you&apos;re <em>below</em> average — being small doesn&apos;t hurt
+              you, being disengaged does. See the Population Breakdown on the Overview for the visual.
+            </p>
+          </Card>
+
+          <Card className="p-5">
+            <div className="font-semibold text-foreground mb-2">What the slider models: the contraction effect</div>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+              It is <em>not</em> a uniform turnout boost. The documented effect of proportional representation
+              (Cox, Fiva &amp; Smith on Norway&apos;s 1919 reform) is a <strong>contraction</strong>: mobilization
+              redistributes from the over-mobilized to the under-mobilized, compressing the turnout <em>gap</em>
+              between forces rather than lifting everyone. That is exactly what the slider does — at &ldquo;X% gap
+              closed,&rdquo; the suppressed forces close X% of their turnout gap toward the mobilized ones (each
+              pairwise gap shrinks by X%). We model this as upward-only — lifting the suppressed, holding the
+              high-turnout poles fixed — which is deliberately conservative for the extremist-containment question,
+              since it never deflates the poles.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-3 mt-3">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                <div className="text-xs font-semibold text-emerald-800 mb-1">0% — Observed (default)</div>
+                <p className="text-[11px] text-emerald-700 leading-relaxed">Validated 2024 turnout, no assumed behavioral response. The only setting that rests entirely on measured data.</p>
+              </div>
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                <div className="text-xs font-semibold text-emerald-800 mb-1">≤10% — Plausible</div>
+                <p className="text-[11px] text-emerald-700 leading-relaxed">The quasi-experimental PR turnout effect is small (1–4 points aggregate, often null), so ~10% gap closure is the ceiling of what one cycle plausibly delivers.</p>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <div className="text-xs font-semibold text-amber-800 mb-1">20–30% — Stress</div>
+                <p className="text-[11px] text-amber-700 leading-relaxed">Beyond documented one-cycle effects; included to test what heavier mobilization would take. Above 30% is excluded entirely.</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-5">
+            <div className="font-semibold text-foreground mb-3">How to read it: each claim against its hostile end</div>
+            <div className="space-y-2.5 text-sm">
+              {[
+                { q: 'President — robust', a: 'Solidarity (Condorcet) and Labour (IRV) win at observed turnout and at every compression level. Nothing hinges on the assumption.' },
+                { q: 'House — scales, doesn’t flip', a: 'Conservative stays the plurality throughout; Solidarity’s delegation grows monotonically as the gap closes. Weakest at 0%, so it’s quoted as a range, not a point.' },
+                { q: 'Senate — conditional on mobilization', a: 'The one result observed data does not support: Labour leads at observed turnout and at plausible compression (≤10%); Solidarity only takes the plurality under stress-level compression (20–30%). So at observed turnout the Senate is Labour’s — Solidarity’s Senate is contingent, and is reported that way.' },
+              ].map(r => (
+                <div key={r.q} className="flex gap-3">
+                  <div className="text-muted-foreground shrink-0 mt-0.5">→</div>
+                  <div><span className="font-medium text-foreground">{r.q}. </span><span className="text-muted-foreground">{r.a}</span></div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed mt-4">
+              Turnout is <strong>validated</strong> (matched to the TargetSmart voter file via CES <code>TS_g2024</code>),
+              not self-reported — so the 37-vs-83 spread is a real measured gap, not an artifact of differential
+              over-reporting. The observed floor is anchored to data; the ceiling is bounded by the literature; the
+              slider is the axis between them.
+            </p>
           </Card>
         </div>
       )}
