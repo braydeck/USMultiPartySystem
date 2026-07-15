@@ -146,7 +146,7 @@ export function AboutTab() {
           <div className="grid sm:grid-cols-3 gap-4">
             {[
               { accent: '#1d4ed8', icon: '◎', title: '2024 Pre-Election Survey Data', body: 'Drawn from the 2024 Cooperative Election Study: 60,000 respondents, ~100 policy questions. Real voters, real preferences.' },
-              { accent: '#16a34a', icon: '◈', title: '"Party" System derived from clusters', body: 'Parties aren\'t invented. They emerge from factor analysis and clustering of the survey data, each one a statistically distinct voter type.' },
+              { accent: '#16a34a', icon: '◈', title: '"Parties" derived from clusters', body: 'Each party is a statistically distinct voter cluster from factor analysis of the survey — better read as an electoral force that would shape a multiparty system than as a firm prediction of the parties that would form.' },
               { accent: '#ea580c', icon: '◆', title: 'Proportional and Preferential Voting', body: 'Elections run via STV, IRV, and Condorcet: systems designed to produce the greatest good for the greatest number. STV already runs in Ireland, Australia, Cambridge, and Portland.' },
             ].map(p => (
               <Card key={p.title} className="p-5">
@@ -313,8 +313,17 @@ export function AboutTab() {
       {active === 'parties' && (
         <div className="space-y-5">
           <Card className="p-5">
-            <p className="text-sm text-foreground leading-relaxed mb-1">
-              No one drew these parties up. Each is a statistically distinct cluster of the surveyed electorate, named after the fact from its ideological profile. The spectrum is five-dimensional; the cards below run along the primary axis (F5, Populist Conservatism, low to high), and the figure on each card is that force&apos;s share of the adult population.
+            <p className="text-sm text-foreground leading-relaxed mb-3">
+              Each &ldquo;party&rdquo; is a statistically distinct cluster of the surveyed electorate, named after the
+              fact from its ideological profile. The spectrum is five-dimensional; the cards below run along the
+              primary axis (F5, Populist Conservatism, low to high), and the figure on each card is that
+              cluster&apos;s share of the adult population.
+            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Party formation is complex, so treat these less as firm predictions of what parties would form and
+              more as <strong>10 electoral forces</strong> that would shape a multiparty system — showing how, even
+              inside a two-party system, voter preferences are diverse and cross-cutting. They are the clusters
+              that emerge from the specific battery of CES items used here.
             </p>
           </Card>
 
