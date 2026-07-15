@@ -401,7 +401,7 @@ function StackedBarCell({ item, codes, sigOn, label }: { item: BarItem; codes: s
           const pos = Math.min((val / maxVal) * 100, 100);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <PartyRowLabel code={code} />
+              <PartyRowLabel code={code} signature={qualifies} />
               <div className="flex-1 relative h-3 rounded-sm bg-muted overflow-hidden">
                 <div className="absolute inset-y-0 left-0 rounded-sm"
                   style={{ width: `${pos}%`, backgroundColor: isNat ? '#cbd5e1' : color, opacity: sigOn && !qualifies && !isNat ? 0.45 : 1 }} />
@@ -418,7 +418,8 @@ function StackedBarCell({ item, codes, sigOn, label }: { item: BarItem; codes: s
 // Full-distribution cell for a multi-point item: national + each selected party as a
 // stacked bar (diverging bipolar via bam), so Maintain/Neither and intensity are visible
 // instead of the single collapsed dot.
-function IntensityCell({ item, codes, question }: { item: IntensityItem; codes: string[]; question: string }) {
+function IntensityCell({ item, codes, question, sigOn = false, qualifiers = [] }:
+  { item: IntensityItem; codes: string[]; question: string; sigOn?: boolean; qualifiers?: string[] }) {
   return (
     <div className="px-3 py-3">
       <div className="text-xs text-foreground leading-snug font-medium mb-1">{question}</div>
@@ -438,7 +439,7 @@ function IntensityCell({ item, codes, question }: { item: IntensityItem; codes: 
           const sp = splitShares(item, shares);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <PartyRowLabel code={code} />
+              <PartyRowLabel code={code} signature={sigOn && qualifiers.includes(code)} />
               {sp && (sp.neutral != null ? (
                 <div className="w-24 shrink-0 flex items-center gap-1">
                   <div className="relative h-3 flex-1 rounded-sm bg-muted overflow-hidden" title={`Neither ${Math.round(sp.neutral)}%`}>
@@ -869,7 +870,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                   ].filter(Boolean).join(' ')}
                                 >
                                   {iv ? (
-                                    <IntensityCell item={iv} codes={selected} question={iv.question} />
+                                    <IntensityCell item={iv} codes={selected} question={iv.question}
+                                      sigOn={sigOn} qualifiers={v.qualifiers} />
                                   ) : (
                                     <StackedBarCell item={v} codes={selected} sigOn={sigOn}
                                       label={grp.header ? stripPrefix(v.question) : v.question} />
