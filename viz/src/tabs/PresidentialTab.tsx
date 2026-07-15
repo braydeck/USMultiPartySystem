@@ -53,7 +53,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                                   controlBarExtra }: Props) {
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   const rmStops = [rawMultiTurnout, presTL25, presTL50, presTL75, rawMulti] as unknown as PresidentialElection[];
   const rm = scenario !== 'rawMulti' ? rawMulti : rmStops[gi];

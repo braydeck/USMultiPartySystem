@@ -35,7 +35,7 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
   const rmDouble = pipeline === 'rawMulti' && wyoming === 'double';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).

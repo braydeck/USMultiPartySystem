@@ -57,7 +57,7 @@ function flipGap(winners: string[]): number | null {
 }
 
 export function TurnoutRobustnessCard() {
-  const [i, setI] = useState(0); // slider index into STOPS
+  const [i, setI] = useState(1); // slider index into STOPS; default = 25% of non-voters
 
   const series = useMemo(() => ({
     presCond: presData.map(d => party(d.condorcetWinner)),
@@ -84,11 +84,11 @@ export function TurnoutRobustnessCard() {
   return (
     <Card className="p-5">
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-        Turnout Robustness — Gap-Compression Sweep
+        Turnout Robustness
       </h3>
       <p className="text-xs text-muted-foreground mb-4">
-        How far must the turnout gap between forces close for each office&apos;s winner to change? Drag from
-        observed 2024 turnout toward parity. A sensitivity check, not a forecast.
+        What share of today&apos;s non-voters would have to show up for each office&apos;s winner to change?
+        Drag from 2024 turnout toward everyone voting. A sensitivity check, not a forecast.
       </p>
 
       {/* Slider */}
@@ -96,23 +96,23 @@ export function TurnoutRobustnessCard() {
         <input type="range" min={0} max={STOPS.length - 1} step={1} value={i}
           onChange={e => setI(Number(e.target.value))}
           className="w-full accent-indigo-600" />
-        {/* plausible post-reform band (~0–30% of the gap); gap% maps 1:1 to track fraction */}
+        {/* plausible band (~0–30% of non-voters); value maps 1:1 to track fraction */}
         <div className="relative h-1.5 rounded bg-slate-200 mt-1">
           <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70" style={{ width: '30%' }} />
         </div>
         <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
-          <span>As cast · 2024 (0%)</span>
-          <span className="font-semibold text-foreground">Gap closed: {STOPS[i]}%</span>
-          <span>Latent preference · parity (100%)</span>
+          <span>2024 actual</span>
+          <span className="font-semibold text-foreground">{STOPS[i]}% of non-voters</span>
+          <span>Everyone votes</span>
         </div>
         <p className="text-[10px] text-emerald-700 mt-1">
-          ▉ Plausible post-reform range (~0–30%): PR closes the representation gap, not the income/education one.
+          ▉ Plausible range (~0–30%): PR mobilizes some non-voters (the unrepresented), not the whole income/education gap.
         </p>
       </div>
 
       <div className="grid grid-cols-[1.5fr_1fr_auto] gap-x-3 text-xs">
         <div className="text-muted-foreground uppercase tracking-widest pb-1">Office</div>
-        <div className="text-muted-foreground uppercase tracking-widest pb-1">Winner @ {STOPS[i]}%</div>
+        <div className="text-muted-foreground uppercase tracking-widest pb-1">Winner @ {STOPS[i]}% of non-voters</div>
         <div className="text-muted-foreground uppercase tracking-widest pb-1 text-right">Verdict</div>
         {winnerRows.map(r => (
           <div key={r.office} className="contents">

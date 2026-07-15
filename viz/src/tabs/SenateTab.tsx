@@ -97,7 +97,7 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
   const rawMultiOn = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
