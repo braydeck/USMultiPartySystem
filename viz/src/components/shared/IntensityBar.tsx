@@ -23,8 +23,10 @@ const BY_VAR: Record<string, IntensityItem> = Object.fromEntries(INTENSITY_ITEMS
 // Profile keys append "_agree" for the agree scales — strip it to join to intensity data.
 export const intensityFor = (key: string): IntensityItem | undefined => BY_VAR[key.replace(/_agree$/, '')];
 
-// Sequential ramp for non-bipolar frequency scales (church: most → least attendance).
-const SEQ = ['#0b3d91', '#2563eb', '#60a5fa', '#93c5fd', '#c7d7f5', '#eef2ff'];
+// Sequential ramp for non-bipolar frequency scales (church/prayer: most → least frequent).
+// Magenta (ColorBrewer RdPu): dark = high frequency, light = low. Magenta is the one saturated
+// hue no party uses (avoids STY violet), so it doesn't read as a party color.
+const SEQ = ['#7a0177', '#ae017e', '#dd3497', '#f768a1', '#fa9fb5', '#fcc5c0', '#fde0dd'];
 
 // Bipolar agree/disagree scales use bam (magenta → neutral → green) so the color does
 // not read as the political red/blue used for left–right elsewhere.

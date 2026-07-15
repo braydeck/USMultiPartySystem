@@ -938,37 +938,8 @@ def collect_cluster_variables(rows, include_c7=True):
             except (ValueError, TypeError):
                 pass
 
-    # Phase 5b: income tier groupings from faminc_new ordinal distribution
-    INCOME_TIERS = [
-        ('income_under50k', 'Family income under $50k',
-         ['% <$10k', '% $10k\u201320k', '% $20k\u201330k', '% $30k\u201340k', '% $40k\u201350k']),
-        ('income_50k_100k', 'Family income $50k\u2013$100k',
-         ['% $50k\u201360k', '% $60k\u201370k', '% $70k\u201380k', '% $80k\u2013100k']),
-        ('income_over100k', 'Family income over $100k',
-         ['% $100k\u2013120k', '% $120k\u2013150k', '% $150k\u2013200k', '% $200k\u2013250k',
-          '% $250k\u2013350k', '% $350k\u2013500k', '% $500k+']),
-    ]
-    inc_rows = {r['stat_label']: r for r in rows if r['variable'] == 'faminc_new'}
-    for synth_key, question, labels in INCOME_TIERS:
-        matching = [inc_rows[lbl] for lbl in labels if lbl in inc_rows]
-        if not matching:
-            continue
-        try:
-            overall = sum(float(r.get('overall', 0) or 0) for r in matching)
-        except Exception:
-            overall = 0
-        for cid in cluster_ids:
-            try:
-                val = sum(float(r.get(f'c{cid}', 0) or 0) for r in matching)
-                result[cid][synth_key] = {
-                    'pct': round(val, 1),
-                    'question': question,
-                    'domain': 'Economics',
-                    'diffPp': round(val - overall, 1),
-                    'overall': round(overall, 1),
-                }
-            except Exception:
-                pass
+    # (Income tiers removed \u2014 family income is now the sequential-composition distribution
+    # item built by build_distributions(), so the per-tier binaries are no longer emitted.)
 
     # Phase 5c: remap existing binary variables to new domains
     BINARY_REMAP = {
@@ -978,6 +949,7 @@ def collect_cluster_variables(rows, include_c7=True):
         'CC24_323f': ('Taxes & Economy', 'Forgive up to $20k of student loan debt per person'),
         'milstat_1': ('Other',           'Currently serving in the military'),
         'milstat_3': ('Other',           'Previously served in the military'),
+        'CC24_445b': ('Abortion',        "SCOTUS: Constitution doesn't protect abortion; Roe overruled (Agree/Disagree)"),
     }
     for cid in cluster_ids:
         for var, (new_domain, new_question) in BINARY_REMAP.items():
@@ -3283,8 +3255,10 @@ def build_distributions():
         return [(var, l) for l in labels]
 
     CATEG = ["#6366f1", "#06b6d4", "#f59e0b", "#10b981", "#ec4899"]
-    SEQ4  = ["#c7d2fe", "#818cf8", "#4f46e5", "#312e81"]
-    SEQ5  = ["#c7d2fe", "#93a5f4", "#6366f1", "#4338ca", "#312e81"]
+    # Unipolar sequential — magenta ramp (light = low, dark = high), ColorBrewer RdPu. Magenta
+    # avoids every party hue (esp. STY violet) so ordinal charts don't read as party colors.
+    SEQ4  = ["#fcc5c0", "#f768a1", "#ae017e", "#7a0177"]
+    SEQ5  = ["#fcc5c0", "#fa9fb5", "#f768a1", "#ae017e", "#7a0177"]
     IDEO5 = ["#2563eb", "#93c5fd", "#e5e7eb", "#fca5a5", "#dc2626"]
     PID3  = ["#2563eb", "#e5e7eb", "#dc2626"]
     VOTE4 = ["#2563eb", "#dc2626", "#a3a3a3", "#e5e7eb"]
@@ -3341,11 +3315,8 @@ def build_distributions():
             ("Muslim", S("relig_muslim", "% Supporting")),
             ("Unaffiliated", S("relig_none", "% Supporting")),
             ("Other", S("relig_other", "% Supporting"))], None, None),
-        ("churatd", "composition", "Religion", "Church attendance", 40, [
-            ("Weekly+", S("pew_churatd", "% More than once/week", "% Once/week")),
-            ("Monthly", S("pew_churatd", "% 1–2x/month")),
-            ("Yearly", S("pew_churatd", "% Few times/year")),
-            ("Seldom / never", S("pew_churatd", "% Seldom", "% Never"))], SEQ4, None),
+        # (Church attendance is left to the existing IntensityBar "freq" ramp treatment, which
+        # keeps all six categories — Seldom and Never are not collapsed.)
         ("ideo5", "diverging", "Voting History", "Ideology (self-identified)", 5, [
             ("Very liberal", S("ideo5", "% Very Liberal")), ("Liberal", S("ideo5", "% Liberal")),
             ("Moderate", S("ideo5", "% Moderate")), ("Conservative", S("ideo5", "% Conservative")),

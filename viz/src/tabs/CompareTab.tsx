@@ -593,10 +593,14 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
       });
     }
 
+    // Rich distribution rows (ordinal/freq via IntensityBar) sort above plain binary bars, so
+    // binaries sink to the bottom of each section for visual consistency.
+    const rich = (k: string) => (intensityFor(k) ? 0 : 1);
     for (const key of Object.keys(grouped)) {
       const order = SECTION_QUESTION_ORDER[key];
       if (order) {
         grouped[key].sort((a, b) => {
+          if (rich(a.key) !== rich(b.key)) return rich(a.key) - rich(b.key);
           const ai = order.indexOf(a.question);
           const bi = order.indexOf(b.question);
           if (ai !== -1 && bi !== -1) return ai - bi;
@@ -606,6 +610,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         });
       } else {
         grouped[key].sort((a, b) => {
+          if (rich(a.key) !== rich(b.key)) return rich(a.key) - rich(b.key);
           if (a.highlighted !== b.highlighted) return a.highlighted ? -1 : 1;
           return b.maxGap - a.maxGap;
         });
@@ -811,24 +816,41 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
                     {!collapsed && (
                       <div className="border-t border-border/50">
-                        {/* Distribution items (range / composition) — full width, rendered first */}
-                        {distKeys.map(k => {
-                          const m = DIST.meta[k];
-                          const byCode = Object.fromEntries(
+                        {(() => {
+                          const byCodeFor = (k: string) => Object.fromEntries(
                             selected.filter(c => DIST.parties[c]?.[k]).map(c => [c, DIST.parties[c][k]])) as Record<string, never>;
+                          // Range / composition / diverging go 2-per-row for density; heatmaps
+                          // span full width (too many columns to halve).
+                          const grid = distKeys.filter(k => DIST.meta[k].viz !== 'heatmap');
+                          const wide = distKeys.filter(k => DIST.meta[k].viz === 'heatmap');
                           return (
-                            <div key={k} className="border-t border-border/50 first:border-t-0">
-                              {m.viz === 'range'
-                                ? <RangeBarCell meta={m as unknown as RangeMeta}
-                                    national={DIST.national[k] as never} byCode={byCode} codes={selected} />
-                                : m.viz === 'heatmap'
-                                ? <HeatmapCell meta={m as unknown as CompMeta}
-                                    national={DIST.national[k] as never} byCode={byCode} codes={selected} />
-                                : <CompositionStackCell meta={m as unknown as CompMeta}
-                                    national={DIST.national[k] as never} byCode={byCode} codes={selected} />}
-                            </div>
+                            <>
+                              <div className="grid grid-cols-1 sm:grid-cols-2">
+                                {grid.map((k, i) => {
+                                  const m = DIST.meta[k];
+                                  return (
+                                    <div key={k} className={[
+                                      i >= 2 ? 'border-t border-border/50' : '',
+                                      i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
+                                    ].filter(Boolean).join(' ')}>
+                                      {m.viz === 'range'
+                                        ? <RangeBarCell meta={m as unknown as RangeMeta}
+                                            national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />
+                                        : <CompositionStackCell meta={m as unknown as CompMeta}
+                                            national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              {wide.map(k => (
+                                <div key={k} className="border-t border-border/50">
+                                  <HeatmapCell meta={DIST.meta[k] as unknown as CompMeta}
+                                    national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />
+                                </div>
+                              ))}
+                            </>
                           );
-                        })}
+                        })()}
                         {buildSubgroups(sectionKey, vars).map(grp => (
                           <div key={grp.header ?? 'main'}>
                             {grp.header && (

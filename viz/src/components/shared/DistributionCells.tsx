@@ -177,11 +177,13 @@ export function HeatmapCell({ meta, national, byCode, codes }: {
             <span className="text-[10px] font-bold text-right pr-1 self-center tabular-nums"
               style={{ color: isNat ? NAT : getBlendColor(code) }}>{isNat ? 'U.S.' : code}</span>
             {pcts.map((v, i) => {
+              // Magenta light->dark by within-grid share: high = dark/prominent, low = near-white.
+              // (Chosen over cividis, whose pale-yellow high end fades on the white card.)
               const a = Math.min(1, v / scaleMax);
               return (
                 <div key={i} className="h-6 flex items-center justify-center text-[9px] tabular-nums rounded-[2px]"
                   title={`${meta.segLabels[i]}: ${v.toFixed(1)}%`}
-                  style={{ backgroundColor: `rgba(79,70,229,${a})`, color: a > 0.55 ? '#fff' : '#334155' }}>
+                  style={{ backgroundColor: `rgba(122,1,119,${a})`, color: a > 0.5 ? '#fff' : '#334155' }}>
                   {v >= 0.5 ? Math.round(v) : ''}
                 </div>
               );
