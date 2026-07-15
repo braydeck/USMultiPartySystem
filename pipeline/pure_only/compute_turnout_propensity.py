@@ -5,12 +5,12 @@ compute_turnout_propensity.py
 Attach CES 2024 *validated* turnout (TS_g2024) to the EFA/cluster rows so the
 simulation can weight each respondent by whether they actually voted.
 
-Turnout definition (CES Specification 1 — validated vote):
-  voted := TS_g2024 is non-missing (a TargetSmart voter-file general-2024
-  record exists). No record (incl. respondents unmatched to the voter file)
-  = non-voter. This yields ~63% weighted national turnout, matching reality.
-  In this data release match-status and vote-record are collinear, so the
-  "impute unmatched at matched rate" variant is degenerate; Spec 1 is used.
+Turnout definition (CES Specification 1, validated vote):
+  voted := TS_g2024 in 1..6 (absentee/early/mail/polling/provisional/unknown-method).
+  TS_g2024 == 7 means "matched but did not vote" (a registered non-voter), and a
+  missing value means "not matched to the voter file"; both count as non-voters
+  under Spec 1. (Per the CES vv guide: "any non-missing value below 7 = validated
+  vote record.") Yields ~59% weighted national turnout.
 
 Alignment is SELF-VERIFYING: we replicate efa_update.py's listwise-deletion
 filter (notna on the 24 items + commonpostweight, original .dta order), then
@@ -66,8 +66,13 @@ def main():
     assert np.allclose(dfc["commonpostweight"].values, fs["commonpostweight"].values), "weight mismatch"
     print("  ✓ alignment verified (pid3, inputstate, commonpostweight match row-by-row)")
 
-    # ── Validated turnout (Spec 1): voted iff TS_g2024 has a record ────────
-    voted = dfc["TS_g2024"].notna().astype(int).values
+    # ── Validated turnout (Spec 1) ────────────────────────────────────────
+    # TS_g2024 codebook: 1 absentee, 2 early, 3 mail, 4 polling place, 5 provisional,
+    # 6 voted-by-unknown-method, 7 DID NOT VOTE; missing = not matched to voter file.
+    # "Any non-missing value below 7 = validated vote." So voted iff 1 <= TS_g2024 <= 6;
+    # code 7 (matched non-voter) and missing (unmatched) are both non-voters under Spec 1.
+    g = dfc["TS_g2024"].values
+    voted = ((~np.isnan(g)) & (g <= 6)).astype(int)
     w = dfc["commonpostweight"].values
     print(f"\n  weighted national validated turnout: {np.average(voted, weights=w)*100:.1f}%")
 
