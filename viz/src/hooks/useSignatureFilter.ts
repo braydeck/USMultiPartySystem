@@ -2,55 +2,44 @@ import { useUrlState, useUrlNumber } from './useUrlState';
 import type { SignatureFilter } from '../lib/signature';
 
 export interface SignatureFilterState {
-  filter: SignatureFilter;
-  useConsensus: boolean;
-  setUseConsensus: (b: boolean) => void;
+  filter: SignatureFilter;   // thresholds only; annotations always show
   consPct: number;
   setConsPct: (n: number) => void;
-  useDeviant: boolean;
-  setUseDeviant: (b: boolean) => void;
   deviantPp: number;
   setDeviantPp: (n: number) => void;
-  useMainstream: boolean;
-  setUseMainstream: (b: boolean) => void;
   mainstreamPp: number;
   setMainstreamPp: (n: number) => void;
-  filterMarked: boolean;   // hide rows where no selected party has an active mark
-  setFilterMarked: (b: boolean) => void;
+  // Per-axis filter checkboxes: when checked, trim the list to rows matching that axis.
+  filterCohesion: boolean;
+  setFilterCohesion: (b: boolean) => void;
+  filterDeviant: boolean;
+  setFilterDeviant: (b: boolean) => void;
+  filterMainstream: boolean;
+  setFilterMainstream: (b: boolean) => void;
 }
 
 /**
- * Consensus + Deviant + Mainstream annotation filter, stored in shared URL params so Compare
- * Policies and Party Platforms stay in lockstep and the choice is deep-linkable. All three
- * axes default on (Consensus ≥70%, Deviant ≥25pts, Mainstream ≤10pts) so the annotations show.
+ * Signature annotation thresholds + per-axis filter toggles, in shared URL params so Compare
+ * Policies and Party Platforms stay in lockstep and the choice is deep-linkable. Marks always
+ * show (Consensus ≥70%, Deviant ≥25pts, Mainstream ≤10pts); the filter toggles default off.
  */
 export function useSignatureFilter(): SignatureFilterState {
-  const [cons, setCons] = useUrlState<'on' | 'off'>('cons', 'on', { allowed: ['on', 'off'] });
-  const [dev, setDev] = useUrlState<'on' | 'off'>('dev', 'on', { allowed: ['on', 'off'] });
-  const [main, setMain] = useUrlState<'on' | 'off'>('main', 'on', { allowed: ['on', 'off'] });
-  const [filt, setFilt] = useUrlState<'on' | 'off'>('sigfilt', 'off', { allowed: ['on', 'off'] });
   const [consPct, setConsPct] = useUrlNumber('consPct', 70);
   const [deviantPp, setDeviantPp] = useUrlNumber('devPp', 25);
   const [mainstreamPp, setMainstreamPp] = useUrlNumber('mainPp', 10);
+  const [fCoh, setFCoh] = useUrlState<'on' | 'off'>('fCoh', 'off', { allowed: ['on', 'off'] });
+  const [fDev, setFDev] = useUrlState<'on' | 'off'>('fDev', 'off', { allowed: ['on', 'off'] });
+  const [fMain, setFMain] = useUrlState<'on' | 'off'>('fMain', 'off', { allowed: ['on', 'off'] });
   return {
-    filter: {
-      useConsensus: cons === 'on', consPct,
-      useDeviant: dev === 'on', deviantPp,
-      useMainstream: main === 'on', mainstreamPp,
-    },
-    useConsensus: cons === 'on',
-    setUseConsensus: b => setCons(b ? 'on' : 'off'),
-    consPct,
-    setConsPct,
-    useDeviant: dev === 'on',
-    setUseDeviant: b => setDev(b ? 'on' : 'off'),
-    deviantPp,
-    setDeviantPp,
-    useMainstream: main === 'on',
-    setUseMainstream: b => setMain(b ? 'on' : 'off'),
-    mainstreamPp,
-    setMainstreamPp,
-    filterMarked: filt === 'on',
-    setFilterMarked: b => setFilt(b ? 'on' : 'off'),
+    filter: { consPct, deviantPp, mainstreamPp },
+    consPct, setConsPct,
+    deviantPp, setDeviantPp,
+    mainstreamPp, setMainstreamPp,
+    filterCohesion: fCoh === 'on',
+    setFilterCohesion: b => setFCoh(b ? 'on' : 'off'),
+    filterDeviant: fDev === 'on',
+    setFilterDeviant: b => setFDev(b ? 'on' : 'off'),
+    filterMainstream: fMain === 'on',
+    setFilterMainstream: b => setFMain(b ? 'on' : 'off'),
   };
 }

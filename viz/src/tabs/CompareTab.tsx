@@ -315,7 +315,8 @@ function FactorBarRow({
 }
 
 function FactorItemsPanel({
-  factor, codes, clusters, fdProfiles, minGap, sigFilter, divergeOnly, filterMarked,
+  factor, codes, clusters, fdProfiles, minGap, sigFilter, divergeOnly,
+  filterCohesion, filterDeviant, filterMainstream,
 }: {
   factor: string;
   codes: string[];
@@ -324,7 +325,9 @@ function FactorItemsPanel({
   minGap: number;
   sigFilter: SignatureFilter;
   divergeOnly: boolean;
-  filterMarked: boolean;
+  filterCohesion: boolean;
+  filterDeviant: boolean;
+  filterMainstream: boolean;
 }) {
   const items = FACTOR_ITEMS[factor] ?? [];
 
@@ -364,17 +367,23 @@ function FactorItemsPanel({
     });
   }
 
-  // Same signature annotations + filters as the section rows.
+  // Same signature annotations + per-axis filters as the section rows.
   const withMarks = varEntries.map(v => {
     const marks: Record<string, RowMark> = Object.fromEntries(
       codes.filter(c => v.pcts[c] !== undefined).map(c => {
         const { cohesive, distance } = itemSignature(v.key, c, v.pcts[c], v.overall ?? v.pcts[c], v.maxVal, sigFilter);
-        return [c, { dot: sigFilter.useConsensus && cohesive, mark: centralityMark(distance, sigFilter) }];
+        return [c, { dot: cohesive, mark: centralityMark(distance, sigFilter) }];
       }));
     return { v, marks };
   });
-  const shown = withMarks.filter(({ v, marks }) => (!divergeOnly || v.highlighted)
-    && (!filterMarked || Object.values(marks).some(m => m.dot || m.mark != null)));
+  const shown = withMarks.filter(({ v, marks }) => {
+    const vals = Object.values(marks);
+    if (divergeOnly && !v.highlighted) return false;
+    if (filterCohesion && !vals.some(m => m.dot)) return false;
+    if (filterDeviant && !vals.some(m => m.mark === 'D')) return false;
+    if (filterMainstream && !vals.some(m => m.mark === 'M')) return false;
+    return true;
+  });
 
   if (shown.length === 0) {
     return (
@@ -562,21 +571,27 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   const sig = useSignatureFilter();
   const sigFilter = sig.filter;
 
-  // Per-row signature annotations (left cohesion dot + right D/M mark), for scalar items and
-  // for distribution items — computed the same way so the marks mean the same thing everywhere.
+  // Per-row signature annotations (left cohesion dot + right D/M mark), always computed from
+  // the thresholds, for scalar items and distribution items alike.
   const scalarMarks = (v: VarEntry): Record<string, RowMark> => Object.fromEntries(
     selected.filter(c => v.pcts[c] !== undefined).map(c => {
       const { cohesive, distance } = itemSignature(v.key, c, v.pcts[c]!, v.overall ?? v.pcts[c]!, v.maxVal, sigFilter);
-      return [c, { dot: sigFilter.useConsensus && cohesive, mark: centralityMark(distance, sigFilter) }];
+      return [c, { dot: cohesive, mark: centralityMark(distance, sigFilter) }];
     }));
   const distMarks = (k: string): Record<string, RowMark> => Object.fromEntries(
     selected.filter(c => DIST.parties[c]?.[k]).map(c => {
       const { cohesive, distance } = distSigParts(DIST.meta[k], DIST.parties[c][k] as never, DIST.national[k] as never, sigFilter, ORDERED_DIST.has(k));
-      return [c, { dot: sigFilter.useConsensus && cohesive, mark: centralityMark(distance, sigFilter) }];
+      return [c, { dot: cohesive, mark: centralityMark(distance, sigFilter) }];
     }));
-  // A row is "marked" when some selected party has an active annotation (dot or D/M). Used by
-  // the optional "Filter to marked" mode to trim the list to just the rows in play.
-  const hasMark = (m: Record<string, RowMark>) => Object.values(m).some(x => x.dot || x.mark != null);
+  // A row passes the (per-axis) filter checkboxes if, for each checked axis, some selected
+  // party is marked on it. Divergence (amber) is handled separately via `highlighted`.
+  const passSigFilters = (m: Record<string, RowMark>): boolean => {
+    const vals = Object.values(m);
+    if (sig.filterCohesion && !vals.some(x => x.dot)) return false;
+    if (sig.filterDeviant && !vals.some(x => x.mark === 'D')) return false;
+    if (sig.filterMainstream && !vals.some(x => x.mark === 'M')) return false;
+    return true;
+  };
 
   // Restore the last selection when arriving with an empty URL (e.g. via tab nav, which
   // clears query params). A deep-link / shared ?cmp=... takes precedence over the saved one.
@@ -754,16 +769,15 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         {selected.length >= 1 && (
           <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
             <SignatureFilters s={sig} accent="#6366f1" />
-            <div className="flex items-center gap-3 text-[11px] shrink-0 border-l border-border/50 pl-4">
-              <label className="flex items-center gap-1.5 cursor-pointer">
+            <div className="flex items-center gap-1.5 text-[11px] shrink-0 border-l border-border/50 pl-4">
+              <span className="font-semibold text-foreground whitespace-nowrap">■ Divergence</span>
+              <input type="range" min={0} max={50} step={5} value={minGap}
+                onChange={e => setMinGap(Number(e.target.value))} className="w-16" style={{ accentColor: '#6366f1' }} />
+              <span className="font-mono font-semibold tabular-nums w-9" style={{ color: '#6366f1' }}>≥{minGap}</span>
+              <label className="flex items-center gap-0.5 cursor-pointer text-muted-foreground" title="Filter to diverging rows">
                 <input type="checkbox" checked={divergeOnly} onChange={e => setDivergeOnly(e.target.checked)}
                   style={{ accentColor: '#6366f1' }} />
-                <span className="font-semibold text-foreground whitespace-nowrap">Divergences only</span>
-              </label>
-              <label className="flex items-center gap-1 whitespace-nowrap text-muted-foreground">
-                ≥<input type="number" min={0} max={100} value={minGap}
-                  onChange={e => setMinGap(Math.max(0, Math.min(100, Number(e.target.value))))}
-                  className="w-12 border border-border rounded px-1 py-0.5 text-center font-mono text-foreground bg-white" />pp
+                filter
               </label>
             </div>
           </div>
@@ -839,7 +853,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                         minGap={minGap}
                         sigFilter={sigFilter}
                         divergeOnly={divergeOnly}
-                        filterMarked={sig.filterMarked}
+                        filterCohesion={sig.filterCohesion}
+                        filterDeviant={sig.filterDeviant}
+                        filterMainstream={sig.filterMainstream}
                       />
                     )}
                   </div>
@@ -872,13 +888,12 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                       <div className="space-y-3">
               {groupSections.map(sectionKey => {
                 const allVars = sectionVarMap[sectionKey] ?? [];
-                // Annotation model: every item with data is shown and marked (cohesion dot +
-                // D/M). "Filter to marked" optionally trims to rows a selected party is marked on.
+                // Annotation model: every item is shown and marked (cohesion dot + D/M); the
+                // per-axis filter checkboxes optionally trim to rows matching the checked axes.
                 const vars = allVars.filter(v => (!divergeOnly || v.highlighted)
-                  && (!sig.filterMarked || hasMark(scalarMarks(v))));
+                  && passSigFilters(scalarMarks(v)));
                 const distKeys = (distBySection[sectionKey] ?? []).filter(k =>
-                  selected.some(c => DIST.parties[c]?.[k])
-                  && (!sig.filterMarked || hasMark(distMarks(k))));
+                  selected.some(c => DIST.parties[c]?.[k]) && passSigFilters(distMarks(k)));
                 if (vars.length === 0 && distKeys.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
                 // Count only diverging rows that survive the active filters (not the hidden ones).
