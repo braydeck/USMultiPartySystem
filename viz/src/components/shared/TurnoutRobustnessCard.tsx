@@ -65,11 +65,11 @@ export function TurnoutRobustnessCard() {
   }), []);
 
   const winnerRows = [
-    { office: 'President — Condorcet', winners: series.presCond, cur: presData[i].condorcetWinner,
+    { office: 'President · Condorcet', winners: series.presCond, cur: presData[i].condorcetWinner,
       note: 'single national head-to-head' },
-    { office: 'President — IRV', winners: series.presIrv, cur: presData[i].irvWinner,
+    { office: 'President · IRV', winners: series.presIrv, cur: presData[i].irvWinner,
       note: 'strongest first-choice base' },
-    { office: 'Senate — Condorcet', winners: series.senPlur.map(p => p[0]), cur: series.senPlur[i][0],
+    { office: 'Senate · Condorcet', winners: series.senPlur.map(p => p[0]), cur: series.senPlur[i][0],
       note: `plurality of 51 · ${series.senPlur[i][0]} ${series.senPlur[i][1]} seats` },
   ].map(r => ({ ...r, flip: flipGap(r.winners) }));
 
@@ -84,8 +84,8 @@ export function TurnoutRobustnessCard() {
         Turnout Robustness
       </h3>
       <p className="text-xs text-muted-foreground mb-4">
-        How much would the turnout gap between forces have to compress — the previously-ignored voting more,
-        the documented <em>contraction effect</em> of PR — for each office&apos;s winner to change? Default is
+        How much would the turnout gap between forces have to compress (the previously-ignored voting more,
+        the documented <em>contraction effect</em> of PR) for each office&apos;s winner to change? Default is
         observed 2024 turnout (no assumed response); ≤10% closure is plausible for one cycle, 20–30% is a stress test.
       </p>
 
@@ -104,7 +104,7 @@ export function TurnoutRobustnessCard() {
           <span>Stress (30%)</span>
         </div>
         <p className="text-[10px] text-muted-foreground mt-1">
-          <span className="text-emerald-700">▉ plausible (≤10%)</span> · <span className="text-amber-700">▉ stress (20–30%)</span> — the quasi-experimental PR turnout effect is small (1–4pts aggregate); &gt;30% is beyond one-cycle evidence.
+          <span className="text-emerald-700">▉ plausible (≤10%)</span> · <span className="text-amber-700">▉ stress (20–30%)</span>. The quasi-experimental PR turnout effect is small (1–4pts aggregate); &gt;30% is beyond one-cycle evidence.
         </p>
       </div>
 
@@ -129,7 +129,7 @@ export function TurnoutRobustnessCard() {
         {/* House — proportional, so report Solidarity's delegation, not the plurality. */}
         <div className="contents">
           <div className="py-2 border-t border-border/50">
-            <div className="text-foreground font-medium leading-tight">House — Solidarity delegation</div>
+            <div className="text-foreground font-medium leading-tight">House · Solidarity delegation</div>
             <div className="text-[11px] text-muted-foreground">of 873 seats · plurality (CON) stable, composition is the story</div>
           </div>
           <div className="py-2 border-t border-border/50">
@@ -142,15 +142,15 @@ export function TurnoutRobustnessCard() {
       </div>
 
       <p className="mt-4 text-[11px] text-muted-foreground">
-        <strong>President</strong> — robust: Solidarity (Condorcet) and Labour (IRV) hold at observed turnout and at
-        every compression level. <strong>House</strong> — Conservative stays the plurality throughout; Solidarity&apos;s
-        delegation scales {styLo}→{styHi} seats and only strengthens with compression. <strong>Senate</strong> — the one
-        result observed data does <em>not</em> support: Labour leads at observed turnout and at plausible compression
+        <strong>President:</strong> robust. Solidarity (Condorcet) and Labour (IRV) hold at observed turnout and at
+        every compression level. <strong>House:</strong> Conservative stays the plurality throughout; Solidarity&apos;s
+        delegation scales {styLo}→{styHi} seats and only strengthens with compression. <strong>Senate:</strong> the one
+        result observed data does <em>not</em> support. Labour leads at observed turnout and at plausible compression
         (≤10%); Solidarity only reaches the plurality under stress-level compression (~20–30%), beyond what one cycle
-        plausibly delivers. So at observed turnout the Senate is Labour&apos;s — Solidarity&apos;s Senate is conditional on mobilization.
+        plausibly delivers. So at observed turnout the Senate is Labour&apos;s, and Solidarity&apos;s Senate is conditional on mobilization.
       </p>
       <p className="mt-2 text-[10px] text-muted-foreground">
-        Contraction is modeled as upward mobilization of the suppressed forces, holding high-turnout forces fixed —
+        Contraction is modeled as upward mobilization of the suppressed forces, holding high-turnout forces fixed:
         conservative for containment, since it never deflates the poles.
       </p>
     </Card>
