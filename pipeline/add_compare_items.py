@@ -98,7 +98,7 @@ RELIG_LOAD=['pew_religimp','pew_prayer','religpew']
 # Turnout: self-reported (CC24_401==5) vs voter-file-verified (TS_g2024 in 1..6). The gap by
 # party is the self-report inflation, largest for low-engagement forces (Solidarity).
 TURNOUT=['reported_turnout_24','verified_turnout_24']
-LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410','TS_g2024']))
+LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410','TS_g2024','birthyr']))
 EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24+TURNOUT+['pew_religimp','pew_prayer']+[d[0] for d in DENOM]
 
 def main():
@@ -161,6 +161,22 @@ def main():
     comp.append({'cluster':-1,'party':'ALL','verifiedVoted':wpct(vv,allm),
                  'matchedNonvoter':wpct(mnv,allm),'unmatched':wpct(unm,allm)})
     pd.DataFrame(comp).to_csv(ROOT/'data'/'processed'/'turnout_verification.csv',index=False)
+    # Age distribution per cluster (weighted percentiles of 2024 age = 2024 - birthyr) for the
+    # range-bar (plain-language box plot) card: p10/q25/median/q75/p90.
+    age=(2024-dc['birthyr'].values.astype(float))
+    def wpctl(m,qs):
+        v=age[m]; ww=w[m]; ok=(~np.isnan(v))&(v>=18)&(v<=110)
+        v=v[ok]; ww=ww[ok]
+        o=np.argsort(v); v=v[o]; ww=ww[o]
+        cw=(np.cumsum(ww)-0.5*ww)/ww.sum()
+        return [round(float(np.interp(q/100.0,cw,v)),1) for q in qs]
+    QS=[10,25,50,75,90]; agerows=[]
+    for k in range(10):
+        p=wpctl(cl==k,QS)
+        agerows.append({'cluster':k,'party':CODES[k],'p10':p[0],'q25':p[1],'median':p[2],'q75':p[3],'p90':p[4]})
+    p=wpctl(np.ones(len(age),bool),QS)
+    agerows.append({'cluster':-1,'party':'ALL','p10':p[0],'q25':p[1],'median':p[2],'q75':p[3],'p90':p[4]})
+    pd.DataFrame(agerows).to_csv(ROOT/'data'/'processed'/'age_distribution.csv',index=False)
     # Religion importance (very/somewhat important → 1); a "view"
     ri=dc['pew_religimp'].values.astype(float)
     rows.append(emit('pew_religimp','Religion','Religion is important (very or somewhat)',

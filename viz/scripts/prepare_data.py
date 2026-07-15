@@ -3258,6 +3258,19 @@ def build_turnout_verification():
     write_json({"national": national, "parties": parties}, "turnoutVerification.json")
 
 
+def build_age_distribution():
+    """Per-force 2024 age distribution (weighted percentiles p10/q25/median/q75/p90) for the
+    range-bar card. Source: pipeline/add_compare_items.py -> age_distribution.csv."""
+    proc = Path(__file__).parent.parent.parent / "data" / "processed"
+    rows = read_csv(proc / "age_distribution.csv")
+    def rec(r):
+        return {"party": r["party"], **{k: round(float(r[k]), 1)
+                for k in ("p10", "q25", "median", "q75", "p90")}}
+    national = next(rec(r) for r in rows if r["party"] == "ALL")
+    parties = [rec(r) for r in rows if r["party"] != "ALL"]
+    write_json({"national": national, "parties": parties}, "ageDistribution.json")
+
+
 def build_turnout_lambda_scenario():
     """Gap-compression sweep. λ=0 (Turnout) already emitted by build_turnout_scenario;
     this emits the intermediate stops *TurnoutL10/L20/L30.json — each force's turnout gap
@@ -3333,6 +3346,7 @@ if __name__ == "__main__":
         build_turnout_crossover_triple,
         build_party_population,
         build_turnout_verification,
+        build_age_distribution,
     ):
         _run(fn)
     print("Done.")

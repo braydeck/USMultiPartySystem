@@ -6,6 +6,7 @@ import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
+import { AgeDistributionCard } from '../components/shared/AgeDistributionCard';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
@@ -657,6 +658,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         </p>
         <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
       </Card>
+
+      {/* Age by force — cross-party demographic overview, always shown */}
+      <AgeDistributionCard />
 
       {selected.length >= 1 && (
         <>
