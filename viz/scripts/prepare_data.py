@@ -896,54 +896,21 @@ def collect_cluster_variables(rows, include_c7=True):
 
     # Phase 5: categorical_dist variables mapped to new demographic domains
     # (race/gender breakdowns are all enumerated below; no generic "Party base is X" leftover phase)
+    # NOTE: mutually-exclusive demographic batteries (gender, sexuality, race, education,
+    # employment, marital, home, community type, income, faith, church attendance, ideology,
+    # party ID, 2016/2020/2024 vote) are now rendered as distribution items (range / composition
+    # / diverging / heatmap) by build_distributions() — their per-category binary rows were
+    # removed here to avoid duplication. Only batteries with NO distribution twin remain:
+    # immigration background, union membership, and gun ownership.
     CAT_INCLUSIONS = [
         # (variable, stat_label, new_domain, new_question, synth_key)
-        # --- Household ---
-        ('marstat',   '% Married',        'Household', 'Married',                   'marstat_married'),
-        ('marstat',   '% Never married',  'Household', 'Never married',             'marstat_never'),
-        ('ownhome',   '% Own',            'Household', 'Owns home',                 'ownhome_own'),
-        ('ownhome',   '% Rent',           'Household', 'Rents home',                'ownhome_rent'),
-        ('urbancity', '% City',           'Household', 'Lives in: city',            'urbancity_city'),
-        ('urbancity', '% Suburb',         'Household', 'Lives in: suburb',          'urbancity_suburb'),
-        ('urbancity', '% Town',           'Household', 'Lives in: town/small city', 'urbancity_town'),
-        ('urbancity', '% Rural area',     'Household', 'Lives in: rural area',      'urbancity_rural'),
-        # --- Race & Ethnicity ---
-        ('race', '% White',                       'Race & Ethnicity', 'White',                           'race_white'),
-        ('race', '% Black',                       'Race & Ethnicity', 'Black',                           'race_black'),
-        ('race', '% Hispanic',                    'Race & Ethnicity', 'Hispanic',                        'race_hispanic'),
-        ('race', '% Asian',                       'Race & Ethnicity', 'Asian',                           'race_asian'),
-        ('race', '% Native American',             'Race & Ethnicity', 'Native American',                 'race_native_american'),
-        ('race', '% Multiracial',                 'Race & Ethnicity', 'Multiracial',                     'race_multiracial'),
         ('immstat', '% Immigrant, naturalized',   'Race & Ethnicity', 'Immigrant (naturalized citizen)', 'immstat_nat'),
         ('immstat', '% Immigrant, not citizen',   'Race & Ethnicity', 'Immigrant (not yet a citizen)',   'immstat_nc'),
         ('immstat', '% US-born, parent immigrant','Race & Ethnicity', 'US-born, parent was immigrant',   'immstat_parent'),
-        # --- Gender & Sexuality ---
-        ('gender4',   '% Man',                   'Gender & Sexuality', 'Identifies as man',              'gender4_man'),
-        ('gender4',   '% Woman',                 'Gender & Sexuality', 'Identifies as woman',            'gender4_woman'),
-        ('gender4',   '% Non-binary',            'Gender & Sexuality', 'Non-binary or other gender',     'gender4_nonbinary'),
-        ('sexuality', '% Heterosexual/straight', 'Gender & Sexuality', 'Heterosexual / straight',        'sexuality_het'),
-        ('sexuality', '% Lesbian/gay woman',     'Gender & Sexuality', 'Lesbian',                        'sexuality_lesbian'),
-        ('sexuality', '% Gay man',               'Gender & Sexuality', 'Gay man',                        'sexuality_gay'),
-        ('sexuality', '% Bisexual',              'Gender & Sexuality', 'Bisexual',                       'sexuality_bisexual'),
-        # --- Education ---
-        ('educ', '% No HS',         'Education', 'Less than high school',        'educ_no_hs'),
-        ('educ', '% HS grad',       'Education', 'High school graduate',         'educ_hs'),
-        ('educ', '% Some college',  'Education', 'Some college (no degree)',     'educ_some_college'),
-        ('educ', '% 2-year degree', 'Education', "Associate's degree (2-year)",  'educ_2yr'),
-        ('educ', '% 4-year degree', 'Education', "Bachelor's degree (4-year)",   'educ_4yr'),
-        ('educ', '% Post-grad',     'Education', 'Post-graduate degree',         'educ_postgrad'),
-        # --- Economics: employment ---
-        ('employ', '% Full-time',  'Economics', 'Employed full-time',   'employ_ft'),
-        ('employ', '% Part-time',  'Economics', 'Employed part-time',   'employ_pt'),
-        ('employ', '% Unemployed', 'Economics', 'Currently unemployed', 'employ_unemployed'),
-        ('employ', '% Retired',    'Economics', 'Retired',              'employ_retired'),
-        ('employ', '% Homemaker',  'Economics', 'Homemaker',            'employ_homemaker'),
         # --- Economics: union membership ---
         ('union',   '% Current member',   'Economics', 'Current union member',       'union_current'),
         ('union',   '% Former member',    'Economics', 'Former union member',        'union_former'),
         ('unionhh', '% Currently member', 'Economics', 'Household has union member', 'unionhh_current'),
-        # --- Voting History: now built directly from the CES by pipeline/add_compare_items.py
-        #     (2016/2020/2024 vote shares incl. third-party sums + Biden/Harris approval) ---
         # --- Other ---
         ('gunown', '% No one in HH',    'Other', 'No gun in household',   'gunown_none'),
         ('gunown', '% Personally owns', 'Other', 'Personally owns a gun', 'gunown_personal'),
@@ -1172,8 +1139,17 @@ def build_cluster_profiles(include_c7=True, out_name="clusterProfiles.json",
                 for i in range(10) if include_c7 or str(i) != "7"}
 
     all_vars = collect_cluster_variables(rows, include_c7=include_c7)
+    # These binary rows are now rendered as distribution items (faith heatmap + vote-by-year
+    # composition) by build_distributions(); drop them here so the tab doesn't show both.
+    COVERED_BY_DIST = {
+        'relig_protestant', 'relig_catholic', 'relig_jewish', 'relig_muslim', 'relig_none', 'relig_other',
+        'vote16_clinton', 'vote16_trump', 'vote16_third', 'vote16_dnv',
+        'vote20_biden', 'vote20_trump', 'vote20_third', 'vote20_dnv',
+        'vote24_harris', 'vote24_trump', 'vote24_third', 'vote24_dnv',
+    }
     for cid in clusters:
-        clusters[cid]["variables"] = all_vars.get(cid, {})
+        clusters[cid]["variables"] = {k: v for k, v in all_vars.get(cid, {}).items()
+                                      if k not in COVERED_BY_DIST}
 
     # Party code + name from the canonical cluster→party map; factor centroids
     # computed directly from EFA (independent of the pruned coalition diagnostic).
@@ -3269,14 +3245,17 @@ def build_distributions():
     CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
     meta, national, parties = {}, {}, {c: {} for c in CODES}
 
-    # ---- continuous range items ----
+    # ---- continuous range items (genuinely continuous only) ----
     CONT_META = {
-        "age":            ("Household",  "Age",                          "yrs", 10),
-        "income_k":       ("Economics",  "Family income (median)",       "$k",  10),
-        "abortion_weeks": ("Abortion",   "Weeks abortion should remain legal", "wks", 5),
+        "age":            ("Household", "Age",                                "yrs", 10),
+        "abortion_weeks": ("Abortion",  "Weeks abortion should remain legal", "wks", 5),
     }
+    income_med = {}  # party -> median $k, used to annotate the ordinal income composition
     for r in read_csv(proc / "distributions_continuous.csv"):
         var = r["var"]
+        if var == "income_k":
+            income_med[r["party"]] = float(r["median"])
+            continue
         if var not in CONT_META:
             continue
         if var not in meta:
@@ -3285,7 +3264,7 @@ def build_distributions():
         rec = {k: float(r[k]) for k in ("p10", "q25", "median", "q75", "p90")}
         (national if r["party"] == "ALL" else parties[r["party"]])[var] = rec
 
-    # ---- composition / diverging items, collapsed from cluster_stats ----
+    # ---- composition / diverging / heatmap items, from cluster_stats ----
     stats = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
     index = {(r["variable"], r.get("stat_label", "")): r for r in stats}
 
@@ -3305,50 +3284,64 @@ def build_distributions():
 
     CATEG = ["#6366f1", "#06b6d4", "#f59e0b", "#10b981", "#ec4899"]
     SEQ4  = ["#c7d2fe", "#818cf8", "#4f46e5", "#312e81"]
+    SEQ5  = ["#c7d2fe", "#93a5f4", "#6366f1", "#4338ca", "#312e81"]
     IDEO5 = ["#2563eb", "#93c5fd", "#e5e7eb", "#fca5a5", "#dc2626"]
     PID3  = ["#2563eb", "#e5e7eb", "#dc2626"]
     VOTE4 = ["#2563eb", "#dc2626", "#a3a3a3", "#e5e7eb"]
 
     # (key, viz, domain, question, order, [(segLabel, sources)], colors, pivot|None)
+    # Heatmaps (faith/race/sexuality/employment/marital) show every real category — no "Other" merge.
     DIST = [
         ("gender", "composition", "Gender & Sexuality", "Gender", 20, [
             ("Woman", S("gender4", "% Woman")), ("Man", S("gender4", "% Man")),
-            ("Non-binary / other", S("gender4", "% Non-binary", "% Other"))], CATEG, None),
-        ("sexuality", "composition", "Gender & Sexuality", "Sexual orientation", 21, [
+            ("Non-binary", S("gender4", "% Non-binary")), ("Other", S("gender4", "% Other"))], CATEG, None),
+        ("sexuality", "heatmap", "Gender & Sexuality", "Sexual orientation", 21, [
             ("Straight", S("sexuality", "% Heterosexual/straight")),
+            ("Lesbian/gay woman", S("sexuality", "% Lesbian/gay woman")),
+            ("Gay man", S("sexuality", "% Gay man")),
             ("Bisexual", S("sexuality", "% Bisexual")),
-            ("Gay / lesbian", S("sexuality", "% Lesbian/gay woman", "% Gay man")),
-            ("Other", S("sexuality", "% Other", "% Prefer not to say"))], CATEG, None),
-        ("race", "composition", "Race & Ethnicity", "Race / ethnicity", 20, [
+            ("Other", S("sexuality", "% Other")),
+            ("Prefer not", S("sexuality", "% Prefer not to say"))], None, None),
+        ("race", "heatmap", "Race & Ethnicity", "Race / ethnicity", 20, [
             ("White", S("race", "% White")), ("Black", S("race", "% Black")),
             ("Hispanic", S("race", "% Hispanic")), ("Asian", S("race", "% Asian")),
-            ("Other", S("race", "% Native American", "% Multiracial", "% Other", "% Middle Eastern"))], CATEG, None),
-        ("employ", "composition", "Economics", "Employment", 20, [
+            ("Native Am.", S("race", "% Native American")), ("Multiracial", S("race", "% Multiracial")),
+            ("Middle E.", S("race", "% Middle Eastern")), ("Other", S("race", "% Other"))], None, None),
+        ("employ", "heatmap", "Economics", "Employment status", 20, [
             ("Full-time", S("employ", "% Full-time")), ("Part-time", S("employ", "% Part-time")),
-            ("Retired", S("employ", "% Retired")),
-            ("Not working", S("employ", "% Temporarily laid off", "% Unemployed", "% Permanently disabled", "% Homemaker")),
-            ("Student", S("employ", "% Student"))], CATEG, None),
+            ("Unemployed", S("employ", "% Unemployed")), ("Laid off", S("employ", "% Temporarily laid off")),
+            ("Retired", S("employ", "% Retired")), ("Disabled", S("employ", "% Permanently disabled")),
+            ("Homemaker", S("employ", "% Homemaker")), ("Student", S("employ", "% Student")),
+            ("Other", S("employ", "% Other"))], None, None),
+        ("income", "composition", "Economics", "Family income", 10, [
+            ("<$30k", S("faminc_new", "% <$10k", "% $10k–20k", "% $20k–30k")),
+            ("$30–60k", S("faminc_new", "% $30k–40k", "% $40k–50k", "% $50k–60k")),
+            ("$60–100k", S("faminc_new", "% $60k–70k", "% $70k–80k", "% $80k–100k")),
+            ("$100–200k", S("faminc_new", "% $100k–120k", "% $120k–150k", "% $150k–200k")),
+            ("$200k+", S("faminc_new", "% $200k–250k", "% $250k–350k", "% $350k–500k", "% $500k+"))], SEQ5, None),
         ("educ", "composition", "Education", "Educational attainment", 5, [
             ("HS or less", S("educ", "% No HS", "% HS grad")),
             ("Some college", S("educ", "% Some college", "% 2-year degree")),
             ("4-year degree", S("educ", "% 4-year degree")),
             ("Post-grad", S("educ", "% Post-grad"))], SEQ4, None),
-        ("marstat", "composition", "Household", "Marital status", 30, [
+        ("marstat", "heatmap", "Household", "Marital status", 30, [
             ("Married", S("marstat", "% Married")), ("Never married", S("marstat", "% Never married")),
-            ("Formerly married", S("marstat", "% Separated", "% Divorced", "% Widowed")),
-            ("Partnership", S("marstat", "% Domestic/civil partnership"))], CATEG, None),
+            ("Divorced", S("marstat", "% Divorced")), ("Widowed", S("marstat", "% Widowed")),
+            ("Separated", S("marstat", "% Separated")), ("Partnership", S("marstat", "% Domestic/civil partnership"))], None, None),
         ("ownhome", "composition", "Household", "Home ownership", 31, [
             ("Own", S("ownhome", "% Own")), ("Rent", S("ownhome", "% Rent")),
             ("Other", S("ownhome", "% Other"))], CATEG, None),
         ("urbancity", "composition", "Household", "Community type", 32, [
             ("City", S("urbancity", "% City")), ("Suburb", S("urbancity", "% Suburb")),
             ("Town", S("urbancity", "% Town")), ("Rural", S("urbancity", "% Rural area"))], CATEG, None),
-        ("faith", "composition", "Faith", "Religious affiliation", 5, [
+        ("faith", "heatmap", "Faith", "Religious affiliation", 5, [
             ("Protestant", S("relig_protestant", "% Supporting")),
             ("Catholic", S("relig_catholic", "% Supporting")),
-            ("Other faith", S("relig_jewish", "% Supporting") + S("relig_muslim", "% Supporting") + S("relig_other", "% Supporting")),
-            ("Unaffiliated", S("relig_none", "% Supporting"))], CATEG, None),
-        ("churatd", "composition", "Faith", "Church attendance", 6, [
+            ("Jewish", S("relig_jewish", "% Supporting")),
+            ("Muslim", S("relig_muslim", "% Supporting")),
+            ("Unaffiliated", S("relig_none", "% Supporting")),
+            ("Other", S("relig_other", "% Supporting"))], None, None),
+        ("churatd", "composition", "Religion", "Church attendance", 40, [
             ("Weekly+", S("pew_churatd", "% More than once/week", "% Once/week")),
             ("Monthly", S("pew_churatd", "% 1–2x/month")),
             ("Yearly", S("pew_churatd", "% Few times/year")),
@@ -3361,6 +3354,10 @@ def build_distributions():
             ("Democrat", S("pid3", "% Democrat")),
             ("Independent / other", S("pid3", "% Independent", "% Other", "% Not sure")),
             ("Republican", S("pid3", "% Republican"))], PID3, 1),
+        ("vote2024", "composition", "Voting History", "2024 presidential vote", 9, [
+            ("Harris", S("vote24_harris", "% Supporting")), ("Trump", S("vote24_trump", "% Supporting")),
+            ("Third party", S("vote24_third", "% Supporting")),
+            ("Did not vote", S("vote24_dnv", "% Supporting"))], VOTE4, None),
         ("vote2020", "composition", "Voting History", "2020 presidential vote", 10, [
             ("Biden", S("presvote20post", "% Biden")), ("Trump", S("presvote20post", "% Trump")),
             ("Third party", S("presvote20post", "% Jorgensen", "% Hawkins", "% Other")),
@@ -3372,13 +3369,21 @@ def build_distributions():
     ]
     for key, viz, dom, q, order, segs, colors, pivot in DIST:
         m = {"viz": viz, "domain": dom, "question": q, "order": order,
-             "segLabels": [s[0] for s in segs], "colors": colors[:len(segs)]}
+             "segLabels": [s[0] for s in segs]}
+        if colors is not None:
+            m["colors"] = colors[:len(segs)]
         if pivot is not None:
             m["pivot"] = pivot
+        if key == "income":
+            m["valueUnit"] = "$k"
         meta[key] = m
         national[key] = {"pcts": [seg_val(src, "overall") for _, src in segs]}
+        if key == "income":
+            national[key]["value"] = income_med.get("ALL")
         for k, code in enumerate(CODES):
             parties[code][key] = {"pcts": [seg_val(src, f"c{k}") for _, src in segs]}
+            if key == "income":
+                parties[code][key]["value"] = income_med.get(code)
 
     write_json({"meta": meta, "national": national, "parties": parties}, "distributions.json")
 

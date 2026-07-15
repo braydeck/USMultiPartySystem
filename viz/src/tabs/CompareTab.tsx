@@ -6,7 +6,7 @@ import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
-import { RangeBarCell, CompositionStackCell, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
+import { RangeBarCell, CompositionStackCell, HeatmapCell, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
@@ -48,8 +48,8 @@ const DOMAINS = [
 ];
 
 // Distribution items (range/composition/diverging) built by prepare_data.build_distributions.
-type DistMeta = { viz: 'range' | 'composition' | 'diverging'; domain: string; question: string;
-  order: number; unit?: string; segLabels?: string[]; colors?: string[]; pivot?: number };
+type DistMeta = { viz: 'range' | 'composition' | 'diverging' | 'heatmap'; domain: string; question: string;
+  order: number; unit?: string; segLabels?: string[]; colors?: string[]; pivot?: number; valueUnit?: string };
 const DIST = distributionsData as unknown as {
   meta: Record<string, DistMeta>;
   national: Record<string, { pcts?: number[]; p10?: number } & Record<string, number | number[]>>;
@@ -820,6 +820,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                             <div key={k} className="border-t border-border/50 first:border-t-0">
                               {m.viz === 'range'
                                 ? <RangeBarCell meta={m as unknown as RangeMeta}
+                                    national={DIST.national[k] as never} byCode={byCode} codes={selected} />
+                                : m.viz === 'heatmap'
+                                ? <HeatmapCell meta={m as unknown as CompMeta}
                                     national={DIST.national[k] as never} byCode={byCode} codes={selected} />
                                 : <CompositionStackCell meta={m as unknown as CompMeta}
                                     national={DIST.national[k] as never} byCode={byCode} codes={selected} />}
