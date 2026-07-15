@@ -41,19 +41,19 @@ const VOTING_SYSTEMS = [
 const SCENARIOS = [
   {
     name: 'Party-Line',
-    tag: '27 candidates',
+    tag: '28 candidates',
     color: '#1d4ed8',
-    desc: 'Each of the 9 parties fields exactly 3 intra-party candidates with a 40/35/25 first-choice split. All three share identical ideological positions; only prominence (name recognition) differs.',
+    desc: 'The nine larger parties each field 3 intra-party candidates with a 40/35/25 first-choice split; the small Order & Opportunity party fields 1 — 28 in all. Same-party candidates share identical ideological positions, so only prominence (name recognition) separates them.',
     insight: 'Isolates the structural effect of proportional voting itself. Same-party candidates compete on prominence, not ideology.',
-    candidates: 'LBR_1, LBR_2, LBR_3 · CON_1, CON_2, CON_3 · ...',
+    candidates: 'LBR_1, LBR_2, LBR_3 · CON_1, CON_2, CON_3 · … · OAO_1',
   },
   {
     name: 'Crossover',
-    tag: '37 candidates',
+    tag: '38 candidates',
     color: '#ea580c',
-    desc: '9 base candidates + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like LBR_hi_so (a Labor candidate who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
+    desc: '10 base candidates (one per party) + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like LBR_hi_so (a Labor candidate who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
     insight: 'Models intra-party ideological diversity. Voters can express a preference not just for a party, but for a faction within it.',
-    candidates: 'LBR · LBR_hi_so · LBR_lo_so · LBR_hi_es · ...',
+    candidates: 'LBR · LBR_hi_so · LBR_lo_so · LBR_hi_es · …',
   },
 ];
 
@@ -66,7 +66,7 @@ const STEPS = [
   {
     n: 2, color: '#7c3aed',
     title: 'Exploratory Factor Analysis (EFA)',
-    body: 'Policy responses are reduced to 5 underlying ideological dimensions using polychoric EFA. These factors capture the latent structure of American opinion: not what people say they believe, but the correlated belief clusters that actually organize political space.',
+    body: 'A core set of 24 policy items is reduced to 5 underlying ideological dimensions using polychoric EFA (oblimin rotation). These factors capture the latent structure of American opinion: not what people say they believe, but the correlated belief clusters that actually organize political space.',
   },
   {
     n: 3, color: '#16a34a',
@@ -76,7 +76,7 @@ const STEPS = [
   {
     n: 4, color: '#ea580c',
     title: 'Ballot Generation',
-    body: 'Each voter\'s factor scores are compared to each candidate\'s position in the same 5D space. Proximity (via Gaussian kernel, σ=0.35, η²-weighted) produces a ranked preference list. Within-party ordering follows candidate prominence.',
+    body: 'Each voter gets a ranked preference list. Party-Line ballots rank parties by the voter\'s cluster-membership probability (the same GMM posterior that defined the typology). Crossover ballots start from that and use factor-space proximity to place the shifted variant candidates. Within-party ordering follows candidate prominence.',
   },
   {
     n: 5, color: '#a16207',
@@ -178,8 +178,8 @@ export function AboutTab() {
             <div className="space-y-2.5">
               {[
                 { tab: 'Party Quiz', desc: 'Answer the actual CES survey questions and see which of the ten parties your factor scores land closest to.', group: '' },
-                { tab: 'Overview', desc: 'A proportional government at a glance: how each chamber\'s composition shifts moving from winner-take-all to STV.', group: '' },
-                { tab: 'Parties', desc: 'The nine parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties or crossover candidates.', group: '' },
+                { tab: 'Overview', desc: 'A proportional government at a glance: how each chamber\'s composition shifts from winner-take-all to STV, a population-vs-voters breakdown, and a turnout-robustness check across the whole model.', group: '' },
+                { tab: 'Parties', desc: 'The ten parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties or crossover candidates.', group: '' },
                 { tab: 'Presidency', desc: 'A 4-round STV primary that consolidates a 9+ party field into finalists, then a head-to-head general where IRV and Condorcet often pick different winners.', group: 'Scenarios' },
                 { tab: 'Senate',   desc: 'Per-state elections for 51 seats (one per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.', group: 'Scenarios' },
                 { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type, with a representation-gap analysis.', group: 'Scenarios' },
@@ -290,9 +290,9 @@ export function AboutTab() {
             <div className="font-semibold text-foreground mb-3">How Ballots Are Generated</div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="bg-muted rounded-lg p-4">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Positional scoring (Gaussian proximity)</div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Party ranking</div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Each voter's 5D factor score vector is compared to each candidate's position. Similarity decays exponentially with distance (σ = 0.35, η²-weighted per factor). At this sigma, voters are effectively matched to their ideologically nearest party, but cross-party affinities still influence rank ordering.
+                  Party-Line ballots rank each party by the voter's posterior probability of belonging to that cluster — the same DPGMM membership that defined the typology, so ballots are consistent with the party assignment. Crossover ballots add the shifted variant candidates via Gaussian factor-space proximity (σ = 0.35, factors weighted equally). Cross-party affinities still shape the lower ranks.
                 </p>
               </div>
               <div className="bg-muted rounded-lg p-4">
@@ -595,8 +595,8 @@ export function AboutTab() {
                   body: 'Districts are assigned urban/suburban/rural tiers based on census geography. Actual multi-member STV districts would be drawn differently, and gerrymandering is not modeled.',
                 },
                 {
-                  label: 'Survey ≠ likely voters',
-                  body: 'CES respondents skew more educated and more engaged than the general electorate. The party system here reflects the opinion distribution of survey-takers, which differs from the distribution of actual voters.',
+                  label: 'Population vs. voters',
+                  body: 'The party typology is built on the full weighted survey population (latent preference). Real electorates are shaped by uneven turnout, so the office simulations default to observed 2024 validated turnout and let you sweep the contraction effect — see the Turnout section. CES also skews somewhat more educated and engaged than the adult population, which the survey weights only partly correct.',
                 },
               ].map(a => (
                 <div key={a.label} className="px-5 py-4">
@@ -645,9 +645,9 @@ export function AboutTab() {
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Data & Methods</div>
             <div className="space-y-1 text-xs text-muted-foreground">
               <div><span className="font-medium text-muted-foreground">Survey:</span> Cooperative Election Study (CES) 2024, Harvard/YouGov</div>
-              <div><span className="font-medium text-muted-foreground">Factor analysis:</span> Polychoric EFA, 5 factors, oblique (promax) rotation</div>
-              <div><span className="font-medium text-muted-foreground">Clustering:</span> Dirichlet Process Gaussian Mixture Model (DPGMM)</div>
-              <div><span className="font-medium text-muted-foreground">Ballot scoring:</span> Gaussian proximity kernel, σ=0.35, η²-weighted factors</div>
+              <div><span className="font-medium text-muted-foreground">Factor analysis:</span> Polychoric EFA, 24 items → 5 factors, oblique (oblimin) rotation</div>
+              <div><span className="font-medium text-muted-foreground">Clustering:</span> Dirichlet Process Gaussian Mixture Model (DPGMM), 10 clusters</div>
+              <div><span className="font-medium text-muted-foreground">Ballot scoring:</span> GMM cluster posterior (Party-Line); + Gaussian proximity σ=0.35, equal factor weights (Crossover variants)</div>
               <div><span className="font-medium text-muted-foreground">Legislation model:</span> Normal approximation of chamber Bernoulli vote counts</div>
             </div>
           </Card>
