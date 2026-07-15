@@ -3255,10 +3255,11 @@ def build_distributions():
         return [(var, l) for l in labels]
 
     CATEG = ["#6366f1", "#06b6d4", "#f59e0b", "#10b981", "#ec4899"]
-    # Unipolar sequential — magenta ramp (light = low, dark = high), ColorBrewer RdPu. Magenta
-    # avoids every party hue (esp. STY violet) so ordinal charts don't read as party colors.
-    SEQ4  = ["#fcc5c0", "#f768a1", "#ae017e", "#7a0177"]
-    SEQ5  = ["#fcc5c0", "#fa9fb5", "#f768a1", "#ae017e", "#7a0177"]
+    # Unipolar sequential — seaborn "flare" ramp (light salmon = low → dark magenta-purple = high),
+    # matching the flare used for heatmaps and the frequency ramps (lib/flare.ts). Its hue
+    # rotation keeps adjacent buckets distinct (the flat magenta RdPu was hard to differentiate).
+    SEQ4  = ["#e77e63", "#d64f5f", "#aa3a6e", "#7a2e70"]
+    SEQ5  = ["#e98768", "#de5d5c", "#c14168", "#9a3670", "#722c6e"]
     IDEO5 = ["#2563eb", "#93c5fd", "#e5e7eb", "#fca5a5", "#dc2626"]
     PID3  = ["#2563eb", "#e5e7eb", "#dc2626"]
     VOTE4 = ["#2563eb", "#dc2626", "#a3a3a3", "#e5e7eb"]
