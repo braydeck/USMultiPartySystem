@@ -303,13 +303,16 @@ function FactorBarRow({
 }
 
 function FactorItemsPanel({
-  factor, codes, clusters, fdProfiles, minGap,
+  factor, codes, clusters, fdProfiles, minGap, sigFilter, divergeOnly, filterMarked,
 }: {
   factor: string;
   codes: string[];
   clusters: ClusterProfile[];
   fdProfiles: Record<string, FDCandidateProfile>;
   minGap: number;
+  sigFilter: SignatureFilter;
+  divergeOnly: boolean;
+  filterMarked: boolean;
 }) {
   const items = FACTOR_ITEMS[factor] ?? [];
 
@@ -349,10 +352,22 @@ function FactorItemsPanel({
     });
   }
 
-  if (varEntries.length === 0) {
+  // Same signature annotations + filters as the section rows.
+  const withMarks = varEntries.map(v => {
+    const marks: Record<string, RowMark> = Object.fromEntries(
+      codes.filter(c => v.pcts[c] !== undefined).map(c => {
+        const { cohesive, distance } = itemSignature(v.key, c, v.pcts[c], v.overall ?? v.pcts[c], v.maxVal, sigFilter);
+        return [c, { dot: sigFilter.useConsensus && cohesive, mark: centralityMark(distance, sigFilter) }];
+      }));
+    return { v, marks };
+  });
+  const shown = withMarks.filter(({ v, marks }) => (!divergeOnly || v.highlighted)
+    && (!filterMarked || Object.values(marks).some(m => m.dot || m.mark != null)));
+
+  if (shown.length === 0) {
     return (
       <div className="px-4 py-3 text-xs text-muted-foreground italic border-t border-border/30">
-        No item data available for this factor.
+        No items match the current filter.
       </div>
     );
   }
@@ -361,11 +376,11 @@ function FactorItemsPanel({
     <div className="border-t border-border/30 bg-slate-50/50">
       <div className="px-4 py-2">
         <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
-          Underlying EFA items ({varEntries.length})
+          Underlying EFA items ({shown.length})
         </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2">
-        {varEntries.map((v, i) => (
+        {shown.map(({ v, marks }, i) => (
           <div
             key={v.key}
             className={[
@@ -379,6 +394,7 @@ function FactorItemsPanel({
                 maxVal: v.maxVal, unit: v.unit, highlighted: v.highlighted, loadingWeight: v.loading,
               }}
               codes={codes}
+              marks={marks}
               label={v.question}
             />
           </div>
@@ -714,8 +730,20 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
           crossover={fdOptions.filter(o => !pureOptions.some(p => p.code === o.code)).map(o => ({ code: o.code, label: o.code }))}
         />
         {selected.length >= 1 && (
-          <div className="pt-1.5 border-t border-border/40">
+          <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
             <SignatureFilters s={sig} accent="#6366f1" />
+            <div className="flex items-center gap-3 text-[11px] shrink-0 border-l border-border/50 pl-4">
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" checked={divergeOnly} onChange={e => setDivergeOnly(e.target.checked)}
+                  style={{ accentColor: '#6366f1' }} />
+                <span className="font-semibold text-foreground whitespace-nowrap">Divergences only</span>
+              </label>
+              <label className="flex items-center gap-1 whitespace-nowrap text-muted-foreground">
+                ≥<input type="number" min={0} max={100} value={minGap}
+                  onChange={e => setMinGap(Math.max(0, Math.min(100, Number(e.target.value))))}
+                  className="w-12 border border-border rounded px-1 py-0.5 text-center font-mono text-foreground bg-white" />pp
+              </label>
+            </div>
           </div>
         )}
       </div>
@@ -787,6 +815,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                         clusters={clusters}
                         fdProfiles={fdProfiles}
                         minGap={minGap}
+                        sigFilter={sigFilter}
+                        divergeOnly={divergeOnly}
+                        filterMarked={sig.filterMarked}
                       />
                     )}
                   </div>
@@ -795,27 +826,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             </div>
           </Card>
 
-          {/* Controls: highlight threshold + toggles */}
-          <div className="flex flex-wrap items-start gap-3">
-            <Button onClick={() => setDivergeOnly(!divergeOnly)}
-              variant={divergeOnly ? 'default' : 'secondary'}
-              size="sm">
-              {divergeOnly ? '✓ Divergences only' : 'Divergences only'}
-            </Button>
-
-            <label className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap ml-auto">
-              Highlight gap ≥
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={minGap}
-                onChange={e => setMinGap(Math.max(0, Math.min(100, Number(e.target.value))))}
-                className="w-14 border border-border rounded px-2 py-1 text-center font-mono text-foreground bg-white"
-              />
-              pp
-            </label>
-          </div>
 
           {/* Sections */}
           {sectionKeys.length === 0 ? (
@@ -835,7 +845,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                   && (!sig.filterMarked || hasMark(distMarks(k))));
                 if (vars.length === 0 && distKeys.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
-                const highlightCount = allVars.filter(v => v.highlighted).length;
+                // Count only diverging rows that survive the active filters (not the hidden ones).
+                const highlightCount = vars.filter(v => v.highlighted).length;
 
                 return (
                   <Card key={sectionKey} className="overflow-hidden">
