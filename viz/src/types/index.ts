@@ -87,6 +87,33 @@ export interface VoteModelRow {
   // House Triple Wyoming Factor Dev
   houseFDTripleProbPass?: number;
   houseFDTripleVerdict?:  string;
+  // Veto-override probabilities (2/3 threshold) — parallel to the pass fields
+  houseRawMultiProbOverride?: number;
+  houseFDProbOverride?: number;
+  houseRawMultiTripleProbOverride?: number;
+  houseFDTripleProbOverride?: number;
+  condRawMultiProbOverride?: number;
+  irvRawMultiProbOverride?: number;
+  condFDProbOverride?: number;
+  irvFDProbOverride?: number;
+}
+
+/** One party's predicted candidate vote on a bill (candidateVoteModel.json). */
+export interface PartyVote {
+  pYes: number;          // factor-logit probability the party's candidate votes yes
+  bandLo: number;        // within-party spread band, 10th percentile
+  bandHi: number;        // within-party spread band, 90th percentile
+  observedPct: number | null;   // observed % support in that cluster (0–100)
+  delta: number | null;         // observed − predicted, in points (+ = more supportive than ideology predicts)
+  diverges: boolean;            // |delta| ≥ 15pp
+}
+
+/** Per-bill candidate vote predictions across all 10 parties. */
+export interface CandidateVoteRow {
+  variable: string;
+  domain: string;
+  question: string;
+  parties: Record<string, PartyVote>;
 }
 
 export interface HouseSeat {
