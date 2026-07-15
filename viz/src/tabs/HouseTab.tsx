@@ -35,15 +35,6 @@ import houseStateMapL75 from '../data/houseStateMapTurnoutL75.json';
 import houseDistL25 from '../data/districtStvResultsTurnoutL25.json';
 import houseDistL50 from '../data/districtStvResultsTurnoutL50.json';
 import houseDistL75 from '../data/districtStvResultsTurnoutL75.json';
-import houseSeatsNoStyL25 from '../data/houseSeatsNoStyTurnoutL25.json';
-import houseSeatsNoStyL50 from '../data/houseSeatsNoStyTurnoutL50.json';
-import houseSeatsNoStyL75 from '../data/houseSeatsNoStyTurnoutL75.json';
-import houseStateMapNoStyL25 from '../data/houseStateMapNoStyTurnoutL25.json';
-import houseStateMapNoStyL50 from '../data/houseStateMapNoStyTurnoutL50.json';
-import houseStateMapNoStyL75 from '../data/houseStateMapNoStyTurnoutL75.json';
-import houseDistNoStyL25 from '../data/districtStvResultsNoStyTurnoutL25.json';
-import houseDistNoStyL50 from '../data/districtStvResultsNoStyTurnoutL50.json';
-import houseDistNoStyL75 from '../data/districtStvResultsNoStyTurnoutL75.json';
 
 interface Props {
   seats: HouseSeat[];
@@ -70,39 +61,27 @@ interface Props {
   districtResultsTriple: Record<string, DistrictResult[]>;
   fdDistrictResultsTriple: Record<string, DistrictResult[]>;
   districtCountyMapTriple: Record<string, string[]>;
-  seatsNoSTY: HouseSeat[];
-  stateMapNoSTY: Record<string, HouseStateEntry>;
-  districtResultsNoSTY: Record<string, DistrictResult[]>;
   seatsTurnout: HouseSeat[];
   stateMapTurnout: Record<string, HouseStateEntry>;
   districtResultsTurnout: Record<string, DistrictResult[]>;
-  seatsNoStyTurnout: HouseSeat[];
-  stateMapNoStyTurnout: Record<string, HouseStateEntry>;
-  districtResultsNoStyTurnout: Record<string, DistrictResult[]>;
 }
 
 type WyomingRule = 'double' | 'triple';
 
-export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple, seatsNoSTY, stateMapNoSTY, districtResultsNoSTY, seatsTurnout, stateMapTurnout, districtResultsTurnout, seatsNoStyTurnout, stateMapNoStyTurnout, districtResultsNoStyTurnout}: Props) {
+export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHouseSeats, fptpStates, districtResults, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, fdDistrictResults, seatsTriple, fdHouseSeatsTriple, stateMapTriple, districtResultsTriple, fdDistrictResultsTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
-  // No-STY scenario applies to the party-line, double-Wyoming path (what the pipeline ran).
-  const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '25', '50', '75', '100'] });
   const rmDouble = scenario === 'rawMulti' && wyoming === 'double';
-  const noStyOn = nosty === 'on' && rmDouble;
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
-  const seatsOff = [seatsTurnout, houseSeatsL25, houseSeatsL50, houseSeatsL75, seats] as unknown as HouseSeat[][];
-  const seatsOn  = [seatsNoStyTurnout, houseSeatsNoStyL25, houseSeatsNoStyL50, houseSeatsNoStyL75, seatsNoSTY] as unknown as HouseSeat[][];
-  const mapOff   = [stateMapTurnout, houseStateMapL25, houseStateMapL50, houseStateMapL75, stateMap] as unknown as Record<string, HouseStateEntry>[];
-  const mapOn    = [stateMapNoStyTurnout, houseStateMapNoStyL25, houseStateMapNoStyL50, houseStateMapNoStyL75, stateMapNoSTY] as unknown as Record<string, HouseStateEntry>[];
-  const distOff  = [districtResultsTurnout, houseDistL25, houseDistL50, houseDistL75, districtResults] as unknown as Record<string, DistrictResult[]>[];
-  const distOn   = [districtResultsNoStyTurnout, houseDistNoStyL25, houseDistNoStyL50, houseDistNoStyL75, districtResultsNoSTY] as unknown as Record<string, DistrictResult[]>[];
-  const rmSeats    = rmDouble ? (noStyOn ? seatsOn : seatsOff)[gi] : seats;
-  const rmStateMap = rmDouble ? (noStyOn ? mapOn   : mapOff)[gi]   : stateMap;
-  const rmDistrict = rmDouble ? (noStyOn ? distOn  : distOff)[gi]  : districtResults;
+  const seatsStops = [seatsTurnout, houseSeatsL25, houseSeatsL50, houseSeatsL75, seats] as unknown as HouseSeat[][];
+  const mapStops   = [stateMapTurnout, houseStateMapL25, houseStateMapL50, houseStateMapL75, stateMap] as unknown as Record<string, HouseStateEntry>[];
+  const distStops  = [districtResultsTurnout, houseDistL25, houseDistL50, houseDistL75, districtResults] as unknown as Record<string, DistrictResult[]>[];
+  const rmSeats    = rmDouble ? seatsStops[gi] : seats;
+  const rmStateMap = rmDouble ? mapStops[gi]   : stateMap;
+  const rmDistrict = rmDouble ? distStops[gi]  : districtResults;
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -218,10 +197,6 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         {scenario === 'rawMulti' && wyoming === 'double' && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
-        )}
-        {scenario === 'rawMulti' && wyoming === 'double' && (
-          <ToggleGroup label="Coordination" value={nosty} onChange={setNosty}
-            options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
         )}
       </StickyControlBar>
 

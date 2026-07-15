@@ -144,8 +144,9 @@ export function TurnoutRobustnessCard() {
       </div>
 
       <p className="mt-4 text-[11px] text-muted-foreground">
-        President robust everywhere. House scales smoothly (quote it as a range). The Senate is the one contingent
-        result — its flip sits <em>inside</em> the plausible band, so call it a coin-flip, not a win.
+        The President is robust across the whole range. The House delegation scales smoothly (Solidarity 82→129
+        seats). The Senate is the one contingent result: inside the plausible band, its plurality is a coin-flip
+        between Labour and Solidarity.
       </p>
     </Card>
   );

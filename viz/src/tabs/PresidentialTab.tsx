@@ -11,9 +11,6 @@ import { StickyControlBar } from '../components/shared/StickyControlBar';
 import presTL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
 import presTL50 from '../data/rawMultiPresidentialElectionTurnoutL50.json';
 import presTL75 from '../data/rawMultiPresidentialElectionTurnoutL75.json';
-import presNSTL25 from '../data/rawMultiPresidentialElectionNoStyTurnoutL25.json';
-import presNSTL50 from '../data/rawMultiPresidentialElectionNoStyTurnoutL50.json';
-import presNSTL75 from '../data/rawMultiPresidentialElectionNoStyTurnoutL75.json';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
@@ -23,9 +20,7 @@ import { PartyProfileCard } from '../components/shared/PartyProfileCard';
 interface Props {
   factorDev: PresidentialElection;
   rawMulti:  PresidentialElection;
-  rawMultiNoSTY: PresidentialElection;
   rawMultiTurnout: PresidentialElection;
-  rawMultiNoStyTurnout: PresidentialElection;
   clusters:  ClusterProfile[];
   fdProfiles: Record<string, FDCandidateProfile>;
   senateVotes: VoteModelRow[];
@@ -53,18 +48,15 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
   );
 }
 
-export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, rawMultiTurnout, rawMultiNoStyTurnout,
+export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                                   clusters, senateVotes, houseStateMap,
                                   controlBarExtra }: Props) {
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
-  // No-STY scenario: Solidarity dissolved, its voters flow to the remaining 9 (party-line only).
-  const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '25', '50', '75', '100'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  const rmOff = [rawMultiTurnout, presTL25, presTL50, presTL75, rawMulti] as unknown as PresidentialElection[];
-  const rmOn  = [rawMultiNoStyTurnout, presNSTL25, presNSTL50, presNSTL75, rawMultiNoSTY] as unknown as PresidentialElection[];
-  const rm = scenario !== 'rawMulti' ? rawMulti : (nosty === 'on' ? rmOn : rmOff)[gi];
+  const rmStops = [rawMultiTurnout, presTL25, presTL50, presTL75, rawMulti] as unknown as PresidentialElection[];
+  const rm = scenario !== 'rawMulti' ? rawMulti : rmStops[gi];
   const data = scenario === 'rawMulti' ? rm : factorDev;
 
   const clusterByParty = useMemo(
@@ -117,10 +109,6 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiNoSTY, rawMultiTu
           options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} />
         {scenario === 'rawMulti' && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
-        )}
-        {scenario === 'rawMulti' && (
-          <ToggleGroup label="Coordination" value={nosty} onChange={setNosty}
-            options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
         )}
       </StickyControlBar>
 

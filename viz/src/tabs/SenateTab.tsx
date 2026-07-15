@@ -22,12 +22,6 @@ import senCondL75 from '../data/pureMultiSenateCondorcetTurnoutL75.json';
 import senIrvL25 from '../data/pureMultiSenateIRVTurnoutL25.json';
 import senIrvL50 from '../data/pureMultiSenateIRVTurnoutL50.json';
 import senIrvL75 from '../data/pureMultiSenateIRVTurnoutL75.json';
-import senCondNoStyL25 from '../data/pureMultiSenateCondorcetNoStyTurnoutL25.json';
-import senCondNoStyL50 from '../data/pureMultiSenateCondorcetNoStyTurnoutL50.json';
-import senCondNoStyL75 from '../data/pureMultiSenateCondorcetNoStyTurnoutL75.json';
-import senIrvNoStyL25 from '../data/pureMultiSenateIRVNoStyTurnoutL25.json';
-import senIrvNoStyL50 from '../data/pureMultiSenateIRVNoStyTurnoutL50.json';
-import senIrvNoStyL75 from '../data/pureMultiSenateIRVNoStyTurnoutL75.json';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -39,12 +33,8 @@ interface Props {
   irvFD:             FDSenateSeat[];
   condorcetRawMulti: FDSenateSeat[];
   irvRawMulti:       FDSenateSeat[];
-  condorcetRawMultiNoSTY: FDSenateSeat[];
-  irvRawMultiNoSTY:       FDSenateSeat[];
   condorcetRawMultiTurnout: FDSenateSeat[];
   irvRawMultiTurnout:       FDSenateSeat[];
-  condorcetRawMultiNoStyTurnout: FDSenateSeat[];
-  irvRawMultiNoStyTurnout:       FDSenateSeat[];
   voteModel:         VoteModelRow[];
   clusters:          ClusterProfile[];
   fdProfiles:        Record<string, FDCandidateProfile>;
@@ -100,28 +90,21 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
 }
 
 export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
-                             condorcetRawMultiNoSTY, irvRawMultiNoSTY,
                              condorcetRawMultiTurnout, irvRawMultiTurnout,
-                             condorcetRawMultiNoStyTurnout, irvRawMultiNoStyTurnout,
                              voteModel, clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers,
                              senateBuckets, senateCondorcet }: Props) {
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
-  // No-STY scenario: Solidarity dissolved, its voters flow to the remaining 9 (party-line only).
-  const [nosty, setNosty] = useUrlState<'off' | 'on'>('nosty', 'off', { allowed: ['off', 'on'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '25', '50', '75', '100'] });
   const rawMultiOn = pipeline === 'rawMulti';
-  const noStyOn = nosty === 'on' && rawMultiOn;
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
-  const condOff = [condorcetRawMultiTurnout, senCondL25, senCondL50, senCondL75, condorcetRawMulti] as unknown as FDSenateSeat[][];
-  const condOn  = [condorcetRawMultiNoStyTurnout, senCondNoStyL25, senCondNoStyL50, senCondNoStyL75, condorcetRawMultiNoSTY] as unknown as FDSenateSeat[][];
-  const irvOff  = [irvRawMultiTurnout, senIrvL25, senIrvL50, senIrvL75, irvRawMulti] as unknown as FDSenateSeat[][];
-  const irvOn   = [irvRawMultiNoStyTurnout, senIrvNoStyL25, senIrvNoStyL50, senIrvNoStyL75, irvRawMultiNoSTY] as unknown as FDSenateSeat[][];
-  const condRM = !rawMultiOn ? condorcetRawMulti : (noStyOn ? condOn : condOff)[gi];
-  const irvRM  = !rawMultiOn ? irvRawMulti       : (noStyOn ? irvOn  : irvOff )[gi];
+  const condStops = [condorcetRawMultiTurnout, senCondL25, senCondL50, senCondL75, condorcetRawMulti] as unknown as FDSenateSeat[][];
+  const irvStops  = [irvRawMultiTurnout, senIrvL25, senIrvL50, senIrvL75, irvRawMulti] as unknown as FDSenateSeat[][];
+  const condRM = !rawMultiOn ? condorcetRawMulti : condStops[gi];
+  const irvRM  = !rawMultiOn ? irvRawMulti       : irvStops[gi];
 
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
 
@@ -227,10 +210,6 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
         {pipeline === 'rawMulti' && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
-        )}
-        {pipeline === 'rawMulti' && (
-          <ToggleGroup label="Coordination" value={nosty} onChange={setNosty}
-            options={['off', 'on'] as const} labels={{ off: 'All parties', on: 'No Solidarity' }} />
         )}
       </StickyControlBar>
 
