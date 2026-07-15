@@ -3258,17 +3258,129 @@ def build_turnout_verification():
     write_json({"national": national, "parties": parties}, "turnoutVerification.json")
 
 
-def build_age_distribution():
-    """Per-force 2024 age distribution (weighted percentiles p10/q25/median/q75/p90) for the
-    range-bar card. Source: pipeline/add_compare_items.py -> age_distribution.csv."""
+def build_distributions():
+    """Per-force demographic/attitudinal DISTRIBUTIONS for the range-bar and composition
+    treatments, rendered as filter-reactive rows inside their Compare sections.
+      - range (continuous): age, abortion-cutoff weeks, income $ — from distributions_continuous.csv
+      - composition (nominal 100% stack) + diverging (bipolar ordinal): collapsed from the
+        categorical_dist / ordinal_dist / binary rows already in cluster_stats.csv
+    Output distributions.json = {meta{varKey:...}, national{varKey:...}, parties{code:{varKey:...}}}."""
     proc = Path(__file__).parent.parent.parent / "data" / "processed"
-    rows = read_csv(proc / "age_distribution.csv")
-    def rec(r):
-        return {"party": r["party"], **{k: round(float(r[k]), 1)
-                for k in ("p10", "q25", "median", "q75", "p90")}}
-    national = next(rec(r) for r in rows if r["party"] == "ALL")
-    parties = [rec(r) for r in rows if r["party"] != "ALL"]
-    write_json({"national": national, "parties": parties}, "ageDistribution.json")
+    CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
+    meta, national, parties = {}, {}, {c: {} for c in CODES}
+
+    # ---- continuous range items ----
+    CONT_META = {
+        "age":            ("Household",  "Age",                          "yrs", 10),
+        "income_k":       ("Economics",  "Family income (median)",       "$k",  10),
+        "abortion_weeks": ("Abortion",   "Weeks abortion should remain legal", "wks", 5),
+    }
+    for r in read_csv(proc / "distributions_continuous.csv"):
+        var = r["var"]
+        if var not in CONT_META:
+            continue
+        if var not in meta:
+            dom, q, unit, order = CONT_META[var]
+            meta[var] = {"viz": "range", "domain": dom, "question": q, "unit": unit, "order": order}
+        rec = {k: float(r[k]) for k in ("p10", "q25", "median", "q75", "p90")}
+        (national if r["party"] == "ALL" else parties[r["party"]])[var] = rec
+
+    # ---- composition / diverging items, collapsed from cluster_stats ----
+    stats = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
+    index = {(r["variable"], r.get("stat_label", "")): r for r in stats}
+
+    def seg_val(sources, col):
+        tot = 0.0
+        for v, lbl in sources:
+            r = index.get((v, lbl))
+            if r:
+                try:
+                    tot += float(r.get(col) or 0)
+                except (ValueError, TypeError):
+                    pass
+        return round(tot, 1)
+
+    def S(var, *labels):
+        return [(var, l) for l in labels]
+
+    CATEG = ["#6366f1", "#06b6d4", "#f59e0b", "#10b981", "#ec4899"]
+    SEQ4  = ["#c7d2fe", "#818cf8", "#4f46e5", "#312e81"]
+    IDEO5 = ["#2563eb", "#93c5fd", "#e5e7eb", "#fca5a5", "#dc2626"]
+    PID3  = ["#2563eb", "#e5e7eb", "#dc2626"]
+    VOTE4 = ["#2563eb", "#dc2626", "#a3a3a3", "#e5e7eb"]
+
+    # (key, viz, domain, question, order, [(segLabel, sources)], colors, pivot|None)
+    DIST = [
+        ("gender", "composition", "Gender & Sexuality", "Gender", 20, [
+            ("Woman", S("gender4", "% Woman")), ("Man", S("gender4", "% Man")),
+            ("Non-binary / other", S("gender4", "% Non-binary", "% Other"))], CATEG, None),
+        ("sexuality", "composition", "Gender & Sexuality", "Sexual orientation", 21, [
+            ("Straight", S("sexuality", "% Heterosexual/straight")),
+            ("Bisexual", S("sexuality", "% Bisexual")),
+            ("Gay / lesbian", S("sexuality", "% Lesbian/gay woman", "% Gay man")),
+            ("Other", S("sexuality", "% Other", "% Prefer not to say"))], CATEG, None),
+        ("race", "composition", "Race & Ethnicity", "Race / ethnicity", 20, [
+            ("White", S("race", "% White")), ("Black", S("race", "% Black")),
+            ("Hispanic", S("race", "% Hispanic")), ("Asian", S("race", "% Asian")),
+            ("Other", S("race", "% Native American", "% Multiracial", "% Other", "% Middle Eastern"))], CATEG, None),
+        ("employ", "composition", "Economics", "Employment", 20, [
+            ("Full-time", S("employ", "% Full-time")), ("Part-time", S("employ", "% Part-time")),
+            ("Retired", S("employ", "% Retired")),
+            ("Not working", S("employ", "% Temporarily laid off", "% Unemployed", "% Permanently disabled", "% Homemaker")),
+            ("Student", S("employ", "% Student"))], CATEG, None),
+        ("educ", "composition", "Education", "Educational attainment", 5, [
+            ("HS or less", S("educ", "% No HS", "% HS grad")),
+            ("Some college", S("educ", "% Some college", "% 2-year degree")),
+            ("4-year degree", S("educ", "% 4-year degree")),
+            ("Post-grad", S("educ", "% Post-grad"))], SEQ4, None),
+        ("marstat", "composition", "Household", "Marital status", 30, [
+            ("Married", S("marstat", "% Married")), ("Never married", S("marstat", "% Never married")),
+            ("Formerly married", S("marstat", "% Separated", "% Divorced", "% Widowed")),
+            ("Partnership", S("marstat", "% Domestic/civil partnership"))], CATEG, None),
+        ("ownhome", "composition", "Household", "Home ownership", 31, [
+            ("Own", S("ownhome", "% Own")), ("Rent", S("ownhome", "% Rent")),
+            ("Other", S("ownhome", "% Other"))], CATEG, None),
+        ("urbancity", "composition", "Household", "Community type", 32, [
+            ("City", S("urbancity", "% City")), ("Suburb", S("urbancity", "% Suburb")),
+            ("Town", S("urbancity", "% Town")), ("Rural", S("urbancity", "% Rural area"))], CATEG, None),
+        ("faith", "composition", "Faith", "Religious affiliation", 5, [
+            ("Protestant", S("relig_protestant", "% Supporting")),
+            ("Catholic", S("relig_catholic", "% Supporting")),
+            ("Other faith", S("relig_jewish", "% Supporting") + S("relig_muslim", "% Supporting") + S("relig_other", "% Supporting")),
+            ("Unaffiliated", S("relig_none", "% Supporting"))], CATEG, None),
+        ("churatd", "composition", "Faith", "Church attendance", 6, [
+            ("Weekly+", S("pew_churatd", "% More than once/week", "% Once/week")),
+            ("Monthly", S("pew_churatd", "% 1–2x/month")),
+            ("Yearly", S("pew_churatd", "% Few times/year")),
+            ("Seldom / never", S("pew_churatd", "% Seldom", "% Never"))], SEQ4, None),
+        ("ideo5", "diverging", "Voting History", "Ideology (self-identified)", 5, [
+            ("Very liberal", S("ideo5", "% Very Liberal")), ("Liberal", S("ideo5", "% Liberal")),
+            ("Moderate", S("ideo5", "% Moderate")), ("Conservative", S("ideo5", "% Conservative")),
+            ("Very conservative", S("ideo5", "% Very Conservative"))], IDEO5, 2),
+        ("pid3", "diverging", "Voting History", "Party identification", 6, [
+            ("Democrat", S("pid3", "% Democrat")),
+            ("Independent / other", S("pid3", "% Independent", "% Other", "% Not sure")),
+            ("Republican", S("pid3", "% Republican"))], PID3, 1),
+        ("vote2020", "composition", "Voting History", "2020 presidential vote", 10, [
+            ("Biden", S("presvote20post", "% Biden")), ("Trump", S("presvote20post", "% Trump")),
+            ("Third party", S("presvote20post", "% Jorgensen", "% Hawkins", "% Other")),
+            ("Did not vote", S("presvote20post", "% Did not vote"))], VOTE4, None),
+        ("vote2016", "composition", "Voting History", "2016 presidential vote", 11, [
+            ("Clinton", S("presvote16post", "% Clinton")), ("Trump", S("presvote16post", "% Trump")),
+            ("Third party", S("presvote16post", "% Johnson", "% Stein", "% McMullin", "% Other")),
+            ("Did not vote", S("presvote16post", "% Did not vote"))], VOTE4, None),
+    ]
+    for key, viz, dom, q, order, segs, colors, pivot in DIST:
+        m = {"viz": viz, "domain": dom, "question": q, "order": order,
+             "segLabels": [s[0] for s in segs], "colors": colors[:len(segs)]}
+        if pivot is not None:
+            m["pivot"] = pivot
+        meta[key] = m
+        national[key] = {"pcts": [seg_val(src, "overall") for _, src in segs]}
+        for k, code in enumerate(CODES):
+            parties[code][key] = {"pcts": [seg_val(src, f"c{k}") for _, src in segs]}
+
+    write_json({"meta": meta, "national": national, "parties": parties}, "distributions.json")
 
 
 def build_turnout_lambda_scenario():
@@ -3346,7 +3458,7 @@ if __name__ == "__main__":
         build_turnout_crossover_triple,
         build_party_population,
         build_turnout_verification,
-        build_age_distribution,
+        build_distributions,
     ):
         _run(fn)
     print("Done.")

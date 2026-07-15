@@ -98,7 +98,7 @@ RELIG_LOAD=['pew_religimp','pew_prayer','religpew']
 # Turnout: self-reported (CC24_401==5) vs voter-file-verified (TS_g2024 in 1..6). The gap by
 # party is the self-report inflation, largest for low-engagement forces (Solidarity).
 TURNOUT=['reported_turnout_24','verified_turnout_24']
-LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410','TS_g2024','birthyr']))
+LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410','TS_g2024','birthyr','faminc_new']))
 EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24+TURNOUT+['pew_religimp','pew_prayer']+[d[0] for d in DENOM]
 
 def main():
@@ -161,22 +161,33 @@ def main():
     comp.append({'cluster':-1,'party':'ALL','verifiedVoted':wpct(vv,allm),
                  'matchedNonvoter':wpct(mnv,allm),'unmatched':wpct(unm,allm)})
     pd.DataFrame(comp).to_csv(ROOT/'data'/'processed'/'turnout_verification.csv',index=False)
-    # Age distribution per cluster (weighted percentiles of 2024 age = 2024 - birthyr) for the
-    # range-bar (plain-language box plot) card: p10/q25/median/q75/p90.
+    # Continuous distributions per cluster (weighted p10/q25/median/q75/p90) for the range-bar
+    # (plain-language box plot) treatment: age, abortion-cutoff weeks, family income ($k).
     age=(2024-dc['birthyr'].values.astype(float))
-    def wpctl(m,qs):
-        v=age[m]; ww=w[m]; ok=(~np.isnan(v))&(v>=18)&(v<=110)
+    age=np.where((age>=18)&(age<=110),age,np.nan)
+    abwk=dc['CC24_325'].values.astype(float)          # weeks abortion should stay legal
+    abwk=np.where((abwk>=0)&(abwk<=40),abwk,np.nan)
+    INC_MID=[5,15,25,35,45,55,65,75,90,110,135,175,225,300,425,600]  # faminc_new bracket midpoints, $k
+    fc=dc['faminc_new'].values.astype(float)
+    inc=np.array([INC_MID[int(x)-1] if (not np.isnan(x)) and 1<=x<=len(INC_MID) else np.nan for x in fc])
+    CONT=[('age',age,'yrs'),('abortion_weeks',abwk,'wks'),('income_k',inc,'$k')]
+    def wpctl(vals,m,qs):
+        v=vals[m]; ww=w[m]; ok=~np.isnan(v)
         v=v[ok]; ww=ww[ok]
+        if ww.sum()==0: return [np.nan]*len(qs)
         o=np.argsort(v); v=v[o]; ww=ww[o]
         cw=(np.cumsum(ww)-0.5*ww)/ww.sum()
         return [round(float(np.interp(q/100.0,cw,v)),1) for q in qs]
-    QS=[10,25,50,75,90]; agerows=[]
-    for k in range(10):
-        p=wpctl(cl==k,QS)
-        agerows.append({'cluster':k,'party':CODES[k],'p10':p[0],'q25':p[1],'median':p[2],'q75':p[3],'p90':p[4]})
-    p=wpctl(np.ones(len(age),bool),QS)
-    agerows.append({'cluster':-1,'party':'ALL','p10':p[0],'q25':p[1],'median':p[2],'q75':p[3],'p90':p[4]})
-    pd.DataFrame(agerows).to_csv(ROOT/'data'/'processed'/'age_distribution.csv',index=False)
+    QS=[10,25,50,75,90]; controws=[]
+    for var,vals,unit in CONT:
+        for k in range(10):
+            p=wpctl(vals,cl==k,QS)
+            controws.append({'var':var,'unit':unit,'cluster':k,'party':CODES[k],
+                             'p10':p[0],'q25':p[1],'median':p[2],'q75':p[3],'p90':p[4]})
+        p=wpctl(vals,np.ones(len(vals),bool),QS)
+        controws.append({'var':var,'unit':unit,'cluster':-1,'party':'ALL',
+                         'p10':p[0],'q25':p[1],'median':p[2],'q75':p[3],'p90':p[4]})
+    pd.DataFrame(controws).to_csv(ROOT/'data'/'processed'/'distributions_continuous.csv',index=False)
     # Religion importance (very/somewhat important → 1); a "view"
     ri=dc['pew_religimp'].values.astype(float)
     rows.append(emit('pew_religimp','Religion','Religion is important (very or somewhat)',

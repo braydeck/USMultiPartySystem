@@ -6,7 +6,8 @@ import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
-import { AgeDistributionCard } from '../components/shared/AgeDistributionCard';
+import { RangeBarCell, CompositionStackCell, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
+import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
@@ -45,6 +46,15 @@ const DOMAINS = [
   'Other',
   'Demographics',  // catch-all for any legacy vars
 ];
+
+// Distribution items (range/composition/diverging) built by prepare_data.build_distributions.
+type DistMeta = { viz: 'range' | 'composition' | 'diverging'; domain: string; question: string;
+  order: number; unit?: string; segLabels?: string[]; colors?: string[]; pivot?: number };
+const DIST = distributionsData as unknown as {
+  meta: Record<string, DistMeta>;
+  national: Record<string, { pcts?: number[]; p10?: number } & Record<string, number | number[]>>;
+  parties: Record<string, Record<string, { pcts?: number[]; p10?: number } & Record<string, number | number[]>>>;
+};
 
 const FACTORS = ['F1', 'F2', 'F3', 'F4', 'F5'] as const;
 type FactorKey = typeof FACTORS[number];
@@ -605,10 +615,20 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     return grouped;
   }, [selected, clusters, fdProfiles, minGap, sig.useConsensus, sig.consPct, sig.useAlign, sig.alignMode, sig.alignPp]);
 
-  // Ordered section keys
+  // Distribution items (range / composition) grouped by section domain, ordered within.
+  const distBySection = useMemo(() => {
+    const by: Record<string, string[]> = {};
+    for (const [k, m] of Object.entries(DIST.meta)) {
+      (by[m.domain] ||= []).push(k);
+    }
+    for (const d in by) by[d].sort((a, b) => DIST.meta[a].order - DIST.meta[b].order);
+    return by;
+  }, []);
+
+  // Ordered section keys — a section appears if it has policy vars OR distribution items.
   const sectionKeys = useMemo(() => {
-    return DOMAINS.filter(d => (sectionVarMap[d]?.length ?? 0) > 0);
-  }, [sectionVarMap]);
+    return DOMAINS.filter(d => (sectionVarMap[d]?.length ?? 0) > 0 || (distBySection[d]?.length ?? 0) > 0);
+  }, [sectionVarMap, distBySection]);
 
   // Constellation nodes — all parties, always shown as the overview map.
   const constellationNodes = useMemo((): ConstellationNode[] =>
@@ -658,9 +678,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         </p>
         <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
       </Card>
-
-      {/* Age by force — cross-party demographic overview, always shown */}
-      <AgeDistributionCard />
 
       {selected.length >= 1 && (
         <>
@@ -759,7 +776,11 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
               {sectionKeys.map(sectionKey => {
                 const allVars = sectionVarMap[sectionKey] ?? [];
                 const vars = allVars.filter(v => (!divergeOnly || v.highlighted) && (!sigOn || v.sigMatch));
-                if (vars.length === 0) return null;
+                // Distribution items (demographics) always show — they're context, not part of the
+                // diverge/signature policy filters.
+                const distKeys = (distBySection[sectionKey] ?? []).filter(k =>
+                  selected.some(c => DIST.parties[c]?.[k]));
+                if (vars.length === 0 && distKeys.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
                 const highlightCount = allVars.filter(v => v.highlighted).length;
                 const sigCount = allVars.filter(v => v.sigMatch).length;
@@ -773,7 +794,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                     >
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-semibold text-foreground">{getSectionTitle(sectionKey)}</span>
-                        <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5">{vars.length}</span>
+                        <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5">{vars.length + distKeys.length}</span>
                         {highlightCount > 0 && (
                           <span className="text-xs bg-amber-100 text-amber-700 font-medium rounded-full px-2 py-0.5">
                             {highlightCount} diverge
@@ -790,6 +811,21 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
                     {!collapsed && (
                       <div className="border-t border-border/50">
+                        {/* Distribution items (range / composition) — full width, rendered first */}
+                        {distKeys.map(k => {
+                          const m = DIST.meta[k];
+                          const byCode = Object.fromEntries(
+                            selected.filter(c => DIST.parties[c]?.[k]).map(c => [c, DIST.parties[c][k]])) as Record<string, never>;
+                          return (
+                            <div key={k} className="border-t border-border/50 first:border-t-0">
+                              {m.viz === 'range'
+                                ? <RangeBarCell meta={m as unknown as RangeMeta}
+                                    national={DIST.national[k] as never} byCode={byCode} codes={selected} />
+                                : <CompositionStackCell meta={m as unknown as CompMeta}
+                                    national={DIST.national[k] as never} byCode={byCode} codes={selected} />}
+                            </div>
+                          );
+                        })}
                         {buildSubgroups(sectionKey, vars).map(grp => (
                           <div key={grp.header ?? 'main'}>
                             {grp.header && (
