@@ -815,10 +815,15 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
               {sectionKeys.map(sectionKey => {
                 const allVars = sectionVarMap[sectionKey] ?? [];
                 const vars = allVars.filter(v => (!divergeOnly || v.highlighted) && (!sigOn || v.sigMatch));
-                // Distribution items (demographics) always show — they're context, not part of the
-                // diverge/signature policy filters.
-                const distKeys = (distBySection[sectionKey] ?? []).filter(k =>
-                  selected.some(c => DIST.parties[c]?.[k]));
+                // Distribution items honor the signature filter like everything else: with the
+                // filter on, show only items where a selected party's value is a signature.
+                const distKeys = (distBySection[sectionKey] ?? []).filter(k => {
+                  const present = selected.filter(c => DIST.parties[c]?.[k]);
+                  if (present.length === 0) return false;
+                  if (sigOn && !present.some(c =>
+                    distSignature(DIST.meta[k], DIST.parties[c][k], DIST.national[k], sigFilter))) return false;
+                  return true;
+                });
                 if (vars.length === 0 && distKeys.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
                 const highlightCount = allVars.filter(v => v.highlighted).length;

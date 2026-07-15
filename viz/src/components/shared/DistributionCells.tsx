@@ -99,24 +99,17 @@ export function CompositionStackCell({ meta, national, byCode, codes, signatures
 }) {
   const shown = codes.filter(c => byCode[c]);
   const colors = meta.colors ?? [];
-  const diverging = meta.pivot != null;
+  const pivot = meta.pivot ?? -1;
+  const diverging = pivot >= 0;
+  const last = meta.segLabels.length - 1;
   const norm = (p: number[]) => { const s = p.reduce((a, b) => a + b, 0) || 1; return p.map(x => x / s * 100); };
   const fmtVal = (v?: number) => v == null ? '' : meta.valueUnit === '$k' ? `$${Math.round(v)}k` : `${Math.round(v)}`;
   const hasVal = meta.valueUnit != null;
 
   const rowsData = ['__NAT__', ...shown].map(code => {
-    const isNat = code === '__NAT__';
-    const d = isNat ? national : byCode[code];
-    return { code, isNat, raw: d.pcts, p: norm(d.pcts), value: d.value };
+    const d = code === '__NAT__' ? national : byCode[code];
+    return { code, raw: d.pcts, p: norm(d.pcts), value: d.value };
   });
-
-  let H = 1;
-  if (diverging) {
-    for (const rd of rowsData) {
-      const center = rd.p.slice(0, meta.pivot!).reduce((a, b) => a + b, 0) + rd.p[meta.pivot!] / 2;
-      H = Math.max(H, center, 100 - center);
-    }
-  }
 
   return (
     <div className="px-3 py-3">
@@ -128,22 +121,59 @@ export function CompositionStackCell({ meta, national, byCode, codes, signatures
           </span>
         ))}
       </div>
+      {/* Diverging: the middle category is pulled into its own column (like the "neither" agree
+          layout) so the two poles diverge from a clean center and stay easy to compare. */}
+      {diverging && (
+        <div className="flex items-center gap-2 text-[9px] text-muted-foreground uppercase tracking-wide mb-0.5">
+          <span className="w-11 shrink-0" />
+          <span className="w-24 shrink-0 text-center">{meta.segLabels[pivot]}</span>
+          <span className="w-7 shrink-0" />
+          <span className="flex-1 text-center">distribution</span>
+          <span className="w-7 shrink-0" />
+        </div>
+      )}
       <div className="space-y-1">
         {rowsData.map(({ code, raw, p, value }) => {
-          const center = diverging ? p.slice(0, meta.pivot!).reduce((a, b) => a + b, 0) + p[meta.pivot!] / 2 : 0;
+          if (diverging) {
+            const neutral = p[pivot];
+            const leftTot = p.slice(0, pivot).reduce((a, b) => a + b, 0);
+            const rightTot = p.slice(pivot + 1).reduce((a, b) => a + b, 0);
+            const segs: { left: number; width: number; color: string; title: string }[] = [];
+            let lx = 50;
+            for (let i = pivot - 1; i >= 0; i--) { const w = p[i] * 0.5; segs.push({ left: lx - w, width: w, color: colors[i], title: `${meta.segLabels[i]}: ${Math.round(raw[i])}%` }); lx -= w; }
+            let rx = 50;
+            for (let i = pivot + 1; i < p.length; i++) { const w = p[i] * 0.5; segs.push({ left: rx, width: w, color: colors[i], title: `${meta.segLabels[i]}: ${Math.round(raw[i])}%` }); rx += w; }
+            return (
+              <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+                <PartyRowLabel code={code} signature={signatures?.[code]} />
+                <div className="w-24 shrink-0 flex items-center gap-1" title={`${meta.segLabels[pivot]}: ${Math.round(neutral)}%`}>
+                  <div className="relative h-3 flex-1 rounded-sm bg-muted overflow-hidden">
+                    <div className="absolute inset-y-0 left-0" style={{ width: `${neutral}%`, backgroundColor: colors[pivot] }} />
+                  </div>
+                  <span className="w-6 text-right font-semibold text-foreground">{Math.round(neutral)}%</span>
+                </div>
+                <span className="w-7 shrink-0 text-right font-semibold" style={{ color: colors[0] }}>{Math.round(leftTot)}</span>
+                <div className="flex-1 relative h-3.5 rounded-sm overflow-hidden bg-muted">
+                  <div className="absolute inset-y-0 z-10" style={{ left: '50%', width: 1, backgroundColor: 'rgba(15,23,42,0.3)' }} />
+                  {segs.map((s, i) => (
+                    <div key={i} className="absolute inset-y-0" title={s.title}
+                      style={{ left: `${s.left}%`, width: `${s.width}%`, backgroundColor: s.color }} />
+                  ))}
+                </div>
+                <span className="w-7 shrink-0 font-semibold" style={{ color: colors[last] }}>{Math.round(rightTot)}</span>
+              </div>
+            );
+          }
           let cum = 0;
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
               <PartyRowLabel code={code} signature={signatures?.[code]} />
               <div className="flex-1 relative h-3.5 rounded-sm overflow-hidden bg-muted">
-                {diverging && <div className="absolute inset-y-0 z-10" style={{ left: '50%', width: 1, backgroundColor: 'rgba(15,23,42,0.28)' }} />}
                 {p.map((seg, i) => {
-                  const left = diverging ? 50 + (cum - center) * 50 / H : cum;
-                  const width = diverging ? seg * 50 / H : seg;
-                  cum += seg;
+                  const left = cum; cum += seg;
                   return (
                     <div key={i} className="absolute inset-y-0" title={`${meta.segLabels[i]}: ${Math.round(raw[i])}%`}
-                      style={{ left: `${left}%`, width: `${width}%`, backgroundColor: colors[i] }} />
+                      style={{ left: `${left}%`, width: `${seg}%`, backgroundColor: colors[i] }} />
                   );
                 })}
               </div>
