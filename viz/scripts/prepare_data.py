@@ -2004,10 +2004,10 @@ def build_fd_profiles():
 
 
 # ---------- pureMultiPrimary.json ----------
-def build_pure_multi_primary():
+def build_pure_multi_primary(src_dir=PURE_MULTI_DIR, out_name="pureMultiPrimary.json"):
     """Stage-by-stage data for the 21-candidate pure/raw multi primary run."""
-    rows      = read_csv(PURE_MULTI_DIR / "primary_results_2028.csv")
-    diag_rows = read_csv(PURE_MULTI_DIR / "primary_diagnostics_2028.csv")
+    rows      = read_csv(src_dir / "primary_results_2028.csv")
+    diag_rows = read_csv(src_dir / "primary_diagnostics_2028.csv")
     traj_pcts = _build_trajectory_pcts(diag_rows)
 
     # Load party centroids keyed by candidate_name (= party code: CON, SD, etc.)
@@ -2075,7 +2075,7 @@ def build_pure_multi_primary():
         "stageLabels":  stage_labels,
         "quotaByStage": quota_by_stage,
         "candidates":   candidates,
-    }, "pureMultiPrimary.json")
+    }, out_name)
 
 
 # ---------- pureMultiPrimarySankey.json ----------
@@ -2248,10 +2248,10 @@ def build_pure_multi_primary_sankey():
 
 
 # ---------- pureMultiPrimaryBuckets.json ----------
-def build_pure_multi_primary_buckets():
+def build_pure_multi_primary_buckets(src_dir=PURE_MULTI_DIR, out_name="pureMultiPrimaryBuckets.json"):
     """Per-stage bucket composition: for each winner, where did their quota come from?"""
-    results_rows = read_csv(PURE_MULTI_DIR / "primary_results_2028.csv")
-    diag_rows    = read_csv(PURE_MULTI_DIR / "primary_diagnostics_2028.csv")
+    results_rows = read_csv(src_dir / "primary_results_2028.csv")
+    diag_rows    = read_csv(src_dir / "primary_diagnostics_2028.csv")
 
     # Parse results by stage
     by_stage = defaultdict(dict)   # stage → {code: {pct, vote_total, status, party}}
@@ -2373,7 +2373,7 @@ def build_pure_multi_primary_buckets():
         })
         prev_stage = stage
 
-    write_json({"pool": round(pool, 2), "stages": stages_out}, "pureMultiPrimaryBuckets.json")
+    write_json({"pool": round(pool, 2), "stages": stages_out}, out_name)
 
 
 # ---------- fdPrimaryBuckets.json ----------
@@ -3185,6 +3185,9 @@ def build_turnout_scenario():
     *NoStyTurnout.json (Solidarity dissolved) for the Participation × Coordination 2x2."""
     _build_turnout_variant(PURE_MULTI_TURNOUT_DIR, "Turnout")
     _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")
+    # Primary winnowing/finalists + buckets respond to turnout (all-parties path only).
+    build_pure_multi_primary(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryTurnout.json")
+    build_pure_multi_primary_buckets(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryBucketsTurnout.json")
 
 
 def build_party_population():
@@ -3220,6 +3223,9 @@ def build_turnout_lambda_scenario():
     for l in (25, 50, 75):
         _build_turnout_variant(OUTPUTS / f"pure_multi_turnout_l{l}", f"TurnoutL{l}")
         _build_turnout_variant(OUTPUTS / f"pure_multi_nosty_turnout_l{l}", f"NoStyTurnoutL{l}")
+        d = OUTPUTS / f"pure_multi_turnout_l{l}"
+        build_pure_multi_primary(d, f"pureMultiPrimaryTurnoutL{l}.json")
+        build_pure_multi_primary_buckets(d, f"pureMultiPrimaryBucketsTurnoutL{l}.json")
 
 
 if __name__ == "__main__":

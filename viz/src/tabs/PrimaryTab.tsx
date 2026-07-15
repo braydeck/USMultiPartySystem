@@ -10,7 +10,17 @@ import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PARTY_NAMES, PARTY_COLORS, F5_ORDER, getBlendColor, getContrastText } from '../constants/parties';
 import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
+import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+// Non-voter-turnout stops for the primary (finalists + buckets); base comes via props.
+import pmPrimTurnout from '../data/pureMultiPrimaryTurnout.json';
+import pmPrimL25 from '../data/pureMultiPrimaryTurnoutL25.json';
+import pmPrimL50 from '../data/pureMultiPrimaryTurnoutL50.json';
+import pmPrimL75 from '../data/pureMultiPrimaryTurnoutL75.json';
+import pmBktTurnout from '../data/pureMultiPrimaryBucketsTurnout.json';
+import pmBktL25 from '../data/pureMultiPrimaryBucketsTurnoutL25.json';
+import pmBktL50 from '../data/pureMultiPrimaryBucketsTurnoutL50.json';
+import pmBktL75 from '../data/pureMultiPrimaryBucketsTurnoutL75.json';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BucketData = any; // from pureMultiPrimaryBuckets.json
@@ -43,9 +53,16 @@ export function PrimaryTab({
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [stageIdx, setStageIdx] = useUrlNumber('stage', 0);
+  // Non-voter turnout: share of current non-voters who show up (0 = 2024 actual … 100 = everyone).
+  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
+  const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+  const primStops   = [pmPrimTurnout, pmPrimL25, pmPrimL50, pmPrimL75, pureMulti] as unknown as FDPrimaryData[];
+  const bucketStops = [pmBktTurnout, pmBktL25, pmBktL50, pmBktL75, pureMultiBuckets] as unknown as BucketData[];
+  const rmPrimary = primStops[gi];
+  const rmBuckets = bucketStops[gi];
 
   const data: FDPrimaryData =
-    pipeline === 'factorDev' ? factorDev : pureMulti;
+    pipeline === 'factorDev' ? factorDev : rmPrimary;
   const stageShares  = pipeline === 'factorDev' ? factorDevStageShares : pureMultiStageShares;
   const stage = data.stagesOrder[stageIdx] ?? data.stagesOrder[0];
   const quota = data.quotaByStage[stage] ?? 0;
@@ -97,6 +114,9 @@ export function PrimaryTab({
           options={['rawMulti', 'factorDev'] as const}
           labels={PIPELINE_LABELS_LONG}
         />
+        {pipeline === 'rawMulti' && (
+          <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
+        )}
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground uppercase tracking-widest">Stage</span>
           <div className="flex gap-1">
@@ -124,7 +144,7 @@ export function PrimaryTab({
 
       {/* Primary Winnowing — bucket composition */}
       {(() => {
-        const buckets = pipeline === 'rawMulti' ? pureMultiBuckets : factorDevBuckets;
+        const buckets = pipeline === 'rawMulti' ? rmBuckets : factorDevBuckets;
         return buckets?.stages?.[stageIdx] ? (
           <Card className="p-4">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
