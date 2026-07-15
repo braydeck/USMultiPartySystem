@@ -1,19 +1,23 @@
 import { getBlendColor } from '../../constants/parties';
 
-// Left label for every comparison-chart row: left-aligned code in the party color, with a
-// leading party-colored dot ONLY when this party's value on this item is a signature match
-// (same condition as the faded-bar rule). The dot slot is always reserved so codes stay
-// aligned whether or not the dot shows. National ("U.S.") never gets a dot.
-export function PartyRowLabel({ code, signature = false, className = 'w-11' }:
-  { code: string; signature?: boolean; className?: string }) {
+export type RowMark = { dot: boolean; mark: 'D' | 'M' | null };
+
+// Left label for every comparison-chart row. Two signature annotations sit with the code:
+// a leading party-colored dot when this party holds the item cohesively (Consensus), and a
+// trailing D / M when it is Deviant (far from U.S.) / Mainstream (close). Both slots are
+// reserved so codes stay aligned. National ("U.S.") is never annotated.
+export function PartyRowLabel({ code, signature = false, mark = null, className = 'w-11' }:
+  { code: string; signature?: boolean; mark?: 'D' | 'M' | null; className?: string }) {
   const isNat = code === '__NAT__';
   const color = isNat ? '#64748b' : getBlendColor(code);
   const showDot = signature && !isNat;
+  const showMark = !isNat && mark != null;
   return (
-    <span className={`shrink-0 flex items-center gap-1 font-bold tabular-nums ${className}`} style={{ color }}>
-      <span className="w-1.5 h-1.5 rounded-full shrink-0"
-        style={{ backgroundColor: showDot ? color : 'transparent' }} />
+    <span className={`shrink-0 flex items-center gap-0.5 font-bold tabular-nums ${className}`} style={{ color }}>
+      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: showDot ? color : 'transparent' }} />
       <span className="truncate">{isNat ? 'U.S.' : code}</span>
+      <span className="ml-auto pl-0.5 text-[9px] font-bold w-2 text-right"
+        style={{ color: mark === 'D' ? '#1e293b' : '#94a3b8' }}>{showMark ? mark : ''}</span>
     </span>
   );
 }

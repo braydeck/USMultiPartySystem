@@ -1,16 +1,16 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile, ConstellationNode } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
-import { sigActive, type SignatureFilter } from '../lib/signature';
+import { centralityMark, type SignatureFilter } from '../lib/signature';
 import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { RangeBarCell, CompositionStackCell, HeatmapCell, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
-import { PartyRowLabel } from '../components/shared/PartyRowLabel';
+import { PartyRowLabel, type RowMark } from '../components/shared/PartyRowLabel';
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
-import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
+import { IntensityBar, IntensityLegend, intensityFor, splitShares, itemSignature, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
 import { vikForZ } from '../lib/vik';
 import factorLoadingsData from '../data/factorLoadings.json';
@@ -72,23 +72,30 @@ function nationalPercentileOf(x: number, n: DistData): number {
   return Math.min(100, a[j + 1][1] + (x - a[j + 1][0]) * s);
 }
 
-/** Deviance (distance from national) + concentration-consensus, mirroring passesFilter's
- *  two-axis combine, for the multi-value distribution charts. */
-function distSignature(meta: DistMeta, party: DistData, national: DistData, f: SignatureFilter): boolean {
-  if (!sigActive(f)) return false;
-  let consensusOk = true, alignOk = true;
+// Ordered distribution items (a latent scale binned into categories): distance uses an
+// order-aware Earth Mover's metric, not the order-blind TVD used for the nominal ones.
+const ORDERED_DIST = new Set(['income', 'educ', 'ideo5', 'pid3']);
+const tvd = (p: number[], q: number[]) => 0.5 * p.reduce((s, v, i) => s + Math.abs(v - (q[i] ?? 0)), 0);
+/** Normalized 1-D Earth Mover's Distance (0–100) over ordered bins: Σ|CDFp−CDFq| / (n−1). */
+function emd(p: number[], q: number[]): number {
+  const n = p.length; if (n <= 1) return 0;
+  let cp = 0, cq = 0, acc = 0;
+  for (let i = 0; i < n - 1; i++) { cp += p[i]; cq += (q[i] ?? 0); acc += Math.abs(cp - cq); }
+  return acc / (n - 1);
+}
+
+/** A distribution item's signature components for one party: `cohesive` (concentration) and
+ *  `distance` from national (0–100). Mirrors the scalar itemSignature so the dot + D/M marks
+ *  mean the same thing across all chart types. */
+function distSigParts(meta: DistMeta, party: DistData, national: DistData, f: SignatureFilter, ordered: boolean): { cohesive: boolean; distance: number } {
   if (meta.viz === 'range') {
-    const dist = Math.abs(nationalPercentileOf(party.median!, national) - 50) * 2;   // 0–100
-    alignOk = f.alignMode === 'deviant' ? dist >= f.alignPp : dist <= f.alignPp;
+    const distance = Math.abs(nationalPercentileOf(party.median!, national) - 50) * 2;
     const pIqr = party.q75! - party.q25!, nIqr = (national.q75! - national.q25!) || 1;
-    consensusOk = pIqr <= nIqr * (1 - (f.consPct - 50) / 100);                        // tighter than the U.S.
-  } else {
-    const p = party.pcts ?? [], nat = national.pcts ?? [];
-    const tvd = 0.5 * p.reduce((s, v, i) => s + Math.abs(v - (nat[i] ?? 0)), 0);       // 0–100 pp
-    alignOk = f.alignMode === 'deviant' ? tvd >= f.alignPp : tvd <= f.alignPp;
-    consensusOk = (p.length ? Math.max(...p) : 0) >= f.consPct;                        // one dominant category
+    return { cohesive: pIqr <= nIqr * (1 - (f.consPct - 50) / 100), distance };
   }
-  return (!f.useConsensus || consensusOk) && (!f.useAlign || alignOk);
+  const p = party.pcts ?? [], nat = national.pcts ?? [];
+  const distance = ordered ? emd(p, nat) : tvd(p, nat);
+  return { cohesive: (p.length ? Math.max(...p) : 0) >= f.consPct, distance };
 }
 
 const FACTORS = ['F1', 'F2', 'F3', 'F4', 'F5'] as const;
@@ -115,8 +122,6 @@ interface VarEntry {
   factors: { factor: string; loading: number }[];
   maxVal: number;
   unit: string;
-  qualifiers: string[];  // selected parties whose position here is part of their signature
-  sigMatch: boolean;     // ≥1 qualifier under the active signature filter
 }
 
 // Natural ordering for demographic/structural sections
@@ -374,7 +379,6 @@ function FactorItemsPanel({
                 maxVal: v.maxVal, unit: v.unit, highlighted: v.highlighted, loadingWeight: v.loading,
               }}
               codes={codes}
-              sigOn={false}
               label={v.question}
             />
           </div>
@@ -395,17 +399,15 @@ interface BarItem {
   maxVal: number;
   unit: string;
   highlighted: boolean;
-  qualifiers?: string[];
   loadingWeight?: number;
 }
 
 // Single-value item: the national average + each selected party as a stacked horizontal
 // bar on a shared 0–max axis. Replaces the dot-track — aligned bars, no occlusion, and it
 // scales to any number of parties by stacking. Matches the IntensityCell row layout.
-function StackedBarCell({ item, codes, sigOn, label }: { item: BarItem; codes: string[]; sigOn: boolean; label: string }) {
+function StackedBarCell({ item, codes, marks, label }: { item: BarItem; codes: string[]; marks?: Record<string, RowMark>; label: string }) {
   const maxVal = item.maxVal || 100;
   const unit = item.unit || '%';
-  const qualifiers = item.qualifiers ?? [];
   const disp = (x: number) => (unit === '%' ? `${Math.round(x)}%` : `${x % 1 === 0 ? x : x.toFixed(1)} ${unit}`);
   const rows: string[] = ['__NAT__', ...codes];
   return (
@@ -431,14 +433,13 @@ function StackedBarCell({ item, codes, sigOn, label }: { item: BarItem; codes: s
           const val = isNat ? item.overall : item.pcts[code];
           if (val == null) return null;
           const color = isNat ? '#64748b' : getBlendColor(code);
-          const qualifies = sigOn && qualifiers.includes(code);
           const pos = Math.min((val / maxVal) * 100, 100);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <PartyRowLabel code={code} signature={qualifies} />
+              <PartyRowLabel code={code} signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
               <div className="flex-1 relative h-3 rounded-sm bg-muted overflow-hidden">
                 <div className="absolute inset-y-0 left-0 rounded-sm"
-                  style={{ width: `${pos}%`, backgroundColor: isNat ? '#cbd5e1' : color, opacity: sigOn && !qualifies && !isNat ? 0.45 : 1 }} />
+                  style={{ width: `${pos}%`, backgroundColor: isNat ? '#cbd5e1' : color }} />
               </div>
               <span className="w-11 shrink-0 text-right" style={{ color: isNat ? '#64748b' : 'inherit' }}>{disp(val)}</span>
             </div>
@@ -452,8 +453,8 @@ function StackedBarCell({ item, codes, sigOn, label }: { item: BarItem; codes: s
 // Full-distribution cell for a multi-point item: national + each selected party as a
 // stacked bar (diverging bipolar via bam), so Maintain/Neither and intensity are visible
 // instead of the single collapsed dot.
-function IntensityCell({ item, codes, question, sigOn = false, qualifiers = [] }:
-  { item: IntensityItem; codes: string[]; question: string; sigOn?: boolean; qualifiers?: string[] }) {
+function IntensityCell({ item, codes, question, marks }:
+  { item: IntensityItem; codes: string[]; question: string; marks?: Record<string, RowMark> }) {
   return (
     <div className="px-3 py-3">
       <div className="text-xs text-foreground leading-snug font-medium mb-1">{question}</div>
@@ -473,7 +474,7 @@ function IntensityCell({ item, codes, question, sigOn = false, qualifiers = [] }
           const sp = splitShares(item, shares);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <PartyRowLabel code={code} signature={sigOn && qualifiers.includes(code)} />
+              <PartyRowLabel code={code} signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
               {sp && (sp.neutral != null ? (
                 <div className="w-24 shrink-0 flex items-center gap-1">
                   <div className="relative h-3 flex-1 rounded-sm bg-muted overflow-hidden" title={`Neither ${Math.round(sp.neutral)}%`}>
@@ -530,7 +531,19 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   // Signature filter shared with Party Platforms (URL params) so the two views agree.
   const sig = useSignatureFilter();
   const sigFilter = sig.filter;
-  const sigOn = sigActive(sigFilter);
+
+  // Per-row signature annotations (left cohesion dot + right D/M mark), for scalar items and
+  // for distribution items — computed the same way so the marks mean the same thing everywhere.
+  const scalarMarks = (v: VarEntry): Record<string, RowMark> => Object.fromEntries(
+    selected.filter(c => v.pcts[c] !== undefined).map(c => {
+      const { cohesive, distance } = itemSignature(v.key, c, v.pcts[c]!, v.overall ?? v.pcts[c]!, v.maxVal, sigFilter);
+      return [c, { dot: sigFilter.useConsensus && cohesive, mark: centralityMark(distance, sigFilter) }];
+    }));
+  const distMarks = (k: string): Record<string, RowMark> => Object.fromEntries(
+    selected.filter(c => DIST.parties[c]?.[k]).map(c => {
+      const { cohesive, distance } = distSigParts(DIST.meta[k], DIST.parties[c][k] as never, DIST.national[k] as never, sigFilter, ORDERED_DIST.has(k));
+      return [c, { dot: sigFilter.useConsensus && cohesive, mark: centralityMark(distance, sigFilter) }];
+    }));
 
   // Restore the last selection when arriving with an empty URL (e.g. via tab nav, which
   // clears query params). A deep-link / shared ?cmp=... takes precedence over the saved one.
@@ -614,16 +627,11 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
       const groupKey = entry.domain;
 
-      const qualifiers = selected.filter(
-        c => entry.pcts[c] !== undefined && passesFilter(key, c, entry.pcts[c]!, entry.overall ?? entry.pcts[c]!, entry.maxVal, sigFilter),
-      );
-
       if (!grouped[groupKey]) grouped[groupKey] = [];
       grouped[groupKey].push({
         key, question: entry.question, pcts: entry.pcts, overall: entry.overall,
         maxGap, highlighted: maxGap >= minGap, factor, factors,
         maxVal: entry.maxVal, unit: entry.unit,
-        qualifiers, sigMatch: qualifiers.length > 0,
       });
     }
 
@@ -652,7 +660,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     }
 
     return grouped;
-  }, [selected, clusters, fdProfiles, minGap, sig.useConsensus, sig.consPct, sig.useAlign, sig.alignMode, sig.alignPp]);
+  }, [selected, clusters, fdProfiles, minGap]);
 
   // Distribution items (range / composition) grouped by section domain, ordered within.
   const distBySection = useMemo(() => {
@@ -684,11 +692,12 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-1">Parties</h2>
         <p className="text-muted-foreground text-sm">
-          Select one party to see its platform, or several to compare — each row stacks the national
+          Select one party to see its platform, or several to compare. Each row stacks the national
           average and every selected party as a bar on a shared scale. The
-          {' '}<span className="font-medium text-foreground">Signature</span> filter keeps each party's
-          defining planks (strongly held, and mainstream or deviant from the country); amber rows are
-          where selected parties differ by ≥{minGap}pp.
+          {' '}<span className="font-medium text-foreground">Signature</span> annotations mark each row:
+          a <span className="font-bold">●</span> dot when a party holds it cohesively, and{' '}
+          <span className="font-bold">D</span> (distinct from the U.S.) or <span className="font-bold">M</span> (mainstream)
+          to the right of its label. Amber rows are where selected parties differ by ≥{minGap}pp.
         </p>
       </div>
 
@@ -814,20 +823,14 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             <div className="space-y-3">
               {sectionKeys.map(sectionKey => {
                 const allVars = sectionVarMap[sectionKey] ?? [];
-                const vars = allVars.filter(v => (!divergeOnly || v.highlighted) && (!sigOn || v.sigMatch));
-                // Distribution items honor the signature filter like everything else: with the
-                // filter on, show only items where a selected party's value is a signature.
-                const distKeys = (distBySection[sectionKey] ?? []).filter(k => {
-                  const present = selected.filter(c => DIST.parties[c]?.[k]);
-                  if (present.length === 0) return false;
-                  if (sigOn && !present.some(c =>
-                    distSignature(DIST.meta[k], DIST.parties[c][k], DIST.national[k], sigFilter))) return false;
-                  return true;
-                });
+                const vars = allVars.filter(v => !divergeOnly || v.highlighted);
+                // Annotation model: every item with data is shown; the signature filter marks
+                // rows (cohesion dot + D/M) rather than hiding them.
+                const distKeys = (distBySection[sectionKey] ?? [])
+                  .filter(k => selected.some(c => DIST.parties[c]?.[k]));
                 if (vars.length === 0 && distKeys.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
                 const highlightCount = allVars.filter(v => v.highlighted).length;
-                const sigCount = allVars.filter(v => v.sigMatch).length;
 
                 return (
                   <Card key={sectionKey} className="overflow-hidden">
@@ -842,11 +845,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                         {highlightCount > 0 && (
                           <span className="text-xs bg-amber-100 text-amber-700 font-medium rounded-full px-2 py-0.5">
                             {highlightCount} diverge
-                          </span>
-                        )}
-                        {sigOn && sigCount > 0 && (
-                          <span className="text-xs bg-indigo-100 text-indigo-700 font-medium rounded-full px-2 py-0.5">
-                            {sigCount} signature
                           </span>
                         )}
                       </div>
@@ -864,10 +862,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                             <div className="grid grid-cols-1 sm:grid-cols-2">
                               {distKeys.map((k, i) => {
                                 const m = DIST.meta[k];
-                                const sigs = Object.fromEntries(
-                                  selected.filter(c => DIST.parties[c]?.[k])
-                                    .map(c => [c, distSignature(m, DIST.parties[c][k], DIST.national[k], sigFilter)]),
-                                ) as Record<string, boolean>;
+                                const marks = distMarks(k);
                                 return (
                                   <div key={k} className={[
                                     i >= 2 ? 'border-t border-border/50' : '',
@@ -875,12 +870,12 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                   ].filter(Boolean).join(' ')}>
                                     {m.viz === 'range'
                                       ? <RangeBarCell meta={m as unknown as RangeMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} signatures={sigs} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} />
                                       : m.viz === 'heatmap'
                                       ? <HeatmapCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} signatures={sigs} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} />
                                       : <CompositionStackCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} signatures={sigs} />}
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} />}
                                   </div>
                                 );
                               })}
@@ -914,9 +909,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                 >
                                   {iv ? (
                                     <IntensityCell item={iv} codes={selected} question={iv.question}
-                                      sigOn={sigOn} qualifiers={v.qualifiers} />
+                                      marks={scalarMarks(v)} />
                                   ) : (
-                                    <StackedBarCell item={v} codes={selected} sigOn={sigOn}
+                                    <StackedBarCell item={v} codes={selected} marks={scalarMarks(v)}
                                       label={grp.header ? stripPrefix(v.question) : v.question} />
                                   )}
                                 </div>

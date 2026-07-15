@@ -90,29 +90,28 @@ function bucketPercentile(battery: string, bucket: 'left' | 'neutral' | 'right',
 }
 
 /**
- * Does a party's stance on one item pass the signature filter? Consensus is judged
- * percentile-relative for ordinal (diverging) items — the slider value P means "top
- * (100−P)% of that bucket's distribution" in agree, neutral, or disagree — and by the
- * plain ≥P% / ≤(100−P)% rule for binary items. Alignment (deviance) is always the
- * collapsed-pct deviation from the national average.
+ * A party's signature components on one scalar item: `cohesive` (tightly held) and `distance`
+ * from the national average (0–100). Cohesion is percentile-relative within the battery for
+ * ordinal (diverging) items — the slider P means "top (100−P)% of that bucket" in agree,
+ * neutral, or disagree — and the plain ≥P% / ≤(100−P)% rule for binary items. Distance is the
+ * collapsed-pct deviation from national. The caller maps these to the dot + D/M annotations.
  */
-export function passesFilter(key: string, code: string, pct: number, overall: number, maxVal: number, f: SignatureFilter): boolean {
+export function itemSignature(key: string, code: string, pct: number, overall: number, maxVal: number, f: SignatureFilter): { cohesive: boolean; distance: number } {
   const iv = intensityFor(key);
   const shares = iv?.parties[code];
-  let consensusOk: boolean;
+  let cohesive: boolean;
   if (iv && iv.kind === 'diverging' && shares) {
     const sp = splitShares(iv, shares)!;
-    consensusOk =
+    cohesive =
       sp.leftTotal >= bucketPercentile(iv.battery, 'left', f.consPct) ||
       sp.rightTotal >= bucketPercentile(iv.battery, 'right', f.consPct) ||
       (sp.neutral != null && sp.neutral >= bucketPercentile(iv.battery, 'neutral', f.consPct));
   } else {
     const p = norm01(pct, maxVal);
-    consensusOk = p >= f.consPct || p <= 100 - f.consPct;
+    cohesive = p >= f.consPct || p <= 100 - f.consPct;
   }
-  const dev = Math.abs(norm01(pct, maxVal) - norm01(overall ?? pct, maxVal));
-  const alignOk = f.alignMode === 'deviant' ? dev >= f.alignPp : dev <= f.alignPp;
-  return (!f.useConsensus || consensusOk) && (!f.useAlign || alignOk);
+  const distance = Math.abs(norm01(pct, maxVal) - norm01(overall ?? pct, maxVal));
+  return { cohesive, distance };
 }
 
 interface Seg { left: number; width: number; color: string; label: string }

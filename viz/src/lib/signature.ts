@@ -1,31 +1,26 @@
-// Shared vocabulary for a party's "signature": positions it holds by strong
-// internal Consensus that are either Mainstream (near the national average) or
-// Deviant (far from it). These are two independent axes — "distinctive" is the
-// combination, not one of them. Different parties are defined by different mixes:
-// some by mainstream consensus (CUP, STY, OAO), others by deviance (NAT, PRG, DSA).
-
-export type AlignMode = 'deviant' | 'mainstream';
+// Shared vocabulary for a party's "signature": positions held by strong internal Consensus
+// (cohesion) that are either Mainstream (near the U.S. average) or Deviant (far from it).
+// Cohesion and centrality are two independent axes, shown as row annotations (a left cohesion
+// dot and a right D/M mark) rather than by hiding rows.
 
 export interface SignatureFilter {
   useConsensus: boolean;
-  consPct: number; // held by ≥consPct% (or ≤100-consPct% against)
-  useAlign: boolean;
-  alignMode: AlignMode;
-  alignPp: number; // distance from the national average, in points
+  consPct: number;        // cohesive if held by ≥consPct% (or the type-specific analog)
+  useDeviant: boolean;
+  deviantPp: number;      // "D" when distance-from-U.S. ≥ deviantPp
+  useMainstream: boolean;
+  mainstreamPp: number;   // "M" when distance-from-U.S. ≤ mainstreamPp
 }
 
-/** True when at least one axis of the signature filter is engaged. */
+/** True when at least one annotation axis is engaged. */
 export function sigActive(f: SignatureFilter): boolean {
-  return f.useConsensus || f.useAlign;
+  return f.useConsensus || f.useDeviant || f.useMainstream;
 }
 
-/**
- * Does one party's position on one item belong to its signature under this filter?
- * pct = the party's share; overall = the national average on the same scale.
- */
-export function qualifies(pct: number, overall: number | null, f: SignatureFilter): boolean {
-  const consensusOk = pct >= f.consPct || pct <= 100 - f.consPct;
-  const absDev = Math.abs(pct - (overall ?? pct));
-  const alignOk = f.alignMode === 'deviant' ? absDev >= f.alignPp : absDev <= f.alignPp;
-  return (!f.useConsensus || consensusOk) && (!f.useAlign || alignOk);
+/** Classify a party's distance-from-national (0–100) as Deviant / Mainstream / neither,
+ *  honoring which axes are enabled. Deviant wins if both would somehow apply. */
+export function centralityMark(distance: number, f: SignatureFilter): 'D' | 'M' | null {
+  if (f.useDeviant && distance >= f.deviantPp) return 'D';
+  if (f.useMainstream && distance <= f.mainstreamPp) return 'M';
+  return null;
 }
