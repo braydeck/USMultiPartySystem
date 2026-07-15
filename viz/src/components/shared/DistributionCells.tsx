@@ -202,14 +202,14 @@ export function HeatmapCell({ meta, national, byCode, codes, marks }: {
   return (
     <div className="px-3 py-3">
       <div className="text-xs text-foreground leading-snug font-medium mb-2">{meta.question}</div>
-      <div className="grid gap-px" style={{ gridTemplateColumns: `44px repeat(${cols}, minmax(0, 1fr))` }}>
+      <div className="grid gap-px" style={{ gridTemplateColumns: `56px repeat(${cols}, minmax(0, 1fr))` }}>
         <span />
         {meta.segLabels.map(l => (
           <span key={l} className="text-[8.5px] text-muted-foreground text-center leading-tight px-0.5 pb-0.5" title={l}>{l}</span>
         ))}
         {rows.map(({ code, pcts }) => (
           <div key={code} className="contents">
-            <PartyRowLabel code={code} className="self-center text-[10px]" signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
+            <PartyRowLabel code={code} className="self-center text-[10px] w-14 pr-1" signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
             {pcts.map((v, i) => {
               // Cividis by within-grid share: dark navy = low → yellow = high. Perceptually
               // uniform and colorblind-safe; exact % is printed in the cell either way.

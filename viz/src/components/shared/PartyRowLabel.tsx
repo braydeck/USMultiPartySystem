@@ -15,7 +15,7 @@ export function PartyRowLabel({ code, signature = false, mark = null, className 
   return (
     <span className={`shrink-0 flex items-center gap-0.5 font-bold tabular-nums ${className}`} style={{ color }}>
       <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: showDot ? color : 'transparent' }} />
-      <span className="truncate">{isNat ? 'U.S.' : code}</span>
+      <span className="truncate min-w-0">{isNat ? 'U.S.' : code}</span>
       <span className="ml-auto pl-0.5 text-[9px] font-bold w-2 text-right"
         style={{ color: mark === 'D' ? '#1e293b' : '#94a3b8' }}>{showMark ? mark : ''}</span>
     </span>
