@@ -1,4 +1,5 @@
 import { bamForFrac } from '../../lib/bam';
+import { flareForFrac } from '../../lib/flare';
 import type { SignatureFilter } from '../../lib/signature';
 import clusterIntensityData from '../../data/clusterIntensity.json';
 
@@ -23,16 +24,14 @@ const BY_VAR: Record<string, IntensityItem> = Object.fromEntries(INTENSITY_ITEMS
 // Profile keys append "_agree" for the agree scales — strip it to join to intensity data.
 export const intensityFor = (key: string): IntensityItem | undefined => BY_VAR[key.replace(/_agree$/, '')];
 
-// Sequential ramp for non-bipolar frequency scales (church/prayer: most → least frequent).
-// Magenta (ColorBrewer RdPu): dark = high frequency, light = low. Magenta is the one saturated
-// hue no party uses (avoids STY violet), so it doesn't read as a party color.
-const SEQ = ['#7a0177', '#ae017e', '#dd3497', '#f768a1', '#fa9fb5', '#fcc5c0', '#fde0dd'];
-
 // Bipolar agree/disagree scales use bam (magenta → neutral → green) so the color does
-// not read as the political red/blue used for left–right elsewhere.
+// not read as the political red/blue used for left–right elsewhere. Sequential frequency
+// scales (church/prayer: most → least frequent) use the seaborn "flare" ramp, dark = high
+// frequency → light salmon = low; its hue rotation separates adjacent buckets better than
+// the old flat RdPu magenta.
 export function catColors(kind: 'diverging' | 'freq', n: number): string[] {
   if (kind === 'diverging') return Array.from({ length: n }, (_, i) => bamForFrac(i / (n - 1)));
-  return Array.from({ length: n }, (_, i) => SEQ[Math.min(i, SEQ.length - 1)]);
+  return Array.from({ length: n }, (_, i) => flareForFrac(n <= 1 ? 1 : 1 - i / (n - 1)));
 }
 
 const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
