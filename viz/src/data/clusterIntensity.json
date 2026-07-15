@@ -1860,81 +1860,81 @@
       "variable": "pew_religimp",
       "question": "Religion is important (very or somewhat)",
       "domain": "Religion",
-      "kind": "diverging",
+      "kind": "freq",
       "battery": "religimp",
       "labels": [
-        "Not at all important",
-        "Not too important",
+        "Very important",
         "Somewhat important",
-        "Very important"
+        "Not too important",
+        "Not at all important"
       ],
       "middleIndex": null,
       "national": [
-        24.8,
-        15.4,
+        36.1,
         23.7,
-        36.1
+        15.4,
+        24.8
       ],
       "parties": {
         "CON": [
-          11.1,
-          13.1,
+          48.5,
           27.4,
-          48.5
+          13.1,
+          11.1
         ],
         "LBR": [
-          33.4,
-          21.1,
+          19.7,
           25.8,
-          19.7
+          21.1,
+          33.4
         ],
         "STY": [
-          19.2,
-          13.2,
+          42.4,
           25.2,
-          42.4
+          13.2,
+          19.2
         ],
         "NAT": [
-          11.5,
-          11.9,
+          53.5,
           23.2,
-          53.5
+          11.9,
+          11.5
         ],
         "LIB": [
-          39.9,
-          18.8,
+          20.6,
           20.7,
-          20.6
+          18.8,
+          39.9
         ],
         "POP": [
-          16.5,
-          13.8,
+          43.7,
           26.0,
-          43.7
+          13.8,
+          16.5
         ],
         "CUP": [
-          12.9,
-          14.3,
+          49.9,
           22.8,
-          49.9
+          14.3,
+          12.9
         ],
         "OAO": [
-          19.9,
-          16.5,
+          36.9,
           26.7,
-          36.9
+          16.5,
+          19.9
         ],
         "DSA": [
-          59.3,
-          18.7,
+          9.8,
           12.3,
-          9.8
+          18.7,
+          59.3
         ],
         "PRG": [
-          61.8,
-          13.7,
+          10.2,
           14.3,
-          10.2
+          13.7,
+          61.8
         ]
       }
     },

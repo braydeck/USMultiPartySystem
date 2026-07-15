@@ -32,9 +32,11 @@ AGREE = ['CC24_440a','CC24_440b','CC24_440c','CC24_440d','CC24_441a','CC24_441b'
 ECON = ['CC24_302','CC24_303']
 # 4-point trust scales (A great deal → None at all); note code 8 = "None at all" is real data.
 GOVTRUST = ['CC24_423','CC24_424']
-RELIGIMP = ['pew_religimp']   # 4-point: Very → Not at all important
+RELIGIMP = ['pew_religimp']   # 4-point amount scale: Very → Not at all important (sequential)
 FREQ = ['pew_churatd','pew_prayer']  # frequency scales (sequential)
-KIND = {**{v: 'diverging' for v in SPEND + AGREE + ECON + GOVTRUST + RELIGIMP}, **{v: 'freq' for v in FREQ}}
+# religimp is an amount scale (how important), not agree/disagree — render it sequential like
+# the frequency scales, not as a bipolar diverging bar with a meaningless center.
+KIND = {**{v: 'diverging' for v in SPEND + AGREE + ECON + GOVTRUST}, **{v: 'freq' for v in FREQ + RELIGIMP}}
 # Battery = a comparable group; percentile thresholds are computed within each.
 BATTERY = {**{v: 'spending' for v in SPEND}, **{v: 'agree' for v in AGREE},
            **{v: 'economy' for v in ECON}, **{v: 'trust' for v in GOVTRUST},

@@ -3261,8 +3261,9 @@ def build_distributions():
     # flare's coral→red→magenta middle is too hard to split.
     SEQ4  = ["#fcc5c0", "#f768a1", "#ae017e", "#7a0177"]
     SEQ5  = ["#fcc5c0", "#fa9fb5", "#f768a1", "#ae017e", "#7a0177"]
-    IDEO5 = ["#2563eb", "#93c5fd", "#e5e7eb", "#fca5a5", "#dc2626"]
-    PID3  = ["#2563eb", "#e5e7eb", "#dc2626"]
+    # Middle (Moderate / Independent) uses the slate "neither" color from the agreement charts.
+    IDEO5 = ["#2563eb", "#93c5fd", "#94a3b8", "#fca5a5", "#dc2626"]
+    PID3  = ["#2563eb", "#94a3b8", "#dc2626"]
     VOTE4 = ["#2563eb", "#dc2626", "#a3a3a3", "#e5e7eb"]
 
     # (key, viz, domain, question, order, [(segLabel, sources)], colors, pivot|None)

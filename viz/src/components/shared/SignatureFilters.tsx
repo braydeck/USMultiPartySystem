@@ -3,44 +3,29 @@ import type { SignatureFilterState } from '../../hooks/useSignatureFilter';
 /**
  * Three annotation axes shared by Compare Policies and Party Platforms: Consensus (a left
  * cohesion dot), Deviant (a right "D"), and Mainstream (a right "M"). These annotate rows
- * rather than hiding them. `accent` tints the inputs.
+ * rather than hiding them. Rendered as a slim inline strip so it fits the floating header.
  */
 export function SignatureFilters({ s, accent }: { s: SignatureFilterState; accent: string }) {
+  const axis = (on: boolean, setOn: (b: boolean) => void, label: string, cmp: string,
+    val: number, min: number, max: number, set: (n: number) => void) => (
+    <div className="flex items-center gap-1.5 shrink-0" style={{ opacity: on ? 1 : 0.5 }}>
+      <input type="checkbox" checked={on} onChange={e => setOn(e.target.checked)} style={{ accentColor: accent }} />
+      <span className="font-semibold text-foreground whitespace-nowrap">{label}</span>
+      <input type="range" min={min} max={max} step={5} value={val} disabled={!on}
+        onChange={e => set(Number(e.target.value))} className="w-16" style={{ accentColor: accent }} />
+      <span className="font-mono font-semibold tabular-nums w-12" style={{ color: accent }}>{cmp}{val}{max === 100 ? '%' : 'pt'}</span>
+    </div>
+  );
   return (
-    <div className="grid sm:grid-cols-3 gap-5 items-end">
-      <div style={{ opacity: s.useConsensus ? 1 : 0.45 }}>
-        <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
-          <input type="checkbox" checked={s.useConsensus} onChange={e => s.setUseConsensus(e.target.checked)}
-            style={{ accentColor: accent }} />
-          <span className="font-semibold text-foreground">● Consensus</span>
-          <span className="text-muted-foreground">— tightly held</span>
-          <span className="font-mono font-semibold ml-auto" style={{ color: accent }}>≥{s.consPct}%</span>
-        </label>
-        <input type="range" min={50} max={100} step={5} value={s.consPct} disabled={!s.useConsensus}
-          onChange={e => s.setConsPct(Number(e.target.value))} className="w-full" style={{ accentColor: accent }} />
-      </div>
-      <div style={{ opacity: s.useDeviant ? 1 : 0.45 }}>
-        <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
-          <input type="checkbox" checked={s.useDeviant} onChange={e => s.setUseDeviant(e.target.checked)}
-            style={{ accentColor: accent }} />
-          <span className="font-semibold text-foreground">D Deviant</span>
-          <span className="text-muted-foreground">— far from U.S.</span>
-          <span className="font-mono font-semibold ml-auto" style={{ color: accent }}>≥{s.deviantPp} pts</span>
-        </label>
-        <input type="range" min={0} max={50} step={5} value={s.deviantPp} disabled={!s.useDeviant}
-          onChange={e => s.setDeviantPp(Number(e.target.value))} className="w-full" style={{ accentColor: accent }} />
-      </div>
-      <div style={{ opacity: s.useMainstream ? 1 : 0.45 }}>
-        <label className="flex items-center gap-2 text-xs mb-1 cursor-pointer">
-          <input type="checkbox" checked={s.useMainstream} onChange={e => s.setUseMainstream(e.target.checked)}
-            style={{ accentColor: accent }} />
-          <span className="font-semibold text-foreground">M Mainstream</span>
-          <span className="text-muted-foreground">— close to U.S.</span>
-          <span className="font-mono font-semibold ml-auto" style={{ color: accent }}>≤{s.mainstreamPp} pts</span>
-        </label>
-        <input type="range" min={0} max={50} step={5} value={s.mainstreamPp} disabled={!s.useMainstream}
-          onChange={e => s.setMainstreamPp(Number(e.target.value))} className="w-full" style={{ accentColor: accent }} />
-      </div>
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]">
+      {axis(s.useConsensus, s.setUseConsensus, '● Consensus', '≥', s.consPct, 50, 100, s.setConsPct)}
+      {axis(s.useDeviant, s.setUseDeviant, 'D Deviant', '≥', s.deviantPp, 0, 50, s.setDeviantPp)}
+      {axis(s.useMainstream, s.setUseMainstream, 'M Mainstream', '≤', s.mainstreamPp, 0, 50, s.setMainstreamPp)}
+      <label className="flex items-center gap-1.5 shrink-0 cursor-pointer border-l border-border/50 pl-4">
+        <input type="checkbox" checked={s.filterMarked} onChange={e => s.setFilterMarked(e.target.checked)}
+          style={{ accentColor: accent }} />
+        <span className="font-semibold text-foreground whitespace-nowrap">Filter to marked</span>
+      </label>
     </div>
   );
 }

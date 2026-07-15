@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { bamForFrac } from '../../lib/bam';
 import type { SignatureFilter } from '../../lib/signature';
 import clusterIntensityData from '../../data/clusterIntensity.json';
@@ -24,14 +25,15 @@ const BY_VAR: Record<string, IntensityItem> = Object.fromEntries(INTENSITY_ITEMS
 export const intensityFor = (key: string): IntensityItem | undefined => BY_VAR[key.replace(/_agree$/, '')];
 
 // Bipolar agree/disagree scales use bam (magenta → neutral → teal) so the color does not read
-// as the political red/blue used for left–right elsewhere. Sequential frequency scales
-// (church/prayer: most → least frequent) use a magenta ramp (RdPu), dark = high frequency →
-// light = low. High lightness spread keeps abutting stacked-bar segments distinct — flare (used
-// on the heatmap) reads well cell-by-cell but its close mid-range is hard to split on a bar.
-const SEQ = ['#7a0177', '#ae017e', '#dd3497', '#f768a1', '#fa9fb5', '#fcc5c0', '#fde0dd'];
+// as the political red/blue used for left–right elsewhere. Sequential amount/frequency scales
+// (church, prayer, religion importance: most → least) use a magenta ramp (RdPu) sampled by
+// position, dark = high → near-white = low, so the final bucket ("Never" / "Not at all") reads
+// as absence. High lightness spread keeps abutting stacked-bar segments distinct.
+const SEQ_RAMP = ['#7a0177', '#ae017e', '#dd3497', '#f768a1', '#fbb4b9', '#fcdbe4', '#fdf2f8'];
+const interpSeq = d3.piecewise(d3.interpolateRgb, SEQ_RAMP);
 export function catColors(kind: 'diverging' | 'freq', n: number): string[] {
   if (kind === 'diverging') return Array.from({ length: n }, (_, i) => bamForFrac(i / (n - 1)));
-  return Array.from({ length: n }, (_, i) => SEQ[Math.min(i, SEQ.length - 1)]);
+  return Array.from({ length: n }, (_, i) => d3.color(interpSeq(n <= 1 ? 0 : i / (n - 1)))!.formatHex());
 }
 
 const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);

@@ -544,6 +544,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
       const { cohesive, distance } = distSigParts(DIST.meta[k], DIST.parties[c][k] as never, DIST.national[k] as never, sigFilter, ORDERED_DIST.has(k));
       return [c, { dot: sigFilter.useConsensus && cohesive, mark: centralityMark(distance, sigFilter) }];
     }));
+  // A row is "marked" when some selected party has an active annotation (dot or D/M). Used by
+  // the optional "Filter to marked" mode to trim the list to just the rows in play.
+  const hasMark = (m: Record<string, RowMark>) => Object.values(m).some(x => x.dot || x.mark != null);
 
   // Restore the last selection when arriving with an empty URL (e.g. via tab nav, which
   // clears query params). A deep-link / shared ?cmp=... takes precedence over the saved one.
@@ -701,14 +704,20 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         </p>
       </div>
 
-      {/* Party selector — sticky so you can adjust the comparison while scrolling the items */}
-      <div className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2">
+      {/* Party selector + signature filter — sticky so both can be adjusted while scrolling
+          the (long, annotated) list without returning to the top. */}
+      <div className="sticky top-[40px] z-20 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 space-y-2">
         <PartySelector
           selected={selected}
           onToggle={code => (selected.includes(code) ? removeParty(code) : addParty(code))}
           baseParties={pureOptions.map(o => o.code)}
           crossover={fdOptions.filter(o => !pureOptions.some(p => p.code === o.code)).map(o => ({ code: o.code, label: o.code }))}
         />
+        {selected.length >= 1 && (
+          <div className="pt-1.5 border-t border-border/40">
+            <SignatureFilters s={sig} accent="#6366f1" />
+          </div>
+        )}
       </div>
       {selected.length === 0 && (
         <p className="text-xs text-muted-foreground">
@@ -808,12 +817,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             </label>
           </div>
 
-          {/* Signature filter — shared with Party Platforms */}
-          <Card className="p-4">
-            <div className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Signature filter</div>
-            <SignatureFilters s={sig} accent="#6366f1" />
-          </Card>
-
           {/* Sections */}
           {sectionKeys.length === 0 ? (
             <Card className="p-8 text-center text-muted-foreground text-sm">
@@ -823,11 +826,13 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             <div className="space-y-3">
               {sectionKeys.map(sectionKey => {
                 const allVars = sectionVarMap[sectionKey] ?? [];
-                const vars = allVars.filter(v => !divergeOnly || v.highlighted);
-                // Annotation model: every item with data is shown; the signature filter marks
-                // rows (cohesion dot + D/M) rather than hiding them.
-                const distKeys = (distBySection[sectionKey] ?? [])
-                  .filter(k => selected.some(c => DIST.parties[c]?.[k]));
+                // Annotation model: every item with data is shown and marked (cohesion dot +
+                // D/M). "Filter to marked" optionally trims to rows a selected party is marked on.
+                const vars = allVars.filter(v => (!divergeOnly || v.highlighted)
+                  && (!sig.filterMarked || hasMark(scalarMarks(v))));
+                const distKeys = (distBySection[sectionKey] ?? []).filter(k =>
+                  selected.some(c => DIST.parties[c]?.[k])
+                  && (!sig.filterMarked || hasMark(distMarks(k))));
                 if (vars.length === 0 && distKeys.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
                 const highlightCount = allVars.filter(v => v.highlighted).length;

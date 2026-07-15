@@ -15,6 +15,8 @@ export interface SignatureFilterState {
   setUseMainstream: (b: boolean) => void;
   mainstreamPp: number;
   setMainstreamPp: (n: number) => void;
+  filterMarked: boolean;   // hide rows where no selected party has an active mark
+  setFilterMarked: (b: boolean) => void;
 }
 
 /**
@@ -26,6 +28,7 @@ export function useSignatureFilter(): SignatureFilterState {
   const [cons, setCons] = useUrlState<'on' | 'off'>('cons', 'on', { allowed: ['on', 'off'] });
   const [dev, setDev] = useUrlState<'on' | 'off'>('dev', 'on', { allowed: ['on', 'off'] });
   const [main, setMain] = useUrlState<'on' | 'off'>('main', 'on', { allowed: ['on', 'off'] });
+  const [filt, setFilt] = useUrlState<'on' | 'off'>('sigfilt', 'off', { allowed: ['on', 'off'] });
   const [consPct, setConsPct] = useUrlNumber('consPct', 70);
   const [deviantPp, setDeviantPp] = useUrlNumber('devPp', 25);
   const [mainstreamPp, setMainstreamPp] = useUrlNumber('mainPp', 10);
@@ -47,5 +50,7 @@ export function useSignatureFilter(): SignatureFilterState {
     setUseMainstream: b => setMain(b ? 'on' : 'off'),
     mainstreamPp,
     setMainstreamPp,
+    filterMarked: filt === 'on',
+    setFilterMarked: b => setFilt(b ? 'on' : 'off'),
   };
 }
