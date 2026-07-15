@@ -3209,27 +3209,36 @@ def build_turnout_scenario():
 
 
 def build_party_population():
-    """Each force's share of the adult population vs the as-cast 2024 electorate —
-    visualizes the turnout distortion (Solidarity shrinks, high-turnout blocs grow)."""
+    """Each force's share of the adult population vs the as-cast 2024 electorate.
+    Uses SOFT (GMM-posterior) weighting so popShare matches the app's canonical
+    population share (_national_pop_shares_10 / House 'Population vs Seat Share');
+    voteShare re-weights the same posteriors by validated 2024 vote."""
     import pandas as pd
     proc = Path(__file__).parent.parent.parent / "data" / "processed"
-    efa = pd.read_csv(proc / "efa_factor_scores.csv")
-    tp  = pd.read_csv(proc / "turnout_propensity.csv")
-    w   = efa["commonpostweight"].values
-    cluster = tp["cluster"].values
-    t   = tp["turnout_cluster"].values
-    vw  = w * t
+    efa  = pd.read_csv(proc / "efa_factor_scores.csv")
+    typo = pd.read_csv(proc / "typology_cluster_assignments.csv")
+    tp   = pd.read_csv(proc / "turnout_propensity.csv")
+    w    = efa["commonpostweight"].values.astype(float)
+    cluster = tp["cluster"].values                     # hard argmax cluster
+    t_cluster = tp["turnout_cluster"].values           # per-cluster validated turnout (what the sim uses)
     CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
-    Wtot, Vtot = w.sum(), vw.sum()
-    rows = []
-    for k, code in enumerate(CODES):
-        m = cluster == k
-        rows.append({
-            "party": code,
-            "popShare": round(float(w[m].sum() / Wtot * 100), 2),
-            "voteShare": round(float(vw[m].sum() / Vtot * 100), 2),
-            "turnout": round(float(t[m][0] * 100), 1) if m.any() else 0.0,
-        })
+    Wtot = w.sum()
+    # popShare: soft posterior (canonical, matches _national_pop_shares_10 / House page).
+    # turnout: hard per-cluster rate the compression sim weights by. voteShare: their product.
+    pops, turns = [], []
+    for k in range(len(CODES)):
+        pk = typo[f"prob_cluster_{k}"].values.astype(float)
+        pops.append(float((pk * w).sum()) / Wtot * 100)
+        km = cluster == k
+        turns.append(float(t_cluster[km][0]) if km.any() else 0.0)
+    votes = [p * tr for p, tr in zip(pops, turns)]
+    vtot = sum(votes) or 1.0
+    rows = [{
+        "party": code,
+        "popShare": round(pops[k], 2),
+        "voteShare": round(votes[k] / vtot * 100, 2),
+        "turnout": round(turns[k] * 100, 1),
+    } for k, code in enumerate(CODES)]
     write_json(rows, "partyPopulation.json")
 
 
