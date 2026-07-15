@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile, ConstellationNode } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
-import { sigActive } from '../lib/signature';
+import { sigActive, type SignatureFilter } from '../lib/signature';
 import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
@@ -56,6 +56,40 @@ const DIST = distributionsData as unknown as {
   national: Record<string, { pcts?: number[]; p10?: number } & Record<string, number | number[]>>;
   parties: Record<string, Record<string, { pcts?: number[]; p10?: number } & Record<string, number | number[]>>>;
 };
+
+// ---- Signature test for distribution charts (deviance + concentration-consensus) ----
+type DistData = { pcts?: number[]; p10?: number; q25?: number; median?: number; q75?: number; p90?: number };
+
+/** Where value x falls (0–100) within a national distribution given by 5 percentile anchors;
+ *  linear interpolation between anchors, linear extrapolation past the ends, clamped. */
+function nationalPercentileOf(x: number, n: DistData): number {
+  const a: [number, number][] = [[n.p10!, 10], [n.q25!, 25], [n.median!, 50], [n.q75!, 75], [n.p90!, 90]];
+  if (x <= a[0][0]) { const s = (a[1][1] - a[0][1]) / ((a[1][0] - a[0][0]) || 1); return Math.max(0, a[0][1] + (x - a[0][0]) * s); }
+  for (let i = 0; i < a.length - 1; i++) {
+    if (x <= a[i + 1][0]) { const t = (x - a[i][0]) / ((a[i + 1][0] - a[i][0]) || 1); return a[i][1] + t * (a[i + 1][1] - a[i][1]); }
+  }
+  const j = a.length - 2, s = (a[j + 1][1] - a[j][1]) / ((a[j + 1][0] - a[j][0]) || 1);
+  return Math.min(100, a[j + 1][1] + (x - a[j + 1][0]) * s);
+}
+
+/** Deviance (distance from national) + concentration-consensus, mirroring passesFilter's
+ *  two-axis combine, for the multi-value distribution charts. */
+function distSignature(meta: DistMeta, party: DistData, national: DistData, f: SignatureFilter): boolean {
+  if (!sigActive(f)) return false;
+  let consensusOk = true, alignOk = true;
+  if (meta.viz === 'range') {
+    const dist = Math.abs(nationalPercentileOf(party.median!, national) - 50) * 2;   // 0–100
+    alignOk = f.alignMode === 'deviant' ? dist >= f.alignPp : dist <= f.alignPp;
+    const pIqr = party.q75! - party.q25!, nIqr = (national.q75! - national.q25!) || 1;
+    consensusOk = pIqr <= nIqr * (1 - (f.consPct - 50) / 100);                        // tighter than the U.S.
+  } else {
+    const p = party.pcts ?? [], nat = national.pcts ?? [];
+    const tvd = 0.5 * p.reduce((s, v, i) => s + Math.abs(v - (nat[i] ?? 0)), 0);       // 0–100 pp
+    alignOk = f.alignMode === 'deviant' ? tvd >= f.alignPp : tvd <= f.alignPp;
+    consensusOk = (p.length ? Math.max(...p) : 0) >= f.consPct;                        // one dominant category
+  }
+  return (!f.useConsensus || consensusOk) && (!f.useAlign || alignOk);
+}
 
 const FACTORS = ['F1', 'F2', 'F3', 'F4', 'F5'] as const;
 type FactorKey = typeof FACTORS[number];
@@ -825,6 +859,10 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                             <div className="grid grid-cols-1 sm:grid-cols-2">
                               {distKeys.map((k, i) => {
                                 const m = DIST.meta[k];
+                                const sigs = Object.fromEntries(
+                                  selected.filter(c => DIST.parties[c]?.[k])
+                                    .map(c => [c, distSignature(m, DIST.parties[c][k], DIST.national[k], sigFilter)]),
+                                ) as Record<string, boolean>;
                                 return (
                                   <div key={k} className={[
                                     i >= 2 ? 'border-t border-border/50' : '',
@@ -832,12 +870,12 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                   ].filter(Boolean).join(' ')}>
                                     {m.viz === 'range'
                                       ? <RangeBarCell meta={m as unknown as RangeMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} signatures={sigs} />
                                       : m.viz === 'heatmap'
                                       ? <HeatmapCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} signatures={sigs} />
                                       : <CompositionStackCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />}
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} signatures={sigs} />}
                                   </div>
                                 );
                               })}

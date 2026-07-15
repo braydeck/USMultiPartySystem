@@ -24,8 +24,9 @@ function niceTicks(min: number, max: number, count = 5): number[] {
 
 /** Continuous distribution as a plain-language box plot with an axis scale: box = middle 50%,
  *  tick = median, whiskers = 10th–90th percentile. Value column shows median + IQR. */
-export function RangeBarCell({ meta, national, byCode, codes }: {
+export function RangeBarCell({ meta, national, byCode, codes, signatures }: {
   meta: RangeMeta; national: RangeVals; byCode: Record<string, RangeVals>; codes: string[];
+  signatures?: Record<string, boolean>;
 }) {
   const shown = codes.filter(c => byCode[c]);
   const all = [national, ...shown.map(c => byCode[c])];
@@ -59,7 +60,7 @@ export function RangeBarCell({ meta, national, byCode, codes }: {
           const color = isNat ? NAT : getBlendColor(code);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <PartyRowLabel code={code} />
+              <PartyRowLabel code={code} signature={signatures?.[code]} />
               <div className="flex-1 relative h-4">
                 {/* faint gridlines at ticks */}
                 {ticks.map(t => (
@@ -92,8 +93,9 @@ export function RangeBarCell({ meta, national, byCode, codes }: {
 
 /** Mutually-exclusive battery as a 100% composition bar (nominal) or a diverging bar aligned on
  *  a pivot category (bipolar ordinal). Optional value column (e.g. median income). */
-export function CompositionStackCell({ meta, national, byCode, codes }: {
+export function CompositionStackCell({ meta, national, byCode, codes, signatures }: {
   meta: CompMeta; national: CompVals; byCode: Record<string, CompVals>; codes: string[];
+  signatures?: Record<string, boolean>;
 }) {
   const shown = codes.filter(c => byCode[c]);
   const colors = meta.colors ?? [];
@@ -132,7 +134,7 @@ export function CompositionStackCell({ meta, national, byCode, codes }: {
           let cum = 0;
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <PartyRowLabel code={code} />
+              <PartyRowLabel code={code} signature={signatures?.[code]} />
               <div className="flex-1 relative h-3.5 rounded-sm overflow-hidden bg-muted">
                 {diverging && <div className="absolute inset-y-0 z-10" style={{ left: '50%', width: 1, backgroundColor: 'rgba(15,23,42,0.28)' }} />}
                 {p.map((seg, i) => {
@@ -157,8 +159,9 @@ export function CompositionStackCell({ meta, national, byCode, codes }: {
 
 /** Many-category nominal battery as a party × category heatmap — every real category shown
  *  (no "Other" merge), cell shaded by share with the exact % in the cell. */
-export function HeatmapCell({ meta, national, byCode, codes }: {
+export function HeatmapCell({ meta, national, byCode, codes, signatures }: {
   meta: CompMeta; national: CompVals; byCode: Record<string, CompVals>; codes: string[];
+  signatures?: Record<string, boolean>;
 }) {
   const shown = codes.filter(c => byCode[c]);
   const rows = [{ code: '__NAT__', isNat: true, pcts: national.pcts },
@@ -176,7 +179,7 @@ export function HeatmapCell({ meta, national, byCode, codes }: {
         ))}
         {rows.map(({ code, pcts }) => (
           <div key={code} className="contents">
-            <PartyRowLabel code={code} className="self-center text-[10px]" />
+            <PartyRowLabel code={code} className="self-center text-[10px]" signature={signatures?.[code]} />
             {pcts.map((v, i) => {
               // Cividis by within-grid share: dark navy = low → yellow = high. Perceptually
               // uniform and colorblind-safe; exact % is printed in the cell either way.
