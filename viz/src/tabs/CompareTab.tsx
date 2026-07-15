@@ -48,6 +48,18 @@ const DOMAINS = [
   'Demographics',  // catch-all for any legacy vars
 ];
 
+// Top-level grouping above the domain sections. Policy = concrete positions; Attitudes =
+// values/identity leanings; Demographics = who the party is. Demographics defaults collapsed.
+const SUPER_GROUPS: { name: string; defaultOpen: boolean; domains: string[] }[] = [
+  { name: 'Policy', defaultOpen: true, domains: [
+    'Taxes & Economy', 'Government Spending', 'Immigration', 'Police & Guns', 'Abortion',
+    'Environment & Climate', 'Healthcare & Housing', 'Civil Liberties', 'Foreign Policy & Defense'] },
+  { name: 'Attitudes', defaultOpen: true, domains: ['Elections & Trust', 'Racial & Gender', 'Religion'] },
+  { name: 'Demographics', defaultOpen: false, domains: [
+    'Household', 'Race & Ethnicity', 'Economics', 'Gender & Sexuality', 'Education', 'Faith',
+    'Voting History', 'Other', 'Demographics'] },
+];
+
 // Distribution items (range/composition/diverging) built by prepare_data.build_distributions.
 type DistMeta = { viz: 'range' | 'composition' | 'diverging' | 'heatmap'; domain: string; question: string;
   order: number; unit?: string; segLabels?: string[]; colors?: string[]; pivot?: number; valueUnit?: string };
@@ -541,6 +553,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   const selected = useMemo(() => (cmp ? cmp.split(',').filter(Boolean) : []), [cmp]);
   const [minGap, setMinGap] = useState(saved.minGap ?? 15);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    () => new Set(SUPER_GROUPS.filter(g => !g.defaultOpen).map(g => g.name)));
   const [expandedFactors, setExpandedFactors] = useState<Set<string>>(new Set());
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>(saved.factorScale ?? 'strength');
   const [divergeOnly, setDivergeOnly] = useState(saved.divergeOnly ?? false);
@@ -611,6 +625,14 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     setCollapsedSections(prev => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
+
+  const toggleGroup = (name: string) => {
+    setCollapsedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name); else next.add(name);
       return next;
     });
   };
@@ -833,8 +855,22 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
               No variables match the selected filter.
             </Card>
           ) : (
-            <div className="space-y-3">
-              {sectionKeys.map(sectionKey => {
+            <div className="space-y-5">
+              {SUPER_GROUPS.map(group => {
+                const groupSections = sectionKeys.filter(k => group.domains.includes(k));
+                if (groupSections.length === 0) return null;
+                const gCollapsed = collapsedGroups.has(group.name);
+                return (
+                  <div key={group.name}>
+                    <button onClick={() => toggleGroup(group.name)}
+                      className="w-full flex items-center gap-2 mb-2 text-left">
+                      <h3 className="text-lg font-bold text-foreground">{group.name}</h3>
+                      <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5">{groupSections.length}</span>
+                      <span className="text-muted-foreground text-xs ml-auto">{gCollapsed ? '▶ show' : '▼ hide'}</span>
+                    </button>
+                    {!gCollapsed && (
+                      <div className="space-y-3">
+              {groupSections.map(sectionKey => {
                 const allVars = sectionVarMap[sectionKey] ?? [];
                 // Annotation model: every item with data is shown and marked (cohesion dot +
                 // D/M). "Filter to marked" optionally trims to rows a selected party is marked on.
@@ -939,6 +975,11 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                       </div>
                     )}
                   </Card>
+                );
+              })}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>

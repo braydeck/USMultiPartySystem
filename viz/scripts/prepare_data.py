@@ -950,6 +950,11 @@ def collect_cluster_variables(rows, include_c7=True):
         'milstat_1': ('Other',           'Currently serving in the military'),
         'milstat_3': ('Other',           'Previously served in the military'),
         'CC24_445b': ('Abortion',        "SCOTUS: Constitution doesn't protect abortion; Roe overruled (Agree/Disagree)"),
+        # Religious practice/identity are demographic markers → Faith. Only "religion is
+        # important" (a values attitude) stays in Religion (grouped under Attitudes).
+        'pew_churatd':   ('Faith', 'Weekly church attendance'),
+        'pew_prayer':    ('Faith', 'Prays weekly or more often'),
+        'pew_bornagain': ('Faith', 'Born-again or evangelical Christian'),
     }
     for cid in cluster_ids:
         for var, (new_domain, new_question) in BINARY_REMAP.items():
@@ -3142,7 +3147,7 @@ def build_pure_multi_primary_state_shares(src_dir, out_name):
 
 
 # Compression sweep stops (share of the inter-force turnout gap closed).
-TURNOUT_STOPS = (10, 20, 30)
+TURNOUT_STOPS = (5, 10, 15, 20, 25, 30)
 
 
 def build_turnout_scenario():
@@ -3379,7 +3384,8 @@ def build_turnout_crossover_triple():
     """Turnout compression outside the RawMulti+double path: the Crossover (FD) senate
     and house, plus the triple-Wyoming house for both pipelines — so the slider works
     on every scenario × Wyoming combination. λ=0 → 'Turnout', 10/20/30 → 'TurnoutLNN'."""
-    for l, sfx in [(0, "Turnout"), (10, "TurnoutL10"), (20, "TurnoutL20"), (30, "TurnoutL30")]:
+    for l, sfx in [(0, "Turnout"), (5, "TurnoutL5"), (10, "TurnoutL10"), (15, "TurnoutL15"),
+                   (20, "TurnoutL20"), (25, "TurnoutL25"), (30, "TurnoutL30")]:
         suf = "_turnout" if l == 0 else f"_turnout_l{l}"
         fd  = OUTPUTS / ("factor_deviation" + suf)
         fdt = OUTPUTS / ("factor_deviation_triple" + suf)
