@@ -819,36 +819,29 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                         {(() => {
                           const byCodeFor = (k: string) => Object.fromEntries(
                             selected.filter(c => DIST.parties[c]?.[k]).map(c => [c, DIST.parties[c][k]])) as Record<string, never>;
-                          // Range / composition / diverging go 2-per-row for density; heatmaps
-                          // span full width (too many columns to halve).
-                          const grid = distKeys.filter(k => DIST.meta[k].viz !== 'heatmap');
-                          const wide = distKeys.filter(k => DIST.meta[k].viz === 'heatmap');
+                          // All distribution items go two-per-row for density and legibility —
+                          // heatmaps included (they read better compact than sprawled full width).
                           return (
-                            <>
-                              <div className="grid grid-cols-1 sm:grid-cols-2">
-                                {grid.map((k, i) => {
-                                  const m = DIST.meta[k];
-                                  return (
-                                    <div key={k} className={[
-                                      i >= 2 ? 'border-t border-border/50' : '',
-                                      i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
-                                    ].filter(Boolean).join(' ')}>
-                                      {m.viz === 'range'
-                                        ? <RangeBarCell meta={m as unknown as RangeMeta}
-                                            national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />
-                                        : <CompositionStackCell meta={m as unknown as CompMeta}
-                                            national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                              {wide.map(k => (
-                                <div key={k} className="border-t border-border/50">
-                                  <HeatmapCell meta={DIST.meta[k] as unknown as CompMeta}
-                                    national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />
-                                </div>
-                              ))}
-                            </>
+                            <div className="grid grid-cols-1 sm:grid-cols-2">
+                              {distKeys.map((k, i) => {
+                                const m = DIST.meta[k];
+                                return (
+                                  <div key={k} className={[
+                                    i >= 2 ? 'border-t border-border/50' : '',
+                                    i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
+                                  ].filter(Boolean).join(' ')}>
+                                    {m.viz === 'range'
+                                      ? <RangeBarCell meta={m as unknown as RangeMeta}
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />
+                                      : m.viz === 'heatmap'
+                                      ? <HeatmapCell meta={m as unknown as CompMeta}
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />
+                                      : <CompositionStackCell meta={m as unknown as CompMeta}
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} />}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           );
                         })()}
                         {buildSubgroups(sectionKey, vars).map(grp => (
