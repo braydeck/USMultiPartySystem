@@ -1,6 +1,7 @@
 import type { ClusterProfile } from '../../types';
 import { getBlendColor, FACTOR_POLES } from '../../constants/parties';
 import { vikForZ, vikForPctile } from '../../lib/vik';
+import { popShareLabel } from '../../lib/population';
 import { Card } from '@/components/ui/card';
 
 const FACTOR_SHORT_LABEL: Record<string, string> = {
@@ -46,7 +47,7 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
           <span className="text-xs font-bold font-mono" style={{ color }}>{cluster.party}</span>
           <div className="text-sm font-semibold text-foreground">{cluster.partyName}</div>
         </div>
-        <span className="text-xs text-muted-foreground">{cluster.seatsHouse}s</span>
+        <span className="text-xs text-muted-foreground" title="share of the adult population">{popShareLabel(cluster.party)}</span>
       </div>
       <div className="px-4 py-3 space-y-2">
         {(['F1', 'F2', 'F3', 'F4', 'F5'] as const).map(f => {

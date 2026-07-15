@@ -1,6 +1,7 @@
 import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, PARTY_TAGLINES, etaPurple } from '../constants/parties';
+import { popShare } from '../lib/population';
 import factorLoadingsData from '../data/factorLoadings.json';
 
 interface FactorDef {
@@ -136,8 +137,8 @@ export function AboutTab() {
             </p>
             <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
               Winner-take-all voting compresses a multi-dimensional electorate into two parties. Feed the same
-              voters into a proportional system and the hidden structure reappears — cross-cutting, often
-              surprising coalitions. The claim: the two-party split is an artifact of the rules, not the country.
+              voters into a proportional system and the hidden structure reappears: cross-cutting, often
+              surprising coalitions. The claim is simple. The two-party split is an artifact of the rules, not the country.
             </p>
           </Card>
 
@@ -151,7 +152,7 @@ export function AboutTab() {
               <Card key={p.title} className="p-5">
                 <div className="text-2xl mb-2" style={{ color: p.accent }}>{p.icon}</div>
                 <div className="font-semibold text-foreground mb-1.5">{p.title}</div>
-                <p className="text-xs text-muted-foreground leading-relaxed">{p.body}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{p.body}</p>
               </Card>
             ))}
           </div>
@@ -222,7 +223,7 @@ export function AboutTab() {
                   </div>
                   <div>
                     <div className="font-semibold text-foreground text-sm mb-1">{step.title}</div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{step.body}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
                   </div>
                 </div>
               ))}
@@ -293,13 +294,13 @@ export function AboutTab() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="bg-muted rounded-lg p-4">
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Party ranking</div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   Party-Line ballots rank each party by the voter's posterior probability of belonging to that cluster — the same DPGMM membership that defined the typology, so ballots are consistent with the party assignment. Crossover ballots add the shifted variant candidates via Gaussian factor-space proximity (σ = 0.35, factors weighted equally). Cross-party affinities still shape the lower ranks.
                 </p>
               </div>
               <div className="bg-muted rounded-lg p-4">
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Within-party ordering</div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   For same-party candidates at identical positions, prominence (a proxy for name recognition: 40/35/25%) breaks ties via Plackett-Luce sampling. This ensures the top candidate doesn't sweep all same-party votes, modeling a realistic primary-like distribution.
                 </p>
               </div>
@@ -308,17 +309,17 @@ export function AboutTab() {
         </div>
       )}
 
-      {/* ── The 9 Parties ────────────────────────────────────── */}
+      {/* ── The 10 Parties ───────────────────────────────────── */}
       {active === 'parties' && (
         <div className="space-y-5">
           <Card className="p-5">
-            <p className="text-sm text-muted-foreground leading-relaxed mb-1">
-              Each party is a statistically distinct cluster of ~60,000 CES respondents. They aren't named by researchers; the names are assigned afterward, from each cluster's ideological profile. The political spectrum here is five-dimensional, ordered below along the primary axis (F5 Populist Conservatism, low → high).
+            <p className="text-sm text-foreground leading-relaxed mb-1">
+              No one drew these parties up. Each is a statistically distinct cluster of the surveyed electorate, named after the fact from its ideological profile. The spectrum is five-dimensional; the cards below run along the primary axis (F5, Populist Conservatism, low to high), and the figure on each card is that force&apos;s share of the adult population.
             </p>
           </Card>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {F5_ORDER.map((code, i) => {
+            {F5_ORDER.map((code) => {
               const color = PARTY_COLORS[code];
               const name  = PARTY_NAMES[code] ?? code;
               const tag   = PARTY_TAGLINES[code] ?? '';
@@ -339,7 +340,7 @@ export function AboutTab() {
                         </span>
                         <div className="font-semibold text-foreground text-sm mt-1">{name}</div>
                       </div>
-                      <span className="text-xs text-muted-foreground font-mono shrink-0">#{i + 1}</span>
+                      <span className="text-xs font-semibold font-mono shrink-0 tabular-nums" style={{ color }} title="share of the adult population">{Math.round(popShare(code))}%</span>
                     </div>
                     <p className="text-xs text-muted-foreground leading-snug">{tag}</p>
                   </div>
@@ -350,7 +351,7 @@ export function AboutTab() {
 
           <Card className="p-4 bg-amber-50 border-amber-200">
             <div className="text-xs font-semibold text-amber-800 mb-1">The 10th party: Order &amp; Opportunity</div>
-            <p className="text-xs text-amber-700 leading-relaxed">
+            <p className="text-sm text-amber-700 leading-relaxed">
               The DPGMM produces 10 clusters. Cluster 7 was originally set aside as ambiguous, but it&apos;s a
               real, cross-cutting bloc — law-and-order on security paired with economic progressivism — that
               doesn&apos;t sit cleanly on the left-right axis. It runs as the Order &amp; Opportunity Party (OAO), a
@@ -389,11 +390,11 @@ export function AboutTab() {
               <div className="px-5 py-4 grid sm:grid-cols-2 gap-4">
                 <div>
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">How it works</div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{vs.how}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{vs.how}</p>
                 </div>
                 <div>
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Why it matters here</div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{vs.why}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{vs.why}</p>
                 </div>
               </div>
             </Card>
@@ -402,7 +403,7 @@ export function AboutTab() {
           {/* IRV vs Condorcet explainer */}
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-3">IRV vs Condorcet: Why Both?</div>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
               IRV and Condorcet frequently disagree on a winner, and the gap between them is politically revealing. IRV can elect a candidate with strong first-choice support who loses head-to-head. Condorcet finds the candidate most preferred <em>overall</em>, often a centrist. Showing both exposes the method-dependence of "winning."
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
@@ -446,7 +447,7 @@ export function AboutTab() {
                   <div className="font-bold text-foreground text-lg">{s.name}</div>
                 </div>
                 <div className="px-5 py-4 space-y-3">
-                  <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                   <div className="bg-muted rounded-lg p-3">
                     <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">What it isolates</div>
                     <p className="text-xs text-muted-foreground">{s.insight}</p>
@@ -499,14 +500,14 @@ export function AboutTab() {
 
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-2">The turnout inversion</div>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
               Validated 2024 turnout runs <em>backwards</em> to force size. The high-intensity ideological poles
               vote most — Progressive at 83%, Nationalist at 77% — while the large, cross-pressured center votes
               least: Solidarity at just 37%. Winner-take-all converts that intensity gap directly into power. The
               engaged extremes are over-represented and the disengaged center is under-represented, before a single
               seat is even allocated.
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Because a force&apos;s share of voters equals its population share times its turnout relative to the
               average, low turnout only costs you if you&apos;re <em>below</em> average — being small doesn&apos;t hurt
               you, being disengaged does. See the Population Breakdown on the Overview for the visual.
@@ -515,7 +516,7 @@ export function AboutTab() {
 
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-2">What the slider models: the contraction effect</div>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
               It is <em>not</em> a uniform turnout boost. The documented effect of proportional representation
               (Cox, Fiva &amp; Smith on Norway&apos;s 1919 reform) is a <strong>contraction</strong>: mobilization
               redistributes from the over-mobilized to the under-mobilized, compressing the turnout <em>gap</em>
@@ -612,7 +613,7 @@ export function AboutTab() {
               ].map(a => (
                 <div key={a.label} className="px-5 py-4">
                   <div className="font-medium text-foreground text-sm mb-1">{a.label}</div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{a.body}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{a.body}</p>
                 </div>
               ))}
             </div>
