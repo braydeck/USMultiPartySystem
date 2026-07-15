@@ -1,6 +1,7 @@
 import { useUrlState } from '../hooks/useUrlState';
-import type { VoteModelRow, PresidentialElection } from '../types';
+import type { VoteModelRow, CandidateVoteRow, PresidentialElection } from '../types';
 import { UnifiedBillTable } from '../components/legislation/UnifiedBillTable';
+import { VoteMatrix } from '../components/legislation/VoteMatrix';
 import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
@@ -8,18 +9,28 @@ import { ParticipationSlider, GAP_STOPS } from '../components/shared/Participati
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS } from '../constants/labels';
 import type { Pipeline, Method, WyomingRule } from '../constants/labels';
-// Compression stops (10/20/30% of the turnout gap closed); floor comes via props.
+// Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
+import houseVotesL5 from '../data/houseVoteModelTurnoutL5.json';
 import houseVotesL10 from '../data/houseVoteModelTurnoutL10.json';
+import houseVotesL15 from '../data/houseVoteModelTurnoutL15.json';
 import houseVotesL20 from '../data/houseVoteModelTurnoutL20.json';
+import houseVotesL25 from '../data/houseVoteModelTurnoutL25.json';
 import houseVotesL30 from '../data/houseVoteModelTurnoutL30.json';
+import senateVotesL5 from '../data/senateVoteModelTurnoutL5.json';
 import senateVotesL10 from '../data/senateVoteModelTurnoutL10.json';
+import senateVotesL15 from '../data/senateVoteModelTurnoutL15.json';
 import senateVotesL20 from '../data/senateVoteModelTurnoutL20.json';
+import senateVotesL25 from '../data/senateVoteModelTurnoutL25.json';
 import senateVotesL30 from '../data/senateVoteModelTurnoutL30.json';
+import presL5 from '../data/rawMultiPresidentialElectionTurnoutL5.json';
 import presL10 from '../data/rawMultiPresidentialElectionTurnoutL10.json';
+import presL15 from '../data/rawMultiPresidentialElectionTurnoutL15.json';
 import presL20 from '../data/rawMultiPresidentialElectionTurnoutL20.json';
+import presL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
 import presL30 from '../data/rawMultiPresidentialElectionTurnoutL30.json';
 
 interface Props {
+  candidateVotes: CandidateVoteRow[];
   houseVotes: VoteModelRow[];
   senateVotes: VoteModelRow[];
   fdElection: PresidentialElection;
@@ -29,19 +40,19 @@ interface Props {
   rawMultiElectionTurnout: PresidentialElection;
 }
 
-export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiElection,
+export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElection, rawMultiElection,
                                  houseVotesTurnout, senateVotesTurnout, rawMultiElectionTurnout }: Props) {
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const rmDouble = pipeline === 'rawMulti' && wyoming === 'double';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
-  const hStops = [houseVotesTurnout, houseVotesL10, houseVotesL20, houseVotesL30] as unknown as VoteModelRow[][];
-  const sStops = [senateVotesTurnout, senateVotesL10, senateVotesL20, senateVotesL30] as unknown as VoteModelRow[][];
-  const eStops = [rawMultiElectionTurnout, presL10, presL20, presL30] as unknown as PresidentialElection[];
+  // Arrays indexed by gap stop [0,5,10,15,20,25,30]: floor(Turnout) … stress ceiling.
+  const hStops = [houseVotesTurnout, houseVotesL5, houseVotesL10, houseVotesL15, houseVotesL20, houseVotesL25, houseVotesL30] as unknown as VoteModelRow[][];
+  const sStops = [senateVotesTurnout, senateVotesL5, senateVotesL10, senateVotesL15, senateVotesL20, senateVotesL25, senateVotesL30] as unknown as VoteModelRow[][];
+  const eStops = [rawMultiElectionTurnout, presL5, presL10, presL15, presL20, presL25, presL30] as unknown as PresidentialElection[];
   const hVotes = rmDouble ? hStops[gi] : houseVotes;
   const sVotes = rmDouble ? sStops[gi] : senateVotes;
   const election = pipeline !== 'rawMulti' ? fdElection : rmDouble ? eStops[gi] : rawMultiElection;
@@ -68,6 +79,28 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}
       </StickyControlBar>
+
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          How each party's candidate votes
+        </h3>
+        <p className="text-xs text-muted-foreground mb-4 max-w-3xl">
+          Each cell is the chance a party's representative candidate votes yes, predicted from that
+          party's position in the five-factor ideology space — not from its raw support. Where the two
+          disagree (⚠), the party votes against what its own ideology predicts. Candidate positions are
+          fixed; the controls change only who holds the seats and the presidency, and so the law odds.
+          Click a bill for its floor and the law chain; click a party to trace its votes.
+        </p>
+        <VoteMatrix
+          candidateVotes={candidateVotes}
+          houseVotes={hVotes}
+          senateVotes={sVotes}
+          presWinner={presWinner}
+          pipeline={pipeline}
+          method={method}
+          wyoming={wyoming}
+        />
+      </Card>
 
       <LegislationDivergences
         houseVotes={hVotes}
