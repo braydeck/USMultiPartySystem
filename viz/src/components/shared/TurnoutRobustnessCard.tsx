@@ -1,22 +1,19 @@
 import { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
-// λ=1 (full participation) = base; λ=0 (observed) = Turnout; L25/L50/L75 = the middle stops.
-import presL100 from '../../data/rawMultiPresidentialElection.json';
+// Compression stops: 0 = observed 2024 turnout; 10/20/30 = % of the inter-force gap closed.
 import presL0 from '../../data/rawMultiPresidentialElectionTurnout.json';
-import presL25 from '../../data/rawMultiPresidentialElectionTurnoutL25.json';
-import presL50 from '../../data/rawMultiPresidentialElectionTurnoutL50.json';
-import presL75 from '../../data/rawMultiPresidentialElectionTurnoutL75.json';
-import senL100 from '../../data/pureMultiSenateCondorcet.json';
+import presL10 from '../../data/rawMultiPresidentialElectionTurnoutL10.json';
+import presL20 from '../../data/rawMultiPresidentialElectionTurnoutL20.json';
+import presL30 from '../../data/rawMultiPresidentialElectionTurnoutL30.json';
 import senL0 from '../../data/pureMultiSenateCondorcetTurnout.json';
-import senL25 from '../../data/pureMultiSenateCondorcetTurnoutL25.json';
-import senL50 from '../../data/pureMultiSenateCondorcetTurnoutL50.json';
-import senL75 from '../../data/pureMultiSenateCondorcetTurnoutL75.json';
-import houseL100 from '../../data/houseSeats.json';
+import senL10 from '../../data/pureMultiSenateCondorcetTurnoutL10.json';
+import senL20 from '../../data/pureMultiSenateCondorcetTurnoutL20.json';
+import senL30 from '../../data/pureMultiSenateCondorcetTurnoutL30.json';
 import houseL0 from '../../data/houseSeatsTurnout.json';
-import houseL25 from '../../data/houseSeatsTurnoutL25.json';
-import houseL50 from '../../data/houseSeatsTurnoutL50.json';
-import houseL75 from '../../data/houseSeatsTurnoutL75.json';
+import houseL10 from '../../data/houseSeatsTurnoutL10.json';
+import houseL20 from '../../data/houseSeatsTurnoutL20.json';
+import houseL30 from '../../data/houseSeatsTurnoutL30.json';
 
 type Pres = { condorcetWinner: string; irvWinner: string };
 type SenSeat = { senatorParty: string };
@@ -25,11 +22,11 @@ type HouseSeat = { party: number; national: number };
 const party = (code: string) => String(code).split('_')[0];
 const CLUSTER_CODE = ['CON', 'LBR', 'STY', 'NAT', 'LIB', 'POP', 'CUP', 'OAO', 'DSA', 'PRG'];
 
-// Ordered floor → ceiling: % of the inter-force turnout gap that has closed.
-const STOPS = [0, 25, 50, 75, 100];
-const presData = [presL0, presL25, presL50, presL75, presL100] as unknown as Pres[];
-const senData = [senL0, senL25, senL50, senL75, senL100] as unknown as SenSeat[][];
-const houseData = [houseL0, houseL25, houseL50, houseL75, houseL100] as unknown as HouseSeat[][];
+// % of the inter-force turnout gap closed. 0 = observed; ≤10 plausible; 20–30 stress.
+const STOPS = [0, 10, 20, 30];
+const presData = [presL0, presL10, presL20, presL30] as unknown as Pres[];
+const senData = [senL0, senL10, senL20, senL30] as unknown as SenSeat[][];
+const houseData = [houseL0, houseL10, houseL20, houseL30] as unknown as HouseSeat[][];
 
 function plurality(seats: SenSeat[]): [string, number] {
   const counts: Record<string, number> = {};
@@ -57,7 +54,7 @@ function flipGap(winners: string[]): number | null {
 }
 
 export function TurnoutRobustnessCard() {
-  const [i, setI] = useState(1); // slider index into STOPS; default = 25% of non-voters
+  const [i, setI] = useState(0); // slider index into STOPS; default = 0 (observed data)
 
   const series = useMemo(() => ({
     presCond: presData.map(d => party(d.condorcetWinner)),
@@ -87,8 +84,9 @@ export function TurnoutRobustnessCard() {
         Turnout Robustness
       </h3>
       <p className="text-xs text-muted-foreground mb-4">
-        What share of today&apos;s non-voters would have to show up for each office&apos;s winner to change?
-        Drag from 2024 turnout toward everyone voting. A sensitivity check, not a forecast.
+        How much would the turnout gap between forces have to compress — the previously-ignored voting more,
+        the documented <em>contraction effect</em> of PR — for each office&apos;s winner to change? Default is
+        observed 2024 turnout (no assumed response); ≤10% closure is plausible for one cycle, 20–30% is a stress test.
       </p>
 
       {/* Slider */}
@@ -96,23 +94,23 @@ export function TurnoutRobustnessCard() {
         <input type="range" min={0} max={STOPS.length - 1} step={1} value={i}
           onChange={e => setI(Number(e.target.value))}
           className="w-full accent-indigo-600" />
-        {/* plausible band (~0–30% of non-voters); value maps 1:1 to track fraction */}
-        <div className="relative h-1.5 rounded bg-slate-200 mt-1">
-          <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70" style={{ width: '30%' }} />
+        {/* stops sit at track fractions 0/.33/.67/1 — green ≤10% (plausible), amber 20–30% (stress) */}
+        <div className="relative h-1.5 rounded bg-amber-200/70 mt-1">
+          <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70" style={{ width: '50%' }} />
         </div>
         <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
-          <span>2024 actual</span>
-          <span className="font-semibold text-foreground">{STOPS[i]}% of non-voters</span>
-          <span>Everyone votes</span>
+          <span>Observed (2024)</span>
+          <span className="font-semibold text-foreground">{STOPS[i]}% gap closed{STOPS[i] >= 20 ? ' · stress' : STOPS[i] === 10 ? ' · plausible' : ''}</span>
+          <span>Stress (30%)</span>
         </div>
-        <p className="text-[10px] text-emerald-700 mt-1">
-          ▉ Plausible range (~0–30%): PR mobilizes some non-voters (the unrepresented), not the whole income/education gap.
+        <p className="text-[10px] text-muted-foreground mt-1">
+          <span className="text-emerald-700">▉ plausible (≤10%)</span> · <span className="text-amber-700">▉ stress (20–30%)</span> — the quasi-experimental PR turnout effect is small (1–4pts aggregate); &gt;30% is beyond one-cycle evidence.
         </p>
       </div>
 
       <div className="grid grid-cols-[1.5fr_1fr_auto] gap-x-3 text-xs">
         <div className="text-muted-foreground uppercase tracking-widest pb-1">Office</div>
-        <div className="text-muted-foreground uppercase tracking-widest pb-1">Winner @ {STOPS[i]}% of non-voters</div>
+        <div className="text-muted-foreground uppercase tracking-widest pb-1">Winner @ {STOPS[i]}% closed</div>
         <div className="text-muted-foreground uppercase tracking-widest pb-1 text-right">Verdict</div>
         {winnerRows.map(r => (
           <div key={r.office} className="contents">
@@ -144,9 +142,16 @@ export function TurnoutRobustnessCard() {
       </div>
 
       <p className="mt-4 text-[11px] text-muted-foreground">
-        The President is robust across the whole range. The House delegation scales smoothly (Solidarity 82→129
-        seats). The Senate is the one contingent result: inside the plausible band, its plurality is a coin-flip
-        between Labour and Solidarity.
+        <strong>President</strong> — robust: Solidarity (Condorcet) and Labour (IRV) hold at observed turnout and at
+        every compression level. <strong>House</strong> — Conservative stays the plurality throughout; Solidarity&apos;s
+        delegation scales {styLo}→{styHi} seats and only strengthens with compression. <strong>Senate</strong> — the one
+        result observed data does <em>not</em> support: Labour leads at observed turnout and at plausible compression
+        (≤10%); Solidarity only reaches the plurality under stress-level compression (~20–30%), beyond what one cycle
+        plausibly delivers. So at observed turnout the Senate is Labour&apos;s — Solidarity&apos;s Senate is conditional on mobilization.
+      </p>
+      <p className="mt-2 text-[10px] text-muted-foreground">
+        Contraction is modeled as upward mobilization of the suppressed forces, holding high-turnout forces fixed —
+        conservative for containment, since it never deflates the poles.
       </p>
     </Card>
   );

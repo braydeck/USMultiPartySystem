@@ -3179,15 +3179,33 @@ def _build_turnout_variant(d, suffix):
     build_house_vote_model_wfp(d, out_name=f"houseVoteModel{suffix}.json")
 
 
+def build_pure_multi_primary_state_shares(src_dir, out_name):
+    """Per-stage, per-state first-choice shares (drives the primary national-share chart).
+    Renames the pipeline's legacy SD_ candidate code to LBR_ to match the viz."""
+    with open(src_dir / "primary_state_stage_shares.json", encoding="utf-8") as f:
+        data = json.load(f)
+    for st in data.values():
+        for stg in st.get("stages", {}).values():
+            shares = stg.get("shares", {})
+            for k in list(shares.keys()):
+                if k.startswith("SD_"):
+                    shares["LBR_" + k[3:]] = shares.pop(k)
+    write_json(data, out_name)
+
+
+# Compression sweep stops (share of the inter-force turnout gap closed).
+TURNOUT_STOPS = (10, 20, 30)
+
+
 def build_turnout_scenario():
-    """'Current participation' scenario: ballots weighted by each cluster's validated
-    2024 turnout (TURNOUT_WEIGHT=1 pipeline). Emits *Turnout.json (all parties) and
-    *NoStyTurnout.json (Solidarity dissolved) for the Participation × Coordination 2x2."""
+    """'Current participation' floor (λ=0): ballots weighted by validated 2024 turnout
+    (TURNOUT_WEIGHT=1 pipeline). Emits *Turnout.json for president/senate/house/vote-models,
+    plus the turnout-responsive primary (finalists, buckets, per-stage state shares)."""
     _build_turnout_variant(PURE_MULTI_TURNOUT_DIR, "Turnout")
-    _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")
-    # Primary winnowing/finalists + buckets respond to turnout (all-parties path only).
+    _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")  # dormant (not wired)
     build_pure_multi_primary(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryTurnout.json")
     build_pure_multi_primary_buckets(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryBucketsTurnout.json")
+    build_pure_multi_primary_state_shares(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryStageSharesTurnout.json")
 
 
 def build_party_population():
@@ -3216,16 +3234,16 @@ def build_party_population():
 
 
 def build_turnout_lambda_scenario():
-    """Gap-compression sweep (the 'tuning fork'). λ=0 (Turnout) and λ=1 (base) already
-    exist; emit the intermediate stops *TurnoutL25/L50/L75.json — each force's turnout
-    moved 25/50/75% of the way toward parity — so the viz can show where winners flip.
-    Emitted for both coordination worlds (all-parties and no-Solidarity)."""
-    for l in (25, 50, 75):
-        _build_turnout_variant(OUTPUTS / f"pure_multi_turnout_l{l}", f"TurnoutL{l}")
-        _build_turnout_variant(OUTPUTS / f"pure_multi_nosty_turnout_l{l}", f"NoStyTurnoutL{l}")
+    """Gap-compression sweep. λ=0 (Turnout) already emitted by build_turnout_scenario;
+    this emits the intermediate stops *TurnoutL10/L20/L30.json — each force's turnout gap
+    closed 10/20/30% toward parity (10 = plausible ceiling, 20–30 = stress). All-parties
+    path only; every office + primary responds so the whole app tracks the slider."""
+    for l in TURNOUT_STOPS:
         d = OUTPUTS / f"pure_multi_turnout_l{l}"
+        _build_turnout_variant(d, f"TurnoutL{l}")
         build_pure_multi_primary(d, f"pureMultiPrimaryTurnoutL{l}.json")
         build_pure_multi_primary_buckets(d, f"pureMultiPrimaryBucketsTurnoutL{l}.json")
+        build_pure_multi_primary_state_shares(d, f"pureMultiPrimaryStageSharesTurnoutL{l}.json")
 
 
 if __name__ == "__main__":

@@ -14,12 +14,16 @@ Outputs a JSON per pipeline:
 """
 
 import json
+import os
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent
 EFA_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
+sys.path.insert(0, str(BASE_DIR / "pipeline" / "pure_only"))
+from turnout_weights import turnout_multiplier, TURNOUT_WEIGHT, TURNOUT_LAMBDA, output_tree  # noqa: E402
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",
@@ -60,7 +64,7 @@ def compute_shares(ballots_path, primary_path, pod_path, output_path):
 
     # Load respondent metadata
     efa = pd.read_csv(EFA_PATH)
-    weights = efa["commonpostweight"].values.astype(float)
+    weights = efa["commonpostweight"].values.astype(float) * turnout_multiplier(len(efa))
     state_fips = efa["inputstate"].values.astype(int)
     assert len(efa) == N, f"Row mismatch: {N} vs {len(efa)}"
 
@@ -130,12 +134,26 @@ def compute_shares(ballots_path, primary_path, pod_path, output_path):
 
 
 def main():
+    pm = BASE_DIR / "data" / "outputs" / "pure_multi"
+    if TURNOUT_WEIGHT:
+        # Turnout-weighted per-stage shares: ballots + pod structure are turnout-independent
+        # (reuse the base tree); only the primary_results and the vote weights change.
+        out_tree = BASE_DIR / "data" / "outputs" / output_tree("pure_multi")
+        print(f"TURNOUT_WEIGHT=1 λ={TURNOUT_LAMBDA} → {out_tree.name}")
+        compute_shares(
+            ballots_path=pm / "presidential_ballots.csv",
+            primary_path=out_tree / "primary_results_2028.csv",
+            pod_path=pm / "state_pod_assignments.csv",
+            output_path=out_tree / "primary_state_stage_shares.json",
+        )
+        return
+
     # Raw Multi
     compute_shares(
-        ballots_path=BASE_DIR / "data" / "outputs" / "pure_multi" / "presidential_ballots.csv",
-        primary_path=BASE_DIR / "data" / "outputs" / "pure_multi" / "primary_results_2028.csv",
-        pod_path=BASE_DIR / "data" / "outputs" / "pure_multi" / "state_pod_assignments.csv",
-        output_path=BASE_DIR / "data" / "outputs" / "pure_multi" / "primary_state_stage_shares.json",
+        ballots_path=pm / "presidential_ballots.csv",
+        primary_path=pm / "primary_results_2028.csv",
+        pod_path=pm / "state_pod_assignments.csv",
+        output_path=pm / "primary_state_stage_shares.json",
     )
 
     # Factor Deviation

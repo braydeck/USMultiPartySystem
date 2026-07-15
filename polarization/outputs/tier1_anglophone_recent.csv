@@ -1,0 +1,10 @@
+code,polarization,elec_family,majoritarian_fptp,presidential,legal_origin,democracy_score
+USA,1.471,FPTP,1.0,1.0,common_law,0.843
+IND,1.8,FPTP,1.0,0.0,common_law,0.4394
+GBR,-0.278,FPTP,1.0,0.0,common_law,0.8558999999999999
+CAN,-0.834,FPTP,1.0,0.0,common_law,0.8398
+AUS,-1.123,AV,1.0,0.0,common_law,0.8501999999999998
+ZAF,0.185,PR-list,0.0,0.0,common_law,0.7327
+MLT,1.347,STV,0.0,0.0,french,0.772
+NZL,-1.914,MMP,0.0,0.0,common_law,0.8800000000000001
+IRL,-2.732,STV,0.0,0.0,common_law,0.8915000000000001

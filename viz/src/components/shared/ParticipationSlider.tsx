@@ -1,38 +1,37 @@
-export const GAP_STOPS = [0, 25, 50, 75, 100] as const;
-// Plausible range: realistically only a small share of non-voters would be newly mobilized.
-const PLAUSIBLE_MAX = 30; // % of non-voters
+export const GAP_STOPS = [0, 10, 20, 30] as const;
+// Zone by stop: 0 = observed data, 10 = plausible ceiling, 20/30 = stress (beyond one-cycle evidence).
+const ZONE: Record<number, string> = { 0: 'observed', 10: 'plausible', 20: 'stress', 30: 'stress' };
 
 interface Props {
-  /** Share of current non-voters who turn out (one of GAP_STOPS). */
+  /** % of the inter-force turnout gap closed (one of GAP_STOPS). */
   value: number;
   onChange: (v: number) => void;
 }
 
-/** Non-voter turnout slider: 0% = 2024 actual, 100% = everyone votes. The value is
- *  the share of each force's current non-voters who show up; datasets are precomputed
- *  per stop, so it snaps to the 5 GAP_STOPS. */
+/** Gap-compression slider (the contraction effect): 0% = observed 2024 turnout,
+ *  higher = the suppressed forces close X% of their turnout gap toward the mobilized.
+ *  Snaps to GAP_STOPS; 0–10% is literature-plausible, 20–30% is stress. */
 export function ParticipationSlider({ value, onChange }: Props) {
   const idx = Math.max(0, GAP_STOPS.indexOf(value as typeof GAP_STOPS[number]));
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-muted-foreground uppercase tracking-widest">Non-voter turnout</span>
+      <span className="text-xs text-muted-foreground uppercase tracking-widest">Turnout gap closed</span>
       <div className="flex flex-col gap-0.5 w-[168px]"
-        title="Share of today's non-voters who show up: 0% = 2024 actual, 100% = everyone votes. Shaded = plausible range (~0–30%).">
+        title="Share of the inter-force turnout gap closed (contraction effect). 0% = observed 2024; ≤10% plausible for one cycle; 20–30% = stress test.">
         <input
           type="range" min={0} max={GAP_STOPS.length - 1} step={1} value={idx}
           onChange={e => onChange(GAP_STOPS[Number(e.target.value)])}
           className="w-full accent-indigo-600 cursor-pointer"
-          aria-label="Share of non-voters who show up"
+          aria-label="Turnout gap closed"
         />
-        {/* plausible-mobilization band (value maps 1:1 to track fraction) */}
-        <div className="relative h-1 rounded bg-slate-200">
-          <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70"
-            style={{ width: `${PLAUSIBLE_MAX}%` }} />
+        {/* plausible (≤10%) vs stress (20–30%) — stops sit at track fractions 0/.33/.67/1 */}
+        <div className="relative h-1 rounded bg-amber-200/70">
+          <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70" style={{ width: '50%' }} />
         </div>
         <div className="flex justify-between text-[9px] text-muted-foreground leading-none">
-          <span>2024 actual</span>
-          <span className="font-semibold text-foreground">{value}% of non-voters</span>
-          <span>Everyone</span>
+          <span>Observed</span>
+          <span className="font-semibold text-foreground">{value}% · {ZONE[value]}</span>
+          <span>Stress</span>
         </div>
       </div>
     </div>

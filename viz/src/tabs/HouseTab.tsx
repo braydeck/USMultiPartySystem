@@ -25,16 +25,16 @@ import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-// Gap-compression middle stops (λ=0.25/0.5/0.75); endpoints come via props.
-import houseSeatsL25 from '../data/houseSeatsTurnoutL25.json';
-import houseSeatsL50 from '../data/houseSeatsTurnoutL50.json';
-import houseSeatsL75 from '../data/houseSeatsTurnoutL75.json';
-import houseStateMapL25 from '../data/houseStateMapTurnoutL25.json';
-import houseStateMapL50 from '../data/houseStateMapTurnoutL50.json';
-import houseStateMapL75 from '../data/houseStateMapTurnoutL75.json';
-import houseDistL25 from '../data/districtStvResultsTurnoutL25.json';
-import houseDistL50 from '../data/districtStvResultsTurnoutL50.json';
-import houseDistL75 from '../data/districtStvResultsTurnoutL75.json';
+// Compression stops (10/20/30% of the turnout gap closed); floor comes via props.
+import houseSeatsL10 from '../data/houseSeatsTurnoutL10.json';
+import houseSeatsL20 from '../data/houseSeatsTurnoutL20.json';
+import houseSeatsL30 from '../data/houseSeatsTurnoutL30.json';
+import houseStateMapL10 from '../data/houseStateMapTurnoutL10.json';
+import houseStateMapL20 from '../data/houseStateMapTurnoutL20.json';
+import houseStateMapL30 from '../data/houseStateMapTurnoutL30.json';
+import houseDistL10 from '../data/districtStvResultsTurnoutL10.json';
+import houseDistL20 from '../data/districtStvResultsTurnoutL20.json';
+import houseDistL30 from '../data/districtStvResultsTurnoutL30.json';
 
 interface Props {
   seats: HouseSeat[];
@@ -72,13 +72,13 @@ export function HouseTab({ seats, transfers, voteModel, stateMap, clusters, fdHo
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
   const rmDouble = scenario === 'rawMulti' && wyoming === 'double';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
-  const seatsStops = [seatsTurnout, houseSeatsL25, houseSeatsL50, houseSeatsL75, seats] as unknown as HouseSeat[][];
-  const mapStops   = [stateMapTurnout, houseStateMapL25, houseStateMapL50, houseStateMapL75, stateMap] as unknown as Record<string, HouseStateEntry>[];
-  const distStops  = [districtResultsTurnout, houseDistL25, houseDistL50, houseDistL75, districtResults] as unknown as Record<string, DistrictResult[]>[];
+  const seatsStops = [seatsTurnout, houseSeatsL10, houseSeatsL20, houseSeatsL30] as unknown as HouseSeat[][];
+  const mapStops   = [stateMapTurnout, houseStateMapL10, houseStateMapL20, houseStateMapL30] as unknown as Record<string, HouseStateEntry>[];
+  const distStops  = [districtResultsTurnout, houseDistL10, houseDistL20, houseDistL30] as unknown as Record<string, DistrictResult[]>[];
   const rmSeats    = rmDouble ? seatsStops[gi] : seats;
   const rmStateMap = rmDouble ? mapStops[gi]   : stateMap;
   const rmDistrict = rmDouble ? distStops[gi]  : districtResults;

@@ -1,0 +1,7 @@
+model,n_obs,r2,majoritarian_fptp,presidential,democracy_score,bicameral,majoritarian_fptp:anglophone,anglophone,log_pop
+established_bivariate,1345,0.078,+0.610,,,,,,
+established_controls,1182,0.346,+0.677,+0.420,-6.907*,-0.038,,,
+alldem_controls,2616,0.275,+0.022,+0.437,-2.627**,+0.072,,,
+alldem_interaction,3093,0.233,-0.203,+0.249,-3.901***,+0.235,+0.023,-0.115,
+established_controls_pop,1131,0.454,+0.436,+0.285,-8.760***,-0.390,,,+0.712**
+established_no_microstates,1048,0.399,+0.682,+0.329,-8.789*,+0.002,,,

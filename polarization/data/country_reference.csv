@@ -1,0 +1,50 @@
+code,anglophone,language_family,upper_house_system,house_incongruent,note
+USA,1,English,statewide_plurality_equal,1,Senate: 2 per state (equal) vs population House -> strong incongruence
+GBR,1,English,appointed_hereditary,1,House of Lords unelected
+CAN,1,English,appointed,1,Senate appointed by PM
+AUS,1,English,stv_state,1,Senate STV state-based vs AV lower house
+NZL,1,English,unicameral,0,Unicameral since 1951; MMP lower house since 1996
+IRL,1,English,vocational_indirect,1,Seanad vocational panels + indirect (weak chamber)
+IND,1,English,indirect_stv,1,Rajya Sabha indirectly elected by state legislatures (STV)
+MLT,1,English,unicameral,0,Unicameral; STV
+ZAF,1,English,provincial_delegated,1,NCOP delegated from provinces
+JAM,1,English,appointed,1,
+TTO,1,English,appointed,1,
+BRB,1,English,appointed,1,
+MUS,1,English,unicameral,0,
+BWA,1,English,,,
+DEU,0,Germanic,indirect_landvotes,1,Bundesrat = state-government delegations
+AUT,0,Germanic,indirect_land,1,
+NLD,0,Germanic,indirect_provincial,1,
+LUX,0,Germanic,unicameral,0,
+CHE,0,Germanic_Romance,cantonal_equal,1,Council of States 2 per canton
+SWE,0,Nordic,unicameral,0,
+DNK,0,Nordic,unicameral,0,
+NOR,0,Nordic,unicameral,0,
+ISL,0,Nordic,unicameral,0,
+FIN,0,Finno_Ugric,unicameral,0,
+EST,0,Finno_Ugric,unicameral,0,
+HUN,0,Finno_Ugric,unicameral,0,
+FRA,0,Romance,indirect_local,1,Senat indirectly elected by local officials
+ITA,0,Romance,pr_regional,0,
+ESP,0,Romance,mixed,1,
+PRT,0,Romance,unicameral,0,
+BEL,0,Romance_Germanic,mixed,1,
+ROU,0,Romance,pr,0,
+CHL,0,Romance,pr,0,
+URY,0,Romance,pr,0,
+CRI,0,Romance,unicameral,0,
+POL,0,Slavic,smd_plurality,1,Senat single-member plurality vs PR lower house
+CZE,0,Slavic,smd_majority,1,
+SVK,0,Slavic,unicameral,0,
+SVN,0,Slavic,indirect_interest,1,
+HRV,0,Slavic,unicameral,0,
+BGR,0,Slavic,unicameral,0,
+LVA,0,Baltic,unicameral,0,
+LTU,0,Baltic,unicameral,0,
+GRC,0,Hellenic,unicameral,0,
+CYP,0,Hellenic,unicameral,0,
+JPN,0,Japonic,pr_smd_mixed,0,
+KOR,0,Koreanic,unicameral,0,
+TWN,0,Sinitic,unicameral,0,
+ISR,0,Semitic,unicameral,0,

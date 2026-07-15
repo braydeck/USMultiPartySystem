@@ -8,16 +8,16 @@ import { ParticipationSlider, GAP_STOPS } from '../components/shared/Participati
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS } from '../constants/labels';
 import type { Pipeline, Method, WyomingRule } from '../constants/labels';
-// Gap-compression middle stops (λ=0.25/0.5/0.75); endpoints come via props.
-import houseVotesL25 from '../data/houseVoteModelTurnoutL25.json';
-import houseVotesL50 from '../data/houseVoteModelTurnoutL50.json';
-import houseVotesL75 from '../data/houseVoteModelTurnoutL75.json';
-import senateVotesL25 from '../data/senateVoteModelTurnoutL25.json';
-import senateVotesL50 from '../data/senateVoteModelTurnoutL50.json';
-import senateVotesL75 from '../data/senateVoteModelTurnoutL75.json';
-import presL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
-import presL50 from '../data/rawMultiPresidentialElectionTurnoutL50.json';
-import presL75 from '../data/rawMultiPresidentialElectionTurnoutL75.json';
+// Compression stops (10/20/30% of the turnout gap closed); floor comes via props.
+import houseVotesL10 from '../data/houseVoteModelTurnoutL10.json';
+import houseVotesL20 from '../data/houseVoteModelTurnoutL20.json';
+import houseVotesL30 from '../data/houseVoteModelTurnoutL30.json';
+import senateVotesL10 from '../data/senateVoteModelTurnoutL10.json';
+import senateVotesL20 from '../data/senateVoteModelTurnoutL20.json';
+import senateVotesL30 from '../data/senateVoteModelTurnoutL30.json';
+import presL10 from '../data/rawMultiPresidentialElectionTurnoutL10.json';
+import presL20 from '../data/rawMultiPresidentialElectionTurnoutL20.json';
+import presL30 from '../data/rawMultiPresidentialElectionTurnoutL30.json';
 
 interface Props {
   houseVotes: VoteModelRow[];
@@ -35,13 +35,13 @@ export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiEl
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
   const rmDouble = pipeline === 'rawMulti' && wyoming === 'double';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
-  const hStops = [houseVotesTurnout, houseVotesL25, houseVotesL50, houseVotesL75, houseVotes] as unknown as VoteModelRow[][];
-  const sStops = [senateVotesTurnout, senateVotesL25, senateVotesL50, senateVotesL75, senateVotes] as unknown as VoteModelRow[][];
-  const eStops = [rawMultiElectionTurnout, presL25, presL50, presL75, rawMultiElection] as unknown as PresidentialElection[];
+  const hStops = [houseVotesTurnout, houseVotesL10, houseVotesL20, houseVotesL30] as unknown as VoteModelRow[][];
+  const sStops = [senateVotesTurnout, senateVotesL10, senateVotesL20, senateVotesL30] as unknown as VoteModelRow[][];
+  const eStops = [rawMultiElectionTurnout, presL10, presL20, presL30] as unknown as PresidentialElection[];
   const hVotes = rmDouble ? hStops[gi] : houseVotes;
   const sVotes = rmDouble ? sStops[gi] : senateVotes;
   const election = pipeline !== 'rawMulti' ? fdElection : rmDouble ? eStops[gi] : rawMultiElection;

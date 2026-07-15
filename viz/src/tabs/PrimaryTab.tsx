@@ -12,15 +12,19 @@ import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-// Non-voter-turnout stops for the primary (finalists + buckets); base comes via props.
+// Compression stops for the primary (finalists + buckets + per-stage national shares).
 import pmPrimTurnout from '../data/pureMultiPrimaryTurnout.json';
-import pmPrimL25 from '../data/pureMultiPrimaryTurnoutL25.json';
-import pmPrimL50 from '../data/pureMultiPrimaryTurnoutL50.json';
-import pmPrimL75 from '../data/pureMultiPrimaryTurnoutL75.json';
+import pmPrimL10 from '../data/pureMultiPrimaryTurnoutL10.json';
+import pmPrimL20 from '../data/pureMultiPrimaryTurnoutL20.json';
+import pmPrimL30 from '../data/pureMultiPrimaryTurnoutL30.json';
 import pmBktTurnout from '../data/pureMultiPrimaryBucketsTurnout.json';
-import pmBktL25 from '../data/pureMultiPrimaryBucketsTurnoutL25.json';
-import pmBktL50 from '../data/pureMultiPrimaryBucketsTurnoutL50.json';
-import pmBktL75 from '../data/pureMultiPrimaryBucketsTurnoutL75.json';
+import pmBktL10 from '../data/pureMultiPrimaryBucketsTurnoutL10.json';
+import pmBktL20 from '../data/pureMultiPrimaryBucketsTurnoutL20.json';
+import pmBktL30 from '../data/pureMultiPrimaryBucketsTurnoutL30.json';
+import pmShTurnout from '../data/pureMultiPrimaryStageSharesTurnout.json';
+import pmShL10 from '../data/pureMultiPrimaryStageSharesTurnoutL10.json';
+import pmShL20 from '../data/pureMultiPrimaryStageSharesTurnoutL20.json';
+import pmShL30 from '../data/pureMultiPrimaryStageSharesTurnoutL30.json';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BucketData = any; // from pureMultiPrimaryBuckets.json
@@ -46,7 +50,6 @@ type Pipeline = 'factorDev' | 'rawMulti';
 
 export function PrimaryTab({
   factorDev, factorDevStageShares, factorDevBuckets,
-  pureMulti, pureMultiStageShares, pureMultiBuckets,
   clusters, clusterSpreads, controlBarExtra,
 }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
@@ -54,16 +57,17 @@ export function PrimaryTab({
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [stageIdx, setStageIdx] = useUrlNumber('stage', 0);
   // Non-voter turnout: share of current non-voters who show up (0 = 2024 actual … 100 = everyone).
-  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  const primStops   = [pmPrimTurnout, pmPrimL25, pmPrimL50, pmPrimL75, pureMulti] as unknown as FDPrimaryData[];
-  const bucketStops = [pmBktTurnout, pmBktL25, pmBktL50, pmBktL75, pureMultiBuckets] as unknown as BucketData[];
+  const primStops   = [pmPrimTurnout, pmPrimL10, pmPrimL20, pmPrimL30] as unknown as FDPrimaryData[];
+  const bucketStops = [pmBktTurnout, pmBktL10, pmBktL20, pmBktL30] as unknown as BucketData[];
+  const shareStops  = [pmShTurnout, pmShL10, pmShL20, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
   const rmPrimary = primStops[gi];
   const rmBuckets = bucketStops[gi];
 
   const data: FDPrimaryData =
     pipeline === 'factorDev' ? factorDev : rmPrimary;
-  const stageShares  = pipeline === 'factorDev' ? factorDevStageShares : pureMultiStageShares;
+  const stageShares  = pipeline === 'factorDev' ? factorDevStageShares : shareStops[gi];
   const stage = data.stagesOrder[stageIdx] ?? data.stagesOrder[0];
   const quota = data.quotaByStage[stage] ?? 0;
 

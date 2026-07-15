@@ -1,0 +1,9 @@
+model,term,mean,ci_lo,ci_hi,P(>0),signal,r_hat
+M_primary,fptp,0.22,-0.063,0.507,0.929,Likely higher (moderate),1.0
+M_primary,presidential,0.337,-0.489,1.181,0.775,Inconclusive,1.0
+M_primary,democracy_z,-0.285,-0.345,-0.225,0.0,Clearly lower (strong),1.0
+M_primary,logpop_z,0.278,-0.014,0.545,0.964,Clearly higher (strong),1.001
+M_primary,year_z,0.229,0.205,0.253,1.0,Clearly higher (strong),1.0
+M_joint,fptp,0.248,-0.056,0.544,0.937,Likely higher (moderate),1.0
+M_joint,anglophone,-0.295,-0.995,0.446,0.223,Inconclusive,1.0
+M_anglo(N=9),fptp,0.263,-0.027,0.554,0.956,Clearly higher (strong),1.002

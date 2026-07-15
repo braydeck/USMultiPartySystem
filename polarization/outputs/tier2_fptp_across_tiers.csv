@@ -1,0 +1,4 @@
+tier,n_obs,n_countries,fptp_coef,ci_low,ci_high,p_value,r2,clusters_reliable
+anglophone,324,9,0.654,-1.499,2.806,0.5518,0.112,no (few clusters)
+established_dem,1345,49,0.61,-0.097,1.317,0.091,0.078,yes
+all_democracies,3093,115,-0.025,-0.516,0.465,0.9194,0.057,yes

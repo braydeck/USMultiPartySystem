@@ -15,13 +15,13 @@ import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-// Gap-compression middle stops (λ=0.25/0.5/0.75); endpoints come via props.
-import senCondL25 from '../data/pureMultiSenateCondorcetTurnoutL25.json';
-import senCondL50 from '../data/pureMultiSenateCondorcetTurnoutL50.json';
-import senCondL75 from '../data/pureMultiSenateCondorcetTurnoutL75.json';
-import senIrvL25 from '../data/pureMultiSenateIRVTurnoutL25.json';
-import senIrvL50 from '../data/pureMultiSenateIRVTurnoutL50.json';
-import senIrvL75 from '../data/pureMultiSenateIRVTurnoutL75.json';
+// Compression stops (10/20/30% of the turnout gap closed); floor comes via props.
+import senCondL10 from '../data/pureMultiSenateCondorcetTurnoutL10.json';
+import senCondL20 from '../data/pureMultiSenateCondorcetTurnoutL20.json';
+import senCondL30 from '../data/pureMultiSenateCondorcetTurnoutL30.json';
+import senIrvL10 from '../data/pureMultiSenateIRVTurnoutL10.json';
+import senIrvL20 from '../data/pureMultiSenateIRVTurnoutL20.json';
+import senIrvL30 from '../data/pureMultiSenateIRVTurnoutL30.json';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -97,12 +97,12 @@ export function SenateTab({ condorcetFD, irvFD, condorcetRawMulti, irvRawMulti,
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
   const rawMultiOn = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Arrays indexed by gap stop [0,25,50,75,100]: floor(Turnout) … ceiling(full/base).
-  const condStops = [condorcetRawMultiTurnout, senCondL25, senCondL50, senCondL75, condorcetRawMulti] as unknown as FDSenateSeat[][];
-  const irvStops  = [irvRawMultiTurnout, senIrvL25, senIrvL50, senIrvL75, irvRawMulti] as unknown as FDSenateSeat[][];
+  const condStops = [condorcetRawMultiTurnout, senCondL10, senCondL20, senCondL30] as unknown as FDSenateSeat[][];
+  const irvStops  = [irvRawMultiTurnout, senIrvL10, senIrvL20, senIrvL30] as unknown as FDSenateSeat[][];
   const condRM = !rawMultiOn ? condorcetRawMulti : condStops[gi];
   const irvRM  = !rawMultiOn ? irvRawMulti       : irvStops[gi];
 

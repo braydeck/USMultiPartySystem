@@ -1,0 +1,4 @@
+prior,fptp_mean,ci_lo,ci_hi,P(>0),signal
+"skeptical N(0,0.25)",0.16,-0.079,0.408,0.886,Possibly higher (directional)
+"weakly-info N(0,1)",0.22,-0.063,0.507,0.929,Likely higher (moderate)
+"diffuse N(0,5)",0.221,-0.068,0.511,0.926,Likely higher (moderate)

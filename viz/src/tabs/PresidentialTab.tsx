@@ -8,9 +8,9 @@ import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 // Gap-compression middle stops (λ=0.25/0.5/0.75); endpoints come via props.
-import presTL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
-import presTL50 from '../data/rawMultiPresidentialElectionTurnoutL50.json';
-import presTL75 from '../data/rawMultiPresidentialElectionTurnoutL75.json';
+import presTL10 from '../data/rawMultiPresidentialElectionTurnoutL10.json';
+import presTL20 from '../data/rawMultiPresidentialElectionTurnoutL20.json';
+import presTL30 from '../data/rawMultiPresidentialElectionTurnoutL30.json';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
@@ -53,9 +53,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                                   controlBarExtra }: Props) {
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '25', { allowed: ['0', '25', '50', '75', '100'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  const rmStops = [rawMultiTurnout, presTL25, presTL50, presTL75, rawMulti] as unknown as PresidentialElection[];
+  const rmStops = [rawMultiTurnout, presTL10, presTL20, presTL30] as unknown as PresidentialElection[];
   const rm = scenario !== 'rawMulti' ? rawMulti : rmStops[gi];
   const data = scenario === 'rawMulti' ? rm : factorDev;
 
