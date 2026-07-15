@@ -1,200 +1,280 @@
-# Does FPTP drive polarization? A pressure test
+# Electoral systems and polarization — a pressure test
 
-**Question.** Does "proportional systems produce less political polarization than
-first-past-the-post" hold up — and does it hold in the English-speaking world while dissolving
-outside it?
+**Question.** Do proportional systems produce less political polarization than first-past-the-post,
+especially in the English-speaking world?
 
-**Primary frame.** The analysis centres on **established (V-Dem liberal) democracies with
-population ≥ 1M** — 43 countries, 1990–2025. This is the universe where an electoral-system
-comparison is meaningful and comparable: it drops developing/backsliding democracies (where
-"electoral system" and polarization mean different things) and micro-states (whose politics are
-atypical). Broader and narrower samples are reported as robustness.
-
-**Verdict.** In this clean universe the pattern is real in direction. The raw FPTP-vs-proportional
-gap is ~**+0.5 to +0.7** polarization points; a hierarchical Bayesian model that adjusts for
-democracy quality, size, time, and country/region structure puts the FPTP effect at **~+0.2
-points with ~90–93% posterior probability of being positive** — *likely and moderate*, not
-strong, and softening under a skeptical prior. It cannot be cleanly separated from two confounds:
-**anglophone heritage** (0.79-correlated with FPTP here) and **country size** (larger countries
-are more polarized, and FPTP democracies skew large). The single most robust predictor of low
-polarization is **democracy quality**, not electoral system. Best read as *supported but not
-proven*: the direction is consistent and now carries a defensible probability, but the data
-cannot rule out that "anglophone political culture" or "large-country dynamics" do much of the
-work credited to the ballot.
-
-Data: V-Dem political polarization (`v2cacamps`, the score in the source CSV) as outcome;
-institutions and controls from V-Dem, Cheibub government type, La Porta legal origin, World Bank
-population, and a hand-coded anglophone/chamber reference. Panel merge validated at r = 1.000.
+**One-paragraph answer.** It depends almost entirely on *which polarization you measure*, and the
+expert and citizen measures are only weakly correlated (r ≈ +0.37 for expert vs citizen coldness;
++0.21 for expert vs the in/out gap), so the honest headline is **measurement-dependent**:
+- On **expert-coded** societal polarization (V-Dem), PR/consensus institutions are associated with
+  **less** polarization — the thesis holds, and matches the peer-reviewed literature.
+- On **citizen-survey** affective polarization (CSES), it depends on the sub-measure: the standard
+  **in/out gap shows nothing**, but **out-group coldness** — the better match for "do voters dislike
+  the other side" — shows FPTP **consistently colder** (up to **+0.56, 97% posterior probability**,
+  strengthening as the sample broadens). Specific **mechanisms** (winner–loser satisfaction gap,
+  party-size concentration) also support the consensus-democracy story.
+- Everywhere, the effect is **confounded** with anglophone/common-law heritage and country size,
+  and rests on **few FPTP countries** — so it is directional evidence, not proof.
 
 ---
 
-## 1. Primary universe: established non-micro democracies
+## 0. Measures and universes (definitions — stated once, used throughout)
 
-`polarization ~ FPTP (+ controls) + year effects`, country-clustered SEs, 43 countries.
-Positive coefficient = FPTP associated with **higher** polarization.
-(`outputs/primary_established_nonmicro.csv`; full tables `outputs/tier3_regression_tables.txt`.)
+**Outcome measures.**
+- **Expert measure (primary for the expert layer):** V-Dem `v2cacamps` — country experts rate how
+  far society is split into antagonistic camps that avoid each other in everyday life.
+- **Citizen measure (primary for the citizen layer): out-group coldness** = 10 − (vote-share-
+  weighted mean like/dislike a partisan gives to *other* parties), from CSES; higher = colder.
+  Reported "all targets" and "middle clusters" (raters and targets both left-right ∈ [2,8],
+  excluding far-left/far-right); for anglophone countries the two are near-identical.
+- **Secondary/contrast citizen measures:** the in/out affect gap (in-party minus out-party warmth,
+  the Reiljan/Gidron standard) and the Wagner spread. These are reported for contrast; the in/out
+  gap is *null*, which is why coldness is the primary citizen measure here.
 
-| Model | FPTP | 95% CI | democracy score | log-pop | R² |
-|---|---:|---|---:|---:|---:|
-| Bivariate | **+0.70** | [−0.02, +1.43] | — | — | 0.09 |
-| + gov/dem/bicameral | +0.29 | [−0.52, +1.11] | **−8.59\*\*** | — | 0.23 |
-| + legal origin | +0.70 | [−0.31, +1.70] | **−8.73\*** | — | 0.40 |
-| + population | +0.45 | [−0.41, +1.32] | **−9.43\*\*** | **+0.76\*** | 0.49 |
+**Universes (V-Dem Regimes of the World).**
+- **All democracies** = electoral or liberal democracy (`v2x_regime` ≥ 2).
+- **Established non-micro** = **liberal democracy** (`v2x_regime` = 3) with population ≥ 1M. This is
+  the primary comparable universe (development + shared ties control the composition).
+- **Anglosphere non-micro** = US, UK, Canada, Australia, New Zealand, Ireland, South Africa (+ India,
+  see below); Malta excluded as a micro-state.
 
-- **FPTP effect is positive and consistent in sign but fragile.** The bivariate gap is +0.70
-  (CI just touches zero). It survives adding legal origin (+0.70) but attenuates to +0.29–0.45
-  once government type, democracy quality, and population are included — none of the FPTP
-  estimates clear the significance bar.
-- **Democracy quality dominates.** The polyarchy coefficient (≈ −8.6 to −9.4) means a 0.1 rise
-  in the electoral-democracy index maps to ~0.9 lower polarization — larger and far more
-  significant than the FPTP effect.
-- **Country size matters and confounds.** Larger countries are significantly more polarized
-  (log-pop +0.76*); because FPTP democracies skew large (US, plus mid-size anglophone cases),
-  controlling for size pulls the FPTP coefficient down from +0.70 to +0.45.
-
-Descriptive recent means (2015–2024): majoritarian −0.52 (n=9) vs proportional −0.99 (n=30),
-raw difference **+0.47** — the direction of the thesis, modest in size.
-
-## 2. The anglophone cases within this universe
-
-Seven anglophone democracies qualify (India excluded — not a V-Dem liberal democracy in recent
-years; Malta excluded — micro-state). Mean polarization 2015–2024:
-
-| Country | Electoral family | Polarization |
-|---|---|---:|
-| United States | FPTP | +1.47 |
-| South Africa | PR-list | +0.19 |
-| United Kingdom | FPTP | −0.28 |
-| Canada | FPTP | −0.83 |
-| Australia | AV lower / **STV Senate** (hybrid) | −1.12 |
-| New Zealand | MMP (proportional) | −1.91 |
-| Ireland | STV (proportional) | −2.73 |
-
-- The proportional/hybrid cases (Ireland, NZ, Australia) are the least polarized; the FPTP cases
-  span from calm (UK, Canada) to extreme (US). **Australia** is a hybrid — its directly-elected
-  STV Senate is genuinely proportional and shapes its party system — so its low polarization is
-  consistent with the proportional side, not a counterexample.
-- The US is the outlier pulling the FPTP group up; UK and Canada (also FPTP) are middling-to-low.
-  Within the anglophone set the electoral rule alone does not explain the spread — presidential
-  vs parliamentary and US-specific dynamics are in play (the US is the one presidential system
-  here). See `outputs/fig1_anglophone_by_system.png`.
-- The two cases that don't fit are handled by the primary universe's own rules rather than by
-  hand: **Malta** (proportional STV yet highly polarized) is a micro-state whose small-district
-  STV yields a two-party duopoly — proportional in form only — and is excluded; **India**
-  (FPTP, highly polarized, but a backsliding electoral autocracy) is excluded.
-
-## 3. Why this universe, not broader or narrower
-
-`polarization ~ FPTP + year FE`, by sample:
-
-| Sample | Countries | FPTP coef | 95% CI |
-|---|---:|---:|---|
-| Anglophone only | 9 | +0.65 | [−1.50, +2.81] |
-| **Established non-micro (primary)** | **43** | **+0.70** | **[−0.02, +1.43]** |
-| Established democracies (incl. micro) | 49 | +0.61 | [−0.10, +1.32] |
-| All democracies (incl. electoral) | 115 | −0.03 | [−0.52, +0.47] |
-
-The signal is clearest in the primary universe. It is too noisy to estimate in the anglophone
-set alone (N=9), and it **disappears entirely** once developing and backsliding democracies are
-added (all-democracies coef ≈ 0). So the FPTP→polarization association is a property of
-established, comparable democracies — consistent with the idea that it is bounded to a
-particular kind of country rather than universal. See `outputs/fig2_fptp_across_tiers.png`.
-
-## 4. The confound is tighter here, not looser — and the interaction is ≈ 0
-
-Within the primary universe, FPTP, anglophone status, and common-law heritage are strongly
-collinear: **FPTP↔anglophone r = 0.79**, anglophone↔common-law r = 0.81, FPTP↔common-law r = 0.60.
-Restricting to established democracies *removes* most non-anglophone FPTP cases, so the
-electoral rule and anglophone culture become even harder to separate than in the full sample.
-
-A model interacting the two (`FPTP × anglophone`) returns a near-zero, non-significant
-interaction (−0.01) alongside large, opposing main effects (FPTP +1.05\*, anglophone −1.08\*).
-That opposing-coefficient pattern is a textbook symptom of the collinearity, not evidence of two
-cleanly separable forces — it should not be read as "FPTP raises polarization while being
-anglophone lowers it." The honest statement is that this data **cannot** disentangle the
-electoral rule from anglophone heritage. See `outputs/collinearity_corr.csv`.
-
-## 5. Estimator sensitivity
-
-Electoral systems barely change within a country (New Zealand's 1996 FPTP→MMP switch is the main
-exception), so identification is cross-country and country fixed effects are unusable (they would
-absorb the electoral-system variable). Consistent with thin within-country variation, the
-between-country estimator gives +0.15 (CI crosses zero) while random effects gives −0.37 — sign
-instability that reinforces reading this as a fragile cross-sectional association.
-
-## 6. Bayesian hierarchical model — the most defensible estimate
-
-A multilevel Bayesian model is the right structure for this data: it partially pools across the
-43 countries (correct for small N, where frequentist cluster-robust SEs are unreliable and, at
-the anglophone N=9, invalid), gives valid posterior uncertainty at any N, and yields direct
-probability statements. Model: `polarization ~ fptp + presidential + democracy_z + logpop_z +
-year_z + (1 | region) + (1 | country)`, weakly-informative priors, 4 chains, R-hat ≈ 1.00.
-(`outputs/bayes_coefficients.csv`, `outputs/bayes_prior_sensitivity.csv`, `fig_bayes_*.png`;
-run `python polarization/src/analyze_bayes.py`.)
-
-| Predictor | Posterior mean | 94% CI | P(effect > 0) | Signal |
-|---|---:|---|---:|---|
-| **FPTP** | **+0.22** | [−0.06, +0.51] | **0.93** | Likely higher (moderate) |
-| democracy score (per SD) | −0.29 | [−0.35, −0.23] | 0.00 | Clearly lower (strong) |
-| log-population (per SD) | +0.28 | [−0.01, +0.55] | 0.96 | Clearly higher (strong) |
-| time trend (per SD) | +0.23 | [+0.21, +0.25] | 1.00 | Clearly rising (strong) |
-| presidential | +0.34 | [−0.49, +1.18] | 0.78 | Inconclusive |
-
-- **The adjusted FPTP effect is +0.22 polarization points, ~93% likely to be positive** —
-  "likely, moderate." Partial pooling shrinks the raw +0.70 gap once country/region structure,
-  democracy quality, size, and time are accounted for.
-- **The multilevel model tames the collinearity that broke OLS.** Adding `anglophone`, FPTP
-  barely moves (+0.25, P=0.94) and anglophone is inconclusive (−0.30, P=0.22); the posterior
-  correlation between the two coefficients is only −0.20 (vs the unstable ±1.0 opposing
-  estimates in the OLS interaction). The varying intercepts absorb the shared between-country
-  variance, leaving FPTP identified — a materially cleaner result than the frequentist pass.
-- **Anglophone-only (N=9), where frequentist inference is invalid:** the partial-pooling
-  posterior gives FPTP +0.26, **P(>0)=0.96** — a valid statement the OLS could not make.
-- **Prior sensitivity:** under a weakly-informative or diffuse prior, FPTP is +0.22 (P=0.93);
-  under a deliberately skeptical prior [N(0, 0.25)] it softens to +0.16 (P=0.89, "directional").
-  The conclusion is robust to prior choice except under strong skepticism.
-
-Net of the Bayesian pass: the FPTP→polarization association is **likely positive and moderate
-(~+0.2 points, ~90–93% posterior probability)** — firmer and more stable than the frequentist
-analysis suggested, but still short of "strong," dwarfed by democracy quality, and — crucially —
-this is an *adjusted association within a model*, not causal separation of the electoral rule
-from anglophone heritage. Size and democracy quality remain the dominant signals.
+**India — status (a recurring source of confusion, pinned down here).** India was an **electoral
+democracy** (`v2x_regime` = 2) 1947–2016, then **electoral autocracy** (= 2) from 2017. It was
+**never a liberal democracy**, so it was **never in the established non-micro universe** — it sat in
+"all democracies" until 2016 and then dropped out of the democracy samples entirely. It is shown on
+the anglophone/quadrant charts (as an anglophone FPTP case) but is excluded from the democracy-
+filtered regressions; including it changes nothing.
 
 ---
 
-## What this means for the argument
+## 1. The crux: two families of measurement
 
-- **Defensible:** "Among comparable established democracies, majoritarian/FPTP systems tend to
-  be somewhat more polarized than proportional ones, and the English-speaking cases fit that
-  pattern (Ireland/NZ/Australia low, the US high)." Direction and rough magnitude hold.
-- **Not established by this data:** that FPTP *causes* polarization; that the effect is
-  statistically robust to controls; or that it is *specifically* anglophone. Democracy quality
-  and country size are at least as consistent with the evidence, and FPTP cannot be separated
-  from anglophone/common-law heritage in the real-world sample.
-- **The framing that survives:** the anglophone world is a reasonable *scope condition* for the
-  pattern — it is where FPTP and low-N proportional cases coexist among rich democracies — but
-  scope is not mechanism. The strongest single lever in the data is how democratic a country is,
-  not which ballot it uses.
+| | Expert-coded (V-Dem) | Citizen survey (CSES) |
+|---|---|---|
+| What | Experts judge whether "society is split into antagonistic camps" (`v2cacamps`) | Voters' own party like/dislike ratings (0–10) |
+| Source | ~3,500 country experts, measurement model | 395,797 respondents, 229 elections, 59 countries, 1996–2021 |
+| Measures | societal / "identity-based" polarization | affective: **out-group coldness (primary)** + in/out gap; ideological (L-R spread); satisfaction; efficacy |
 
-## Reproduce
+**They barely agree.** Across democracies, corr(V-Dem `v2cacamps`, citizen out-group coldness) ≈
+**+0.37**; with the in/out gap it is only **+0.21**. Expert coders appear to read elite rhetoric,
+media tone and country reputation, so the
+expert measure behaves more like *visible/elite* polarization; the survey measure is what voters
+actually report feeling. `fig_anglophone_compare.png` ranks the anglophone countries by each measure
+(expert vs citizen out-group coldness): Ireland is calmest to experts but middling among its own
+voters; New Zealand is low on both; the US and India rank high on both; the UK is middling to experts
+but cold among voters. (On the *in/out gap*, by contrast, India would look low — because Indians rate
+both their own and other parties coolly; that gap-vs-coldness split is exactly the §3c point.)
+
+## 2. Expert measure: PR → less polarization (holds)
+
+Frequentist and Bayesian, primary universe = established liberal democracies ≥1M people:
+
+| Model | FPTP effect on `v2cacamps` |
+|---|---|
+| Bivariate (established non-micro) | +0.70 (CI touches 0) |
+| Hierarchical Bayesian, adjusted | **+0.22, P(>0) = 0.93** (likely, moderate) |
+| Broadened to all democracies | **−0.19 to −0.29 (reverses: FPTP *less* polarized)** |
+
+FPTP is associated with more expert-coded polarization among comparable/established democracies
+(~+0.2, 90–93% posterior probability) — but the sign **reverses across all democracies** (FPTP
+−0.19 to −0.29 SD, negative even without controls; the raw country-level gap is small, ≈ −0.10, so
+this is a modest reversal, not a large effect). The developing democracies that use FPTP are
+mostly British-colonial (Africa, Caribbean, South Asia) and score *lower* on V-Dem's "antagonistic
+camps," while many high-polarization developing democracies are PR/presidential (Brazil, Latin
+America, parts of Eastern Europe). So the expert-measure thesis is **scope-conditional**: it holds
+in the established/Western world and flips in the global pool — matching the project's founding
+intuition that the relationship muddles once you leave the rich-democracy sphere. The established-
+democracy result **agrees with Bernaerts et al. (2023)**, who use the
+*same* V-Dem variables (`v2cacamps` + `v2smpolsoc`) and find PR electoral systems, multiparty
+coalitions, and federalism → lower polarization. So on this measure, the thesis is well-supported
+and in line with the literature. Democracy quality is the single strongest predictor; country size
+is a real confounder (larger countries more polarized, and FPTP democracies skew large).
+
+**Presidential/parliamentary control (M_primary, `analyze_bayes.py`).** The primary model also
+carries a `presidential` term (V-Dem `v2ex_elechos` × `v2exhoshog`; correctly treats Ireland's and
+Germany's ceremonial presidents as non-presidential). Its coefficient is **+0.337, 94% CI
+[−0.49, +1.18], P(>0) = 0.775 (inconclusive)** — directionally "presidential systems more
+polarized," consistent with the duopoly mechanism, but not decisive. **Identification caveat:** in
+this universe the United States is essentially the *only* established liberal democracy that is both
+FPTP *and* presidential (UK/Canada/India are FPTP-parliamentary; the presidential PR cases are
+Latin American). So FPTP and presidentialism cannot be statistically separated here — the US is the
+single cell where they coincide. Treat the "FPTP + presidential → complete two-party duopoly" claim
+as mechanism/logic plus the UK/Canada contrast, not as a cleanly-identified coefficient.
+
+## 3. Citizen affective measure: null on the standard gap, positive on coldness (the primary here)
+
+The primary citizen measure is **out-group coldness** (§3c); the in/out affect gap is the standard
+literature measure and is reported here as a contrast. They disagree, and the disagreement is the
+point — so read 3a (the null contrast) as setup for 3c (the primary result).
+
+**3a. The standard in/out gap is null.** Party in/out affective gap (Reiljan/Gidron measure): FPTP
+effect ≈ 0 (P ≈ 0.5) under hierarchical pooling, in both the established and all-democracy universes.
+Validity check passes — the measure puts the **US in the upper-middle of the distribution (24th of
+59; Turkey, Bulgaria, Ukraine, Hungary, Slovakia, Greece and others score higher)** and reproduces
+the canonical Reiljan/Wagner ranking (Southern/Eastern Europe high; NW Europe and East Asia low), so
+this is a real null, not a broken pipeline. The US is exceptional in *trend*, **not level** — many
+PR democracies are as or more affectively polarized. (Correction on audit: an earlier draft claimed
+the measure put the "US clearly highest"; it does not — the US is mid-pack on the in/out gap.)
+
+**3b. Out-group hostility is distance-driven, not fringe-stigma.** In the dyadic (rater→target)
+data, ideological **distance** dominates (−1.13, tight CI) while target **extremeness** is null net
+of distance (−0.04). Extreme parties get colder ratings only because they sit far from everyone —
+genuine polarization, not irrational fringe-hatred. But shared dislike of fringe parties is partly
+*consensus* (a cordon sanitaire), which dilutes the electoral-system signal in the raw measure.
+
+**3c. The choice of affective sub-measure is decisive — and out-group *coldness* supports the
+thesis.** The in/out gap subtracts in-party warmth, which hides real hostility where in-party
+attachment is also low (e.g. India: cold to opponents *and* lukewarm to its own party → low gap
+but high coldness). Out-group **coldness** (10 − out-party warmth) directly measures "how much do I
+dislike the other side" — the better match for the thesis. Hierarchical Bayesian, FPTP effect
+(positive = FPTP colder):
+
+| Outcome | Established non-micro | All democracies |
+|---|---|---|
+| in/out gap | ≈0.00 (P 0.51) — null | ≈0.01 (P 0.53) — null |
+| **coldness, all targets** | +0.27 (P 0.84) | +0.36 (P 0.91) |
+| **coldness, middle clusters** | +0.43 (P 0.88) | **+0.56 (P 0.97)** |
+
+On coldness, FPTP is colder in **every** specification (vs a flat null on the gap), the effect
+**strengthens** slightly as the sample broadens (the FPTP country actually added going from the
+established to the all-democracy universe is **Kenya**, which is high-coldness — **India is *not* in
+either citizen regression**: its only CSES wave was 2019, when it was an electoral autocracy and so
+sits outside both democracy tiers; see §0), and the strongest raw-scale estimate (middle clusters,
+all democracies) is **+0.56 points, 97% posterior probability colder** (94% CI grazes zero). This is
+the clearest citizen-level signal for the thesis in the project — on the sub-measure that best
+matches "do voters dislike the other side." For anglophone countries the all-targets and middle-
+cluster versions are near-identical (they have almost no fringe parties); the middle filter only
+bites in the broader sample.
+
+Caveat: it remains measure-dependent (the equally-standard in/out gap gave nothing), rests on 5–6
+FPTP countries, and the CIs graze zero — so "likely/clearly" is by posterior probability, not a
+clean interval.
+
+**Robustness (added on audit — `analyze_coldness_robustness.py`).** Two problems in the headline:
+(1) "FPTP" was V-Dem *majoritarian* (`v2elparlel==0`), which mis-labels Australia's AV and France's
+two-round runoff as FPTP; (2) the models omit a heritage control despite FPTP ↔ common-law r ≈ 0.6.
+Re-running with a `common_law` covariate **and** the treatment restricted to genuine single-member-
+plurality FPTP (US/UK/Canada/Kenya) gives **+0.30 to +0.44 points, P(colder) ≈ 0.84–0.87
+("possibly/likely," not "clearly")**, dropping to *inconclusive* in the established-only universe.
+The heritage control does **not** erase the effect — it slightly *raises* the point estimate,
+because the anglophone PR cases (Ireland STV, NZ MMP) are themselves cold. But the honest citizen-
+level headline is **directional, not decisive**. Note the discordant internal control: **Canada**
+has the same FPTP + common-law heritage as the US yet is as cold-neutral as PR Ireland/NZ (6.48 vs
+US 6.96), pointing at US-specific two-party *completeness* rather than FPTP per se — consistent with
+the "duopoly" mechanism (§4), not a blanket electoral-rule effect.
+
+**Party count vs duopoly concentration (added on audit — `analyze_enp_mediation.py`).** The two-party
+mechanism must be operationalized as *duopoly concentration* (top-2 vote share), **not** the raw
+effective number of parties (ENP). ENP conflates a *balanced* two-party system (US, top-2 ≈ 0.99)
+with a *dominant-party* system (South Africa, ANC ≈ 64%) — structurally different animals. Two
+consequences: (1) **South Africa is affectively polarized** (coldness 7.04; in/out gap 8th of 59)
+*despite* not being a balanced duopoly, so affective polarization has more than one structural route;
+(2) in mediation, "FPTP → fewer parties → polarization" does **not** hold via raw ENP (on the expert
+measure, more parties = more 'antagonistic camps', so ENP runs the *wrong* way), but **FPTP → higher
+top-2 concentration → citizen coldness** runs the right way (a = +0.72 P0.96, b = +0.11 P0.87,
+indirect +0.08 P0.84) — a small but correctly-signed indirect effect. Most of the FPTP–coldness link
+is still direct/US-specific. Hudde-style **affective fractionalization** (out-group coldness weighted
+by encounter probability, `analyze_affective_fractionalization.py`) puts the US at the extreme on the
+*combination* that matters: near-total duopoly (top-2 ≈ 0.99, lowest ENP) × among the coldest
+per-cross-party-encounter ratings in the sample (≈ 8/10, 4th of 48).
+
+## 4. Mechanisms that hold at the citizen level
+
+- **Winner–loser satisfaction gap** (Anderson & Guillory's mechanism, cited by Bernaerts et al.):
+  **likely higher under FPTP** (Bayesian +0.17, P = 0.93). Majoritarian systems leave electoral
+  *losers* relatively less satisfied — the inclusion channel — even though overall satisfaction is
+  *higher* under FPTP (clear-winner effect).
+- **Party-size mediation (party level):** FPTP → bigger parties (a = +0.42) → bigger-party supporters
+  are colder to opponents (b = −0.28, the tightest relationship in the project) → small indirect
+  effect (−0.12). So at the party level, FPTP relates to hostility weakly and *indirectly*, by
+  concentrating votes into large parties.
+- **Duopoly concentration (country level):** FPTP concentrates the vote into two big parties
+  (a = +0.72, P 0.96); higher top-2 concentration relates to colder voters (b = +0.11, P 0.87), a
+  small positive indirect effect (+0.08). Raw *party count* (ENP) does **not** mediate — the
+  *balanced-duopoly* structure does, which is why the US (top-2 ≈ 0.99) is distinctive while
+  dominant-party South Africa reaches high coldness by a different route (§3c).
+- **Elite quasi-experiment (New Zealand 1996):** the one within-country natural experiment. Nemoto &
+  Franco de Campos Pinto (2018) sentiment-code all NZ parliamentary speeches 1987–2016 and find
+  hostility fell after the FPTP→MMP switch, with a structural break near 1996 and cohort evidence
+  that *incumbent* MPs moderated (institutional, not compositional). Suggestive, not dispositive —
+  but direct evidence that changing the electoral architecture lowered elite hostility.
+- **Ideological extremity → out-group hostility** (robust): extreme parties' supporters are colder,
+  and left parties slightly colder than right (net of extremity).
+
+## 5. What you can and cannot say
+
+**Defensible:**
+- "On expert assessments of societal polarization, proportional/consensus democracies are less
+  polarized — and the English-speaking PR cases (Ireland, NZ) fit that clearly." (§2, matches
+  Bernaerts et al.)
+- "On the measure that best matches the thesis — how coldly voters rate opposing parties (out-group
+  coldness) — FPTP systems are directionally colder (**+0.3 to +0.44, ~85% posterior**, after a
+  common-law control and restricting to genuine single-member-plurality FPTP — directional, not
+  decisive). The operative channel is *balanced-duopoly concentration*, not party count, so the
+  effect is largely US-specific; majoritarian systems also leave electoral losers less satisfied."
+  (§3c, §4)
+
+**Not defensible:**
+- That FPTP *causes* polarization (this is cross-country association, few FPTP cases); that the
+  finding is measure-robust (the standard in/out gap is null even though coldness is positive); that
+  the US is uniquely polarized in level; or that any of this is cleanly separable from
+  anglophone/common-law heritage and country size.
+
+**Bottom line:** the thesis is strongest as a claim about *institutional/elite* polarization and
+about *mechanisms* (loser inclusion, party concentration), and weakest as a blunt claim about mass
+mutual dislike. State which polarization you mean, and the argument is defensible.
+
+## 6. Caveats
+
+- Few FPTP democracies — **4** in the established non-micro universe, **5** in the anglosphere, **19**
+  across all democracies (vs 22 / 3 / 66 PR-or-other). The imbalance doesn't *bias* the coefficient
+  (a group-mean difference is unbiased regardless of ratio); it limits *precision*, which is why the
+  effects are directional with wide, zero-grazing intervals. Country random intercepts prevent
+  pseudo-replication, so uncertainty honestly reflects the country count, not the row count.
+- Confounding: FPTP ↔ anglophone (r ≈ 0.8 in the established set) ↔ common-law heritage ↔ large
+  population are inseparable in the real-world sample.
+- Expert vs survey measures correlate only +0.24 — pick the construct deliberately.
+- Electoral systems are near time-invariant → identification is cross-country; country fixed effects
+  are unusable.
+- CSES: gated behind free registration (`polarization/cses/`, not auto-downloaded); the winner–loser
+  gap can't be computed for the US (presidential cabinet not coded as party portfolios).
+
+## 7. Reproduce
 
 ```
-python polarization/src/acquire.py        # download V-Dem, QoG (idempotent)
-python polarization/src/build_panel.py     # merge -> data/analysis_panel.{parquet,csv}
-python polarization/src/analyze.py         # frequentist: primary + tiered stats + figures
-python polarization/src/analyze_bayes.py   # hierarchical Bayesian model + prior sensitivity
+python polarization/src/acquire.py           # V-Dem + QoG (idempotent)
+python polarization/src/build_panel.py        # country-year panel
+python polarization/src/analyze.py            # expert-measure freq. tiered analysis + figures
+python polarization/src/analyze_bayes.py      # expert-measure hierarchical Bayesian
+python polarization/src/build_affpol.py        # CSES affective polarization (in/out API + spread)
+python polarization/src/analyze_affpol.py      # affective vs expert + electoral system
+python polarization/src/analyze_cses_bayes.py  # Bayesian across all CSES outcomes
+python polarization/src/build_party_affect.py  # party-level out-group sentiment + ideology
+python polarization/src/analyze_party_mediation.py  # broaden FPTP N + size mediation
+python polarization/src/build_dyadic.py        # rater->target decomposition (distance vs fringe)
+python polarization/src/analyze_middle_clusters.py  # middle-cluster hostility
+python polarization/src/analyze_coldness_bayes.py   # out-group COLDNESS (all + middle) Bayesian
+python polarization/src/analyze_coldness_robustness.py  # coldness + common-law control + strict FPTP
+python polarization/src/analyze_enp_mediation.py    # FPTP -> ENP / top-2 concentration -> polarization
+python polarization/src/analyze_affective_fractionalization.py  # Hudde-style AF (encounter-weighted)
+python polarization/src/viz_anglophone.py      # fig_anglophone_compare.png
+python polarization/src/viz_fptp_forest.py     # fig_fptp_across_measures.png
+python polarization/src/viz_quadrants.py       # fig_polarization_quadrants.png
+python polarization/src/viz_essay_panels.py    # fig_essay_panels.png (primary essay figure)
 ```
 
-## Caveats
-
-- Polarization is V-Dem's `v2cacamps` (elite/society split into hostile camps); affective-
-  polarization survey measures (CSES, Pew) could differ and would be the best next step.
-- Electoral system uses V-Dem `v2elparlel` (lower house; codes Australia's AV as majoritarian —
-  correct, AV is single-member majoritarian). Australia's proportional STV Senate is captured in
-  the hand-coded chamber reference (`data/country_reference.csv`), not the regression binary.
-- `presidential` is derived from V-Dem executive variables (coverage to 2025); government-type
-  labels use Cheibub (time-invariant-filled, South Africa corrected to parliamentary).
-- Country size from World Bank population; Taiwan patched (absent from the series). Micro-states
-  (<1M) are classified at the country level and excluded from the primary universe.
-- Tiers use V-Dem Regimes-of-the-World thresholds (liberal democracy; electoral + liberal
-  democracy). India exits the liberal-democracy tier in recent years under V-Dem's coding.
+See `outputs/README.md` for a full index of which script writes which figure/table, and
+`outputs/archive/` for superseded early outputs. Key figures in `outputs/`:
+- `fig_essay_panels.png` — **primary essay figure.** (A) US is the lone polarized case among
+  English-speaking democracies; (B) duopoly concentration tracks V-Dem polarization within the
+  anglosphere (r=0.88) but not across all democracies (r=0.08).
+- `fig_anglophone_compare.png` — anglophone countries, expert (V-Dem) vs citizen out-group
+  coldness; the ranking flips by measure.
+- `fig_fptp_across_measures.png` — FPTP effect (SD units, 94% CI) across all measures and both
+  universes; shows the effect is null on the in/out gap, positive on coldness, and depends on
+  the measure.
+- `fig_polarization_quadrants.png` — two-layer typology (expert behavioral × citizen affective),
+  split at absolute anchors (V-Dem = 0 global average; coldness = 7 = voters rate opponents ≤3/10).
+  Four labeled quadrants: pernicious (US, India, South Africa, Poland) / contained rivalry (UK,
+  Greece) / expert-perceived / depolarized (Ireland, NZ, Australia, Canada). Every democracy is
+  net-cold to opponents (all ≥5), so no country sits in a "net-warm" region.

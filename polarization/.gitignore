@@ -1,0 +1,11 @@
+# CSES IMD microdata — GATED (free registration at cses.org) and redistribution-restricted.
+# Download the fixed-width files yourself and place them at:
+#   cses/cses_imd_syntax/cses_imd.dat
+#   cses/cses_imd_syntax/cses_imd.dct
+# DO NOT COMMIT — it is ~570 MB and violates CSES terms to redistribute.
+cses/
+
+# Python / OS
+__pycache__/
+*.pyc
+.DS_Store
