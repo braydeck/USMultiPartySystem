@@ -1,4 +1,5 @@
 import { getBlendColor } from '../../constants/parties';
+import { PartyRowLabel } from './PartyRowLabel';
 import { flareForFrac, flareText } from '../../lib/flare';
 
 // Shared row language with StackedBarCell/IntensityCell: `U.S.` + each selected party code,
@@ -58,7 +59,7 @@ export function RangeBarCell({ meta, national, byCode, codes }: {
           const color = isNat ? NAT : getBlendColor(code);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <span className="w-11 shrink-0 font-bold text-right" style={{ color }}>{isNat ? 'U.S.' : code}</span>
+              <PartyRowLabel code={code} />
               <div className="flex-1 relative h-4">
                 {/* faint gridlines at ticks */}
                 {ticks.map(t => (
@@ -126,12 +127,12 @@ export function CompositionStackCell({ meta, national, byCode, codes }: {
         ))}
       </div>
       <div className="space-y-1">
-        {rowsData.map(({ code, isNat, raw, p, value }) => {
+        {rowsData.map(({ code, raw, p, value }) => {
           const center = diverging ? p.slice(0, meta.pivot!).reduce((a, b) => a + b, 0) + p[meta.pivot!] / 2 : 0;
           let cum = 0;
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <span className="w-11 shrink-0 font-bold text-right" style={{ color: isNat ? NAT : getBlendColor(code) }}>{isNat ? 'U.S.' : code}</span>
+              <PartyRowLabel code={code} />
               <div className="flex-1 relative h-3.5 rounded-sm overflow-hidden bg-muted">
                 {diverging && <div className="absolute inset-y-0 z-10" style={{ left: '50%', width: 1, backgroundColor: 'rgba(15,23,42,0.28)' }} />}
                 {p.map((seg, i) => {
@@ -173,10 +174,9 @@ export function HeatmapCell({ meta, national, byCode, codes }: {
         {meta.segLabels.map(l => (
           <span key={l} className="text-[8.5px] text-muted-foreground text-center leading-tight px-0.5 pb-0.5" title={l}>{l}</span>
         ))}
-        {rows.map(({ code, isNat, pcts }) => (
+        {rows.map(({ code, pcts }) => (
           <div key={code} className="contents">
-            <span className="text-[10px] font-bold text-right pr-1 self-center tabular-nums"
-              style={{ color: isNat ? NAT : getBlendColor(code) }}>{isNat ? 'U.S.' : code}</span>
+            <PartyRowLabel code={code} className="self-center text-[10px]" />
             {pcts.map((v, i) => {
               // Seaborn "flare" ramp by within-grid share: high = dark magenta-purple, low =
               // light salmon. Hue rotates as it darkens, so mid-range shares separate better

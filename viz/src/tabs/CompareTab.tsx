@@ -7,6 +7,7 @@ import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { RangeBarCell, CompositionStackCell, HeatmapCell, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
+import { PartyRowLabel } from '../components/shared/PartyRowLabel';
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, passesFilter, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
@@ -400,7 +401,7 @@ function StackedBarCell({ item, codes, sigOn, label }: { item: BarItem; codes: s
           const pos = Math.min((val / maxVal) * 100, 100);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <span className="w-11 shrink-0 font-bold text-right" style={{ color }}>{isNat ? 'U.S.' : code}</span>
+              <PartyRowLabel code={code} />
               <div className="flex-1 relative h-3 rounded-sm bg-muted overflow-hidden">
                 <div className="absolute inset-y-0 left-0 rounded-sm"
                   style={{ width: `${pos}%`, backgroundColor: isNat ? '#cbd5e1' : color, opacity: sigOn && !qualifies && !isNat ? 0.45 : 1 }} />
@@ -434,12 +435,10 @@ function IntensityCell({ item, codes, question }: { item: IntensityItem; codes: 
         {(['__NAT__', ...codes]).map(code => {
           const shares = code === '__NAT__' ? item.national : item.parties[code];
           if (!shares) return null;
-          const isNat = code === '__NAT__';
-          const color = isNat ? '#64748b' : getBlendColor(code);
           const sp = splitShares(item, shares);
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <span className="w-11 shrink-0 font-bold text-right" style={{ color }}>{isNat ? 'U.S.' : code}</span>
+              <PartyRowLabel code={code} />
               {sp && (sp.neutral != null ? (
                 <div className="w-24 shrink-0 flex items-center gap-1">
                   <div className="relative h-3 flex-1 rounded-sm bg-muted overflow-hidden" title={`Neither ${Math.round(sp.neutral)}%`}>
