@@ -10,7 +10,7 @@ import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { PARTY_COLORS, FACTOR_LABELS, F5_ORDER, partyOrder, getContrastText } from '../constants/parties';
+import { PARTY_COLORS, PARTY_NAMES, FACTOR_LABELS, F5_ORDER, partyOrder, getContrastText } from '../constants/parties';
 import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
@@ -57,11 +57,13 @@ interface Props {
   senateCondorcet: any;
 }
 
-function SenateCompBar({ label, seats, segments, total: totalOverride }: {
+function SenateCompBar({ label, seats, segments, total: totalOverride, multiplier = 1 }: {
   label: string;
   seats?: FDSenateSeat[];
   segments?: { party: string; n: number; color: string }[];
   total?: number;
+  // Scales seat counts (Condorcet/IRV model one winner per state; ×2 fills both seats).
+  multiplier?: number;
 }) {
   const segs = segments ?? (() => {
     const counts: Record<string, number> = {};
@@ -70,7 +72,7 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
       counts[p] = (counts[p] ?? 0) + 1;
     }
     return F5_ORDER.filter(p => counts[p] > 0).map(p => ({
-      party: p, n: counts[p], color: PARTY_COLORS[p] ?? '#6b7280',
+      party: p, n: counts[p] * multiplier, color: PARTY_COLORS[p] ?? '#6b7280',
     }));
   })();
   const total = totalOverride ?? segs.reduce((s, x) => s + x.n, 0);
@@ -81,14 +83,19 @@ function SenateCompBar({ label, seats, segments, total: totalOverride }: {
         <div className="text-xs font-semibold text-foreground">{label}</div>
         <div className="text-xs text-muted-foreground">{total} seats</div>
       </div>
-      <div className="flex-1 flex rounded-lg overflow-hidden h-10">
+      <div className="flex-1 flex rounded-lg overflow-hidden h-11">
         {segs.map(({ party, n, color }) => {
           const pct = (n / total) * 100;
           return (
-            <div key={party} className="flex items-center justify-center"
-              style={{ width: `${pct}%`, backgroundColor: color }}>
-              {pct >= 6 && (
-                <span className="text-[10px] font-bold chip-text" style={{ color: getContrastText(color) }}>{party} {n}</span>
+            <div key={party}
+              title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(0)}%)`}
+              className="flex items-center justify-center overflow-hidden"
+              style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
+              {pct >= 5 && (
+                <span className="text-[10px] font-bold leading-tight text-center px-0.5 chip-text"
+                  style={{ color: getContrastText(color) }}>
+                  {party}<br />{n}
+                </span>
               )}
             </div>
           );
@@ -201,6 +208,28 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
   const isFD = pipeline === 'factorDev';
 
+  // Per-party seat counts under each preferential method, for the composition legend.
+  const senateCompStats = useMemo(() => {
+    const tally = (seats: FDSenateSeat[]) => {
+      const c: Record<string, number> = {};
+      for (const s of seats) {
+        const p = s.senatorParty ?? s.senatorCode.split('_')[0];
+        c[p] = (c[p] ?? 0) + 1;
+      }
+      return c;
+    };
+    const cond = tally(condRM);
+    const irv = tally(irvRM);
+    const parties = F5_ORDER.filter(p => (cond[p] ?? 0) > 0 || (irv[p] ?? 0) > 0);
+    // ×2: model gives one winner per state; each fills both of the state's seats.
+    return {
+      rows: parties.map(p => ({ party: p, cond: (cond[p] ?? 0) * 2, irv: (irv[p] ?? 0) * 2 })),
+      total: condRM.length * 2,
+      condParties: parties.filter(p => (cond[p] ?? 0) > 0).length,
+      irvParties: parties.filter(p => (irv[p] ?? 0) > 0).length,
+    };
+  }, [condRM, irvRM]);
+
   return (
     <div className="space-y-8">
       <div>
@@ -229,9 +258,38 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
           { party: 'DEM', n: 47, color: '#1d4ed8' },
           { party: 'GOP', n: 53, color: '#dc2626' },
         ]} total={100} />
-        {/* Active-scenario Condorcet + IRV at the current turnout stop */}
-        <SenateCompBar label="Condorcet" seats={condRM} />
-        <SenateCompBar label="IRV" seats={irvRM} />
+        {/* Active-scenario Condorcet + IRV at the current turnout stop, doubled to a full chamber */}
+        <SenateCompBar label="Condorcet ×2" seats={condRM} multiplier={2} />
+        <SenateCompBar label="IRV ×2" seats={irvRM} multiplier={2} />
+
+        {/* Legend — one row per method, so narrow segments (STY, POP…) still show seat counts */}
+        <div className="space-y-1.5 pt-2 border-t border-border/50">
+          {([{ name: 'Condorcet', key: 'cond' as const }, { name: 'IRV', key: 'irv' as const }]).map(({ name, key }) => (
+            <div key={name} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="shrink-0 text-xs font-semibold text-foreground" style={{ width: 68 }}>{name}</span>
+              {senateCompStats.rows.filter(r => r[key] > 0).map(r => (
+                <span key={r.party} className="flex items-center gap-1.5" title={PARTY_NAMES[r.party] ?? r.party}>
+                  <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[r.party] ?? '#6b7280' }} />
+                  <span className="text-xs text-foreground font-medium">{r.party}</span>
+                  <span className="text-xs text-muted-foreground">{r[key]}</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          <strong className="text-foreground">FPTP:</strong> each state&apos;s plurality winner takes the seat, so two parties hold every chair.
+          <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
+          <strong className="text-foreground">Condorcet:</strong> the seat goes to the candidate who beats every rival one-on-one in a round-robin — the broad consensus pick ({senateCompStats.condParties} parties win seats).
+          <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
+          <strong className="text-foreground">IRV:</strong> eliminate the last-place candidate and transfer ballots until one clears a majority, rewarding strong first-choice bases ({senateCompStats.irvParties} parties win seats).
+        </p>
+
+        <p className="text-[11px] text-muted-foreground/80">
+          Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s
+          seats for a full-chamber view ({senateCompStats.total} seats), which assumes matched delegations and so drops today&apos;s split D/R states.
+        </p>
       </Card>
 
       {/* Parliament fan chart */}

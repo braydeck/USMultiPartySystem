@@ -179,10 +179,12 @@ export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double' }: Props) {
         })}
       </div>
 
-      <p className="text-xs text-muted-foreground mt-1">
-        FPTP: winner-take-all produces a 2-party monopoly with disproportionate seat shares.
-        PR (2-party): same two parties but seats match vote share — still just two parties.
-        STV: {stvSegments.length} parties proportionally represented across {stvTotal} seats.
+      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+        <strong className="text-foreground">FPTP:</strong> winner-take-all produces a 2-party monopoly with disproportionate seat shares.
+        <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
+        <strong className="text-foreground">PR (2-party):</strong> same two parties but seats match vote share.
+        <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
+        <strong className="text-foreground">STV:</strong> {stvSegments.length} parties proportionally represented across {stvTotal} seats.
       </p>
     </div>
   );
