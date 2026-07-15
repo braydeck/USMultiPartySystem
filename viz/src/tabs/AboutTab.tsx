@@ -17,7 +17,7 @@ const VOTING_SYSTEMS = [
     full: 'Single Transferable Vote',
     used: 'Presidential Primary · House',
     color: '#1d4ed8',
-    how: 'Voters rank candidates. Once a candidate passes the Droop quota, their surplus votes transfer to next choices. Losers also transfer. Continues until seats are filled.',
+    how: 'Voters rank candidates. Once a candidate passes the Droop quota (the vote share needed to lock a seat), their surplus votes transfer to next choices. Losers also transfer. Continues until seats are filled.',
     why: 'Produces proportional outcomes in multi-seat races. Penalizes parties that run too many candidates (vote-splitting). Rewards coalition-building.',
   },
   {
@@ -71,7 +71,7 @@ const STEPS = [
   {
     n: 3, color: '#16a34a',
     title: 'Voter Typology: 10 Clusters',
-    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents into 10 voter types based on their 5 factor scores. Each cluster becomes a party — including cluster 7 (Order & Opportunity), a cross-cutting law-and-order + economic-progressive bloc that sits diagonally to the usual left-right axis.',
+    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM — a clustering method that discovers how many groups the data supports rather than being told in advance) groups respondents into 10 voter types by their 5 factor scores. Each cluster becomes a party — including cluster 7 (Order & Opportunity), a cross-cutting law-and-order + economic-progressive bloc that sits diagonally to the usual left-right axis.',
   },
   {
     n: 4, color: '#ea580c',
