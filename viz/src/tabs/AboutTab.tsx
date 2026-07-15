@@ -134,8 +134,10 @@ export function AboutTab() {
             <p className="text-xl font-semibold leading-snug mb-4">
               What if Americans voted in a 10-party proportional system in 2028, using their actual political beliefs?
             </p>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              The US runs winner-take-all elections that compress a complex, multi-dimensional electorate into two parties. This simulation shows what parties could emerge from a proportional distribution of American opinion. This is the empirical core of a larger argument, that our two-party split is an artifact of the voting rules, not the country itself. Emerging parties are ideologically cross-cutting and often surprising.
+            <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
+              Winner-take-all voting compresses a multi-dimensional electorate into two parties. Feed the same
+              voters into a proportional system and the hidden structure reappears — cross-cutting, often
+              surprising coalitions. The claim: the two-party split is an artifact of the rules, not the country.
             </p>
           </Card>
 
@@ -361,6 +363,10 @@ export function AboutTab() {
       {/* ── Voting Systems ───────────────────────────────────── */}
       {active === 'voting' && (
         <div className="space-y-4">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            <span className="font-medium text-foreground">Three ranked-choice methods, and why the choice matters.</span> The
+            same ballots can elect different winners depending on the counting rule — that disagreement is itself a finding.
+          </p>
           {VOTING_SYSTEMS.map(vs => (
             <Card key={vs.name} className="overflow-hidden">
               <div
@@ -416,6 +422,11 @@ export function AboutTab() {
       {/* ── Two Scenarios ────────────────────────────────────── */}
       {active === 'scenarios' && (
         <div className="space-y-5">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            <span className="font-medium text-foreground">Two candidate fields, run on the same electorate.</span> Party-Line
+            isolates the pure effect of proportional voting; Crossover adds intra-party factions. Comparing them shows how
+            much ideological variety <em>within</em> parties changes who wins.
+          </p>
           <div className="grid sm:grid-cols-2 gap-4">
             {SCENARIOS.map(s => (
               <Card
