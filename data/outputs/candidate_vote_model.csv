@@ -1,0 +1,371 @@
+variable,domain,question,party,pYes,bandLo,bandHi,observedPct,delta,diverges
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,CON,0.8755,0.7535,0.9495,85.14,-2.41,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,LBR,0.4376,0.2273,0.6627,48.87,5.1,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,STY,0.6023,0.344,0.8271,60.53,0.3,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,NAT,0.9367,0.8822,0.9669,93.79,0.11,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,LIB,0.3762,0.202,0.5827,33.0,-4.62,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,POP,0.8174,0.6108,0.9268,75.71,-6.03,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,CUP,0.771,0.5259,0.913,76.39,-0.72,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,OAO,0.7224,0.5354,0.8482,68.53,-3.71,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,DSA,0.2042,0.1167,0.341,28.81,8.39,False
+CC24_341a,Taxes & Economy,Extend the 2017 tax cuts,PRG,0.218,0.1289,0.3436,11.75,-10.06,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,CON,0.366,0.1579,0.6379,38.83,2.23,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,LBR,0.8312,0.6994,0.9088,80.38,-2.74,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,STY,0.5768,0.3382,0.8326,53.44,-4.24,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,NAT,0.0854,0.0464,0.153,6.67,-1.87,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,LIB,0.9029,0.834,0.9424,90.73,0.44,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,POP,0.2208,0.0802,0.4783,33.59,11.51,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,CUP,0.5653,0.2757,0.804,53.05,-3.48,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,OAO,0.8185,0.6758,0.9088,80.02,-1.83,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,DSA,0.8946,0.847,0.9294,88.53,-0.93,False
+CC24_341b,Taxes & Economy,Raise corporate income tax from 21% to 28%,PRG,0.9174,0.8853,0.943,97.35,5.61,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,CON,0.5486,0.1866,0.8669,52.53,-2.33,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,LBR,0.9291,0.7756,0.9774,86.39,-6.52,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,STY,0.6715,0.229,0.9396,58.74,-8.42,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,NAT,0.066,0.0258,0.1746,7.55,0.95,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,LIB,0.9661,0.9147,0.9854,98.0,1.39,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,POP,0.2156,0.051,0.6207,38.0,16.44,True
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,CUP,0.6994,0.2484,0.9408,62.06,-7.88,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,OAO,0.9636,0.8833,0.989,92.79,-3.57,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,DSA,0.9438,0.8913,0.9709,99.64,5.25,False
+CC24_341c,Taxes & Economy,Allow rates on $400k+ earners to rise to 35%,PRG,0.9522,0.9206,0.9728,100.0,4.78,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,CON,0.8256,0.624,0.9231,78.42,-4.14,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,LBR,0.9303,0.8676,0.9647,90.71,-2.33,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,STY,0.7902,0.5239,0.9195,70.88,-8.15,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,NAT,0.4951,0.3334,0.6548,54.86,5.35,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,LIB,0.9554,0.9104,0.9787,97.44,1.9,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,POP,0.634,0.3377,0.8368,61.25,-2.15,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,CUP,0.8686,0.6913,0.9531,79.66,-7.19,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,OAO,0.9643,0.9343,0.9827,94.94,-1.49,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,DSA,0.9133,0.8677,0.9467,95.47,4.14,False
+CC24_341d,Taxes & Economy,Spend $150B/yr on infrastructure,PRG,0.934,0.9009,0.9557,99.53,6.12,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,CON,0.2314,0.0326,0.7408,30.23,7.09,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,LBR,0.9398,0.7269,0.9875,82.71,-11.27,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,STY,0.8062,0.2634,0.98,75.1,-5.52,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,NAT,0.0097,0.0021,0.041,0.2,-0.77,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,LIB,0.9803,0.9022,0.9963,98.31,0.27,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,POP,0.0555,0.0058,0.3408,12.34,6.79,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,CUP,0.602,0.1109,0.9534,59.97,-0.23,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,OAO,0.9079,0.644,0.9821,90.37,-0.42,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,DSA,0.9884,0.9601,0.9961,99.37,0.53,False
+CC24_323a,Immigration,Grant legal status to long-term undocumented immigrants,PRG,0.9917,0.97,0.9975,99.98,0.81,False
+CC24_323b,Immigration,Increase border patrols,CON,0.9932,0.9833,0.9972,99.48,0.16,False
+CC24_323b,Immigration,Increase border patrols,LBR,0.8401,0.3427,0.9848,72.24,-11.78,False
+CC24_323b,Immigration,Increase border patrols,STY,0.7196,0.202,0.9673,64.81,-7.15,False
+CC24_323b,Immigration,Increase border patrols,NAT,0.9892,0.979,0.9945,100.0,1.08,False
+CC24_323b,Immigration,Increase border patrols,LIB,0.8402,0.3158,0.9812,75.33,-8.69,False
+CC24_323b,Immigration,Increase border patrols,POP,0.9539,0.7593,0.9916,89.1,-6.28,False
+CC24_323b,Immigration,Increase border patrols,CUP,0.9732,0.8591,0.9949,93.2,-4.12,False
+CC24_323b,Immigration,Increase border patrols,OAO,0.9953,0.9909,0.9976,99.97,0.44,False
+CC24_323b,Immigration,Increase border patrols,DSA,0.2123,0.0954,0.3981,18.34,-2.89,False
+CC24_323b,Immigration,Increase border patrols,PRG,0.2784,0.0972,0.5692,40.63,12.79,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,CON,0.5398,0.0717,0.9379,53.0,-0.97,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,LBR,0.9929,0.9373,0.9993,98.38,-0.9,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,STY,0.9772,0.6782,0.9991,86.68,-11.04,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,NAT,0.0188,0.004,0.086,0.28,-1.6,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,LIB,0.9982,0.9889,0.9998,99.97,0.15,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,POP,0.1586,0.0087,0.7948,27.67,11.8,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,CUP,0.8832,0.208,0.9935,72.28,-16.03,True
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,OAO,0.9863,0.9236,0.998,98.78,0.15,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,DSA,0.9993,0.9973,0.9998,100.0,0.07,False
+CC24_323d,Immigration,Permanent status/pathway for Dreamers,PRG,0.9994,0.9979,0.9998,100.0,0.06,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,CON,0.2349,0.1074,0.4402,25.71,2.21,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,LBR,0.822,0.642,0.9237,79.62,-2.58,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,STY,0.6996,0.421,0.8929,70.53,0.57,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,NAT,0.0763,0.0444,0.1379,5.29,-2.34,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,LIB,0.872,0.7585,0.9382,82.71,-4.48,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,POP,0.2582,0.1088,0.5143,30.24,4.42,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,CUP,0.4259,0.1971,0.6827,47.29,4.7,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,OAO,0.5795,0.4234,0.7179,54.82,-3.13,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,DSA,0.9505,0.9222,0.9681,95.9,0.85,False
+CC24_323f,Immigration,Forgive up to $20k of student loan debt per person,PRG,0.9426,0.9103,0.9644,93.64,-0.62,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,CON,0.9918,0.961,0.9985,99.81,0.63,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,LBR,0.3014,0.0182,0.9083,39.46,9.31,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,STY,0.2628,0.0155,0.907,39.63,13.34,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,NAT,0.9976,0.9935,0.9991,100.0,0.24,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,LIB,0.1924,0.0125,0.7717,29.43,10.19,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,POP,0.9642,0.6671,0.9962,87.09,-9.33,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,CUP,0.9282,0.53,0.9946,82.1,-10.72,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,OAO,0.9678,0.9264,0.9884,100.0,3.22,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,DSA,0.0065,0.002,0.0235,0.03,-0.62,False
+CC24_340f,Immigration,Deny asylum for illegal border crossings,PRG,0.0098,0.0019,0.0498,0.11,-0.87,False
+CC24_321a,Police & Guns,Ban assault rifles,CON,0.3785,0.1387,0.6747,40.75,2.9,False
+CC24_321a,Police & Guns,Ban assault rifles,LBR,0.8472,0.709,0.9341,80.91,-3.81,False
+CC24_321a,Police & Guns,Ban assault rifles,STY,0.6547,0.3386,0.8638,63.14,-2.33,False
+CC24_321a,Police & Guns,Ban assault rifles,NAT,0.08,0.0401,0.1414,6.41,-1.59,False
+CC24_321a,Police & Guns,Ban assault rifles,LIB,0.9241,0.8611,0.9609,91.49,-0.92,False
+CC24_321a,Police & Guns,Ban assault rifles,POP,0.2148,0.0721,0.4875,27.06,5.58,False
+CC24_321a,Police & Guns,Ban assault rifles,CUP,0.6098,0.2602,0.8649,58.55,-2.43,False
+CC24_321a,Police & Guns,Ban assault rifles,OAO,0.8394,0.7059,0.9212,81.03,-2.91,False
+CC24_321a,Police & Guns,Ban assault rifles,DSA,0.9203,0.8823,0.9481,93.19,1.16,False
+CC24_321a,Police & Guns,Ban assault rifles,PRG,0.9392,0.9138,0.9586,96.54,2.62,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,CON,0.6023,0.2636,0.8712,54.92,-5.31,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,LBR,0.1343,0.0528,0.3074,20.17,6.74,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,STY,0.2659,0.0723,0.6821,36.58,9.98,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,NAT,0.9212,0.8219,0.9669,91.77,-0.35,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,LIB,0.0721,0.0304,0.1466,7.3,0.09,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,POP,0.7592,0.3796,0.9273,67.88,-8.03,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,CUP,0.4153,0.1194,0.8154,44.22,2.69,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,OAO,0.1447,0.0595,0.3228,21.12,6.64,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,DSA,0.0568,0.0315,0.1135,1.91,-3.77,False
+CC24_321b,Police & Guns,Easier concealed-carry permits,PRG,0.0593,0.0356,0.0964,1.1,-4.83,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,CON,0.9587,0.8864,0.987,93.8,-2.07,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,LBR,0.9842,0.9601,0.9937,98.44,0.02,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,STY,0.9501,0.8421,0.9871,88.79,-6.22,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,NAT,0.7528,0.6409,0.8476,75.85,0.57,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,LIB,0.992,0.9831,0.9963,99.58,0.38,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,POP,0.8416,0.664,0.9457,80.4,-3.77,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,CUP,0.9715,0.893,0.9912,94.87,-2.28,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,OAO,0.9949,0.9902,0.9976,98.98,-0.51,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,DSA,0.9798,0.97,0.9869,99.7,1.72,False
+CC24_321c,Police & Guns,Require background checks on all gun sales,PRG,0.9856,0.9791,0.9903,99.65,1.09,False
+CC24_321d,Police & Guns,Increase police by 10%,CON,0.9799,0.8891,0.9956,99.71,1.73,False
+CC24_321d,Police & Guns,Increase police by 10%,LBR,0.1429,0.0053,0.8643,31.44,17.14,True
+CC24_321d,Police & Guns,Increase police by 10%,STY,0.1797,0.0076,0.9148,34.96,16.99,True
+CC24_321d,Police & Guns,Increase police by 10%,NAT,0.9528,0.8664,0.984,100.0,4.72,False
+CC24_321d,Police & Guns,Increase police by 10%,LIB,0.172,0.006,0.8461,35.58,18.39,True
+CC24_321d,Police & Guns,Increase police by 10%,POP,0.6032,0.098,0.9758,44.17,-16.16,True
+CC24_321d,Police & Guns,Increase police by 10%,CUP,0.8468,0.2511,0.9867,65.14,-19.54,True
+CC24_321d,Police & Guns,Increase police by 10%,OAO,0.986,0.9572,0.996,99.98,1.38,False
+CC24_321d,Police & Guns,Increase police by 10%,DSA,0.003,0.0008,0.0106,0.27,-0.02,False
+CC24_321d,Police & Guns,Increase police by 10%,PRG,0.004,0.0005,0.0215,0.4,-0.0,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",CON,0.0229,0.008,0.0637,1.88,-0.41,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",LBR,0.3743,0.0726,0.8295,39.51,2.09,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",STY,0.3078,0.0438,0.7642,39.14,8.36,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",NAT,0.0293,0.0144,0.0612,0.11,-2.82,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",LIB,0.3552,0.0825,0.7869,35.64,0.12,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",POP,0.1145,0.0225,0.3632,19.54,8.09,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",CUP,0.0738,0.0171,0.2995,16.61,9.23,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",OAO,0.0233,0.0112,0.0484,1.36,-0.97,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",DSA,0.8409,0.6975,0.926,87.21,3.12,False
+CC24_321e,Police & Guns,"Decrease police by 10%, increase other funding",PRG,0.8228,0.612,0.9335,75.57,-6.71,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,CON,0.9041,0.712,0.967,86.56,-3.85,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,LBR,0.9731,0.9376,0.9906,95.92,-1.39,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,STY,0.9115,0.7495,0.9774,85.85,-5.31,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,NAT,0.5279,0.3744,0.6906,54.08,1.29,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,LIB,0.9866,0.9716,0.9934,98.45,-0.21,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,POP,0.7025,0.4005,0.9,66.55,-3.7,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,CUP,0.9391,0.8141,0.984,90.45,-3.46,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,OAO,0.9891,0.9756,0.9954,98.45,-0.46,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,DSA,0.9719,0.9576,0.9813,99.01,1.82,False
+CC24_321f,Police & Guns,Increase spending on mental health & school safety,PRG,0.9791,0.9694,0.9856,99.62,1.71,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,CON,0.7453,0.5897,0.8648,72.62,-1.92,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,LBR,0.3242,0.1834,0.5121,36.95,4.52,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,STY,0.454,0.2354,0.676,56.8,11.41,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,NAT,0.8007,0.675,0.8882,72.24,-7.83,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,LIB,0.3003,0.1659,0.489,25.73,-4.3,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,POP,0.609,0.3833,0.8001,60.39,-0.51,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,CUP,0.6118,0.3581,0.7915,65.45,4.27,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,OAO,0.6276,0.4683,0.7613,57.39,-5.38,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,DSA,0.1594,0.0961,0.241,14.15,-1.79,False
+CC24_324b,Abortion,Permit abortion only in rape/incest/life danger cases,PRG,0.1655,0.0999,0.2608,6.14,-10.41,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),CON,0.472,0.189,0.7867,48.71,1.52,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),LBR,0.861,0.7287,0.9313,82.74,-3.36,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),STY,0.6111,0.2965,0.8578,53.18,-7.94,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),NAT,0.2275,0.089,0.4928,31.52,8.77,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),LIB,0.8835,0.7618,0.9484,88.82,0.46,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),POP,0.4548,0.175,0.7995,43.5,-1.97,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),CUP,0.5969,0.2765,0.8512,53.86,-5.83,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),OAO,0.7847,0.5492,0.9081,75.02,-3.45,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),DSA,0.9012,0.8041,0.9464,94.05,3.93,False
+CC24_340b,Abortion,Prohibit restrictions on abortion access (Congress bill),PRG,0.9076,0.8318,0.9473,95.68,4.92,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,CON,0.65,0.4515,0.7901,63.59,-1.41,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,LBR,0.1845,0.0982,0.3085,22.94,4.5,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,STY,0.3196,0.1552,0.5333,39.0,7.05,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,NAT,0.8074,0.7033,0.8814,74.68,-6.06,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,LIB,0.1511,0.0868,0.2519,11.18,-3.93,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,POP,0.5884,0.358,0.7693,58.72,-0.12,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,CUP,0.4763,0.277,0.6915,54.55,6.92,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,OAO,0.3996,0.2788,0.548,38.55,-1.41,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,DSA,0.0783,0.0545,0.117,3.78,-4.05,False
+CC24_444c,Abortion,Prohibit abortion-inducing drugs by mail,PRG,0.0791,0.0521,0.1185,1.47,-6.45,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,CON,0.2591,0.177,0.3879,27.16,1.25,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,LBR,0.0921,0.0582,0.1397,8.9,-0.31,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,STY,0.1512,0.0866,0.2679,25.61,10.49,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,NAT,0.3569,0.2667,0.4759,27.25,-8.44,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,LIB,0.0857,0.0549,0.1344,3.68,-4.89,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,POP,0.2287,0.137,0.3587,26.84,3.96,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,CUP,0.1948,0.1129,0.3129,28.02,8.54,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,OAO,0.1607,0.1102,0.2325,16.0,-0.07,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,DSA,0.059,0.0426,0.0788,0.47,-5.43,False
+CC24_444d,Abortion,Prohibit women traveling to another state for abortion,PRG,0.0594,0.0433,0.0812,0.14,-5.8,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,CON,0.4568,0.0179,0.97,47.85,2.17,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,LBR,0.9833,0.8184,0.9983,95.94,-2.4,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,STY,0.6376,0.0443,0.9875,54.3,-9.46,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,NAT,0.0837,0.0033,0.692,26.54,18.17,True
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,LIB,0.9861,0.8644,0.9989,97.26,-1.35,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,POP,0.4432,0.0251,0.9806,43.4,-0.92,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,CUP,0.6953,0.0473,0.9933,55.82,-13.71,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,OAO,0.9399,0.4355,0.9969,79.25,-14.74,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,DSA,0.9898,0.9116,0.9988,98.47,-0.51,False
+CC24_340c,Civil Liberties,Federal recognition of same-sex & interracial marriages,PRG,0.9922,0.9411,0.9986,99.91,0.69,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,CON,0.734,0.6748,0.7923,73.65,0.24,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,LBR,0.4448,0.2868,0.6225,44.48,0.0,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,STY,0.4179,0.2538,0.5789,40.71,-1.08,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,NAT,0.7293,0.6604,0.7815,76.86,3.93,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,LIB,0.4684,0.3224,0.627,52.37,5.53,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,POP,0.5831,0.4284,0.7109,54.79,-3.52,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,CUP,0.6679,0.5673,0.7641,62.43,-4.36,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,OAO,0.7291,0.6892,0.7674,70.79,-2.12,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,DSA,0.2292,0.1731,0.2976,20.81,-2.11,False
+CC24_340d,Civil Liberties,Ban TikTok unless China sells to a US company,PRG,0.2885,0.2205,0.3686,32.15,3.3,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,CON,0.4601,0.2552,0.6974,45.14,-0.86,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,LBR,0.3227,0.1184,0.6279,36.43,4.15,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,STY,0.1624,0.0468,0.4699,30.3,14.05,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,NAT,0.1471,0.0805,0.2667,9.5,-5.21,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,LIB,0.4301,0.1941,0.6867,43.01,-0.0,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,POP,0.1144,0.0387,0.3179,21.37,9.93,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,CUP,0.4068,0.163,0.6915,45.66,4.98,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,OAO,0.7981,0.6507,0.8848,71.62,-8.2,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,DSA,0.1276,0.0696,0.2231,18.33,5.58,False
+CC24_340e,Civil Liberties,Renew post-9/11 surveillance programs,PRG,0.1777,0.0928,0.3198,3.75,-14.02,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,CON,0.8092,0.6989,0.8919,78.12,-2.79,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,LBR,0.4368,0.2905,0.5736,48.93,5.25,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,STY,0.5563,0.3585,0.7329,60.14,4.51,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,NAT,0.9076,0.8722,0.9352,88.91,-1.85,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,LIB,0.359,0.2385,0.4813,32.56,-3.34,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,POP,0.8033,0.6701,0.8841,78.38,-1.95,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,CUP,0.6899,0.5249,0.8198,72.28,3.29,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,OAO,0.6135,0.5062,0.7159,59.93,-1.42,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,DSA,0.2482,0.2008,0.3127,21.67,-3.15,False
+CC24_444a,Civil Liberties,Prevent gender transition surgery for minors,PRG,0.2447,0.1949,0.3045,15.55,-8.92,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,CON,0.8933,0.7902,0.9437,85.4,-3.93,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,LBR,0.4144,0.2265,0.6462,45.68,4.24,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,STY,0.58,0.3403,0.7926,63.6,5.6,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,NAT,0.9543,0.9318,0.9713,94.31,-1.12,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,LIB,0.3295,0.1687,0.5323,34.62,1.67,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,POP,0.86,0.7348,0.942,85.05,-0.94,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,CUP,0.7632,0.574,0.8857,75.43,-0.88,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,OAO,0.7286,0.6191,0.8109,70.85,-2.01,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,DSA,0.1643,0.1123,0.2311,11.67,-4.76,False
+CC24_444b,Civil Liberties,Parental consent for name/pronoun changes at school,PRG,0.1577,0.1024,0.2418,7.67,-8.1,False
+CC24_444e,Civil Liberties,Age verification for adult web content,CON,0.8897,0.8516,0.9182,88.58,-0.39,False
+CC24_444e,Civil Liberties,Age verification for adult web content,LBR,0.7456,0.6108,0.8524,75.26,0.7,False
+CC24_444e,Civil Liberties,Age verification for adult web content,STY,0.762,0.6078,0.8642,77.6,1.39,False
+CC24_444e,Civil Liberties,Age verification for adult web content,NAT,0.8733,0.8423,0.8991,87.06,-0.27,False
+CC24_444e,Civil Liberties,Age verification for adult web content,LIB,0.7487,0.6247,0.8431,72.93,-1.94,False
+CC24_444e,Civil Liberties,Age verification for adult web content,POP,0.8155,0.7135,0.8823,78.89,-2.66,False
+CC24_444e,Civil Liberties,Age verification for adult web content,CUP,0.841,0.7475,0.8961,83.42,-0.68,False
+CC24_444e,Civil Liberties,Age verification for adult web content,OAO,0.895,0.8702,0.9169,89.96,0.46,False
+CC24_444e,Civil Liberties,Age verification for adult web content,DSA,0.5952,0.5264,0.6596,59.09,-0.43,False
+CC24_444e,Civil Liberties,Age verification for adult web content,PRG,0.5954,0.5155,0.6807,53.22,-6.32,False
+CC24_444f,Civil Liberties,School voucher subsidies,CON,0.7339,0.6061,0.8332,70.54,-2.85,False
+CC24_444f,Civil Liberties,School voucher subsidies,LBR,0.4038,0.2988,0.5288,44.45,4.07,False
+CC24_444f,Civil Liberties,School voucher subsidies,STY,0.5731,0.4011,0.7238,61.41,4.1,False
+CC24_444f,Civil Liberties,School voucher subsidies,NAT,0.8653,0.8143,0.9031,86.99,0.46,False
+CC24_444f,Civil Liberties,School voucher subsidies,LIB,0.3171,0.2264,0.4151,26.52,-5.19,False
+CC24_444f,Civil Liberties,School voucher subsidies,POP,0.7637,0.6299,0.8542,71.37,-5.0,False
+CC24_444f,Civil Liberties,School voucher subsidies,CUP,0.5969,0.4224,0.7339,65.69,6.0,False
+CC24_444f,Civil Liberties,School voucher subsidies,OAO,0.4994,0.3929,0.6055,49.39,-0.55,False
+CC24_444f,Civil Liberties,School voucher subsidies,DSA,0.2931,0.2336,0.3585,33.7,4.4,False
+CC24_444f,Civil Liberties,School voucher subsidies,PRG,0.2499,0.2021,0.3096,11.97,-13.02,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,CON,0.3706,0.1284,0.7187,39.21,2.15,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,LBR,0.9094,0.7847,0.9648,88.78,-2.16,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,STY,0.7095,0.3663,0.9163,67.23,-3.72,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,NAT,0.0644,0.0303,0.117,4.93,-1.51,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,LIB,0.9608,0.9237,0.9815,95.24,-0.84,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,POP,0.2216,0.0629,0.5243,31.67,9.51,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,CUP,0.6689,0.2992,0.9069,63.45,-3.44,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,OAO,0.8718,0.7399,0.9479,83.29,-3.89,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,DSA,0.9625,0.9368,0.9778,96.9,0.65,False
+CC24_326a,Environment & Climate,Give EPA power to regulate CO2 emissions,PRG,0.9751,0.9603,0.9846,98.67,1.16,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,CON,0.4411,0.1917,0.7395,44.52,0.41,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,LBR,0.9223,0.8484,0.9679,90.31,-1.92,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,STY,0.7882,0.544,0.93,76.54,-2.28,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,NAT,0.1074,0.0564,0.1915,8.99,-1.75,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,LIB,0.9586,0.9128,0.9785,94.34,-1.53,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,POP,0.3311,0.1248,0.643,39.6,6.49,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,CUP,0.6839,0.3562,0.8986,67.47,-0.92,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,OAO,0.8688,0.7295,0.9427,83.27,-3.61,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,DSA,0.9713,0.9554,0.9813,97.0,-0.13,False
+CC24_326b,Environment & Climate,Require 20% renewable electricity,PRG,0.9752,0.9616,0.9833,98.02,0.5,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),CON,0.2716,0.1111,0.5357,29.68,2.52,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),LBR,0.8219,0.6657,0.9232,77.05,-5.14,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),STY,0.6228,0.3355,0.8624,62.63,0.35,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),NAT,0.0664,0.0381,0.1147,4.38,-2.26,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),LIB,0.9028,0.8073,0.9488,90.47,0.19,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),POP,0.2017,0.077,0.4399,26.82,6.65,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),CUP,0.5206,0.2192,0.7958,51.27,-0.79,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),OAO,0.714,0.5712,0.8362,69.5,-1.9,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),DSA,0.9269,0.8869,0.9513,93.13,0.44,False
+CC24_326c,Environment & Climate,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),PRG,0.943,0.9108,0.9618,97.01,2.71,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,CON,0.8611,0.7326,0.9345,85.06,-1.05,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,LBR,0.3279,0.1574,0.558,36.39,3.59,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,STY,0.473,0.2357,0.724,50.03,2.74,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,NAT,0.9421,0.9118,0.9635,96.36,2.14,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,LIB,0.2484,0.1172,0.4351,25.92,1.08,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,POP,0.8185,0.6504,0.9207,74.08,-7.76,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,CUP,0.7009,0.4586,0.8695,70.33,0.24,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,OAO,0.6552,0.5196,0.762,60.6,-4.93,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,DSA,0.1099,0.0712,0.1623,10.02,-0.98,False
+CC24_326d,Environment & Climate,Increase fossil fuel production in the U.S.,PRG,0.1095,0.0687,0.1657,8.19,-2.75,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,CON,0.1775,0.084,0.3527,19.57,1.82,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,LBR,0.682,0.487,0.8124,65.65,-2.55,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,STY,0.4993,0.2721,0.7347,50.8,0.87,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,NAT,0.0593,0.0347,0.0959,3.22,-2.71,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,LIB,0.7698,0.6476,0.8689,74.36,-2.62,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,POP,0.1697,0.0747,0.3303,21.0,4.03,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,CUP,0.3367,0.1617,0.5838,38.54,4.88,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,OAO,0.4732,0.3454,0.6164,45.23,-2.09,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,DSA,0.8614,0.811,0.9026,87.69,1.54,False
+CC24_326e,Environment & Climate,Halt new oil and gas leases on federal lands,PRG,0.868,0.8257,0.908,89.48,2.68,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,CON,0.8047,0.716,0.8614,78.27,-2.2,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,LBR,0.5883,0.4688,0.7023,61.5,2.66,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,STY,0.6422,0.4971,0.7543,62.14,-2.08,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,NAT,0.8735,0.8357,0.9,90.49,3.14,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,LIB,0.5255,0.4373,0.6206,56.64,4.09,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,POP,0.8002,0.708,0.8679,77.1,-2.92,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,CUP,0.7231,0.6039,0.8271,71.59,-0.71,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,OAO,0.6926,0.6142,0.7607,69.0,-0.26,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,DSA,0.4435,0.3765,0.5046,44.13,-0.22,False
+CC24_326f,Environment & Climate,Prevent government from banning gas stoves,PRG,0.4336,0.375,0.5056,36.83,-6.54,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,CON,0.438,0.384,0.4968,41.75,-2.04,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,LBR,0.5609,0.5103,0.6124,55.0,-1.09,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,STY,0.4953,0.4153,0.5725,54.37,4.84,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,NAT,0.3506,0.2998,0.4095,34.79,-0.27,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,LIB,0.6209,0.5822,0.6572,63.05,0.96,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,POP,0.3918,0.327,0.4658,40.22,1.05,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,CUP,0.5262,0.4757,0.5813,51.28,-1.35,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,OAO,0.5443,0.5082,0.5801,55.85,1.42,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,DSA,0.5965,0.5479,0.6405,52.8,-6.85,False
+CC24_328a,Healthcare & Housing,Relax local zoning laws to allow more apartments/condos,PRG,0.6531,0.6326,0.6743,69.63,4.33,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,CON,0.6077,0.4387,0.7444,59.6,-1.16,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,LBR,0.8892,0.8302,0.9302,86.79,-2.13,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,STY,0.7991,0.6661,0.8962,78.96,-0.95,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,NAT,0.3212,0.25,0.4044,32.61,0.49,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,LIB,0.9235,0.8887,0.9477,92.89,0.55,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,POP,0.518,0.3506,0.7009,53.04,1.24,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,CUP,0.7432,0.58,0.8503,72.98,-1.34,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,OAO,0.8517,0.7886,0.8956,81.78,-3.39,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,DSA,0.9377,0.9211,0.9502,95.92,2.15,False
+CC24_328b,Healthcare & Housing,Expand federal tax incentives for affordable housing,PRG,0.9442,0.9318,0.9557,96.66,2.24,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,CON,0.7027,0.6241,0.7676,69.52,-0.75,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,LBR,0.4178,0.2913,0.5502,44.54,2.76,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,STY,0.4486,0.312,0.5882,49.35,4.49,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,NAT,0.7316,0.6873,0.7792,72.75,-0.4,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,LIB,0.3982,0.2853,0.5272,40.19,0.37,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,POP,0.5987,0.4753,0.6982,58.38,-1.49,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,CUP,0.6019,0.4931,0.7104,58.75,-1.44,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,OAO,0.6484,0.5801,0.7087,67.13,2.29,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,DSA,0.2474,0.1966,0.3082,22.05,-2.69,False
+CC24_328c,Healthcare & Housing,Require able-bodied Medicaid recipients under 64 to work,PRG,0.2601,0.208,0.3311,17.19,-8.82,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,CON,0.6336,0.4112,0.8095,62.12,-1.25,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,LBR,0.1319,0.0648,0.2447,15.07,1.88,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,STY,0.291,0.1261,0.5485,33.49,4.4,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,NAT,0.8759,0.8064,0.92,85.72,-1.87,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,LIB,0.075,0.0384,0.1328,5.04,-2.46,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,POP,0.6891,0.4495,0.85,67.16,-1.75,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,CUP,0.3683,0.1893,0.5927,41.39,4.55,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,OAO,0.2493,0.157,0.3727,25.31,0.39,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,DSA,0.0537,0.0376,0.0759,3.56,-1.81,False
+CC24_328d,Healthcare & Housing,Repeal the Affordable Care Act,PRG,0.0391,0.0264,0.0593,1.47,-2.44,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),CON,0.6927,0.4988,0.8307,67.21,-2.05,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),LBR,0.9422,0.9023,0.9691,93.46,-0.76,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),STY,0.8815,0.7484,0.9481,84.29,-3.86,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),NAT,0.3791,0.2778,0.4857,38.03,0.12,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),LIB,0.9598,0.9363,0.9756,95.41,-0.57,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),POP,0.6327,0.4088,0.792,65.86,2.59,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),CUP,0.8114,0.6489,0.9134,79.13,-2.02,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),OAO,0.9062,0.8482,0.9416,88.54,-2.08,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),DSA,0.9735,0.9636,0.9808,98.76,1.41,False
+CC24_328e,Healthcare & Housing,Expand Medicaid (income <$25k individual / <$40k family),PRG,0.9734,0.9655,0.98,99.33,1.98,False
