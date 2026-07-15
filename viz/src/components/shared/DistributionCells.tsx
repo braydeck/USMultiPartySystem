@@ -1,6 +1,6 @@
 import { getBlendColor } from '../../constants/parties';
 import { PartyRowLabel } from './PartyRowLabel';
-import { flareForFrac, flareText } from '../../lib/flare';
+import { cividisForFrac, cividisText } from '../../lib/cividis';
 
 // Shared row language with StackedBarCell/IntensityCell: `U.S.` + each selected party code,
 // a w-11 label, a flex-1 track, and a value column. National uses slate.
@@ -178,15 +178,14 @@ export function HeatmapCell({ meta, national, byCode, codes }: {
           <div key={code} className="contents">
             <PartyRowLabel code={code} className="self-center text-[10px]" />
             {pcts.map((v, i) => {
-              // Seaborn "flare" ramp by within-grid share: high = dark magenta-purple, low =
-              // light salmon. Hue rotates as it darkens, so mid-range shares separate better
-              // than the old flat single-hue magenta fade.
+              // Cividis by within-grid share: dark navy = low → yellow = high. Perceptually
+              // uniform and colorblind-safe; exact % is printed in the cell either way.
               const a = Math.min(1, v / scaleMax);
-              const bg = flareForFrac(a);
+              const bg = cividisForFrac(a);
               return (
                 <div key={i} className="h-6 flex items-center justify-center text-[9px] tabular-nums rounded-[2px]"
                   title={`${meta.segLabels[i]}: ${v.toFixed(1)}%`}
-                  style={{ backgroundColor: bg, color: flareText(bg) }}>
+                  style={{ backgroundColor: bg, color: cividisText(bg) }}>
                   {v >= 0.5 ? Math.round(v) : ''}
                 </div>
               );
