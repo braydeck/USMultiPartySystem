@@ -511,8 +511,8 @@ export function AboutTab() {
             <div className="font-semibold text-foreground mb-2">The turnout inversion</div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
               Validated 2024 turnout runs <em>backwards</em> to force size. The high-intensity ideological poles
-              vote most (Progressive at 83%, Nationalist at 77%) while the large, cross-pressured center votes
-              least: Solidarity at just 37%. Winner-take-all converts that intensity gap directly into power. The
+              vote most (Progressive at 81%, Nationalist at 74%) while the large, cross-pressured center votes
+              least: Solidarity at just 33%. Winner-take-all converts that intensity gap directly into power. The
               engaged extremes are over-represented and the disengaged center is under-represented, before a single
               seat is even allocated.
             </p>
@@ -557,7 +557,7 @@ export function AboutTab() {
               {[
                 { q: 'President: robust', a: 'Solidarity (Condorcet) and Labour (IRV) win at observed turnout and at every compression level. Nothing hinges on the assumption.' },
                 { q: 'House: scales, doesn’t flip', a: 'Conservative stays the plurality throughout; Solidarity’s delegation grows monotonically as the gap closes. Weakest at 0%, so it’s quoted as a range, not a point.' },
-                { q: 'Senate: conditional on mobilization', a: 'The one result observed data does not support: Labour leads at observed turnout and at plausible compression (≤10%); Solidarity only takes the plurality under stress-level compression (20–30%). So at observed turnout the Senate is Labour’s, and Solidarity’s Senate is contingent, reported that way.' },
+                { q: 'Senate: conditional on mobilization', a: 'The one result observed data does not support: Labour leads at observed turnout, at plausible compression (≤10%), and through 20%; Solidarity only reaches the plurality at the top of the stress band (~30%), beyond what one cycle plausibly delivers. So at observed turnout the Senate is Labour’s, and Solidarity’s Senate is contingent, reported that way.' },
               ].map(r => (
                 <div key={r.q} className="flex gap-3">
                   <div className="text-muted-foreground shrink-0 mt-0.5">→</div>

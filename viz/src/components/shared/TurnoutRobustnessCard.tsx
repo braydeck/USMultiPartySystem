@@ -146,8 +146,8 @@ export function TurnoutRobustnessCard() {
         every compression level. <strong>House:</strong> Conservative stays the plurality throughout; Solidarity&apos;s
         delegation scales {styLo}→{styHi} seats and only strengthens with compression. <strong>Senate:</strong> the one
         result observed data does <em>not</em> support. Labour leads at observed turnout and at plausible compression
-        (≤10%); Solidarity only reaches the plurality under stress-level compression (~20–30%), beyond what one cycle
-        plausibly delivers. So at observed turnout the Senate is Labour&apos;s, and Solidarity&apos;s Senate is conditional on mobilization.
+        (≤10%) and through 20%; Solidarity only reaches the plurality at the top of the stress band (~30%), beyond what
+        one cycle plausibly delivers. So at observed turnout the Senate is Labour&apos;s, and Solidarity&apos;s Senate is conditional on mobilization.
       </p>
       <p className="mt-2 text-[10px] text-muted-foreground">
         Contraction is modeled as upward mobilization of the suppressed forces, holding high-turnout forces fixed:
