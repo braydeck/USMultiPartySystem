@@ -3242,6 +3242,22 @@ def build_party_population():
     write_json(rows, "partyPopulation.json")
 
 
+def build_turnout_verification():
+    """Per-force 2024 turnout verification composition: verifiedVoted / matchedNonvoter /
+    unmatched (sum to 100). Shows why the reported-vs-verified gap is dominated by voter-file
+    match failure, not over-report. Source: pipeline/add_compare_items.py -> turnout_verification.csv."""
+    proc = Path(__file__).parent.parent.parent / "data" / "processed"
+    rows = read_csv(proc / "turnout_verification.csv")
+    def rec(r):
+        return {"party": r["party"],
+                "verifiedVoted": round(float(r["verifiedVoted"]), 1),
+                "matchedNonvoter": round(float(r["matchedNonvoter"]), 1),
+                "unmatched": round(float(r["unmatched"]), 1)}
+    national = next(rec(r) for r in rows if r["party"] == "ALL")
+    parties = [rec(r) for r in rows if r["party"] != "ALL"]
+    write_json({"national": national, "parties": parties}, "turnoutVerification.json")
+
+
 def build_turnout_lambda_scenario():
     """Gap-compression sweep. λ=0 (Turnout) already emitted by build_turnout_scenario;
     this emits the intermediate stops *TurnoutL10/L20/L30.json — each force's turnout gap
@@ -3316,6 +3332,7 @@ if __name__ == "__main__":
         build_turnout_lambda_scenario,
         build_turnout_crossover_triple,
         build_party_population,
+        build_turnout_verification,
     ):
         _run(fn)
     print("Done.")

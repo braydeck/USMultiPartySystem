@@ -15,6 +15,7 @@ import { PartyProfileCard } from '../components/shared/PartyProfileCard';
 import { VerdictBadge, getBayesianLabel } from '../components/legislation/UnifiedBillTable';
 import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
+import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
 
 const FPTP_SENATE = { DEM: 47, GOP: 53 };
 
@@ -175,6 +176,9 @@ export function OverviewTab({
 
       {/* Section 0 — Population breakdown */}
       <PopulationBreakdown />
+
+      {/* Section 0b — Turnout verified against the voter file (match structure) */}
+      <TurnoutVerificationCard />
 
       {/* Section 1 — House FPTP vs STV */}
       <Card className="p-5 border-2 border-indigo-200">

@@ -567,9 +567,18 @@ export function AboutTab() {
             </div>
             <p className="text-[11px] text-muted-foreground leading-relaxed mt-4">
               Turnout is <strong>validated</strong> (matched to the TargetSmart voter file via CES <code>TS_g2024</code>),
-              not self-reported, so the 37-vs-83 spread is a real measured gap, not an artifact of differential
-              over-reporting. The observed floor is anchored to data; the ceiling is bounded by the literature; the
-              slider is the axis between them.
+              not self-reported, so the 32%-to-81% spread across forces is a measured gap, not survey over-reporting
+              (which is small, roughly 3 points, once you compare matched respondents like with like). Two facts make
+              this defensible. First, coding unmatched respondents as non-voters is the field standard, not our choice:
+              Grimmer &amp; Hersh (2018) show it recovers actual state turnout far better than dropping them, and our
+              weighted national validated turnout (59%) lands on the voting-age-population benchmark (~59%; the
+              widely-cited 64% figure uses the narrower eligible-population denominator). Second, and decisively, the
+              simulation only ever uses turnout <em>relative</em> to the average, because STV and Condorcet counting
+              normalize ballot weight against the quota. So whether Solidarity&apos;s true turnout is the validated 32%
+              or as high as 41% (its upper bound once you credit hard-to-match voters), its weight relative to other
+              forces barely moves and its ordering never does. The one real uncertainty, that low-engagement forces are
+              hardest to locate on the voter file and so their floor is slightly understated, is exactly what the
+              compression slider sweeps upward.
             </p>
           </Card>
         </div>

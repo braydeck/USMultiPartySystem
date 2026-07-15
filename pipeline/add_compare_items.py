@@ -95,8 +95,11 @@ DENOM=[  # (synth_key, question, target religpew codes)
  ('relig_other','Other faith',{3,4,7,8,12}),
 ]
 RELIG_LOAD=['pew_religimp','pew_prayer','religpew']
-LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410']))
-EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24+['pew_religimp','pew_prayer']+[d[0] for d in DENOM]
+# Turnout: self-reported (CC24_401==5) vs voter-file-verified (TS_g2024 in 1..6). The gap by
+# party is the self-report inflation, largest for low-engagement forces (Solidarity).
+TURNOUT=['reported_turnout_24','verified_turnout_24']
+LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410','TS_g2024']))
+EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24+TURNOUT+['pew_religimp','pew_prayer']+[d[0] for d in DENOM]
 
 def main():
     df=pd.read_stata(DTA, columns=ITEMS+LOADVARS+['commonpostweight'], convert_categoricals=False)
@@ -135,6 +138,29 @@ def main():
     rows.append(emit('vote24_trump', VW,'2024: Donald Trump (R)',    v24(ch==2)))
     rows.append(emit('vote24_third', VW,'2024: Third-party / other', v24(np.isin(ch,[3,4,5,6,8]))))
     rows.append(emit('vote24_dnv',   VW,'2024: Did not vote',        v24(t!=5)))
+    # Turnout gap: self-reported (CC24_401==5) vs voter-file-verified (TS_g2024 in 1..6), same
+    # full-sample denominator so reported% - verified% reads as the per-party over-report.
+    ts=dc['TS_g2024'].values.astype(float)
+    rows.append(emit('reported_turnout_24',VW,'2024: Self-reported turnout',
+                     np.where(t==5,1.0,0.0)))
+    rows.append(emit('verified_turnout_24',VW,'2024: Voter-file-verified turnout',
+                     np.where((~np.isnan(ts))&(ts<=6),1.0,0.0)))
+    # Turnout verification composition per cluster: what share of each force can be confirmed
+    # against the voter file at all. verifiedVoted(1..6) / matchedNonvoter(7) / unmatched(missing)
+    # sum to 100. The unmatched slice is why the reported-vs-verified gap is NOT pure over-report.
+    CODES=['CON','LBR','STY','NAT','LIB','POP','CUP','OAO','DSA','PRG']
+    vv=np.where((~np.isnan(ts))&(ts<=6),1.0,0.0)
+    mnv=np.where(ts==7,1.0,0.0)
+    unm=np.where(np.isnan(ts),1.0,0.0)
+    comp=[]
+    for k in range(10):
+        m=cl==k
+        comp.append({'cluster':k,'party':CODES[k],'verifiedVoted':wpct(vv,m),
+                     'matchedNonvoter':wpct(mnv,m),'unmatched':wpct(unm,m)})
+    allm=np.ones(len(vv),bool)
+    comp.append({'cluster':-1,'party':'ALL','verifiedVoted':wpct(vv,allm),
+                 'matchedNonvoter':wpct(mnv,allm),'unmatched':wpct(unm,allm)})
+    pd.DataFrame(comp).to_csv(ROOT/'data'/'processed'/'turnout_verification.csv',index=False)
     # Religion importance (very/somewhat important → 1); a "view"
     ri=dc['pew_religimp'].values.astype(float)
     rows.append(emit('pew_religimp','Religion','Religion is important (very or somewhat)',

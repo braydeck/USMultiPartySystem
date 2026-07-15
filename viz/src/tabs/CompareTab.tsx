@@ -103,6 +103,7 @@ const SECTION_QUESTION_ORDER: Record<string, string[]> = {
     '2020: Joe Biden (D)', '2020: Donald Trump (R)', '2020: Third-party / other', '2020: Did not vote',
     '2024: Kamala Harris (D)', '2024: Donald Trump (R)', '2024: Third-party / other', '2024: Did not vote',
     '2024: Approve of Joe Biden (job)', '2024: Approve of Kamala Harris (job)',
+    '2024: Self-reported turnout', '2024: Voter-file-verified turnout',
   ],
   Abortion: [
     'Median abortion cutoff (weeks)',
