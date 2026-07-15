@@ -281,6 +281,17 @@ def build_senate_vote_model(rm_dir=PURE_MULTI_DIR, out_name="senateVoteModel.jso
             except (KeyError, ValueError):
                 pass
 
+    # Veto-override probabilities (2/3 of the 50-seat Senate = 34) for the
+    # scenarios the Legislation tab exposes: Raw Multi and Factor Deviation.
+    import math as _math_s
+    def _tt_senate(seats):
+        tot = sum(seats.values())
+        return _math_s.ceil(2.0 / 3.0 * tot) if tot else 1
+    rm_cond_ovr = _lf_prob_pass(cond_rm_seats, cluster_by_var, majority=_tt_senate(cond_rm_seats))
+    rm_irv_ovr  = _lf_prob_pass(irv_rm_seats,  cluster_by_var, majority=_tt_senate(irv_rm_seats))
+    fd_cond_ovr = _fd_prob_pass(cond_fd_seats, fd_by_var,      majority=_tt_senate(cond_fd_seats))
+    fd_irv_ovr  = _fd_prob_pass(irv_fd_seats,  fd_by_var,      majority=_tt_senate(irv_fd_seats))
+
     out = []
     for r in rows:
         var = r["variable"]
@@ -332,6 +343,11 @@ def build_senate_vote_model(rm_dir=PURE_MULTI_DIR, out_name="senateVoteModel.jso
             "condRawMultiVerdict":  rm_cond_results.get(var, {}).get("verdict", "N/A"),
             "irvRawMultiProbPass":  rm_irv_results.get(var, {}).get("prob_pass", 0.0),
             "irvRawMultiVerdict":   rm_irv_results.get(var, {}).get("verdict", "N/A"),
+            # Veto-override probabilities (2/3 threshold) per scenario
+            "condRawMultiProbOverride": rm_cond_ovr.get(var, {}).get("prob_pass", 0.0),
+            "irvRawMultiProbOverride":  rm_irv_ovr.get(var, {}).get("prob_pass", 0.0),
+            "condFDProbOverride":       fd_cond_ovr.get(var, {}).get("prob_pass", 0.0),
+            "irvFDProbOverride":        fd_irv_ovr.get(var, {}).get("prob_pass", 0.0),
             # Raw Multi president (SD_1 IRV, CUP_1 Condorcet)
             "presRawMultiIRVSigns":  presRawMultiIRV_signs.get(var, "VETO"),
             "presRawMultiIRVPct":    presRawMultiIRV_pct.get(var, 0.0),
@@ -506,6 +522,33 @@ def build_house_seats_gauss():
 
 
 # ---------- houseVoteModel.json ----------
+def build_candidate_vote_model(out_name="candidateVoteModel.json"):
+    """candidateVoteModel.json — per-bill, per-party predicted candidate vote from
+    the 5-factor logit (pipeline/candidate_vote_model.py). One record per bill with
+    a `parties` map: pYes, spread band (bandLo/bandHi), observed support, divergence."""
+    rows = read_csv(OUTPUTS / "candidate_vote_model.csv")
+    by_bill: dict = {}
+    order: list = []
+    for r in rows:
+        var = r["variable"]
+        if var not in by_bill:
+            by_bill[var] = {"variable": var, "domain": r["domain"],
+                            "question": r["question"], "parties": {}}
+            order.append(var)
+        def _f(k):
+            v = r.get(k, "")
+            return float(v) if v not in ("", None) else None
+        by_bill[var]["parties"][r["party"]] = {
+            "pYes":        _f("pYes"),
+            "bandLo":      _f("bandLo"),
+            "bandHi":      _f("bandHi"),
+            "observedPct": _f("observedPct"),
+            "delta":       _f("delta"),
+            "diverges":    str(r.get("diverges", "")).strip().lower() == "true",
+        }
+    write_json([by_bill[v] for v in order], out_name)
+
+
 def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json",
                            include_c7=True):
     rows = read_csv(OUTPUTS / "house_vote_model.csv")
@@ -578,6 +621,17 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
     fd_triple_majority = fd_triple_total // 2 + 1 if fd_triple_total else 1
     fd_triple_results = _lf_prob_pass(fd_triple_seats, cluster_by_var_h, majority=fd_triple_majority) if fd_triple_seats else {}
 
+    # Veto-override probabilities: same Normal-approx binomials at a 2/3 threshold
+    # in the chamber. P(law) multiplies these when the president vetoes.
+    import math as _math
+    def _twothirds(total):
+        return _math.ceil(2.0 / 3.0 * total) if total else 1
+    stv_ovr = _lf_prob_pass(stv_seat_counts, cluster_by_var_h, majority=_twothirds(total_stv))
+    rm_ovr  = _lf_prob_pass(rm_house_seats,  cluster_by_var_h, majority=_twothirds(rm_house_total))
+    fd_ovr  = _lf_prob_pass(fd_house_seats,  cluster_by_var_h, majority=_twothirds(fd_house_total))
+    rmt_ovr = _lf_prob_pass(rm_triple_seats, cluster_by_var_h, majority=_twothirds(rm_triple_total)) if rm_triple_seats else {}
+    fdt_ovr = _lf_prob_pass(fd_triple_seats, cluster_by_var_h, majority=_twothirds(fd_triple_total)) if fd_triple_seats else {}
+
     out = []
     for r in rows:
         var = r["variable"]
@@ -603,6 +657,11 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
             "houseRawMultiTripleVerdict":  rmt["verdict"],
             "houseFDTripleProbPass":       fdt["prob_pass"],
             "houseFDTripleVerdict":        fdt["verdict"],
+            "houseStvProbOverride":        stv_ovr.get(var, {}).get("prob_pass", 0.0),
+            "houseRawMultiProbOverride":   rm_ovr.get(var, {}).get("prob_pass", 0.0),
+            "houseFDProbOverride":         fd_ovr.get(var, {}).get("prob_pass", 0.0),
+            "houseRawMultiTripleProbOverride": rmt_ovr.get(var, {}).get("prob_pass", 0.0),
+            "houseFDTripleProbOverride":       fdt_ovr.get(var, {}).get("prob_pass", 0.0),
         })
     write_json(out, out_name)
 
@@ -3009,6 +3068,11 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
         p = r["senator_code"].rsplit("_", 1)[0]; irv_seats[p] = irv_seats.get(p, 0) + 1
     cond_res = _lf_prob_pass(cond_seats, cbv)
     irv_res  = _lf_prob_pass(irv_seats,  cbv)
+    import math as _m
+    def _tt(seats):
+        t = sum(seats.values()); return _m.ceil(2.0 / 3.0 * t) if t else 1
+    cond_ovr = _lf_prob_pass(cond_seats, cbv, majority=_tt(cond_seats))
+    irv_ovr  = _lf_prob_pass(irv_seats,  cbv, majority=_tt(irv_seats))
     irv_party, cond_party = _party(rm_irv_winner), _party(rm_cond_winner)
 
     for row in base:
@@ -3025,6 +3089,8 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
         row["condRawMultiVerdict"]  = cond_res.get(var, {}).get("verdict", "N/A")
         row["irvRawMultiProbPass"]  = irv_res.get(var, {}).get("prob_pass", 0.0)
         row["irvRawMultiVerdict"]   = irv_res.get(var, {}).get("verdict", "N/A")
+        row["condRawMultiProbOverride"] = cond_ovr.get(var, {}).get("prob_pass", 0.0)
+        row["irvRawMultiProbOverride"]  = irv_ovr.get(var, {}).get("prob_pass", 0.0)
 
     # ── Crossover (FD) senate columns from the native FD run (OAO-inclusive) ──
     fd_stats = read_csv(FD_DIR / "profiles" / "factor_deviation_stats.csv")
@@ -3037,6 +3103,8 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
     for r in read_csv(FD_DIR / "senate" / "senate_irv_composition.csv"):
         irv_fd[r["senator_code"]] = irv_fd.get(r["senator_code"], 0) + 1
     fd_cond, fd_irv = _fd_prob_pass(cond_fd, fd_by_var), _fd_prob_pass(irv_fd, fd_by_var)
+    fd_cond_ovr = _fd_prob_pass(cond_fd, fd_by_var, majority=_tt(cond_fd))
+    fd_irv_ovr  = _fd_prob_pass(irv_fd,  fd_by_var, majority=_tt(irv_fd))
     fd_irv_w = None
     for r in read_csv(FD_DIR / "irv" / "irv_presidential_national_2028.csv"):
         if r.get("winner", "").strip() == "True":
@@ -3049,6 +3117,8 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
         row["condFDVerdict"]  = fd_cond.get(var, {}).get("verdict", "N/A")
         row["irvFDProbPass"]  = fd_irv.get(var, {}).get("prob_pass", 0.0)
         row["irvFDVerdict"]   = fd_irv.get(var, {}).get("verdict", "N/A")
+        row["condFDProbOverride"] = fd_cond_ovr.get(var, {}).get("prob_pass", 0.0)
+        row["irvFDProbOverride"]  = fd_irv_ovr.get(var, {}).get("prob_pass", 0.0)
         if frow:
             isup = float(frow.get(fd_irv_w) or 0) if fd_irv_w else 0.0
             csup = float(frow.get(fd_cond_w) or 0) if fd_cond_w else 0.0
@@ -3073,33 +3143,45 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json"):
         rm_seats[code] = rm_seats.get(code, 0) + int(r["NATIONAL"])
         total += int(r["NATIONAL"])
     maj = total // 2 + 1
-    res = _lf_prob_pass(rm_seats, cbv, majority=maj)
+    import math as _m
+    def _tt(t):
+        return _m.ceil(2.0 / 3.0 * t) if t else 1
+    res     = _lf_prob_pass(rm_seats, cbv, majority=maj)
+    res_ovr = _lf_prob_pass(rm_seats, cbv, majority=_tt(total))
 
     def _house_res(csv_path, by_code):
+        """Returns (pass_results, override_results) for a scenario's house seats."""
         seats, tot = {}, 0
         if not Path(csv_path).exists():
-            return {}
+            return {}, {}
         for r in read_csv(csv_path):
             code = r["party"] if by_code else _cluster_to_party.get(int(r["party"]), str(r["party"]))
             seats[code] = seats.get(code, 0) + int(r["NATIONAL"])
             tot += int(r["NATIONAL"])
-        return _lf_prob_pass(seats, cbv, majority=tot // 2 + 1) if tot else {}
+        if not tot:
+            return {}, {}
+        return (_lf_prob_pass(seats, cbv, majority=tot // 2 + 1),
+                _lf_prob_pass(seats, cbv, majority=_tt(tot)))
 
-    fd_res  = _house_res(FD_DIR / "house" / "stv_seat_summary.csv", by_code=True)
-    rmt_res = _house_res(PURE_MULTI_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=False)
-    fdt_res = _house_res(FD_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=True)
+    fd_res,  fd_ovr  = _house_res(FD_DIR / "house" / "stv_seat_summary.csv", by_code=True)
+    rmt_res, rmt_ovr = _house_res(PURE_MULTI_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=False)
+    fdt_res, fdt_ovr = _house_res(FD_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=True)
     for row in base:
         var = row["variable"]
         row["houseRawMultiProbPass"] = res.get(var, {}).get("prob_pass", 0.0)
         row["houseRawMultiVerdict"]  = res.get(var, {}).get("verdict", "N/A")
+        row["houseRawMultiProbOverride"] = res_ovr.get(var, {}).get("prob_pass", 0.0)
         row["houseFDProbPass"] = fd_res.get(var, {}).get("prob_pass", 0.0)
         row["houseFDVerdict"]  = fd_res.get(var, {}).get("verdict", "N/A")
+        row["houseFDProbOverride"] = fd_ovr.get(var, {}).get("prob_pass", 0.0)
         if rmt_res:
             row["houseRawMultiTripleProbPass"] = rmt_res.get(var, {}).get("prob_pass", 0.0)
             row["houseRawMultiTripleVerdict"]  = rmt_res.get(var, {}).get("verdict", "N/A")
+            row["houseRawMultiTripleProbOverride"] = rmt_ovr.get(var, {}).get("prob_pass", 0.0)
         if fdt_res:
             row["houseFDTripleProbPass"] = fdt_res.get(var, {}).get("prob_pass", 0.0)
             row["houseFDTripleVerdict"]  = fdt_res.get(var, {}).get("verdict", "N/A")
+            row["houseFDTripleProbOverride"] = fdt_ovr.get(var, {}).get("prob_pass", 0.0)
     write_json(base, out_name)
 
 
@@ -3416,6 +3498,7 @@ if __name__ == "__main__":
     # from the native pure_multi run (which now includes OAO).
     _run(build_senate_vote_model_wfp, PURE_MULTI_DIR, out_name="senateVoteModel.json")
     _run(build_house_vote_model_wfp,  PURE_MULTI_DIR, out_name="houseVoteModel.json")
+    _run(build_candidate_vote_model)
 
     for fn in (
         build_house_seats, build_house_transfers, build_fd_variant_attraction,
