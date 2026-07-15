@@ -216,9 +216,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
-        {pipeline === 'rawMulti' && (
-          <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
-        )}
+        <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
       </StickyControlBar>
 
       {/* FPTP vs Preferential Senate Comparison */}
