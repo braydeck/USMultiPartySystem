@@ -962,12 +962,9 @@ def collect_cluster_variables(rows, include_c7=True):
                 result[cid][var]['domain'] = new_domain
                 result[cid][var]['question'] = new_question
 
-    # Phase 6: continuous variables with custom axis scale
-    CONTINUOUS_VARS = [
-        # (variable, stat_label, synth_key, domain, question, maxVal, unit)
-        ('CC24_325', 'Median', 'CC24_325_median', 'Abortion',
-         'Median abortion cutoff (weeks)', 40, 'wks'),
-    ]
+    # Phase 6: continuous variables with custom axis scale.
+    # (Abortion cutoff is now the box-plot distribution item — no standalone median bar.)
+    CONTINUOUS_VARS: list = []
     for var, stat_lbl, synth_key, domain, question, max_val, unit in CONTINUOUS_VARS:
         r = cat_lookup.get((var, stat_lbl))
         if not r:

@@ -12,6 +12,15 @@ type CompVals = { pcts: number[]; value?: number };
 export interface RangeMeta { question: string; unit: string }
 export interface CompMeta { question: string; segLabels: string[]; colors?: string[]; pivot?: number; valueUnit?: string; viz?: string }
 
+/** Factor-loading badges (SO/GD/PC/RT/ES) shown before an item's question, matching the
+ *  binary rows so distribution charts read the same. */
+export function FactorTags({ shorts }: { shorts?: string[] }) {
+  if (!shorts || shorts.length === 0) return null;
+  return <>{shorts.map(s => (
+    <span key={s} className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">{s}</span>
+  ))}</>;
+}
+
 function niceTicks(min: number, max: number, count = 5): number[] {
   const span = (max - min) || 1;
   const mag = Math.pow(10, Math.floor(Math.log10(span / count)));
@@ -24,9 +33,9 @@ function niceTicks(min: number, max: number, count = 5): number[] {
 
 /** Continuous distribution as a plain-language box plot with an axis scale: box = middle 50%,
  *  tick = median, whiskers = 10th–90th percentile. Value column shows median + IQR. */
-export function RangeBarCell({ meta, national, byCode, codes, marks }: {
+export function RangeBarCell({ meta, national, byCode, codes, marks, factors }: {
   meta: RangeMeta; national: RangeVals; byCode: Record<string, RangeVals>; codes: string[];
-  marks?: Record<string, RowMark>;
+  marks?: Record<string, RowMark>; factors?: string[];
 }) {
   const shown = codes.filter(c => byCode[c]);
   const all = [national, ...shown.map(c => byCode[c])];
@@ -40,7 +49,7 @@ export function RangeBarCell({ meta, national, byCode, codes, marks }: {
   return (
     <div className="px-3 py-3">
       <div className="text-xs text-foreground leading-snug font-medium mb-2">
-        {meta.question} <span className="text-[10px] text-muted-foreground font-normal">
+        <FactorTags shorts={factors} />{meta.question} <span className="text-[10px] text-muted-foreground font-normal">
           ({meta.unit === 'wks' ? 'weeks' : meta.unit === '$k' ? '$ thousands' : 'years'})</span>
       </div>
       {/* axis */}
@@ -93,9 +102,9 @@ export function RangeBarCell({ meta, national, byCode, codes, marks }: {
 
 /** Mutually-exclusive battery as a 100% composition bar (nominal) or a diverging bar aligned on
  *  a pivot category (bipolar ordinal). Optional value column (e.g. median income). */
-export function CompositionStackCell({ meta, national, byCode, codes, marks }: {
+export function CompositionStackCell({ meta, national, byCode, codes, marks, factors }: {
   meta: CompMeta; national: CompVals; byCode: Record<string, CompVals>; codes: string[];
-  marks?: Record<string, RowMark>;
+  marks?: Record<string, RowMark>; factors?: string[];
 }) {
   const shown = codes.filter(c => byCode[c]);
   const colors = meta.colors ?? [];
@@ -113,7 +122,7 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks }: {
 
   return (
     <div className="px-3 py-3">
-      <div className="text-xs text-foreground leading-snug font-medium mb-1.5">{meta.question}</div>
+      <div className="text-xs text-foreground leading-snug font-medium mb-1.5"><FactorTags shorts={factors} />{meta.question}</div>
       <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 mb-1.5">
         {meta.segLabels.map((l, i) => (
           <span key={l} className="inline-flex items-center gap-1 text-[9px] text-muted-foreground">
@@ -189,9 +198,9 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks }: {
 
 /** Many-category nominal battery as a party × category heatmap — every real category shown
  *  (no "Other" merge), cell shaded by share with the exact % in the cell. */
-export function HeatmapCell({ meta, national, byCode, codes, marks }: {
+export function HeatmapCell({ meta, national, byCode, codes, marks, factors }: {
   meta: CompMeta; national: CompVals; byCode: Record<string, CompVals>; codes: string[];
-  marks?: Record<string, RowMark>;
+  marks?: Record<string, RowMark>; factors?: string[];
 }) {
   const shown = codes.filter(c => byCode[c]);
   const rows = [{ code: '__NAT__', isNat: true, pcts: national.pcts },
@@ -201,7 +210,7 @@ export function HeatmapCell({ meta, national, byCode, codes, marks }: {
 
   return (
     <div className="px-3 py-3">
-      <div className="text-xs text-foreground leading-snug font-medium mb-2">{meta.question}</div>
+      <div className="text-xs text-foreground leading-snug font-medium mb-2"><FactorTags shorts={factors} />{meta.question}</div>
       <div className="grid gap-px" style={{ gridTemplateColumns: `56px repeat(${cols}, minmax(0, 1fr))` }}>
         <span />
         {meta.segLabels.map(l => (

@@ -6,7 +6,7 @@ import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
-import { RangeBarCell, CompositionStackCell, HeatmapCell, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
+import { RangeBarCell, CompositionStackCell, HeatmapCell, FactorTags, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
 import { PartyRowLabel, type RowMark } from '../components/shared/PartyRowLabel';
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
@@ -83,6 +83,15 @@ function nationalPercentileOf(x: number, n: DistData): number {
   const j = a.length - 2, s = (a[j + 1][1] - a[j][1]) / ((a[j + 1][0] - a[j][0]) || 1);
   return Math.min(100, a[j + 1][1] + (x - a[j + 1][0]) * s);
 }
+
+// Factor-loading badges (SO/GD/PC/RT/ES) for a distribution or intensity key. Distribution
+// keys map to their underlying EFA variable first (only abortion weeks loads on a factor).
+const DIST_EFA_KEY: Record<string, string> = { abortion_weeks: 'CC24_325_median' };
+function factorShorts(key: string): string[] {
+  const entry = VAR_ALL_FACTORS[key] ?? VAR_ALL_FACTORS[key + '_agree'];
+  return entry ? entry.map(f => FACTOR_SHORT[f.factor]) : [];
+}
+const distFactors = (k: string): string[] => factorShorts(DIST_EFA_KEY[k] ?? k);
 
 // Ordered distribution items (a latent scale binned into categories): distance uses an
 // order-aware Earth Mover's metric, not the order-blind TVD used for the nominal ones.
@@ -330,23 +339,32 @@ function FactorItemsPanel({
   filterMainstream: boolean;
 }) {
   const items = FACTOR_ITEMS[factor] ?? [];
+  // Continuous EFA items that are now box-plot distributions (abortion weeks) pull from DIST.
+  const RANGE_KEY: Record<string, string> = { CC24_325_median: 'abortion_weeks' };
 
-  const varEntries: {
-    key: string; loading: number; question: string;
-    pcts: Record<string, number>; overall: number | null;
-    maxVal: number; unit: string; maxGap: number; highlighted: boolean;
-  }[] = [];
+  type Row = {
+    key: string; loading: number; highlighted: boolean; marks: Record<string, RowMark>;
+    kind: 'intensity' | 'range' | 'binary';
+    iv?: IntensityItem; rangeKey?: string;
+    question?: string; pcts?: Record<string, number>; overall?: number | null; maxVal?: number; unit?: string;
+  };
+  const rows: Row[] = [];
 
   for (const item of items) {
+    const rangeKey = RANGE_KEY[item.key];
+    if (rangeKey && DIST.national[rangeKey]) {
+      const marks: Record<string, RowMark> = Object.fromEntries(
+        codes.filter(c => DIST.parties[c]?.[rangeKey]).map(c => {
+          const { cohesive, distance } = distSigParts(DIST.meta[rangeKey], DIST.parties[c][rangeKey] as never, DIST.national[rangeKey] as never, sigFilter, ORDERED_DIST.has(rangeKey));
+          return [c, { dot: cohesive, mark: centralityMark(distance, sigFilter) }];
+        }));
+      rows.push({ key: item.key, loading: item.loading, highlighted: false, marks, kind: 'range', rangeKey });
+      continue;
+    }
     const pcts: Record<string, number> = {};
-    let question = '';
-    let overall: number | null = null;
-    let maxVal = 100;
-    let unit = '%';
-
+    let question = ''; let overall: number | null = null; let maxVal = 100; let unit = '%';
     for (const code of codes) {
-      const vars = getVariables(code, clusters, fdProfiles);
-      const v = vars[item.key];
+      const v = getVariables(code, clusters, fdProfiles)[item.key];
       if (v) {
         pcts[code] = v.pct;
         if (!question) question = v.question;
@@ -355,30 +373,22 @@ function FactorItemsPanel({
         unit = (v as unknown as Record<string, string>)['unit'] ?? '%';
       }
     }
-
     if (Object.keys(pcts).length === 0) continue;
-
     const pctVals = Object.values(pcts);
     const maxGap = pctVals.length > 1 ? Math.max(...pctVals) - Math.min(...pctVals) : 0;
-
-    varEntries.push({
-      key: item.key, loading: item.loading, question, pcts,
-      overall, maxVal, unit, maxGap, highlighted: maxGap >= minGap,
-    });
-  }
-
-  // Same signature annotations + per-axis filters as the section rows.
-  const withMarks = varEntries.map(v => {
     const marks: Record<string, RowMark> = Object.fromEntries(
-      codes.filter(c => v.pcts[c] !== undefined).map(c => {
-        const { cohesive, distance } = itemSignature(v.key, c, v.pcts[c], v.overall ?? v.pcts[c], v.maxVal, sigFilter);
+      codes.filter(c => pcts[c] !== undefined).map(c => {
+        const { cohesive, distance } = itemSignature(item.key, c, pcts[c], overall ?? pcts[c], maxVal, sigFilter);
         return [c, { dot: cohesive, mark: centralityMark(distance, sigFilter) }];
       }));
-    return { v, marks };
-  });
-  const shown = withMarks.filter(({ v, marks }) => {
-    const vals = Object.values(marks);
-    if (divergeOnly && !v.highlighted) return false;
+    const iv = intensityFor(item.key);
+    rows.push({ key: item.key, loading: item.loading, highlighted: maxGap >= minGap, marks,
+      kind: iv ? 'intensity' : 'binary', iv: iv ?? undefined, question, pcts, overall, maxVal, unit });
+  }
+
+  const shown = rows.filter(r => {
+    const vals = Object.values(r.marks);
+    if (divergeOnly && !r.highlighted) return false;
     if (filterCohesion && !vals.some(m => m.dot)) return false;
     if (filterDeviant && !vals.some(m => m.mark === 'D')) return false;
     if (filterMainstream && !vals.some(m => m.mark === 'M')) return false;
@@ -401,23 +411,32 @@ function FactorItemsPanel({
         </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2">
-        {shown.map(({ v, marks }, i) => (
+        {shown.map((r, i) => (
           <div
-            key={v.key}
+            key={r.key}
             className={[
               i >= 2 ? 'border-t border-border/50' : '',
               i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
             ].filter(Boolean).join(' ')}
           >
-            <StackedBarCell
-              item={{
-                question: v.question, factor: null, pcts: v.pcts, overall: v.overall,
-                maxVal: v.maxVal, unit: v.unit, highlighted: v.highlighted, loadingWeight: v.loading,
-              }}
-              codes={codes}
-              marks={marks}
-              label={v.question}
-            />
+            {r.kind === 'intensity' ? (
+              <IntensityCell item={r.iv!} codes={codes} question={r.iv!.question} marks={r.marks} />
+            ) : r.kind === 'range' ? (
+              <RangeBarCell meta={DIST.meta[r.rangeKey!] as unknown as RangeMeta}
+                national={DIST.national[r.rangeKey!] as never}
+                byCode={Object.fromEntries(codes.filter(c => DIST.parties[c]?.[r.rangeKey!]).map(c => [c, DIST.parties[c][r.rangeKey!]])) as never}
+                codes={codes} marks={r.marks} factors={distFactors(r.rangeKey!)} />
+            ) : (
+              <StackedBarCell
+                item={{
+                  question: r.question!, factor: null, pcts: r.pcts!, overall: r.overall!,
+                  maxVal: r.maxVal!, unit: r.unit!, highlighted: r.highlighted, loadingWeight: r.loading,
+                }}
+                codes={codes}
+                marks={r.marks}
+                label={r.question!}
+              />
+            )}
           </div>
         ))}
       </div>
@@ -494,7 +513,7 @@ function IntensityCell({ item, codes, question, marks }:
   { item: IntensityItem; codes: string[]; question: string; marks?: Record<string, RowMark> }) {
   return (
     <div className="px-3 py-3">
-      <div className="text-xs text-foreground leading-snug font-medium mb-1">{question}</div>
+      <div className="text-xs text-foreground leading-snug font-medium mb-1"><FactorTags shorts={factorShorts(item.variable)} />{question}</div>
       <IntensityLegend item={item} />
       {/* column header */}
       <div className="flex items-center gap-2 text-[9px] text-muted-foreground uppercase tracking-wide mt-1.5 mb-0.5">
@@ -937,12 +956,12 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                   ].filter(Boolean).join(' ')}>
                                     {m.viz === 'range'
                                       ? <RangeBarCell meta={m as unknown as RangeMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} factors={distFactors(k)} />
                                       : m.viz === 'heatmap'
                                       ? <HeatmapCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} factors={distFactors(k)} />
                                       : <CompositionStackCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} />}
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} factors={distFactors(k)} />}
                                   </div>
                                 );
                               })}
