@@ -29,7 +29,7 @@ These are permanent project conventions. Never change them without explicit user
 
 | Rule | Value |
 |------|-------|
-| C7 (Blue Dogs) | **ALWAYS pre-dissolved.** Never competes. `DISSOLVED_PARTIES = [7]` in `stv_config.py` |
+| C7 = OAO (Order & Opportunity) | **Active party** — the former "Blue Dogs," a law-and-order Democratic bloc, kept and renamed. `DISSOLVED_PARTIES = []` in `stv_config.py`. Dissolving is a *scenario* option, not the baseline. |
 | C2 (Solidarity / STY) | **ALWAYS active.** Never add to `DISSOLVED_PARTIES`. |
 | Default STV output | `Claude/outputs/No_C7_canonical/` |
 | `round_elim_c{x}` encoding | `−1` = elected, `−2` = pre-dissolved (C7), `N≥1` = eliminated in round N, `None` = not present in district |
@@ -103,7 +103,7 @@ House Seats = party-line STV result (`viz/src/data/houseSeats.json`); see [DATA_
 | C4 | LIB | Liberal | Active | 93 |
 | C5 | POP | Populist | Active | 99 |
 | C6 | CUP | Civic Union Party | Active | 103 |
-| C7 | — | Blue Dogs | **DISSOLVED** | 0 |
+| C7 | OAO | Order & Opportunity | **ACTIVE** | 15 |
 | C8 | DSA | DSA | Active | 22 |
 | C9 | PRG | Progressive | Active | 14 |
 

@@ -75,7 +75,7 @@ table.sm td.party{text-align:left;font-weight:700}
 <div class="eyebrow">EFA robustness · CES 2024 · k fixed at 5</div>
 <h1>Residualization: <em>on vs off</em></h1>
 <p class="sub">Both paradigms use the same 5-factor space — the only difference is whether the two culture factors (Religious Traditionalism, Populist Conservatism) are residualized on the enforcement axis before clustering. Holding k constant makes this a clean controlled A/B: every difference below is attributable to residualization alone, so we can read exactly which parties it sharpens and which blends it dissolves.</p>
-<div class="meta"><span id="m-n"></span><span>Left: k=5 + residualization (the production 9 parties) · Right: k=5, raw scores</span></div>
+<div class="meta"><span id="m-n"></span><span>Left: k=5 + residualization (the production 10 parties) · Right: k=5, raw scores</span></div>
 
 <section>
 <h2>What residualization does to each party</h2>
@@ -105,7 +105,7 @@ table.sm td.party{text-align:left;font-weight:700}
 </section>
 
 <section>
-<h2>Reference — the nine baseline parties</h2>
+<h2>Reference — the ten baseline parties</h2>
 <div class="grid" id="baseline"></div>
 </section>
 
@@ -116,7 +116,7 @@ table.sm td.party{text-align:left;font-weight:700}
 <script>
 const DATA=__DATA__;
 const PC={PRG:'#15803d',DSA:'#22c55e',LIB:'#0284c7',SD:'#38bdf8',STY:'#8a70b8',CUP:'#825a27',CON:'#e68c2c',POP:'#d34812',NAT:'#a01d2a',C7:'#9ca3af'};
-const PNAME={PRG:'Progressive',DSA:'Dem. Socialist',LIB:'Liberal',SD:'Social Democrat',STY:'Solidarity',CUP:'Civic Union',CON:'Conservative',POP:'Populist',NAT:'Nationalist',C7:'Blue Dog (dropped)'};
+const PNAME={PRG:'Progressive',DSA:'Dem. Socialist',LIB:'Liberal',SD:'Labor',STY:'Solidarity',CUP:'Civic Union',CON:'Conservative',POP:'Populist',NAT:'Nationalist',C7:'OAO / Order & Opportunity'};
 const ORDER=['PRG','DSA','LIB','SD','STY','CUP','POP','CON','NAT'];
 const POL=DATA.pol_items;
 const DEMO=[['ideo','Ideology 1-5'],['dem','% Dem'],['rep','% Rep'],['ind','% Ind'],['age','Median age'],['female','% women'],['college','% 4-yr deg'],['lowinc','% <$50k'],['white','% White'],['black','% Black'],['hisp','% Hispanic'],['city','% big-city'],['rural','% rural'],['bornagain','% born-again']];

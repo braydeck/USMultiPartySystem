@@ -1,6 +1,6 @@
 # Methodology
 
-How 45,707 survey responses become a nine-party legislature. Every step uses a
+How 45,707 survey responses become a ten-party legislature. Every step uses a
 published method; the goal is a transparent, reproducible pipeline, not a forecast.
 
 ## Data
@@ -32,8 +32,7 @@ from how responses actually correlate. Full item loadings are in
 ## 2. Clustering (the parties)
 
 A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents by their 5
-factor scores. It returns **10 clusters**; cluster 7 ("Blue Dogs") is dropped as small
-and ideologically unstable, leaving **9 parties**. Parties are not named by hand; the
+factor scores. It returns **10 clusters**, all kept as parties — including cluster 7, the Order & Opportunity Party (OAO), a law-and-order Democratic bloc formerly labeled "Blue Dogs." Parties are not named by hand; the
 labels are assigned afterward from each cluster's factor profile.
 
 ## 3. Ballot generation

@@ -34,7 +34,7 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
   ├──────────────────────┼──────────┼────────────┤Z
   │ PRG (Progressive)    │ 4.70%    │ 5.67%      │
   ├──────────────────────┼──────────┼────────────┤
-  │ C7 (Blue Dogs)       │ 5.26%    │ 6.42%      │
+  │ OAO (Order & Opp.)   │ 5.26%    │ 6.42%      │
   └──────────────────────┴──────────┴────────────┘
   ---                                                                                                           
   Factor Rankings by Discriminating Power (η²)                                                                  
@@ -286,7 +286,7 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 
 ## Robustness: choice of k and residualization
 
-The production typology rests on three modeling choices that aren't forced by the data alone: **k=5 factors** (parallel analysis was borderline between 4 and 5), **F1-residualization** of the two culture factors (F4, F5) before clustering, and the **DPGMM** itself. Because Government Distrust (F3) has near-zero discriminating power (η²=0.057) and Electoral Skepticism already carries the trust signal, k=4 is a defensible alternative. To check whether the nine parties are real structure or artifacts of these choices, we re-ran the full pipeline (polychoric → PAF → oblimin → Thomson scores → DPGMM) under three variants — **k=5 no-resid, k=4 resid, k=4 no-resid** — and matched each variant's clusters back to the production parties in the common 24-item space.
+The production typology rests on three modeling choices that aren't forced by the data alone: **k=5 factors** (parallel analysis was borderline between 4 and 5), **F1-residualization** of the two culture factors (F4, F5) before clustering, and the **DPGMM** itself. Because Government Distrust (F3) has near-zero discriminating power (η²=0.057) and Electoral Skepticism already carries the trust signal, k=4 is a defensible alternative. To check whether the ten parties are real structure or artifacts of these choices, we re-ran the full pipeline (polychoric → PAF → oblimin → Thomson scores → DPGMM) under three variants — **k=5 no-resid, k=4 resid, k=4 no-resid** — and matched each variant's clusters back to the production parties in the common 24-item space.
 
 > Reproduction is approximate: listwise N=45,214 (vs production 45,707 — "Not sure" on the government-trust items mapped to the scale midpoint), oblimin rather than the stored solution, DPGMM stochasticity. Treat magnitudes as indicative; the qualitative survival pattern is stable. Scripts: `analysis/efa/{compare_k4_vs_k5_clustering, cluster_survival_k4_k5, build_cluster_explorer_data}.py`; interactive write-up: `analysis/efa/cluster_explorer.html`.
 
@@ -312,7 +312,7 @@ All four variants still produce 10 well-populated DPGMM clusters — k=4 does **
 
 4. **Civic Union (CUP) requires k=5.** At k=4, Electoral Skepticism and Government Distrust merge into one trust factor, and CUP — the institutionalist defined by trusting *both* elections and government — loses the dimension that distinguishes it and is absorbed into Conservative. CUP only stands alone when the two trust dimensions are kept separate. **This is the concrete payoff of k=5**, despite Government Distrust's low standalone η².
 
-5. **Net:** the production choice (k=5 + residualization) is the only configuration that resolves all nine parties. The dominant, cross-cutting structure is robust; the *full nine-way resolution* specifically depends on separating the trust dimensions (rescues CUP) and residualizing the culture factors (rescues the left quartet).
+5. **Net:** the production choice (k=5 + residualization) is the only configuration that resolves all ten parties. The dominant, cross-cutting structure is robust; the *full ten-way resolution* specifically depends on separating the trust dimensions (rescues CUP) and residualizing the culture factors (rescues the left trio LIB/DSA/PRG plus OAO).
 
 ### Cluster strength (assignment confidence)
 
@@ -321,7 +321,7 @@ Strength = weighted mean of each cluster's max posterior probability (how cleanl
 | weakest → strongest | conf |
 |---|--:|
 | CUP | 0.66 |
-| C7 (Blue Dog) | 0.70 |
+| OAO (Order & Opportunity) | 0.70 |
 | CON / SD / LIB | 0.74 |
 | PRG | 0.76 |
 | POP / NAT | 0.80 |
@@ -331,9 +331,9 @@ Residualized vs non-residualized clusterings have ~the same average confidence (
 
 ### Decisions (and the reasoning)
 
-**Keep C7 (Blue Dogs) excluded → 9 parties.** C7's assignment confidence (0.70) is second-lowest but *not* the lowest — CUP (0.66) is lower and is kept. The deciding factor is interpretability, not confidence: CUP is low-confidence but has a clear identity (the institutionalist), whereas C7 is the *ambiguous middle* spanning the CON/CUP boundary with no distinct platform. A 10th "leftover" party weakens the typology more than it adds. **Caveat to carry:** dropping C7 sends a real cross-pressured constituency — the "law-and-order Democrat" (high enforcement, progressive on race, pro-institution, Democratic-leaning) — into Conservative, where it's mislabeled. This is a known representation gap, surfaced by the no-residualization run (where those voters re-coalesce as a distinct blend).
+**Keep C7 as its own party — OAO, the Order & Opportunity Party → 10 parties.** C7's assignment confidence (0.70) is second-lowest but *not* the lowest — CUP (0.66) is lower and is kept — so confidence isn't the deciding factor; interpretability is. Earlier drafts dissolved C7 as an "ambiguous middle," but that folded a real, coherent cross-pressured constituency — the **law-and-order Democrat** (high enforcement, progressive on race, pro-institution, Democratic-leaning) — into Conservative, where it is plainly mislabeled. Keeping it as OAO **closes that representation gap** instead of burying it, and gives the typology its clearest illustration of a bloc the two-party frame cannot hold. (`DISSOLVED_PARTIES = []` in `stv_config.py`; OAO wins seats in every simulation.)
 
-**Keep residualization on.** By cluster confidence the two paradigms are a near-tie (≈0.77), so residualization isn't a quality trade — it's a structure choice, and the residualized version resolves the full nine (especially the weakly-separated left quartet LIB/DSA/PRG, which collapses without it). What non-residualization "adds" is mostly the left bloc merging into coarser groups, plus the one law-and-order-Democrat blend — which is ~40% the already-dropped Blue Dogs. Trading clean left-party separation to re-surface the ambiguous group we rejected is a bad trade. Residualization also has a principled basis: removing the dominant enforcement axis's pull on the culture factors lets them vary independently of left–right, which is what lets the *other* cross-cutting structure (STY) show up cleanly rather than smeared along the main axis.
+**Keep residualization on.** By cluster confidence the two paradigms are a near-tie (≈0.77), so residualization isn't a quality trade — it's a structure choice, and the residualized version resolves the full ten (it is load-bearing for four parties: the weakly-separated left trio LIB/DSA/PRG, which collapses without it, and OAO, which degrades to a fuzzy ~42% blend without it). What non-residualization "adds" is mostly the left bloc merging into coarser groups. Residualization also has a principled basis: removing the dominant enforcement axis's pull on the culture factors lets them vary independently of left–right, which is what lets the *other* cross-cutting structure (STY, OAO) show up cleanly rather than smeared along the main axis.
 
 > Interactive write-up of this comparison: `analysis/efa/cluster_explorer.html` (built by `build_cluster_explorer_{data,html}.py`); strength re-fit in `cluster_confidence_k5.py`; survival/correspondence in `cluster_survival_k4_k5.py` and `compare_k4_vs_k5_clustering.py`.
 
@@ -341,7 +341,7 @@ Residualized vs non-residualized clusterings have ~the same average confidence (
 
 ## Orthogonal cleavages outside the factor model
 
-The 5 factors and the 9 parties are a **domestic-policy** typology. A separate question is whether items *excluded* from the EFA hide a coherent dimension the model misses. Tested with a method suited to the data — PCA on binary indicators + communality (weighted R² of each excluded item on the 5 factor scores), **not** polychoric EFA. Scripts: `analysis/efa/explore_foreign_policy.py`, `explore_extra_dims.py`.
+The 5 factors and the 10 parties are a **domestic-policy** typology. A separate question is whether items *excluded* from the EFA hide a coherent dimension the model misses. Tested with a method suited to the data — PCA on binary indicators + communality (weighted R² of each excluded item on the 5 factor scores), **not** polychoric EFA. Scripts: `analysis/efa/explore_foreign_policy.py`, `explore_extra_dims.py`.
 
 **Excluded *clean* (EFA-compatible) items carry no hidden dimension.** Of ~30 support/oppose and agree/disagree items left out, the strongly-polarized ones are already well explained by the 5 factors (build-the-wall R²=0.54, racial-resentment 0.48–0.50, climate 0.39–0.45, assault-rifle ban 0.39) — redundant, so excluding them was parsimony/balance, not loss. The low-communality ones don't cohere into a factor (pairwise |r| mostly <0.3); they're either **valence issues** (background checks R²=0.13 at 93% support; mental-health spending; expand Medicaid — broadly popular, little discriminating signal) or the one genuinely off-axis thread below. Re-including any of these would not improve the model.
 
@@ -363,12 +363,12 @@ We tested what happens if foreign policy were a *party-defining* sixth dimension
 
 | stable poles (1 cluster) | fractured middle (2–3 clusters) |
 |---|---|
-| PRG, DSA, LIB, CON, NAT | STY (3), SD (2), CUP (2), POP (2), C7 (2) |
+| PRG, DSA, LIB, CON, NAT | STY (3), LBR (2), CUP (2), POP (2), OAO (2) |
 
 The ideological poles hold; the cross-pressured center splits along engagement↔isolationism. The signature new entity is an **isolationist bloc** (POP 37 / STY 36 / CON 11, FP engagement −1.78) — drawn from the populist right *and* the economic left, united only by "stay out." SD splits into an **internationalist wing** (SD/LIB, FP +0.92) and a lower-engagement SD/STY group; STY fragments three ways.
 
 **Legislation effect (party-discipline House, seats ∝ population).** The electorate is identical, so most outcomes hold — but the re-sorted blocs, voting as units, **flip two knife-edge immigration bills toward restriction**: *grant legal status to undocumented* 60%→49% (fails, despite 59% popular) and *deny asylum* 50%→59% (passes). Foreign-policy votes also become more decisive/whippable (the isolationist bloc votes cohesively instead of splitting inside every party). The flips come from bloc mechanics under perfect party discipline, not changed minds — a reminder that *party structure*, not just opinion, decides near-even bills.
 
-**C7 (Blue Dogs), revisited.** C7's members split **65% into a Conservative-led cluster, 26% into a Liberal-led one** — left and right. C7 is Democratic by identity (45% Dem, very racially progressive, values −1.09) but enforcement-hawkish, so an enforcement-dominated clustering drags it rightward. This is the representation gap in miniature: drop C7 and these Democratic-leaning voters get folded into Conservative. It also fits the broader pattern — **the cross-pressured middle and the left are far more fractious than the right** (CON/NAT solid everywhere; LIB/DSA/SD/STY/CUP/POP/C7 all split under one lens or another).
+**OAO (cluster 7), under the 6-D lens.** OAO's members split **65% into a Conservative-led cluster, 26% into a Liberal-led one** — left and right. OAO is Democratic by identity (45% Dem, very racially progressive, values −1.09) but enforcement-hawkish, so an enforcement-dominated clustering pulls it rightward. This is exactly why it earns its own party in production rather than being folded into Conservative: it is a genuinely cross-pressured bloc the two-party frame cannot hold. It also fits the broader pattern — **the cross-pressured middle and the left are far more fractious than the right** (CON/NAT solid everywhere; LIB/DSA/LBR/STY/CUP/POP/OAO all split under one lens or another).
 
-**Decision.** Keep the **5-D, residualized, 9-party model as the backbone** (it's the validated foundation the whole simulation runs on). Foreign policy stays a **documented overlay** for the current "what parties would emerge from today's opinion" framing. The 6-D run is preserved as the **forward-looking "where this is heading" variant**: it shows the foreign-policy realignment is latent in the data and would fracture the middle into more partisan camps *if* foreign policy keeps rising in salience — but its headline new group (the everyone-who-wants-to-stay-out bloc) is a real *cleavage*, not yet a plausible governing *party* (it agrees on one issue and little else). Cohesion can't decide between 5-D and 6-D (they tie at ~0.75); plausibility favors the 5-D parties as coalitions, with the 6-D as the scenario for an emerging populist/nationalist foreign-policy axis.
+**Decision.** Keep the **5-D, residualized, 10-party model as the backbone** (it's the validated foundation the whole simulation runs on). Foreign policy stays a **documented overlay** for the current "what parties would emerge from today's opinion" framing. The 6-D run is preserved as the **forward-looking "where this is heading" variant**: it shows the foreign-policy realignment is latent in the data and would fracture the middle into more partisan camps *if* foreign policy keeps rising in salience — but its headline new group (the everyone-who-wants-to-stay-out bloc) is a real *cleavage*, not yet a plausible governing *party* (it agrees on one issue and little else). Cohesion can't decide between 5-D and 6-D (they tie at ~0.75); plausibility favors the 5-D parties as coalitions, with the 6-D as the scenario for an emerging populist/nationalist foreign-policy axis.

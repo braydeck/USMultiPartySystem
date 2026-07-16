@@ -14,7 +14,7 @@ The pipeline runs in three main stages:
 
 ## The 10 Parties
 
-Party IDs (C0–C9) are derived from DPGMM clustering. C7 (Blue Dogs) is **permanently dissolved** — they receive no seats in any simulation.
+Party IDs (C0–C9) are derived from DPGMM clustering. All 10 clusters are active parties; C7 = OAO (Order & Opportunity Party), the former "Blue Dogs," a law-and-order Democratic bloc kept as its own party (`DISSOLVED_PARTIES = []`).
 
 | ID | Name | Character |
 |----|------|-----------|
@@ -25,7 +25,7 @@ Party IDs (C0–C9) are derived from DPGMM clustering. C7 (Blue Dogs) is **perma
 | C4 | Liberal | College-educated moderates |
 | C5 | Populist | Right-of-center reformists |
 | C6 | Civic Union Party | True centrists / cross-pressured |
-| C7 | Blue Dogs *(dissolved)* | Conservative Democrats — dissolved |
+| C7 | OAO (Order & Opportunity) | Law-and-order Democrats (former "Blue Dogs"); active, wins seats |
 | C8 | DSA | Progressive left |
 | C9 | Progressive | Progressive elite |
 
@@ -152,7 +152,7 @@ Compact heatmap view across all parties simultaneously.
 - **45,707** survey respondents (after listwise deletion on 24 survey items)
 - **180** simulated congressional districts
 - **873** total seats (≈ U.S. House scaled by 380,000 pop/seat)
-- **10** parties; **9** active (C7 dissolved)
+- **10** parties; **10** active (baseline dissolves none)
 - **5** latent factors from EFA
 - Ballot checkpoint: ~35 MB parquet, loads in ~0.2s
 

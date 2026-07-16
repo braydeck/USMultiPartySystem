@@ -1,6 +1,6 @@
 # EFA → Typology pipeline
 
-How the nine-party political typology is derived from the 2024 CES, plus the
+How the ten-party political typology is derived from the 2024 CES, plus the
 robustness analysis behind the modeling choices. Narrative reference:
 [`docs/EFA_FACTORS.md`](../../docs/EFA_FACTORS.md).
 
@@ -23,7 +23,7 @@ robustness analysis behind the modeling choices. Narrative reference:
 Method: 24-item polychoric EFA (one item dropped for a near-Heywood loading) →
 PAF + oblimin/promax, k=5 → Thomson regression factor scores → sign-flips →
 F4/F5 residualized on F1 → DPGMM (`n_components=10`, Dirichlet process) → C7
-(Blue Dogs) dropped, leaving **9 parties**.
+kept as OAO (Order & Opportunity Party), for **10 parties**.
 
 ### k=4 alternative (explored, not adopted)
 `run_efa_k4.py`, `run_dpgmm_k4.py` — the 4-factor variant. Rejected because the

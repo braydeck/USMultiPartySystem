@@ -2,11 +2,11 @@
 
 A full-stack simulation of what American politics might look like under proportional representation, using real ideological data from the **2024 Cooperative Election Study (CES)**: 60,000+ respondents, 45,707 after listwise deletion.
 
-![The simulated nine-party U.S. House: 873 seats across an ideological spectrum, no party near a majority.](viz/public/og-image.png)
+![The simulated ten-party U.S. House: 873 seats across an ideological spectrum, no party near a majority.](viz/public/og-image.png)
 
 > **▶ Explore the live simulation: <https://usmultipartysystem.pages.dev/>**
 >
-> **Methodology:** [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) — how 45,707 survey responses become a nine-party legislature, with caveats.
+> **Methodology:** [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) — how 45,707 survey responses become a ten-party legislature, with caveats.
 > For the full technical reference (agent/developer guide), see [`docs/AGENTS.md`](docs/AGENTS.md); for EFA factor loadings, [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md).
 
 ## Overview
@@ -55,7 +55,7 @@ This project explores what American politics might look like under different ele
 
 ## The 10-Party Typology
 
-Produced by **Dirichlet Process Gaussian Mixture Model (DPGMM)** clustering on 5 EFA factor scores. C7 is **permanently dissolved** — never competes for seats; their ballots transfer to next-ranked active party.
+Produced by **Dirichlet Process Gaussian Mixture Model (DPGMM)** clustering on 5 EFA factor scores. All 10 clusters are active parties, including OAO (cluster 7, the Order & Opportunity Party — the former "Blue Dogs," a law-and-order Democratic bloc kept as its own party). `DISSOLVED_PARTIES = []`.
 
 | ID | Abbrev | Name | Character | ~Electorate |
 |----|--------|------|-----------|-------------|
@@ -66,11 +66,11 @@ Produced by **Dirichlet Process Gaussian Mixture Model (DPGMM)** clustering on 5
 | C4 | LIB | Liberal | College-educated progressive; socially liberal, moderate-left economics | ~9% |
 | C5 | POP | Populist | Right-of-center reformists; skeptical of elections, high F2 + F5 | ~11% |
 | C6 | CUP | Civic Union Party | True centrists; cross-pressured, low electoral skepticism | ~10% |
-| C7 | — | Blue Dogs *(dissolved)* | Conservative Democrats; pre-eliminated in all simulations, 0 seats | — |
+| C7 | OAO | Order & Opportunity | Law-and-order Democrats (former "Blue Dogs"); a full party that wins seats | — |
 | C8 | DSA | DSA | Progressive left; far left on security, high electoral skepticism | ~6% |
 | C9 | PRG | Progressive | Progressive elite; urban, far left across most dimensions | ~5% |
 
-**House seat counts (party-line, canonical):** CON=202, SD=164, STY=130, POP=99, CUP=103, LIB=93, DSA=22, NAT=46, PRG=14, C7=0 (dissolved). Conservative is the largest party. Source: `viz/src/data/houseSeats.json` — see **[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)**. *(Do not quote `clusterProfiles.json` `seatsHouse` for seat counts — it's a population baseline, not seats won.)*
+**House seat counts (party-line, canonical, 873 total):** CON=201, LBR=159, STY=129, POP=106, LIB=93, CUP=89, NAT=41, DSA=25, OAO=15, PRG=15. Conservative is the largest party. Source: `viz/src/data/houseSeats.json` — see **[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)**. *(Do not quote `clusterProfiles.json` `seatsHouse` for seat counts — it's a population baseline, not seats won.)*
 
 ---
 
@@ -126,7 +126,7 @@ NAT is the extreme high end (+1.51); PRG (−0.99) and LIB (−0.95) are the ext
 - Apportionment: Hamilton method, ~380,000 pop/seat from 2020 Census
 - **Droop quota:** `⌊ total_weight / (seats + 1) ⌋ + 1`
 - **Gregory surplus transfer:** fractional weight redistribution when a candidate exceeds quota
-- **C7 pre-dissolved:** their voters' ballots skip to next-ranked active party before Round 1
+- **Scenarios may dissolve a party** (`pre_dissolved`); the baseline dissolves none. A dissolved party's ballots skip to the next-ranked active party.
 - Ballots derived from DPGMM soft cluster probabilities via Plackett-Luce ranking
 
 **Seat results (party-line, canonical):**

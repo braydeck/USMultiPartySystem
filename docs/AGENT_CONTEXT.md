@@ -125,18 +125,18 @@ PARTY_LABELS = {
     4: "Liberal",
     5: "Populist",
     6: "Civic Union Party",
-    7: "Blue Dogs",      # DISSOLVED — never wins seats
+    7: "OAO",            # Order & Opportunity Party (former "Blue Dogs") — active, wins seats
     8: "DSA",
     9: "Progressive",
 }
-DISSOLVED_PARTIES = [7]   # C7 permanently pre-eliminated in all STV runs
+DISSOLVED_PARTIES = []    # baseline dissolves nothing; all 10 clusters are active parties
 N_PARTIES = 10
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 ```
 
 **Cluster ID → abbreviation mapping** (for display/labeling):
 - C0 Conservative, C1 Social Democrat, C2 Solidarity, C3 Nationalist,
-  C4 Liberal, C5 Populist, C6 Civic Union Party, C7 Blue Dogs (dissolved),
+  C4 Liberal, C5 Populist, C6 Civic Union Party, C7 OAO (Order & Opportunity),
   C8 DSA, C9 Progressive
 
 ---
@@ -276,7 +276,7 @@ ITEMS_24 = [it for it in ITEMS_25 if it != "CC24_340a"]
 | `len(df)` after join | 45,707 |
 | `district_apportionment.csv` rows | 180 |
 | Total seats (baseline) | 873 |
-| C7 seats in any run | 0 (always dissolved) |
+| OAO (C7) seats (party-line) | 15 |
 | `effective.shape` (affinity) | (45707, 9) |
 | `second_choice_row_pct.sum(axis=1)` | ≈ 100 for all rows |
 | `mean_rank_proximity.diagonal()` | 0 (excluded) |
