@@ -100,7 +100,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
   if (divergentBills.length === 0) {
     return (
       <Card className="border-green-200 px-4 py-3">
-        <span className="text-sm text-green-700">No method divergences found — Condorcet and IRV produce the same legislative outcomes.</span>
+        <span className="text-sm text-green-700">No method divergences found. Condorcet and IRV produce the same legislative outcomes.</span>
       </Card>
     );
   }

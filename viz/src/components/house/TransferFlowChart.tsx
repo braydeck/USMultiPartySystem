@@ -36,7 +36,7 @@ export function TransferFlowChart({ data, filterParties }: Props) {
           <div key={party}>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-bold font-mono w-8" style={{ color }}>{party}</span>
-              <span className="text-xs text-muted-foreground">{name} — if eliminated, votes transfer to:</span>
+              <span className="text-xs text-muted-foreground">{name}, if eliminated, transfers votes to:</span>
             </div>
 
             {/* Stacked bar */}
