@@ -135,9 +135,6 @@ export function OverviewTab({
         <DiveCard label="Dive into the Presidency →" onClick={() => onNavigate('presidency')} />
       </div>
 
-      {/* Section 4b — Turnout robustness of the outcomes above */}
-      <TurnoutRobustnessCard />
-
       {/* Section 5 — Ideological Constellation */}
       <Card className="p-5">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
@@ -162,7 +159,8 @@ export function OverviewTab({
       {/* Section 6 — Party profiles */}
       <PartyProfileGrid clusters={orderedClusters} />
 
-      {/* Section 7 — Turnout verified against the voter file (match structure) */}
+      {/* Section 7 — Turnout robustness + voter-file verification (grouped at the bottom) */}
+      <TurnoutRobustnessCard />
       <TurnoutVerificationCard />
     </div>
   );

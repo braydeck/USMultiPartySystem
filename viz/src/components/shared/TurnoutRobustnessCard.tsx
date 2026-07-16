@@ -92,10 +92,11 @@ export function TurnoutRobustnessCard() {
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
         Turnout Robustness
       </h3>
-      <p className="text-xs text-muted-foreground mb-4">
-        How much would the turnout gap between forces have to compress (the previously-ignored voting more,
-        the documented <em>contraction effect</em> of PR) for each office&apos;s winner to change? Default is
-        observed 2024 turnout (no assumed response); ≤15% closure is plausible for one cycle, 20–30% is a stress test.
+      <p className="text-[13px] text-muted-foreground mb-4 leading-relaxed">
+        <span className="font-semibold text-foreground">Most outcomes hold even as turnout equalizes.</span> The
+        slider closes the turnout gap between forces (the suppressed voting more, PR&apos;s documented contraction
+        effect) and marks where each office&apos;s winner flips. Default is observed 2024 turnout; ≤15% closure is
+        plausible in one cycle, 20–30% is a stress test.
       </p>
 
       {/* Slider */}
@@ -150,15 +151,21 @@ export function TurnoutRobustnessCard() {
         </div>
       </div>
 
-      <p className="mt-4 text-[11px] text-muted-foreground">
-        <strong>President:</strong> robust. Solidarity (Condorcet) and Labour (IRV) hold at observed turnout and at
-        every compression level. <strong>House:</strong> Conservative stays the plurality throughout; Solidarity&apos;s
-        delegation scales {styLo}→{styHi} seats and only strengthens with compression. <strong>Senate:</strong> the one
-        result observed data does <em>not</em> support. Labour leads at observed turnout, across the plausible band
-        (≤15%), and through 20%; Solidarity only reaches the plurality at 25%, inside the stress band, beyond what
-        one cycle plausibly delivers. So at observed turnout the Senate is Labour&apos;s, and Solidarity&apos;s Senate is conditional on mobilization.
-      </p>
-      <p className="mt-2 text-[10px] text-muted-foreground">
+      <div className="mt-4 space-y-2.5 text-[13px] leading-relaxed">
+        <p>
+          <span className="font-semibold text-emerald-700">President — robust.</span>{' '}
+          <span className="text-foreground/90">The winner never changes. Solidarity (Condorcet) and Labour (IRV) hold at observed turnout and at every compression level.</span>
+        </p>
+        <p>
+          <span className="font-semibold text-emerald-700">House — control stable, scale grows.</span>{' '}
+          <span className="text-foreground/90">Conservative stays the plurality throughout. Solidarity&apos;s delegation climbs {styLo}→{styHi} seats as the gap closes.</span>
+        </p>
+        <p>
+          <span className="font-semibold text-amber-700">Senate — the one office observed turnout doesn&apos;t hand Solidarity.</span>{' '}
+          <span className="text-foreground/90">Labour leads at observed turnout, across the plausible band (≤15%), and through 20%. Solidarity reaches the plurality only at 25%, inside the stress band. At observed turnout the Senate is Labour&apos;s; a Solidarity Senate is conditional on mobilization.</span>
+        </p>
+      </div>
+      <p className="mt-3 text-[11px] text-muted-foreground">
         Contraction is modeled as upward mobilization of the suppressed forces, holding high-turnout forces fixed:
         conservative for containment, since it never deflates the poles.
       </p>

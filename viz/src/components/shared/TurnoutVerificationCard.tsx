@@ -46,10 +46,11 @@ export function TurnoutVerificationCard() {
       <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
         Turnout, Verified Against the Voter File
       </div>
-      <p className="text-xs text-muted-foreground mb-4">
-        Self-reported turnout runs ~86% because survey respondents over-claim voting, but the shortfall against the
-        voter file is mostly not lying: it is match failure. Solid is a 2024 vote confirmed on the TargetSmart file,
-        slate is a confirmed non-voter, striped grey is a respondent the file could not locate at all.
+      <p className="text-[13px] text-muted-foreground mb-4 leading-relaxed">
+        <span className="font-semibold text-foreground">The turnout shortfall is mostly match failure, not lying.</span>{' '}
+        Self-reported turnout runs ~86% because respondents over-claim voting, but most of the gap against the voter
+        file is people the file can&apos;t locate. Each bar splits three ways: solid = a 2024 vote confirmed on the
+        TargetSmart file, slate = a confirmed non-voter, striped grey = a respondent the file couldn&apos;t locate at all.
       </p>
 
       <div className="space-y-1.5">
@@ -75,11 +76,12 @@ export function TurnoutVerificationCard() {
         <div className="ml-auto">National: {DATA.national.verifiedVoted}% verified, {DATA.national.unmatched}% unmatched</div>
       </div>
 
-      <p className="text-xs text-muted-foreground mt-2">
-        Solidarity is the extreme case: 63% of its members cannot be matched to the file at all, so its true turnout is
-        genuinely uncertain, bounded below by the 32% we can confirm. The over-report itself, measured only among
-        matched respondents, is small everywhere (under 6 points), and low-engagement forces are the hardest to verify,
-        not the biggest liars. This is why validated turnout is treated as a floor throughout the simulation.
+      <p className="text-[13px] text-muted-foreground mt-3 leading-relaxed">
+        <span className="font-semibold text-foreground">Solidarity is the extreme case.</span> 63% of its members
+        can&apos;t be matched to the file, so its true turnout is genuinely uncertain, bounded below by the 32% we can
+        confirm. The over-report itself, measured only among matched respondents, is small everywhere (under 6 points):
+        low-engagement forces are the hardest to verify, not the biggest liars. That is why validated turnout is
+        treated as a floor throughout the simulation.
       </p>
     </Card>
   );
