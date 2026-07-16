@@ -10,29 +10,42 @@ import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { PARTY_COLORS, PARTY_NAMES, FACTOR_LABELS, F5_ORDER, partyOrder, getContrastText } from '../constants/parties';
+import { FACTOR_LABELS, partyOrder } from '../constants/parties';
 import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-// Compression stops (10/20/30% of the turnout gap closed); floor comes via props.
+// Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
+import senCondL5 from '../data/pureMultiSenateCondorcetTurnoutL5.json';
 import senCondL10 from '../data/pureMultiSenateCondorcetTurnoutL10.json';
+import senCondL15 from '../data/pureMultiSenateCondorcetTurnoutL15.json';
 import senCondL20 from '../data/pureMultiSenateCondorcetTurnoutL20.json';
+import senCondL25 from '../data/pureMultiSenateCondorcetTurnoutL25.json';
 import senCondL30 from '../data/pureMultiSenateCondorcetTurnoutL30.json';
+import senIrvL5 from '../data/pureMultiSenateIRVTurnoutL5.json';
 import senIrvL10 from '../data/pureMultiSenateIRVTurnoutL10.json';
+import senIrvL15 from '../data/pureMultiSenateIRVTurnoutL15.json';
 import senIrvL20 from '../data/pureMultiSenateIRVTurnoutL20.json';
+import senIrvL25 from '../data/pureMultiSenateIRVTurnoutL25.json';
 import senIrvL30 from '../data/pureMultiSenateIRVTurnoutL30.json';
 // Crossover (FD) senate compression stops.
 import fdSenCond0 from '../data/fdSenateCondorcetTurnout.json';
+import fdSenCond5 from '../data/fdSenateCondorcetTurnoutL5.json';
 import fdSenCond10 from '../data/fdSenateCondorcetTurnoutL10.json';
+import fdSenCond15 from '../data/fdSenateCondorcetTurnoutL15.json';
 import fdSenCond20 from '../data/fdSenateCondorcetTurnoutL20.json';
+import fdSenCond25 from '../data/fdSenateCondorcetTurnoutL25.json';
 import fdSenCond30 from '../data/fdSenateCondorcetTurnoutL30.json';
 import fdSenIrv0 from '../data/fdSenateIRVTurnout.json';
+import fdSenIrv5 from '../data/fdSenateIRVTurnoutL5.json';
 import fdSenIrv10 from '../data/fdSenateIRVTurnoutL10.json';
+import fdSenIrv15 from '../data/fdSenateIRVTurnoutL15.json';
 import fdSenIrv20 from '../data/fdSenateIRVTurnoutL20.json';
+import fdSenIrv25 from '../data/fdSenateIRVTurnoutL25.json';
 import fdSenIrv30 from '../data/fdSenateIRVTurnoutL30.json';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
+import { SenateCompositionCard } from '../components/senate/SenateCompositionCard';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
@@ -57,54 +70,6 @@ interface Props {
   senateCondorcet: any;
 }
 
-function SenateCompBar({ label, seats, segments, total: totalOverride, multiplier = 1 }: {
-  label: string;
-  seats?: FDSenateSeat[];
-  segments?: { party: string; n: number; color: string }[];
-  total?: number;
-  // Scales seat counts (Condorcet/IRV model one winner per state; ×2 fills both seats).
-  multiplier?: number;
-}) {
-  const segs = segments ?? (() => {
-    const counts: Record<string, number> = {};
-    for (const s of seats ?? []) {
-      const p = s.senatorParty ?? s.senatorCode.split('_')[0];
-      counts[p] = (counts[p] ?? 0) + 1;
-    }
-    return F5_ORDER.filter(p => counts[p] > 0).map(p => ({
-      party: p, n: counts[p] * multiplier, color: PARTY_COLORS[p] ?? '#6b7280',
-    }));
-  })();
-  const total = totalOverride ?? segs.reduce((s, x) => s + x.n, 0);
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className="shrink-0 text-right" style={{ width: 110 }}>
-        <div className="text-xs font-semibold text-foreground">{label}</div>
-        <div className="text-xs text-muted-foreground">{total} seats</div>
-      </div>
-      <div className="flex-1 flex rounded-lg overflow-hidden h-11">
-        {segs.map(({ party, n, color }) => {
-          const pct = (n / total) * 100;
-          return (
-            <div key={party}
-              title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(0)}%)`}
-              className="flex items-center justify-center overflow-hidden"
-              style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
-              {pct >= 5 && (
-                <span className="text-[10px] font-bold leading-tight text-center px-0.5 chip-text"
-                  style={{ color: getContrastText(color) }}>
-                  {party}<br />{n}
-                </span>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
                              voteModel, clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers,
@@ -112,15 +77,15 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const rawMultiOn = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  // Compression stops [0,10,20,30] for each pipeline; condRM/irvRM are the ACTIVE
+  // Compression stops [0,5,10,15,20,25,30] for each pipeline; condRM/irvRM are the ACTIVE
   // scenario's Condorcet/IRV senate at the current turnout stop.
-  const rmCondStops = [condorcetRawMultiTurnout, senCondL10, senCondL20, senCondL30] as unknown as FDSenateSeat[][];
-  const rmIrvStops  = [irvRawMultiTurnout, senIrvL10, senIrvL20, senIrvL30] as unknown as FDSenateSeat[][];
-  const fdCondStops = [fdSenCond0, fdSenCond10, fdSenCond20, fdSenCond30] as unknown as FDSenateSeat[][];
-  const fdIrvStops  = [fdSenIrv0, fdSenIrv10, fdSenIrv20, fdSenIrv30] as unknown as FDSenateSeat[][];
+  const rmCondStops = [condorcetRawMultiTurnout, senCondL5, senCondL10, senCondL15, senCondL20, senCondL25, senCondL30] as unknown as FDSenateSeat[][];
+  const rmIrvStops  = [irvRawMultiTurnout, senIrvL5, senIrvL10, senIrvL15, senIrvL20, senIrvL25, senIrvL30] as unknown as FDSenateSeat[][];
+  const fdCondStops = [fdSenCond0, fdSenCond5, fdSenCond10, fdSenCond15, fdSenCond20, fdSenCond25, fdSenCond30] as unknown as FDSenateSeat[][];
+  const fdIrvStops  = [fdSenIrv0, fdSenIrv5, fdSenIrv10, fdSenIrv15, fdSenIrv20, fdSenIrv25, fdSenIrv30] as unknown as FDSenateSeat[][];
   const condRM = (rawMultiOn ? rmCondStops : fdCondStops)[gi];
   const irvRM  = (rawMultiOn ? rmIrvStops  : fdIrvStops )[gi];
 
@@ -208,28 +173,6 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
   const isFD = pipeline === 'factorDev';
 
-  // Per-party seat counts under each preferential method, for the composition legend.
-  const senateCompStats = useMemo(() => {
-    const tally = (seats: FDSenateSeat[]) => {
-      const c: Record<string, number> = {};
-      for (const s of seats) {
-        const p = s.senatorParty ?? s.senatorCode.split('_')[0];
-        c[p] = (c[p] ?? 0) + 1;
-      }
-      return c;
-    };
-    const cond = tally(condRM);
-    const irv = tally(irvRM);
-    const parties = F5_ORDER.filter(p => (cond[p] ?? 0) > 0 || (irv[p] ?? 0) > 0);
-    // ×2: model gives one winner per state; each fills both of the state's seats.
-    return {
-      rows: parties.map(p => ({ party: p, cond: (cond[p] ?? 0) * 2, irv: (irv[p] ?? 0) * 2 })),
-      total: condRM.length * 2,
-      condParties: parties.filter(p => (cond[p] ?? 0) > 0).length,
-      irvParties: parties.filter(p => (irv[p] ?? 0) > 0).length,
-    };
-  }, [condRM, irvRM]);
-
   return (
     <div className="space-y-8">
       <div>
@@ -248,49 +191,8 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
       </StickyControlBar>
 
-      {/* FPTP vs Preferential Senate Comparison */}
-      <Card className="p-5 border-2 border-indigo-200 space-y-3">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          FPTP Today vs Preferential Senate
-        </h3>
-        {/* FPTP Today */}
-        <SenateCompBar label="FPTP Today" segments={[
-          { party: 'DEM', n: 47, color: '#1d4ed8' },
-          { party: 'GOP', n: 53, color: '#dc2626' },
-        ]} total={100} />
-        {/* Active-scenario Condorcet + IRV at the current turnout stop, doubled to a full chamber */}
-        <SenateCompBar label="Condorcet ×2" seats={condRM} multiplier={2} />
-        <SenateCompBar label="IRV ×2" seats={irvRM} multiplier={2} />
-
-        {/* Legend — one row per method, so narrow segments (STY, POP…) still show seat counts */}
-        <div className="space-y-1.5 pt-2 border-t border-border/50">
-          {([{ name: 'Condorcet', key: 'cond' as const }, { name: 'IRV', key: 'irv' as const }]).map(({ name, key }) => (
-            <div key={name} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="shrink-0 text-xs font-semibold text-foreground" style={{ width: 68 }}>{name}</span>
-              {senateCompStats.rows.filter(r => r[key] > 0).map(r => (
-                <span key={r.party} className="flex items-center gap-1.5" title={PARTY_NAMES[r.party] ?? r.party}>
-                  <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[r.party] ?? '#6b7280' }} />
-                  <span className="text-xs text-foreground font-medium">{r.party}</span>
-                  <span className="text-xs text-muted-foreground">{r[key]}</span>
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          <strong className="text-foreground">FPTP:</strong> each state&apos;s plurality winner takes the seat, so two parties hold every chair.
-          <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
-          <strong className="text-foreground">Condorcet:</strong> the seat goes to the candidate who beats every rival one-on-one in a round-robin — the broad consensus pick ({senateCompStats.condParties} parties win seats).
-          <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
-          <strong className="text-foreground">IRV:</strong> eliminate the last-place candidate and transfer ballots until one clears a majority, rewarding strong first-choice bases ({senateCompStats.irvParties} parties win seats).
-        </p>
-
-        <p className="text-[11px] text-muted-foreground/80">
-          Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s
-          seats for a full-chamber view ({senateCompStats.total} seats), which assumes matched delegations and so drops today&apos;s split D/R states.
-        </p>
-      </Card>
+      {/* FPTP vs Preferential Senate Comparison (shared with Overview) */}
+      <SenateCompositionCard condSeats={condRM} irvSeats={irvRM} />
 
       {/* Parliament fan chart */}
       <Card className="p-4">

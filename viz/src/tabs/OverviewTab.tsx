@@ -3,9 +3,7 @@ import type {
   PresidentialElection, FDSenateSeat, HouseSeat, VoteModelRow, ClusterProfile, FDCandidateProfile,
   FPTPState, HouseStateEntry,
 } from '../types';
-import {
-  PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText,
-} from '../constants/parties';
+import { PARTY_COLORS, F5_ORDER } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
@@ -16,8 +14,7 @@ import { VerdictBadge, getBayesianLabel } from '../components/legislation/Unifie
 import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
 import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
-
-const FPTP_SENATE = { DEM: 47, GOP: 53 };
+import { SenateCompositionCard } from '../components/senate/SenateCompositionCard';
 
 interface Props {
   fdElection: PresidentialElection;
@@ -52,65 +49,6 @@ function DiveCard({ label, onClick }: { label: string; onClick: () => void }) {
 }
 
 // ── Reusable sub-components ────────────────────────────────────────────────
-
-function FptpSenateBar() {
-  const total = FPTP_SENATE.DEM + FPTP_SENATE.GOP;
-  return (
-    <div className="flex items-center gap-3">
-      <div className="shrink-0 text-right" style={{ width: 120 }}>
-        <div className="text-xs font-semibold text-foreground">FPTP Today</div>
-        <div className="text-xs text-muted-foreground">{total} seats</div>
-      </div>
-      <div className="flex-1 flex rounded-lg overflow-hidden h-10">
-        <div
-          className="flex items-center justify-center"
-          style={{ width: `${(FPTP_SENATE.DEM / total) * 100}%`, backgroundColor: '#1d4ed8' }}
-        >
-          <span className="text-white text-xs font-bold">Dem {FPTP_SENATE.DEM}</span>
-        </div>
-        <div
-          className="flex items-center justify-center"
-          style={{ width: `${(FPTP_SENATE.GOP / total) * 100}%`, backgroundColor: '#dc2626' }}
-        >
-          <span className="text-white text-xs font-bold">Rep {FPTP_SENATE.GOP}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SenateBar({ seats, label }: { seats: FDSenateSeat[]; label: string }) {
-  const total = seats.length;
-  const counts: Record<string, number> = {};
-  for (const s of seats) {
-    counts[s.senatorParty] = (counts[s.senatorParty] ?? 0) + 1;
-  }
-  const segments = F5_ORDER.filter(p => counts[p] > 0).map(p => ({ party: p, n: counts[p] }));
-  return (
-    <div className="flex items-center gap-3">
-      <div className="shrink-0 text-right" style={{ width: 120 }}>
-        <div className="text-xs font-semibold text-foreground">{label}</div>
-        <div className="text-xs text-muted-foreground">{total} seats</div>
-      </div>
-      <div className="flex-1 flex rounded-lg overflow-hidden h-10">
-        {segments.map(({ party, n }) => {
-          const pct = (n / total) * 100;
-          return (
-            <div
-              key={party}
-              title={`${PARTY_NAMES[party] ?? party}: ${n}`}
-              className="flex items-center justify-center overflow-hidden"
-              style={{ width: `${pct}%`, backgroundColor: PARTY_COLORS[party] ?? '#6b7280', minWidth: pct < 2 ? 2 : 0 }}
-            >
-              {pct >= 6 && <span className="text-xs font-bold chip-text" style={{ color: getContrastText(PARTY_COLORS[party] ?? '#6b7280') }}>{party}</span>}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 
 function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: string }) {
   const color = PARTY_COLORS[partyCode] ?? '#6b7280';
@@ -186,16 +124,11 @@ export function OverviewTab({
         </div>
       </Card>
 
-      {/* Section 2 — Senate */}
-      <Card className="p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Senate</h3>
-        <FptpSenateBar />
-        <SenateBar seats={rawMultiSenateCond} label="Condorcet" />
-        <SenateBar seats={rawMultiSenateIRV} label="IRV" />
-        <div className="pt-1">
-          <DiveCard label="Dive into the Senate →" onClick={() => onNavigate('senate')} />
-        </div>
-      </Card>
+      {/* Section 2 — Senate (shared card, identical to the Senate tab) */}
+      <div className="space-y-3">
+        <SenateCompositionCard condSeats={rawMultiSenateCond} irvSeats={rawMultiSenateIRV} />
+        <DiveCard label="Dive into the Senate →" onClick={() => onNavigate('senate')} />
+      </div>
 
       {/* Section 3 — State disproportionality callouts */}
       <div>
