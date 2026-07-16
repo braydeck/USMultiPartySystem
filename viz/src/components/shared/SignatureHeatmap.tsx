@@ -68,13 +68,18 @@ export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected
               {r.factorShorts && r.factorShorts.length > 0 && <FactorTags shorts={r.factorShorts} />}
               <span className="break-words">{r.question}</span>
             </div>
-            {/* US baseline */}
-            {r.overall != null ? (
-              <div className="h-8 rounded-[2px] flex items-center justify-center bg-slate-200 text-slate-700 text-[10px] font-semibold tabular-nums"
-                title={`U.S. average: ${Math.round(r.overall)}${r.unit === '%' ? '%' : ' ' + r.unit}`}>
-                {r.unit === '%' ? Math.round(r.overall) : r.overall}
-              </div>
-            ) : <div className="h-8" />}
+            {/* US baseline — shaded on the same cividis scale so its contrast with the
+                parties is visible; a subtle inset ring marks it as the reference column. */}
+            {r.overall != null ? (() => {
+              const bg = cividisForFrac(r.maxVal ? r.overall / r.maxVal : 0);
+              return (
+                <div className="h-8 rounded-[2px] flex items-center justify-center text-[10px] font-semibold tabular-nums ring-1 ring-inset ring-slate-500/50"
+                  style={{ backgroundColor: bg, color: cividisText(bg) }}
+                  title={`U.S. average: ${Math.round(r.overall)}${r.unit === '%' ? '%' : ' ' + r.unit}`}>
+                  {r.unit === '%' ? Math.round(r.overall) : r.overall}
+                </div>
+              );
+            })() : <div className="h-8" />}
             {selected.map((p) => <Cell key={p} row={r} code={p} />)}
           </div>
         ))}
