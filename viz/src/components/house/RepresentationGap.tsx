@@ -94,7 +94,7 @@ export function RepresentationGap({ seats }: Props) {
         })}
       </div>
 
-      <div className="flex gap-4 mt-3 pt-2 border-t border-border/50 text-xs text-muted-foreground">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 pt-2 border-t border-border/50 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="inline-block w-8 h-3 rounded-sm bg-slate-300 opacity-50" />
           Population share

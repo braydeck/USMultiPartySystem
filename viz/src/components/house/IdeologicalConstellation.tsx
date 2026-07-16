@@ -473,8 +473,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
   const colorOptions = ['party', ...FACTORS] as const;
 
   return (
-    <div className="flex gap-3 items-start">
-      {/* Left control panel */}
+    <div className="flex flex-col sm:flex-row gap-3 sm:items-start">
+      {/* Left control panel — stacks above the chart on mobile (compact column) */}
       <div className="shrink-0 w-44 space-y-3 p-2 bg-slate-50 rounded border border-border self-start">
         <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
         <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} />

@@ -159,7 +159,7 @@ export default function SenateCondorcetView({ data }: Props) {
               })}
 
               {/* Legend */}
-              <div className="text-xs text-muted-foreground mt-3 flex gap-4">
+              <div className="text-xs text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-1">
                 <span>
                   <span className="inline-block w-3 h-3 rounded-sm bg-green-400 opacity-60 mr-1 align-middle" />
                   Row wins &gt;50%
