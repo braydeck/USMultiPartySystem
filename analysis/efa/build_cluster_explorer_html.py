@@ -97,8 +97,8 @@ table.sm td.party{text-align:left;font-weight:700}
 </section>
 
 <section>
-<h2>The blends residualization hides</h2>
-<p class="lede">Where parties split/absorb, residualization-off forms these blends instead. The question that matters: are they <b>genuinely cross-cutting</b> (combining positions the left–right axis separates) — and so worth exploring — or just the weakly-separated left bloc collapsing into coarser groups?</p>
+<h2>What forms instead — re-merges, not new parties</h2>
+<p class="lede">Where parties split/absorb, residualization-off forms these clusters instead. The question that matters: do any of them reveal a <b>genuinely new group</b> the production model misses — or are they just coarser re-merges of parties production already separates?</p>
 <div id="xc-legend" class="legend"><span><span class="dot" style="background:var(--cross)"></span>Cross-cutting (mixes enforcement / skepticism / values against type)</span><span><span class="dot" style="background:var(--absorb)"></span>Bloc merge (coarser version of existing parties)</span></div>
 <div class="grid" id="blends"></div>
 <div id="insight"></div>
@@ -117,7 +117,7 @@ table.sm td.party{text-align:left;font-weight:700}
 const DATA=__DATA__;
 const PC={PRG:'#15803d',DSA:'#22c55e',LIB:'#0284c7',SD:'#38bdf8',STY:'#8a70b8',CUP:'#825a27',CON:'#e68c2c',POP:'#d34812',NAT:'#a01d2a',C7:'#9ca3af'};
 const PNAME={PRG:'Progressive',DSA:'Dem. Socialist',LIB:'Liberal',SD:'Labor',STY:'Solidarity',CUP:'Civic Union',CON:'Conservative',POP:'Populist',NAT:'Nationalist',C7:'OAO / Order & Opportunity'};
-const ORDER=['PRG','DSA','LIB','SD','STY','CUP','POP','CON','NAT'];
+const ORDER=['PRG','DSA','LIB','SD','C7','STY','CUP','POP','CON','NAT'];
 const POL=DATA.pol_items;
 const DEMO=[['ideo','Ideology 1-5'],['dem','% Dem'],['rep','% Rep'],['ind','% Ind'],['age','Median age'],['female','% women'],['college','% 4-yr deg'],['lowinc','% <$50k'],['white','% White'],['black','% Black'],['hisp','% Hispanic'],['city','% big-city'],['rural','% rural'],['bornagain','% born-again']];
 const base={}; DATA.baseline.forEach(r=>base[r.party]=r);
@@ -178,7 +178,7 @@ function renderPreserved(){const recs=nr.clusters.filter(r=>classify(r).type==='
 function renderBlends(){const recs=nr.clusters.filter(r=>classify(r).type==='blend').sort((a,b)=>b.wtPct-a.wtPct);
   document.getElementById('blends').innerHTML=recs.map(r=>clusterCard(r,{pfx:'bl'})).join('');}
 function renderInsight(){document.getElementById('insight').innerHTML=
-  `<div class="callout x"><b>Are the blends worth exploring? Partly.</b> Three of the four are the left/Blue-Dog bloc re-collapsing (Liberal+DSA secular left; Progressive+Blue Dog; a left-populist mix) — coarser groupings, not new axes. <b>One is genuinely cross-cutting and interesting:</b> the <b>"law-and-order Democrat"</b> (≈C7+CON+LIB) — high enforcement (100% back more police) yet progressive on race, pro-institution, and Democratic-leaning. The production model has no home for these voters; they scatter into Conservative. Worth surfacing — but note it's ≈40% the deliberately-dropped Blue Dog cluster, so it's more "Blue Dogs resurfacing" than a hidden new party. <b>Net: residualization mainly sharpens the weak left separation; it hides one legitimately cross-pressured group rather than a whole obscured multiparty layer.</b></div>`;}
+  `<div class="callout x"><b>Do the alternatives reveal a party the production model misses? No.</b> Every low-match cluster here is a coarser re-merge, not a new axis. The apparent "second Populist" is actually a Democratic-leaning economic-left seam sliced off Populist and glued to DSA/Liberal — cosine 0.93 to DSA vs only 0.69 to Populist; the rest (Liberal+DSA, Progressive+OAO, center blends) sit at near-zero distance from the average of their own constituents, i.e. no distinct platform. <b>The one bloc these variants keep breaking apart is OAO itself</b> — the law-and-order Democrat (high enforcement, progressive on race, pro-institution, Democratic-leaning). Without residualization it disperses across 3–4 clusters; where a Democratic-enforcement cluster does form, it only holds together by absorbing Liberals, which waters down the very enforcement that defines it (police support 62%→27%). That is exactly what residualization + k=5 prevents — which is why OAO is a full production party, not a "hidden" group. <b>Net: the alternatives don't uncover an 11th party; they only degrade the ten, and the party they degrade first is OAO.</b></div>`;}
 function renderBaseline(){document.getElementById('baseline').innerHTML=ORDER.map(p=>{const rec=base[p];if(!rec)return '';
   const uid='base_'+p;return `<div class="cc" style="--ctop:${PC[p]}"><h3>${PNAME[p]} <span style="color:#94a3b8;font-weight:600">(${p})</span></h3>
     <div class="wt">${rec.wtPct}% of electorate</div>${strengthRow(rec.conf)}
