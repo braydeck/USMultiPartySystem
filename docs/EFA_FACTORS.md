@@ -144,6 +144,14 @@ Key relationships:
 
 **Key finding for coalition analysis:** All 23 winning types score Medium on F3 (range −0.21 to +0.13). The full winning coalition set is mildly above the population mean on government distrust but undifferentiated from each other. F3 does not drive coalition formation.
 
+**Validity re-check (July 2026): F3 is a residual factor, and its sign is misleading.** Re-deriving the relationship from the stored factor scores (repro: `analysis/efa/verify_f3_inversion.py`) shows the factor does not measure what its name implies:
+
+- Across the ten parties, the F3 score correlates **−0.38** with actual government distrust (the raw `govt_trust_imputed` indicator), and **−0.21** at the respondent level. The two *most* government-distrusting parties in the raw data — POP (0.37) and NAT (0.43) — score *lowest* on the F3 factor (both ≈ −0.21). CON, only mid-pack on raw distrust (0.18), scores *highest* among the right parties (+0.11). The factor inverts its own construct: a party's F3 z-score runs opposite to how much it actually distrusts government.
+- The real government-distrust signal lives in **F2 (Electoral Skepticism)**, which correlates **+0.84** with raw government distrust across parties. In a weighted regression of raw distrust on all five factor scores, F2's coefficient is **+0.151** (t=68) while F3's is **−0.165** (t=−58).
+- Mechanism: the two government-trust items (CC24_423/424) load on both F2 and F3, and F2 — where the party-level variance actually sits — absorbs them. F3's *discriminating* variance instead comes from its culturally-coded cross-loading items (immigration, race, hostile sexism), which already belong to F5/PC. So F3's party ordering tracks a culturally-progressive residual, not distrust, which is why hard-right POP falls below institutionalist CON.
+
+**Consequence:** F3 functions as a **residual / suppressor factor**, not an interpretable substantive dimension. It earns its k=5 slot only by keeping the trust variance split so DPGMM can isolate CUP (see Robustness) — not as a number to display next to a party. The "Government Distrust" label is actively misleading, since a party's F3 score is *negatively* related to its real government distrust; the genuine institutional-distrust axis is F2. When surfacing factors in the UI, F3 should be dropped or explicitly flagged as a non-interpretable residual, and F2 is the axis that should carry the "distrust / anti-establishment" reading.
+
 ### F4 — Religious Traditionalism
 
 | Item | Loading | Survey Question |
