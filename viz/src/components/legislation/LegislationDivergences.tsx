@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { VoteModelRow, PresidentialElection } from '../../types';
 import { getBlendColor } from '../../constants/parties';
-import { getBayesianLabel, getDirection, VerdictBadge, type VerdictLabel } from './UnifiedBillTable';
+import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, type VerdictLabel } from './UnifiedBillTable';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -10,23 +10,6 @@ interface Props {
   election: PresidentialElection;
   pipeline: 'rawMulti' | 'factorDev';
   wyoming?: 'double' | 'triple';
-}
-
-function PresCell({ signs, winner }: { signs: string | undefined; winner: string }) {
-  if (!signs) return <span className="text-slate-300 text-xs">—</span>;
-  const color = getBlendColor(winner);
-  return (
-    <span
-      className="text-xs font-semibold px-1.5 py-0.5 rounded border whitespace-nowrap"
-      style={
-        signs === 'SIGN'
-          ? { backgroundColor: color + '18', color, borderColor: color + '55' }
-          : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
-      }
-    >
-      {signs === 'SIGN' ? '✓ Sign' : '✗ Veto'}
-    </span>
-  );
 }
 
 export function LegislationDivergences({ houseVotes, senateVotes, election, pipeline, wyoming = 'double' }: Props) {
@@ -50,6 +33,13 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
     'factorDev+irv':       'presFDIRVSigns',
   };
 
+  const PRES_PCT: Record<string, keyof VoteModelRow> = {
+    'rawMulti+condorcet':  'presRawMultiCondPct',
+    'rawMulti+irv':        'presRawMultiIRVPct',
+    'factorDev+condorcet': 'presFDCondPct',
+    'factorDev+irv':       'presFDIRVPct',
+  };
+
   const HOUSE_PROB: keyof VoteModelRow = wyoming === 'triple'
     ? (pipeline === 'rawMulti' ? 'houseRawMultiTripleProbPass' : 'houseFDTripleProbPass')
     : (pipeline === 'rawMulti' ? 'houseRawMultiProbPass' : 'houseFDProbPass');
@@ -69,6 +59,8 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         const senateIRVLabel  = getBayesianLabel([row[SENATE_PROB[irvCombo]] as number | undefined]);
         const condPresSign    = row[PRES_SIGN[condCombo]] as string | undefined;
         const irvPresSign     = row[PRES_SIGN[irvCombo]] as string | undefined;
+        const condPresPct     = row[PRES_PCT[condCombo]] as number | undefined;
+        const irvPresPct      = row[PRES_PCT[irvCombo]] as number | undefined;
 
         const hDir     = getDirection(houseLabel);
         const sCondDir = getDirection(senateCondLabel);
@@ -86,7 +78,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         if (!methodSplit && !houseSenateSplit && !presSplit) return null;
 
         const score = (methodSplit ? 3 : 0) + (houseSenateSplit ? 2 : 0) + (presSplit ? 1 : 0);
-        return { row, houseLabel, senateCondLabel, senateIRVLabel, condPresSign, irvPresSign, methodSplit, houseSenateSplit, presSplit, score };
+        return { row, houseLabel, senateCondLabel, senateIRVLabel, condPresSign, irvPresSign, condPresPct, irvPresPct, methodSplit, houseSenateSplit, presSplit, score };
       })
       .filter(Boolean)
       .sort((a, b) => b!.score - a!.score) as {
@@ -96,6 +88,8 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         senateIRVLabel: VerdictLabel | '';
         condPresSign: string | undefined;
         irvPresSign: string | undefined;
+        condPresPct: number | undefined;
+        irvPresPct: number | undefined;
         methodSplit: boolean;
         houseSenateSplit: boolean;
         presSplit: boolean;
@@ -124,7 +118,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         </p>
       </div>
 
-      <div className="hidden md:grid grid-cols-[minmax(150px,1fr)_120px_120px_120px_72px_72px] gap-x-1 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
+      <div className="hidden md:grid grid-cols-[minmax(150px,1fr)_120px_120px_120px_120px_120px] gap-x-1 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
         <div>Bill</div>
         <div className="text-center">House</div>
         <div className="text-center">Senate Cond</div>
@@ -134,10 +128,10 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
       </div>
 
       <div className="divide-y divide-slate-100">
-        {divergentBills.map(({ row, houseLabel, senateCondLabel, senateIRVLabel, condPresSign, irvPresSign, methodSplit }) => (
+        {divergentBills.map(({ row, houseLabel, senateCondLabel, senateIRVLabel, condPresPct, irvPresPct, methodSplit }) => (
           <div
             key={row.variable}
-            className={`flex flex-col md:grid md:grid-cols-[minmax(150px,1fr)_120px_120px_120px_72px_72px] gap-x-1 items-start md:items-center px-4 py-2.5 ${
+            className={`flex flex-col md:grid md:grid-cols-[minmax(150px,1fr)_120px_120px_120px_120px_120px] gap-x-1 items-start md:items-center px-4 py-2.5 ${
               methodSplit ? 'bg-amber-50/40' : 'bg-white'
             }`}
           >
@@ -148,8 +142,8 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
             <div className="flex justify-center"><VerdictBadge label={houseLabel} /></div>
             <div className="flex justify-center"><VerdictBadge label={senateCondLabel} /></div>
             <div className="flex justify-center"><VerdictBadge label={senateIRVLabel} /></div>
-            <div className="flex justify-center"><PresCell signs={condPresSign} winner={condWinner} /></div>
-            <div className="flex justify-center"><PresCell signs={irvPresSign} winner={irvWinner} /></div>
+            <div className="flex justify-center"><SignBadge prob={condPresPct !== undefined ? condPresPct / 100 : undefined} /></div>
+            <div className="flex justify-center"><SignBadge prob={irvPresPct !== undefined ? irvPresPct / 100 : undefined} /></div>
           </div>
         ))}
       </div>
