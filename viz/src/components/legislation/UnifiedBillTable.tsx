@@ -263,22 +263,29 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                 <span className="text-xs text-muted-foreground ml-2">{ref.domain}</span>
               </div>
 
-              <div className="mt-1 md:mt-0 flex flex-col gap-1">
-                <ProbBar prob={houseProb} />
-                <VerdictBadge label={houseLabel} />
+              <div className="mt-2 md:mt-0 w-full flex items-center justify-between gap-3 border-t border-border/40 pt-2 md:border-0 md:pt-0 md:block">
+                <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide shrink-0">House</span>
+                <div className="flex flex-col gap-1 items-end md:items-start">
+                  <ProbBar prob={houseProb} />
+                  <VerdictBadge label={houseLabel} />
+                </div>
               </div>
 
-              <div className="mt-1 md:mt-0 flex flex-col gap-1">
-                <ProbBar prob={senateProb} />
-                <VerdictBadge label={senateLabel} />
+              <div className="mt-2 md:mt-0 w-full flex items-center justify-between gap-3 border-t border-border/40 pt-2 md:border-0 md:pt-0 md:block">
+                <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide shrink-0">Senate</span>
+                <div className="flex flex-col gap-1 items-end md:items-start">
+                  <ProbBar prob={senateProb} />
+                  <VerdictBadge label={senateLabel} />
+                </div>
               </div>
 
-              <div className="mt-1 md:mt-0 flex flex-col gap-1">
+              <div className="mt-2 md:mt-0 w-full flex items-center justify-between gap-3 border-t border-border/40 pt-2 md:border-0 md:pt-0 md:block">
+                <span className="md:hidden text-xs font-semibold uppercase tracking-wide shrink-0" style={{ color: presColor }}>{presLabel}</span>
                 {presProb !== undefined ? (
-                  <>
+                  <div className="flex flex-col gap-1 items-end md:items-start">
                     <ProbBar prob={presProb} />
                     <SignBadge prob={presProb} />
-                  </>
+                  </div>
                 ) : (
                   <span className="text-slate-300 text-xs">—</span>
                 )}

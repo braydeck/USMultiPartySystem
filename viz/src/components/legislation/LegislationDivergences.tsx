@@ -139,11 +139,26 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
               <span className="text-sm text-foreground">{row.question}</span>
               <span className="text-xs text-muted-foreground ml-2">{row.domain}</span>
             </div>
-            <div className="flex justify-center"><VerdictBadge label={houseLabel} /></div>
-            <div className="flex justify-center"><VerdictBadge label={senateCondLabel} /></div>
-            <div className="flex justify-center"><VerdictBadge label={senateIRVLabel} /></div>
-            <div className="flex justify-center"><SignBadge prob={condPresPct !== undefined ? condPresPct / 100 : undefined} /></div>
-            <div className="flex justify-center"><SignBadge prob={irvPresPct !== undefined ? irvPresPct / 100 : undefined} /></div>
+            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
+              <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">House</span>
+              <VerdictBadge label={houseLabel} />
+            </div>
+            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
+              <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">Senate (Condorcet)</span>
+              <VerdictBadge label={senateCondLabel} />
+            </div>
+            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
+              <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">Senate (IRV)</span>
+              <VerdictBadge label={senateIRVLabel} />
+            </div>
+            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
+              <span className="md:hidden text-xs font-semibold uppercase tracking-wide" style={{ color: getBlendColor(condWinner) }}>{condWinner.split('_')[0]} Pres (Condorcet)</span>
+              <SignBadge prob={condPresPct !== undefined ? condPresPct / 100 : undefined} />
+            </div>
+            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
+              <span className="md:hidden text-xs font-semibold uppercase tracking-wide" style={{ color: getBlendColor(irvWinner) }}>{irvWinner.split('_')[0]} Pres (IRV)</span>
+              <SignBadge prob={irvPresPct !== undefined ? irvPresPct / 100 : undefined} />
+            </div>
           </div>
         ))}
       </div>
