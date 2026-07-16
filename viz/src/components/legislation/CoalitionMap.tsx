@@ -46,7 +46,9 @@ function CoalitionRow({ bill, seats, total, majority }: {
           const w = (s / total) * 100;
           const pct = Math.round(bill.parties[p].observedPct ?? 0);
           const supports = (bill.parties[p].observedPct ?? 0) > 50;
-          const isPivotal = p === pivotal;
+          // A pivotal party only exists for a bill that passes — the one whose seats carry the
+          // winning coalition over the line. On a defeat there is no coalition, so no ring.
+          const isPivotal = passes && p === pivotal;
           return (
             <div key={p}
               className="relative flex items-center justify-center overflow-hidden chip-text"
@@ -112,8 +114,8 @@ export function CoalitionMap({ candidateVotes, seats }: {
 
       <p className="text-[11px] text-muted-foreground mt-3">
         <span className="text-emerald-600 font-bold">✓</span>/<span className="text-rose-500 font-bold">✗</span> marks
-        whether the bill's supporters hold a seat majority — it passes the House. Parties left of the majority line are
-        the coalition that carries the bill; the pivotal party (white/dark ring) is the one whose seats tip it over.
+        whether the bill's supporters hold a seat majority — it passes the House. On a pass, the pivotal party
+        (white/dark ring) is the one whose seats tip the winning coalition over the line; a defeat has no pivotal party.
         Faded = the party opposes the bill (support ≤ 50%).
       </p>
     </div>
