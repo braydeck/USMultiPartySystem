@@ -12,7 +12,6 @@ import { FactorTags } from './DistributionCells';
 export interface HeatRow {
   key: string;
   question: string;
-  loading: number;
   pcts: Record<string, number>;
   overall: number | null;
   maxVal: number;

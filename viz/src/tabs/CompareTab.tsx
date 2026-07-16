@@ -404,15 +404,6 @@ function FactorItemsPanel({
     );
   }
 
-  // Single-number items (binary / single-value %) become one heatmap block; the rich
-  // distributions (box-plot, diverging, intensity) keep their full-width cells below.
-  const heatRows: HeatRow[] = shown.filter(r => r.kind === 'binary').map(r => ({
-    key: r.key, question: r.question!, loading: r.loading, pcts: r.pcts!,
-    overall: r.overall ?? null, maxVal: r.maxVal ?? 100, unit: r.unit ?? '%',
-    marks: r.marks, highlighted: r.highlighted, factorShorts: factorShorts(r.key),
-  }));
-  const richRows = shown.filter(r => r.kind !== 'binary');
-
   return (
     <div className="border-t border-border/30 bg-slate-50/50">
       <div className="px-4 py-2">
@@ -420,29 +411,36 @@ function FactorItemsPanel({
           Underlying EFA items ({shown.length})
         </span>
       </div>
-      {heatRows.length > 0 && <SignatureHeatmap rows={heatRows} selected={codes} />}
-      {richRows.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 border-t border-border/30">
-          {richRows.map((r, i) => (
-            <div
-              key={r.key}
-              className={[
-                i >= 2 ? 'border-t border-border/50' : '',
-                i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
-              ].filter(Boolean).join(' ')}
-            >
-              {r.kind === 'intensity' ? (
-                <IntensityCell item={r.iv!} codes={codes} question={r.iv!.question} marks={r.marks} />
-              ) : (
-                <RangeBarCell meta={DIST.meta[r.rangeKey!] as unknown as RangeMeta}
-                  national={DIST.national[r.rangeKey!] as never}
-                  byCode={Object.fromEntries(codes.filter(c => DIST.parties[c]?.[r.rangeKey!]).map(c => [c, DIST.parties[c][r.rangeKey!]])) as never}
-                  codes={codes} marks={r.marks} factors={distFactors(r.rangeKey!)} />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2">
+        {shown.map((r, i) => (
+          <div
+            key={r.key}
+            className={[
+              i >= 2 ? 'border-t border-border/50' : '',
+              i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
+            ].filter(Boolean).join(' ')}
+          >
+            {r.kind === 'intensity' ? (
+              <IntensityCell item={r.iv!} codes={codes} question={r.iv!.question} marks={r.marks} />
+            ) : r.kind === 'range' ? (
+              <RangeBarCell meta={DIST.meta[r.rangeKey!] as unknown as RangeMeta}
+                national={DIST.national[r.rangeKey!] as never}
+                byCode={Object.fromEntries(codes.filter(c => DIST.parties[c]?.[r.rangeKey!]).map(c => [c, DIST.parties[c][r.rangeKey!]])) as never}
+                codes={codes} marks={r.marks} factors={distFactors(r.rangeKey!)} />
+            ) : (
+              <StackedBarCell
+                item={{
+                  question: r.question!, factor: null, pcts: r.pcts!, overall: r.overall!,
+                  maxVal: r.maxVal!, unit: r.unit!, highlighted: r.highlighted, loadingWeight: r.loading,
+                }}
+                codes={codes}
+                marks={r.marks}
+                label={r.question!}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -985,28 +983,35 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                               const gl = grp.items.map(v => intensityFor(v.key)).find(Boolean);
                               return gl ? <div className="px-4 pt-2 pb-0.5 border-t border-border/40"><IntensityLegend item={gl} /></div> : null;
                             })()}
-                            <div className="grid grid-cols-1 sm:grid-cols-2">
-                              {grp.items.map((v, i) => {
-                                const iv = intensityFor(v.key);
-                                return (
-                                <div
-                                  key={v.key}
-                                  className={[
-                                    i >= 2 ? 'border-t border-border/50' : '',
-                                    i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
-                                  ].filter(Boolean).join(' ')}
-                                >
-                                  {iv ? (
-                                    <IntensityCell item={iv} codes={selected} question={iv.question}
-                                      marks={scalarMarks(v)} />
-                                  ) : (
-                                    <StackedBarCell item={v} codes={selected} marks={scalarMarks(v)}
-                                      label={grp.header ? stripPrefix(v.question) : v.question} />
+                            {(() => {
+                              // Single-number items → one heatmap block; multi-point (intensity) items keep their bars.
+                              const heatItems = grp.items.filter(v => !intensityFor(v.key));
+                              const intensityItems = grp.items.filter(v => intensityFor(v.key));
+                              const heatRows: HeatRow[] = heatItems.map(v => ({
+                                key: v.key,
+                                question: grp.header ? stripPrefix(v.question) : v.question,
+                                pcts: v.pcts, overall: v.overall, maxVal: v.maxVal, unit: v.unit,
+                                marks: scalarMarks(v), highlighted: v.highlighted, factorShorts: factorShorts(v.key),
+                              }));
+                              return (
+                                <>
+                                  {heatRows.length > 0 && <SignatureHeatmap rows={heatRows} selected={selected} />}
+                                  {intensityItems.length > 0 && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 border-t border-border/40">
+                                      {intensityItems.map((v, i) => (
+                                        <div key={v.key} className={[
+                                          i >= 2 ? 'border-t border-border/50' : '',
+                                          i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
+                                        ].filter(Boolean).join(' ')}>
+                                          <IntensityCell item={intensityFor(v.key)!} codes={selected}
+                                            question={intensityFor(v.key)!.question} marks={scalarMarks(v)} />
+                                        </div>
+                                      ))}
+                                    </div>
                                   )}
-                                </div>
-                                );
-                              })}
-                            </div>
+                                </>
+                              );
+                            })()}
                           </div>
                         ))}
                       </div>
