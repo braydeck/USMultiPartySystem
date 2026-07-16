@@ -66,37 +66,13 @@ export function splitShares(item: IntensityItem, shares: number[]): Split | null
 
 const norm01 = (val: number, maxVal: number) => (maxVal === 100 ? val : (val / maxVal) * 100);
 
-// Empirical distribution of each bucket's share, pooled PER BATTERY (agree / spending /
-// trust / …) since neutral baselines differ sharply between batteries (spending "Maintain"
-// runs far higher than an agree scale's "Neither"). Consensus is then applied as a
-// within-battery percentile: a stance is "defining" if it's unusually high in agree,
-// neutral, OR disagree relative to other ordinal stances in the same battery.
-type Buckets = { left: number[]; neutral: number[]; right: number[] };
-const POOL: Record<string, Buckets> = {};
-for (const it of INTENSITY_ITEMS) {
-  if (it.kind !== 'diverging') continue;
-  const b = (POOL[it.battery] ??= { left: [], neutral: [], right: [] });
-  for (const code of Object.keys(it.parties)) {
-    const sp = splitShares(it, it.parties[code]);
-    if (!sp) continue;
-    b.left.push(sp.leftTotal);
-    b.right.push(sp.rightTotal);
-    if (sp.neutral != null) b.neutral.push(sp.neutral);
-  }
-}
-for (const b of Object.values(POOL)) (['left', 'neutral', 'right'] as const).forEach(k => b[k].sort((x, y) => x - y));
-function bucketPercentile(battery: string, bucket: 'left' | 'neutral' | 'right', p: number): number {
-  const a = POOL[battery]?.[bucket];
-  if (!a || !a.length) return 101;
-  return a[Math.min(a.length - 1, Math.floor((p / 100) * a.length))];
-}
-
 /**
- * A party's signature components on one scalar item: `cohesive` (tightly held) and `distance`
- * from the national average (0–100). Cohesion is percentile-relative within the battery for
- * ordinal (diverging) items — the slider P means "top (100−P)% of that bucket" in agree,
- * neutral, or disagree — and the plain ≥P% / ≤(100−P)% rule for binary items. Distance is the
- * collapsed-pct deviation from national. The caller maps these to the dot + D/M annotations.
+ * A party's signature components on one scalar item: `cohesive` (a strong majority holds one
+ * position) and `distance` from the national average (0–100). Cohesion uses the same rule for
+ * every item type: an absolute pole share ≥ consPct. For diverging (ordinal) items that means
+ * the agree-side OR disagree-side total clears consPct, with the neutral middle excluded (fence-
+ * sitting is not a cohesive position). For binary/collapsed items it's the plain ≥P% / ≤(100−P)%
+ * lopsidedness. Distance is the collapsed-pct deviation from national.
  */
 export function itemSignature(key: string, code: string, pct: number, overall: number, maxVal: number, f: SignatureFilter): { cohesive: boolean; distance: number } {
   const iv = intensityFor(key);
@@ -104,10 +80,8 @@ export function itemSignature(key: string, code: string, pct: number, overall: n
   let cohesive: boolean;
   if (iv && iv.kind === 'diverging' && shares) {
     const sp = splitShares(iv, shares)!;
-    cohesive =
-      sp.leftTotal >= bucketPercentile(iv.battery, 'left', f.consPct) ||
-      sp.rightTotal >= bucketPercentile(iv.battery, 'right', f.consPct) ||
-      (sp.neutral != null && sp.neutral >= bucketPercentile(iv.battery, 'neutral', f.consPct));
+    // Absolute pole concentration, matching the binary rule; neutral is not counted.
+    cohesive = sp.leftTotal >= f.consPct || sp.rightTotal >= f.consPct;
   } else {
     const p = norm01(pct, maxVal);
     cohesive = p >= f.consPct || p <= 100 - f.consPct;
