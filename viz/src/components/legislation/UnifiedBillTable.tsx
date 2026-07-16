@@ -90,6 +90,25 @@ export function VerdictBadge({ label }: { label: VerdictLabel | '' }) {
   );
 }
 
+/** President sign/veto with the same graded confidence bands as the pass/fail verdicts —
+ *  the sign chance is the winning party's support level, so it carries the same uncertainty.
+ *  Reuses getBayesianLabel for both the grade and the color, relabeled Signs/Vetoes. */
+export function SignBadge({ prob }: { prob: number | undefined }) {
+  const base = getBayesianLabel([prob]);
+  if (!base) return <span className="text-muted-foreground text-xs">—</span>;
+  const label = base.replace('Passes', 'Signs').replace('Fails', 'Vetoes');
+  const s = VERDICT_STYLE[base];
+  return (
+    <Badge
+      variant="outline"
+      className="whitespace-nowrap"
+      style={{ backgroundColor: s.bg, color: s.text, borderColor: s.border }}
+    >
+      {label}
+    </Badge>
+  );
+}
+
 function ProbBar({ prob }: { prob: number | undefined }) {
   if (prob === undefined || prob === null) return <span className="text-slate-300 text-xs">—</span>;
   const pct   = Math.round(prob * 100);
@@ -222,7 +241,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
       </div>
 
       <div className="space-y-0.5">
-        {sorted.map(({ variable, ref, houseProb, senateProb, signs, presProb }) => {
+        {sorted.map(({ variable, ref, houseProb, senateProb, presProb }) => {
           const houseLabel   = getBayesianLabel([houseProb]);
           const senateLabel  = getBayesianLabel([senateProb]);
 
@@ -258,16 +277,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                 {presProb !== undefined ? (
                   <>
                     <ProbBar prob={presProb} />
-                    <span
-                      className="text-xs font-bold px-2 py-0.5 rounded border whitespace-nowrap self-start"
-                      style={
-                        signs === 'SIGN'
-                          ? { backgroundColor: presColor + '18', color: presColor, borderColor: presColor + '55' }
-                          : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
-                      }
-                    >
-                      {signs === 'SIGN' ? 'Signs' : 'Vetoes'}
-                    </span>
+                    <SignBadge prob={presProb} />
                   </>
                 ) : (
                   <span className="text-slate-300 text-xs">—</span>
