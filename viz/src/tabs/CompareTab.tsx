@@ -128,10 +128,12 @@ type FactorKey = typeof FACTORS[number];
 const FACTOR_ETA: Record<string, number> = Object.fromEntries(
   (factorLoadingsData as { factor: string; eta: number }[]).map(f => [f.factor, f.eta])
 );
-// Factors ordered by discriminatory value, strongest first (F5, F1, F2, F4, F3).
-const FACTORS_BY_DISCRIMINATION = [...FACTORS].sort(
-  (a, b) => (FACTOR_ETA[b] ?? 0) - (FACTOR_ETA[a] ?? 0)
-) as FactorKey[];
+// Factors shown, ordered by discriminatory value, strongest first (F5, F1, F2, F4).
+// F3 (Government Distrust) is dropped: it is a non-interpretable residual whose party scores
+// run opposite to real distrust — see docs/EFA_FACTORS.md.
+const FACTORS_BY_DISCRIMINATION = ([...FACTORS] as FactorKey[])
+  .filter(f => f !== 'F3')
+  .sort((a, b) => (FACTOR_ETA[b] ?? 0) - (FACTOR_ETA[a] ?? 0));
 
 interface VarEntry {
   key: string;

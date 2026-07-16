@@ -10,7 +10,7 @@ import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { FACTOR_LABELS, partyOrder } from '../constants/parties';
+import { FACTOR_LABELS, DISPLAY_FACTORS, partyOrder } from '../constants/parties';
 import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
@@ -89,7 +89,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   const condRM = (rawMultiOn ? rmCondStops : fdCondStops)[gi];
   const irvRM  = (rawMultiOn ? rmIrvStops  : fdIrvStops )[gi];
 
-  const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
+  const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: [...DISPLAY_FACTORS] });
 
 
   const scenario: SenateScenario =
@@ -198,7 +198,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="text-xs text-muted-foreground uppercase tracking-widest">Order by</span>
-          {(['F1','F2','F3','F4','F5'] as const).map(f => (
+          {DISPLAY_FACTORS.map(f => (
             <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
               variant={parliamentFactor === f ? 'default' : 'secondary'}
               size="sm">

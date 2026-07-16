@@ -18,7 +18,8 @@ interface Props {
 }
 
 const THRESHOLD = 1.5;
-const FACTORS = ['F1', 'F2', 'F3', 'F4', 'F5'] as const;
+// F3 (Government Distrust) omitted — non-interpretable residual, see docs/EFA_FACTORS.md.
+const FACTORS = ['F1', 'F2', 'F4', 'F5'] as const;
 const ALL_AXES = [...FACTORS, 'seats'] as const;
 
 const SCALE_LABELS: Record<'strength' | 'percentile', string> = {

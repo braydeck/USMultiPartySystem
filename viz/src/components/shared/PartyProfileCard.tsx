@@ -1,12 +1,12 @@
 import type { ClusterProfile } from '../../types';
-import { getBlendColor, FACTOR_POLES } from '../../constants/parties';
+import { getBlendColor, FACTOR_POLES, DISPLAY_FACTORS } from '../../constants/parties';
 import { vikForZ, vikForPctile } from '../../lib/vik';
 import { popShareLabel } from '../../lib/population';
 import { Card } from '@/components/ui/card';
 
 const FACTOR_SHORT_LABEL: Record<string, string> = {
   F1: 'Security',
-  F2: 'Elections',
+  F2: 'Institutions',
   F3: 'Establishment',
   F4: 'Religion',
   F5: 'Conservatism',
@@ -50,7 +50,7 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
         <span className="text-xs text-muted-foreground" title="share of the adult population">{popShareLabel(cluster.party)}</span>
       </div>
       <div className="px-4 py-3 space-y-2">
-        {(['F1', 'F2', 'F3', 'F4', 'F5'] as const).map(f => {
+        {DISPLAY_FACTORS.map(f => {
           const z = (cluster as unknown as Record<string, number>)[`z_${f}`];
           const pctile = (cluster as unknown as Record<string, number>)[`pctile_${f}`];
           if (z == null) return null;

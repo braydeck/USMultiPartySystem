@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ClusterProfile } from '../../types';
 import { FactorBar } from '../shared/FactorBar';
-import { PARTY_COLORS, PARTY_TAGLINES, PARTY_BLURBS } from '../../constants/parties';
+import { PARTY_COLORS, PARTY_TAGLINES, PARTY_BLURBS, DISPLAY_FACTORS } from '../../constants/parties';
 import { resetUrlParams } from '../../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -67,7 +67,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
           )}
         </div>
         <div className="px-6 py-4 space-y-1">
-          {(['F1','F2','F3','F4','F5'] as const).map(f => {
+          {DISPLAY_FACTORS.map(f => {
             const rec = cluster as unknown as Record<string, number>;
             return <FactorBar key={f} factor={f} value={rec[`z_${f}`] ?? rec[f]} />;
           })}

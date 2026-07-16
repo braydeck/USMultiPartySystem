@@ -20,7 +20,7 @@ import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { CLUSTER_TO_PARTY, partyOrder, FACTOR_LABELS } from '../constants/parties';
+import { CLUSTER_TO_PARTY, partyOrder, FACTOR_LABELS, DISPLAY_FACTORS } from '../constants/parties';
 import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
@@ -141,7 +141,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
-  const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: ['F1', 'F2', 'F3', 'F4', 'F5'] });
+  const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: [...DISPLAY_FACTORS] });
   const [seatShareState, setSeatShareState] = useUrlState<string>('state', 'national');
 
   const fdSeatsAggregated: HouseSeat[] = useMemo(() => {
@@ -343,7 +343,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Chamber Composition</h3>
           <span className="text-xs text-muted-foreground">— order by:</span>
-          {(['F1','F2','F3','F4','F5'] as const).map(f => (
+          {DISPLAY_FACTORS.map(f => (
             <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
               variant={parliamentFactor === f ? 'default' : 'secondary'}
               size="sm">
