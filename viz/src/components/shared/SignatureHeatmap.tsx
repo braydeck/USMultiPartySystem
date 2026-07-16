@@ -39,9 +39,9 @@ function Cell({ row, code }: { row: HeatRow; code: string }) {
       title={`${PARTY_NAMES[code] ?? code}: ${disp}${row.unit === '%' ? '%' : ' ' + row.unit}${tags ? ` · ${tags}` : ''}`}
     >
       <span className="text-[11px] font-semibold tabular-nums">{disp}</span>
-      {/* C pinned bottom-left, M/D pinned bottom-right — never bleed together */}
-      {cohesive && <span className="absolute left-0.5 bottom-0 text-[8px] font-bold" style={{ color: fg, opacity: 0.85 }}>C</span>}
-      {mark && <span className="absolute right-0.5 bottom-0 text-[8px] font-bold" style={{ color: fg, opacity: mark === 'D' ? 1 : 0.7 }}>{mark}</span>}
+      {/* C lower-left, M/D lower-right — inset from the corners so they don't bleed */}
+      {cohesive && <span className="absolute left-1.5 bottom-1.5 text-[8px] font-bold leading-none" style={{ color: fg, opacity: 0.85 }}>C</span>}
+      {mark && <span className="absolute right-1.5 bottom-1.5 text-[8px] font-bold leading-none" style={{ color: fg, opacity: mark === 'D' ? 1 : 0.7 }}>{mark}</span>}
     </div>
   );
 }
