@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
-import type { VoteModelRow } from '../../types';
+import type { VoteModelRow, CandidateVoteRow } from '../../types';
 import { getBlendColor, getPrimaryParty } from '../../constants/parties';
+import type { VoteMode } from '../../constants/labels';
+import { blocOutcome, presSigns, type SeatMap } from './voteBloc';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -11,6 +13,11 @@ interface Props {
   senateMethod: 'condorcet' | 'irv';
   presWinner: string;
   wyoming?: 'double' | 'triple';
+  // Whipped mode: deterministic party-bloc verdicts computed from candidate support + seats.
+  voteModel?: VoteMode;
+  candidateVotes?: CandidateVoteRow[];
+  houseSeats?: SeatMap;
+  senateSeats?: SeatMap;
 }
 
 const SENATE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
@@ -109,6 +116,18 @@ export function SignBadge({ prob }: { prob: number | undefined }) {
   );
 }
 
+/** Whipped mode: a deterministic verdict (no probability spread), styled with the Clearly bands. */
+export function WhippedBadge({ pass, kind }: { pass: boolean; kind: 'pass' | 'sign' }) {
+  const label = kind === 'sign' ? (pass ? 'Signs' : 'Vetoes') : (pass ? 'Passes' : 'Fails');
+  const s = VERDICT_STYLE[pass ? 'Clearly Passes' : 'Clearly Fails'];
+  return (
+    <Badge variant="outline" className="whitespace-nowrap"
+      style={{ backgroundColor: s.bg, color: s.text, borderColor: s.border }}>
+      {label}
+    </Badge>
+  );
+}
+
 function ProbBar({ prob }: { prob: number | undefined }) {
   if (prob === undefined || prob === null) return <span className="text-slate-300 text-xs">—</span>;
   const pct   = Math.round(prob * 100);
@@ -133,9 +152,11 @@ const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
 type SortKey = 'bill' | 'house' | 'senate' | 'pres';
 const GRID = 'md:grid-cols-[1fr_150px_150px_150px]';
 
-export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod, presWinner, wyoming = 'double' }: Props) {
+export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod, presWinner, wyoming = 'double',
+                                   voteModel = 'free', candidateVotes = [], houseSeats = {}, senateSeats = {} }: Props) {
   const [domain, setDomain] = useState<string>('All');
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'senate', dir: 'desc' });
+  const whipped = voteModel === 'whipped';
 
   const combo          = `${pipeline}+${senateMethod}`;
   const senateProbField = SENATE_PROB_FIELD[combo];
@@ -147,6 +168,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
 
   const houseByVar  = useMemo(() => Object.fromEntries(houseRows.map(r => [r.variable, r])),  [houseRows]);
   const senateByVar = useMemo(() => Object.fromEntries(senateRows.map(r => [r.variable, r])), [senateRows]);
+  const candByVar   = useMemo(() => Object.fromEntries(candidateVotes.map(r => [r.variable, r])), [candidateVotes]);
 
   const allVars = useMemo(() => {
     const vars = new Set([...houseRows.map(r => r.variable), ...senateRows.map(r => r.variable)]);
@@ -167,16 +189,32 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
         const hr = houseByVar[variable];
         const sr = senateByVar[variable];
         const ref = hr ?? sr;
+        if (whipped) {
+          // Deterministic bloc verdicts. Bars show the yes-seat share; badges show PASS/FAIL.
+          const cb = candByVar[variable];
+          const house = cb ? blocOutcome(cb, houseSeats) : { share: undefined as number | undefined, pass: false };
+          const senate = cb ? blocOutcome(cb, senateSeats) : { share: undefined as number | undefined, pass: false };
+          const sign = cb ? presSigns(cb, presWinner) : false;
+          const presSupport = cb ? (cb.parties[getPrimaryParty(presWinner)]?.observedPct ?? undefined) : undefined;
+          return {
+            variable, ref,
+            houseProb: house.share, senateProb: senate.share,
+            signs: '', presPct: presSupport,
+            presProb: presSupport !== undefined ? presSupport / 100 : undefined,
+            housePass: house.pass, senatePass: senate.pass, presSign: sign,
+          };
+        }
         const houseProb  = hr?.[houseProbField] as number | undefined;
         const senateProb = sr?.[senateProbField] as number | undefined;
         const signs      = (sr?.[presSignField] as string | undefined) ?? '';
         const presPct    = sr?.[presPctField] as number | undefined;
         // The president's coalition-support % is the chance they sign (>50% → signs).
         const presProb   = presPct !== undefined ? presPct / 100 : undefined;
-        return { variable, ref, houseProb, senateProb, signs, presPct, presProb };
+        return { variable, ref, houseProb, senateProb, signs, presPct, presProb,
+                 housePass: undefined as boolean | undefined, senatePass: undefined as boolean | undefined, presSign: undefined as boolean | undefined };
       })
       .filter((r): r is typeof r & { ref: VoteModelRow } => !!r.ref);
-  }, [allVars, domain, houseByVar, senateByVar, houseProbField, senateProbField, presSignField, presPctField]);
+  }, [allVars, domain, houseByVar, senateByVar, candByVar, houseProbField, senateProbField, presSignField, presPctField, whipped, houseSeats, senateSeats, presWinner]);
 
   const sorted = useMemo(() => {
     const arr = [...rows];
@@ -241,13 +279,15 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
       </div>
 
       <div className="space-y-0.5">
-        {sorted.map(({ variable, ref, houseProb, senateProb, presProb }) => {
+        {sorted.map(({ variable, ref, houseProb, senateProb, presProb, housePass, senatePass, presSign }) => {
           const houseLabel   = getBayesianLabel([houseProb]);
           const senateLabel  = getBayesianLabel([senateProb]);
 
-          const chamberSplit = getDirection(houseLabel) !== 'uncertain' &&
-                               getDirection(senateLabel) !== 'uncertain' &&
-                               getDirection(houseLabel) !== getDirection(senateLabel);
+          const chamberSplit = whipped
+            ? (housePass !== senatePass)
+            : (getDirection(houseLabel) !== 'uncertain' &&
+               getDirection(senateLabel) !== 'uncertain' &&
+               getDirection(houseLabel) !== getDirection(senateLabel));
 
           return (
             <div
@@ -267,7 +307,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                 <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide shrink-0">House</span>
                 <div className="flex flex-col gap-1 items-end md:items-start">
                   <ProbBar prob={houseProb} />
-                  <VerdictBadge label={houseLabel} />
+                  {whipped ? <WhippedBadge pass={!!housePass} kind="pass" /> : <VerdictBadge label={houseLabel} />}
                 </div>
               </div>
 
@@ -275,7 +315,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                 <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide shrink-0">Senate</span>
                 <div className="flex flex-col gap-1 items-end md:items-start">
                   <ProbBar prob={senateProb} />
-                  <VerdictBadge label={senateLabel} />
+                  {whipped ? <WhippedBadge pass={!!senatePass} kind="pass" /> : <VerdictBadge label={senateLabel} />}
                 </div>
               </div>
 
@@ -284,7 +324,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                 {presProb !== undefined ? (
                   <div className="flex flex-col gap-1 items-end md:items-start">
                     <ProbBar prob={presProb} />
-                    <SignBadge prob={presProb} />
+                    {whipped ? <WhippedBadge pass={!!presSign} kind="sign" /> : <SignBadge prob={presProb} />}
                   </div>
                 ) : (
                   <span className="text-slate-300 text-xs">—</span>

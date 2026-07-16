@@ -4,6 +4,12 @@ export type Pipeline = 'rawMulti' | 'factorDev';
 export type Method = 'condorcet' | 'irv';
 export type WyomingRule = 'double' | 'triple';
 export type WfpMode = 'off' | 'on';
+export type VoteMode = 'free' | 'whipped';
+
+export const VOTE_MODEL_LABELS: Record<VoteMode, string> = {
+  free:    'Free vote',
+  whipped: 'Whipped',
+};
 
 export const PIPELINE_LABELS: Record<Pipeline, string> = {
   rawMulti:  'Party-Line',

@@ -1,17 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { CandidateVoteRow } from '../../types';
 import { F5_ORDER, PARTY_NAMES, getPartyColor } from '../../constants/parties';
 import { cividisForFrac, cividisText } from '../../lib/cividis';
-import { ToggleGroup } from '../shared/ToggleGroup';
+import type { VoteMode } from '../../constants/labels';
 
-// How often two parties land in the same place on policy. Two views:
-//  • Position: 100 − the average gap in support across all bills (degree of agreement).
-//  • Same-side: % of bills where both parties predict the same yes/no vote (support > 50%).
+// How often two parties land in the same place on policy. The global vote model picks the lens:
+//  • Free vote → position: 100 − the average gap in support across all bills (degree of agreement).
+//  • Whipped   → same-side: % of bills where both parties whip the same yes/no vote (support > 50%).
 // Position-based, so it doesn't move with the seat/turnout controls above.
-type View = 'position' | 'binary';
 
-export function PartyAgreement({ candidateVotes }: { candidateVotes: CandidateVoteRow[] }) {
-  const [view, setView] = useState<View>('position');
+export function PartyAgreement({ candidateVotes, voteModel }: { candidateVotes: CandidateVoteRow[]; voteModel: VoteMode }) {
+  const view: 'position' | 'binary' = voteModel === 'whipped' ? 'binary' : 'position';
   const parties = F5_ORDER;
 
   const { position, binary } = useMemo(() => {
@@ -41,11 +40,6 @@ export function PartyAgreement({ candidateVotes }: { candidateVotes: CandidateVo
 
   return (
     <div>
-      <div className="mb-3">
-        <ToggleGroup label="Measure" value={view} onChange={setView}
-          options={['position', 'binary'] as const}
-          labels={{ position: 'Avg support gap', binary: 'Same-side vote %' }} />
-      </div>
       <div className="overflow-x-auto">
         <div className="min-w-[560px]">
           <div className="grid gap-px items-end mb-px" style={{ gridTemplateColumns: COLS }}>

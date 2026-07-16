@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
-import type { VoteModelRow, PresidentialElection } from '../../types';
+import type { VoteModelRow, PresidentialElection, CandidateVoteRow } from '../../types';
 import { getBlendColor } from '../../constants/parties';
-import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, type VerdictLabel } from './UnifiedBillTable';
+import type { VoteMode } from '../../constants/labels';
+import { blocOutcome, presSigns, type SeatMap } from './voteBloc';
+import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, WhippedBadge, type VerdictLabel } from './UnifiedBillTable';
 import { Card } from '@/components/ui/card';
 
 interface Props {
@@ -10,9 +12,32 @@ interface Props {
   election: PresidentialElection;
   pipeline: 'rawMulti' | 'factorDev';
   wyoming?: 'double' | 'triple';
+  // Whipped mode: deterministic party-bloc verdicts. Senate composition differs by method,
+  // so the two methods can pass/fail a bill differently even under whipping.
+  voteModel?: VoteMode;
+  candidateVotes?: CandidateVoteRow[];
+  houseSeats?: SeatMap;
+  senateSeatsCond?: SeatMap;
+  senateSeatsIRV?: SeatMap;
 }
 
-export function LegislationDivergences({ houseVotes, senateVotes, election, pipeline, wyoming = 'double' }: Props) {
+type Row = {
+  row: VoteModelRow;
+  houseLabel: VerdictLabel | '';
+  senateCondLabel: VerdictLabel | '';
+  senateIRVLabel: VerdictLabel | '';
+  condPresPct: number | undefined;
+  irvPresPct: number | undefined;
+  housePass: boolean; senateCondPass: boolean; senateIRVPass: boolean;
+  condSign: boolean; irvSign: boolean;
+  methodSplit: boolean;
+  score: number;
+};
+
+export function LegislationDivergences({ houseVotes, senateVotes, election, pipeline, wyoming = 'double',
+                                         voteModel = 'free', candidateVotes = [], houseSeats = {},
+                                         senateSeatsCond = {}, senateSeatsIRV = {} }: Props) {
+  const whipped = voteModel === 'whipped';
   const condWinner = election.condorcetWinner;
   const irvWinner  = election.irvWinner;
 
@@ -48,11 +73,37 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
     () => Object.fromEntries(houseVotes.map(r => [r.variable, r])),
     [houseVotes],
   );
+  const candByVar = useMemo(
+    () => Object.fromEntries(candidateVotes.map(r => [r.variable, r])),
+    [candidateVotes],
+  );
 
   const divergentBills = useMemo(() => {
     return senateVotes
       .map(row => {
         const hr = houseByVar[row.variable];
+
+        if (whipped) {
+          const cb = candByVar[row.variable];
+          if (!cb) return null;
+          const housePass = blocOutcome(cb, houseSeats).pass;
+          const senateCondPass = blocOutcome(cb, senateSeatsCond).pass;
+          const senateIRVPass  = blocOutcome(cb, senateSeatsIRV).pass;
+          const condSign = presSigns(cb, condWinner);
+          const irvSign  = presSigns(cb, irvWinner);
+
+          const methodSplit = senateCondPass !== senateIRVPass;
+          const houseSenateSplit = housePass !== senateCondPass || housePass !== senateIRVPass;
+          const presSplit = condSign !== irvSign;
+          if (!methodSplit && !houseSenateSplit && !presSplit) return null;
+
+          const score = (methodSplit ? 3 : 0) + (houseSenateSplit ? 2 : 0) + (presSplit ? 1 : 0);
+          return {
+            row, houseLabel: '', senateCondLabel: '', senateIRVLabel: '',
+            condPresPct: undefined, irvPresPct: undefined,
+            housePass, senateCondPass, senateIRVPass, condSign, irvSign, methodSplit, score,
+          } as Row;
+        }
 
         const houseLabel     = getBayesianLabel([hr?.[HOUSE_PROB] as number | undefined]);
         const senateCondLabel = getBayesianLabel([row[SENATE_PROB[condCombo]] as number | undefined]);
@@ -66,36 +117,24 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         const sCondDir = getDirection(senateCondLabel);
         const sIRVDir  = getDirection(senateIRVLabel);
 
-        // IRV vs Condorcet divergence in senate
         const methodSplit = sCondDir !== 'uncertain' && sIRVDir !== 'uncertain' && sCondDir !== sIRVDir;
-        // House vs either senate method
         const houseSenateSplit =
           (hDir !== 'uncertain' && sCondDir !== 'uncertain' && hDir !== sCondDir) ||
           (hDir !== 'uncertain' && sIRVDir !== 'uncertain' && hDir !== sIRVDir);
-        // Presidential sign disagreement between methods
         const presSplit = !!(condPresSign && irvPresSign && condPresSign !== irvPresSign);
 
         if (!methodSplit && !houseSenateSplit && !presSplit) return null;
 
         const score = (methodSplit ? 3 : 0) + (houseSenateSplit ? 2 : 0) + (presSplit ? 1 : 0);
-        return { row, houseLabel, senateCondLabel, senateIRVLabel, condPresSign, irvPresSign, condPresPct, irvPresPct, methodSplit, houseSenateSplit, presSplit, score };
+        return {
+          row, houseLabel, senateCondLabel, senateIRVLabel, condPresPct, irvPresPct,
+          housePass: false, senateCondPass: false, senateIRVPass: false, condSign: false, irvSign: false,
+          methodSplit, score,
+        } as Row;
       })
       .filter(Boolean)
-      .sort((a, b) => b!.score - a!.score) as {
-        row: VoteModelRow;
-        houseLabel: VerdictLabel | '';
-        senateCondLabel: VerdictLabel | '';
-        senateIRVLabel: VerdictLabel | '';
-        condPresSign: string | undefined;
-        irvPresSign: string | undefined;
-        condPresPct: number | undefined;
-        irvPresPct: number | undefined;
-        methodSplit: boolean;
-        houseSenateSplit: boolean;
-        presSplit: boolean;
-        score: number;
-      }[];
-  }, [senateVotes, houseByVar, condCombo, irvCombo, HOUSE_PROB]);
+      .sort((a, b) => b!.score - a!.score) as Row[];
+  }, [senateVotes, houseByVar, candByVar, condCombo, irvCombo, HOUSE_PROB, whipped, houseSeats, senateSeatsCond, senateSeatsIRV, condWinner, irvWinner]);
 
   if (divergentBills.length === 0) {
     return (
@@ -140,38 +179,38 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
       </div>
 
       <div className="divide-y divide-slate-100">
-        {divergentBills.map(({ row, houseLabel, senateCondLabel, senateIRVLabel, condPresPct, irvPresPct, methodSplit }) => (
+        {divergentBills.map((d) => (
           <div
-            key={row.variable}
+            key={d.row.variable}
             className={`flex flex-col md:grid ${COLS} gap-x-1 items-start md:items-center px-4 py-2.5 ${
-              methodSplit ? 'bg-amber-50/40' : 'bg-white'
+              d.methodSplit ? 'bg-amber-50/40' : 'bg-white'
             }`}
           >
             <div className="min-w-0 mb-1 md:mb-0">
-              <span className="text-sm text-foreground">{row.question}</span>
-              <span className="text-xs text-muted-foreground ml-2">{row.domain}</span>
+              <span className="text-sm text-foreground">{d.row.question}</span>
+              <span className="text-xs text-muted-foreground ml-2">{d.row.domain}</span>
             </div>
             <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
               <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">House</span>
-              <VerdictBadge label={houseLabel} />
+              {whipped ? <WhippedBadge pass={d.housePass} kind="pass" /> : <VerdictBadge label={d.houseLabel} />}
             </div>
             {/* Condorcet group */}
             <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0 md:border-l md:border-border/40">
               <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">Senate (Condorcet)</span>
-              <VerdictBadge label={senateCondLabel} />
+              {whipped ? <WhippedBadge pass={d.senateCondPass} kind="pass" /> : <VerdictBadge label={d.senateCondLabel} />}
             </div>
             <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
               <span className="md:hidden text-xs font-semibold uppercase tracking-wide" style={{ color: condColor }}>{condParty} Pres (Condorcet)</span>
-              <SignBadge prob={condPresPct !== undefined ? condPresPct / 100 : undefined} />
+              {whipped ? <WhippedBadge pass={d.condSign} kind="sign" /> : <SignBadge prob={d.condPresPct !== undefined ? d.condPresPct / 100 : undefined} />}
             </div>
             {/* IRV group */}
             <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0 md:border-l md:border-border/40">
               <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">Senate (IRV)</span>
-              <VerdictBadge label={senateIRVLabel} />
+              {whipped ? <WhippedBadge pass={d.senateIRVPass} kind="pass" /> : <VerdictBadge label={d.senateIRVLabel} />}
             </div>
             <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
               <span className="md:hidden text-xs font-semibold uppercase tracking-wide" style={{ color: irvColor }}>{irvParty} Pres (IRV)</span>
-              <SignBadge prob={irvPresPct !== undefined ? irvPresPct / 100 : undefined} />
+              {whipped ? <WhippedBadge pass={d.irvSign} kind="sign" /> : <SignBadge prob={d.irvPresPct !== undefined ? d.irvPresPct / 100 : undefined} />}
             </div>
           </div>
         ))}

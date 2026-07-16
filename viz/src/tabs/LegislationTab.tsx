@@ -16,11 +16,17 @@ import houseSeatsTurnoutL30 from '../data/houseSeatsTurnoutL30.json';
 import houseSeatsTripleTurnout from '../data/houseSeatsTripleTurnout.json';
 import fdHouseSeatsTurnout from '../data/fdHouseSeatsTurnout.json';
 import fdHouseSeatsTripleTurnout from '../data/fdHouseSeatsTripleTurnout.json';
+// Senate composition per (pipeline × method), for the coalition Senate view + whipped bloc math.
+import pureMultiSenateCondorcetTurnout from '../data/pureMultiSenateCondorcetTurnout.json';
+import pureMultiSenateIRVTurnout from '../data/pureMultiSenateIRVTurnout.json';
+import fdSenateCondorcet from '../data/fdSenateCondorcet.json';
+import fdSenateIRV from '../data/fdSenateIRV.json';
+import { senateSeatMap } from '../components/legislation/voteBloc';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS } from '../constants/labels';
-import type { Pipeline, Method, WyomingRule } from '../constants/labels';
+import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS, VOTE_MODEL_LABELS } from '../constants/labels';
+import type { Pipeline, Method, WyomingRule, VoteMode } from '../constants/labels';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import houseVotesL5 from '../data/houseVoteModelTurnoutL5.json';
 import houseVotesL10 from '../data/houseVoteModelTurnoutL10.json';
@@ -67,6 +73,8 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
+  // Vote model: free vote (members split by probability) vs whipped (party votes as a bloc).
+  const [voteModel, setVoteModel] = useUrlState<VoteMode>('voteModel', 'free', { allowed: ['free', 'whipped'] });
   const rmDouble = pipeline === 'rawMulti' && wyoming === 'double';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Arrays indexed by gap stop [0,5,10,15,20,25,30]: floor(Turnout) … stress ceiling.
@@ -86,6 +94,14 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
       ? toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[])
       : toSeatMap(houseSeatsTripleTurnout as unknown as { party: number; national: number }[]);
 
+  // Senate composition by (pipeline × method). Method drives Senate seats, so both maps are kept
+  // for the divergences view; the coalition/passage views use the active method's map.
+  const senCondSrc = (pipeline === 'factorDev' ? fdSenateCondorcet : pureMultiSenateCondorcetTurnout) as unknown as { senatorParty: string }[];
+  const senIRVSrc  = (pipeline === 'factorDev' ? fdSenateIRV : pureMultiSenateIRVTurnout) as unknown as { senatorParty: string }[];
+  const senateSeatsCond = senateSeatMap(senCondSrc);
+  const senateSeatsIRV  = senateSeatMap(senIRVSrc);
+  const senateSeats     = method === 'condorcet' ? senateSeatsCond : senateSeatsIRV;
+
   return (
     <div className="space-y-8">
       <div>
@@ -103,6 +119,8 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Senate Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
+        <ToggleGroup label="Vote Model" value={voteModel} onChange={setVoteModel}
+          options={['free', 'whipped'] as const} labels={VOTE_MODEL_LABELS} />
         {pipeline === 'rawMulti' && wyoming === 'double' && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}
@@ -114,6 +132,11 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
         election={election}
         pipeline={pipeline}
         wyoming={wyoming}
+        voteModel={voteModel}
+        candidateVotes={candidateVotes}
+        houseSeats={houseSeats}
+        senateSeatsCond={senateSeatsCond}
+        senateSeatsIRV={senateSeatsIRV}
       />
 
       <Card className="p-4">
@@ -121,7 +144,9 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           Bill Passage Likelihood — {WYOMING_LABELS[wyoming]} · {PIPELINE_LABELS[pipeline]} · {METHOD_LABELS[method]}
         </h3>
         <p className="text-xs text-muted-foreground mb-4">
-          Bayesian verdicts: 45–55% = Tossup · 55–65% = Possibly · 65–80% = Likely · 80%+ = Clearly
+          {voteModel === 'whipped'
+            ? 'Whipped: each party votes as a bloc, so verdicts are a deterministic Passes / Fails.'
+            : 'Bayesian verdicts: 45–55% = Tossup · 55–65% = Possibly · 65–80% = Likely · 80%+ = Clearly'}
         </p>
         <UnifiedBillTable
           houseRows={hVotes}
@@ -130,6 +155,10 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           senateMethod={method}
           presWinner={presWinner}
           wyoming={wyoming}
+          voteModel={voteModel}
+          candidateVotes={candidateVotes}
+          houseSeats={houseSeats}
+          senateSeats={senateSeats}
         />
       </Card>
 
@@ -138,11 +167,11 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           How Often Parties Vote Together
         </h3>
         <p className="text-xs text-muted-foreground mb-4 max-w-3xl">
-          How closely each pair of parties aligns across all bills. Switch between the average support
-          gap and the share of bills where both predict the same yes/no vote. This reflects party
-          positions, so it does not change with the controls above.
+          {voteModel === 'whipped'
+            ? 'Share of bills where both parties whip the same yes/no vote. Reflects party positions, so it does not change with the seat controls above.'
+            : 'Closeness of each pair of parties across all bills: 100 − their average gap in support. Reflects party positions, so it does not change with the seat controls above.'}
         </p>
-        <PartyAgreement candidateVotes={candidateVotes} />
+        <PartyAgreement candidateVotes={candidateVotes} voteModel={voteModel} />
       </Card>
 
       <Card className="p-4">
@@ -150,10 +179,10 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           Who Passes Each Bill
         </h3>
         <p className="text-xs text-muted-foreground mb-4 max-w-3xl">
-          For every bill, parties are ordered by support and sized by their House seats; the coalition
-          to the left of the majority line is what carries it. Seat weighting follows the controls above.
+          For every bill, parties are stacked and sized by their seats; the coalition to the left of the
+          majority line is what carries it. Toggle House / Senate; seat weighting follows the controls above.
         </p>
-        <CoalitionMap candidateVotes={candidateVotes} seats={houseSeats} />
+        <CoalitionMap candidateVotes={candidateVotes} houseSeats={houseSeats} senateSeats={senateSeats} voteModel={voteModel} />
       </Card>
     </div>
   );
