@@ -153,16 +153,16 @@ export function TurnoutRobustnessCard() {
 
       <div className="mt-4 space-y-2.5 text-[13px] leading-relaxed">
         <p>
-          <span className="font-semibold text-emerald-700">President — robust.</span>{' '}
-          <span className="text-foreground/90">The winner never changes. Solidarity (Condorcet) and Labour (IRV) hold at observed turnout and at every compression level.</span>
+          <span className="font-semibold text-emerald-700">President: robust.</span>{' '}
+          <span className="text-foreground/90">The winner never changes. Solidarity (Condorcet) and Labor (IRV) hold at observed turnout and at every compression level.</span>
         </p>
         <p>
-          <span className="font-semibold text-emerald-700">House — control stable, scale grows.</span>{' '}
-          <span className="text-foreground/90">Conservative stays the plurality throughout. Solidarity&apos;s delegation climbs {styLo}→{styHi} seats as the gap closes.</span>
+          <span className="font-semibold text-emerald-700">House: the ranking holds; only margins move.</span>{' '}
+          <span className="text-foreground/90">No party has a majority. Conservative stays the largest delegation and Solidarity stays a smaller minority, below both Conservative and Labor, though its seats grow {styLo}→{styHi} as the gap closes.</span>
         </p>
         <p>
-          <span className="font-semibold text-amber-700">Senate — the one office observed turnout doesn&apos;t hand Solidarity.</span>{' '}
-          <span className="text-foreground/90">Labour leads at observed turnout, across the plausible band (≤15%), and through 20%. Solidarity reaches the plurality only at 25%, inside the stress band. At observed turnout the Senate is Labour&apos;s; a Solidarity Senate is conditional on mobilization.</span>
+          <span className="font-semibold text-amber-700">Senate: the one office observed turnout does not hand Solidarity.</span>{' '}
+          <span className="text-foreground/90">Labor leads at observed turnout, across the plausible band (≤15%), and through 20%. Solidarity reaches the plurality only at 25%, inside the stress band. At observed turnout the Senate is Labor&apos;s; a Solidarity Senate is conditional on mobilization.</span>
         </p>
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">

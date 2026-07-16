@@ -47,10 +47,10 @@ export function TurnoutVerificationCard() {
         Turnout, Verified Against the Voter File
       </div>
       <p className="text-[13px] text-muted-foreground mb-4 leading-relaxed">
-        <span className="font-semibold text-foreground">The turnout shortfall is mostly match failure, not lying.</span>{' '}
-        Self-reported turnout runs ~86% because respondents over-claim voting, but most of the gap against the voter
-        file is people the file can&apos;t locate. Each bar splits three ways: solid = a 2024 vote confirmed on the
-        TargetSmart file, slate = a confirmed non-voter, striped grey = a respondent the file couldn&apos;t locate at all.
+        <span className="font-semibold text-foreground">The voter file can only confirm part of each force&apos;s
+        self-reported turnout.</span> Self-reported turnout runs ~86%, inflated by over-claiming. Each bar splits three
+        ways: solid = a 2024 vote confirmed on the TargetSmart file, slate = a confirmed non-voter, striped grey = a
+        respondent the file couldn&apos;t locate.
       </p>
 
       <div className="space-y-1.5">
@@ -77,11 +77,10 @@ export function TurnoutVerificationCard() {
       </div>
 
       <p className="text-[13px] text-muted-foreground mt-3 leading-relaxed">
-        <span className="font-semibold text-foreground">Solidarity is the extreme case.</span> 63% of its members
-        can&apos;t be matched to the file, so its true turnout is genuinely uncertain, bounded below by the 32% we can
-        confirm. The over-report itself, measured only among matched respondents, is small everywhere (under 6 points):
-        low-engagement forces are the hardest to verify, not the biggest liars. That is why validated turnout is
-        treated as a floor throughout the simulation.
+        <span className="font-semibold text-foreground">Solidarity is the hardest to verify:</span> 63% of its members
+        aren&apos;t on the file, so its true turnout is uncertain: at least the 32% confirmed, likely higher.
+        Low-turnout forces may genuinely vote less or may just be harder to match. Either way, the simulation treats
+        validated turnout as a floor, not a firm estimate.
       </p>
     </Card>
   );
