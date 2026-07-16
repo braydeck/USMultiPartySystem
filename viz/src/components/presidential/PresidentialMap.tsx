@@ -309,7 +309,7 @@ function WinnerCartogram({
         ) : (
           <div>
             <span className="font-semibold text-amber-800">No candidate reaches {ec.needed} EV</span>
-            <span className="text-amber-700"> — election goes to the House (each state gets one vote)</span>
+            <span className="text-amber-700">: election goes to the House (each state gets one vote)</span>
           </div>
         )}
       </div>

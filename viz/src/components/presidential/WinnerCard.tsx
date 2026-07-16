@@ -270,7 +270,7 @@ export function WinnerCard({ data, clusters, fdProfiles }: Props) {
               </div>
               <div>
                 <span className="font-semibold" style={{ color: condInfo.color }}>{condInfo.code}</span>
-                {' '}is the Condorcet winner — it beats every other candidate in direct comparison.
+                {' '}is the Condorcet winner: it beats every other candidate in direct comparison.
                 But under IRV, early eliminations prevent it from accumulating enough transfers.
               </div>
             </div>
