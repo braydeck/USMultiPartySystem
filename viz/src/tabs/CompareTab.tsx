@@ -12,7 +12,7 @@ import { PartyRowLabel, type RowMark } from '../components/shared/PartyRowLabel'
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, itemSignature, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
-import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
+import { getBlendColor, getPrimaryParty, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
 import { vikForZ } from '../lib/vik';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
@@ -580,6 +580,13 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   const saved = useMemo(loadSavedCompare, []);
   const [cmp, setCmp] = useUrlState<string>('cmp', '', { push: false });
   const selected = useMemo(() => (cmp ? cmp.split(',').filter(Boolean) : []), [cmp]);
+  // Party rows/columns always render in PC order (PRG→NAT), regardless of pick order.
+  // FD variants sort by their base party. Selection-management still uses `selected`.
+  const orderedSelected = useMemo(() =>
+    [...selected].sort((a, b) =>
+      (F5_ORDER as readonly string[]).indexOf(getPrimaryParty(a)) -
+      (F5_ORDER as readonly string[]).indexOf(getPrimaryParty(b))),
+    [selected]);
   const [minGap, setMinGap] = useState(saved.minGap ?? 15);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
@@ -856,7 +863,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                       role="button"
                       aria-expanded={isExpanded}
                     >
-                      <FactorBarRow factor={f} codes={selected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
+                      <FactorBarRow factor={f} codes={orderedSelected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
                       <div className="flex items-center justify-center pb-2 gap-1">
                         <span className="text-muted-foreground text-[10px]">{isExpanded ? '▲' : '▼'}</span>
                         <span className="text-[10px] text-muted-foreground">
@@ -867,7 +874,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                     {isExpanded && (
                       <FactorItemsPanel
                         factor={f}
-                        codes={selected}
+                        codes={orderedSelected}
                         clusters={clusters}
                         fdProfiles={fdProfiles}
                         minGap={minGap}
@@ -957,12 +964,12 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                   ].filter(Boolean).join(' ')}>
                                     {m.viz === 'range'
                                       ? <RangeBarCell meta={m as unknown as RangeMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} factors={distFactors(k)} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} />
                                       : m.viz === 'heatmap'
                                       ? <HeatmapCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} factors={distFactors(k)} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} />
                                       : <CompositionStackCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={selected} marks={marks} factors={distFactors(k)} />}
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} />}
                                   </div>
                                 );
                               })}
@@ -995,7 +1002,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                               }));
                               return (
                                 <>
-                                  {heatRows.length > 0 && <SignatureHeatmap rows={heatRows} selected={selected} />}
+                                  {heatRows.length > 0 && <SignatureHeatmap rows={heatRows} selected={orderedSelected} />}
                                   {intensityItems.length > 0 && (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 border-t border-border/40">
                                       {intensityItems.map((v, i) => (
@@ -1003,7 +1010,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                           i >= 2 ? 'border-t border-border/50' : '',
                                           i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
                                         ].filter(Boolean).join(' ')}>
-                                          <IntensityCell item={intensityFor(v.key)!} codes={selected}
+                                          <IntensityCell item={intensityFor(v.key)!} codes={orderedSelected}
                                             question={intensityFor(v.key)!.question} marks={scalarMarks(v)} />
                                         </div>
                                       ))}
