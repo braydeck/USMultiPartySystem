@@ -3,14 +3,14 @@ import type {
   PresidentialElection, FDSenateSeat, HouseSeat, VoteModelRow, ClusterProfile, FDCandidateProfile,
   FPTPState, HouseStateEntry,
 } from '../types';
-import { PARTY_COLORS, F5_ORDER } from '../constants/parties';
+import { F5_ORDER } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PartyProfileCard } from '../components/shared/PartyProfileCard';
-import { VerdictBadge, getBayesianLabel } from '../components/legislation/UnifiedBillTable';
+import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
 import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
 import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
@@ -50,23 +50,6 @@ function DiveCard({ label, onClick }: { label: string; onClick: () => void }) {
 
 // ── Reusable sub-components ────────────────────────────────────────────────
 
-function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: string }) {
-  const color = PARTY_COLORS[partyCode] ?? '#6b7280';
-  if (!signs) return <span className="text-slate-300 text-xs">—</span>;
-  return (
-    <span
-      className="text-xs font-bold px-2 py-0.5 rounded border whitespace-nowrap"
-      style={
-        signs === 'SIGN'
-          ? { backgroundColor: color + '18', color, borderColor: color + '55' }
-          : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
-      }
-    >
-      {signs === 'SIGN' ? 'Sign' : 'Veto'}
-    </span>
-  );
-}
-
 // ── Main component ─────────────────────────────────────────────────────────
 
 export function OverviewTab({
@@ -86,22 +69,6 @@ export function OverviewTab({
     [clusters],
   );
   const orderedClusters = F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[];
-
-  // Join house outcomes by variable
-  const houseByVar = useMemo(
-    () => Object.fromEntries(houseVotes.map(r => [r.variable, r])),
-    [houseVotes],
-  );
-
-  // Bills where Condorcet president and IRV president act differently
-  const divergentBills = useMemo(
-    () => senateVotes.filter(r =>
-      r.presRawMultiCondSigns !== undefined &&
-      r.presRawMultiIRVSigns  !== undefined &&
-      r.presRawMultiCondSigns !== r.presRawMultiIRVSigns,
-    ),
-    [senateVotes],
-  );
 
   return (
     <div className="space-y-10">
@@ -157,56 +124,13 @@ export function OverviewTab({
           </div>
         </div>
 
-        {divergentBills.length > 0 && (
-          <Card className="overflow-hidden border-amber-300">
-            <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
-              <h4 className="text-sm font-semibold text-amber-900">
-                {divergentBills.length} bill{divergentBills.length !== 1 ? 's' : ''} with different presidential outcomes
-              </h4>
-              <p className="text-xs text-amber-700 mt-0.5">
-                Only bills where {condParty} and {irvParty} act differently are shown.
-              </p>
-            </div>
-
-            <div className="hidden md:grid grid-cols-[1fr_84px_92px_92px_62px_62px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
-              <div>Bill</div>
-              <div className="text-center">House</div>
-              <div className="text-center">Senate (C)</div>
-              <div className="text-center">Senate (IRV)</div>
-              <div className="text-center font-bold" style={{ color: PARTY_COLORS[condParty] ?? '#6b7280' }}>{condParty}</div>
-              <div className="text-center font-bold" style={{ color: PARTY_COLORS[irvParty] ?? '#6b7280' }}>{irvParty}</div>
-            </div>
-
-            <div className="divide-y divide-slate-100">
-              {divergentBills.map(r => {
-                const hr = houseByVar[r.variable];
-                const houseLabel  = getBayesianLabel([hr?.probPass]);
-                const condLabel   = getBayesianLabel([r.condRawMultiProbPass]);
-                const irvLabel    = getBayesianLabel([r.irvRawMultiProbPass]);
-                return (
-                  <div
-                    key={r.variable}
-                    className="flex flex-col md:grid md:grid-cols-[1fr_84px_92px_92px_62px_62px] gap-x-2 items-start md:items-center px-4 py-2.5 bg-amber-50/30"
-                  >
-                    <div className="min-w-0 mb-1 md:mb-0">
-                      <div className="text-sm text-foreground leading-snug">{r.question}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{r.domain}</div>
-                    </div>
-                    <div className="flex justify-center"><VerdictBadge label={houseLabel} /></div>
-                    <div className="flex justify-center"><VerdictBadge label={condLabel} /></div>
-                    <div className="flex justify-center"><VerdictBadge label={irvLabel} /></div>
-                    <div className="flex justify-center">
-                      <PresCell signs={r.presRawMultiCondSigns} partyCode={condParty} />
-                    </div>
-                    <div className="flex justify-center">
-                      <PresCell signs={r.presRawMultiIRVSigns} partyCode={irvParty} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        )}
+        <LegislationDivergences
+          houseVotes={houseVotes}
+          senateVotes={senateVotes}
+          election={rawMultiElection}
+          pipeline="rawMulti"
+          wyoming="double"
+        />
 
         <DiveCard label="Dive into the Presidency →" onClick={() => onNavigate('presidency')} />
       </div>

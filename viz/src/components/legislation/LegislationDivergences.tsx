@@ -106,6 +106,12 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
   }
 
   const label = pipeline === 'rawMulti' ? 'Party-Line' : 'Crossover';
+  const condColor = getBlendColor(condWinner);
+  const irvColor = getBlendColor(irvWinner);
+  const condParty = condWinner.split('_')[0];
+  const irvParty = irvWinner.split('_')[0];
+  // Grouped columns: House, then each method's (Senate + President) pair side by side.
+  const COLS = 'md:grid-cols-[minmax(150px,1fr)_110px_110px_110px_110px_110px]';
 
   return (
     <Card className="border-amber-300 overflow-hidden">
@@ -118,20 +124,26 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         </p>
       </div>
 
-      <div className="hidden md:grid grid-cols-[minmax(150px,1fr)_120px_120px_120px_120px_120px] gap-x-1 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
+      {/* Two-tier header: House, then a Condorcet group (Senate + President) and an IRV group */}
+      <div className={`hidden md:grid ${COLS} gap-x-1 px-4 pt-2 text-[10px] font-bold uppercase tracking-widest`}>
+        <div /><div />
+        <div className="col-span-2 text-center border-l border-border/40" style={{ color: condColor }}>Condorcet</div>
+        <div className="col-span-2 text-center border-l border-border/40" style={{ color: irvColor }}>IRV</div>
+      </div>
+      <div className={`hidden md:grid ${COLS} gap-x-1 px-4 pb-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest`}>
         <div>Bill</div>
         <div className="text-center">House</div>
-        <div className="text-center">Senate Cond</div>
-        <div className="text-center">Senate IRV</div>
-        <div className="text-center" style={{ color: getBlendColor(condWinner) }}>{condWinner.split('_')[0]} Pres</div>
-        <div className="text-center" style={{ color: getBlendColor(irvWinner) }}>{irvWinner.split('_')[0]} Pres</div>
+        <div className="text-center border-l border-border/40">Senate</div>
+        <div className="text-center" style={{ color: condColor }}>{condParty} Pres</div>
+        <div className="text-center border-l border-border/40">Senate</div>
+        <div className="text-center" style={{ color: irvColor }}>{irvParty} Pres</div>
       </div>
 
       <div className="divide-y divide-slate-100">
         {divergentBills.map(({ row, houseLabel, senateCondLabel, senateIRVLabel, condPresPct, irvPresPct, methodSplit }) => (
           <div
             key={row.variable}
-            className={`flex flex-col md:grid md:grid-cols-[minmax(150px,1fr)_120px_120px_120px_120px_120px] gap-x-1 items-start md:items-center px-4 py-2.5 ${
+            className={`flex flex-col md:grid ${COLS} gap-x-1 items-start md:items-center px-4 py-2.5 ${
               methodSplit ? 'bg-amber-50/40' : 'bg-white'
             }`}
           >
@@ -143,20 +155,22 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
               <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">House</span>
               <VerdictBadge label={houseLabel} />
             </div>
-            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
+            {/* Condorcet group */}
+            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0 md:border-l md:border-border/40">
               <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">Senate (Condorcet)</span>
               <VerdictBadge label={senateCondLabel} />
             </div>
             <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
+              <span className="md:hidden text-xs font-semibold uppercase tracking-wide" style={{ color: condColor }}>{condParty} Pres (Condorcet)</span>
+              <SignBadge prob={condPresPct !== undefined ? condPresPct / 100 : undefined} />
+            </div>
+            {/* IRV group */}
+            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0 md:border-l md:border-border/40">
               <span className="md:hidden text-xs font-semibold text-muted-foreground uppercase tracking-wide">Senate (IRV)</span>
               <VerdictBadge label={senateIRVLabel} />
             </div>
             <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
-              <span className="md:hidden text-xs font-semibold uppercase tracking-wide" style={{ color: getBlendColor(condWinner) }}>{condWinner.split('_')[0]} Pres (Condorcet)</span>
-              <SignBadge prob={condPresPct !== undefined ? condPresPct / 100 : undefined} />
-            </div>
-            <div className="w-full flex items-center justify-between md:justify-center gap-3 mt-2 md:mt-0 border-t border-border/40 pt-2 md:border-0 md:pt-0">
-              <span className="md:hidden text-xs font-semibold uppercase tracking-wide" style={{ color: getBlendColor(irvWinner) }}>{irvWinner.split('_')[0]} Pres (IRV)</span>
+              <span className="md:hidden text-xs font-semibold uppercase tracking-wide" style={{ color: irvColor }}>{irvParty} Pres (IRV)</span>
               <SignBadge prob={irvPresPct !== undefined ? irvPresPct / 100 : undefined} />
             </div>
           </div>
