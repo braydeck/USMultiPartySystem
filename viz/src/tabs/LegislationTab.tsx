@@ -5,7 +5,17 @@ import { LegislationDivergences } from '../components/legislation/LegislationDiv
 import { CoalitionMap } from '../components/legislation/CoalitionMap';
 import { PartyAgreement } from '../components/legislation/PartyAgreement';
 import { Card } from '@/components/ui/card';
+// House seat composition per scenario, for the coalition seat-stack (mirrors the tab's controls).
 import houseSeatsTurnout from '../data/houseSeatsTurnout.json';
+import houseSeatsTurnoutL5 from '../data/houseSeatsTurnoutL5.json';
+import houseSeatsTurnoutL10 from '../data/houseSeatsTurnoutL10.json';
+import houseSeatsTurnoutL15 from '../data/houseSeatsTurnoutL15.json';
+import houseSeatsTurnoutL20 from '../data/houseSeatsTurnoutL20.json';
+import houseSeatsTurnoutL25 from '../data/houseSeatsTurnoutL25.json';
+import houseSeatsTurnoutL30 from '../data/houseSeatsTurnoutL30.json';
+import houseSeatsTripleTurnout from '../data/houseSeatsTripleTurnout.json';
+import fdHouseSeatsTurnout from '../data/fdHouseSeatsTurnout.json';
+import fdHouseSeatsTripleTurnout from '../data/fdHouseSeatsTripleTurnout.json';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
@@ -42,13 +52,13 @@ interface Props {
   rawMultiElectionTurnout: PresidentialElection;
 }
 
-// House seat counts per party (current-turnout composition) for the coalition seat-stack.
 const CLUSTER_TO_PARTY: Record<number, string> = {
   0: 'CON', 1: 'LBR', 2: 'STY', 3: 'NAT', 4: 'LIB', 5: 'POP', 6: 'CUP', 7: 'OAO', 8: 'DSA', 9: 'PRG',
 };
-const HOUSE_SEATS: Record<string, number> = Object.fromEntries(
-  (houseSeatsTurnout as { party: number; national: number }[]).map((r) => [CLUSTER_TO_PARTY[r.party], r.national]),
-);
+const toSeatMap = (arr: { party: number; national: number }[]): Record<string, number> =>
+  Object.fromEntries(arr.map((r) => [CLUSTER_TO_PARTY[r.party], r.national]));
+const rmSeatStops = [houseSeatsTurnout, houseSeatsTurnoutL5, houseSeatsTurnoutL10, houseSeatsTurnoutL15,
+  houseSeatsTurnoutL20, houseSeatsTurnoutL25, houseSeatsTurnoutL30] as unknown as { party: number; national: number }[][];
 
 export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElection, rawMultiElection,
                                  houseVotesTurnout, senateVotesTurnout, rawMultiElectionTurnout }: Props) {
@@ -67,6 +77,14 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const sVotes = rmDouble ? sStops[gi] : senateVotes;
   const election = pipeline !== 'rawMulti' ? fdElection : rmDouble ? eStops[gi] : rawMultiElection;
   const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
+
+  // House seat composition for the coalition seat-stack, following the same controls:
+  // rawMulti+double tracks the participation slider; the others use their observed-turnout base.
+  const houseSeats = rmDouble
+    ? toSeatMap(rmSeatStops[gi])
+    : pipeline === 'factorDev'
+      ? toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[])
+      : toSeatMap(houseSeatsTripleTurnout as unknown as { party: number; national: number }[]);
 
   return (
     <div className="space-y-8">
@@ -117,25 +135,25 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
 
       <Card className="p-4">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Who Passes a Bill
+          How Often Parties Vote Together
         </h3>
         <p className="text-xs text-muted-foreground mb-4 max-w-3xl">
-          Pick a bill to see which parties combine to carry it. Parties are ordered by support and
-          sized by their House seats; the coalition to the left of the majority line is what passes it.
+          How closely each pair of parties aligns across all bills. Switch between the average support
+          gap and the share of bills where both predict the same yes/no vote. This reflects party
+          positions, so it does not change with the controls above.
         </p>
-        <CoalitionMap candidateVotes={candidateVotes} seats={HOUSE_SEATS} />
+        <PartyAgreement candidateVotes={candidateVotes} />
       </Card>
 
       <Card className="p-4">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          How Often Parties Vote Together
+          Who Passes Each Bill
         </h3>
         <p className="text-xs text-muted-foreground mb-4 max-w-3xl">
-          Each cell is how closely two parties align across all bills: 100 means identical positions
-          everywhere, 0 means maximal disagreement. This reflects party positions, so it does not change
-          with the controls above.
+          For every bill, parties are ordered by support and sized by their House seats; the coalition
+          to the left of the majority line is what carries it. Seat weighting follows the controls above.
         </p>
-        <PartyAgreement candidateVotes={candidateVotes} />
+        <CoalitionMap candidateVotes={candidateVotes} seats={houseSeats} />
       </Card>
     </div>
   );

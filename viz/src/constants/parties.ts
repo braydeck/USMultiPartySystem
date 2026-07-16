@@ -9,7 +9,7 @@ export const PARTY_COLORS: Record<string, string> = {
   CON: '#e68c2c',  // orange
   POP: '#d34812',  // red-orange
   NAT: '#a01d2a',  // deep red (rightmost)
-  OAO: '#000000',  // Order and Opportunity Party (C7) — provisional black
+  OAO: '#0d9488',  // Order and Opportunity Party (C7) — teal (distinct from all others; avoids black-line conflicts)
 };
 
 // Left→right order for all 10 parties (OAO after Labor, before STY).
