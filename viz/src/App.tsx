@@ -17,7 +17,6 @@ import senateVoteModelData from './data/senateVoteModel.json';
 import houseSeatsData from './data/houseSeats.json';
 import houseSeatsProbBasedData from './data/houseSeatsProbBased.json';
 import houseVoteModelData from './data/houseVoteModel.json';
-import candidateVoteModelData from './data/candidateVoteModel.json';
 import houseStateMapData from './data/houseStateMap.json';
 import coalitionProfilesData from './data/coalitionProfiles.json';
 import transferMatrixData from './data/transferMatrix.json';
@@ -72,7 +71,7 @@ import districtCountyMapTripleData from './data/districtCountyMapTriple.json';
 
 
 import type {
-  PrimaryStateWinner, PrimaryStageShares, VoteModelRow, CandidateVoteRow, HouseSeat,
+  PrimaryStateWinner, PrimaryStageShares, VoteModelRow, HouseSeat,
   HouseStateEntry, CoalitionProfile, TransferMatrix, ClusterProfile,
   QuizQuestion, PresidentialElection,
   PrimarySankeyData,
@@ -362,7 +361,6 @@ export default function App() {
         )}
         {tab === 'legislation' && (
           <LegislationTab
-            candidateVotes={candidateVoteModelData as unknown as CandidateVoteRow[]}
             houseVotes={houseVoteModelData as VoteModelRow[]}
             senateVotes={senateVoteModelData as VoteModelRow[]}
             fdElection={fdPresidentialElectionData as unknown as PresidentialElection}

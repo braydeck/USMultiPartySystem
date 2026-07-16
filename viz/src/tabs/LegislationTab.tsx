@@ -1,7 +1,6 @@
 import { useUrlState } from '../hooks/useUrlState';
-import type { VoteModelRow, CandidateVoteRow, PresidentialElection } from '../types';
+import type { VoteModelRow, PresidentialElection } from '../types';
 import { UnifiedBillTable } from '../components/legislation/UnifiedBillTable';
-import { VoteMatrix } from '../components/legislation/VoteMatrix';
 import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
@@ -30,7 +29,6 @@ import presL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
 import presL30 from '../data/rawMultiPresidentialElectionTurnoutL30.json';
 
 interface Props {
-  candidateVotes: CandidateVoteRow[];
   houseVotes: VoteModelRow[];
   senateVotes: VoteModelRow[];
   fdElection: PresidentialElection;
@@ -40,7 +38,7 @@ interface Props {
   rawMultiElectionTurnout: PresidentialElection;
 }
 
-export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElection, rawMultiElection,
+export function LegislationTab({ houseVotes, senateVotes, fdElection, rawMultiElection,
                                  houseVotesTurnout, senateVotesTurnout, rawMultiElectionTurnout }: Props) {
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
@@ -79,28 +77,6 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}
       </StickyControlBar>
-
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          How each party's candidate votes
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4 max-w-3xl">
-          Each cell is the chance a party's representative candidate votes yes, predicted from that
-          party's position in the five-factor ideology space — not from its raw support. Where the two
-          disagree (⚠), the party votes against what its own ideology predicts. Candidate positions are
-          fixed; the controls change only who holds the seats and the presidency, and so the law odds.
-          Click a bill for its floor and the law chain; click a party to trace its votes.
-        </p>
-        <VoteMatrix
-          candidateVotes={candidateVotes}
-          houseVotes={hVotes}
-          senateVotes={sVotes}
-          presWinner={presWinner}
-          pipeline={pipeline}
-          method={method}
-          wyoming={wyoming}
-        />
-      </Card>
 
       <LegislationDivergences
         houseVotes={hVotes}
