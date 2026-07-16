@@ -112,7 +112,7 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
       <p className="text-xs text-muted-foreground leading-relaxed">
         <strong className="text-foreground">FPTP:</strong> each state&apos;s plurality winner takes the seat, so two parties hold every chair.
         <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
-        <strong className="text-foreground">Condorcet:</strong> the seat goes to the candidate who beats every rival one-on-one in a round-robin — the broad consensus pick ({stats.condParties} parties win seats).
+        <strong className="text-foreground">Condorcet:</strong> the seat goes to the candidate who beats every rival one-on-one in a round-robin, the broad consensus pick ({stats.condParties} parties win seats).
         <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
         <strong className="text-foreground">IRV:</strong> eliminate the last-place candidate and transfer ballots until one clears a majority, rewarding strong first-choice bases ({stats.irvParties} parties win seats).
       </p>

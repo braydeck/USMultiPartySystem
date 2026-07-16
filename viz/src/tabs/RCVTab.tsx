@@ -275,7 +275,7 @@ function CesSimPanel({ stateAbbr, houseStateMap }: { stateAbbr: 'AK' | 'ME'; hou
           })}
       </div>
       <p className="text-xs text-muted-foreground">
-        Simulated result from CES 2024 survey data with a full 9-party slate — what a multi-party STV system could elect.
+        Simulated result from CES 2024 survey data with a full 9-party slate: what a multi-party STV system could elect.
         Compare with the real-ballot results below, which are limited to 2–4 candidates per race.
       </p>
     </Card>
@@ -328,7 +328,7 @@ function RaceCard({ race, defaultOpen = true }: { race: RCVRace; defaultOpen?: b
                 <div className="text-xs text-blue-400 mb-0.5">Round 1 Leader (Plurality)</div>
                 <div className="text-sm font-bold text-blue-800">{pluralityLeader}</div>
                 <div className="text-xs text-blue-500 mt-0.5">
-                  {r1.pcts[pluralityLeader!]?.toFixed(1)}% — led but didn&apos;t win
+                  {r1.pcts[pluralityLeader!]?.toFixed(1)}%, led but didn&apos;t win
                 </div>
               </div>
             )}
@@ -444,7 +444,7 @@ function CombinedDelegation({ cd1, cd2, year }: { cd1: RCVRace; cd2: RCVRace; ye
         ))}
       </div>
       <p className="text-xs text-indigo-700">
-        {dems.length}D + {reps.length}R — proportional split reflecting Maine&apos;s competitive statewide vote.
+        {dems.length}D + {reps.length}R, a proportional split reflecting Maine&apos;s competitive statewide vote.
         Under single-winner IRV, both seats go to Democrats.
       </p>
     </Card>

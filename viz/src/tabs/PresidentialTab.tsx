@@ -129,7 +129,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
           ) : (
             <>
               <p className="text-xs text-muted-foreground">
-                Condorcet and IRV elect different presidents — the winner shapes which bills become law.
+                Condorcet and IRV elect different presidents. The winner shapes which bills become law.
               </p>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -212,7 +212,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
         </h3>
         <p className="text-xs text-muted-foreground mb-4">
           Every possible pairing. Green = row candidate wins; red = row candidate loses.
-          The Condorcet winner&apos;s row is all-green — that&apos;s why they win.
+          The Condorcet winner&apos;s row is all-green, which is why they win.
         </p>
         <div className="flex justify-center">
           <CondorcetMatrix

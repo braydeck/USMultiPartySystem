@@ -822,7 +822,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
         <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
           Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
-          <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space — cross-pressured between those parties.
+          <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
         </p>
         <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
       </Card>
@@ -982,7 +982,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                               <div className="px-4 pt-3 pb-1.5 bg-slate-50 border-t border-border/50">
                                 <div className="text-xs font-semibold text-foreground">{grp.label}</div>
                                 {grp.multi && (
-                                  <div className="text-[11px] text-muted-foreground">Select all that apply — share of each party choosing this option (can exceed 100%)</div>
+                                  <div className="text-[11px] text-muted-foreground">Select all that apply: share of each party choosing this option (can exceed 100%)</div>
                                 )}
                               </div>
                             )}
@@ -1040,7 +1040,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         <Card className="p-12 text-center">
           <div className="text-muted-foreground text-sm">Select a party above to explore their positions</div>
           <div className="text-slate-300 text-xs mt-2">
-            Add a second party to compare — amber rows highlight where they diverge by ≥{minGap}pp.
+            Add a second party to compare. Amber rows highlight where they diverge by ≥{minGap}pp.
           </div>
         </Card>
       )}

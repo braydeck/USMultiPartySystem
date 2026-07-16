@@ -179,7 +179,7 @@ export default function SenateCondorcetView({ data }: Props) {
       {selectedData && (
         <div>
           <div className="text-[10px] text-muted-foreground mb-3">
-            {selectedData.abbr} — Condorcet winner: <strong className="text-muted-foreground">{selectedData.winner}</strong>
+            {selectedData.abbr} · Condorcet winner: <strong className="text-muted-foreground">{selectedData.winner}</strong>
           </div>
           <div className="flex justify-center">
             <CondorcetMatrix
