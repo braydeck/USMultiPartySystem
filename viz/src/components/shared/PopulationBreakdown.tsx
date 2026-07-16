@@ -50,13 +50,12 @@ export function PopulationBreakdown() {
         <Bar title="Voters" sub="as cast · 2024" valueKey="voteShare" />
       </div>
 
-      {/* Legend — turnout only; the population→vote shift is shown by the two bars */}
+      {/* Legend — party names only; the population→vote shift is shown by the two bars */}
       <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3 pt-2 border-t border-border/50">
         {ORDER.map(r => (
           <div key={r.party} className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[r.party] ?? '#6b7280' }} />
             <span className="text-xs text-foreground font-medium">{PARTY_NAMES[r.party] ?? r.party}</span>
-            <span className="text-xs text-muted-foreground">{r.turnout}% turnout</span>
           </div>
         ))}
       </div>

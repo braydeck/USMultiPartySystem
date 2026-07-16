@@ -177,9 +177,6 @@ export function OverviewTab({
       {/* Section 0 — Population breakdown */}
       <PopulationBreakdown />
 
-      {/* Section 0b — Turnout verified against the voter file (match structure) */}
-      <TurnoutVerificationCard />
-
       {/* Section 1 — House FPTP vs STV */}
       <Card className="p-5 border-2 border-indigo-200">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">House of Representatives</h3>
@@ -307,6 +304,9 @@ export function OverviewTab({
 
       {/* Section 6 — Party profiles */}
       <PartyProfileGrid clusters={orderedClusters} />
+
+      {/* Section 7 — Turnout verified against the voter file (match structure) */}
+      <TurnoutVerificationCard />
     </div>
   );
 }
