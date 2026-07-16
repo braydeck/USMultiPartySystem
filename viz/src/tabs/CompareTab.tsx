@@ -8,7 +8,7 @@ import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { RangeBarCell, CompositionStackCell, HeatmapCell, FactorTags, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
 import { SignatureHeatmap, type HeatRow } from '../components/shared/SignatureHeatmap';
-import { PartyRowLabel, type RowMark } from '../components/shared/PartyRowLabel';
+import { PartyRowLabel, SigTag, type RowMark } from '../components/shared/PartyRowLabel';
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, itemSignature, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
@@ -421,12 +421,12 @@ function FactorItemsPanel({
             ].filter(Boolean).join(' ')}
           >
             {r.kind === 'intensity' ? (
-              <IntensityCell item={r.iv!} codes={codes} question={r.iv!.question} marks={r.marks} />
+              <IntensityCell item={r.iv!} codes={codes} question={r.iv!.question} marks={r.marks} loadingWeight={r.loading} diverges={r.highlighted} />
             ) : r.kind === 'range' ? (
               <RangeBarCell meta={DIST.meta[r.rangeKey!] as unknown as RangeMeta}
                 national={DIST.national[r.rangeKey!] as never}
                 byCode={Object.fromEntries(codes.filter(c => DIST.parties[c]?.[r.rangeKey!]).map(c => [c, DIST.parties[c][r.rangeKey!]])) as never}
-                codes={codes} marks={r.marks} factors={distFactors(r.rangeKey!)} />
+                codes={codes} marks={r.marks} factors={distFactors(r.rangeKey!)} loadingWeight={r.loading} diverges={r.highlighted} />
             ) : (
               <StackedBarCell
                 item={{
@@ -468,8 +468,9 @@ function StackedBarCell({ item, codes, marks, label }: { item: BarItem; codes: s
   const disp = (x: number) => (unit === '%' ? `${Math.round(x)}%` : `${x % 1 === 0 ? x : x.toFixed(1)} ${unit}`);
   const rows: string[] = ['__NAT__', ...codes];
   return (
-    <div className={`px-3 py-3 ${item.highlighted ? 'bg-amber-50' : ''}`}>
+    <div className="px-3 py-3">
       <div className="text-xs text-foreground leading-snug font-medium mb-2">
+        {item.highlighted && <span className="text-amber-500 mr-1 align-middle" title="Selected parties diverge here">◆</span>}
         {item.loadingWeight !== undefined && (
           <span className="text-[9px] font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
             {item.loadingWeight >= 0 ? '+' : ''}{item.loadingWeight.toFixed(2)}
@@ -510,11 +511,19 @@ function StackedBarCell({ item, codes, marks, label }: { item: BarItem; codes: s
 // Full-distribution cell for a multi-point item: national + each selected party as a
 // stacked bar (diverging bipolar via bam), so Maintain/Neither and intensity are visible
 // instead of the single collapsed dot.
-function IntensityCell({ item, codes, question, marks }:
-  { item: IntensityItem; codes: string[]; question: string; marks?: Record<string, RowMark> }) {
+function IntensityCell({ item, codes, question, marks, loadingWeight, diverges }:
+  { item: IntensityItem; codes: string[]; question: string; marks?: Record<string, RowMark>; loadingWeight?: number; diverges?: boolean }) {
   return (
     <div className="px-3 py-3">
-      <div className="text-xs text-foreground leading-snug font-medium mb-1"><FactorTags shorts={factorShorts(item.variable)} />{question}</div>
+      <div className="text-xs text-foreground leading-snug font-medium mb-1">
+        {diverges && <span className="text-amber-500 mr-1 align-middle" title="Selected parties diverge here">◆</span>}
+        {loadingWeight !== undefined && (
+          <span className="text-[9px] font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
+            {loadingWeight >= 0 ? '+' : ''}{loadingWeight.toFixed(2)}
+          </span>
+        )}
+        <FactorTags shorts={factorShorts(item.variable)} />{question}
+      </div>
       <IntensityLegend item={item} />
       {/* column header */}
       <div className="flex items-center gap-2 text-[9px] text-muted-foreground uppercase tracking-wide mt-1.5 mb-0.5">
@@ -789,15 +798,25 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-1">Parties</h2>
-        <p className="text-muted-foreground text-sm">
-          Select one party to see its platform, or several to compare. Each row stacks the national
-          average and every selected party as a bar on a shared scale. The
-          {' '}<span className="font-medium text-foreground">Signature</span> annotations mark each row:
-          a <span className="font-bold">●</span> dot when a party holds it cohesively, and{' '}
-          <span className="font-bold">D</span> (distinct from the U.S.) or <span className="font-bold">M</span> (mainstream)
-          to the right of its label. Amber rows are where selected parties differ by ≥{minGap}pp.
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          Select one party to see its platform, or several to compare. Single-number positions render as a
+          heatmap shaded by support, with a US baseline column; richer items keep their distribution bars and
+          box plots. Signature tags read the same everywhere: <SigTag kind="C" /> when a party holds a position
+          cohesively, plus <SigTag kind="M" /> mainstream or <SigTag kind="D" /> deviant from the US average.
+          A <span className="text-amber-500 font-bold">◆</span> marks rows where the selected parties diverge (≥{minGap}pp apart).
         </p>
       </div>
+
+      {/* Ideological constellation — overview map, placed above the filters so it doesn't
+          interrupt the flow between the filter controls and the list they act on. */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
+        <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+          Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
+          <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
+        </p>
+        <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
+      </Card>
 
       {/* Party selector + signature filter — sticky so both can be adjusted while scrolling
           the (long, annotated) list. On mobile it condenses to a summary strip once scrolled;
@@ -842,7 +861,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
               <SignatureFilters s={sig} accent="#6366f1" />
               <div className="flex items-center gap-1.5 text-[11px] shrink-0 border-l border-border/50 pl-4">
-                <span className="font-semibold text-foreground whitespace-nowrap">■ Divergence</span>
+                <span className="font-semibold text-foreground whitespace-nowrap"><span className="text-amber-500">◆</span> Divergence</span>
                 <input type="range" min={0} max={50} step={5} value={minGap}
                   onChange={e => setMinGap(Number(e.target.value))} className="w-16" style={{ accentColor: '#6366f1' }} />
                 <span className="font-mono font-semibold tabular-nums w-9" style={{ color: '#6366f1' }}>≥{minGap}</span>
@@ -863,15 +882,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         </p>
       )}
 
-      {/* Ideological constellation — the overview map, always shown */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
-        <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
-          Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
-          <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
-        </p>
-        <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
-      </Card>
 
       {selected.length >= 1 && (
         <>
@@ -1057,7 +1067,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                           i % 2 === 0 ? 'sm:border-r border-slate-300' : '',
                                         ].filter(Boolean).join(' ')}>
                                           <IntensityCell item={intensityFor(v.key)!} codes={orderedSelected}
-                                            question={intensityFor(v.key)!.question} marks={scalarMarks(v)} />
+                                            question={intensityFor(v.key)!.question} marks={scalarMarks(v)} diverges={v.highlighted} />
                                         </div>
                                       ))}
                                     </div>
@@ -1086,7 +1096,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         <Card className="p-12 text-center">
           <div className="text-muted-foreground text-sm">Select a party above to explore their positions</div>
           <div className="text-slate-300 text-xs mt-2">
-            Add a second party to compare. Amber rows highlight where they diverge by ≥{minGap}pp.
+            Add a second party to compare. A ◆ marks rows where they diverge by ≥{minGap}pp.
           </div>
         </Card>
       )}

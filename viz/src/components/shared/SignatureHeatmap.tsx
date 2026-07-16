@@ -1,6 +1,6 @@
 import { PARTY_NAMES, getBlendColor } from '../../constants/parties';
 import { cividisForFrac, cividisText } from '../../lib/cividis';
-import type { RowMark } from './PartyRowLabel';
+import { type RowMark, SigTag } from './PartyRowLabel';
 import { FactorTags } from './DistributionCells';
 
 // A single-number-per-party heatmap: items on rows, parties on columns + a US baseline column.
@@ -23,7 +23,7 @@ export interface HeatRow {
 
 function Cell({ row, code }: { row: HeatRow; code: string }) {
   const v = row.pcts[code];
-  if (v == null) return <div className="h-8 rounded-[2px] bg-muted/40" />;  // selected but no data for this item
+  if (v == null) return <div className="h-9 rounded-[2px] bg-muted/40" />;  // selected but no data for this item
   const frac = row.maxVal ? v / row.maxVal : 0;
   const bg = cividisForFrac(frac);
   const fg = cividisText(bg);
@@ -34,13 +34,14 @@ function Cell({ row, code }: { row: HeatRow; code: string }) {
   const tags = [cohesive ? 'C' : null, mark].filter(Boolean).join('·');
   return (
     <div
-      className="relative h-8 rounded-[2px] flex items-center justify-center leading-none"
+      className="relative h-9 rounded-[2px] flex items-start justify-center pt-1"
       style={{ backgroundColor: bg, color: fg }}
       title={`${PARTY_NAMES[code] ?? code}: ${disp}${row.unit === '%' ? '%' : ' ' + row.unit}${tags ? ` · ${tags}` : ''}`}
     >
       <span className="text-[10px] font-semibold tabular-nums">{disp}</span>
-      {cohesive && <span className="absolute left-1 bottom-0.5 text-[7px] font-bold leading-none" style={{ color: fg, opacity: 0.85 }}>C</span>}
-      {mark && <span className="absolute right-1 bottom-0.5 text-[7px] font-bold leading-none" style={{ color: fg, opacity: mark === 'D' ? 1 : 0.7 }}>{mark}</span>}
+      {/* C lower-left, M/D lower-right — boxed tags, matching the distribution-row labels */}
+      {cohesive && <span className="absolute left-0.5 bottom-0.5"><SigTag kind="C" /></span>}
+      {mark && <span className="absolute right-0.5 bottom-0.5"><SigTag kind={mark} /></span>}
     </div>
   );
 }
@@ -73,27 +74,27 @@ export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected
             {r.overall != null ? (() => {
               const bg = cividisForFrac(r.maxVal ? r.overall / r.maxVal : 0);
               return (
-                <div className="h-8 rounded-[2px] flex items-center justify-center text-[10px] font-semibold tabular-nums ring-1 ring-inset ring-slate-500/50"
+                <div className="h-9 rounded-[2px] flex items-center justify-center text-[10px] font-semibold tabular-nums ring-1 ring-inset ring-slate-500/50"
                   style={{ backgroundColor: bg, color: cividisText(bg) }}
                   title={`U.S. average: ${Math.round(r.overall)}${r.unit === '%' ? '%' : ' ' + r.unit}`}>
                   {r.unit === '%' ? Math.round(r.overall) : r.overall}
                 </div>
               );
-            })() : <div className="h-8" />}
+            })() : <div className="h-9" />}
             {selected.map((p) => <Cell key={p} row={r} code={p} />)}
           </div>
         ))}
 
         {/* legend */}
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[9px] text-muted-foreground mt-2 pt-1 border-t border-border/40">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] text-muted-foreground mt-2 pt-1.5 border-t border-border/40">
           <span className="flex items-center gap-1">
             {[0, .33, .66, 1].map((t) => <span key={t} className="w-3 h-2.5" style={{ backgroundColor: cividisForFrac(t) }} />)}
             shade = % support
           </span>
-          <span><b>C</b> cohesive (party united)</span>
-          <span><b>M</b> mainstream (near US)</span>
-          <span><b>D</b> deviant (far from US)</span>
-          <span className="text-amber-500">◆ parties diverge</span>
+          <span className="flex items-center gap-1"><SigTag kind="C" /> cohesive (party united)</span>
+          <span className="flex items-center gap-1"><SigTag kind="M" /> mainstream (near US)</span>
+          <span className="flex items-center gap-1"><SigTag kind="D" /> deviance (far from US)</span>
+          <span className="flex items-center gap-1 text-amber-600"><span className="text-amber-500">◆</span> parties diverge</span>
         </div>
       </div>
     </div>

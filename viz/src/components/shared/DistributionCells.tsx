@@ -33,9 +33,9 @@ function niceTicks(min: number, max: number, count = 5): number[] {
 
 /** Continuous distribution as a plain-language box plot with an axis scale: box = middle 50%,
  *  tick = median, whiskers = 10th–90th percentile. Value column shows median + IQR. */
-export function RangeBarCell({ meta, national, byCode, codes, marks, factors }: {
+export function RangeBarCell({ meta, national, byCode, codes, marks, factors, loadingWeight, diverges }: {
   meta: RangeMeta; national: RangeVals; byCode: Record<string, RangeVals>; codes: string[];
-  marks?: Record<string, RowMark>; factors?: string[];
+  marks?: Record<string, RowMark>; factors?: string[]; loadingWeight?: number; diverges?: boolean;
 }) {
   const shown = codes.filter(c => byCode[c]);
   const all = [national, ...shown.map(c => byCode[c])];
@@ -49,6 +49,12 @@ export function RangeBarCell({ meta, national, byCode, codes, marks, factors }: 
   return (
     <div className="px-3 py-3">
       <div className="text-xs text-foreground leading-snug font-medium mb-2">
+        {diverges && <span className="text-amber-500 mr-1 align-middle" title="Selected parties diverge here">◆</span>}
+        {loadingWeight !== undefined && (
+          <span className="text-[9px] font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
+            {loadingWeight >= 0 ? '+' : ''}{loadingWeight.toFixed(2)}
+          </span>
+        )}
         <FactorTags shorts={factors} />{meta.question} <span className="text-[10px] text-muted-foreground font-normal">
           ({meta.unit === 'wks' ? 'weeks' : meta.unit === '$k' ? '$ thousands' : 'years'})</span>
       </div>
@@ -102,9 +108,9 @@ export function RangeBarCell({ meta, national, byCode, codes, marks, factors }: 
 
 /** Mutually-exclusive battery as a 100% composition bar (nominal) or a diverging bar aligned on
  *  a pivot category (bipolar ordinal). Optional value column (e.g. median income). */
-export function CompositionStackCell({ meta, national, byCode, codes, marks, factors }: {
+export function CompositionStackCell({ meta, national, byCode, codes, marks, factors, diverges }: {
   meta: CompMeta; national: CompVals; byCode: Record<string, CompVals>; codes: string[];
-  marks?: Record<string, RowMark>; factors?: string[];
+  marks?: Record<string, RowMark>; factors?: string[]; diverges?: boolean;
 }) {
   const shown = codes.filter(c => byCode[c]);
   const colors = meta.colors ?? [];
@@ -122,7 +128,10 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks, fac
 
   return (
     <div className="px-3 py-3">
-      <div className="text-xs text-foreground leading-snug font-medium mb-1.5"><FactorTags shorts={factors} />{meta.question}</div>
+      <div className="text-xs text-foreground leading-snug font-medium mb-1.5">
+        {diverges && <span className="text-amber-500 mr-1 align-middle" title="Selected parties diverge here">◆</span>}
+        <FactorTags shorts={factors} />{meta.question}
+      </div>
       <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 mb-1.5">
         {meta.segLabels.map((l, i) => (
           <span key={l} className="inline-flex items-center gap-1 text-[9px] text-muted-foreground">
@@ -218,7 +227,7 @@ export function HeatmapCell({ meta, national, byCode, codes, marks, factors }: {
         ))}
         {rows.map(({ code, pcts }) => (
           <div key={code} className="contents">
-            <PartyRowLabel code={code} className="self-center text-[10px] w-14 pr-1" signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
+            <PartyRowLabel code={code} className="self-center text-[10px] w-[76px] pr-1" signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
             {pcts.map((v, i) => {
               // Cividis by within-grid share: dark navy = low → yellow = high. Perceptually
               // uniform and colorblind-safe; exact % is printed in the cell either way.
