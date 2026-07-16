@@ -25,10 +25,21 @@ function CoalitionRow({ bill, seats, total, majority }: {
     .filter((p) => bill.parties[p] && (seats[p] ?? 0) > 0)
     .sort((a, b) => (bill.parties[b].observedPct ?? 0) - (bill.parties[a].observedPct ?? 0));
   const pivotal = pivotalOf(bill, seats, majority);
+  // Passes the House when parties that actually support it (>50%) hold a strict seat majority.
+  const supportingSeats = ordered
+    .filter((p) => (bill.parties[p].observedPct ?? 0) > 50)
+    .reduce((s, p) => s + (seats[p] ?? 0), 0);
+  const passes = supportingSeats > total / 2;
 
   return (
     <div className="grid grid-cols-[minmax(140px,1.3fr)_2fr] gap-3 items-center py-1.5 border-t border-border/40">
-      <div className="text-[11px] leading-tight">{bill.question}</div>
+      <div className="text-[11px] leading-tight flex items-start gap-1.5">
+        <span className={`shrink-0 font-bold ${passes ? 'text-emerald-600' : 'text-rose-500'}`}
+          title={passes ? 'Supporting parties hold a majority — passes the House' : 'Supporters fall short of a majority — fails the House'}>
+          {passes ? '✓' : '✗'}
+        </span>
+        <span>{bill.question}</span>
+      </div>
       <div className="relative h-7 rounded flex overflow-hidden bg-muted/30">
         {ordered.map((p) => {
           const s = seats[p] ?? 0;
@@ -100,8 +111,10 @@ export function CoalitionMap({ candidateVotes, seats }: {
       ))}
 
       <p className="text-[11px] text-muted-foreground mt-3">
-        Parties left of the majority line are the coalition that carries the bill; the pivotal party (white/dark ring)
-        is the one whose seats tip it over. Faded = the party opposes the bill (support ≤ 50%).
+        <span className="text-emerald-600 font-bold">✓</span>/<span className="text-rose-500 font-bold">✗</span> marks
+        whether the bill's supporters hold a seat majority — it passes the House. Parties left of the majority line are
+        the coalition that carries the bill; the pivotal party (white/dark ring) is the one whose seats tip it over.
+        Faded = the party opposes the bill (support ≤ 50%).
       </p>
     </div>
   );
