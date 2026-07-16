@@ -21,37 +21,34 @@ export interface HeatRow {
   factorShorts?: string[];
 }
 
-function tagOf(m?: RowMark): string {
-  if (!m) return '';
-  const parts: string[] = [];
-  if (m.dot) parts.push('C');
-  if (m.mark) parts.push(m.mark);
-  return parts.join('·');
-}
-
 function Cell({ row, code }: { row: HeatRow; code: string }) {
   const v = row.pcts[code];
   if (v == null) return <div className="h-9 rounded-sm bg-transparent" />;  // toggled-off → blank slot
   const frac = row.maxVal ? v / row.maxVal : 0;
   const bg = cividisForFrac(frac);
   const fg = cividisText(bg);
-  const tag = tagOf(row.marks[code]);
+  const m = row.marks[code];
+  const cohesive = !!m?.dot;
+  const mark = m?.mark ?? null;
   const disp = row.unit === '%' ? Math.round(v) : (v % 1 === 0 ? v : v.toFixed(1));
+  const tags = [cohesive ? 'C' : null, mark].filter(Boolean).join('·');
   return (
     <div
-      className="h-9 rounded-sm flex flex-col items-center justify-center leading-none"
+      className="relative h-9 rounded-sm flex items-center justify-center leading-none"
       style={{ backgroundColor: bg, color: fg }}
-      title={`${PARTY_NAMES[code] ?? code}: ${disp}${row.unit === '%' ? '%' : ' ' + row.unit}${tag ? ` · ${tag}` : ''}`}
+      title={`${PARTY_NAMES[code] ?? code}: ${disp}${row.unit === '%' ? '%' : ' ' + row.unit}${tags ? ` · ${tags}` : ''}`}
     >
       <span className="text-[11px] font-semibold tabular-nums">{disp}</span>
-      {tag && <span className="text-[8px] font-bold opacity-80 tracking-tight mt-0.5">{tag}</span>}
+      {/* C pinned bottom-left, M/D pinned bottom-right — never bleed together */}
+      {cohesive && <span className="absolute left-0.5 bottom-0 text-[8px] font-bold" style={{ color: fg, opacity: 0.85 }}>C</span>}
+      {mark && <span className="absolute right-0.5 bottom-0 text-[8px] font-bold" style={{ color: fg, opacity: mark === 'D' ? 1 : 0.7 }}>{mark}</span>}
     </div>
   );
 }
 
 export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected: string[] }) {
   const sel = new Set(selected);
-  const COLS = `grid-cols-[minmax(160px,1.5fr)_44px_repeat(10,minmax(26px,1fr))]`;
+  const COLS = `grid-cols-[minmax(220px,2.2fr)_44px_repeat(10,minmax(30px,1fr))]`;
   return (
     <div className="px-3 py-2 overflow-x-auto">
       <div className="min-w-[720px]">
@@ -75,11 +72,11 @@ export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected
         </div>
 
         {rows.map((r) => (
-          <div key={r.key} className={`grid ${COLS} gap-1 items-center py-0.5`}>
-            <div className={`text-[10px] leading-tight pr-1 flex items-center gap-1 ${r.highlighted ? 'font-medium' : ''}`}>
-              {r.highlighted && <span className="text-amber-500 text-[10px]" title="Parties diverge on this item">◆</span>}
+          <div key={r.key} className={`grid ${COLS} gap-1 items-center py-1 border-t border-border/30`}>
+            <div className={`text-[10px] leading-snug pr-2 ${r.highlighted ? 'font-medium' : ''}`}>
+              {r.highlighted && <span className="text-amber-500 mr-1" title="Parties diverge on this item">◆</span>}
               {r.factorShorts && r.factorShorts.length > 0 && <FactorTags shorts={r.factorShorts} />}
-              <span className="truncate" title={r.question}>{r.question}</span>
+              <span className="break-words">{r.question}</span>
             </div>
             {/* US baseline */}
             {r.overall != null ? (

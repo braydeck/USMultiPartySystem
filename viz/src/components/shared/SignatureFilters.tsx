@@ -1,7 +1,7 @@
 import type { SignatureFilterState } from '../../hooks/useSignatureFilter';
 
 /**
- * The three signature axes. Each mark (● cohesion, D deviant, M mainstream) always shows,
+ * The three signature axes. Each mark (C cohesive, D deviant, M mainstream) always shows,
  * driven by its slider; the per-axis "filter" checkbox trims the list to rows matching that
  * axis (checking several narrows to rows matching all). Slim inline strip for the sticky header.
  */
@@ -21,7 +21,7 @@ export function SignatureFilters({ s, accent }: { s: SignatureFilterState; accen
   );
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]">
-      {axis('● Consensus', '≥', s.consPct, 50, 100, s.setConsPct, s.filterCohesion, s.setFilterCohesion)}
+      {axis('C Cohesion', '≥', s.consPct, 50, 100, s.setConsPct, s.filterCohesion, s.setFilterCohesion)}
       {axis('D Deviant', '≥', s.deviantPp, 0, 50, s.setDeviantPp, s.filterDeviant, s.setFilterDeviant)}
       {axis('M Mainstream', '≤', s.mainstreamPp, 0, 50, s.setMainstreamPp, s.filterMainstream, s.setFilterMainstream)}
     </div>
