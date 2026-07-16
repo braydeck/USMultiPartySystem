@@ -594,6 +594,21 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   const [expandedFactors, setExpandedFactors] = useState<Set<string>>(new Set());
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>(saved.factorScale ?? 'strength');
   const [divergeOnly, setDivergeOnly] = useState(saved.divergeOnly ?? false);
+  // Mobile: condense the sticky control bar once scrolled into the list; tap to expand.
+  // Desktop keeps the full bar (there's room), so this only gates the small-screen layout.
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => {
+      const s = window.scrollY > 140;
+      setScrolled(s);
+      if (!s) setFiltersExpanded(false);   // back at top → always full, reset manual expand
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  const compact = scrolled && !filtersExpanded;   // collapse only on mobile (md: overrides below)
   // Signature filter shared with Party Platforms (URL params) so the two views agree.
   const sig = useSignatureFilter();
   const sigFilter = sig.filter;
@@ -785,30 +800,61 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
       </div>
 
       {/* Party selector + signature filter — sticky so both can be adjusted while scrolling
-          the (long, annotated) list without returning to the top. */}
-      <div className="sticky top-[40px] z-20 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2 space-y-2">
-        <PartySelector
-          selected={selected}
-          onToggle={code => (selected.includes(code) ? removeParty(code) : addParty(code))}
-          baseParties={pureOptions.map(o => o.code)}
-          crossover={fdOptions.filter(o => !pureOptions.some(p => p.code === o.code)).map(o => ({ code: o.code, label: o.code }))}
-        />
-        {selected.length >= 1 && (
-          <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
-            <SignatureFilters s={sig} accent="#6366f1" />
-            <div className="flex items-center gap-1.5 text-[11px] shrink-0 border-l border-border/50 pl-4">
-              <span className="font-semibold text-foreground whitespace-nowrap">■ Divergence</span>
-              <input type="range" min={0} max={50} step={5} value={minGap}
-                onChange={e => setMinGap(Number(e.target.value))} className="w-16" style={{ accentColor: '#6366f1' }} />
-              <span className="font-mono font-semibold tabular-nums w-9" style={{ color: '#6366f1' }}>≥{minGap}</span>
-              <label className="flex items-center gap-0.5 cursor-pointer text-muted-foreground" title="Filter to diverging rows">
-                <input type="checkbox" checked={divergeOnly} onChange={e => setDivergeOnly(e.target.checked)}
-                  style={{ accentColor: '#6366f1' }} />
-                filter
-              </label>
-            </div>
-          </div>
+          the (long, annotated) list. On mobile it condenses to a summary strip once scrolled;
+          tap to expand. Desktop (md+) always shows the full bar. */}
+      <div className="sticky top-[40px] z-20 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2">
+        {/* Condensed summary — mobile only, when scrolled */}
+        {compact && (
+          <button
+            type="button"
+            onClick={() => setFiltersExpanded(true)}
+            className="flex md:hidden w-full items-center justify-between gap-2 text-xs py-0.5"
+          >
+            <span className="flex items-center gap-1.5 min-w-0">
+              <span className="font-semibold text-foreground shrink-0">
+                {selected.length ? `${selected.length} ${selected.length === 1 ? 'party' : 'parties'}` : 'Select parties'}
+              </span>
+              <span className="flex items-center gap-0.5 overflow-hidden">
+                {orderedSelected.slice(0, 10).map(c => (
+                  <span key={c} className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: getBlendColor(c) }} />
+                ))}
+              </span>
+            </span>
+            <span className="shrink-0 font-medium text-indigo-600">Parties &amp; filters ▾</span>
+          </button>
         )}
+
+        {/* Full controls — always on desktop; on mobile only when not condensed */}
+        <div className={`space-y-2 ${compact ? 'hidden md:block' : ''}`}>
+          {scrolled && filtersExpanded && (
+            <div className="flex md:hidden justify-end -mb-1">
+              <button type="button" onClick={() => setFiltersExpanded(false)}
+                className="text-xs font-medium text-indigo-600">▴ collapse</button>
+            </div>
+          )}
+          <PartySelector
+            selected={selected}
+            onToggle={code => (selected.includes(code) ? removeParty(code) : addParty(code))}
+            baseParties={pureOptions.map(o => o.code)}
+            crossover={fdOptions.filter(o => !pureOptions.some(p => p.code === o.code)).map(o => ({ code: o.code, label: o.code }))}
+          />
+          {selected.length >= 1 && (
+            <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
+              <SignatureFilters s={sig} accent="#6366f1" />
+              <div className="flex items-center gap-1.5 text-[11px] shrink-0 border-l border-border/50 pl-4">
+                <span className="font-semibold text-foreground whitespace-nowrap">■ Divergence</span>
+                <input type="range" min={0} max={50} step={5} value={minGap}
+                  onChange={e => setMinGap(Number(e.target.value))} className="w-16" style={{ accentColor: '#6366f1' }} />
+                <span className="font-mono font-semibold tabular-nums w-9" style={{ color: '#6366f1' }}>≥{minGap}</span>
+                <label className="flex items-center gap-0.5 cursor-pointer text-muted-foreground" title="Filter to diverging rows">
+                  <input type="checkbox" checked={divergeOnly} onChange={e => setDivergeOnly(e.target.checked)}
+                    style={{ accentColor: '#6366f1' }} />
+                  filter
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       {selected.length === 0 && (
         <p className="text-xs text-muted-foreground">
