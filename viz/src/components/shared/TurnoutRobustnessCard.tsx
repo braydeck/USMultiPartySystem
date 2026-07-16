@@ -1,18 +1,27 @@
 import { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
-// Compression stops: 0 = observed 2024 turnout; 10/20/30 = % of the inter-force gap closed.
+// Compression stops: 0 = observed 2024 turnout; 5/10/15/20/25/30 = % of the inter-force gap closed.
 import presL0 from '../../data/rawMultiPresidentialElectionTurnout.json';
+import presL5 from '../../data/rawMultiPresidentialElectionTurnoutL5.json';
 import presL10 from '../../data/rawMultiPresidentialElectionTurnoutL10.json';
+import presL15 from '../../data/rawMultiPresidentialElectionTurnoutL15.json';
 import presL20 from '../../data/rawMultiPresidentialElectionTurnoutL20.json';
+import presL25 from '../../data/rawMultiPresidentialElectionTurnoutL25.json';
 import presL30 from '../../data/rawMultiPresidentialElectionTurnoutL30.json';
 import senL0 from '../../data/pureMultiSenateCondorcetTurnout.json';
+import senL5 from '../../data/pureMultiSenateCondorcetTurnoutL5.json';
 import senL10 from '../../data/pureMultiSenateCondorcetTurnoutL10.json';
+import senL15 from '../../data/pureMultiSenateCondorcetTurnoutL15.json';
 import senL20 from '../../data/pureMultiSenateCondorcetTurnoutL20.json';
+import senL25 from '../../data/pureMultiSenateCondorcetTurnoutL25.json';
 import senL30 from '../../data/pureMultiSenateCondorcetTurnoutL30.json';
 import houseL0 from '../../data/houseSeatsTurnout.json';
+import houseL5 from '../../data/houseSeatsTurnoutL5.json';
 import houseL10 from '../../data/houseSeatsTurnoutL10.json';
+import houseL15 from '../../data/houseSeatsTurnoutL15.json';
 import houseL20 from '../../data/houseSeatsTurnoutL20.json';
+import houseL25 from '../../data/houseSeatsTurnoutL25.json';
 import houseL30 from '../../data/houseSeatsTurnoutL30.json';
 
 type Pres = { condorcetWinner: string; irvWinner: string };
@@ -22,11 +31,11 @@ type HouseSeat = { party: number; national: number };
 const party = (code: string) => String(code).split('_')[0];
 const CLUSTER_CODE = ['CON', 'LBR', 'STY', 'NAT', 'LIB', 'POP', 'CUP', 'OAO', 'DSA', 'PRG'];
 
-// % of the inter-force turnout gap closed. 0 = observed; ≤10 plausible; 20–30 stress.
-const STOPS = [0, 10, 20, 30];
-const presData = [presL0, presL10, presL20, presL30] as unknown as Pres[];
-const senData = [senL0, senL10, senL20, senL30] as unknown as SenSeat[][];
-const houseData = [houseL0, houseL10, houseL20, houseL30] as unknown as HouseSeat[][];
+// % of the inter-force turnout gap closed. 0 = observed; ≤15 plausible; 20–30 stress.
+const STOPS = [0, 5, 10, 15, 20, 25, 30];
+const presData = [presL0, presL5, presL10, presL15, presL20, presL25, presL30] as unknown as Pres[];
+const senData = [senL0, senL5, senL10, senL15, senL20, senL25, senL30] as unknown as SenSeat[][];
+const houseData = [houseL0, houseL5, houseL10, houseL15, houseL20, houseL25, houseL30] as unknown as HouseSeat[][];
 
 function plurality(seats: SenSeat[]): [string, number] {
   const counts: Record<string, number> = {};
@@ -86,7 +95,7 @@ export function TurnoutRobustnessCard() {
       <p className="text-xs text-muted-foreground mb-4">
         How much would the turnout gap between forces have to compress (the previously-ignored voting more,
         the documented <em>contraction effect</em> of PR) for each office&apos;s winner to change? Default is
-        observed 2024 turnout (no assumed response); ≤10% closure is plausible for one cycle, 20–30% is a stress test.
+        observed 2024 turnout (no assumed response); ≤15% closure is plausible for one cycle, 20–30% is a stress test.
       </p>
 
       {/* Slider */}
@@ -94,17 +103,17 @@ export function TurnoutRobustnessCard() {
         <input type="range" min={0} max={STOPS.length - 1} step={1} value={i}
           onChange={e => setI(Number(e.target.value))}
           className="w-full accent-indigo-600" />
-        {/* stops sit at track fractions 0/.33/.67/1 — green ≤10% (plausible), amber 20–30% (stress) */}
+        {/* stops at 0/.17/.33/.5/.67/.83/1 — green ≤15% (plausible), amber 20–30% (stress); boundary between the 15 and 20 stops */}
         <div className="relative h-1.5 rounded bg-amber-200/70 mt-1">
-          <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70" style={{ width: '50%' }} />
+          <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70" style={{ width: '58.33%' }} />
         </div>
         <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
           <span>Observed (2024)</span>
-          <span className="font-semibold text-foreground">{STOPS[i]}% gap closed{STOPS[i] >= 20 ? ' · stress' : STOPS[i] === 10 ? ' · plausible' : ''}</span>
+          <span className="font-semibold text-foreground">{STOPS[i]}% gap closed{STOPS[i] >= 20 ? ' · stress' : STOPS[i] > 0 ? ' · plausible' : ''}</span>
           <span>Stress (30%)</span>
         </div>
         <p className="text-[10px] text-muted-foreground mt-1">
-          <span className="text-emerald-700">▉ plausible (≤10%)</span> · <span className="text-amber-700">▉ stress (20–30%)</span>. The quasi-experimental PR turnout effect is small (1–4pts aggregate); &gt;30% is beyond one-cycle evidence.
+          <span className="text-emerald-700">▉ plausible (≤15%)</span> · <span className="text-amber-700">▉ stress (20–30%)</span>. The quasi-experimental PR turnout effect is small (1–4pts aggregate); &gt;30% is beyond one-cycle evidence.
         </p>
       </div>
 
@@ -145,8 +154,8 @@ export function TurnoutRobustnessCard() {
         <strong>President:</strong> robust. Solidarity (Condorcet) and Labour (IRV) hold at observed turnout and at
         every compression level. <strong>House:</strong> Conservative stays the plurality throughout; Solidarity&apos;s
         delegation scales {styLo}→{styHi} seats and only strengthens with compression. <strong>Senate:</strong> the one
-        result observed data does <em>not</em> support. Labour leads at observed turnout and at plausible compression
-        (≤10%) and through 20%; Solidarity only reaches the plurality at the top of the stress band (~30%), beyond what
+        result observed data does <em>not</em> support. Labour leads at observed turnout, across the plausible band
+        (≤15%), and through 20%; Solidarity only reaches the plurality at 25%, inside the stress band, beyond what
         one cycle plausibly delivers. So at observed turnout the Senate is Labour&apos;s, and Solidarity&apos;s Senate is conditional on mobilization.
       </p>
       <p className="mt-2 text-[10px] text-muted-foreground">

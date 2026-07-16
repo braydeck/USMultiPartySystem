@@ -541,8 +541,8 @@ export function AboutTab() {
                 <p className="text-[11px] text-emerald-700 leading-relaxed">Validated 2024 turnout, no assumed behavioral response. The only setting that rests entirely on measured data.</p>
               </div>
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-                <div className="text-xs font-semibold text-emerald-800 mb-1">≤10% · Plausible</div>
-                <p className="text-[11px] text-emerald-700 leading-relaxed">The quasi-experimental PR turnout effect is small (1–4 points aggregate, often null), so ~10% gap closure is the ceiling of what one cycle plausibly delivers.</p>
+                <div className="text-xs font-semibold text-emerald-800 mb-1">≤15% · Plausible</div>
+                <p className="text-[11px] text-emerald-700 leading-relaxed">The quasi-experimental PR turnout effect is small (1–4 points aggregate, often null), so ~15% gap closure is the ceiling of what one cycle plausibly delivers.</p>
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                 <div className="text-xs font-semibold text-amber-800 mb-1">20–30% · Stress</div>
@@ -557,7 +557,7 @@ export function AboutTab() {
               {[
                 { q: 'President: robust', a: 'Solidarity (Condorcet) and Labour (IRV) win at observed turnout and at every compression level. Nothing hinges on the assumption.' },
                 { q: 'House: scales, doesn’t flip', a: 'Conservative stays the plurality throughout; Solidarity’s delegation grows monotonically as the gap closes. Weakest at 0%, so it’s quoted as a range, not a point.' },
-                { q: 'Senate: conditional on mobilization', a: 'The one result observed data does not support: Labour leads at observed turnout, at plausible compression (≤10%), and through 20%; Solidarity only reaches the plurality at the top of the stress band (~30%), beyond what one cycle plausibly delivers. So at observed turnout the Senate is Labour’s, and Solidarity’s Senate is contingent, reported that way.' },
+                { q: 'Senate: conditional on mobilization', a: 'The one result observed data does not support: Labour leads at observed turnout, across the plausible band (≤15%), and through 20%; Solidarity only reaches the plurality at 25%, inside the stress band, beyond what one cycle plausibly delivers. So at observed turnout the Senate is Labour’s, and Solidarity’s Senate is contingent, reported that way.' },
               ].map(r => (
                 <div key={r.q} className="flex gap-3">
                   <div className="text-muted-foreground shrink-0 mt-0.5">→</div>

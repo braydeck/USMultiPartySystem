@@ -25,40 +25,67 @@ import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-// Compression stops (10/20/30% of the turnout gap closed); floor comes via props.
+// Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
+import houseSeatsL5 from '../data/houseSeatsTurnoutL5.json';
 import houseSeatsL10 from '../data/houseSeatsTurnoutL10.json';
+import houseSeatsL15 from '../data/houseSeatsTurnoutL15.json';
 import houseSeatsL20 from '../data/houseSeatsTurnoutL20.json';
+import houseSeatsL25 from '../data/houseSeatsTurnoutL25.json';
 import houseSeatsL30 from '../data/houseSeatsTurnoutL30.json';
+import houseStateMapL5 from '../data/houseStateMapTurnoutL5.json';
 import houseStateMapL10 from '../data/houseStateMapTurnoutL10.json';
+import houseStateMapL15 from '../data/houseStateMapTurnoutL15.json';
 import houseStateMapL20 from '../data/houseStateMapTurnoutL20.json';
+import houseStateMapL25 from '../data/houseStateMapTurnoutL25.json';
 import houseStateMapL30 from '../data/houseStateMapTurnoutL30.json';
+import houseDistL5 from '../data/districtStvResultsTurnoutL5.json';
 import houseDistL10 from '../data/districtStvResultsTurnoutL10.json';
+import houseDistL15 from '../data/districtStvResultsTurnoutL15.json';
 import houseDistL20 from '../data/districtStvResultsTurnoutL20.json';
+import houseDistL25 from '../data/districtStvResultsTurnoutL25.json';
 import houseDistL30 from '../data/districtStvResultsTurnoutL30.json';
 // Crossover (FD) + triple-Wyoming compression stops.
 import fdSeats0 from '../data/fdHouseSeatsTurnout.json';
+import fdSeats5 from '../data/fdHouseSeatsTurnoutL5.json';
 import fdSeats10 from '../data/fdHouseSeatsTurnoutL10.json';
+import fdSeats15 from '../data/fdHouseSeatsTurnoutL15.json';
 import fdSeats20 from '../data/fdHouseSeatsTurnoutL20.json';
+import fdSeats25 from '../data/fdHouseSeatsTurnoutL25.json';
 import fdSeats30 from '../data/fdHouseSeatsTurnoutL30.json';
 import fdDist0 from '../data/fdDistrictStvResultsTurnout.json';
+import fdDist5 from '../data/fdDistrictStvResultsTurnoutL5.json';
 import fdDist10 from '../data/fdDistrictStvResultsTurnoutL10.json';
+import fdDist15 from '../data/fdDistrictStvResultsTurnoutL15.json';
 import fdDist20 from '../data/fdDistrictStvResultsTurnoutL20.json';
+import fdDist25 from '../data/fdDistrictStvResultsTurnoutL25.json';
 import fdDist30 from '../data/fdDistrictStvResultsTurnoutL30.json';
 import seatsTri0 from '../data/houseSeatsTripleTurnout.json';
+import seatsTri5 from '../data/houseSeatsTripleTurnoutL5.json';
 import seatsTri10 from '../data/houseSeatsTripleTurnoutL10.json';
+import seatsTri15 from '../data/houseSeatsTripleTurnoutL15.json';
 import seatsTri20 from '../data/houseSeatsTripleTurnoutL20.json';
+import seatsTri25 from '../data/houseSeatsTripleTurnoutL25.json';
 import seatsTri30 from '../data/houseSeatsTripleTurnoutL30.json';
 import distTri0 from '../data/districtStvResultsTripleTurnout.json';
+import distTri5 from '../data/districtStvResultsTripleTurnoutL5.json';
 import distTri10 from '../data/districtStvResultsTripleTurnoutL10.json';
+import distTri15 from '../data/districtStvResultsTripleTurnoutL15.json';
 import distTri20 from '../data/districtStvResultsTripleTurnoutL20.json';
+import distTri25 from '../data/districtStvResultsTripleTurnoutL25.json';
 import distTri30 from '../data/districtStvResultsTripleTurnoutL30.json';
 import fdSeatsTri0 from '../data/fdHouseSeatsTripleTurnout.json';
+import fdSeatsTri5 from '../data/fdHouseSeatsTripleTurnoutL5.json';
 import fdSeatsTri10 from '../data/fdHouseSeatsTripleTurnoutL10.json';
+import fdSeatsTri15 from '../data/fdHouseSeatsTripleTurnoutL15.json';
 import fdSeatsTri20 from '../data/fdHouseSeatsTripleTurnoutL20.json';
+import fdSeatsTri25 from '../data/fdHouseSeatsTripleTurnoutL25.json';
 import fdSeatsTri30 from '../data/fdHouseSeatsTripleTurnoutL30.json';
 import fdDistTri0 from '../data/fdDistrictStvResultsTripleTurnout.json';
+import fdDistTri5 from '../data/fdDistrictStvResultsTripleTurnoutL5.json';
 import fdDistTri10 from '../data/fdDistrictStvResultsTripleTurnoutL10.json';
+import fdDistTri15 from '../data/fdDistrictStvResultsTripleTurnoutL15.json';
 import fdDistTri20 from '../data/fdDistrictStvResultsTripleTurnoutL20.json';
+import fdDistTri25 from '../data/fdDistrictStvResultsTripleTurnoutL25.json';
 import fdDistTri30 from '../data/fdDistrictStvResultsTripleTurnoutL30.json';
 
 interface Props {
@@ -97,19 +124,19 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  // Compression stops [0,10,20,30] per scenario × Wyoming. Every cell now tracks the
+  // Compression stops [0,5,10,15,20,25,30] per scenario × Wyoming. Every cell now tracks the
   // slider: RawMulti/Crossover × double/triple.
-  const rmSeats    = [seatsTurnout, houseSeatsL10, houseSeatsL20, houseSeatsL30][gi] as unknown as HouseSeat[];
-  const rmStateMap = [stateMapTurnout, houseStateMapL10, houseStateMapL20, houseStateMapL30][gi] as unknown as Record<string, HouseStateEntry>;
-  const rmDistrict = [districtResultsTurnout, houseDistL10, houseDistL20, houseDistL30][gi] as unknown as Record<string, DistrictResult[]>;
-  const fdSeatsGi        = [fdSeats0, fdSeats10, fdSeats20, fdSeats30][gi] as unknown as FDHouseSeat[];
-  const fdSeatsTripleGi  = [fdSeatsTri0, fdSeatsTri10, fdSeatsTri20, fdSeatsTri30][gi] as unknown as FDHouseSeat[];
-  const seatsTripleGi    = [seatsTri0, seatsTri10, seatsTri20, seatsTri30][gi] as unknown as HouseSeat[];
-  const fdDistrictGi       = [fdDist0, fdDist10, fdDist20, fdDist30][gi] as unknown as Record<string, DistrictResult[]>;
-  const fdDistrictTripleGi = [fdDistTri0, fdDistTri10, fdDistTri20, fdDistTri30][gi] as unknown as Record<string, DistrictResult[]>;
-  const districtTripleGi   = [distTri0, distTri10, distTri20, distTri30][gi] as unknown as Record<string, DistrictResult[]>;
+  const rmSeats    = [seatsTurnout, houseSeatsL5, houseSeatsL10, houseSeatsL15, houseSeatsL20, houseSeatsL25, houseSeatsL30][gi] as unknown as HouseSeat[];
+  const rmStateMap = [stateMapTurnout, houseStateMapL5, houseStateMapL10, houseStateMapL15, houseStateMapL20, houseStateMapL25, houseStateMapL30][gi] as unknown as Record<string, HouseStateEntry>;
+  const rmDistrict = [districtResultsTurnout, houseDistL5, houseDistL10, houseDistL15, houseDistL20, houseDistL25, houseDistL30][gi] as unknown as Record<string, DistrictResult[]>;
+  const fdSeatsGi        = [fdSeats0, fdSeats5, fdSeats10, fdSeats15, fdSeats20, fdSeats25, fdSeats30][gi] as unknown as FDHouseSeat[];
+  const fdSeatsTripleGi  = [fdSeatsTri0, fdSeatsTri5, fdSeatsTri10, fdSeatsTri15, fdSeatsTri20, fdSeatsTri25, fdSeatsTri30][gi] as unknown as FDHouseSeat[];
+  const seatsTripleGi    = [seatsTri0, seatsTri5, seatsTri10, seatsTri15, seatsTri20, seatsTri25, seatsTri30][gi] as unknown as HouseSeat[];
+  const fdDistrictGi       = [fdDist0, fdDist5, fdDist10, fdDist15, fdDist20, fdDist25, fdDist30][gi] as unknown as Record<string, DistrictResult[]>;
+  const fdDistrictTripleGi = [fdDistTri0, fdDistTri5, fdDistTri10, fdDistTri15, fdDistTri20, fdDistTri25, fdDistTri30][gi] as unknown as Record<string, DistrictResult[]>;
+  const districtTripleGi   = [distTri0, distTri5, distTri10, distTri15, distTri20, distTri25, distTri30][gi] as unknown as Record<string, DistrictResult[]>;
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);

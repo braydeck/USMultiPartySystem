@@ -14,16 +14,25 @@ import { ParticipationSlider, GAP_STOPS } from '../components/shared/Participati
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 // Compression stops for the primary (finalists + buckets + per-stage national shares).
 import pmPrimTurnout from '../data/pureMultiPrimaryTurnout.json';
+import pmPrimL5 from '../data/pureMultiPrimaryTurnoutL5.json';
 import pmPrimL10 from '../data/pureMultiPrimaryTurnoutL10.json';
+import pmPrimL15 from '../data/pureMultiPrimaryTurnoutL15.json';
 import pmPrimL20 from '../data/pureMultiPrimaryTurnoutL20.json';
+import pmPrimL25 from '../data/pureMultiPrimaryTurnoutL25.json';
 import pmPrimL30 from '../data/pureMultiPrimaryTurnoutL30.json';
 import pmBktTurnout from '../data/pureMultiPrimaryBucketsTurnout.json';
+import pmBktL5 from '../data/pureMultiPrimaryBucketsTurnoutL5.json';
 import pmBktL10 from '../data/pureMultiPrimaryBucketsTurnoutL10.json';
+import pmBktL15 from '../data/pureMultiPrimaryBucketsTurnoutL15.json';
 import pmBktL20 from '../data/pureMultiPrimaryBucketsTurnoutL20.json';
+import pmBktL25 from '../data/pureMultiPrimaryBucketsTurnoutL25.json';
 import pmBktL30 from '../data/pureMultiPrimaryBucketsTurnoutL30.json';
 import pmShTurnout from '../data/pureMultiPrimaryStageSharesTurnout.json';
+import pmShL5 from '../data/pureMultiPrimaryStageSharesTurnoutL5.json';
 import pmShL10 from '../data/pureMultiPrimaryStageSharesTurnoutL10.json';
+import pmShL15 from '../data/pureMultiPrimaryStageSharesTurnoutL15.json';
 import pmShL20 from '../data/pureMultiPrimaryStageSharesTurnoutL20.json';
+import pmShL25 from '../data/pureMultiPrimaryStageSharesTurnoutL25.json';
 import pmShL30 from '../data/pureMultiPrimaryStageSharesTurnoutL30.json';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,11 +66,11 @@ export function PrimaryTab({
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [stageIdx, setStageIdx] = useUrlNumber('stage', 0);
   // Non-voter turnout: share of current non-voters who show up (0 = 2024 actual … 100 = everyone).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  const primStops   = [pmPrimTurnout, pmPrimL10, pmPrimL20, pmPrimL30] as unknown as FDPrimaryData[];
-  const bucketStops = [pmBktTurnout, pmBktL10, pmBktL20, pmBktL30] as unknown as BucketData[];
-  const shareStops  = [pmShTurnout, pmShL10, pmShL20, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
+  const primStops   = [pmPrimTurnout, pmPrimL5, pmPrimL10, pmPrimL15, pmPrimL20, pmPrimL25, pmPrimL30] as unknown as FDPrimaryData[];
+  const bucketStops = [pmBktTurnout, pmBktL5, pmBktL10, pmBktL15, pmBktL20, pmBktL25, pmBktL30] as unknown as BucketData[];
+  const shareStops  = [pmShTurnout, pmShL5, pmShL10, pmShL15, pmShL20, pmShL25, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
   const rmPrimary = primStops[gi];
   const rmBuckets = bucketStops[gi];
 
@@ -69,7 +78,6 @@ export function PrimaryTab({
     pipeline === 'factorDev' ? factorDev : rmPrimary;
   const stageShares  = pipeline === 'factorDev' ? factorDevStageShares : shareStops[gi];
   const stage = data.stagesOrder[stageIdx] ?? data.stagesOrder[0];
-  const quota = data.quotaByStage[stage] ?? 0;
 
   // National first-choice shares aggregated from stage-specific state data
   const STAGE_PODS: Record<string, Set<string>> = {
@@ -105,7 +113,7 @@ export function PrimaryTab({
         <h2 className="text-2xl font-bold text-foreground mb-1">2028 Presidential Primary</h2>
         <p className="text-muted-foreground text-sm">
           A 4-round STV simulation across regional pods — a crowded field collapses into a final set of survivors
-          through elimination rounds. Quota = {(quota * 100).toFixed(1)}%.
+          through elimination rounds.
         </p>
       </div>
 

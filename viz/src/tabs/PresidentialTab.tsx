@@ -7,9 +7,12 @@ import { PIPELINE_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-// Gap-compression middle stops (λ=0.25/0.5/0.75); endpoints come via props.
+// Gap-compression stops (5-point steps to 30%); the λ=0 floor comes via props.
+import presTL5 from '../data/rawMultiPresidentialElectionTurnoutL5.json';
 import presTL10 from '../data/rawMultiPresidentialElectionTurnoutL10.json';
+import presTL15 from '../data/rawMultiPresidentialElectionTurnoutL15.json';
 import presTL20 from '../data/rawMultiPresidentialElectionTurnoutL20.json';
+import presTL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
 import presTL30 from '../data/rawMultiPresidentialElectionTurnoutL30.json';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
@@ -53,9 +56,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                                   controlBarExtra }: Props) {
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '10', '20', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  const rmStops = [rawMultiTurnout, presTL10, presTL20, presTL30] as unknown as PresidentialElection[];
+  const rmStops = [rawMultiTurnout, presTL5, presTL10, presTL15, presTL20, presTL25, presTL30] as unknown as PresidentialElection[];
   const rm = scenario !== 'rawMulti' ? rawMulti : rmStops[gi];
   const data = scenario === 'rawMulti' ? rm : factorDev;
 
