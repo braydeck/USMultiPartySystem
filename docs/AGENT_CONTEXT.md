@@ -35,8 +35,8 @@ The **source tree** (where data/outputs live) is:
 | `stv_step3.py` | Run STV per district | `stv_results_by_district.csv` |
 | `stv_step4.py` | Build transfer matrices from STV traces | `transfer_matrix_*.csv` |
 | `stv_step5.py` | Build seat summary table | `stv_seat_summary.csv` |
-| `stv_main.py` | Orchestrates steps 1–5; CLI `--steps` flag | all of above + checkpoint parquet |
-| `stv_scenarios.py` | Re-runs step 3–5 with pre_dissolved parties | `scenario_a/`, `scenario_b/`, `scenario_comparison.csv` |
+| `stv_main.py` | Orchestrates steps 1–5; CLI `--steps` flag; passes `pre_dissolved=DISSOLVED_PARTIES` (baseline `[]`) | all of above + checkpoint parquet |
+| `stv_scenarios.py` (archived) | *Scenario capability:* re-runs steps 3–5 with alternative `pre_dissolved` parties to model dissolving one or more parties. Now under `pipeline/archive/`; not the baseline. | `scenario_a/`, `scenario_b/`, `scenario_comparison.csv` |
 | `stv_affinity.py` | 4 inter-party affinity measures | `affinity/*.csv` |
 | `cluster_profile_viz.py` | Cluster demographic/policy HTML reports | `profiles/*.html`, `profiles/cluster_stats.csv` |
 
@@ -52,12 +52,14 @@ stv_step1 → stv_step2 → [district_apportionment.csv]
                  ↓
            stv_step5 → [stv_seat_summary.csv]
 
-stv_scenarios.py loads:
+stv_scenarios.py (archived scenario capability) loads:
   - OUTPUT_DIR / district_apportionment.csv
   - OUTPUT_DIR / ballots_checkpoint.parquet
   - OUTPUT_DIR / stv_seat_summary.csv      (baseline, already computed)
-  then calls run_all_districts() with pre_dissolved=[7] or [7,2]
+  then calls run_all_districts() with an example pre_dissolved list, e.g. [7] or [7,2]
   writes to SCENARIOS_ROOT / "scenario_a" / and SCENARIOS_ROOT / "scenario_b" /
+  NOTE: the baseline itself dissolves nothing (DISSOLVED_PARTIES = []); these are
+        optional what-if runs, not the production model.
 ```
 
 ---
@@ -118,16 +120,16 @@ df["ballot"] = df["ballot"].apply(lambda b: np.array(b, dtype=np.int8))
 
 ```python
 PARTY_LABELS = {
-    0: "Conservative",
-    1: "Social Democrat",
-    2: "Solidarity",
-    3: "Nationalist",
-    4: "Liberal",
-    5: "Populist",
-    6: "Civic Union Party",
-    7: "OAO",            # Order & Opportunity Party (former "Blue Dogs") — active, wins seats
-    8: "DSA",
-    9: "Progressive",
+    0: "Conservative",       # CON
+    1: "Labor",              # LBR (older artifacts abbreviate this SD)
+    2: "Solidarity",         # STY
+    3: "Nationalist",        # NAT
+    4: "Liberal",            # LIB
+    5: "Populist",           # POP
+    6: "Civic Union Party",  # CUP
+    7: "OAO",                # Order & Opportunity Party (former "Blue Dogs") — active, wins ~15 party-line seats
+    8: "DSA",                # DSA
+    9: "Progressive",        # PRG
 }
 DISSOLVED_PARTIES = []    # baseline dissolves nothing; all 10 clusters are active parties
 N_PARTIES = 10
@@ -135,9 +137,9 @@ PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 ```
 
 **Cluster ID → abbreviation mapping** (for display/labeling):
-- C0 Conservative, C1 Social Democrat, C2 Solidarity, C3 Nationalist,
-  C4 Liberal, C5 Populist, C6 Civic Union Party, C7 OAO (Order & Opportunity),
-  C8 DSA, C9 Progressive
+- C0 CON (Conservative), C1 LBR (Labor; older artifacts use SD), C2 STY (Solidarity), C3 NAT (Nationalist),
+  C4 LIB (Liberal), C5 POP (Populist), C6 CUP (Civic Union Party), C7 OAO (Order & Opportunity),
+  C8 DSA, C9 PRG (Progressive)
 
 ---
 
@@ -154,10 +156,10 @@ PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 ## STV Algorithm (stv_step3.py)
 
 - Droop quota: `floor(total_votes / (seats + 1)) + 1`
-- `pre_dissolved` parties are eliminated at position 0 before any rounds; their weighted votes transfer immediately to next-ranked active party.
+- `pre_dissolved` parties are eliminated at position 0 before any rounds; their weighted votes transfer immediately to next-ranked active party. In the baseline `pre_dissolved` is empty, so all 10 parties compete.
 - Each round: tally active votes → if any party meets quota, elect and redistribute surplus; else eliminate lowest-vote party and redistribute all their votes.
 - Continues until all seats filled or no active candidates remain.
-- `run_all_districts(df, apportionment, pre_dissolved=[7])` → list of result dicts
+- `run_all_districts(df, apportionment, pre_dissolved=DISSOLVED_PARTIES)` → list of result dicts (baseline `DISSOLVED_PARTIES = []`; a scenario may pass e.g. `[7]` to dissolve OAO)
 
 ---
 
@@ -174,17 +176,24 @@ PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 
 ## Affinity Matrices (stv_affinity.py)
 
-All are 9×9 (C7 excluded). Party ordering in rows/columns: [0,1,2,3,4,5,6,8,9].
+**STALE ARTIFACTS — regenerate.** The affinity CSVs currently on disk live in
+`data/outputs/archive/affinity/` and are genuinely **9×9 with C7/OAO excluded**
+(row/column order `[0,1,2,3,4,5,6,8,9]`). They predate OAO's reinstatement as a
+full party. Since OAO is now active (`DISSOLVED_PARTIES = []`), these should be
+regenerated as **10×10** including cluster 7. Do NOT treat the archived files as
+current; the shapes below describe the stale artifacts, not the intended output.
 
 **`second_choice_global_pct.csv`** — `w[A→B_2nd] / w_total * 100`
 **`second_choice_row_pct.csv`** — `w[A→B_2nd] / w_A * 100` (row-normalized ≈ 100)
 **`mean_rank_proximity.csv`** — symmetrized, 0=far, 1=close; computed from all ballot positions
 **`factor_mahalanobis.csv`** — Mahalanobis distance between cluster centroids in 5D factor space
 
-Effective ballot construction (C7 removed):
+Effective ballot construction in the archived (stale) 9×9 build removed C7:
 ```python
+# STALE: the archived matrices dropped cluster 7. A regenerated 10×10 build
+# should keep all clusters and NOT filter party 7.
 effective = np.array([[p for p in row if p != 7] for row in raw_ballots], dtype=np.int8)
-# shape: (45707, 9); effective[:,0] = effective 1st choice
+# archived shape: (45707, 9); effective[:,0] = effective 1st choice
 ```
 
 ---
@@ -221,18 +230,24 @@ This must fire with a `setTimeout` after any section becomes visible. **Do NOT**
 
 ---
 
-## Scenario Script Details (stv_scenarios.py)
+## Scenario Script Details (stv_scenarios.py — archived scenario capability)
+
+The scenario runner is now under `pipeline/archive/`. It is an **optional what-if
+tool**, not part of the baseline. The baseline dissolves nothing.
 
 ```python
 SCENARIOS = {
-    "scenario_a": {"label": "...", "pre_dissolved": [7]},
-    "scenario_b": {"label": "...", "pre_dissolved": [7, 2]},
+    "scenario_a": {"label": "...", "pre_dissolved": [7]},      # dissolve OAO (C7)
+    "scenario_b": {"label": "...", "pre_dissolved": [7, 2]},   # dissolve OAO + Solidarity
 }
 # Output dirs: SCENARIOS_ROOT / "scenario_a"  and  SCENARIOS_ROOT / "scenario_b"
 # Comparison:  SCENARIOS_ROOT / "scenario_comparison.csv"
 ```
 
-Scenario A is effectively identical to the baseline (C7 already dissolved). It exists as a confirmation run. Scenario B additionally dissolves C2 (Solidarity, 130 seats → redistributed).
+Scenario A dissolves OAO (C7) — a counterfactual that removes an otherwise-active
+party (OAO wins ~15 party-line seats in the baseline). Scenario B additionally
+dissolves C2 (Solidarity, 130 seats → redistributed). Neither reflects the
+production model, where all 10 parties are active.
 
 ---
 
@@ -276,10 +291,10 @@ ITEMS_24 = [it for it in ITEMS_25 if it != "CC24_340a"]
 | `len(df)` after join | 45,707 |
 | `district_apportionment.csv` rows | 180 |
 | Total seats (baseline) | 873 |
-| OAO (C7) seats (party-line) | 15 |
-| `effective.shape` (affinity) | (45707, 9) |
-| `second_choice_row_pct.sum(axis=1)` | ≈ 100 for all rows |
-| `mean_rank_proximity.diagonal()` | 0 (excluded) |
+| OAO (C7) seats (party-line) | 15 (active party) |
+| `effective.shape` (archived 9×9 affinity — stale) | (45707, 9) |
+| `second_choice_row_pct.sum(axis=1)` (archived 9×9) | ≈ 100 for all rows |
+| `mean_rank_proximity.diagonal()` (archived 9×9) | 0 (excluded) |
 | C0 Mahalanobis distance to C3 | ≈ 0.967 (from clustering checkpoint) |
 
 ---

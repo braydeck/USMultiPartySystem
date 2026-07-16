@@ -19,7 +19,7 @@ Party IDs (C0–C9) are derived from DPGMM clustering. All 10 clusters are activ
 | ID | Name | Character |
 |----|------|-----------|
 | C0 | Conservative | Mainstream center-right |
-| C1 | Social Democrat | Center-left, institutionalist |
+| C1 | Labor (LBR) | Center-left, institutionalist (older artifacts abbreviate SD) |
 | C2 | Solidarity | Disaffected working-class left |
 | C3 | Nationalist | Populist right, immigration focus |
 | C4 | Liberal | College-educated moderates |
@@ -50,7 +50,7 @@ Party IDs (C0–C9) are derived from DPGMM clustering. All 10 clusters are activ
     │   └── clustering/            ← DPGMM outputs (profiles, Mahalanobis distances)
     │
     ├── outputs/                   ← All STV simulation outputs
-    │   ├── baseline/              ← Main STV run (all 10 parties, C7 auto-dissolved)
+    │   ├── baseline/              ← Main STV run (all 10 parties active; nothing dissolved, DISSOLVED_PARTIES = [])
     │   │   ├── ballots_checkpoint.parquet
     │   │   ├── district_apportionment.csv
     │   │   ├── stv_results_by_district.csv
@@ -58,9 +58,9 @@ Party IDs (C0–C9) are derived from DPGMM clustering. All 10 clusters are activ
     │   │   ├── transfer_matrix_10party.csv
     │   │   ├── transfer_matrix_directed.csv
     │   │   └── transfer_asymmetry_report.csv
-    │   ├── scenario_a/            ← Dissolve C7 only (same as baseline for C7)
-    │   ├── scenario_b/            ← Dissolve C7 + C2 (Solidarity)
-    │   ├── affinity/              ← Inter-party affinity matrices (4 measures)
+    │   ├── scenario_a/            ← What-if: dissolve OAO/C7 (counterfactual; OAO is active in baseline)
+    │   ├── scenario_b/            ← What-if: dissolve OAO/C7 + C2 (Solidarity)
+    │   ├── archive/affinity/      ← Inter-party affinity matrices (4 measures) — STALE 9×9, exclude OAO; regenerate as 10×10
     │   ├── profiles/              ← Cluster profile HTML reports + stats CSV
     │   └── scenario_comparison.csv
     │
@@ -90,10 +90,11 @@ python3 stv_main.py --steps 3,4,5   # skip steps 1–2, use ballot checkpoint
 python3 stv_main.py --steps 5        # seat summary only (requires step 3 data)
 ```
 
-### Dissolution scenarios (A and B)
+### Dissolution scenarios (A and B) — optional what-if capability, archived
 ```bash
-python3 stv_scenarios.py
-# Reads baseline checkpoint, runs two alternative STV elections:
+python3 stv_scenarios.py    # now under pipeline/archive/; not part of the baseline
+# Reads baseline checkpoint, runs two counterfactual STV elections that dissolve
+# one or more otherwise-active parties:
 #   Scenario A → Claude/outputs/scenario_a/
 #   Scenario B → Claude/outputs/scenario_b/
 # Also writes Claude/outputs/scenario_comparison.csv
@@ -130,7 +131,9 @@ When party A is eliminated in an STV round, what % of its votes transfer to part
 - See `transfer_matrix_10party.csv` for the symmetric version
 
 ### `affinity/` outputs
-Four complementary measures of inter-party closeness (all C7-excluded, 9×9):
+Four complementary measures of inter-party closeness. **The files currently on disk
+(`data/outputs/archive/affinity/`) are stale 9×9 matrices that exclude OAO/C7** and
+predate its reinstatement as a full party; they should be regenerated as 10×10:
 
 | File | What it measures |
 |------|-----------------|
@@ -160,11 +163,13 @@ Compact heatmap view across all parties simultaneously.
 
 ## Scenarios Explained
 
-**Baseline** — C7 pre-eliminated at start of every district race (they have a `DISSOLVED_PARTIES = [7]` constant). Their voters transfer to next-ranked active party. This is the "current" default.
+**Baseline** — All 10 parties compete; nothing is pre-dissolved (`DISSOLVED_PARTIES = []`). OAO/C7 is a full, active party and wins ~15 party-line seats. This is the production default.
 
-**Scenario A** — Same as baseline (C7 dissolved). Re-run to confirm equivalence.
+**Scenario A** (counterfactual) — Dissolves OAO/C7. Because OAO is active in the baseline, this is a genuine what-if: OAO voters transfer to their next-ranked active party and OAO's ~15 seats redistribute.
 
-**Scenario B** — Both C7 and C2 (Solidarity) dissolved. Tests what happens when both a center-right minor party and the disaffected-left party dissolve, redistributing Solidarity's 130 seats (C7 already holds none).
+**Scenario B** (counterfactual) — Dissolves both OAO/C7 and C2 (Solidarity). Tests what happens when both parties dissolve, redistributing OAO's ~15 seats and Solidarity's 130 seats.
+
+The dissolution machinery (`pre_dissolved` lists, `-2` pre-dissolved encoding) still exists as a capability, but it is only exercised by these optional scenario runs — never by the baseline.
 
 ---
 

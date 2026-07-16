@@ -32,7 +32,7 @@ These are permanent project conventions. Never change them without explicit user
 | C7 = OAO (Order & Opportunity) | **Active party** — the former "Blue Dogs," a law-and-order Democratic bloc, kept and renamed. `DISSOLVED_PARTIES = []` in `stv_config.py`. Dissolving is a *scenario* option, not the baseline. |
 | C2 (Solidarity / STY) | **ALWAYS active.** Never add to `DISSOLVED_PARTIES`. |
 | Default STV output | `Claude/outputs/No_C7_canonical/` |
-| `round_elim_c{x}` encoding | `−1` = elected, `−2` = pre-dissolved (C7), `N≥1` = eliminated in round N, `None` = not present in district |
+| `round_elim_c{x}` encoding | `−1` = elected, `−2` = pre-dissolved (only for parties in a scenario's `pre_dissolved` list; never occurs in the baseline), `N≥1` = eliminated in round N, `None` = not present in district |
 
 Old output directories `baseline/` and `no_C2/` exist as historical artifacts. Do not regenerate them unless explicitly asked.
 
@@ -67,8 +67,8 @@ Note: The DTA file is large (~947 MB). Steps 1–2 of the STV pipeline read it; 
 | `stv_step3.py` | Run STV per district (Droop quota + Gregory surplus) | `stv_results_by_district.csv` |
 | `stv_step4.py` | Build transfer matrices from STV vote traces | `transfer_matrix_*.csv` |
 | `stv_step5.py` | Summarize seat counts by party | `stv_seat_summary.csv` |
-| `stv_main.py` | Orchestrates steps 1–5; CLI `--steps` flag | all of the above + `ballots_checkpoint.parquet` |
-| `stv_scenarios.py` | Re-runs steps 3–5 with alternative `pre_dissolved` lists | `scenario_*/` subdirs |
+| `stv_main.py` | Orchestrates steps 1–5; CLI `--steps` flag; passes `pre_dissolved=DISSOLVED_PARTIES` (baseline `[]`) | all of the above + `ballots_checkpoint.parquet` |
+| `stv_scenarios.py` (archived) | *Scenario capability:* re-runs steps 3–5 with alternative `pre_dissolved` lists to model dissolving one or more parties. Now under `pipeline/archive/`; not part of the baseline. | `scenario_*/` subdirs |
 | `stv_affinity.py` | 4 inter-party affinity measures | `affinity/*.csv` |
 | `cluster_profile_viz.py` | Cluster demographic/policy HTML reports | `profiles/*.html`, `profiles/cluster_stats.csv` |
 
@@ -97,7 +97,7 @@ House Seats = party-line STV result (`viz/src/data/houseSeats.json`); see [DATA_
 | ID | Abbrev | Full Name | Status | House Seats |
 |----|--------|-----------|--------|-------------|
 | C0 | CON | Conservative | Active | 202 |
-| C1 | SD | Social Democrat | Active | 164 |
+| C1 | LBR | Labor | Active | 164 |
 | C2 | STY | Solidarity | Active | 130 |
 | C3 | NAT | Nationalist | Active | 46 |
 | C4 | LIB | Liberal | Active | 93 |
@@ -209,7 +209,7 @@ df["ballot"] = df["ballot"].apply(lambda b: np.array(b, dtype=np.int8))
 
 **Droop quota:** `⌊ total_weight / (seats + 1) ⌋ + 1`
 
-**Pre-dissolution:** C7 is eliminated at position 0 before any rounds. Each C7 voter's ballot pointer advances to their next-ranked active party. Their weighted votes transfer immediately.
+**Pre-dissolution (scenario option, not the baseline):** Any party listed in `pre_dissolved` is eliminated at position 0 before any rounds; each of its voters' ballot pointers advance to their next-ranked active party and their weighted votes transfer immediately. In the baseline `DISSOLVED_PARTIES = []`, so nothing is pre-dissolved and all 10 parties (including OAO/C7) compete. Dissolving a party is only exercised via the archived scenario runner.
 
 **Each round:**
 1. Tally active vote weights per active party
@@ -219,7 +219,7 @@ df["ballot"] = df["ballot"].apply(lambda b: np.array(b, dtype=np.int8))
 
 **`round_elim_c{x}` values:**
 - `-1` = elected
-- `-2` = pre-dissolved (C7, before any round)
+- `-2` = pre-dissolved before any round (only for parties in `pre_dissolved`; in the baseline no party gets `-2` since `DISSOLVED_PARTIES = []`)
 - `N ≥ 1` = eliminated in round N (1-indexed)
 - `None` = party had zero-weight voters in this district (not present)
 
@@ -296,9 +296,9 @@ prob   = 1.0 - norm.cdf(z)
 | `No_C7_canonical/stv_seat_summary.csv` | 10×9 | `party`, `party_name`, `NATIONAL`, `URBAN`, `SUBURBAN`, `RURAL`, `pct_national` |
 | `No_C7_canonical/stv_results_by_district.csv` | 180×many | `district_id`, `seats`, `round_elim_c{0..9}` |
 | `No_C7_canonical/transfer_matrix_directed.csv` | 10×10 | row=eliminated, col=receiving, value=global % |
-| `affinity/second_choice_row_pct.csv` | 9×9 | C7 excluded; rows sum ≈ 100 |
-| `affinity/mean_rank_proximity.csv` | 9×9 | 0=far, 1=close; symmetric |
-| `affinity/factor_mahalanobis.csv` | 9×9 | Mahalanobis distance in 5D factor space |
+| `archive/affinity/second_choice_row_pct.csv` | 9×9 (STALE) | C7/OAO excluded; rows sum ≈ 100. Predates OAO reinstatement — regenerate as 10×10. |
+| `archive/affinity/mean_rank_proximity.csv` | 9×9 (STALE) | 0=far, 1=close; symmetric; C7/OAO excluded. Regenerate as 10×10. |
+| `archive/affinity/factor_mahalanobis.csv` | 9×9 (STALE) | Mahalanobis distance in 5D factor space; C7/OAO excluded. Regenerate as 10×10. |
 | `profiles/cluster_stats.csv` | 285×34 | `variable`, `stat_label`, `stat_value`, `c0`…`c9` |
 | `profiles/blend_stats.csv` | 285×many | same format, columns = blend candidate labels |
 | `senate/senate_composition.csv` | 51×many | `state_fips`, `senator_label`, `senator_type`, `primary_cluster`, `secondary_cluster` |
@@ -344,13 +344,13 @@ python3 cross_chamber_coalitions.py          # Coalition analysis
 | N after listwise deletion | 45,707 |
 | Total districts | 180 |
 | Total house seats | 873 |
-| C7 house seats | 0 (always) |
+| OAO (C7) house seats | 15 (party-line baseline; OAO is an active party) |
 | Senate senators | 51 |
-| `round_elim_c7` in all districts | −2 (all rows) |
+| `round_elim_c7` in all districts | not `−2` in baseline (`DISSOLVED_PARTIES = []`); `−2` only appears when C7 is in a scenario's `pre_dissolved` list |
 | Senate vote model items | 37 |
 | Coalition analysis types | 23 |
-| `second_choice_row_pct` row sums | ≈ 100 |
-| `mean_rank_proximity` diagonal | 0 (self-excluded) |
+| `second_choice_row_pct` row sums (archived 9×9) | ≈ 100 |
+| `mean_rank_proximity` diagonal (archived 9×9) | 0 (self-excluded) |
 
 ---
 
