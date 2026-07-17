@@ -8,7 +8,7 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
 **Files:** `Claude/analysis/efa/efa_loadings_k5_final.csv`, `Claude/analysis/efa/efa_phi_k5_final.csv`
 **Item selection & robustness:** the full audit of how these items were chosen and how the typology holds up under every alternative (mechanical selection rule, overlooked domains, k and rotation variants) is in [`EFA_ITEM_SELECTION_ROBUSTNESS.md`](EFA_ITEM_SELECTION_ROBUSTNESS.md).
 
-**Why k=5 (not k=4):** A 4-factor solution yields three clean factors (enforcement; a merged election+government *trust* factor; merged religion+values) plus an **uninterpretable junk factor** — mixed loadings dominated by the homeless post-9/11 surveillance item, soaking up under-extraction leftover. k=5 spends that degree of freedom on a *meaningful* split instead (Electoral Skepticism vs Government Distrust). The trade-off: k=5's Government Distrust barely discriminates parties (η²=0.057) — but a weak-yet-clean dimension (benign ballast) is preferable to a junk dimension that injects incoherent variance into clustering. See **Robustness** below.
+**Why k=5 (not k=4):** A 4-factor solution yields three clean factors (enforcement; a merged election+government *trust* factor; merged religion+values) plus an **uninterpretable junk factor** — mixed loadings dominated by the homeless post-9/11 surveillance item, soaking up under-extraction leftover. k=5 spends that degree of freedom on a *meaningful* split instead (Institutional Distrust vs Government Distrust). The trade-off: k=5's Government Distrust barely discriminates parties (η²=0.057) — but a weak-yet-clean dimension (benign ballast) is preferable to a junk dimension that injects incoherent variance into clustering. See **Robustness** below.
 
 ---
   ---
@@ -69,8 +69,8 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
 | Factor | Name | High Score Means | Low Score Means |
 |--------|------|-----------------|-----------------|
 | F1 | Security & Order | Pro-law enforcement, pro-border security, pro-surveillance | Civil libertarian, anti-enforcement |
-| F2 | Electoral Skepticism | Believes elections are NOT fair; distrusts voting systems | Trusts electoral institutions |
-| F3 | Government Distrust | Low trust in federal and state government | Trusts government institutions |
+| F2 | Institutional Distrust | Distrusts elections and government; anti-establishment | Trusts institutions |
+| F3 | Government Distrust (residual) | Low trust in federal and state government | Trusts government institutions |
 | F4 | Religious Traditionalism | Traditional religious values; conservative on abortion & same-sex marriage | Secular, socially progressive |
 | F5 | Populist Conservatism | Populist-right: anti-immigration, fiscal conservatism, racial traditionalism | Progressive-left |
 
@@ -92,8 +92,8 @@ Key relationships:
 - **F1↔F4 (+0.55):** Security/order and religious traditionalism cluster together — the "socially conservative" combination
 - **F1↔F5 (−0.51):** Security-oriented voters tend to be lower on the populist-conservative axis — enforcement conservatives differ from populist conservatives
 - **F4↔F5 (−0.55):** Religious traditionalism and populist conservatism are moderately anti-correlated — NAT types score Very High F5 but only High F4; religious social conservatives aren't always economic populists
-- **F2↔F3 (+0.34):** Electoral skepticism and government distrust travel together, but F2 is specifically about election integrity
-- **F1↔F2 (+0.02):** Near-orthogonal — security orientation does not predict electoral skepticism
+- **F2↔F3 (+0.34):** the two trust dimensions travel together; F2 (Institutional Distrust) is anchored by election-integrity items but absorbs government-trust variance too, and F3 is the residual
+- **F1↔F2 (+0.02):** Near-orthogonal — security orientation does not predict institutional distrust
 
 ---
 
@@ -115,7 +115,7 @@ Key relationships:
 | CC24_324b | +0.268 | Permit abortion only in rape/incest/life-danger cases |
 | CC24_341a | +0.260 | Support extending 2017 Trump tax cuts |
 
-### F2 — Electoral Skepticism
+### F2 — Institutional Distrust
 
 | Item | Loading | Survey Question |
 |------|---------|----------------|
@@ -126,9 +126,9 @@ Key relationships:
 | CC24_440c | +0.209 | Women seek to gain power by getting control over men |
 | CC24_341a | +0.202 | Support extending 2017 Trump tax cuts |
 
-**Note:** F2 is near-orthogonal to partisan ID (Cramér's V ≈ 0.15). STY (Solidarity), POP (Populist), and DSA all score High on F2 despite being ideologically opposed on F1 and F5 — electoral skepticism cuts across the left-right divide.
+**Note:** F2 is near-orthogonal to partisan ID (Cramér's V ≈ 0.15). STY (Solidarity), POP (Populist), and DSA all score High on F2 despite being ideologically opposed on F1 and F5 — institutional distrust cuts across the left-right divide.
 
-### F3 — Government Distrust
+### F3 — Government Distrust (residual)
 
 | Item | Loading | Survey Question |
 |------|---------|----------------|
@@ -148,7 +148,7 @@ Key relationships:
 **Validity re-check (July 2026): F3 is a residual factor, and its sign is misleading.** Re-deriving the relationship from the stored factor scores (repro: `analysis/efa/exploration/verify_f3_inversion.py`) shows the factor does not measure what its name implies:
 
 - Across the ten parties, the F3 score correlates **−0.38** with actual government distrust (the raw `govt_trust_imputed` indicator), and **−0.21** at the respondent level. The two *most* government-distrusting parties in the raw data — POP (0.37) and NAT (0.43) — score *lowest* on the F3 factor (both ≈ −0.21). CON, only mid-pack on raw distrust (0.18), scores *highest* among the right parties (+0.11). The factor inverts its own construct: a party's F3 z-score runs opposite to how much it actually distrusts government.
-- The real government-distrust signal lives in **F2 (Electoral Skepticism)**, which correlates **+0.84** with raw government distrust across parties. In a weighted regression of raw distrust on all five factor scores, F2's coefficient is **+0.151** (t=68) while F3's is **−0.165** (t=−58).
+- The real government-distrust signal lives in **F2 (Institutional Distrust)**, which correlates **+0.84** with raw government distrust across parties. In a weighted regression of raw distrust on all five factor scores, F2's coefficient is **+0.151** (t=68) while F3's is **−0.165** (t=−58).
 - Mechanism: the two government-trust items (CC24_423/424) load on both F2 and F3, and F2 — where the party-level variance actually sits — absorbs them. F3's *discriminating* variance instead comes from its culturally-coded cross-loading items (immigration, race, hostile sexism), which already belong to F5/PC. So F3's party ordering tracks a culturally-progressive residual, not distrust, which is why hard-right POP falls below institutionalist CON.
 
 **Consequence:** F3 functions as a **residual / suppressor factor**, not an interpretable substantive dimension. It earns its k=5 slot only by keeping the trust variance split so DPGMM can isolate CUP (see Robustness) — not as a number to display next to a party. The "Government Distrust" label is actively misleading, since a party's F3 score is *negatively* related to its real government distrust; the genuine institutional-distrust axis is F2. When surfacing factors in the UI, F3 should be dropped or explicitly flagged as a non-interpretable residual, and F2 is the axis that should carry the "distrust / anti-establishment" reading.
@@ -233,7 +233,7 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 | Low | SD (−0.41), SD/STY (−0.42), STY/SD (−0.43), SD/LIB (−0.44), STY (−0.45), LIB (−0.46) |
 | Very Low | PRG (−1.26), DSA (−1.30) |
 
-### F2 — Electoral Skepticism
+### F2 — Institutional Distrust
 | Tier | Types |
 |------|-------|
 | Very High | POP (+0.76) |
@@ -242,7 +242,7 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 | Low | CON/CUP (−0.32), SD/CUP (−0.37), SD/LIB (−0.38), PRG (−0.63), LIB (−0.74) |
 | Very Low | LIB/CUP (−0.77), CUP (−0.82) |
 
-### F3 — Government Distrust
+### F3 — Government Distrust (residual)
 | Tier | Types |
 |------|-------|
 | Very High | *(none)* |
@@ -275,19 +275,19 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 
 1. **F3 is non-differentiating** — All winning types cluster in Medium. Government distrust as a raw dimension is shared broadly across the winning coalition space.
 
-2. **F2 is the most cross-cutting** — POP (+0.76), STY (+0.66), and DSA (+0.50) all score High on electoral skepticism despite being maximally opposed on F5. These three parties would align on election-reform legislation despite sharing little else ideologically.
+2. **F2 is the most cross-cutting** — POP (+0.76), STY (+0.66), and DSA (+0.50) all score High on institutional distrust despite being maximally opposed on F5. These three parties would align on election-reform legislation despite sharing little else ideologically.
 
 3. **NAT is the outlier on F5** — At +1.51, NAT is a full standard deviation above the next highest type (POP at +0.99). In coalition analysis, NAT forms a distinct bloc on the populist-right pole that no senate blend type fully reaches.
 
 4. **DSA and PRG are near-identical on F4 and F5** — Both score −0.387 on F4 and approximately −0.87/−0.99 on F5. Their main distinction is F1 (DSA: −1.303, PRG: −1.260) and F2 (DSA: +0.504, PRG: −0.634) — DSA distrusts elections; PRG trusts them.
 
-5. **CON and CUP diverge sharply on F2** — CON scores −0.024 (Medium) while CUP scores −0.817 (Very Low). Despite having similar seat counts and both being "right-of-center," they are on opposite sides of the electoral skepticism divide.
+5. **CON and CUP diverge sharply on F2** — CON scores −0.024 (Medium) while CUP scores −0.817 (Very Low). Despite having similar seat counts and both being "right-of-center," they are on opposite sides of the institutional distrust divide.
 
 ---
 
 ## Robustness: choice of k and residualization
 
-The production typology rests on three modeling choices that aren't forced by the data alone: **k=5 factors** (parallel analysis was borderline between 4 and 5), **F1-residualization** of the two culture factors (F4, F5) before clustering, and the **DPGMM** itself. Because Government Distrust (F3) has near-zero discriminating power (η²=0.057) and Electoral Skepticism already carries the trust signal, k=4 is a defensible alternative. To check whether the ten parties are real structure or artifacts of these choices, we re-ran the full pipeline (polychoric → PAF → oblimin → Thomson scores → DPGMM) under three variants — **k=5 no-resid, k=4 resid, k=4 no-resid** — and matched each variant's clusters back to the production parties in the common 24-item space.
+The production typology rests on three modeling choices that aren't forced by the data alone: **k=5 factors** (parallel analysis was borderline between 4 and 5), **F1-residualization** of the two culture factors (F4, F5) before clustering, and the **DPGMM** itself. Because Government Distrust (F3) has near-zero discriminating power (η²=0.057) and Institutional Distrust already carries the trust signal, k=4 is a defensible alternative. To check whether the ten parties are real structure or artifacts of these choices, we re-ran the full pipeline (polychoric → PAF → oblimin → Thomson scores → DPGMM) under three variants — **k=5 no-resid, k=4 resid, k=4 no-resid** — and matched each variant's clusters back to the production parties in the common 24-item space.
 
 > Reproduction is approximate: listwise N=45,214 (vs production 45,707 — "Not sure" on the government-trust items mapped to the scale midpoint), oblimin rather than the stored solution, DPGMM stochasticity. Treat magnitudes as indicative; the qualitative survival pattern is stable. Scripts: `analysis/efa/{compare_k4_vs_k5_clustering, cluster_survival_k4_k5, build_cluster_explorer_data}.py`; interactive write-up: `analysis/efa/exploration/cluster_explorer.html`.
 
@@ -305,13 +305,13 @@ All four variants still produce 10 well-populated DPGMM clusters — k=4 does **
 
 ### Findings
 
-1. **Robust core (real structure):** SD, STY, POP, CON, NAT survive in every variant, residualized or not, k=4 or k=5. Crucially this includes **STY**, the cross-cutting flagship (left-ish enforcement + high electoral skepticism + religious traditionalism) — it is not an artifact of the modeling choices.
+1. **Robust core (real structure):** SD, STY, POP, CON, NAT survive in every variant, residualized or not, k=4 or k=5. Crucially this includes **STY**, the cross-cutting flagship (left-ish enforcement + high institutional distrust + religious traditionalism) — it is not an artifact of the modeling choices.
 
-2. **The cross-cutting structure survives without residualization.** In every variant there are simultaneously left-skeptic, right-skeptic, and right-trusting clusters — electoral skepticism stays orthogonal to the enforcement (left–right) axis. Residualization *sharpens* separation (it moves ~40% of assignments, ARI≈0.60 vs baseline) but does not *create* the cross-cutting result.
+2. **The cross-cutting structure survives without residualization.** In every variant there are simultaneously left-skeptic, right-skeptic, and right-trusting clusters — institutional distrust stays orthogonal to the enforcement (left–right) axis. Residualization *sharpens* separation (it moves ~40% of assignments, ARI≈0.60 vs baseline) but does not *create* the cross-cutting result.
 
 3. **The left bloc is weakly separated.** PRG, DSA, LIB, SD sit close together in policy space (pairwise cosine ≈ 0.72–0.77). LIB and DSA split in every variant; PRG wobbles. Only k=5 + residualization pulls the left quartet cleanly apart — they are the least robust groupings in the typology.
 
-4. **Civic Union (CUP) requires k=5.** At k=4, Electoral Skepticism and Government Distrust merge into one trust factor, and CUP — the institutionalist defined by trusting *both* elections and government — loses the dimension that distinguishes it and is absorbed into Conservative. CUP only stands alone when the two trust dimensions are kept separate. **This is the concrete payoff of k=5**, despite Government Distrust's low standalone η².
+4. **Civic Union (CUP) requires k=5.** At k=4, Institutional Distrust and Government Distrust merge into one trust factor, and CUP — the institutionalist defined by trusting *both* elections and government — loses the dimension that distinguishes it and is absorbed into Conservative. CUP only stands alone when the two trust dimensions are kept separate. **This is the concrete payoff of k=5**, despite Government Distrust's low standalone η².
 
 5. **Net:** the production choice (k=5 + residualization) is the only configuration that resolves all ten parties. The dominant, cross-cutting structure is robust; the *full ten-way resolution* specifically depends on separating the trust dimensions (rescues CUP) and residualizing the culture factors (rescues the left trio LIB/DSA/PRG plus OAO).
 

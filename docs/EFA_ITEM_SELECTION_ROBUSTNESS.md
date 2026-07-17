@@ -93,7 +93,7 @@ The pipeline uses **oblimin** oblique rotation (`efa_update.py`, `Rotator(method
 
 Parallel analysis (Horn's method, polychoric eigenvalues vs the 95th percentile of simulated data) on the production 24 is **borderline**: factor 5's eigenvalue (1.0258) falls just below the retention threshold (1.0278) — it fails by 0.002. k=5 is therefore retained on **interpretability grounds**, not because the data force it: the 5th factor is what lets the clustering separate CUP (the institutionalist), and the alternative (k=4) merges the two trust dimensions and produces a *worse* junk factor (see [`EFA_FACTORS.md`](EFA_FACTORS.md) → Robustness). This is a disclosed researcher choice, not a data-driven inevitability.
 
-A related finding lives in [`EFA_FACTORS.md`](EFA_FACTORS.md): the fifth factor, "Government Distrust" (F3), is a **near-null residual** (η²=0.057) whose party scores run *opposite* to actual government distrust (party-level r=−0.38); the genuine institutional-distrust signal is carried by F2 (Electoral Skepticism, r=+0.84 with raw distrust). F3 is retained because splitting the trust variance is what isolates CUP, but it is not interpreted as a substantive party-ranking axis.
+A related finding lives in [`EFA_FACTORS.md`](EFA_FACTORS.md): the fifth factor, "Government Distrust" (F3), is a **near-null residual** (η²=0.057) whose party scores run *opposite* to actual government distrust (party-level r=−0.38); the genuine institutional-distrust signal is carried by F2 (Institutional Distrust, r=+0.84 with raw distrust). F3 is retained because splitting the trust variance is what isolates CUP, but it is not interpreted as a substantive party-ranking axis.
 
 ---
 
@@ -181,7 +181,7 @@ We defend the parties as **stable ideological types**, not as a fixed roster of 
 Independent of any modeling decision, the domain tests establish two claims about the 2024 electorate:
 
 1. **The "new" cleavages pundits treat as separate axes — the culture war and climate — are collinear with left–right.** Climate is a −0.994 gradient down the left–right axis; the culture-war items fuse into the same values spine. Neither pulls cross-pressured voters off the main axis.
-2. **The genuinely cross-cutting cleavages are the trust dimensions** — Electoral Skepticism (F2) and Government Distrust (F3). This is *why* the interesting, non-obvious parties (STY, OAO, CUP) exist: they are defined by where they sit on institutional trust, not by being extreme points on the left–right line.
+2. **The genuinely cross-cutting cleavages are the trust dimensions** — Institutional Distrust (F2) and Government Distrust (F3). This is *why* the interesting, non-obvious parties (STY, OAO, CUP) exist: they are defined by where they sit on institutional trust, not by being extreme points on the left–right line.
 
 ---
 

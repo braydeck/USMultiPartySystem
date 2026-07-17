@@ -121,12 +121,12 @@ For detailed loadings per item, see [`EFA_FACTORS.md`](EFA_FACTORS.md).
 Top items: increase police (+0.73), border patrols (+0.71), deny asylum (+0.66), oppose police cuts (+0.65), surveillance (+0.49)
 - CON: +0.767 (Very High) | LIB: −0.462 (Low) | DSA: −1.303 (Very Low) | PRG: −1.260 (Very Low)
 
-### F2 — Electoral Skepticism (high = distrust elections)
+### F2 — Institutional Distrust (high = distrust elections)
 Top items: state elections not fair (+0.90), US elections not fair (+0.73), distrust state govt (+0.38)
 - POP: +0.759 (Very High) | STY: +0.658 (High) | CUP: −0.817 (Very Low) | LIB: −0.744 (Very Low)
 - **Cross-cutting:** STY, POP, and DSA all score High despite opposing positions on F1 and F5.
 
-### F3 — Government Distrust (high = distrust institutions)
+### F3 — Government Distrust (residual) (residual)
 Top items: distrust federal govt (+0.66), distrust state govt (+0.48)
 - **All 23 winning types score Medium (range: −0.21 to +0.13). F3 does not differentiate winning coalitions.**
 

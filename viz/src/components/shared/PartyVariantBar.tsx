@@ -23,7 +23,7 @@ const AXIS_PATTERN_ID: Record<string, string> = {
 
 const AXIS_FULL: Record<string, string> = {
   so: 'Security & Order',
-  es: 'Electoral Skepticism',
+  es: 'Institutional Distrust',
   pc: 'Populist Conservatism',
 };
 

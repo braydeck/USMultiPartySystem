@@ -292,7 +292,7 @@ export function AboutTab() {
           <Card className="p-5 bg-slate-50 border-slate-200">
             <div className="font-semibold text-foreground mb-1">What the factors reveal</div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              The cleavages people assume are missing turn out not to be separate axes. Support for climate policy and for the culture-war issues both track left-right almost perfectly: neither pulls voters off the main spectrum. The dimension that genuinely cuts across the parties is trust: in elections (Electoral Skepticism) and in government. That is why the cross-pressured parties (Solidarity, Order &amp; Opportunity, Civic Union) exist rather than collapsing onto the usual left-right line.
+              The cleavages people assume are missing turn out not to be separate axes. Support for climate policy and for the culture-war issues both track left-right almost perfectly: neither pulls voters off the main spectrum. The dimension that genuinely cuts across the parties is institutional trust: in elections and in government (the Institutional Distrust factor). That is why the cross-pressured parties (Solidarity, Order &amp; Opportunity, Civic Union) exist rather than collapsing onto the usual left-right line.
             </p>
           </Card>
 

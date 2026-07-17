@@ -20,8 +20,8 @@ Polychoric exploratory factor analysis (EFA) with oblique (oblimin) rotation red
 | Factor | Reads as |
 |--------|----------|
 | F1 — Security & Order | policing, border enforcement, surveillance |
-| F2 — Electoral Skepticism | belief that elections are run fairly |
-| F3 — Government Distrust | general institutional trust |
+| F2 — Institutional Distrust | belief that elections are run fairly |
+| F3 — Government Distrust (residual) | general institutional trust |
 | F4 — Religious Traditionalism | church attendance, abortion, same-sex marriage |
 | F5 — Populist Conservatism | immigration, fiscal, and racial-traditionalism cluster |
 

@@ -223,7 +223,7 @@ export function buildDisplayLabels(codes: Iterable<string>): Record<string, stri
 export const FACTOR_LABELS: Record<string, string> = {
   F1: 'Security & Order',
   F2: 'Institutional Distrust',
-  F3: 'Government Distrust',
+  F3: 'Government Distrust (residual)',
   F4: 'Religious Traditionalism',
   F5: 'Populist Conservatism',
 };
@@ -266,7 +266,7 @@ export const VAR_FACTOR: Record<string, string> = {
   CC24_340f:         'F1',  // loading +0.664
   CC24_321e:         'F1',  // loading +0.653
   CC24_340e:         'F1',  // loading +0.493
-  // F2 – Electoral Skepticism (likert5 stored as _agree variants)
+  // F2 – Institutional Distrust (likert5 stored as _agree variants)
   CC24_421_1_agree:  'F2',  // loading +0.726
   CC24_421_2_agree:  'F2',  // loading +0.901
   // F3 – Government Distrust
