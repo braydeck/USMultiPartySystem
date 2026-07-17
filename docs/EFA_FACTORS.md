@@ -6,6 +6,7 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
 **Sample:** N=45,707 (2024 CES, listwise deletion)
 **Dropped item:** CC24_340a — near-Heywood condition (λ=−0.947); removed from ITEMS_25 to produce final ITEMS_24 set
 **Files:** `Claude/analysis/efa/efa_loadings_k5_final.csv`, `Claude/analysis/efa/efa_phi_k5_final.csv`
+**Item selection & robustness:** the full audit of how these items were chosen and how the typology holds up under every alternative (mechanical selection rule, overlooked domains, k and rotation variants) is in [`EFA_ITEM_SELECTION_ROBUSTNESS.md`](EFA_ITEM_SELECTION_ROBUSTNESS.md).
 
 **Why k=5 (not k=4):** A 4-factor solution yields three clean factors (enforcement; a merged election+government *trust* factor; merged religion+values) plus an **uninterpretable junk factor** — mixed loadings dominated by the homeless post-9/11 surveillance item, soaking up under-extraction leftover. k=5 spends that degree of freedom on a *meaningful* split instead (Electoral Skepticism vs Government Distrust). The trade-off: k=5's Government Distrust barely discriminates parties (η²=0.057) — but a weak-yet-clean dimension (benign ballast) is preferable to a junk dimension that injects incoherent variance into clustering. See **Robustness** below.
 
