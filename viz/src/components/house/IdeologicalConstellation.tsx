@@ -191,7 +191,50 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       return v > 0 ? `+${v.toFixed(1)}σ` : `${v.toFixed(1)}σ`;
     };
 
+    // --- Intensity zone labels (strength mode, both axes) — text only, no colour bands ---
     const centerVal = scaleMode === 'percentile' ? 50 : 0;
+    if (scaleMode === 'strength') {
+      const zones = [
+        { from: -2.0, to: -1.5, label: 'Strongly' },
+        { from: -1.5, to: -1.0, label: 'Moderately' },
+        { from: -1.0, to: -0.5, label: 'Leans' },
+        { from: -0.5, to:  0.5, label: 'Mixed' },
+        { from:  0.5, to:  1.0, label: 'Leans' },
+        { from:  1.0, to:  1.5, label: 'Moderately' },
+        { from:  1.5, to:  2.0, label: 'Strongly' },
+      ];
+      const zoneG = svg.append('g').attr('class', 'zones');
+
+      // X-axis labels
+      if (xFactor !== 'seats') {
+        for (const z of zones) {
+          const x1 = Math.max(PAD_L, xScale(z.from));
+          const x2 = Math.min(W - PAD_R, xScale(z.to));
+          if (x2 > x1 && (x2 - x1) > 40) {
+            zoneG.append('text')
+              .attr('x', (x1 + x2) / 2).attr('y', PAD_T + 12)
+              .attr('text-anchor', 'middle')
+              .style('fill', '#94a3b8').style('font-size', '8px').style('font-style', 'italic')
+              .text(z.label);
+          }
+        }
+      }
+
+      // Y-axis labels
+      if (yFactor !== 'seats') {
+        for (const z of zones) {
+          const y1 = Math.min(H - PAD_B, yScale(z.from));
+          const y2 = Math.max(PAD_T, yScale(z.to));
+          if (y1 > y2 && (y1 - y2) > 20) {
+            zoneG.append('text')
+              .attr('x', W - PAD_R - 4).attr('y', (y1 + y2) / 2 + 3)
+              .attr('text-anchor', 'end')
+              .style('fill', '#94a3b8').style('font-size', '8px').style('font-style', 'italic')
+              .text(z.label);
+          }
+        }
+      }
+    }
 
     // --- Gridlines + tick labels ---
     const xTicks = xScale.ticks(4);
