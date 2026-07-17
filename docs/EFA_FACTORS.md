@@ -145,7 +145,7 @@ Key relationships:
 
 **Key finding for coalition analysis:** All 23 winning types score Medium on F3 (range −0.21 to +0.13). The full winning coalition set is mildly above the population mean on government distrust but undifferentiated from each other. F3 does not drive coalition formation.
 
-**Validity re-check (July 2026): F3 is a residual factor, and its sign is misleading.** Re-deriving the relationship from the stored factor scores (repro: `analysis/efa/verify_f3_inversion.py`) shows the factor does not measure what its name implies:
+**Validity re-check (July 2026): F3 is a residual factor, and its sign is misleading.** Re-deriving the relationship from the stored factor scores (repro: `analysis/efa/exploration/verify_f3_inversion.py`) shows the factor does not measure what its name implies:
 
 - Across the ten parties, the F3 score correlates **−0.38** with actual government distrust (the raw `govt_trust_imputed` indicator), and **−0.21** at the respondent level. The two *most* government-distrusting parties in the raw data — POP (0.37) and NAT (0.43) — score *lowest* on the F3 factor (both ≈ −0.21). CON, only mid-pack on raw distrust (0.18), scores *highest* among the right parties (+0.11). The factor inverts its own construct: a party's F3 z-score runs opposite to how much it actually distrusts government.
 - The real government-distrust signal lives in **F2 (Electoral Skepticism)**, which correlates **+0.84** with raw government distrust across parties. In a weighted regression of raw distrust on all five factor scores, F2's coefficient is **+0.151** (t=68) while F3's is **−0.165** (t=−58).
@@ -289,7 +289,7 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 
 The production typology rests on three modeling choices that aren't forced by the data alone: **k=5 factors** (parallel analysis was borderline between 4 and 5), **F1-residualization** of the two culture factors (F4, F5) before clustering, and the **DPGMM** itself. Because Government Distrust (F3) has near-zero discriminating power (η²=0.057) and Electoral Skepticism already carries the trust signal, k=4 is a defensible alternative. To check whether the ten parties are real structure or artifacts of these choices, we re-ran the full pipeline (polychoric → PAF → oblimin → Thomson scores → DPGMM) under three variants — **k=5 no-resid, k=4 resid, k=4 no-resid** — and matched each variant's clusters back to the production parties in the common 24-item space.
 
-> Reproduction is approximate: listwise N=45,214 (vs production 45,707 — "Not sure" on the government-trust items mapped to the scale midpoint), oblimin rather than the stored solution, DPGMM stochasticity. Treat magnitudes as indicative; the qualitative survival pattern is stable. Scripts: `analysis/efa/{compare_k4_vs_k5_clustering, cluster_survival_k4_k5, build_cluster_explorer_data}.py`; interactive write-up: `analysis/efa/cluster_explorer.html`.
+> Reproduction is approximate: listwise N=45,214 (vs production 45,707 — "Not sure" on the government-trust items mapped to the scale midpoint), oblimin rather than the stored solution, DPGMM stochasticity. Treat magnitudes as indicative; the qualitative survival pattern is stable. Scripts: `analysis/efa/{compare_k4_vs_k5_clustering, cluster_survival_k4_k5, build_cluster_explorer_data}.py`; interactive write-up: `analysis/efa/exploration/cluster_explorer.html`.
 
 ### What survives
 
@@ -336,13 +336,13 @@ Residualized vs non-residualized clusterings have ~the same average confidence (
 
 **Keep residualization on.** By cluster confidence the two paradigms are a near-tie (≈0.77), so residualization isn't a quality trade — it's a structure choice, and the residualized version resolves the full ten (it is load-bearing for four parties: the weakly-separated left trio LIB/DSA/PRG, which collapses without it, and OAO, which degrades to a fuzzy ~42% blend without it). What non-residualization "adds" is mostly the left bloc merging into coarser groups. Residualization also has a principled basis: removing the dominant enforcement axis's pull on the culture factors lets them vary independently of left–right, which is what lets the *other* cross-cutting structure (STY, OAO) show up cleanly rather than smeared along the main axis.
 
-> Interactive write-up of this comparison: `analysis/efa/cluster_explorer.html` (built by `build_cluster_explorer_{data,html}.py`); strength re-fit in `cluster_confidence_k5.py`; survival/correspondence in `cluster_survival_k4_k5.py` and `compare_k4_vs_k5_clustering.py`.
+> Interactive write-up of this comparison: `analysis/efa/exploration/cluster_explorer.html` (built by `build_cluster_explorer_{data,html}.py`); strength re-fit in `cluster_confidence_k5.py`; survival/correspondence in `cluster_survival_k4_k5.py` and `compare_k4_vs_k5_clustering.py`.
 
 ---
 
 ## Orthogonal cleavages outside the factor model
 
-The 5 factors and the 10 parties are a **domestic-policy** typology. A separate question is whether items *excluded* from the EFA hide a coherent dimension the model misses. Tested with a method suited to the data — PCA on binary indicators + communality (weighted R² of each excluded item on the 5 factor scores), **not** polychoric EFA. Scripts: `analysis/efa/explore_foreign_policy.py`, `explore_extra_dims.py`.
+The 5 factors and the 10 parties are a **domestic-policy** typology. A separate question is whether items *excluded* from the EFA hide a coherent dimension the model misses. Tested with a method suited to the data — PCA on binary indicators + communality (weighted R² of each excluded item on the 5 factor scores), **not** polychoric EFA. Scripts: `analysis/efa/exploration/explore_foreign_policy.py`, `explore_extra_dims.py`.
 
 **Excluded *clean* (EFA-compatible) items carry no hidden dimension.** Of ~30 support/oppose and agree/disagree items left out, the strongly-polarized ones are already well explained by the 5 factors (build-the-wall R²=0.54, racial-resentment 0.48–0.50, climate 0.39–0.45, assault-rifle ban 0.39) — redundant, so excluding them was parsimony/balance, not loss. The low-communality ones don't cohere into a factor (pairwise |r| mostly <0.3); they're either **valence issues** (background checks R²=0.13 at 93% support; mental-health spending; expand Medicaid — broadly popular, little discriminating signal) or the one genuinely off-axis thread below. Re-including any of these would not improve the model.
 
@@ -356,7 +356,7 @@ The 5 factors and the 10 parties are a **domestic-policy** typology. A separate 
 
 ## The 6-D foreign-policy variant: fracturing the middle
 
-We tested what happens if foreign policy were a *party-defining* sixth dimension, not just an overlay — clustering on the five production factor scores **plus** a foreign-policy engagement↔isolationism score (PCA of the Ukraine / Israel–Gaza / use-of-force batteries), scaled to a typical factor's strength, everything else held to production (`analysis/efa/sixdim_cluster.py`; explorer `sixdim_explorer.html`; coalition view `coalition_fracture.html`).
+We tested what happens if foreign policy were a *party-defining* sixth dimension, not just an overlay — clustering on the five production factor scores **plus** a foreign-policy engagement↔isolationism score (PCA of the Ukraine / Israel–Gaza / use-of-force batteries), scaled to a typical factor's strength, everything else held to production (`analysis/efa/exploration/sixdim_cluster.py`; explorer `sixdim_explorer.html`; coalition view `coalition_fracture.html`).
 
 **It does not break the system.** 10 well-populated clusters; mean assignment confidence **0.752 vs 0.755** (statistically identical to the 5-D parties). ARI vs production = 0.54. So foreign policy is a "free" dimension — it carves new structure without degrading the existing clusters.
 

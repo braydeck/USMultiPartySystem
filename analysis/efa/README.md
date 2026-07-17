@@ -10,6 +10,10 @@ robustness analysis behind the modeling choices. Narrative reference:
 > the committed artifacts; to re-run them, repoint `DATA_DIR` at the repo's
 > `data/processed/` and `analysis/efa/`. The raw CES `.dta` is git-ignored (≈1 GB).
 
+## Directory layout
+- **Root (this folder) — canonical artifacts only:** `pipeline/` (the ordered production pipeline), `efa_loadings_k5_final.csv` / `efa_phi_k5_final.csv` (the k=5 solution), `efa_variable_list.csv` + `_v3.csv` (item screening), `efa_parallel_analysis.csv`, `efa_variance_summary.csv`, `efa_checkpoint_summary.txt`, `redundant_pairs.csv`.
+- **`exploration/` — all robustness, comparison, and audit work:** the k-sweep loadings (k3/k4/k6/k7 + non-final k5), the k4/k5 × resid comparison and survival/confidence scripts, the cluster explorer + six-dim variant, the redundancy recompute + F3-inversion audit, and their data/HTML/PNG outputs. These document *what was tested*; the write-up is [`docs/EFA_ITEM_SELECTION_ROBUSTNESS.md`](../../docs/EFA_ITEM_SELECTION_ROBUSTNESS.md). (These scripts were written to run from the repo root with relative paths; after the move, re-running them requires repointing those paths into `exploration/`.)
+
 ## Canonical pipeline (`pipeline/`), in order
 
 | Step | Script | Reads | Writes |
@@ -31,10 +35,11 @@ kept as OAO (Order & Opportunity Party), for **10 parties**.
 Robustness). k=5's only weakness (Government Distrust, η²≈0.06) is benign by
 comparison.
 
-## Robustness analysis (this directory)
+## Robustness analysis (`exploration/`)
 
 Built to test whether the parties are real structure or artifacts of the k /
-residualization choices. All run from the **repo root** and use relative paths.
+residualization choices. Scripts (now under `exploration/`) were written to run
+from the **repo root** with relative paths.
 
 | Script | Purpose |
 |---|---|
@@ -47,7 +52,7 @@ residualization choices. All run from the **repo root** and use relative paths.
 | `eta2_resid_compare.py` | η² of each factor under resid vs no-resid clustering |
 | `rerun_efa_with_proxies.py` | Re-runs EFA with the dropped partisan proxies added back (cross-cutting robustness) |
 
-**Deliverable:** open [`cluster_explorer.html`](cluster_explorer.html) in a browser.
+**Deliverable:** open [`exploration/cluster_explorer.html`](exploration/cluster_explorer.html) in a browser.
 
 ## Committed artifacts
 - Loadings / rotation: `efa_loadings_k5_final.csv`, `efa_phi_k5_final.csv`, `efa_parallel_analysis.csv`, `efa_variance_summary.csv` (this directory)
