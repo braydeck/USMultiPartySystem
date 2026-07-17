@@ -288,6 +288,14 @@ export function AboutTab() {
             </div>
           </Card>
 
+          {/* What the factors reveal */}
+          <Card className="p-5 bg-slate-50 border-slate-200">
+            <div className="font-semibold text-foreground mb-1">What the factors reveal</div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              The cleavages people assume are missing turn out not to be separate axes. Support for climate policy and for the culture-war issues both track left-right almost perfectly: neither pulls voters off the main spectrum. The dimension that genuinely cuts across the parties is trust: in elections (Electoral Skepticism) and in government. That is why the cross-pressured parties (Solidarity, Order &amp; Opportunity, Civic Union) exist rather than collapsing onto the usual left-right line.
+            </p>
+          </Card>
+
           {/* Ballot generation detail */}
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-3">How Ballots Are Generated</div>
@@ -591,6 +599,14 @@ export function AboutTab() {
             <div className="font-semibold text-amber-900 mb-1">This is a simulation, not a prediction</div>
             <p className="text-sm text-amber-800 leading-relaxed">
               The goal is to understand structural properties of electoral systems applied to the actual distribution of American political opinion, not to forecast 2028. Party formation, candidate emergence, strategic voting, and campaign dynamics are all absent.
+            </p>
+          </Card>
+
+          <Card className="p-5 bg-emerald-50 border-emerald-200">
+            <div className="font-semibold text-emerald-900 mb-1">Stress-tested, not hand-picked</div>
+            <p className="text-sm text-emerald-800 leading-relaxed">
+              The item set, the five-factor count, and the rotation were each re-run against alternatives: a mechanical selection rule, four additional policy domains, and other factor counts. The core parties reappear every time. One limit worth naming plainly: the parties are stable ideological types, but which individual voter lands in which is a statistical estimate, not a fixed assignment. Full item-selection and robustness checks are in the{' '}
+              <a href="https://github.com/braydeck/USMultiPartySystem/blob/main/docs/EFA_ITEM_SELECTION_ROBUSTNESS.md" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-900">methodology on GitHub ↗</a>.
             </p>
           </Card>
 
