@@ -2,7 +2,7 @@
 
 Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution underlying the political typology.
 
-**Solution:** 24-item, oblique rotation (Promax), k=5 factors
+**Solution:** 24-item, oblique rotation (oblimin), k=5 factors
 **Sample:** N=45,707 (2024 CES, listwise deletion)
 **Dropped item:** CC24_340a — near-Heywood condition (λ=−0.947); removed from ITEMS_25 to produce final ITEMS_24 set
 **Files:** `Claude/analysis/efa/efa_loadings_k5_final.csv`, `Claude/analysis/efa/efa_phi_k5_final.csv`

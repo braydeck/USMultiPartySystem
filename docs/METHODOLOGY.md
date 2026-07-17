@@ -14,7 +14,7 @@ see [`DATA_SOURCES.md`](DATA_SOURCES.md).
 
 ## 1. Factor analysis (5 ideological dimensions)
 
-Polychoric exploratory factor analysis (EFA) with oblique (promax) rotation reduces
+Polychoric exploratory factor analysis (EFA) with oblique (oblimin) rotation reduces
 24 policy items to **5 latent dimensions**:
 
 | Factor | Reads as |

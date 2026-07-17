@@ -21,7 +21,7 @@ robustness analysis behind the modeling choices. Narrative reference:
 | 5. Profile clusters | `cluster_profiles.py` | `typology_cluster_assignments.csv` | `cluster_profiles_raw.csv` |
 
 Method: 24-item polychoric EFA (one item dropped for a near-Heywood loading) →
-PAF + oblimin/promax, k=5 → Thomson regression factor scores → sign-flips →
+PAF + oblimin, k=5 → Thomson regression factor scores → sign-flips →
 F4/F5 residualized on F1 → DPGMM (`n_components=10`, Dirichlet process) → C7
 kept as OAO (Order & Opportunity Party), for **10 parties**.
 
