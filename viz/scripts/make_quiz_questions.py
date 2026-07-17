@@ -112,6 +112,12 @@ QUESTIONS = [
     ("CC24_325_median", "F4", 0.688, "Until what point in a pregnancy do you think a woman should be legally allowed to obtain an abortion? (A normal pregnancy runs up to about 40 weeks.)", WEEKS_OPTIONS, "religion"),
     # CC24_324b ("abortion only in rape/incest/life") dropped: lowest F4 loading and redundant
     # with the abortion-by-weeks item, whose most-restrictive option says the same thing.
+    # CC24_302 (household income change) and CC24_303 (perceived price change / inflation) are
+    # also in the 24-item EFA but omitted here: both are near-zero-communality retrospective
+    # *perceptions* (|loadings| <= 0.22 on every factor), not policy stances, so they make poor
+    # party-match questions and add negligible discriminating signal. This makes the quiz 21
+    # items = 24 EFA items - 324b - 302 - 303; F3 is dropped only as a scoring axis (its two
+    # trust items, 423/424, are retained above under F2).
 ]
 
 profiles = json.loads(PROFILES.read_text())
