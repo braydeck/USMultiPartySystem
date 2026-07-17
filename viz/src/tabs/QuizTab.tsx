@@ -8,6 +8,7 @@ import { useUrlState } from '../hooks/useUrlState';
 import { F5_ORDER_WFP } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { submitQuizResult, submitVibe, answersToVariableMap, track } from '../utils/analytics';
 
 interface Props {
   questions: QuizQuestionType[];
@@ -25,12 +26,14 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
     allowed: [...F5_ORDER_WFP],
     push: true,
   });
+  const [submissionId, setSubmissionId] = useState<string>('');
 
   const seatsById: Record<string, number> = Object.fromEntries(
     houseSeats.map(h => [String(h.party), h.national])
   );
 
   function handleSelect(value: number) {
+    if (Object.keys(answers).length === 0) track('quiz_started');
     setAnswers(prev => ({ ...prev, [current]: value }));
   }
 
@@ -44,7 +47,17 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
         return { party: cl?.party ?? '', partyName: cl?.partyName ?? '', prob: s.prob };
       });
       setRanking(top);
-      if (top[0].party) setResultParty(top[0].party);
+      if (top[0].party) {
+        setResultParty(top[0].party);
+        const id = crypto.randomUUID();
+        setSubmissionId(id);
+        submitQuizResult({
+          id,
+          result_party: top[0].party,
+          answers: answersToVariableMap(questions, answers),
+          scores: top.map(t => ({ party: t.party, prob: t.prob })),
+        });
+      }
     }
   }
 
@@ -57,7 +70,14 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
     setCurrent(0);
     setRanking(null);
     setResultParty('');
+    setSubmissionId('');
   }
+
+  const consentNote = (
+    <p className="text-xs text-muted-foreground text-center pt-2">
+      Your answers are anonymous. I store the response and result to study which parties resonate, with no names, accounts, or IP addresses attached.
+    </p>
+  );
 
   // Result view — either just taken (ranking set) or arrived via a shared ?result=CODE link.
   if (resultParty) {
@@ -82,7 +102,10 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
             shared={isShared}
             ranking={ranking ?? undefined}
             onRetake={handleRetake}
+            submissionId={isShared ? undefined : submissionId}
+            onVibe={isShared ? undefined : (v => { if (submissionId) submitVibe(submissionId, v, cluster.party); })}
           />
+          {consentNote}
         </div>
       );
     }
@@ -122,6 +145,7 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
           {current === questions.length - 1 ? 'See Results' : 'Next'}
         </Button>
       </div>
+      {consentNote}
     </div>
   );
 }
