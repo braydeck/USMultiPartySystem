@@ -6,7 +6,7 @@ interface Props {
   value: number; // z-score, roughly -2.5 to +2.5
 }
 
-// Diverging from a centered zero: bam colour scale — magenta (low pole) → teal (high pole).
+// Diverging from a centered zero: bam colour scale — teal (low pole) → magenta (high pole).
 export function FactorBar({ factor, value }: Props) {
   const label = FACTOR_LABELS[factor] ?? factor;
   const poles = FACTOR_POLES[factor];

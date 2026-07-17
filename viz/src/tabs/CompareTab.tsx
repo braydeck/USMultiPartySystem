@@ -260,8 +260,8 @@ function rawToZ(val: number, factor: string): number {
 
 
 
-// ── Diverging factor-score bars: stacked per party, centered at the U.S. mean, magenta
-// toward the low pole / teal toward the high pole (bam) — the party-card FactorBar style.
+// ── Diverging factor-score bars: stacked per party, centered at the U.S. mean, teal
+// toward the low pole / magenta toward the high pole (bam) — the party-card FactorBar style.
 function FactorBarRow({
   factor, codes, clusters, fdProfiles, scaleMode,
 }: {

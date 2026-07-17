@@ -19,18 +19,23 @@ export function bamForFrac(t: number): string {
   return interpolateBam(Math.max(0, Math.min(1, t)));
 }
 
-/** Map a signed z-score to a bam color (magenta at low pole, teal at high pole), centered on 0, clamped to ±clamp. */
+// Factor-score poles are flipped relative to the raw BAM_COLORS array (teal at the low /
+// progressive pole, magenta at the high / conservative pole) so hue temperature echoes the
+// cool-left / warm-right convention. The agree/disagree intensity bars keep the raw
+// magenta→teal orientation via bamForFrac; only these two factor-score mappers invert.
+
+/** Map a signed z-score to a bam color (teal at low pole, magenta at high pole), centered on 0, clamped to ±clamp. */
 export function bamForZ(z: number, clamp = 2.5): string {
   const c = Math.max(-clamp, Math.min(clamp, z));
-  return interpolateBam((c + clamp) / (2 * clamp));
+  return interpolateBam((clamp - c) / (2 * clamp));
 }
 
-/** Map a 0–100 percentile to a bam color, centered on 50% (distance from the median sets the hue). */
+/** Map a 0–100 percentile to a bam color (teal below the median, magenta above), centered on 50%. */
 export function bamForPctile(pctile: number): string {
-  return interpolateBam(Math.max(0, Math.min(100, pctile)) / 100);
+  return interpolateBam(1 - Math.max(0, Math.min(100, pctile)) / 100);
 }
 
 // Legible dark ends of the bam poles for label text on white (both clear AA at ~7:1+):
-// magenta for the low pole, teal for the high pole. These match the scale's hue at each end.
-export const BAM_TEXT_LOW = '#7a1f58';  // magenta (low / progressive pole)
-export const BAM_TEXT_HIGH = '#134e4a'; // teal (high / conservative pole)
+// teal for the low pole, magenta for the high pole. These match the flipped scale's hue at each end.
+export const BAM_TEXT_LOW = '#134e4a';  // teal (low / progressive pole)
+export const BAM_TEXT_HIGH = '#7a1f58'; // magenta (high / conservative pole)
