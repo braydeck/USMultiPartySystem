@@ -191,62 +191,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       return v > 0 ? `+${v.toFixed(1)}σ` : `${v.toFixed(1)}σ`;
     };
 
-    // --- Intensity zone bands (strength mode, both axes) ---
     const centerVal = scaleMode === 'percentile' ? 50 : 0;
-    if (scaleMode === 'strength') {
-      const zones = [
-        { from: -2.0, to: -1.5, label: 'Strongly', side: 'low' },
-        { from: -1.5, to: -1.0, label: 'Moderately', side: 'low' },
-        { from: -1.0, to: -0.5, label: 'Leans',    side: 'low' },
-        { from: -0.5, to:  0.5, label: 'Mixed',   side: 'mid' },
-        { from:  0.5, to:  1.0, label: 'Leans',    side: 'high' },
-        { from:  1.0, to:  1.5, label: 'Moderately',  side: 'high' },
-        { from:  1.5, to:  2.0, label: 'Strongly', side: 'high' },
-      ];
-      const zoneColor = (side: string) => side === 'high' ? '#fecaca' : side === 'low' ? '#bfdbfe' : '#f1f5f9';
-      const zoneOpacity = (label: string) => label === 'Moderate' ? 0.15 : 0.08;
-      const zoneG = svg.append('g').attr('class', 'zones');
-
-      // X-axis zones (vertical bands)
-      if (xFactor !== 'seats') {
-        for (const z of zones) {
-          const x1 = Math.max(PAD_L, xScale(z.from));
-          const x2 = Math.min(W - PAD_R, xScale(z.to));
-          if (x2 > x1) {
-            zoneG.append('rect')
-              .attr('x', x1).attr('y', PAD_T).attr('width', x2 - x1).attr('height', H - PAD_T - PAD_B)
-              .attr('fill', zoneColor(z.side)).attr('opacity', zoneOpacity(z.label));
-            if (z.label && (x2 - x1) > 40) {
-              zoneG.append('text')
-                .attr('x', (x1 + x2) / 2).attr('y', PAD_T + 12)
-                .attr('text-anchor', 'middle')
-                .style('fill', '#94a3b8').style('font-size', '8px').style('font-style', 'italic')
-                .text(z.label);
-            }
-          }
-        }
-      }
-
-      // Y-axis zones (horizontal bands)
-      if (yFactor !== 'seats') {
-        for (const z of zones) {
-          const y1 = Math.min(H - PAD_B, yScale(z.from));
-          const y2 = Math.max(PAD_T, yScale(z.to));
-          if (y1 > y2) {
-            zoneG.append('rect')
-              .attr('x', PAD_L).attr('y', y2).attr('width', W - PAD_L - PAD_R).attr('height', y1 - y2)
-              .attr('fill', zoneColor(z.side)).attr('opacity', zoneOpacity(z.label) * 0.6);
-            if (z.label && (y1 - y2) > 20) {
-              zoneG.append('text')
-                .attr('x', W - PAD_R - 4).attr('y', (y1 + y2) / 2 + 3)
-                .attr('text-anchor', 'end')
-                .style('fill', '#94a3b8').style('font-size', '8px').style('font-style', 'italic')
-                .text(z.label);
-            }
-          }
-        }
-      }
-    }
 
     // --- Gridlines + tick labels ---
     const xTicks = xScale.ticks(4);
