@@ -13,7 +13,7 @@ making the ±0.048 deviation negligible.
 
 Active axes and qualifying parties (within/inter SD ratio >= 0.70):
   so  — Security & Order (F1)      → SD (0.72), STY (0.75)
-  es  — Electoral Skepticism (F2)  → DSA (1.16), SD (0.88), STY (1.47),
+  id  — Institutional Distrust (F2)  → DSA (1.16), SD (0.88), STY (1.47),
                                       CON (0.91), POP (1.39), NAT (1.39)
   pc  — Populist Conservatism (F5) → LIB (0.72), SD (0.86), STY (1.21),
                                       CUP (0.99), CON (0.86), POP (1.09)
@@ -72,7 +72,7 @@ SO_PARTIES = {"LBR", "STY"}
 ES_PARTIES = {"DSA", "LBR", "STY", "CON", "POP", "NAT"}
 PC_PARTIES = {"LIB", "LBR", "STY", "CUP", "CON", "POP"}
 
-AXIS_PARTIES = {"so": SO_PARTIES, "es": ES_PARTIES, "pc": PC_PARTIES}
+AXIS_PARTIES = {"so": SO_PARTIES, "id": ES_PARTIES, "pc": PC_PARTIES}
 
 # OAO (cluster 7) is a small party: base candidate only, no crossover variants.
 # Centroid = weighted FS_F1..F5 mean of cluster 7 (matches clusterSpreads).
@@ -85,9 +85,9 @@ OAO_CENTROID = {
 }
 
 # Factor axis → column name (F3 and F4 excluded — inter-party SD too small)
-AXIS_FACTOR_IDX = {"so": 0, "es": 1, "pc": 4}
+AXIS_FACTOR_IDX = {"so": 0, "id": 1, "pc": 4}
 AXIS_FACTOR_COL = {"so": "F1_security_order",
-                   "es": "F2_electoral_skepticism",
+                   "id": "F2_institutional_distrust",
                    "pc": "F5_populist_conservatism"}
 
 DEVIATION_PCT = 0.25   # fraction of inter-party SD

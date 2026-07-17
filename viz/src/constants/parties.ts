@@ -102,7 +102,7 @@ function blendHex(hex1: string, hex2: string, w1 = 0.65): string {
 /** Returns color for a party code.
  * Active formats:
  *   "CON"        — pure party, exact party color
- *   "STY_lo_es"  — FD variant, returns base party color
+ *   "STY_lo_id"  — FD variant, returns base party color
  *   "STY_1"      — pure multi variant, returns base party color
  */
 export function getBlendColor(code: string): string {
@@ -113,7 +113,7 @@ export function getBlendColor(code: string): string {
     const c2 = PARTY_COLORS[parts[1]] ?? '#6b7280';
     return blendHex(c1, c2);
   }
-  // FD/multi variant: underscore with lowercase suffix (e.g. STY_lo_es, STY_1)
+  // FD/multi variant: underscore with lowercase suffix (e.g. STY_lo_id, STY_1)
   if (code.includes('_')) {
     const [base, lean] = code.split('_', 2);
     if (lean === lean.toLowerCase() && PARTY_COLORS[base]) {
@@ -180,7 +180,7 @@ export function getFDColor(party: string, direction: 'base' | 'hi' | 'lo'): stri
   return base;
 }
 
-/** Given a code like "CON", "STY_lo_es", "CON_1", or "CON/POP", return the base party code */
+/** Given a code like "CON", "STY_lo_id", "CON_1", or "CON/POP", return the base party code */
 export function getPrimaryParty(code: string): string {
   if (!code) return '';
   return code.split('/')[0].split('_')[0];

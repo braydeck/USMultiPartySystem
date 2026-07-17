@@ -10,20 +10,20 @@ interface Props {
 const VARIANT_ORDER = [
   'base',
   'hi_so', 'lo_so',
-  'hi_es', 'lo_es',
+  'hi_id', 'lo_id',
   'hi_pc', 'lo_pc',
 ] as const;
 type VariantKey = typeof VARIANT_ORDER[number];
 
 const AXIS_PATTERN_ID: Record<string, string> = {
   so: 'pvb_stripe_so',
-  es: 'pvb_stripe_es',
+  id: 'pvb_stripe_id',
   pc: 'pvb_stripe_pc',
 };
 
 const AXIS_FULL: Record<string, string> = {
   so: 'Security & Order',
-  es: 'Institutional Distrust',
+  id: 'Institutional Distrust',
   pc: 'Populist Conservatism',
 };
 
@@ -119,7 +119,7 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
               <line x1="0" y1="8" x2="8" y2="0" stroke="rgba(255,255,255,0.40)" strokeWidth="2.2" />
             </pattern>
             {/* Horizontal stripes — ES axis */}
-            <pattern id="pvb_stripe_es" patternUnits="userSpaceOnUse" width="8" height="8">
+            <pattern id="pvb_stripe_id" patternUnits="userSpaceOnUse" width="8" height="8">
               <line x1="0" y1="4" x2="8" y2="4" stroke="rgba(255,255,255,0.40)" strokeWidth="2.2" />
             </pattern>
             {/* Vertical stripes — PC axis */}
@@ -238,14 +238,14 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
           <span>diagonal = SO</span>
         </span>
 
-        {/* AE — horizontal */}
+        {/* ID — horizontal */}
         <span className="flex items-center gap-1.5">
           <svg width="22" height="14" style={{ flexShrink: 0 }}>
             <rect width="22" height="14" fill="#94a3b8" rx={2} />
             <line x1="0" y1="4.5" x2="22" y2="4.5" stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" />
             <line x1="0" y1="10"  x2="22" y2="10"   stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" />
           </svg>
-          <span>horizontal = AE</span>
+          <span>horizontal = ID</span>
         </span>
 
         {/* PC — vertical */}

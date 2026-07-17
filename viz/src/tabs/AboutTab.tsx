@@ -54,7 +54,7 @@ const SCENARIOS = [
     color: '#ea580c',
     desc: '10 base candidates (one per party) + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like LBR_hi_so (a Labor candidate who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
     insight: 'Models intra-party ideological diversity. Voters can express a preference not just for a party, but for a faction within it.',
-    candidates: 'LBR · LBR_hi_so · LBR_lo_so · LBR_hi_es · …',
+    candidates: 'LBR · LBR_hi_so · LBR_lo_so · LBR_hi_id · …',
   },
 ];
 

@@ -27,7 +27,7 @@ const FACTORS = ['F1', 'F2', 'F4', 'F5'] as const;
 type Factor = typeof FACTORS[number];
 
 const AXIS_LABEL: Record<string, string> = {
-  so: 'SO', es: 'ES', pc: 'PC', rt: 'RT', base: '',
+  so: 'SO', id: 'ID', pc: 'PC', rt: 'RT', base: '',
 };
 
 const W = 600, H = 480, PAD = 50;
