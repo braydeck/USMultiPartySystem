@@ -3,6 +3,7 @@ import type { ClusterProfile } from '../../types';
 import { FactorBar } from '../shared/FactorBar';
 import { PARTY_COLORS, PARTY_TAGLINES, PARTY_BLURBS, DISPLAY_FACTORS } from '../../constants/parties';
 import { resetUrlParams } from '../../hooks/useUrlState';
+import { track } from '../../utils/analytics';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -14,16 +15,19 @@ interface Props {
   shared?: boolean;
   ranking?: RankEntry[];
   onRetake: () => void;
+  submissionId?: string;
+  onVibe?: (v: 'fit' | 'miss') => void;
 }
 
 const SUBSTACK = 'https://braydendecker.substack.com/';
 
-export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props) {
+export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissionId, onVibe }: Props) {
   const color = PARTY_COLORS[cluster.party] ?? '#6b7280';
   const tagline = PARTY_TAGLINES[cluster.party] ?? '';
   const blurb = PARTY_BLURBS[cluster.party] ?? '';
   const isBlend = !!ranking && ranking.length > 1 && (ranking[0].prob - ranking[1].prob) < 0.08;
   const [copied, setCopied] = useState(false);
+  const [voted, setVoted] = useState<'fit' | 'miss' | null>(null);
 
   const shareUrl = `https://usmultipartysystem.pages.dev/r/${cluster.party}`;
   const shareText = `I'm ${cluster.partyName} in a multi-party America. Which party are you?`;
@@ -36,6 +40,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
   const goToCompare = () => resetUrlParams({ tab: 'parties', section: 'compare', cmp: compareCodes });
 
   async function handleShare() {
+    track('result_shared', { party: cluster.party });
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Which party are you?', text: shareText, url: shareUrl });
@@ -73,6 +78,34 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake }: Props)
           })}
         </div>
       </Card>
+
+      {!shared && onVibe && submissionId && (
+        <div className="mb-6 rounded-lg border border-border p-4">
+          {voted ? (
+            <div className="text-sm text-muted-foreground">Thanks, noted.</div>
+          ) : (
+            <>
+              <div className="text-sm font-semibold text-foreground mb-2">Does this match how you see yourself?</div>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => { setVoted('fit'); onVibe('fit'); }}
+                >
+                  That sounds right
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => { setVoted('miss'); onVibe('miss'); }}
+                >
+                  Not really me
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {!shared && ranking && ranking.length > 1 && (
         <div className="mb-6">
