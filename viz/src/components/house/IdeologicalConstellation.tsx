@@ -4,7 +4,7 @@ import type { ConstellationNode, TransferMatrix } from '../../types';
 import { getBlendColor, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../shared/ToggleGroup';
-import { vikForZ, vikForPctile } from '../../lib/vik';
+import { bamForZ, bamForPctile } from '../../lib/bam';
 
 interface ClusterSpread {
   party: string;
@@ -164,12 +164,12 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .attr('width', W - PAD_L - PAD_R).attr('height', H - PAD_T - PAD_B)
       .attr('fill', '#f8fafc').attr('rx', 4);
 
-    // Color scale — vik diverging, centered on zero (strength) / 50% (percentile),
+    // Color scale — bam diverging, centered on zero (strength) / 50% (percentile),
     // so hue reads as signed strength rather than rank within the current selection.
     const getColor = (n: ConstellationNode) => {
       if (colorMode === 'party') return getBlendColor(n.id);
       const v = getVal(n, colorMode);
-      return scaleMode === 'percentile' ? vikForPctile(v) : vikForZ(v);
+      return scaleMode === 'percentile' ? bamForPctile(v) : bamForZ(v);
     };
 
     // Darker outline so light/middling fills don't wash out against the canvas.
@@ -503,7 +503,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             ))}
           </div>
           {colorMode !== 'party' && (
-            <span className="text-xs text-muted-foreground mt-1 block">vik scale</span>
+            <span className="text-xs text-muted-foreground mt-1 block">bam scale</span>
           )}
         </div>
       </div>

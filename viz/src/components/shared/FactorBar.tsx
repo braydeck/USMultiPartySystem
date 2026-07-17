@@ -1,20 +1,20 @@
 import { FACTOR_LABELS, FACTOR_POLES } from '../../constants/parties';
-import { vikForZ } from '../../lib/vik';
+import { bamForZ, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../../lib/bam';
 
 interface Props {
   factor: string;
   value: number; // z-score, roughly -2.5 to +2.5
 }
 
-// Diverging from a centered zero: vik colour scale — blue (low pole) → red (high pole).
+// Diverging from a centered zero: bam colour scale — magenta (low pole) → teal (high pole).
 export function FactorBar({ factor, value }: Props) {
   const label = FACTOR_LABELS[factor] ?? factor;
   const poles = FACTOR_POLES[factor];
   const isHigh = value >= 0;
   const barPct = Math.min((Math.abs(value) / 2.5) * 50, 50);
   const mixed = Math.abs(value) < 0.3;
-  const color = vikForZ(value);
-  const textColor = mixed ? '#6b7280' : (isHigh ? '#b91c1c' : '#1d4ed8');
+  const color = bamForZ(value);
+  const textColor = mixed ? '#6b7280' : (isHigh ? BAM_TEXT_HIGH : BAM_TEXT_LOW);
 
   return (
     <div className="mb-2">

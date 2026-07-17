@@ -13,7 +13,7 @@ import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, itemSignature, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
 import { getBlendColor, getPrimaryParty, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
-import { vikForZ } from '../lib/vik';
+import { bamForZ, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../lib/bam';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -260,8 +260,8 @@ function rawToZ(val: number, factor: string): number {
 
 
 
-// ── Diverging factor-score bars: stacked per party, centered at the U.S. mean, blue
-// toward the low pole / red toward the high pole (vik) — the party-card FactorBar style.
+// ── Diverging factor-score bars: stacked per party, centered at the U.S. mean, magenta
+// toward the low pole / teal toward the high pole (bam) — the party-card FactorBar style.
 function FactorBarRow({
   factor, codes, clusters, fdProfiles, scaleMode,
 }: {
@@ -303,7 +303,7 @@ function FactorBarRow({
         {scored.map(({ code, z, pctile }) => {
           const isHigh = isPct ? pctile >= 50 : z >= 0;
           const w = isPct ? Math.abs(pctile - 50) : Math.min(Math.abs(z) / 2.5, 1) * 50;
-          const color = vikForZ(z);
+          const color = bamForZ(z);
           const val = isPct ? `${Math.round(pctile)}%` : `${z >= 0 ? '+' : ''}${z.toFixed(1)}σ`;
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
@@ -312,7 +312,7 @@ function FactorBarRow({
                 <div className="absolute inset-y-0 rounded-sm" style={{ left: isHigh ? '50%' : `${50 - w}%`, width: `${w}%`, backgroundColor: color }} />
                 <div className="absolute top-0 bottom-0 w-px bg-slate-400" style={{ left: '50%' }} />
               </div>
-              <span className="w-12 shrink-0 text-right font-semibold" style={{ color: z >= 0 ? '#b91c1c' : '#1d4ed8' }}>{val}</span>
+              <span className="w-12 shrink-0 text-right font-semibold" style={{ color: z >= 0 ? BAM_TEXT_HIGH : BAM_TEXT_LOW }}>{val}</span>
             </div>
           );
         })}

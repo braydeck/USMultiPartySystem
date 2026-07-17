@@ -1,6 +1,6 @@
 import type { ClusterProfile } from '../../types';
 import { getBlendColor, FACTOR_POLES, DISPLAY_FACTORS } from '../../constants/parties';
-import { vikForZ, vikForPctile } from '../../lib/vik';
+import { bamForZ, bamForPctile, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../../lib/bam';
 import { popShareLabel } from '../../lib/population';
 import { Card } from '@/components/ui/card';
 
@@ -58,8 +58,8 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
 
           if (mode === 'percentile' && pctile != null) {
             const isHigh = pctile >= 50;
-            const fill = vikForPctile(pctile);
-            const textColor = isHigh ? '#b91c1c' : '#1d4ed8';
+            const fill = bamForPctile(pctile);
+            const textColor = isHigh ? BAM_TEXT_HIGH : BAM_TEXT_LOW;
             const desc = pctileDescriptor(f, pctile);
 
             return (
@@ -68,7 +68,7 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
                   <span className="text-muted-foreground shrink-0">{label}</span>
                   <span className="font-medium" style={{ color: textColor }}>{desc}</span>
                 </div>
-                {/* 0-100 bar, vik-colored: blue at low pole → red at high pole */}
+                {/* 0-100 bar, bam-colored: magenta at low pole → teal at high pole */}
                 <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                   {isHigh ? (
                     <div className="absolute top-0 left-0 h-full rounded-l-full"
@@ -87,8 +87,8 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
           // Strength mode (default)
           const desc = zDescriptor(f, z);
           const isHigh = z >= 0;
-          const fill = vikForZ(z);
-          const textColor = desc === 'Mixed' ? '#6b7280' : (isHigh ? '#b91c1c' : '#1d4ed8');
+          const fill = bamForZ(z);
+          const textColor = desc === 'Mixed' ? '#6b7280' : (isHigh ? BAM_TEXT_HIGH : BAM_TEXT_LOW);
           const barPct = Math.min(Math.abs(z) / 2.5 * 50, 50);
           return (
             <div key={f}>
