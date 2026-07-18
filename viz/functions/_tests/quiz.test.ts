@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { onRequestPost, onRequestPatch } from './quiz'
+import { onRequestPost, onRequestPatch } from '../api/quiz'
 
 function mockDB() {
   const calls: { sql: string; args: unknown[] }[] = []
