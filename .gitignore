@@ -28,3 +28,4 @@ data/raw/2024 anes data/
 
 # Post recommendations / drafts (keep locally only)
 results/post_recs/
+.wrangler/
