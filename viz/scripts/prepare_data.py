@@ -1051,7 +1051,7 @@ def collect_cluster_variables(rows, include_c7=True):
 
 # "What sets a party apart" should surface political/social *views*, not demographics
 # or voting behavior.
-_NON_POLICY_DOMAINS = {"Voting History", "Demographics", "Employment & Labor"}
+_NON_POLICY_DOMAINS = {"Voting History", "Demographics", "Employment & Labor", "Civic Engagement"}
 
 
 def compute_key_positions(rows, cid, n=4):
@@ -3395,6 +3395,13 @@ def build_distributions():
         ("urbancity", "composition", "Household", "Community type", 32, [
             ("City", S("urbancity", "% City")), ("Suburb", S("urbancity", "% Suburb")),
             ("Town", S("urbancity", "% Town")), ("Rural", S("urbancity", "% Rural area"))], CATEG, None),
+        ("region", "composition", "Household", "Census region", 33, [
+            ("Northeast", S("region", "% Northeast")), ("Midwest", S("region", "% Midwest")),
+            ("South", S("region", "% South")), ("West", S("region", "% West"))], CATEG, None),
+        # Number of children (total, any age) — distinct from the child18 "under-18 in household" flag.
+        ("numchildren", "composition", "Household", "Number of children", 34, [
+            ("0", S("numkids", "% 0")), ("1", S("numkids", "% 1")),
+            ("2", S("numkids", "% 2")), ("3+", S("numkids", "% 3+"))], SEQ4, None),
         ("faith", "heatmap", "Faith", "Religious affiliation", 5, [
             ("Protestant", S("relig_protestant", "% Supporting")),
             ("Catholic", S("relig_catholic", "% Supporting")),

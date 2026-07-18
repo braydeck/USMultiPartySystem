@@ -53,6 +53,12 @@ NEW=[
  ('CC24_324c','Abortion','Make abortion illegal in all circumstances'),
  ('CC24_324d','Abortion','Expand abortion access and affordability'),
  ('CC24_340a','Abortion','Protect access to contraception (Congress bill)'),
+ # Civic engagement / donor battery (CC24_430a "in the past year did you…"; 1=yes, 2=no).
+ ('CC24_430a_6','Civic Engagement','Donated to a candidate, campaign, or party (past year)'),
+ ('CC24_430a_1','Civic Engagement','Attended a local political meeting (past year)'),
+ ('CC24_430a_2','Civic Engagement','Put up a political sign (past year)'),
+ ('CC24_430a_3','Civic Engagement','Worked for a candidate or campaign (past year)'),
+ ('CC24_430a_4','Civic Engagement','Attended a protest, march, or demonstration (past year)'),
 ]
 # 5-point state-spending battery → "% who want to increase" (greatly/slightly increase)
 GS="Government Spending"
@@ -98,8 +104,8 @@ RELIG_LOAD=['pew_religimp','pew_prayer','religpew']
 # Turnout: self-reported (CC24_401==5) vs voter-file-verified (TS_g2024 in 1..6). The gap by
 # party is the self-report inflation, largest for low-engagement forces (Solidarity).
 TURNOUT=['reported_turnout_24','verified_turnout_24']
-LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410','TS_g2024','birthyr','faminc_new']))
-EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24+TURNOUT+['pew_religimp','pew_prayer']+[d[0] for d in DENOM]
+LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,_,_,_ in NEW_CAT]+RELIG_LOAD+['CC24_401','CC24_410','TS_g2024','birthyr','faminc_new','newsint','numchildren']))
+EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24+TURNOUT+['pew_religimp','pew_prayer','newsint','numkids']+[d[0] for d in DENOM]
 
 def main():
     df=pd.read_stata(DTA, columns=ITEMS+LOADVARS+['commonpostweight'], convert_categoricals=False)
@@ -116,6 +122,16 @@ def main():
              'overall':wpct(b,np.ones(len(b),bool))}
         for k in range(10): rec[f'c{k}']=wpct(b, cl==k)
         return rec
+    def emit_catrows(name,dom,q,vals,cats):
+        """Mutually-exclusive composition: one categorical_dist row per bucket (% within valid)."""
+        valid=~np.isnan(vals); out=[]
+        for lbl,sel in cats:
+            b=np.where(sel&valid,1.0,np.where(valid,0.0,np.nan))
+            rec={'variable':name,'domain':dom,'type':'categorical_dist','stat_label':lbl,'question':q,
+                 'overall':wpct(b,np.ones(len(b),bool))}
+            for k in range(10): rec[f'c{k}']=wpct(b, cl==k)
+            out.append(rec)
+        return out
     rows=[]
     for var,dom,q in NEW:
         raw=dc[var].values.astype(float)
@@ -200,6 +216,15 @@ def main():
     rp=dc['religpew'].values.astype(float); rp_valid=np.isin(rp,list(range(1,13)))
     for key,q,tgt in DENOM:
         rows.append(emit(key,FAITH,q,np.where(np.isin(rp,list(tgt)),1.0,np.where(rp_valid,0.0,np.nan))))
+    # News interest / political attention (newsint: 1=most of the time … 4=hardly at all, 7=DK)
+    ni=dc['newsint'].values.astype(float)
+    rows.append(emit('newsint','Civic Engagement','Follows public affairs most of the time',
+                     np.where(ni==1,1.0,np.where(np.isin(ni,[2,3,4]),0.0,np.nan))))
+    # Number of children (total, any age; distinct from child18 = under-18 in household) as a
+    # 0/1/2/3+ composition. Emitted as 'numkids' to avoid clobbering the primary continuous rows.
+    nc=dc['numchildren'].values.astype(float); nc=np.where((nc>=0)&(nc<=20),nc,np.nan)
+    rows+=emit_catrows('numkids','Household','Number of children',nc,
+                       [('% 0',nc==0),('% 1',nc==1),('% 2',nc==2),('% 3+',nc>=3)])
     newdf=pd.DataFrame(rows)
     stats=pd.read_csv(STATS)
     stats=stats[~stats['variable'].isin(EMITVARS)]  # idempotent

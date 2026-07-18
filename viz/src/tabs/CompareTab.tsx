@@ -45,6 +45,7 @@ const DOMAINS = [
   'Education',
   'Faith',
   'Voting History',
+  'Civic Engagement',
   'Other',
   'Demographics',  // catch-all for any legacy vars
 ];
@@ -58,7 +59,7 @@ const SUPER_GROUPS: { name: string; defaultOpen: boolean; domains: string[] }[] 
   { name: 'Attitudes', defaultOpen: true, domains: ['Elections & Trust', 'Racial & Gender', 'Religion'] },
   { name: 'Demographics', defaultOpen: false, domains: [
     'Household', 'Race & Ethnicity', 'Economics', 'Gender & Sexuality', 'Education', 'Faith',
-    'Voting History', 'Other', 'Demographics'] },
+    'Voting History', 'Civic Engagement', 'Other', 'Demographics'] },
 ];
 
 // Distribution items (range/composition/diverging) built by prepare_data.build_distributions.

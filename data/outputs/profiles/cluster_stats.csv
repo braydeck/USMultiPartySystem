@@ -308,6 +308,11 @@ CC24_324a,Abortion,binary,% Supporting,Always allow abortion as a matter of pers
 CC24_324c,Abortion,binary,% Supporting,Make abortion illegal in all circumstances,11.551,13.445,4.7286,16.914,21.0429,2.8384,21.0683,15.7698,7.6834,2.1078,0.7506
 CC24_324d,Abortion,binary,% Supporting,Expand abortion access and affordability,60.2694,35.808,87.0749,65.7309,11.1428,93.1673,33.303,51.6026,73.5679,97.7345,97.9296
 CC24_340a,Abortion,binary,% Supporting,Protect access to contraception (Congress bill),72.2478,64.59,83.1319,58.4822,61.5329,87.7079,61.8565,65.3806,76.3871,93.4437,94.8298
+CC24_430a_6,Civic Engagement,binary,% Supporting,"Donated to a candidate, campaign, or party (past year)",19.0444,14.8984,18.6303,9.325,26.0687,33.5802,12.9626,11.3989,15.5278,21.5823,42.3562
+CC24_430a_1,Civic Engagement,binary,% Supporting,Attended a local political meeting (past year),8.1424,6.7959,7.7798,6.3229,10.6599,9.5962,6.9068,8.4582,4.9953,9.0669,14.9148
+CC24_430a_2,Civic Engagement,binary,% Supporting,Put up a political sign (past year),15.0497,14.7397,11.1857,8.2621,21.958,17.2105,15.8116,13.579,10.6934,18.5014,27.4268
+CC24_430a_3,Civic Engagement,binary,% Supporting,Worked for a candidate or campaign (past year),3.4124,2.0753,3.5817,2.8112,3.513,5.7492,2.1921,2.9535,2.2371,4.0351,8.1834
+CC24_430a_4,Civic Engagement,binary,% Supporting,"Attended a protest, march, or demonstration (past year)",4.5077,1.8906,4.7473,3.9669,2.9373,4.4733,3.165,3.5461,2.2904,14.608,12.1421
 CC24_443_1,Government Spending,binary,% Supporting,Increase state spending on welfare,34.0608,16.3783,45.2929,39.1474,4.0065,49.8351,19.3126,30.6515,28.5921,73.6137,74.2099
 CC24_443_2,Government Spending,binary,% Supporting,Increase state spending on health care,65.0052,51.2638,81.5942,69.472,20.8562,85.2225,46.0293,64.2111,77.2123,92.7545,92.6864
 CC24_443_3,Government Spending,binary,% Supporting,Increase state spending on education,65.3182,53.6171,80.9395,67.0564,26.0616,85.917,45.4842,65.6833,72.4111,90.9684,92.8068
@@ -337,3 +342,8 @@ relig_jewish,Faith,binary,% Supporting,Jewish,2.2874,1.566,2.0837,1.2461,1.4662,
 relig_muslim,Faith,binary,% Supporting,Muslim,0.7784,0.4266,0.9115,2.0468,0.0486,0.519,0.8416,1.0085,0.3055,1.0927,0.2694
 relig_none,Faith,binary,% Supporting,Unaffiliated (none / atheist / agnostic),34.462,19.4247,46.2204,35.1451,19.2292,44.9258,30.5081,22.6032,24.705,67.9216,63.7066
 relig_other,Faith,binary,% Supporting,Other faith,11.2372,11.7886,11.012,14.4341,10.3198,8.9675,13.1827,12.7596,9.0455,8.3971,8.156
+newsint,Civic Engagement,binary,% Supporting,Follows public affairs most of the time,48.6696,49.3572,38.6534,22.9404,73.783,64.6245,42.2615,44.5559,47.9926,46.4162,74.4994
+numkids,Household,categorical_dist,% 0,Number of children,41.4324,28.6555,48.4722,46.9171,31.6235,44.9836,37.9808,38.337,29.2796,67.9342,62.0631
+numkids,Household,categorical_dist,% 1,Number of children,16.3364,16.9267,16.9707,18.6844,15.9559,15.6102,15.614,16.8113,18.4418,11.8373,12.295
+numkids,Household,categorical_dist,% 2,Number of children,22.1527,29.2858,18.1159,15.8153,26.5913,21.9072,21.7043,24.4986,27.8977,11.0095,17.2234
+numkids,Household,categorical_dist,% 3+,Number of children,20.0784,25.1319,16.4411,18.5832,25.8293,17.4991,24.7008,20.3531,24.3809,9.2189,8.4185
