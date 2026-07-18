@@ -1,7 +1,25 @@
 # Analytics + Quiz Capture — one-time production setup
 
-The code is deployed by pushing to `main` (Cloudflare Pages auto-builds). Three
+The code is deployed by pushing to `main` (Cloudflare Pages auto-builds). A few
 things cannot be done by a git push and must be set up once.
+
+## 0. Point the Pages root directory at `viz` (required for the Function)
+
+Cloudflare only detects the `functions/` directory when it sits inside the
+project's **root directory**. This app lives in `viz/`, and the Function is at
+`viz/functions/api/quiz.ts`, so the Pages build settings must use `viz` as the
+root (instead of the old blank root + `cd viz` build command).
+
+Cloudflare dashboard → Pages → **usmultipartysystem** → Settings → Build →
+**Build configuration** → Edit:
+
+- **Root directory:** `viz`
+- **Build command:** `npm install --legacy-peer-deps && npm run build`
+- **Build output directory:** `dist`
+
+(Previously: blank root, `cd viz && npm install --legacy-peer-deps && npm run build`,
+output `viz/dist`. The new settings produce identical static output and also let
+Pages find `viz/functions/`.)
 
 ## 1. Create + bind the D1 database (required for quiz capture)
 
@@ -21,10 +39,8 @@ Then bind it to the Pages project in the dashboard:
 - Add it for **both Production and Preview**.
 
 > We intentionally do **not** commit a `wrangler.toml`. This Pages project is
-> configured through the dashboard (root directory = repo root, build command
-> `cd viz && npm install --legacy-peer-deps && npm run build`). A committed
-> `wrangler.toml` would become the source of truth and could override/break
-> those build settings.
+> configured through the dashboard. A committed `wrangler.toml` would become the
+> source of truth and could override/break those build settings.
 
 ## 2. PostHog privacy toggle
 
