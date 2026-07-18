@@ -21,7 +21,7 @@ ORDER = ["PRG", "DSA", "LIB", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
 # Party colors (mirror src/constants/parties.ts PARTY_COLORS)
 COLORS = {
     "PRG": "#15803d", "DSA": "#22c55e", "LIB": "#0284c7", "LBR": "#38bdf8",
-    "OAO": "#0d9488", "STY": "#8a70b8", "CUP": "#825a27", "CON": "#e68c2c",
+    "OAO": "#5b6b8c", "STY": "#8a70b8", "CUP": "#825a27", "CON": "#e68c2c",
     "POP": "#d34812", "NAT": "#a01d2a",
 }
 # houseSeats party integer codes -> party code (parties.ts CLUSTER_TO_PARTY)
