@@ -6,6 +6,7 @@ import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
+import { PopulationShareBar } from '../components/shared/PopulationShareBar';
 import { RangeBarCell, CompositionStackCell, HeatmapCell, FactorTags, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
 import { SignatureHeatmap, type HeatRow } from '../components/shared/SignatureHeatmap';
 import { PartyRowLabel, SigTag, type RowMark } from '../components/shared/PartyRowLabel';
@@ -810,16 +811,27 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         </p>
       </div>
 
-      {/* Ideological constellation — overview map, placed above the filters so it doesn't
-          interrupt the flow between the filter controls and the list they act on. */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
-        <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
-          Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
-          <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
-        </p>
-        <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
-      </Card>
+      {/* Ideological constellation + population share — overview maps, placed above the filters
+          so they don't interrupt the flow between the filter controls and the list they act on.
+          Two columns on wide screens, stacking on smaller ones. */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="p-4 lg:col-span-2">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
+          <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+            Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
+            <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
+          </p>
+          <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
+        </Card>
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Share of U.S. Adults</h3>
+          <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+            How the adult population divides across the ten parties (survey-weighted), before turnout. The seat
+            charts elsewhere weight these by who actually votes.
+          </p>
+          <PopulationShareBar />
+        </Card>
+      </div>
 
       {/* Party selector + signature filter — sticky so both can be adjusted while scrolling
           the (long, annotated) list. On mobile it condenses to a summary strip once scrolled;

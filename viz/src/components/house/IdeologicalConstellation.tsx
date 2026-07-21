@@ -22,6 +22,12 @@ const THRESHOLD = 1.5;
 const FACTORS = ['F1', 'F2', 'F4', 'F5'] as const;
 const ALL_AXES = [...FACTORS, 'seats'] as const;
 
+// Short, readable axis labels — a fresh visitor won't know "SO/ID/RT/PC". Full factor names
+// stay on the button tooltips and the chart axes.
+const AXIS_WORD: Record<string, string> = {
+  party: 'Party', F1: 'Security', F2: 'Institutions', F4: 'Religion', F5: 'Populism', seats: 'Seats',
+};
+
 const SCALE_LABELS: Record<'strength' | 'percentile', string> = {
   strength: 'σ Strength',
   percentile: '% Percentile',
@@ -36,9 +42,9 @@ function ControlSection({
   onChange: (v: string) => void;
 }) {
   return (
-    <div>
-      <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wide block mb-1">{label}</span>
-      <div className="flex flex-col gap-0.5">
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs text-muted-foreground font-semibold w-8 shrink-0">{label}</span>
+      <div className="flex flex-wrap gap-1">
         {options.map(opt => (
           <Button
             key={opt}
@@ -46,9 +52,9 @@ function ControlSection({
             title={opt === 'seats' ? 'Seats' : (FACTOR_LABELS[opt] ?? opt)}
             variant={value === opt ? 'default' : 'secondary'}
             size="sm"
-            className="justify-start px-1.5 h-6"
+            className="px-2 h-6 flex-none"
           >
-            {opt === 'seats' ? 'Seats' : (FACTOR_LABELS[opt] ?? opt)}
+            {AXIS_WORD[opt] ?? opt}
           </Button>
         ))}
       </div>
@@ -465,48 +471,10 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
   const colorOptions = ['party', ...FACTORS] as const;
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 sm:items-start">
-      {/* Left control panel — stacks above the chart on mobile (compact column) */}
-      <div className="shrink-0 w-44 space-y-3 p-2 bg-slate-50 rounded border border-border self-start">
-        <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
-        <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} />
-        <ControlSection label="Size" options={ALL_AXES} value={sizeFactor} onChange={setSizeFactor} />
-        <Button onClick={() => setEqualSize(!equalSize)}
-          variant={equalSize ? 'default' : 'secondary'}
-          size="sm"
-          className="w-full justify-start px-1.5 h-6">
-          {equalSize ? '⊙ Equal size' : '○ Equal size'}
-        </Button>
-        <div>
-          <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wide block mb-1">Color</span>
-          <div className="flex flex-col gap-0.5">
-            {colorOptions.map(opt => (
-              <Button
-                key={opt}
-                onClick={() => setColorMode(opt)}
-                title={opt === 'party' ? 'Party color' : (FACTOR_LABELS[opt] ?? opt)}
-                variant={colorMode === opt ? 'default' : 'secondary'}
-                size="sm"
-                className="justify-start px-1.5 h-6"
-              >
-                {opt === 'party' ? 'Party' : (FACTOR_LABELS[opt] ?? opt)}
-              </Button>
-            ))}
-          </div>
-          {colorMode !== 'party' && (
-            <span className="text-xs text-muted-foreground mt-1 block">bam scale</span>
-          )}
-        </div>
-      </div>
-
-      {/* SVG + controls */}
-      <div className="flex-1 min-w-0">
-        {/* Scale + Party toggles */}
-        <div className="flex flex-wrap items-center gap-1 mb-2">
-          <ToggleGroup label="Scale" value={scaleMode} onChange={setScaleMode}
-            options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
-        </div>
-        <div className="flex flex-wrap gap-1 mb-2">
+    <div className="flex flex-col gap-2">
+      {/* Party toggles + scale — quick filters, above the chart */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <div className="flex flex-wrap gap-1">
           {F5_ORDER.filter(p => presentParties.has(p)).map(p => {
             const on = enabledParties.has(p);
             const color = PARTY_COLORS[p];
@@ -524,12 +492,53 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             );
           })}
         </div>
-        <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto' }} aria-label="Ideological factor constellation chart" />
-        {transfers && (
-          <p className="text-xs text-muted-foreground mt-1 text-center">
-            Lines = voter transfer affinity &gt; {THRESHOLD}. Hover to highlight.
-          </p>
-        )}
+        <ToggleGroup label="Scale" value={scaleMode} onChange={setScaleMode}
+          options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
+      </div>
+
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto', maxWidth: 500, display: 'block', margin: '0 auto' }} aria-label="Ideological factor constellation chart" />
+      {transfers && (
+        <p className="text-xs text-muted-foreground text-center">
+          Lines = voter transfer affinity &gt; {THRESHOLD}. Hover to highlight.
+        </p>
+      )}
+
+      {/* Axis + colour controls — horizontal bar below the chart */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-2.5 mt-1">
+        <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
+        <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} />
+        <ControlSection label="Size" options={ALL_AXES} value={sizeFactor} onChange={setSizeFactor} />
+        <Button onClick={() => setEqualSize(!equalSize)}
+          variant={equalSize ? 'default' : 'secondary'}
+          size="sm" className="px-2 h-6">
+          {equalSize ? '⊙ Equal size' : '○ Equal size'}
+        </Button>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground font-semibold shrink-0">Color</span>
+          <div className="flex flex-wrap items-center gap-1">
+            {colorOptions.map(opt => (
+              <Button
+                key={opt}
+                onClick={() => setColorMode(opt)}
+                title={opt === 'party' ? 'Party color' : (FACTOR_LABELS[opt] ?? opt)}
+                variant={colorMode === opt ? 'default' : 'secondary'}
+                size="sm"
+                className="px-2 h-6 flex-none"
+              >
+                {AXIS_WORD[opt] ?? opt}
+              </Button>
+            ))}
+            {/* Legend for the diverging factor colour (teal = low pole → magenta = high pole). */}
+            {colorMode !== 'party' && (
+              <div className="flex items-center gap-1 ml-1">
+                <span className="text-[9px] text-muted-foreground">low</span>
+                <div className="h-1.5 w-16 rounded-full"
+                  style={{ background: `linear-gradient(to right, ${bamForZ(-2.5)}, ${bamForZ(0)}, ${bamForZ(2.5)})` }} />
+                <span className="text-[9px] text-muted-foreground">high</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
