@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { classifyQuiz, estimateFactorZScores } from './quizScoring'
 import questions from '../data/quizQuestions.json'
-import spreads from '../data/clusterSpreads.json'
-import clusters from '../data/clusterProfiles.json'
 
 // A strongly-conservative, institution-distrusting respondent (the "dad" case):
 // law-and-order, opposes taxing high earners + infrastructure, election-skeptic.
@@ -19,25 +17,24 @@ const answers: Record<number, number> = Object.fromEntries(
   qs.map((q, i) => [i, dadByVar[q.variable]]),
 )
 
-describe('classifyQuiz (flat prior)', () => {
-  it('ranks by ideological proximity, not party base rate', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const scores = classifyQuiz(qs, answers, spreads as any)
-    // '5' = POP, '3' = NAT, '0' = CON (see CLUSTER_TO_PARTY)
-    expect(scores[0].clusterId).toBe('5') // Populist wins under a flat prior
-    expect(scores[0].prob).toBeGreaterThan(0.4)
-    const prob = (id: string) => scores.find(s => s.clusterId === id)!.prob
-    // CON no longer floats up on its large population prior
-    expect(prob('3')).toBeGreaterThan(prob('0')) // NAT > CON
+describe('classifyQuiz (short-form, full-covariance, flat prior)', () => {
+  it('places a distrustful, strongly-conservative respondent as Populist', () => {
+    const scores = classifyQuiz(qs, answers)
+    // '5' = POP (see quizShortform.json cluster ids)
+    expect(scores[0].clusterId).toBe('5')
+    expect(scores[0].prob).toBeGreaterThan(0.6) // a confident match, not a 3-way tie
+    // CON no longer wins on a size prior
+    expect(scores.find(s => s.clusterId === '0')!.prob).toBeLessThan(0.2)
+    // probabilities are a normalized distribution
+    expect(scores.reduce((a, s) => a + s.prob, 0)).toBeCloseTo(1, 5)
   })
 })
 
 describe('estimateFactorZScores', () => {
   it('returns the respondent position in z-units for the displayed factors', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const z = estimateFactorZScores(qs, answers, clusters as any)
+    const z = estimateFactorZScores(qs, answers)
+    expect(Object.keys(z).sort()).toEqual(['F1', 'F2', 'F4', 'F5'])
     expect(z.F5).toBeGreaterThan(1) // strongly conservative
     expect(z.F2).toBeGreaterThan(0.5) // distrusts institutions
-    expect(Object.keys(z).sort()).toEqual(['F1', 'F2', 'F4', 'F5'])
   })
 })

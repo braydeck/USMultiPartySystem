@@ -387,7 +387,6 @@ export default function App() {
             questions={quizQuestionsData as unknown as QuizQuestion[]}
             clusters={clusterProfilesData as ClusterProfile[]}
             houseSeats={houseSeatsData as HouseSeat[]}
-            spreads={clusterSpreadsData as { party: string; n: number; [key: string]: string | number }[]}
           />
         )}
       </main>
