@@ -64,6 +64,18 @@ export function mountViewStateTracking(): () => void {
   }
 }
 
+/**
+ * Fire once at load if the visitor arrived via a shared party-result link — the /r/<party>
+ * redirect tags those with utm_source=result_share, so this counts organic share-sourced
+ * visits (copied links, DMs) that carry no referrer, not just clicks from known domains.
+ */
+export function trackShareLanding(): void {
+  const p = Object.fromEntries(new URLSearchParams(window.location.search))
+  if (p.utm_source === 'result_share') {
+    track('shared_result_opened', { party: p.utm_content ?? p.result ?? null })
+  }
+}
+
 export function submitQuizResult(input: {
   id: string
   result_party: string
