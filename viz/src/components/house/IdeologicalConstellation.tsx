@@ -46,7 +46,7 @@ function ControlSection({
     <div className={vertical ? 'shrink-0 w-24' : 'flex items-center gap-1.5'}>
       <span className={vertical
         ? 'block mb-1 text-xs text-muted-foreground font-semibold'
-        : 'w-8 shrink-0 text-xs text-muted-foreground font-semibold'}>{label}</span>
+        : 'w-12 shrink-0 text-xs text-muted-foreground font-semibold'}>{label}</span>
       <div className={vertical ? 'flex flex-col gap-1' : 'flex flex-wrap gap-1'}>
         {options.map(opt => (
           <Button
@@ -503,7 +503,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       <div className="flex items-center gap-2">
         <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} vertical />
         <div className="min-w-0 flex-1">
-          <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto', maxWidth: 500, display: 'block', margin: '0 auto' }} aria-label="Ideological factor constellation chart" />
+          <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto', maxWidth: 620, display: 'block', margin: '0 auto' }} aria-label="Ideological factor constellation chart" />
         </div>
       </div>
       {transfers && (
@@ -512,17 +512,19 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         </p>
       )}
 
-      {/* X + size + colour controls — horizontal bar below the chart */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-2.5 mt-1">
+      {/* X / Size / Color controls — one row each below the chart */}
+      <div className="flex flex-col gap-2 border-t border-border pt-2.5 mt-1">
         <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
-        <ControlSection label="Size" options={ALL_AXES} value={sizeFactor} onChange={setSizeFactor} />
-        <Button onClick={() => setEqualSize(!equalSize)}
-          variant={equalSize ? 'default' : 'secondary'}
-          size="sm" className="px-2 h-6">
-          {equalSize ? '⊙ Equal size' : '○ Equal size'}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <ControlSection label="Size" options={ALL_AXES} value={sizeFactor} onChange={setSizeFactor} />
+          <Button onClick={() => setEqualSize(!equalSize)}
+            variant={equalSize ? 'default' : 'secondary'}
+            size="sm" className="px-2 h-6">
+            {equalSize ? '⊙ Equal size' : '○ Equal size'}
+          </Button>
+        </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground font-semibold shrink-0">Color</span>
+          <span className="w-12 shrink-0 text-xs text-muted-foreground font-semibold">Color</span>
           <div className="flex flex-wrap items-center gap-1">
             {colorOptions.map(opt => (
               <Button
