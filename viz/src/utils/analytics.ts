@@ -81,8 +81,25 @@ function currentParams(): Record<string, string> {
 }
 
 export function mountViewStateTracking(): () => void {
-  track('view_state', currentParams())
-  const emit = debounce(() => track('view_state', currentParams()), 500)
+  let prev = currentParams()
+  track('view_state', prev)
+  const emit = debounce(() => {
+    const next = currentParams()
+    track('view_state', next)
+    // Emit one filter_changed per control the user actually changed, so filter usage can be
+    // ranked (break down by `filter`) and popular settings seen (break down by `value`). Only
+    // within the same tab and only for set values — so tab navigation (which clears a tab's
+    // filters) doesn't fire spurious "cleared" events. Debounced, so slider drags land once.
+    if (next.tab === prev.tab) {
+      for (const k of new Set([...Object.keys(prev), ...Object.keys(next)])) {
+        if (k === 'tab') continue
+        if (prev[k] !== next[k] && next[k] != null && next[k] !== '') {
+          track('filter_changed', { filter: k, value: next[k], tab: next.tab })
+        }
+      }
+    }
+    prev = next
+  }, 500)
   window.addEventListener('urlstatechange', emit)
   window.addEventListener('popstate', emit)
   return () => {
