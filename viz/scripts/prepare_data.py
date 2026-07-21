@@ -1063,8 +1063,12 @@ _NON_POLICY_DOMAINS = {"Voting History", "Demographics", "Employment & Labor", "
 # different domains, so the one-per-domain rule surfaces only the strongest of the group.
 _KEYPOS_DEDUP_REMAP = {"Increase state spending on law enforcement": "Police & Guns"}
 
-# A defining position must be one the party is genuinely united on: hard floor on |pct-50|.
+# A defining position must be one the party is genuinely united on: floor on |pct-50|
+# (15 = 65% agreement). Distinctive items may sit at this floor; non-distinct backfill items
+# (used only when a dense-neighbor party can't find 5 distinctive ones) are held higher, at
+# 20 = 70% agreement, so a low-distinctiveness slot is at least a strongly-held stance.
 _KEYPOS_MIN_COHESION = 15.0
+_KEYPOS_FILL_MIN_COHESION = 20.0
 
 
 def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=5):
@@ -1124,31 +1128,31 @@ def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=5):
         scored.append((score, pct, neighbor_avg, round(cohesion, 1), divergence, r["question"], topic))
     scored.sort(key=lambda t: -t[0])
 
-    # One per (grouped) domain. Adaptive distinctiveness floor: prefer divergence >= 5, relaxing
-    # step-wise so a party wedged between near-identical neighbors still fills n positions.
-    def _select(min_div):
-        picked, used = [], set()
+    # One per (grouped) domain, in two passes. First take distinctive positions (divergence >= 5)
+    # at the normal cohesion floor. If a party wedged between near-identical neighbors can't find
+    # n that way, backfill from remaining domains with distinctiveness relaxed but a *higher*
+    # cohesion bar, so a low-distinctiveness slot is still a strongly-held stance.
+    picked, used = [], set()
+
+    def _add(min_div, min_coh):
         for _score, pct, neighbor_avg, cohesion, divergence, question, topic in scored:
-            if divergence < min_div or topic in used:
+            if len(picked) >= n:
+                break
+            if topic in used or divergence < min_div or cohesion < min_coh:
                 continue
             used.add(topic)
             picked.append((pct, neighbor_avg, cohesion, question))
-            if len(picked) >= n:
-                break
-        return picked
 
-    selected = []
-    for min_div in (5.0, 4.0, 3.0, 2.0, 1.0, 0.0):
-        selected = _select(min_div)
-        if len(selected) >= n:
-            break
+    _add(5.0, _KEYPOS_MIN_COHESION)
+    if len(picked) < n:
+        _add(0.0, _KEYPOS_FILL_MIN_COHESION)
     return [{
         "question": question,
         "pct": round(pct, 1),
         "direction": "supports" if pct >= 50 else "opposes",
         "diffPp": round(pct - neighbor_avg, 1),
         "cohesion": cohesion,
-    } for pct, neighbor_avg, cohesion, question in selected]
+    } for pct, neighbor_avg, cohesion, question in picked]
 
 def _compute_cluster_factor_centroids() -> dict:
     """Weighted-mean FS_F1..F5 centroid for every cluster 0-9.
