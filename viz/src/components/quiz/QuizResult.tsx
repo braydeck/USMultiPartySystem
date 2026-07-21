@@ -158,16 +158,30 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissi
       )}
 
       <div className="space-y-2">
-        <Button onClick={handleShare} className="w-full py-3 text-white" style={{ backgroundColor: color }}>
-          {copied ? '✓ Link copied' : 'Share your result'}
-        </Button>
+        {shared ? (
+          // A visitor who arrived via a shared link hasn't taken the quiz yet — the whole point
+          // is to get them to. Make "Take the quiz" the hero CTA, not a grey afterthought.
+          <Button onClick={onRetake} className="w-full py-6 text-lg font-bold text-white" style={{ backgroundColor: color }}>
+            Take the quiz yourself →
+          </Button>
+        ) : (
+          <Button onClick={handleShare} className="w-full py-3 text-white" style={{ backgroundColor: color }}>
+            {copied ? '✓ Link copied' : 'Share your result'}
+          </Button>
+        )}
         <Button onClick={goToCompare} variant="secondary" className="w-full py-3">
           {shared ? `See ${cluster.partyName} in detail →` : 'See the details: you vs your closest parties →'}
         </Button>
         <div className="flex items-center justify-between pt-1 text-sm">
-          <button onClick={onRetake} className="text-muted-foreground hover:text-foreground underline">
-            {shared ? 'Take the quiz yourself' : 'Retake quiz'}
-          </button>
+          {shared ? (
+            <button onClick={handleShare} className="text-muted-foreground hover:text-foreground underline">
+              {copied ? '✓ Link copied' : 'Share this party'}
+            </button>
+          ) : (
+            <button onClick={onRetake} className="text-muted-foreground hover:text-foreground underline">
+              Retake quiz
+            </button>
+          )}
           <a href={SUBSTACK} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline font-medium">
             Read the argument →
           </a>
