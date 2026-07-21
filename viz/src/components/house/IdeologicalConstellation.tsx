@@ -15,6 +15,10 @@ interface Props {
   nodes: ConstellationNode[];
   transfers?: TransferMatrix;
   clusterSpreads?: ClusterSpread[];
+  // When provided, the map is driven by this external party selection instead of its own
+  // toggles: all parties stay visible, but any not in the selection are faded (highlight, not
+  // filter). An empty array shows everything at full emphasis. Undefined = self-managed toggles.
+  selection?: string[];
 }
 
 const THRESHOLD = 1.5;
@@ -62,7 +66,8 @@ function ControlSection({
   );
 }
 
-export function IdeologicalConstellation({ nodes: inputNodes, transfers, clusterSpreads }: Props) {
+export function IdeologicalConstellation({ nodes: inputNodes, transfers, clusterSpreads, selection }: Props) {
+  const controlled = selection !== undefined;
   const svgRef = useRef<SVGSVGElement>(null);
   const W = 560, H = 460;
   const PAD_L = 52, PAD_R = 24, PAD_T = 30, PAD_B = 52;
@@ -93,12 +98,15 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    const nodes = inputNodes.filter(n => {
-      // Match by exact id or base party prefix (for variant codes like CON_1, SD_hi_so)
-      if (enabledParties.has(n.id)) return true;
-      const base = n.id.split('_')[0];
-      return enabledParties.has(base);
-    }).map(n => ({ ...n }));
+    // Controlled (Compare tab): show every party, fade those outside the selection. An empty
+    // selection fades nothing. Self-managed (other tabs): the toggle strip hides parties.
+    const highlight = new Set(selection ?? []);
+    const isDim = (id: string) => controlled && highlight.size > 0 && !highlight.has(id.split('_')[0]);
+
+    const nodes = (controlled
+      ? inputNodes
+      : inputNodes.filter(n => enabledParties.has(n.id) || enabledParties.has(n.id.split('_')[0]))
+    ).map(n => ({ ...n }));
     if (nodes.length === 0) return;
 
     // Population SDs for z→percentile conversion
@@ -126,7 +134,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         return scaleMode === 'percentile' ? zToPctile(z) : z;
       };
       for (const cs of clusterSpreads) {
-        if (!enabledParties.has(cs.party)) continue;
+        if (!controlled && !enabledParties.has(cs.party)) continue;
         const rawMx = Number(cs[`mean_${xFactor}`] ?? 0);
         const rawMy = Number(cs[`mean_${yFactor}`] ?? 0);
         const rawSdx = Number(cs[`sd_${xFactor}`] ?? 0);
@@ -295,7 +303,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         return scaleMode === 'percentile' ? zToPctile(z) : z;
       };
       for (const cs of clusterSpreads) {
-        if (!enabledParties.has(cs.party)) continue;
+        if (!controlled && !enabledParties.has(cs.party)) continue;
         const color = PARTY_COLORS[cs.party] ?? '#6b7280';
         const rawMx = Number(cs[`mean_${xFactor}`] ?? 0);
         const rawMy = Number(cs[`mean_${yFactor}`] ?? 0);
@@ -339,9 +347,9 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
           .attr('ry', ry)
           .attr('transform', `rotate(${-angle}, ${xScale(mx)}, ${yScale(my)})`)
           .attr('fill', color)
-          .attr('fill-opacity', 0.06)
+          .attr('fill-opacity', isDim(cs.party) ? 0.02 : 0.06)
           .attr('stroke', color)
-          .attr('stroke-opacity', 0.15)
+          .attr('stroke-opacity', isDim(cs.party) ? 0.04 : 0.15)
           .attr('stroke-width', 1);
       }
     }
@@ -399,7 +407,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .attr('cy', d => posOf(d).y)
       .attr('r', d => rScale(getVal(d, sizeFactor)))
       .attr('fill', d => getColor(d))
-      .attr('fill-opacity', 0.55)
+      .attr('fill-opacity', d => isDim(d.id) ? 0.12 : 0.55)
       .attr('stroke', d => getStroke(d))
       .attr('stroke-width', 1.5)
       .style('cursor', 'pointer')
@@ -412,7 +420,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
           .attr('stroke', (l) => (l.source === d.id || l.target === d.id) ? '#64748b' : '#cbd5e1');
       })
       .on('mouseleave', function (_e, d) {
-        d3.select(this).attr('fill-opacity', 0.55).attr('stroke-width', 1.5);
+        d3.select(this).attr('fill-opacity', isDim(d.id) ? 0.12 : 0.55).attr('stroke-width', 1.5);
         svg.select(`.hover-label-${d.id.replace(/[^a-zA-Z0-9]/g, '_')}`).attr('opacity', manyNodes ? 0 : 1);
         linkSel.attr('opacity', 0.4).attr('stroke', '#cbd5e1');
       });
@@ -434,7 +442,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         .style('fill', 'none').style('stroke', '#f8fafc').style('stroke-width', '3px')
         .style('font-size', fontSize).style('font-weight', '700')
         .style('pointer-events', 'none')
-        .attr('opacity', alwaysShow ? 1 : 0)
+        .attr('opacity', alwaysShow ? (isDim(d.id) ? 0.28 : 1) : 0)
         .text(d.id);
       // Label text
       labelG.append('text')
@@ -443,7 +451,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         .attr('text-anchor', 'middle')
         .style('fill', getTextColor()).style('font-size', fontSize).style('font-weight', '700')
         .style('pointer-events', 'none')
-        .attr('opacity', alwaysShow ? 1 : 0)
+        .attr('opacity', alwaysShow ? (isDim(d.id) ? 0.28 : 1) : 0)
         .text(d.id);
     }
 
@@ -466,33 +474,36 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .style('fill', '#475569').style('font-size', '10px')
       .text(yLabel);
 
-  }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties, equalSize, scaleMode]);
+  }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties, equalSize, scaleMode, selection, controlled]);
 
   // Dimensions first, then Party, so the four factor labels read together.
   const colorOptions = [...FACTORS, 'party'] as const;
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Party toggles + scale — quick filters, above the chart */}
+      {/* Party toggles + scale — quick filters, above the chart. In controlled mode the party
+          toggles are hidden: the map follows the tab's party selection instead. */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <div className="flex flex-wrap gap-1">
-          {F5_ORDER.filter(p => presentParties.has(p)).map(p => {
-            const on = enabledParties.has(p);
-            const color = PARTY_COLORS[p];
-            return (
-              <button key={p} onClick={() => toggleParty(p)}
-                className="text-[10px] px-1.5 py-0.5 rounded border transition-all"
-                style={{
-                  borderColor: color,
-                  color: on ? 'white' : color,
-                  backgroundColor: on ? color : 'transparent',
-                  opacity: on ? 1 : 0.35,
-                }}>
-                {p}
-              </button>
-            );
-          })}
-        </div>
+        {!controlled && (
+          <div className="flex flex-wrap gap-1">
+            {F5_ORDER.filter(p => presentParties.has(p)).map(p => {
+              const on = enabledParties.has(p);
+              const color = PARTY_COLORS[p];
+              return (
+                <button key={p} onClick={() => toggleParty(p)}
+                  className="text-[10px] px-1.5 py-0.5 rounded border transition-all"
+                  style={{
+                    borderColor: color,
+                    color: on ? 'white' : color,
+                    backgroundColor: on ? color : 'transparent',
+                    opacity: on ? 1 : 0.35,
+                  }}>
+                  {p}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <ToggleGroup label="Scale" value={scaleMode} onChange={setScaleMode}
           options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
       </div>

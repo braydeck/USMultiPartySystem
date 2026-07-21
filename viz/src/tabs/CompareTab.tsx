@@ -798,6 +798,20 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
       };
     }), [clusters]);
 
+  // Spatial map of the parties, driven by the sticky selection (highlight, not filter): all
+  // parties stay on the map, the selected ones are emphasized. Rendered below the factor scores.
+  const constellationCard = (
+    <Card className="p-4">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
+      <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+        Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
+        <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
+        {selected.length > 0 && ' Selected parties are highlighted; the rest stay for context.'}
+      </p>
+      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} selection={selected} />
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -810,17 +824,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
           A <span className="text-amber-500 font-bold">◆</span> marks rows where the selected parties diverge (≥{minGap}pp apart).
         </p>
       </div>
-
-      {/* Ideological constellation — overview map, placed above the filters so it doesn't
-          interrupt the flow between the filter controls and the list they act on. */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
-        <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
-          Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
-          <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
-        </p>
-        <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
-      </Card>
 
       {/* Population distribution — share of adults vs share of voters, its own row. */}
       <PopulationBreakdown />
@@ -883,10 +886,13 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         </div>
       </div>
       {selected.length === 0 && (
-        <p className="text-xs text-muted-foreground">
-          Select a party for its platform, or several to compare. Try: PRG + NAT (maximum divergence) ·
-          LBR + CON (presidential rivals) · LBR_hi_so + LBR (crossover vs base).
-        </p>
+        <>
+          <p className="text-xs text-muted-foreground">
+            Select a party for its platform, or several to compare. Try: PRG + NAT (maximum divergence) ·
+            LBR + CON (presidential rivals) · LBR_hi_so + LBR (crossover vs base).
+          </p>
+          {constellationCard}
+        </>
       )}
 
 
@@ -954,6 +960,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             </div>
           </Card>
 
+          {constellationCard}
 
           {/* Sections */}
           {sectionKeys.length === 0 ? (
