@@ -1063,23 +1063,28 @@ _NON_POLICY_DOMAINS = {"Voting History", "Demographics", "Employment & Labor", "
 # different domains, so the one-per-domain rule surfaces only the strongest of the group.
 _KEYPOS_DEDUP_REMAP = {"Increase state spending on law enforcement": "Police & Guns"}
 
+# A defining position must be one the party is genuinely united on: hard floor on |pct-50|.
+_KEYPOS_MIN_COHESION = 15.0
+
 
 def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=5):
     """Top-n policy positions this party holds *cohesively* and that *distinguish* it from its
     two nearest neighbors in factor space, at most one per domain (grouped via
-    _KEYPOS_DEDUP_REMAP) so the card spans issues rather than stacking one topic. Ranked by
-    cohesion × neighbor-divergence, scaled by the item's field spread, so a surfaced position is
-    one the party is united on AND that separates it from its ideological lookalikes:
+    _KEYPOS_DEDUP_REMAP) so the card spans issues rather than stacking one topic:
 
       cohesion   = |pct - 50|                        (distance from a 50/50 split — strongly for/against)
       divergence = |pct - mean(2 nearest parties)|   (distance from the closest parties)
-      score      = cohesion × divergence / (field_sd + 5)
+      score      = cohesion**1.5 × divergence / (field_sd + 5)
 
-    Dividing by the item's cross-party spread stops a party from looking "distinctive" merely for
-    being extreme on a universally polarizing issue (policing, immigration), which would otherwise
-    crowd every card with the same few items. Deviation from the national average is deliberately
-    NOT used. `direction` is the party's own stance (supports if a majority back it); `diffPp` is
-    the signed gap vs. neighbors."""
+    Cohesion is weighted above divergence (the 1.5 exponent) so a position the party is united on
+    outranks one that merely diverges from neighbors — otherwise split items (e.g. a 36/64 party)
+    surface just for being far from lookalikes. A hard cohesion floor (|pct-50| >= 15) drops
+    genuinely split items entirely. Distinctiveness gets an *adaptive* floor: prefer divergence
+    >= 5, but for a party wedged between near-identical neighbors (few items clear it) the floor
+    relaxes step-wise until `n` positions are found. Dividing by the item's cross-party spread
+    stops a party from looking distinctive merely for being extreme on a universally polarizing
+    issue. Deviation from the national average is deliberately NOT used; `direction` is the party's
+    own stance (supports if a majority back it), `diffPp` the signed gap vs. neighbors."""
     factor_keys = ["F1", "F2", "F3", "F4", "F5"]
     me = cluster_factors.get(cid) if cluster_factors else None
     neighbor_cids = []
@@ -1111,26 +1116,39 @@ def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=5):
         field_sd = (sum((x - m) ** 2 for x in allp) / len(allp)) ** 0.5 if len(allp) > 1 else 0.0
         neighbor_avg = sum(nb) / len(nb)
         cohesion = abs(pct - 50.0)
-        divergence = abs(pct - neighbor_avg)
-        score = cohesion * divergence / (field_sd + 5.0)
-        topic = _KEYPOS_DEDUP_REMAP.get(r["question"], r.get("domain"))
-        scored.append((score, pct, neighbor_avg, round(cohesion, 1), r["question"], topic))
-    scored.sort(key=lambda t: -t[0])
-    out, used = [], set()
-    for _score, pct, neighbor_avg, cohesion, question, topic in scored:
-        if topic in used:
+        if cohesion < _KEYPOS_MIN_COHESION:
             continue
-        used.add(topic)
-        out.append({
-            "question": question,
-            "pct": round(pct, 1),
-            "direction": "supports" if pct >= 50 else "opposes",
-            "diffPp": round(pct - neighbor_avg, 1),
-            "cohesion": cohesion,
-        })
-        if len(out) >= n:
+        divergence = abs(pct - neighbor_avg)
+        score = cohesion ** 1.5 * divergence / (field_sd + 5.0)
+        topic = _KEYPOS_DEDUP_REMAP.get(r["question"], r.get("domain"))
+        scored.append((score, pct, neighbor_avg, round(cohesion, 1), divergence, r["question"], topic))
+    scored.sort(key=lambda t: -t[0])
+
+    # One per (grouped) domain. Adaptive distinctiveness floor: prefer divergence >= 5, relaxing
+    # step-wise so a party wedged between near-identical neighbors still fills n positions.
+    def _select(min_div):
+        picked, used = [], set()
+        for _score, pct, neighbor_avg, cohesion, divergence, question, topic in scored:
+            if divergence < min_div or topic in used:
+                continue
+            used.add(topic)
+            picked.append((pct, neighbor_avg, cohesion, question))
+            if len(picked) >= n:
+                break
+        return picked
+
+    selected = []
+    for min_div in (5.0, 4.0, 3.0, 2.0, 1.0, 0.0):
+        selected = _select(min_div)
+        if len(selected) >= n:
             break
-    return out
+    return [{
+        "question": question,
+        "pct": round(pct, 1),
+        "direction": "supports" if pct >= 50 else "opposes",
+        "diffPp": round(pct - neighbor_avg, 1),
+        "cohesion": cohesion,
+    } for pct, neighbor_avg, cohesion, question in selected]
 
 def _compute_cluster_factor_centroids() -> dict:
     """Weighted-mean FS_F1..F5 centroid for every cluster 0-9.
