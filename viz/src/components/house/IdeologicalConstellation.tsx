@@ -25,7 +25,7 @@ const ALL_AXES = [...FACTORS, 'seats'] as const;
 // Short, readable axis labels — a fresh visitor won't know "SO/ID/RT/PC". Full factor names
 // stay on the button tooltips and the chart axes.
 const AXIS_WORD: Record<string, string> = {
-  party: 'Party', F1: 'Security', F2: 'Institutions', F4: 'Religion', F5: 'Populism', seats: 'Seats',
+  party: 'Party', F1: 'Security', F2: 'Anti-institution', F4: 'Traditionalism', F5: 'Populism', seats: 'Seats',
 };
 
 const SCALE_LABELS: Record<'strength' | 'percentile', string> = {
@@ -512,7 +512,11 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
           <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
           <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} />
           <div className="flex flex-wrap items-center gap-2">
-            <ControlSection label="Size" options={ALL_AXES} value={sizeFactor} onChange={setSizeFactor} />
+            {/* Equal size and a size dimension are mutually exclusive: when equal size is on,
+                no dimension is highlighted; picking a dimension turns equal size off. */}
+            <ControlSection label="Size" options={ALL_AXES}
+              value={equalSize ? '' : sizeFactor}
+              onChange={v => { setSizeFactor(v); setEqualSize(false); }} />
             <Button onClick={() => setEqualSize(!equalSize)}
               variant={equalSize ? 'default' : 'secondary'}
               size="sm" className="px-2 h-6">
