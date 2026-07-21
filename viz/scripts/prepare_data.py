@@ -1054,14 +1054,22 @@ def collect_cluster_variables(rows, include_c7=True):
 # attendance) are demographic descriptors, not policy stances — the religious-traditionalism
 # signal lives in the Abortion / marriage policy items, which are kept.
 _NON_POLICY_DOMAINS = {"Voting History", "Demographics", "Employment & Labor", "Civic Engagement",
-                       "Faith", "Religion"}
+                       "Faith", "Religion",
+                       # multiselect "pick the actions you support" battery: a low pct means
+                       # "not selected", not "opposes", so cohesion=|pct-50| is meaningless here.
+                       "Foreign Policy & Defense"}
+
+# Dedup grouping only (not display): items that are policy-wise the same topic but sit in
+# different domains, so the one-per-domain rule surfaces only the strongest of the group.
+_KEYPOS_DEDUP_REMAP = {"Increase state spending on law enforcement": "Police & Guns"}
 
 
-def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=4):
+def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=5):
     """Top-n policy positions this party holds *cohesively* and that *distinguish* it from its
-    two nearest neighbors in factor space. Ranked by cohesion × neighbor-divergence, scaled by
-    the item's field spread, so a surfaced position is one the party is united on AND that
-    separates it from its ideological lookalikes:
+    two nearest neighbors in factor space, at most one per domain (grouped via
+    _KEYPOS_DEDUP_REMAP) so the card spans issues rather than stacking one topic. Ranked by
+    cohesion × neighbor-divergence, scaled by the item's field spread, so a surfaced position is
+    one the party is united on AND that separates it from its ideological lookalikes:
 
       cohesion   = |pct - 50|                        (distance from a 50/50 split — strongly for/against)
       divergence = |pct - mean(2 nearest parties)|   (distance from the closest parties)
@@ -1105,10 +1113,14 @@ def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=4):
         cohesion = abs(pct - 50.0)
         divergence = abs(pct - neighbor_avg)
         score = cohesion * divergence / (field_sd + 5.0)
-        scored.append((score, pct, neighbor_avg, round(cohesion, 1), r["question"]))
+        topic = _KEYPOS_DEDUP_REMAP.get(r["question"], r.get("domain"))
+        scored.append((score, pct, neighbor_avg, round(cohesion, 1), r["question"], topic))
     scored.sort(key=lambda t: -t[0])
-    out = []
-    for _score, pct, neighbor_avg, cohesion, question in scored[:n]:
+    out, used = [], set()
+    for _score, pct, neighbor_avg, cohesion, question, topic in scored:
+        if topic in used:
+            continue
+        used.add(topic)
         out.append({
             "question": question,
             "pct": round(pct, 1),
@@ -1116,6 +1128,8 @@ def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=4):
             "diffPp": round(pct - neighbor_avg, 1),
             "cohesion": cohesion,
         })
+        if len(out) >= n:
+            break
     return out
 
 def _compute_cluster_factor_centroids() -> dict:
