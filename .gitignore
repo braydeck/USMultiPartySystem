@@ -29,3 +29,6 @@ data/raw/2024 anes data/
 # Post recommendations / drafts (keep locally only)
 results/post_recs/
 .wrangler/
+quiz_rescored.csv
+quiz_backup_pre_rescore.csv
+quiz_rescore_report.md
