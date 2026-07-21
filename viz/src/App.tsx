@@ -5,6 +5,7 @@ import { HouseTab } from './tabs/HouseTab';
 import { QuizTab } from './tabs/QuizTab';
 import { PartiesTab } from './tabs/PartiesTab';
 import { PresidencyTab } from './tabs/PresidencyTab';
+import { SingleRaceTab } from './tabs/SingleRaceTab';
 import { LegislationTab } from './tabs/LegislationTab';
 import { AboutTab } from './tabs/AboutTab';
 import { OverviewTab } from './tabs/OverviewTab';
@@ -92,6 +93,7 @@ const SCENARIO_TABS = [
   { id: 'presidency',  label: 'Presidency' },
   { id: 'senate',      label: 'Senate' },
   { id: 'house',       label: 'House' },
+  { id: 'singleRace',  label: 'Single Race' },
   { id: 'legislation', label: 'Legislation' },
   { id: 'rcv',         label: 'IRV Case Studies' },
 ] as const;
@@ -354,6 +356,7 @@ export default function App() {
             districtResultsTurnout={districtStvResultsTurnoutData as unknown as Record<string, DistrictResult[]>}
           />
         )}
+        {tab === 'singleRace' && <SingleRaceTab />}
         {tab === 'rcv' && (
           <RCVTab
             data={rcvResultsData as unknown as RCVData}
