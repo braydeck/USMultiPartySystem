@@ -467,7 +467,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .attr('x', -(PAD_T + H - PAD_B) / 2).attr('y', 13)
       .attr('text-anchor', 'middle')
       .style('fill', '#475569').style('font-size', '10px')
-      .text(`← Low ${yLabel}   |   High →`);
+      .text(yLabel);
 
   }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties, equalSize, scaleMode]);
 
