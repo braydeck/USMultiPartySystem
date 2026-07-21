@@ -91,17 +91,15 @@ Factor scores are standardized to the survey population (mean≈0, SD≈1). Abso
 **Low** = civil libertarian, anti-enforcement
 *Top items: support increased police (+0.73), increase border patrols (+0.71), deny asylum (+0.66), oppose decreasing police (+0.65)*
 
-### F2 — Electoral Skepticism
-**High** = believes elections are NOT run fairly; distrusts voting systems
-**Low** = trusts electoral institutions
+### F2 — Institutional Distrust
+**High** = distrusts elections and government; anti-establishment
+**Low** = trusts institutions
 *Top items: state/local elections not fair (+0.90), US elections not fair (+0.73)*
-Note: Near-orthogonal to partisan ID — STY, POP, and DSA all score High despite being ideologically distant on F1/F5.
+Anchored by the election-integrity items, but it also absorbs the government-trust items (CC24_423/424) and carries the real distrust signal — F2 correlates +0.84 with raw government distrust across the ten parties. Near-orthogonal to partisan ID — STY, POP, and DSA all score High despite being ideologically distant on F1/F5, so institutional distrust cuts across the left-right divide. (Formerly labeled "Electoral Skepticism.")
 
-### F3 — Government Distrust
-**High** = low trust in federal and state government
-**Low** = trusts government institutions
+### F3 — Government Distrust (residual)
 *Top items: distrust federal govt (+0.66), distrust state govt (+0.48)*
-**Key finding: All 23 winning coalition types score Medium on F3 (range −0.21 to +0.13) — this axis does not differentiate winning coalitions at all.**
+**Non-interpretable residual; the label is misleading and the sign inverts.** Re-deriving from the stored factor scores (repro: `analysis/efa/exploration/verify_f3_inversion.py`), a party's F3 score correlates **−0.38** with its actual government distrust: the two most distrusting parties, POP and NAT, score *lowest*, while institutionalist CON scores highest among the right. The mechanism is that the government-trust items (CC24_423/424) load on both F2 and F3, and F2 — where the party-level variance sits — absorbs the real signal, so F3's discriminating variance instead comes from culturally-coded cross-loadings (immigration, race) and its ordering tracks a culturally-progressive residual, not distrust. F3 earns its k=5 slot only by keeping the trust variance split so the DPGMM can isolate CUP, the institutionalist that trusts both elections and government (see Robustness in [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md)). It is excluded from party-facing displays and flagged as a residual; the genuine distrust axis is F2. All 23 winning coalition types also score Medium on F3 (range −0.21 to +0.13), so it does not differentiate coalitions.
 
 ### F4 — Religious Traditionalism
 **High** = traditional religious values; conservative on abortion and same-sex marriage
