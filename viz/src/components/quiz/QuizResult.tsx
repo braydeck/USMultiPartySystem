@@ -32,7 +32,8 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissi
   const shareUrl = `https://usmultipartysystem.pages.dev/r/${cluster.party}`;
   const shareText = `I'm ${cluster.partyName} in a multi-party America. Which party are you?`;
 
-  // Defining positions: the party's biggest deviations from the national average.
+  // Defining positions: stances the party holds cohesively that also set it apart from its
+  // closest neighbor parties (see compute_key_positions_vs_neighbors in prepare_data.py).
   const positions = (cluster.keyPositions ?? []).slice(0, 5);
 
   // "See details" deep-links into the party comparison: this party + the two closest matches.
@@ -152,7 +153,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissi
             })}
           </ul>
           <div className="text-xs text-muted-foreground mt-2">
-            Positions where this party diverges most from the national average.
+            Positions this party is united on that most set it apart from its closest parties.
           </div>
         </div>
       )}

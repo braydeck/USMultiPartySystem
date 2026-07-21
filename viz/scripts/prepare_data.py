@@ -1049,87 +1049,73 @@ def collect_cluster_variables(rows, include_c7=True):
 
     return result
 
-# "What sets a party apart" should surface political/social *views*, not demographics
-# or voting behavior.
-_NON_POLICY_DOMAINS = {"Voting History", "Demographics", "Employment & Labor", "Civic Engagement"}
+# "What sets a party apart" should surface political/social *views*, not demographics or
+# voting behavior. Faith (denomination shares) and Religion (religiosity: importance, prayer,
+# attendance) are demographic descriptors, not policy stances — the religious-traditionalism
+# signal lives in the Abortion / marriage policy items, which are kept.
+_NON_POLICY_DOMAINS = {"Voting History", "Demographics", "Employment & Labor", "Civic Engagement",
+                       "Faith", "Religion"}
 
 
-def compute_key_positions(rows, cid, n=4):
-    """Return top-n data-driven policy positions that most differentiate this cluster."""
-    binary_rows = [r for r in rows if r["type"] == "binary"
-                   and r.get("domain") not in _NON_POLICY_DOMAINS]
-    diffs = []
-    for r in binary_rows:
-        try:
-            overall = float(r["overall"])
-            val = float(r[f"c{cid}"]) if r.get(f"c{cid}") else overall
-            diff = val - overall
-            diffs.append((abs(diff), diff, r["question"], val))
-        except (ValueError, KeyError):
-            pass
-    diffs.sort(reverse=True)
-    out = []
-    for _, diff, question, pct in diffs[:n]:
-        out.append({
-            "question": question,
-            "pct": round(pct, 1),
-            "direction": "supports" if diff > 0 else "opposes",
-            "diffPp": round(diff, 1),
-        })
-    return out
+def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=4):
+    """Top-n policy positions this party holds *cohesively* and that *distinguish* it from its
+    two nearest neighbors in factor space. Ranked by cohesion × neighbor-divergence, scaled by
+    the item's field spread, so a surfaced position is one the party is united on AND that
+    separates it from its ideological lookalikes:
 
+      cohesion   = |pct - 50|                        (distance from a 50/50 split — strongly for/against)
+      divergence = |pct - mean(2 nearest parties)|   (distance from the closest parties)
+      score      = cohesion × divergence / (field_sd + 5)
 
-def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=4, min_diff=15):
-    """Return top-n positions most distinguishing this cluster from its 2 nearest neighbors.
-    Falls back to overall-diff approach if fewer than n positions pass the threshold."""
-    me = cluster_factors.get(cid)
-    if not me:
-        return compute_key_positions(rows, cid, n)
-
+    Dividing by the item's cross-party spread stops a party from looking "distinctive" merely for
+    being extreme on a universally polarizing issue (policing, immigration), which would otherwise
+    crowd every card with the same few items. Deviation from the national average is deliberately
+    NOT used. `direction` is the party's own stance (supports if a majority back it); `diffPp` is
+    the signed gap vs. neighbors."""
     factor_keys = ["F1", "F2", "F3", "F4", "F5"]
-    distances = []
-    for other_cid, other in cluster_factors.items():
-        if other_cid == cid:
-            continue
-        dist = sum((me[f] - other[f]) ** 2 for f in factor_keys) ** 0.5
-        distances.append((dist, other_cid))
-    distances.sort()
-    neighbor_cids = [c2 for _, c2 in distances[:2]]
+    me = cluster_factors.get(cid) if cluster_factors else None
+    neighbor_cids = []
+    if me:
+        dists = sorted(
+            (sum((me[f] - o[f]) ** 2 for f in factor_keys) ** 0.5, ocid)
+            for ocid, o in cluster_factors.items() if ocid != cid
+        )
+        neighbor_cids = [c2 for _, c2 in dists[:2]]
+
+    def _fnum(v):
+        try:
+            return float(v) if v not in (None, "") else None
+        except (ValueError, TypeError):
+            return None
 
     binary_rows = [r for r in rows if r["type"] == "binary"
                    and r.get("domain") not in _NON_POLICY_DOMAINS]
-    diffs = []
+    scored = []
     for r in binary_rows:
-        try:
-            val = float(r[f"c{cid}"])
-            neighbor_vals = [float(r[f"c{nc}"]) for nc in neighbor_cids if r.get(f"c{nc}")]
-            if not neighbor_vals:
-                continue
-            avg_neighbor = sum(neighbor_vals) / len(neighbor_vals)
-            diff = val - avg_neighbor
-            if abs(diff) >= min_diff:
-                diffs.append((abs(diff), diff, r["question"], val))
-        except (ValueError, KeyError):
-            pass
-    diffs.sort(reverse=True)
+        pct = _fnum(r.get(f"c{cid}"))
+        if pct is None:
+            continue
+        nb = [x for x in (_fnum(r.get(f"c{nc}")) for nc in neighbor_cids) if x is not None]
+        if not nb:
+            continue
+        allp = [x for x in (_fnum(r.get(f"c{i}")) for i in range(10)) if x is not None]
+        m = sum(allp) / len(allp)
+        field_sd = (sum((x - m) ** 2 for x in allp) / len(allp)) ** 0.5 if len(allp) > 1 else 0.0
+        neighbor_avg = sum(nb) / len(nb)
+        cohesion = abs(pct - 50.0)
+        divergence = abs(pct - neighbor_avg)
+        score = cohesion * divergence / (field_sd + 5.0)
+        scored.append((score, pct, neighbor_avg, round(cohesion, 1), r["question"]))
+    scored.sort(key=lambda t: -t[0])
     out = []
-    for _, diff, question, pct in diffs[:n]:
+    for _score, pct, neighbor_avg, cohesion, question in scored[:n]:
         out.append({
             "question": question,
             "pct": round(pct, 1),
-            "direction": "supports" if diff > 0 else "opposes",
-            "diffPp": round(diff, 1),
+            "direction": "supports" if pct >= 50 else "opposes",
+            "diffPp": round(pct - neighbor_avg, 1),
+            "cohesion": cohesion,
         })
-    # Fall back to overall-diff for any remaining slots
-    if len(out) < n:
-        seen = {p["question"] for p in out}
-        fallback = compute_key_positions(rows, cid, n * 2)
-        for pos in fallback:
-            if pos["question"] not in seen:
-                out.append(pos)
-                seen.add(pos["question"])
-            if len(out) >= n:
-                break
     return out
 
 def _compute_cluster_factor_centroids() -> dict:
