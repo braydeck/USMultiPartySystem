@@ -34,17 +34,20 @@ const SCALE_LABELS: Record<'strength' | 'percentile', string> = {
 };
 
 function ControlSection({
-  label, options, value, onChange,
+  label, options, value, onChange, vertical = false,
 }: {
   label: string;
   options: readonly string[];
   value: string;
   onChange: (v: string) => void;
+  vertical?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-xs text-muted-foreground font-semibold w-8 shrink-0">{label}</span>
-      <div className="flex flex-wrap gap-1">
+    <div className={vertical ? 'shrink-0 w-24' : 'flex items-center gap-1.5'}>
+      <span className={vertical
+        ? 'block mb-1 text-xs text-muted-foreground font-semibold'
+        : 'w-8 shrink-0 text-xs text-muted-foreground font-semibold'}>{label}</span>
+      <div className={vertical ? 'flex flex-col gap-1' : 'flex flex-wrap gap-1'}>
         {options.map(opt => (
           <Button
             key={opt}
@@ -52,7 +55,7 @@ function ControlSection({
             title={opt === 'seats' ? 'Seats' : (FACTOR_LABELS[opt] ?? opt)}
             variant={value === opt ? 'default' : 'secondary'}
             size="sm"
-            className="px-2 h-6 flex-none"
+            className={vertical ? 'w-full justify-center px-1 h-6' : 'px-2 h-6 flex-none'}
           >
             {AXIS_WORD[opt] ?? opt}
           </Button>
@@ -496,17 +499,22 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
           options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
       </div>
 
-      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto', maxWidth: 500, display: 'block', margin: '0 auto' }} aria-label="Ideological factor constellation chart" />
+      {/* Y-axis selector sits beside the chart (near the y-axis); X sits below (near the x-axis). */}
+      <div className="flex items-center gap-2">
+        <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} vertical />
+        <div className="min-w-0 flex-1">
+          <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto', maxWidth: 500, display: 'block', margin: '0 auto' }} aria-label="Ideological factor constellation chart" />
+        </div>
+      </div>
       {transfers && (
         <p className="text-xs text-muted-foreground text-center">
           Lines = voter transfer affinity &gt; {THRESHOLD}. Hover to highlight.
         </p>
       )}
 
-      {/* Axis + colour controls — horizontal bar below the chart */}
+      {/* X + size + colour controls — horizontal bar below the chart */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-2.5 mt-1">
         <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
-        <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} />
         <ControlSection label="Size" options={ALL_AXES} value={sizeFactor} onChange={setSizeFactor} />
         <Button onClick={() => setEqualSize(!equalSize)}
           variant={equalSize ? 'default' : 'secondary'}
