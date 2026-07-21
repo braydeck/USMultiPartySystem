@@ -25,7 +25,7 @@ const ALL_AXES = [...FACTORS, 'seats'] as const;
 // Short, readable axis labels — a fresh visitor won't know "SO/ID/RT/PC". Full factor names
 // stay on the button tooltips and the chart axes.
 const AXIS_WORD: Record<string, string> = {
-  party: 'Party', F1: 'Security', F2: 'Anti-institution', F4: 'Traditionalism', F5: 'Populism', seats: 'Seats',
+  party: 'Party', F1: 'Security', F2: 'Distrust', F4: 'Traditionalism', F5: 'Populism', seats: 'Seats',
 };
 
 const SCALE_LABELS: Record<'strength' | 'percentile', string> = {
@@ -468,7 +468,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
   }, [inputNodes, transfers, clusterSpreads, xFactor, yFactor, sizeFactor, colorMode, enabledParties, equalSize, scaleMode]);
 
-  const colorOptions = ['party', ...FACTORS] as const;
+  // Dimensions first, then Party, so the four factor labels read together.
+  const colorOptions = [...FACTORS, 'party'] as const;
 
   return (
     <div className="flex flex-col gap-2">
