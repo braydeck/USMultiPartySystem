@@ -25,10 +25,30 @@ export function answersToVariableMap(
 
 const KEY = import.meta.env.VITE_POSTHOG_KEY
 const HOST = import.meta.env.VITE_POSTHOG_HOST ?? 'https://us.i.posthog.com'
+const OPTOUT_KEY = 'stv_analytics_optout'
 
 let ready = false
+let disabled = false
+
+/** Whether this browser has opted out (persists across sessions, unlike PostHog's memory mode). */
+function isOptedOut(): boolean {
+  // ?analytics=off sets a persistent opt-out on this browser; ?analytics=on clears it.
+  try {
+    const flag = new URLSearchParams(window.location.search).get('analytics')
+    if (flag === 'off') localStorage.setItem(OPTOUT_KEY, '1')
+    else if (flag === 'on') localStorage.removeItem(OPTOUT_KEY)
+    return localStorage.getItem(OPTOUT_KEY) === '1'
+  } catch {
+    return false // localStorage blocked — behave normally
+  }
+}
 
 export function initAnalytics(): void {
+  disabled = isOptedOut()
+  if (disabled) {
+    console.info('[analytics] disabled on this browser (opted out)')
+    return
+  }
   if (ready || !KEY) return
   posthog.init(KEY, {
     api_host: HOST,
@@ -41,7 +61,7 @@ export function initAnalytics(): void {
 }
 
 export function track(event: string, props?: Record<string, unknown>): void {
-  if (!ready) return
+  if (disabled || !ready) return
   try {
     posthog.capture(event, props)
   } catch {
@@ -82,6 +102,7 @@ export function submitQuizResult(input: {
   answers: Record<string, number>
   scores: { party: string; prob: number }[]
 }): void {
+  if (disabled) return
   try {
     fetch('/api/quiz', {
       method: 'POST',
@@ -102,6 +123,7 @@ export function submitQuizResult(input: {
 }
 
 export function submitVibe(id: string, vibe: 'fit' | 'miss', party: string): void {
+  if (disabled) return
   try {
     fetch('/api/quiz', {
       method: 'PATCH',
