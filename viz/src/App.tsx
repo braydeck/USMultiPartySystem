@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useUrlState, resetUrlParams, urlForParams } from './hooks/useUrlState';
+import { resolveDefaultTab } from './utils/defaultTab';
 import { SenateTab } from './tabs/SenateTab';
 import { HouseTab } from './tabs/HouseTab';
 import { QuizTab } from './tabs/QuizTab';
@@ -114,8 +115,7 @@ const navTabClass = (active: boolean) =>
 
 export default function App() {
   // On mobile, land on the Party Quiz (the shareable hook) by default; desktop opens on Overview.
-  const landingDefault: TabId =
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 'quiz' : 'overview';
+  const landingDefault: TabId = resolveDefaultTab();
   const [tab] = useUrlState<TabId>('tab', landingDefault, { allowed: ALL_TABS.map(t => t.id) });
   const [menuOpen, setMenuOpen] = useState(false);
   const [scenariosOpen, setScenariosOpen] = useState(false);

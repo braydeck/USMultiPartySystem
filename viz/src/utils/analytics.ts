@@ -1,5 +1,6 @@
 import posthog from 'posthog-js'
 import type { QuizQuestion } from '../types'
+import { resolveDefaultTab } from './defaultTab'
 
 export const QUIZ_VERSION = 'v1-2026-07'
 
@@ -72,7 +73,11 @@ export function track(event: string, props?: Record<string, unknown>): void {
 }
 
 function currentParams(): Record<string, string> {
-  return Object.fromEntries(new URLSearchParams(window.location.search))
+  const p = Object.fromEntries(new URLSearchParams(window.location.search))
+  // Default-tab landings omit ?tab= from the URL; emit the resolved tab so view_state has an
+  // explicit area for every view (no blank bucket).
+  if (!p.tab) p.tab = resolveDefaultTab()
+  return p
 }
 
 export function mountViewStateTracking(): () => void {
