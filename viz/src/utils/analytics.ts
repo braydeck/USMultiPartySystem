@@ -53,7 +53,9 @@ export function initAnalytics(): void {
   posthog.init(KEY, {
     api_host: HOST,
     person_profiles: 'identified_only',
-    persistence: 'memory',
+    // localStorage (not a cookie) keeps a random anonymous id so returning browsers are counted
+    // as one visitor instead of a fresh one each load; no PII, consistent with the consent note.
+    persistence: 'localStorage',
     autocapture: false,
     capture_pageview: 'history_change',
   })

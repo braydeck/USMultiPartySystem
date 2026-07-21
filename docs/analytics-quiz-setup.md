@@ -45,7 +45,7 @@ Then bind it to the Pages project in the dashboard:
 ## 2. PostHog privacy toggle
 
 - PostHog → project Settings → toggle **"Discard client IP data"** on.
-- (The client already runs cookieless: `persistence: 'memory'`, `autocapture: false`,
+- (The client runs `persistence: 'localStorage'` — a random anonymous id, no cookie/PII, so unique visitors are counted accurately — plus `autocapture: false`,
   `person_profiles: 'identified_only'`.)
 
 ## 3. Cloudflare Web Analytics
