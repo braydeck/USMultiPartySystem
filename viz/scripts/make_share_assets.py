@@ -21,21 +21,27 @@ OG_DIR = ROOT / "viz" / "public" / "og"
 R_DIR = ROOT / "viz" / "public" / "r"
 SITE = "https://usmultipartysystem.pages.dev"
 
-NAMES = {"CON": "Conservative", "SD": "Social Democrat", "STY": "Solidarity", "POP": "Populist",
+# Names / colors / taglines mirror viz/src/constants/parties.ts (PARTY_NAMES, PARTY_COLORS,
+# PARTY_TAGLINES). Keep in sync if those change. All ten current parties, incl. LBR (formerly
+# SD) and OAO.
+NAMES = {"CON": "Conservative", "LBR": "Labor", "STY": "Solidarity", "POP": "Populist",
          "CUP": "Civic Union Party", "LIB": "Liberal", "NAT": "Nationalist",
-         "DSA": "Democratic Socialists", "PRG": "Progressive"}
-COLORS = {"PRG": "#1e3a8a", "LIB": "#1d4ed8", "DSA": "#60a5fa", "SD": "#06b6d4", "STY": "#16a34a",
-          "CUP": "#a16207", "CON": "#ea580c", "POP": "#dc2626", "NAT": "#7f1d1d"}
-TAGLINES = {"PRG": "Climate action, social justice, universal programs",
-            "LIB": "Civil liberties, regulated markets, global engagement",
-            "DSA": "Worker power, economic equality, public ownership",
-            "SD": "Strong safety net, institutional reform, center-left",
-            "STY": "Cross-cutting populism, skeptical of both establishments",
-            "CUP": "Moderate on economics and culture, institutionalist",
-            "CON": "Free markets, traditional values, national sovereignty",
-            "POP": "Anti-establishment right, immigration restriction",
-            "NAT": "Cultural conservatism, economic nationalism, strong borders"}
-CODE_TO_ID = {"CON": "0", "SD": "1", "STY": "2", "NAT": "3", "LIB": "4", "POP": "5", "CUP": "6", "DSA": "8", "PRG": "9"}
+         "DSA": "Democratic Socialists", "PRG": "Progressive",
+         "OAO": "Order and Opportunity Party"}
+COLORS = {"PRG": "#15803d", "DSA": "#22c55e", "LIB": "#0284c7", "LBR": "#38bdf8", "STY": "#8a70b8",
+          "CUP": "#825a27", "CON": "#e68c2c", "POP": "#d34812", "NAT": "#a01d2a", "OAO": "#5b6b8c"}
+TAGLINES = {"PRG": "Progressive on taxes, climate, and civil liberties; trusts elections",
+            "LIB": "Progressive on economics and climate; backs border enforcement and police",
+            "DSA": "Progressive on economics and culture, secular, election-skeptic",
+            "LBR": "Safety net, clean energy, and a Dreamer pathway with border enforcement",
+            "STY": "Economically progressive and religiously traditional; election-skeptic",
+            "CUP": "Centrist on economics and culture; law-and-order institutionalists",
+            "CON": "Low-tax, law-and-order; trusts elections and backs background checks",
+            "POP": "Immigration-restrictionist and election-skeptic; backs Medicaid expansion",
+            "NAT": "Anti-immigration, religiously traditional, low-tax, and election-skeptic",
+            "OAO": "Economically progressive and law-and-order; trusts elections"}
+CODE_TO_ID = {"CON": "0", "LBR": "1", "STY": "2", "NAT": "3", "LIB": "4",
+              "POP": "5", "CUP": "6", "OAO": "7", "DSA": "8", "PRG": "9"}
 
 by_id = {p["id"]: p for p in PROFILES}
 seats_by_id = {str(h["party"]): h["national"] for h in HOUSE}
@@ -53,7 +59,9 @@ def card(code: str):
 
     ax.add_patch(Rectangle((0, 0), 18, 630, facecolor=color))  # left color band
     ax.text(70, 560, "WHICH PARTY ARE YOU?", fontsize=15, color="#94a3b8", fontweight="bold")
-    ax.text(70, 500, name, fontsize=52, color=color, fontweight="bold")
+    # Shrink the name to fit the card width for long party names (e.g. "Order and Opportunity Party").
+    name_fs = max(30, min(52, int(1120 / len(name))))
+    ax.text(70, 500, name, fontsize=name_fs, color=color, fontweight="bold")
     ax.text(70, 452, tag, fontsize=19, color="#475569")
     ax.text(70, 410, f"{seats} of 873 House seats under proportional rules", fontsize=15, color="#94a3b8")
 
@@ -76,10 +84,14 @@ def card(code: str):
     plt.close(fig)
 
 
+# Self-contained landing: renders a visible party statement + "Take the quiz" CTA so the page
+# is never blank (works with JS off, or if the redirect fails). JS visitors are sent straight
+# into the app's shared-result view via location.replace, which is the richer experience.
 STUB = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>I'm {name}. Which party are you?</title>
 <meta name="description" content="{tag}" />
 <meta property="og:type" content="website" />
@@ -94,11 +106,16 @@ STUB = """<!doctype html>
 <meta name="twitter:description" content="{tag}" />
 <meta name="twitter:image" content="{site}/og/{code}.png" />
 <link rel="canonical" href="/?tab=quiz&result={code}" />
-<meta http-equiv="refresh" content="0; url=/?tab=quiz&result={code}" />
 </head>
-<body>
+<body style="margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#1c1b1a;">
+<div style="max-width:560px;margin:0 auto;padding:64px 24px;text-align:center;">
+  <div style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;font-weight:700;">Which party are you?</div>
+  <div style="font-size:40px;font-weight:800;color:{color};margin:12px 0 6px;line-height:1.1;">{name}</div>
+  <div style="font-size:17px;color:#475569;margin-bottom:28px;">{tag}</div>
+  <p style="font-size:15px;color:#64748b;line-height:1.55;margin:0 auto 28px;max-width:44ch;">Someone shared their result from a simulation of U.S. elections under proportional representation. Take the quiz to find the party that matches your politics.</p>
+  <a href="/?tab=quiz&result={code}" style="display:inline-block;background:{color};color:#fff;font-weight:700;font-size:16px;text-decoration:none;padding:13px 30px;border-radius:9999px;">Take the quiz &rarr;</a>
+</div>
 <script>location.replace("/?tab=quiz&result={code}");</script>
-<noscript><a href="/?tab=quiz&result={code}">View this result</a></noscript>
 </body>
 </html>
 """
@@ -107,7 +124,8 @@ STUB = """<!doctype html>
 def stub(code: str):
     d = R_DIR / code
     d.mkdir(parents=True, exist_ok=True)
-    (d / "index.html").write_text(STUB.format(name=NAMES[code], tag=TAGLINES[code], code=code, site=SITE))
+    (d / "index.html").write_text(
+        STUB.format(name=NAMES[code], tag=TAGLINES[code], code=code, site=SITE, color=COLORS[code]))
 
 
 for code in NAMES:
