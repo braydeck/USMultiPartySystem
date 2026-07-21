@@ -3,7 +3,7 @@ import type { QuizQuestion as QuizQuestionType, ClusterProfile, HouseSeat } from
 import { QuizQuestion } from '../components/quiz/QuizQuestion';
 import { QuizProgress } from '../components/quiz/QuizProgress';
 import { QuizResult, type RankEntry } from '../components/quiz/QuizResult';
-import { classifyQuiz, type SpreadRow } from '../utils/quizScoring';
+import { classifyQuiz, estimateFactorZScores, type SpreadRow } from '../utils/quizScoring';
 import { useUrlState } from '../hooks/useUrlState';
 import { F5_ORDER_WFP } from '../constants/parties';
 import { Card } from '@/components/ui/card';
@@ -27,6 +27,7 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
     push: true,
   });
   const [submissionId, setSubmissionId] = useState<string>('');
+  const [respondentFactors, setRespondentFactors] = useState<Record<string, number> | null>(null);
 
   const seatsById: Record<string, number> = Object.fromEntries(
     houseSeats.map(h => [String(h.party), h.national])
@@ -47,6 +48,7 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
         return { party: cl?.party ?? '', partyName: cl?.partyName ?? '', prob: s.prob };
       });
       setRanking(top);
+      setRespondentFactors(estimateFactorZScores(questions, answers, clusters));
       if (top[0].party) {
         setResultParty(top[0].party);
         const id = crypto.randomUUID();
@@ -71,6 +73,7 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
     setRanking(null);
     setResultParty('');
     setSubmissionId('');
+    setRespondentFactors(null);
   }
 
   const consentNote = (
@@ -104,6 +107,7 @@ export function QuizTab({ questions, clusters, houseSeats, spreads }: Props) {
             onRetake={handleRetake}
             submissionId={isShared ? undefined : submissionId}
             onVibe={isShared ? undefined : (v => { if (submissionId) submitVibe(submissionId, v, cluster.party); })}
+            factors={isShared ? undefined : (respondentFactors ?? undefined)}
           />
           {consentNote}
         </div>

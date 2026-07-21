@@ -17,11 +17,12 @@ interface Props {
   onRetake: () => void;
   submissionId?: string;
   onVibe?: (v: 'fit' | 'miss') => void;
+  factors?: Record<string, number>; // respondent's own position (z-units), own result only
 }
 
 const SUBSTACK = 'https://braydendecker.substack.com/';
 
-export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissionId, onVibe }: Props) {
+export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissionId, onVibe, factors }: Props) {
   const color = PARTY_COLORS[cluster.party] ?? '#6b7280';
   const tagline = PARTY_TAGLINES[cluster.party] ?? '';
   const blurb = PARTY_BLURBS[cluster.party] ?? '';
@@ -75,8 +76,18 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissi
         <div className="px-6 py-4 space-y-1">
           {DISPLAY_FACTORS.map(f => {
             const rec = cluster as unknown as Record<string, number>;
-            return <FactorBar key={f} factor={f} value={rec[`z_${f}`] ?? rec[f]} />;
+            return <FactorBar key={f} factor={f} value={rec[`z_${f}`] ?? rec[f]} marker={factors?.[f]} />;
           })}
+          {factors && (
+            <div className="flex items-center gap-1.5 pt-2 text-xs text-muted-foreground">
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm shrink-0"
+                style={{ backgroundColor: '#0f172a' }}
+                aria-hidden="true"
+              />
+              <span>The dot marks where your answers place you; the bar is {cluster.partyName}'s position.</span>
+            </div>
+          )}
         </div>
       </Card>
 
