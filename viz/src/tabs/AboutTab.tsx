@@ -644,6 +644,10 @@ export function AboutTab() {
                   label: 'Population vs. voters',
                   body: 'The party typology is built on the full weighted survey population (latent preference). Real electorates are shaped by uneven turnout, so the office simulations default to observed 2024 validated turnout and let you sweep the contraction effect (see the Turnout section). CES also skews somewhat more educated and engaged than the adult population, which the survey weights only partly correct.',
                 },
+                {
+                  label: 'Institutional distrust is a floor',
+                  body: 'Clustering requires a complete answer on all 24 items, which restricts the sample to the ~45,700 respondents who returned for the post-election wave. That attrition is not random: the returners run about eleven years older and more politically engaged than the full 60,000, and the post-election weights correct the demographic margins but not the engagement gap. Institutional distrust is the factor most exposed, because it is built entirely from post-wave items (election fairness, trust in federal and state government), and among voters who did answer, the least engaged are the most distrustful. The alienated, low-information, "system is rigged" voter is the one least likely to have stayed to report it. Read the institutional-distrust scores as a floor: the simulation more likely understates distrust than overstates it, especially toward elections and state government.',
+                },
               ].map(a => (
                 <div key={a.label} className="px-5 py-4">
                   <div className="font-medium text-foreground text-sm mb-1">{a.label}</div>

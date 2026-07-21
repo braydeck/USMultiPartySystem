@@ -116,6 +116,14 @@ NAT is the extreme high end (+1.51); PRG (−0.99) and LIB (−0.95) are the ext
 
 ---
 
+## Caveats
+
+**Institutional distrust reads as a floor, not a level.** Clustering requires a complete answer on all 24 items, which restricts the analysis sample to the ~45,700 respondents who returned for the post-election wave. That attrition is not random: the returners run about eleven years older and markedly more politically engaged than the full 60,000, and the CES post-election weights correct the demographic margins but not the engagement gap. The exposure concentrates on one battery. The institutional-trust items, whether elections are run fairly and how far federal and state government can be trusted, are all post-wave, so the voters who left are absent from exactly the questions their attitudes would move most. And among those who did answer, the least engaged are the most distrustful: they score highest on election-illegitimacy and on distrust of state government. The alienated, low-information, "system is rigged" voter is the one least likely to have stayed to say so. So the simulation more likely understates institutional distrust than overstates it, especially toward elections and state government.
+
+Broader modeling caveats (party cohesion, sincere voting, static factor space, turnout) live in [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) and the simulation's Caveats tab.
+
+---
+
 ## House STV Simulation
 
 **Scripts:** `pipeline/stv_main.py` and supporting `pipeline/stv_step1.py`–`pipeline/stv_step5.py`
