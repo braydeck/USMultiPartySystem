@@ -141,7 +141,7 @@ export default function App() {
       <div className="border-b border-border/50 bg-card">
         <div className="max-w-7xl mx-auto px-4 pt-3 pb-2 flex items-center gap-3">
           <h1 className="text-xl font-bold text-foreground">Multiparty America</h1>
-          <div className="text-sm text-muted-foreground">Proportional Democracy Simulation</div>
+          <div className="text-sm text-muted-foreground">A Proportional Democracy Simulation</div>
         </div>
       </div>
       {/* Nav tabs — sticky */}
