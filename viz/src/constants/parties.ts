@@ -10,6 +10,10 @@ export const PARTY_COLORS: Record<string, string> = {
   POP: '#d34812',  // red-orange
   NAT: '#a01d2a',  // deep red (rightmost)
   OAO: '#5b6b8c',  // Order and Opportunity Party (C7) — slate steel-blue (own slot between LBR sky-blue and STY violet; no longer green-adjacent to PRG)
+  // Current (real) parties — muted D/R/I, rendered dashed to read as "status quo".
+  DEM: '#5b7fa6',
+  IND: '#8a8f98',
+  REP: '#a66b6b',
 };
 
 // Left→right order for all 10 parties (OAO after Labor, before STY).
@@ -23,6 +27,14 @@ export function partyOrder(_wfpOn?: boolean): readonly string[] {
   return F5_ORDER;
 }
 
+// Today's real parties (pid3), shown after the US baseline in the Parties tab.
+export const CURRENT_PARTIES = ['DEM', 'IND', 'REP'] as const;
+const CURRENT_SET = new Set<string>(CURRENT_PARTIES);
+/** True for the real-party codes (Democratic/Independent/Republican), which render dashed. */
+export function isCurrentParty(code: string): boolean {
+  return CURRENT_SET.has(code);
+}
+
 export const PARTY_NAMES: Record<string, string> = {
   CON: 'Conservative',
   LBR: 'Labor',                     // cluster 1 — working-class center-left (formerly SD)
@@ -34,6 +46,9 @@ export const PARTY_NAMES: Record<string, string> = {
   DSA: 'Democratic Socialists',
   PRG: 'Progressive',
   OAO: 'Order and Opportunity Party', // cluster 7 (formerly WFP)
+  DEM: 'Democratic',
+  IND: 'Independent',
+  REP: 'Republican',
 };
 
 // Condensed from PARTY_BLURBS — keep factual (positions), no editorial/comparative phrasing.
