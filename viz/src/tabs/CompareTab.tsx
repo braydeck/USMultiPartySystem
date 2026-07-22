@@ -20,6 +20,7 @@ import { bamForZ, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../lib/bam';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { CurrentPartyDistance } from '../components/parties/CurrentPartyDistance';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -786,6 +787,45 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     return grouped;
   }, [selected, clusters, fdProfiles, minGap]);
 
+  const selectedFormulated = useMemo(
+    () => orderedSelected.filter(c => !isCurrentParty(getPrimaryParty(c))),
+    [orderedSelected]);
+  const selectedCurrent = useMemo(
+    () => orderedSelected.filter(c => isCurrentParty(getPrimaryParty(c))),
+    [orderedSelected]);
+
+  const distanceInputs = useMemo(() => {
+    const zByCode: Record<string, Record<string, number>> = {};
+    // Same z definition for formulated AND current parties: raw factor score / POP_SD via
+    // rawToZ. getFactorScores already resolves current parties (Task 9), so one path covers both.
+    const addZ = (c: string) => {
+      const fs = getFactorScores(c, clusters, fdProfiles);
+      if (!fs) return;
+      zByCode[c] = Object.fromEntries((['F1','F2','F3','F4','F5'] as const)
+        .map(f => [`z_${f}`, rawToZ(fs[f], f)]));
+    };
+    selectedFormulated.forEach(addZ);
+    selectedCurrent.forEach(addZ);
+
+    const policyItems: Record<string, Record<string, number[]>> = {};
+    for (const fcode of selectedFormulated) {
+      policyItems[fcode] = {};
+      for (const ccode of selectedCurrent) {
+        const dists: number[] = [];
+        for (const list of Object.values(sectionVarMap)) {
+          for (const v of list) {
+            if (v.pcts[fcode] === undefined || v.pcts[ccode] === undefined) continue;
+            const df = itemSignature(v.key, fcode, v.pcts[fcode]!, v.overall ?? v.pcts[fcode]!, v.maxVal, sigFilter).distance;
+            const dc = itemSignature(v.key, ccode, v.pcts[ccode]!, v.overall ?? v.pcts[ccode]!, v.maxVal, sigFilter).distance;
+            dists.push(Math.abs(df - dc));
+          }
+        }
+        policyItems[fcode][ccode] = dists;
+      }
+    }
+    return { zByCode, policyItems };
+  }, [selectedFormulated, selectedCurrent, sectionVarMap, clusters, fdProfiles, sigFilter]);
+
   // Distribution items (range / composition) grouped by section domain, ordered within.
   const distBySection = useMemo(() => {
     const by: Record<string, string[]> = {};
@@ -980,6 +1020,13 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
               })}
             </div>
           </Card>
+
+          <CurrentPartyDistance
+            zByCode={distanceInputs.zByCode}
+            policyItems={distanceInputs.policyItems}
+            eta={FACTOR_ETA}
+            formulated={selectedFormulated}
+          />
 
           {constellationCard}
 
