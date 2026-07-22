@@ -22,7 +22,7 @@ export function CurrentPartyDistance({ zByCode, policyItems, eta, formulated }: 
     <Card className="overflow-hidden">
       <div className="px-4 py-3 border-b border-border/50 bg-muted">
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Distance from today's parties</span>
-        <span className="text-xs text-muted-foreground ml-3">factor σ (η²-weighted) · policy divergence (avg per-item)</span>
+        <span className="text-xs text-muted-foreground ml-3">factor σ (η²-weighted) · avg policy gap (pp)</span>
       </div>
       <div className="divide-y divide-border/50">
         {formulated.map(code => {
@@ -42,7 +42,7 @@ export function CurrentPartyDistance({ zByCode, policyItems, eta, formulated }: 
                   <span key={r.cur}
                     className={`text-[11px] tabular-nums ${r.cur === nearest.cur ? 'font-semibold' : 'text-muted-foreground'}`}>
                     <span style={{ color: getBlendColor(r.cur) }}>{PARTY_NAMES[r.cur] ?? r.cur}</span>{' '}
-                    {r.fac.toFixed(1)}σ / {Math.round(r.pol)}
+                    {r.fac.toFixed(1)}σ / {Math.round(r.pol)}pp
                     {r.cur === nearest.cur && <span className="ml-1 text-amber-500">◀ nearest</span>}
                   </span>
                 ))}

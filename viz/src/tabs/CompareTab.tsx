@@ -815,16 +815,15 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         for (const list of Object.values(sectionVarMap)) {
           for (const v of list) {
             if (v.pcts[fcode] === undefined || v.pcts[ccode] === undefined) continue;
-            const df = itemSignature(v.key, fcode, v.pcts[fcode]!, v.overall ?? v.pcts[fcode]!, v.maxVal, sigFilter).distance;
-            const dc = itemSignature(v.key, ccode, v.pcts[ccode]!, v.overall ?? v.pcts[ccode]!, v.maxVal, sigFilter).distance;
-            dists.push(Math.abs(df - dc));
+            const scale = v.maxVal || 100;
+            dists.push(Math.abs(v.pcts[fcode]! - v.pcts[ccode]!) / scale * 100);
           }
         }
         policyItems[fcode][ccode] = dists;
       }
     }
     return { zByCode, policyItems };
-  }, [selectedFormulated, selectedCurrent, sectionVarMap, clusters, fdProfiles, sigFilter]);
+  }, [selectedFormulated, selectedCurrent, sectionVarMap, clusters, fdProfiles]);
 
   // Distribution items (range / composition) grouped by section domain, ordered within.
   const distBySection = useMemo(() => {
