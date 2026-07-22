@@ -180,7 +180,7 @@ SYNTH_RAW = {
 
 
 def load_aligned():
-    """Return (dc, pid, w, reader) — listwise sample row-aligned to typo, plus pid3 & weight."""
+    """Return (dc, pid, w, reader, typo) — listwise sample row-aligned to typo, plus pid3 & weight."""
     reader = pd.io.stata.StataReader(str(DTA))
     # Call value_labels() first to populate _varlist/_lbllist internal state.
     reader.value_labels()
@@ -191,7 +191,7 @@ def load_aligned():
     assert len(dc) == len(typo), f"row mismatch {len(dc)} vs {len(typo)}"
     pid = pd.to_numeric(typo['pid3'], errors='coerce').values
     w = dc['commonpostweight'].values.astype(float)
-    return dc, pid, w, reader
+    return dc, pid, w, reader, typo
 
 
 def build_synthetic_map(dc):
@@ -533,8 +533,8 @@ OUT_SPREADS = ROOT / "viz" / "src" / "data" / "currentPartySpreads.json"
 FCOLS = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
 
 
-def build_spreads(pid):
-    typo = pd.read_csv(TYPO)
+def build_spreads(typo, pid):
+    assert len(typo) == len(pid), f"length mismatch typo {len(typo)} vs pid {len(pid)}"
     w = typo['commonpostweight'].values.astype(float)
     fmap = dict(FCOLS)
     if "FS_F4" not in typo.columns:
@@ -563,7 +563,7 @@ def build_spreads(pid):
 
 def main():
     print("Loading and aligning data...")
-    dc, pid, w, reader = load_aligned()
+    dc, pid, w, reader, typo = load_aligned()
     grp = masks(pid)
     synth = build_synthetic_map(dc)
     print(f"  Sample: {len(dc):,} rows  DEM={(pid==1).sum():,}  REP={(pid==2).sum():,}  IND={(pid==3).sum():,}")
@@ -607,7 +607,7 @@ def main():
     print(f"\nwrote {OUT_STATS.relative_to(ROOT)} — {len(out_rows)} rows, {len(skipped)} skipped, gate OK")
 
     build_continuous(dc, pid, w)
-    build_spreads(pid)
+    build_spreads(typo, pid)
 
 
 if __name__ == '__main__':
