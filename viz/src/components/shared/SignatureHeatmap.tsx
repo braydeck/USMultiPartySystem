@@ -1,6 +1,6 @@
-import { PARTY_NAMES, getBlendColor } from '../../constants/parties';
+import { PARTY_NAMES } from '../../constants/parties';
 import { cividisForFrac, cividisText } from '../../lib/cividis';
-import { type RowMark, SigTag } from './PartyRowLabel';
+import { type RowMark, SigTag, PartyCode } from './PartyRowLabel';
 import { FactorTags } from './DistributionCells';
 
 // A single-number-per-party heatmap: items on rows, parties on columns + a US baseline column.
@@ -58,7 +58,9 @@ export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected
           <span className="text-[9px] uppercase tracking-widest text-muted-foreground">Position</span>
           <span className="text-[9px] font-bold text-center text-slate-500">US</span>
           {selected.map((p) => (
-            <span key={p} className="text-[9px] font-bold text-center truncate px-0.5" style={{ color: getBlendColor(p) }} title={PARTY_NAMES[p] ?? p}>{p}</span>
+            <span key={p} className="text-[9px] font-bold px-0.5 flex justify-center" title={PARTY_NAMES[p] ?? p}>
+              <PartyCode code={p} />
+            </span>
           ))}
         </div>
 

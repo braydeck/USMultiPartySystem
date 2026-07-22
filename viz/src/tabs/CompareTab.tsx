@@ -9,7 +9,7 @@ import { IdeologicalConstellation } from '../components/house/IdeologicalConstel
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
 import { RangeBarCell, CompositionStackCell, HeatmapCell, FactorTags, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
 import { SignatureHeatmap, type HeatRow } from '../components/shared/SignatureHeatmap';
-import { PartyRowLabel, SigTag, type RowMark } from '../components/shared/PartyRowLabel';
+import { PartyRowLabel, SigTag, PartyCode, type RowMark } from '../components/shared/PartyRowLabel';
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, itemSignature, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
@@ -316,7 +316,7 @@ function FactorBarRow({
           const val = isPct ? `${Math.round(pctile)}%` : `${z >= 0 ? '+' : ''}${z.toFixed(1)}σ`;
           return (
             <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
-              <span className="w-11 shrink-0 font-bold text-right" style={{ color: getBlendColor(code) }}>{code}</span>
+              <span className="w-11 shrink-0 font-bold text-right"><PartyCode code={code} /></span>
               <div className="flex-1 relative h-3 rounded-sm bg-muted overflow-hidden">
                 <div className="absolute inset-y-0 rounded-sm" style={{ left: isHigh ? '50%' : `${50 - w}%`, width: `${w}%`, backgroundColor: color }} />
                 <div className="absolute top-0 bottom-0 w-px bg-slate-400" style={{ left: '50%' }} />
@@ -1020,13 +1020,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             </div>
           </Card>
 
-          <CurrentPartyDistance
-            zByCode={distanceInputs.zByCode}
-            policyItems={distanceInputs.policyItems}
-            eta={FACTOR_ETA}
-            formulated={selectedFormulated}
-          />
-
           {constellationCard}
 
           {/* Sections */}
@@ -1170,6 +1163,14 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
               })}
             </div>
           )}
+
+          {/* Distance from today's parties — at the bottom, after all positions are shown. */}
+          <CurrentPartyDistance
+            zByCode={distanceInputs.zByCode}
+            policyItems={distanceInputs.policyItems}
+            eta={FACTOR_ETA}
+            formulated={selectedFormulated}
+          />
         </>
       )}
 

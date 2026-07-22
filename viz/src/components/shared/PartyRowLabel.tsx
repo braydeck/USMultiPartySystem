@@ -1,6 +1,19 @@
-import { getBlendColor } from '../../constants/parties';
+import { getBlendColor, getContrastText, isCurrentParty } from '../../constants/parties';
 
 export type RowMark = { dot: boolean; mark: 'D' | 'M' | null };
+
+// Renders a party code label. Current parties (DEM/IND/REP) get a filled color pill with
+// light text so they stand out from the formulated parties, which render as colored text.
+export function PartyCode({ code, className = '' }: { code: string; className?: string }) {
+  const color = getBlendColor(code);
+  if (isCurrentParty(code)) {
+    return (
+      <span className={`inline-block rounded-[3px] px-1 py-px leading-none ${className}`}
+        style={{ backgroundColor: color, color: getContrastText(color) }}>{code}</span>
+    );
+  }
+  return <span className={className} style={{ color }}>{code}</span>;
+}
 
 // Shared signature tag: a small boxed letter used identically in the heatmap cells and the
 // distribution-chart row labels, so C (cohesion) / M (mainstream) / D (deviance) read the same
@@ -37,7 +50,7 @@ export function PartyRowLabel({ code, signature = false, mark = null, className 
   return (
     <span className={`shrink-0 flex items-center gap-1 font-bold tabular-nums ${className}`} style={{ color }}>
       <span className="w-4 shrink-0 flex justify-center">{showC && <SigTag kind="C" />}</span>
-      <span className="whitespace-nowrap">{isNat ? 'U.S.' : code}</span>
+      {isNat ? <span className="whitespace-nowrap">U.S.</span> : <PartyCode code={code} className="whitespace-nowrap" />}
       <span className="ml-auto shrink-0 flex justify-center w-4">{showMark && mark && <SigTag kind={mark} />}</span>
     </span>
   );
