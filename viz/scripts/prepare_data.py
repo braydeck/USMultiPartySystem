@@ -1267,6 +1267,50 @@ def build_cluster_profiles(include_c7=True, out_name="clusterProfiles.json",
     write_json(list(clusters.values()), out_name)
 
 
+def build_current_party_profiles(out_name="currentPartyProfiles.json"):
+    """Democratic/Independent/Republican (pid3) full profiles, shaped like ClusterProfile,
+    from current_party_stats.csv (columns DEM/IND/REP) + factor means from the typology file."""
+    cp_path = OUTPUTS / "profiles" / "current_party_stats.csv"
+    rows = read_csv(cp_path)  # raises FileNotFoundError -> _run() skips, keeping committed JSON
+    CODES = ["DEM", "IND", "REP"]
+    NAMES = {"DEM": "Democratic", "IND": "Independent", "REP": "Republican"}
+    COVERED_BY_DIST = {  # same set dropped in build_cluster_profiles
+        'relig_protestant','relig_catholic','relig_jewish','relig_muslim','relig_none','relig_other',
+        'vote16_clinton','vote16_trump','vote16_third','vote16_dnv',
+        'vote20_biden','vote20_trump','vote20_third','vote20_dnv',
+        'vote24_harris','vote24_trump','vote24_third','vote24_dnv'}
+    profiles = {}
+    for code in CODES:
+        vars_ = _extract_policy_vars(rows, lambda r, c=code: (float(r[c]) if str(r.get(c)) not in ('', 'nan') else None))
+        vars_ = {k: v for k, v in vars_.items() if k not in COVERED_BY_DIST}
+        profiles[code] = {"id": code, "party": code, "partyName": NAMES[code], "variables": vars_}
+
+    # Factor scores per pid3: weighted FS mean + z/pctile against the SAME pop mean/sd
+    # build_cluster_profiles uses.
+    typo_path = Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"
+    typo = read_csv(str(typo_path))
+    fmap = {"F1":"FS_F1","F2":"FS_F2","F3":"FS_F3","F4":"FS_F4","F5":"FS_F5"}
+    if "FS_F4" not in typo[0]:
+        fmap["F4"], fmap["F5"] = "FS_F4_resid", "FS_F5_resid"
+    W = [float(r["commonpostweight"]) for r in typo]
+    pid = [ (int(float(r["pid3"])) if r.get("pid3") not in (None, '', 'nan') else 0) for r in typo ]
+    pidcode = {1: "DEM", 2: "REP", 3: "IND"}
+    N = len(typo)
+    for fk, col in fmap.items():
+        vals = [float(typo[i].get(col) or 0) for i in range(N)]
+        mean = sum(vals) / N
+        sd = (sum((v - mean) ** 2 for v in vals) / N) ** 0.5
+        for code in CODES:
+            idx = [i for i in range(N) if pidcode.get(pid[i]) == code]
+            ws = sum(W[i] for i in idx)
+            centroid = sum(vals[i] * W[i] for i in idx) / ws if ws > 0 else 0.0
+            below = sum(1 for v in vals if v < centroid)
+            profiles[code][fk] = round(centroid, 4)
+            profiles[code][f"z_{fk}"] = round(centroid / sd, 2) if sd > 0 else 0
+            profiles[code][f"pctile_{fk}"] = round(below / N * 100, 1)
+    write_json([profiles[c] for c in CODES], out_name)
+
+
 def _extract_policy_vars(rows, get_val, max_vars=None):
     """Build a variables dict from cluster_stats or blend_stats rows.
     Handles binary, binary_agree, and likert5 (summed as SA+A).
@@ -3323,7 +3367,10 @@ def build_distributions():
     Output distributions.json = {meta{varKey:...}, national{varKey:...}, parties{code:{varKey:...}}}."""
     proc = Path(__file__).parent.parent.parent / "data" / "processed"
     CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
+    CUR = ["DEM", "IND", "REP"]
     meta, national, parties = {}, {}, {c: {} for c in CODES}
+    for c in CUR:
+        parties[c] = {}
 
     # ---- continuous range items (genuinely continuous only) ----
     CONT_META = {
@@ -3344,9 +3391,36 @@ def build_distributions():
         rec = {k: float(r[k]) for k in ("p10", "q25", "median", "q75", "p90")}
         (national if r["party"] == "ALL" else parties[r["party"]])[var] = rec
 
+    cpc = OUTPUTS / "profiles" / "current_party_continuous.csv"
+    if cpc.exists():
+        for r in read_csv(cpc):
+            var = r["var"]
+            if var == "income_k":
+                income_med[r["party"]] = float(r["median"]); continue
+            if var not in CONT_META:
+                continue
+            parties[r["party"]][var] = {k: float(r[k]) for k in ("p10","q25","median","q75","p90")}
+
     # ---- composition / diverging / heatmap items, from cluster_stats ----
     stats = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
     index = {(r["variable"], r.get("stat_label", "")): r for r in stats}
+
+    cp_rows = []
+    cp_path = OUTPUTS / "profiles" / "current_party_stats.csv"
+    if cp_path.exists():
+        cp_rows = read_csv(cp_path)
+    cp_index = {(r["variable"], r.get("stat_label", "")): r for r in cp_rows}
+
+    def seg_val_col(sources, col, idx):
+        tot = 0.0
+        for v, lbl in sources:
+            r = idx.get((v, lbl))
+            if r:
+                try:
+                    tot += float(r.get(col) or 0)
+                except (ValueError, TypeError):
+                    pass
+        return round(tot, 1)
 
     def seg_val(sources, col):
         tot = 0.0
@@ -3473,6 +3547,10 @@ def build_distributions():
             parties[code][key] = {"pcts": [seg_val(src, f"c{k}") for _, src in segs]}
             if key == "income":
                 parties[code][key]["value"] = income_med.get(code)
+        for code in CUR:
+            parties[code][key] = {"pcts": [seg_val_col(src, code, cp_index) for _, src in segs]}
+            if key == "income":
+                parties[code][key]["value"] = income_med.get(code)
 
     write_json({"meta": meta, "national": national, "parties": parties}, "distributions.json")
 
@@ -3535,6 +3613,7 @@ if __name__ == "__main__":
         build_house_seats, build_house_transfers, build_fd_variant_attraction,
         build_house_state_map, build_coalition_profiles, build_transfer_matrix,
         build_cluster_profiles,
+        build_current_party_profiles,
         build_fd_senate, build_fd_house_seats, build_fd_primary,
         build_fd_primary_state_winners, build_fd_primary_sankey,
         build_pure_multi_primary_state_winners, build_fd_presidential_election,
