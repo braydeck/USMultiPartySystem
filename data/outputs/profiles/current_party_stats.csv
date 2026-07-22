@@ -1,0 +1,349 @@
+variable,domain,type,stat_label,question,overall,DEM,IND,REP
+CC24_341a,Taxes & Economy,binary,% Supporting,Extend the 2017 tax cuts,62.9096,44.4,62.51,84.59
+CC24_341b,Taxes & Economy,binary,% Supporting,Raise corporate income tax from 21% to 28%,57.6828,83.26,55.15,32.94
+CC24_341c,Taxes & Economy,binary,% Supporting,Allow rates on $400k+ earners to rise to 35%,65.3484,87.57,61.4,44.26
+CC24_341d,Taxes & Economy,binary,% Supporting,Spend $150B/yr on infrastructure,80.4546,91.27,81.51,68.71
+CC24_302,Taxes & Economy,ordinal,Weighted mean,Household income change past year (1=Increased a lot … 5=Decreased a lot),3.1199,2.8377,3.1905,3.3334
+CC24_302,Taxes & Economy,ordinal_dist,% Increased a lot,Household income change past year (1=Increased a lot … 5=Decreased a lot),3.03,5.03,2.2,1.95
+CC24_302,Taxes & Economy,ordinal_dist,% Increased somewhat,Household income change past year (1=Increased a lot … 5=Decreased a lot),19.74,28.77,18.66,11.7
+CC24_302,Taxes & Economy,ordinal_dist,% Stayed same,Household income change past year (1=Increased a lot … 5=Decreased a lot),50.26,49.85,49.24,51.31
+CC24_302,Taxes & Economy,ordinal_dist,% Decreased somewhat,Household income change past year (1=Increased a lot … 5=Decreased a lot),16.15,10.11,17.7,21.16
+CC24_302,Taxes & Economy,ordinal_dist,% Decreased a lot,Household income change past year (1=Increased a lot … 5=Decreased a lot),10.82,6.25,12.2,13.89
+CC24_303,Taxes & Economy,ordinal,Weighted mean,Price change past year (1=Increased a lot … 5=Decreased a lot),1.6116,1.9105,1.5946,1.3076
+CC24_303,Taxes & Economy,ordinal_dist,% Increased a lot,Price change past year (1=Increased a lot … 5=Decreased a lot),55.11,35.05,55.74,76.23
+CC24_303,Taxes & Economy,ordinal_dist,% Increased somewhat,Price change past year (1=Increased a lot … 5=Decreased a lot),32.57,44.75,32.82,18.85
+CC24_303,Taxes & Economy,ordinal_dist,% Stayed same,Price change past year (1=Increased a lot … 5=Decreased a lot),8.87,14.64,8.17,3.38
+CC24_303,Taxes & Economy,ordinal_dist,% Decreased somewhat,Price change past year (1=Increased a lot … 5=Decreased a lot),2.95,5.19,2.78,1.0
+CC24_303,Taxes & Economy,ordinal_dist,% Decreased a lot,Price change past year (1=Increased a lot … 5=Decreased a lot),0.5,0.36,0.49,0.54
+CC24_323a,Immigration,binary,% Supporting,Grant legal status to long-term undocumented immigrants,59.2294,85.27,55.88,32.36
+CC24_323b,Immigration,binary,% Supporting,Increase border patrols,79.5714,67.07,81.17,95.17
+CC24_323d,Immigration,binary,% Supporting,Permanent status/pathway for Dreamers,70.4041,92.03,69.79,46.4
+CC24_323f,Immigration,binary,% Supporting,Forgive up to $20k of student loan debt per person,54.1862,83.91,48.89,23.11
+CC24_340f,Immigration,binary,% Supporting,Deny asylum for illegal border crossings,63.1681,39.35,66.18,90.65
+CC24_321a,Police & Guns,binary,% Supporting,Ban assault rifles,59.5554,88.7,53.25,33.22
+CC24_321b,Police & Guns,binary,% Supporting,Easier concealed-carry permits,38.9291,15.35,42.87,61.4
+CC24_321c,Police & Guns,binary,% Supporting,Require background checks on all gun sales,92.5023,97.93,91.19,89.24
+CC24_321d,Police & Guns,binary,% Supporting,Increase police by 10%,56.7169,39.58,53.53,82.39
+CC24_321e,Police & Guns,binary,% Supporting,"Decrease police by 10%, increase other funding",26.7993,42.37,25.67,8.46
+CC24_321f,Police & Guns,binary,% Supporting,Increase spending on mental health & school safety,86.4629,97.22,82.8,78.83
+CC24_325,Abortion,continuous,Median,Abortion: how many weeks should it be legal,13.0,21.0,14.0,8.0
+CC24_325,Abortion,continuous,Q25,Abortion: how many weeks should it be legal,6.0,12.0,8.0,1.0
+CC24_325,Abortion,continuous,Q75,Abortion: how many weeks should it be legal,24.0,33.0,23.0,12.0
+CC24_324b,Abortion,binary,% Supporting,Permit abortion only in rape/incest/life danger cases,51.3964,34.32,51.44,70.51
+CC24_340b,Abortion,binary,% Supporting,Prohibit restrictions on abortion access (Congress bill),63.0207,79.73,62.21,44.76
+CC24_444c,Abortion,binary,% Supporting,Prohibit abortion-inducing drugs by mail,41.2474,18.46,38.6,69.53
+CC24_444d,Abortion,binary,% Supporting,Prohibit women traveling to another state for abortion,18.4855,10.57,13.66,32.26
+CC24_340c,Civil Liberties,binary,% Supporting,Federal recognition of same-sex & interracial marriages,66.0666,87.0,68.86,39.85
+CC24_340d,Civil Liberties,binary,% Supporting,Ban TikTok unless China sells to a US company,55.4871,45.95,54.79,70.73
+CC24_340e,Civil Liberties,binary,% Supporting,Renew post-9/11 surveillance programs,34.0178,36.48,29.93,37.11
+CC24_444a,Civil Liberties,binary,% Supporting,Prevent gender transition surgery for minors,60.1484,38.12,65.77,80.59
+CC24_444b,Civil Liberties,binary,% Supporting,Parental consent for name/pronoun changes at school,62.7367,40.41,64.85,86.63
+CC24_444e,Civil Liberties,binary,% Supporting,Age verification for adult web content,78.7779,73.0,75.26,89.23
+CC24_444f,Civil Liberties,binary,% Supporting,School voucher subsidies,56.1512,38.75,58.25,72.99
+CC24_326a,Environment & Climate,binary,% Supporting,Give EPA power to regulate CO2 emissions,62.3942,91.46,58.27,34.1
+CC24_326b,Environment & Climate,binary,% Supporting,Require 20% renewable electricity,66.1221,92.52,62.03,38.76
+CC24_326c,Environment & Climate,binary,% Supporting,Strengthen Clean Air/Water Act enforcement (even if it costs jobs),55.1936,84.87,51.95,24.72
+CC24_326d,Environment & Climate,binary,% Supporting,Increase fossil fuel production in the U.S.,56.953,32.58,58.79,84.8
+CC24_326e,Environment & Climate,binary,% Supporting,Halt new oil and gas leases on federal lands,44.7229,70.97,40.9,17.44
+CC24_326f,Environment & Climate,binary,% Supporting,Prevent government from banning gas stoves,67.4904,54.49,71.69,78.51
+CC24_328a,Healthcare & Housing,binary,% Supporting,Relax local zoning laws to allow more apartments/condos,50.2392,60.61,50.05,38.72
+CC24_328b,Healthcare & Housing,binary,% Supporting,Expand federal tax incentives for affordable housing,72.447,89.48,70.4,54.87
+CC24_328c,Healthcare & Housing,binary,% Supporting,Require able-bodied Medicaid recipients under 64 to work,53.2651,41.74,55.25,66.42
+CC24_328d,Healthcare & Housing,binary,% Supporting,Repeal the Affordable Care Act,38.4834,12.86,38.23,67.39
+CC24_328e,Healthcare & Housing,binary,% Supporting,Expand Medicaid (income <$25k individual / <$40k family),78.6882,93.81,76.76,63.05
+CC24_440a,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",White people have certain advantages because of their race,2.6905,1.7038,2.8184,3.6919
+CC24_440a,Racial & Gender,likert5_dist,% Strongly Agree,White people have certain advantages because of their race,29.03,54.86,23.23,5.42
+CC24_440a,Racial & Gender,likert5_dist,% Agree,White people have certain advantages because of their race,22.83,28.63,24.95,14.67
+CC24_440a,Racial & Gender,likert5_dist,% Neither,White people have certain advantages because of their race,18.04,10.72,19.37,23.49
+CC24_440a,Racial & Gender,likert5_dist,% Disagree,White people have certain advantages because of their race,10.27,2.86,11.67,18.12
+CC24_440a,Racial & Gender,likert5_dist,% Strongly Disagree,White people have certain advantages because of their race,19.83,2.93,20.79,38.29
+CC24_440b,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)","Racial problems in the U.S. are rare, isolated situations",3.4832,4.1667,3.391,2.7869
+CC24_440b,Racial & Gender,likert5_dist,% Strongly Agree,"Racial problems in the U.S. are rare, isolated situations",9.59,3.22,9.97,16.46
+CC24_440b,Racial & Gender,likert5_dist,% Agree,"Racial problems in the U.S. are rare, isolated situations",17.26,6.31,19.07,28.84
+CC24_440b,Racial & Gender,likert5_dist,% Neither,"Racial problems in the U.S. are rare, isolated situations",17.16,10.25,17.69,22.94
+CC24_440b,Racial & Gender,likert5_dist,% Disagree,"Racial problems in the U.S. are rare, isolated situations",27.21,31.02,28.42,23.09
+CC24_440b,Racial & Gender,likert5_dist,% Strongly Disagree,"Racial problems in the U.S. are rare, isolated situations",28.78,49.2,24.85,8.68
+CC24_440c,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",Women seek to gain power by getting control over men,3.5378,4.0949,3.4755,3.011
+CC24_440c,Racial & Gender,likert5_dist,% Strongly Agree,Women seek to gain power by getting control over men,7.14,3.69,7.33,10.69
+CC24_440c,Racial & Gender,likert5_dist,% Agree,Women seek to gain power by getting control over men,15.54,6.64,16.06,25.26
+CC24_440c,Racial & Gender,likert5_dist,% Neither,Women seek to gain power by getting control over men,26.67,19.22,27.77,31.39
+CC24_440c,Racial & Gender,likert5_dist,% Disagree,Women seek to gain power by getting control over men,17.71,17.41,19.39,17.61
+CC24_440c,Racial & Gender,likert5_dist,% Strongly Disagree,Women seek to gain power by getting control over men,32.94,53.04,29.45,15.06
+CC24_440d,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",Women are too easily offended,3.2044,3.9265,3.1251,2.4802
+CC24_440d,Racial & Gender,likert5_dist,% Strongly Agree,Women are too easily offended,12.16,3.99,12.42,21.23
+CC24_440d,Racial & Gender,likert5_dist,% Agree,Women are too easily offended,22.7,11.38,23.51,35.31
+CC24_440d,Racial & Gender,likert5_dist,% Neither,Women are too easily offended,23.45,19.04,25.38,24.26
+CC24_440d,Racial & Gender,likert5_dist,% Disagree,Women are too easily offended,15.93,19.16,16.52,12.63
+CC24_440d,Racial & Gender,likert5_dist,% Strongly Disagree,Women are too easily offended,25.76,46.43,22.17,6.58
+CC24_441a,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",Minorities should work their way up without special favors,2.7418,3.6207,2.6682,1.778
+CC24_441a,Racial & Gender,likert5_dist,% Strongly Agree,Minorities should work their way up without special favors,27.84,9.03,27.98,50.63
+CC24_441a,Racial & Gender,likert5_dist,% Agree,Minorities should work their way up without special favors,20.7,13.63,22.02,28.43
+CC24_441a,Racial & Gender,likert5_dist,% Neither,Minorities should work their way up without special favors,19.78,19.78,20.78,15.51
+CC24_441a,Racial & Gender,likert5_dist,% Disagree,Minorities should work their way up without special favors,12.79,21.36,13.64,3.35
+CC24_441a,Racial & Gender,likert5_dist,% Strongly Disagree,Minorities should work their way up without special favors,18.89,36.2,15.58,2.07
+CC24_441b,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",Slavery/discrimination makes it hard for Blacks to rise,2.9061,1.9398,3.006,3.9251
+CC24_441b,Racial & Gender,likert5_dist,% Strongly Agree,Slavery/discrimination makes it hard for Blacks to rise,24.54,46.09,20.04,4.34
+CC24_441b,Racial & Gender,likert5_dist,% Agree,Slavery/discrimination makes it hard for Blacks to rise,21.68,30.21,23.64,11.25
+CC24_441b,Racial & Gender,likert5_dist,% Neither,Slavery/discrimination makes it hard for Blacks to rise,15.46,12.04,16.03,16.01
+CC24_441b,Racial & Gender,likert5_dist,% Disagree,Slavery/discrimination makes it hard for Blacks to rise,15.3,6.95,16.29,24.35
+CC24_441b,Racial & Gender,likert5_dist,% Strongly Disagree,Slavery/discrimination makes it hard for Blacks to rise,23.02,4.71,24.01,44.05
+CC24_441e,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",I resent when Whites deny racial discrimination exists,2.1841,1.6944,2.4249,3.056
+CC24_441e,Racial & Gender,likert5_dist,% Strongly Agree,I resent when Whites deny racial discrimination exists,41.59,57.06,35.06,15.39
+CC24_441e,Racial & Gender,likert5_dist,% Agree,I resent when Whites deny racial discrimination exists,21.07,22.09,20.13,19.64
+CC24_441e,Racial & Gender,likert5_dist,% Neither,I resent when Whites deny racial discrimination exists,23.23,16.87,24.57,31.99
+CC24_441e,Racial & Gender,likert5_dist,% Disagree,I resent when Whites deny racial discrimination exists,5.57,2.31,7.74,9.93
+CC24_441e,Racial & Gender,likert5_dist,% Strongly Disagree,I resent when Whites deny racial discrimination exists,8.54,1.67,12.5,23.05
+CC24_441f,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",Whites get away with offenses that African Americans wouldn't,2.2467,1.667,2.5355,3.318
+CC24_441f,Racial & Gender,likert5_dist,% Strongly Agree,Whites get away with offenses that African Americans wouldn't,41.13,57.68,31.98,15.24
+CC24_441f,Racial & Gender,likert5_dist,% Agree,Whites get away with offenses that African Americans wouldn't,23.28,25.11,23.91,16.58
+CC24_441f,Racial & Gender,likert5_dist,% Neither,Whites get away with offenses that African Americans wouldn't,17.45,12.27,19.28,22.41
+CC24_441f,Racial & Gender,likert5_dist,% Disagree,Whites get away with offenses that African Americans wouldn't,6.08,2.69,8.24,12.7
+CC24_441f,Racial & Gender,likert5_dist,% Strongly Disagree,Whites get away with offenses that African Americans wouldn't,12.06,2.25,16.59,33.08
+CC24_441g,Racial & Gender,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",Whites don't understand the problems African Americans face,2.4054,1.9379,2.6557,3.2043
+CC24_441g,Racial & Gender,likert5_dist,% Strongly Agree,Whites don't understand the problems African Americans face,30.07,41.7,24.1,11.23
+CC24_441g,Racial & Gender,likert5_dist,% Agree,Whites don't understand the problems African Americans face,25.71,31.21,22.66,18.52
+CC24_441g,Racial & Gender,likert5_dist,% Neither,Whites don't understand the problems African Americans face,27.04,20.93,29.75,32.34
+CC24_441g,Racial & Gender,likert5_dist,% Disagree,Whites don't understand the problems African Americans face,7.99,3.9,10.54,14.41
+CC24_441g,Racial & Gender,likert5_dist,% Strongly Disagree,Whites don't understand the problems African Americans face,9.19,2.25,12.95,23.5
+CC24_445a,Racial & Gender,binary_agree,% Agreeing,SCOTUS: Race in admissions violates Equal Protection (Agree/Disagree),67.4348,47.47,72.17,85.67
+CC24_445b,Racial & Gender,binary_agree,% Agreeing,SCOTUS: Constitution doesn't protect abortion; Roe overruled (Agree/Disagree),53.2276,27.25,56.14,81.0
+CC24_421_1,Elections & Trust,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",Elections in the U.S. are fair,2.3653,2.1568,2.4182,2.3992
+CC24_421_1,Elections & Trust,likert5_dist,% Strongly Agree,Elections in the U.S. are fair,25.05,36.28,23.37,17.36
+CC24_421_1,Elections & Trust,likert5_dist,% Agree,Elections in the U.S. are fair,37.79,33.16,37.08,47.3
+CC24_421_1,Elections & Trust,likert5_dist,% Neither,Elections in the U.S. are fair,18.62,14.8,20.17,17.26
+CC24_421_1,Elections & Trust,likert5_dist,% Disagree,Elections in the U.S. are fair,12.63,10.12,13.14,14.21
+CC24_421_1,Elections & Trust,likert5_dist,% Strongly Disagree,Elections in the U.S. are fair,5.9,5.64,6.25,3.87
+CC24_421_2,Elections & Trust,likert5,"Mean (1=Strongly Agree, 5=Strongly Disagree)",2024 state/local election was fair,1.9098,1.7343,1.9684,1.8959
+CC24_421_2,Elections & Trust,likert5_dist,% Strongly Agree,2024 state/local election was fair,45.45,55.17,42.69,42.69
+CC24_421_2,Elections & Trust,likert5_dist,% Agree,2024 state/local election was fair,29.21,25.02,29.73,35.02
+CC24_421_2,Elections & Trust,likert5_dist,% Neither,2024 state/local election was fair,17.39,13.77,18.83,14.58
+CC24_421_2,Elections & Trust,likert5_dist,% Disagree,2024 state/local election was fair,4.8,3.3,5.57,5.43
+CC24_421_2,Elections & Trust,likert5_dist,% Strongly Disagree,2024 state/local election was fair,3.15,2.74,3.18,2.28
+CC24_423,Elections & Trust,trust,Weighted mean,Trust in federal government (1=Great deal … 4=None at all),2.7066,2.2919,2.5004,2.4409
+CC24_423,Elections & Trust,trust_dist,% Great deal,Trust in federal government (1=Great deal … 4=None at all),6.11,9.69,3.18,5.83
+CC24_423,Elections & Trust,trust_dist,% Fair amount,Trust in federal government (1=Great deal … 4=None at all),31.94,41.63,25.72,29.55
+CC24_423,Elections & Trust,trust_dist,% Not very much,Trust in federal government (1=Great deal … 4=None at all),47.11,38.87,53.22,49.92
+CC24_423,Elections & Trust,trust_dist,% None at all,Trust in federal government (1=Great deal … 4=None at all),14.83,9.81,17.88,14.7
+CC24_424,Elections & Trust,trust,Weighted mean,Trust in state government (1=Great deal … 4=None at all),2.4493,2.1051,2.281,2.1471
+CC24_424,Elections & Trust,trust_dist,% Great deal,Trust in state government (1=Great deal … 4=None at all),12.9,17.0,8.51,14.59
+CC24_424,Elections & Trust,trust_dist,% Fair amount,Trust in state government (1=Great deal … 4=None at all),42.36,46.33,39.92,42.81
+CC24_424,Elections & Trust,trust_dist,% Not very much,Trust in state government (1=Great deal … 4=None at all),31.65,27.5,36.61,29.3
+CC24_424,Elections & Trust,trust_dist,% None at all,Trust in state government (1=Great deal … 4=None at all),13.09,9.17,14.96,13.3
+CC24_312a,Approval,approval4,Weighted mean,Job approval — President Biden,2.8887,1.8252,3.0904,3.8237
+CC24_312a,Approval,approval4_dist,% Strongly approve,Job approval — President Biden,16.69,39.31,8.85,1.05
+CC24_312a,Approval,approval4_dist,% Somewhat approve,Job approval — President Biden,24.53,44.61,24.21,3.17
+CC24_312a,Approval,approval4_dist,% Somewhat disapprove,Job approval — President Biden,11.99,10.31,15.99,8.13
+CC24_312a,Approval,approval4_dist,% Strongly disapprove,Job approval — President Biden,46.78,5.76,50.95,87.64
+CC24_312b,Approval,approval4,Weighted mean,Job approval — U.S. Congress,3.076,2.9488,3.2608,3.0085
+CC24_312b,Approval,approval4_dist,% Strongly approve,Job approval — U.S. Congress,2.54,4.14,0.92,2.46
+CC24_312b,Approval,approval4_dist,% Somewhat approve,Job approval — U.S. Congress,20.68,25.9,14.23,21.91
+CC24_312b,Approval,approval4_dist,% Somewhat disapprove,Job approval — U.S. Congress,43.42,40.92,42.72,47.96
+CC24_312b,Approval,approval4_dist,% Strongly disapprove,Job approval — U.S. Congress,33.36,29.05,42.14,27.67
+CC24_312c,Approval,approval4,Weighted mean,Job approval — U.S. Supreme Court,2.8519,3.4178,2.862,2.1709
+CC24_312c,Approval,approval4_dist,% Strongly approve,Job approval — U.S. Supreme Court,11.79,4.07,10.84,22.45
+CC24_312c,Approval,approval4_dist,% Somewhat approve,Job approval — U.S. Supreme Court,30.14,13.09,30.87,49.24
+CC24_312c,Approval,approval4_dist,% Somewhat disapprove,Job approval — U.S. Supreme Court,19.16,19.82,19.55,17.09
+CC24_312c,Approval,approval4_dist,% Strongly disapprove,Job approval — U.S. Supreme Court,38.91,63.02,38.74,11.23
+pew_churatd,Religion,ordinal,Weighted mean,Church attendance (1=More than once/week … 6=Never),4.3047,4.6536,4.471,3.7286
+pew_churatd,Religion,ordinal_dist,% More than once/week,Church attendance (1=More than once/week … 6=Never),6.93,3.68,5.64,11.02
+pew_churatd,Religion,ordinal_dist,% Once/week,Church attendance (1=More than once/week … 6=Never),16.81,12.82,14.73,24.28
+pew_churatd,Religion,ordinal_dist,% 1–2x/month,Church attendance (1=More than once/week … 6=Never),6.59,6.36,5.57,8.42
+pew_churatd,Religion,ordinal_dist,% Few times/year,Church attendance (1=More than once/week … 6=Never),13.26,12.09,13.67,14.33
+pew_churatd,Religion,ordinal_dist,% Seldom,Church attendance (1=More than once/week … 6=Never),21.34,21.72,21.74,20.95
+pew_churatd,Religion,ordinal_dist,% Never,Church attendance (1=More than once/week … 6=Never),35.06,43.34,38.65,20.98
+pew_bornagain,Religion,binary,% Supporting,Born-again or evangelical Christian,31.2824,20.52,26.46,49.55
+ideo5,Demographics,ordinal,Weighted mean,Ideological self-identification (1=Very Liberal … 5=Very Conservative),3.0532,2.1342,3.0483,4.1113
+ideo5,Demographics,ordinal_dist,% Very Liberal,Ideological self-identification (1=Very Liberal … 5=Very Conservative),12.68,26.93,7.28,0.67
+ideo5,Demographics,ordinal_dist,% Liberal,Ideological self-identification (1=Very Liberal … 5=Very Conservative),17.76,38.94,10.56,1.32
+ideo5,Demographics,ordinal_dist,% Moderate,Ideological self-identification (1=Very Liberal … 5=Very Conservative),34.4,28.99,58.59,17.81
+ideo5,Demographics,ordinal_dist,% Conservative,Ideological self-identification (1=Very Liberal … 5=Very Conservative),21.89,4.03,17.19,46.63
+ideo5,Demographics,ordinal_dist,% Very Conservative,Ideological self-identification (1=Very Liberal … 5=Very Conservative),13.27,1.1,6.38,33.58
+CC24_330a,Demographics,ordinal,Weighted mean,Ideology self-placement 7-pt (1=Very Liberal … 7=Very Conservative),4.1069,2.576,4.1299,5.8254
+CC24_330a,Demographics,ordinal_dist,% Very Liberal,Ideology self-placement 7-pt (1=Very Liberal … 7=Very Conservative),11.37,23.89,6.48,0.71
+CC24_330a,Demographics,ordinal_dist,% Liberal,Ideology self-placement 7-pt (1=Very Liberal … 7=Very Conservative),13.83,32.42,6.64,0.7
+CC24_330a,Demographics,ordinal_dist,% Somewhat Liberal,Ideology self-placement 7-pt (1=Very Liberal … 7=Very Conservative),9.49,16.27,10.76,1.37
+CC24_330a,Demographics,ordinal_dist,% Moderate,Ideology self-placement 7-pt (1=Very Liberal … 7=Very Conservative),25.52,21.23,43.57,12.56
+CC24_330a,Demographics,ordinal_dist,% Somewhat Conservative,Ideology self-placement 7-pt (1=Very Liberal … 7=Very Conservative),10.06,2.86,14.6,13.5
+CC24_330a,Demographics,ordinal_dist,% Conservative,Ideology self-placement 7-pt (1=Very Liberal … 7=Very Conservative),17.31,2.45,11.97,39.54
+CC24_330a,Demographics,ordinal_dist,% Very Conservative,Ideology self-placement 7-pt (1=Very Liberal … 7=Very Conservative),12.42,0.87,5.98,31.61
+pid3,Demographics,categorical_dist,% Democrat,Party identification (3-point),34.18,100.0,0.0,0.0
+pid3,Demographics,categorical_dist,% Republican,Party identification (3-point),29.97,0.0,0.0,100.0
+pid3,Demographics,categorical_dist,% Independent,Party identification (3-point),27.28,0.0,100.0,0.0
+pid3,Demographics,categorical_dist,% Other,Party identification (3-point),4.02,0.0,0.0,0.0
+pid3,Demographics,categorical_dist,% Not sure,Party identification (3-point),4.55,0.0,0.0,0.0
+gender4,Demographics,categorical_dist,% Man,Gender,48.62,44.53,55.79,47.6
+gender4,Demographics,categorical_dist,% Woman,Gender,50.7,54.62,43.46,52.3
+gender4,Demographics,categorical_dist,% Non-binary,Gender,0.56,0.8,0.62,0.04
+gender4,Demographics,categorical_dist,% Other,Gender,0.12,0.05,0.13,0.06
+race,Demographics,categorical_dist,% White,Race/ethnicity,67.25,55.9,67.97,83.04
+race,Demographics,categorical_dist,% Black,Race/ethnicity,11.64,21.2,8.96,2.31
+race,Demographics,categorical_dist,% Hispanic,Race/ethnicity,9.61,12.14,8.13,7.04
+race,Demographics,categorical_dist,% Asian,Race/ethnicity,4.27,5.23,4.6,2.75
+race,Demographics,categorical_dist,% Native American,Race/ethnicity,1.15,0.53,1.61,1.28
+race,Demographics,categorical_dist,% Multiracial,Race/ethnicity,3.99,3.45,5.89,2.17
+race,Demographics,categorical_dist,% Other,Race/ethnicity,1.73,1.13,2.41,1.22
+race,Demographics,categorical_dist,% Middle Eastern,Race/ethnicity,0.35,0.43,0.43,0.19
+educ,Demographics,categorical_dist,% No HS,Education level,6.31,5.43,5.64,6.97
+educ,Demographics,categorical_dist,% HS grad,Education level,29.15,27.68,25.19,32.54
+educ,Demographics,categorical_dist,% Some college,Education level,19.87,19.05,20.95,19.14
+educ,Demographics,categorical_dist,% 2-year degree,Education level,10.1,9.32,11.7,10.12
+educ,Demographics,categorical_dist,% 4-year degree,Education level,21.46,22.33,22.21,21.04
+educ,Demographics,categorical_dist,% Post-grad,Education level,13.12,16.19,14.31,10.19
+urbancity,Demographics,categorical_dist,% City,Type of area (1=City … 4=Rural),26.82,35.35,24.04,18.63
+urbancity,Demographics,categorical_dist,% Suburb,Type of area (1=City … 4=Rural),39.93,40.1,41.75,39.25
+urbancity,Demographics,categorical_dist,% Town,Type of area (1=City … 4=Rural),12.55,10.88,13.42,13.34
+urbancity,Demographics,categorical_dist,% Rural area,Type of area (1=City … 4=Rural),20.18,13.15,20.37,28.28
+urbancity,Demographics,categorical_dist,% Other,Type of area (1=City … 4=Rural),0.52,0.52,0.42,0.5
+region,Demographics,categorical_dist,% Northeast,Region,16.92,20.05,16.5,13.78
+region,Demographics,categorical_dist,% Midwest,Region,20.85,19.08,21.22,23.03
+region,Demographics,categorical_dist,% South,Region,38.92,34.75,38.47,43.68
+region,Demographics,categorical_dist,% West,Region,23.31,26.12,23.8,19.51
+age,Demographics,continuous,Median,"Age (years, derived from birth year)",50.0,47.0,46.0,57.0
+age,Demographics,continuous,Q25,"Age (years, derived from birth year)",34.0,33.0,33.0,40.0
+age,Demographics,continuous,Q75,"Age (years, derived from birth year)",64.0,64.0,62.0,67.0
+faminc_new,Demographics,ordinal,Weighted mean,Family income,6.82,6.6247,6.8059,6.7199
+faminc_new,Demographics,ordinal_dist,% <$10k,Family income,6.25,6.34,6.62,4.47
+faminc_new,Demographics,ordinal_dist,% $10k–20k,Family income,7.11,8.52,5.78,5.54
+faminc_new,Demographics,ordinal_dist,% $20k–30k,Family income,10.25,10.3,9.14,10.55
+faminc_new,Demographics,ordinal_dist,% $30k–40k,Family income,9.19,8.75,9.21,9.09
+faminc_new,Demographics,ordinal_dist,% $40k–50k,Family income,7.97,7.48,7.8,8.81
+faminc_new,Demographics,ordinal_dist,% $50k–60k,Family income,8.89,8.5,8.94,9.28
+faminc_new,Demographics,ordinal_dist,% $60k–70k,Family income,6.76,6.41,7.37,6.81
+faminc_new,Demographics,ordinal_dist,% $70k–80k,Family income,7.26,7.81,6.78,7.25
+faminc_new,Demographics,ordinal_dist,% $80k–100k,Family income,9.26,8.12,9.03,11.27
+faminc_new,Demographics,ordinal_dist,% $100k–120k,Family income,7.59,7.01,8.24,8.37
+faminc_new,Demographics,ordinal_dist,% $120k–150k,Family income,8.01,8.02,8.55,8.07
+faminc_new,Demographics,ordinal_dist,% $150k–200k,Family income,5.79,6.07,6.42,5.68
+faminc_new,Demographics,ordinal_dist,% $200k–250k,Family income,2.64,2.98,2.82,2.37
+faminc_new,Demographics,ordinal_dist,% $250k–350k,Family income,1.75,2.26,1.9,1.33
+faminc_new,Demographics,ordinal_dist,% $350k–500k,Family income,0.8,0.91,0.87,0.62
+faminc_new,Demographics,ordinal_dist,% $500k+,Family income,0.49,0.53,0.52,0.5
+marstat,Demographics,categorical_dist,% Married,Marital status,46.62,40.02,45.55,57.69
+marstat,Demographics,categorical_dist,% Separated,Marital status,1.8,2.06,1.52,1.53
+marstat,Demographics,categorical_dist,% Divorced,Marital status,10.17,9.85,10.1,10.72
+marstat,Demographics,categorical_dist,% Widowed,Marital status,5.39,5.29,4.71,6.91
+marstat,Demographics,categorical_dist,% Never married,Marital status,30.45,36.44,32.46,19.12
+marstat,Demographics,categorical_dist,% Domestic/civil partnership,Marital status,5.57,6.34,5.67,4.02
+child18,Demographics,binary,% Supporting,Children under 18 in household,21.8211,19.92,22.11,22.88
+numchildren,Demographics,continuous,Median,Number of children,1.0,1.0,1.0,2.0
+numchildren,Demographics,continuous,Q25,Number of children,0.0,0.0,0.0,0.0
+numchildren,Demographics,continuous,Q75,Number of children,2.0,2.0,2.0,3.0
+ownhome,Demographics,categorical_dist,% Own,Home ownership,67.25,62.78,64.85,78.57
+ownhome,Demographics,categorical_dist,% Rent,Home ownership,29.44,34.05,31.31,19.51
+ownhome,Demographics,categorical_dist,% Other,Home ownership,3.31,3.17,3.85,1.92
+immstat,Demographics,categorical_dist,"% Immigrant, naturalized",Immigration background,5.63,6.42,5.82,4.39
+immstat,Demographics,categorical_dist,"% Immigrant, not citizen",Immigration background,2.25,2.66,2.28,0.87
+immstat,Demographics,categorical_dist,"% US-born, parent immigrant",Immigration background,10.73,11.9,11.37,8.45
+immstat,Demographics,categorical_dist,"% US-born, grandparent immigrant",Immigration background,17.86,17.2,18.8,18.33
+immstat,Demographics,categorical_dist,% 3+ gen US-born,Immigration background,63.53,61.82,61.72,67.97
+sexuality,Demographics,categorical_dist,% Heterosexual/straight,Sexual orientation,87.04,81.42,85.73,96.33
+sexuality,Demographics,categorical_dist,% Lesbian/gay woman,Sexual orientation,1.21,2.31,1.01,0.26
+sexuality,Demographics,categorical_dist,% Gay man,Sexual orientation,2.8,4.97,2.38,0.91
+sexuality,Demographics,categorical_dist,% Bisexual,Sexual orientation,5.65,7.58,6.92,1.39
+sexuality,Demographics,categorical_dist,% Other,Sexual orientation,1.52,1.91,1.72,0.33
+sexuality,Demographics,categorical_dist,% Prefer not to say,Sexual orientation,1.79,1.82,2.25,0.77
+employ,Employment & Labor,categorical_dist,% Full-time,Employment status,38.26,38.83,40.08,38.32
+employ,Employment & Labor,categorical_dist,% Part-time,Employment status,10.8,11.25,10.23,10.08
+employ,Employment & Labor,categorical_dist,% Temporarily laid off,Employment status,0.82,0.62,1.03,0.51
+employ,Employment & Labor,categorical_dist,% Unemployed,Employment status,8.1,7.92,9.21,5.45
+employ,Employment & Labor,categorical_dist,% Retired,Employment status,22.79,22.86,19.38,28.61
+employ,Employment & Labor,categorical_dist,% Permanently disabled,Employment status,6.28,6.1,6.32,5.75
+employ,Employment & Labor,categorical_dist,% Homemaker,Employment status,6.22,4.5,6.44,7.46
+employ,Employment & Labor,categorical_dist,% Student,Employment status,4.58,5.57,5.09,2.36
+employ,Employment & Labor,categorical_dist,% Other,Employment status,2.14,2.34,2.21,1.46
+union,Employment & Labor,categorical_dist,% Current member,Labor union membership,5.75,7.4,5.03,4.89
+union,Employment & Labor,categorical_dist,% Former member,Labor union membership,16.02,16.5,16.62,15.31
+union,Employment & Labor,categorical_dist,% Never member,Labor union membership,78.23,76.1,78.35,79.79
+unionhh,Employment & Labor,categorical_dist,% Currently member,Household union membership,6.42,7.66,5.35,5.91
+unionhh,Employment & Labor,categorical_dist,% Formerly member,Household union membership,10.65,11.25,10.61,11.05
+unionhh,Employment & Labor,categorical_dist,% Never member,Household union membership,75.05,72.21,76.86,78.05
+unionhh,Employment & Labor,categorical_dist,% Not sure,Household union membership,7.89,8.88,7.19,5.0
+hadjob,Employment & Labor,binary,% Supporting,Had a job in the past 5 years (% Yes),44.9808,43.99,49.58,40.63
+gigwork,Employment & Labor,binary,% Supporting,Gig / freelance work (% Yes),17.4966,16.3,19.95,16.29
+investor,Employment & Labor,binary,% Supporting,Owns stocks or mutual funds (% Yes),43.1723,41.8,48.3,44.32
+milstat_1,Demographics,binary,% Supporting,Currently serving in military (% Yes),0.5149,0.32,0.72,0.47
+milstat_3,Demographics,binary,% Supporting,Previously served in military (% Yes),9.4919,6.5,11.1,11.58
+presvote20post,Voting History,categorical_dist,% Biden,2020 Presidential vote,40.12,81.41,34.41,4.22
+presvote20post,Voting History,categorical_dist,% Trump,2020 Presidential vote,35.84,2.55,33.6,80.69
+presvote20post,Voting History,categorical_dist,% Jorgensen,2020 Presidential vote,0.89,0.16,1.9,0.3
+presvote20post,Voting History,categorical_dist,% Hawkins,2020 Presidential vote,0.26,0.09,0.53,0.02
+presvote20post,Voting History,categorical_dist,% Other,2020 Presidential vote,0.48,0.11,0.93,0.19
+presvote20post,Voting History,categorical_dist,% Did not vote,2020 Presidential vote,22.42,15.68,28.63,14.57
+presvote16post,Voting History,categorical_dist,% Clinton,2016 Presidential vote,29.16,63.19,21.37,2.56
+presvote16post,Voting History,categorical_dist,% Trump,2016 Presidential vote,31.95,3.91,30.3,70.11
+presvote16post,Voting History,categorical_dist,% Johnson,2016 Presidential vote,2.55,1.23,5.14,1.37
+presvote16post,Voting History,categorical_dist,% Stein,2016 Presidential vote,1.2,0.84,2.53,0.17
+presvote16post,Voting History,categorical_dist,% McMullin,2016 Presidential vote,0.47,0.21,0.77,0.48
+presvote16post,Voting History,categorical_dist,% Other,2016 Presidential vote,1.19,0.71,1.99,0.72
+presvote16post,Voting History,categorical_dist,% Did not vote,2016 Presidential vote,33.49,29.91,37.9,24.58
+gunown,Demographics,categorical_dist,% Personally owns,Personal gun ownership,27.39,14.27,30.51,41.15
+gunown,Demographics,categorical_dist,"% HH owns, not me",Personal gun ownership,12.64,10.88,11.62,15.18
+gunown,Demographics,categorical_dist,% No one in HH,Personal gun ownership,59.96,74.85,57.88,43.67
+CC24_308a_1,Foreign Policy & Defense,binary,% Supporting,Ukraine: stay out of the conflict,21.4043,11.0,22.18,29.28
+CC24_308a_2,Foreign Policy & Defense,binary,% Supporting,Ukraine: send humanitarian aid,53.1971,70.25,51.97,37.63
+CC24_308a_3,Foreign Policy & Defense,binary,% Supporting,Ukraine: impose economic sanctions on Russia,42.0953,55.45,42.14,31.47
+CC24_308a_4,Foreign Policy & Defense,binary,% Supporting,Ukraine: provide arms to Ukraine,34.3883,51.87,33.59,20.21
+CC24_308a_5,Foreign Policy & Defense,binary,% Supporting,Ukraine: send non-combat military advisors,23.0066,37.08,20.36,12.03
+CC24_308a_6,Foreign Policy & Defense,binary,% Supporting,Ukraine: send significant force to fight Russia,5.3059,7.71,4.54,3.87
+CC24_308a_7,Foreign Policy & Defense,binary,% Supporting,Ukraine: negotiate a Russia–Ukraine peace accord,42.1805,44.07,45.34,39.36
+CC24_308a_8,Foreign Policy & Defense,binary,% Supporting,Ukraine: fund post-war reconstruction,38.5015,54.9,38.56,20.91
+CC24_308b_1,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: stay out of the conflict,20.4254,13.86,20.61,23.86
+CC24_308b_2,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: send humanitarian aid,48.1844,63.88,47.52,33.25
+CC24_308b_3,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: provide arms to Israel,27.171,14.59,26.74,45.37
+CC24_308b_4,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: provide arms to Hamas,1.5772,2.08,1.39,0.76
+CC24_308b_5,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: send US Navy & troops to contain the conflict,23.359,26.53,22.4,23.24
+CC24_308b_6,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: send non-combat military support to Israel,17.497,14.53,16.42,24.17
+CC24_308b_7,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: send non-combat military support to Gaza,8.42,14.56,6.77,3.05
+CC24_308b_8,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: negotiate a peace settlement,48.4476,63.62,50.41,32.53
+CC24_308b_9,Foreign Policy & Defense,binary,% Supporting,Israel/Gaza: fund post-war reconstruction,39.6509,55.74,40.11,21.87
+CC24_420_1,Foreign Policy & Defense,binary,% Supporting,Use US troops: to ensure the oil supply,19.9388,13.22,18.65,31.27
+CC24_420_2,Foreign Policy & Defense,binary,% Supporting,Use US troops: to destroy a terrorist camp,53.7889,45.61,56.5,65.41
+CC24_420_3,Foreign Policy & Defense,binary,% Supporting,Use US troops: to stop genocide or civil war,36.0682,46.76,34.16,29.05
+CC24_420_4,Foreign Policy & Defense,binary,% Supporting,Use US troops: to spread democracy,17.0782,23.8,13.66,14.89
+CC24_420_5,Foreign Policy & Defense,binary,% Supporting,Use US troops: to protect allies under attack,67.1555,70.89,65.84,69.24
+CC24_420_6,Foreign Policy & Defense,binary,% Supporting,Use US troops: to help the UN uphold international law,42.7481,59.93,39.53,28.65
+CC24_420_7,Foreign Policy & Defense,binary,% Supporting,Use US troops: for none of these reasons,13.7798,10.86,15.54,10.48
+CC24_323c,Immigration,binary,% Supporting,Build a wall between the U.S. and Mexico,53.7449,20.5,55.09,92.45
+CC24_324a,Abortion,binary,% Supporting,Always allow abortion as a matter of personal choice,61.1403,90.56,59.71,28.63
+CC24_324c,Abortion,binary,% Supporting,Make abortion illegal in all circumstances,11.551,6.6,8.81,19.04
+CC24_324d,Abortion,binary,% Supporting,Expand abortion access and affordability,60.2694,90.63,57.98,27.67
+CC24_340a,Abortion,binary,% Supporting,Protect access to contraception (Congress bill),72.2478,78.97,75.1,62.61
+CC24_430a_6,Civic Engagement,binary,% Supporting,"Donated to a candidate, campaign, or party (past year)",19.0444,26.34,15.47,16.82
+CC24_430a_1,Civic Engagement,binary,% Supporting,Attended a local political meeting (past year),8.1424,9.33,7.31,8.45
+CC24_430a_2,Civic Engagement,binary,% Supporting,Put up a political sign (past year),15.0497,16.86,11.52,18.25
+CC24_430a_3,Civic Engagement,binary,% Supporting,Worked for a candidate or campaign (past year),3.4124,5.42,2.32,2.74
+CC24_430a_4,Civic Engagement,binary,% Supporting,"Attended a protest, march, or demonstration (past year)",4.5077,7.08,3.84,2.49
+CC24_443_1,Government Spending,binary,% Supporting,Increase state spending on welfare,34.0608,53.78,28.91,15.96
+CC24_443_2,Government Spending,binary,% Supporting,Increase state spending on health care,65.0052,84.37,61.53,47.47
+CC24_443_3,Government Spending,binary,% Supporting,Increase state spending on education,65.3182,81.37,60.78,52.34
+CC24_443_4,Government Spending,binary,% Supporting,Increase state spending on law enforcement,53.6542,38.21,50.52,77.41
+CC24_443_5,Government Spending,binary,% Supporting,Increase state spending on transportation & infrastructure,66.4146,74.47,67.59,58.45
+vote16_clinton,Voting History,binary,% Supporting,2016: Hillary Clinton (D),29.1583,63.19,21.37,2.56
+vote16_trump,Voting History,binary,% Supporting,2016: Donald Trump (R),31.9506,3.91,30.3,70.11
+vote16_third,Voting History,binary,% Supporting,2016: Third-party / other,5.4037,2.99,10.43,2.75
+vote16_dnv,Voting History,binary,% Supporting,2016: Did not vote,33.4874,29.91,37.9,24.58
+vote20_biden,Voting History,binary,% Supporting,2020: Joe Biden (D),40.1226,81.41,34.41,4.22
+vote20_trump,Voting History,binary,% Supporting,2020: Donald Trump (R),35.8352,2.55,33.6,80.69
+vote20_third,Voting History,binary,% Supporting,2020: Third-party / other,1.6237,0.36,3.36,0.52
+vote20_dnv,Voting History,binary,% Supporting,2020: Did not vote,22.4185,15.68,28.63,14.57
+appr_biden,Voting History,binary,% Supporting,2024: Approve of Joe Biden (job),40.0894,82.58,32.07,4.2
+appr_harris,Voting History,binary,% Supporting,2024: Approve of Kamala Harris (job),44.1324,88.51,37.1,5.23
+vote24_harris,Voting History,binary,% Supporting,2024: Kamala Harris (D),47.8325,93.17,42.95,3.34
+vote24_trump,Voting History,binary,% Supporting,2024: Donald Trump (R),47.1306,4.32,49.17,94.36
+vote24_third,Voting History,binary,% Supporting,2024: Third-party / other,1.932,0.42,3.86,0.73
+vote24_dnv,Voting History,binary,% Supporting,2024: Did not vote,3.0364,2.13,3.78,1.53
+reported_turnout_24,Voting History,binary,% Supporting,2024: Self-reported turnout,86.4487,91.24,82.55,92.97
+verified_turnout_24,Voting History,binary,% Supporting,2024: Voter-file-verified turnout,59.0985,61.22,57.77,62.79
+pew_religimp,Religion,binary,% Supporting,Religion is important (very or somewhat),59.7775,46.83,54.32,80.04
+pew_prayer,Religion,binary,% Supporting,Prays weekly or more often,55.4126,44.43,50.44,73.81
+relig_protestant,Faith,binary,% Supporting,Protestant,33.2202,24.77,28.79,49.55
+relig_catholic,Faith,binary,% Supporting,Roman Catholic,18.0148,17.77,16.28,21.24
+relig_jewish,Faith,binary,% Supporting,Jewish,2.2874,3.56,2.02,1.5
+relig_muslim,Faith,binary,% Supporting,Muslim,0.7784,1.03,0.74,0.38
+relig_none,Faith,binary,% Supporting,Unaffiliated (none / atheist / agnostic),34.462,43.64,39.68,16.77
+relig_other,Faith,binary,% Supporting,Other faith,11.2372,9.23,12.48,10.55
+newsint,Civic Engagement,binary,% Supporting,Follows public affairs most of the time,48.6696,49.67,49.94,51.24
+numkids,Household,categorical_dist,% 0,Number of children,41.4324,47.6,44.83,29.27
+numkids,Household,categorical_dist,% 1,Number of children,16.3364,16.41,15.46,16.99
+numkids,Household,categorical_dist,% 2,Number of children,22.1527,19.73,20.52,28.28
+numkids,Household,categorical_dist,% 3+,Number of children,20.0784,16.26,19.2,25.46

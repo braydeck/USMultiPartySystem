@@ -35,19 +35,12 @@ PID_CODE = {1: "DEM", 2: "REP", 3: "IND"}   # 4/5 dropped
 GATE_TOL = 0.3  # pp
 
 # State-spending scale items: type=binary but recode is increase(1+2)->1, else(3-5)->0.
-# (add_compare_items.py: np.isin(raw,[1,2]) -> 1 else np.isin(raw,[3,4,5]) -> 0)
+# (add_compare_items.py uses: np.isin(raw,[1,2]) -> 1 else np.isin(raw,[3,4,5]) -> 0)
 INCR_BINARY = {"CC24_443_1","CC24_443_2","CC24_443_3","CC24_443_4","CC24_443_5"}
 
 # Variables where code 8 = substantive (not skipped).
 # CC24_423/424: code 8 = "None at all" (real trust-level code); in raw_numeric recoded -> 2
-# (midpoint-impute as documented in efa_update.py).
 CODE8_SUBST = {"CC24_423","CC24_424"}
-
-# Drop keywords for the DENOMINATOR of categorical/ordinal distribution shares.
-# Only hard non-answers: skipped / not asked. "Not sure" and "prefer not to say"
-# remain in the denominator (they answered, just ambiguously) but won't match any
-# target stat_label — so those stat_label rows return None and are skipped.
-DENOM_DROP_KW = ('skipped', 'not asked')
 
 # Label aliases: (variable, cleaned_target) -> [list of cleaned raw labels that match].
 # These handle abbreviated/reformatted labels in cluster_stats.csv that don't
@@ -56,8 +49,7 @@ LABEL_ALIAS = {
     # ordinal: "Stayed same" shortens "Stayed about the same"
     ('CC24_302', 'stayed same'): ['stayed about the same'],
     ('CC24_303', 'stayed same'): ['stayed about the same'],
-    # likert5_dist: "% Agree" = code 2 (Somewhat agree), "% Disagree" = code 4,
-    # "% Neither" = code 3 (Neither agree nor disagree). Each is a single code.
+    # likert5_dist: "% Agree" = code 2 (Somewhat agree), etc. (each is a single code)
     ('CC24_440a', 'agree'): ['somewhat agree'],
     ('CC24_440a', 'neither'): ['neither agree nor disagree'],
     ('CC24_440a', 'disagree'): ['somewhat disagree'],
@@ -109,7 +101,7 @@ LABEL_ALIAS = {
     ('educ', 'hs grad'): ['high school graduate'],
     ('educ', '2-year degree'): ['2-year'],
     ('educ', '4-year degree'): ['4-year'],
-    # faminc_new: income bracket labels (stat uses $k abbreviations, raw uses full $,000 form)
+    # faminc_new: income bracket labels (stat uses $k abbreviations)
     ('faminc_new', '<$10k'): ['less than $10,000'],
     ('faminc_new', '$10k–20k'): ['$10,000 - $19,999'],
     ('faminc_new', '$20k–30k'): ['$20,000 - $29,999'],
@@ -208,7 +200,7 @@ def build_synthetic_map(dc):
     for name, (raw_var, fn) in SYNTH_RAW.items():
         if raw_var in dc.columns:
             synth[name] = fn(dc[raw_var].values.astype(float))
-    # Multi-source: 2024 vote
+    # Multi-source: 2024 vote (CC24_401 = turnout, CC24_410 = vote choice)
     if 'CC24_401' in dc.columns and 'CC24_410' in dc.columns:
         t = dc['CC24_401'].values.astype(float)
         ch = dc['CC24_410'].values.astype(float)
@@ -252,6 +244,47 @@ def build_synthetic_map(dc):
     return synth
 
 
+def build_dist_denom_map(reader, stats):
+    """Pre-build {variable -> frozenset of denom codes} from cluster_stats dist rows.
+
+    The denominator for each _dist variable = the union of all codes whose stat_labels
+    appear in cluster_stats for that variable. This matches the original computation
+    where denominators were built from valid response codes actually shown to users.
+    """
+    setname = dict(zip(reader._varlist, reader._lbllist))
+    val_labels = reader.value_labels()
+
+    denom_map = {}
+    dist_rows = stats[stats['type'].str.endswith('_dist')]
+
+    for var, grp in dist_rows.groupby('variable'):
+        if var in ('numkids',):  # synthetic with no DTA variable
+            continue
+        lname = setname.get(var, '')
+        labs = val_labels.get(lname, {})
+        # Build inverted label -> code mapping (lower-cased)
+        label_to_codes = {}
+        for c, l in labs.items():
+            clean = str(l).strip().lower()
+            label_to_codes.setdefault(clean, []).append(int(c))
+
+        denom_codes = set()
+        for sl in grp['stat_label']:
+            target = sl.replace('%', '').strip().lower()
+            # Try alias first
+            alias = LABEL_ALIAS.get((var, target))
+            if alias is not None:
+                for a in alias:
+                    denom_codes.update(label_to_codes.get(a, []))
+            else:
+                denom_codes.update(label_to_codes.get(target, []))
+
+        if denom_codes:
+            denom_map[var] = frozenset(denom_codes)
+
+    return denom_map
+
+
 # ── Weighted stat helpers ──────────────────────────────────────────────────────
 
 def masks(pid):
@@ -282,98 +315,82 @@ def wpctile(vals, w, m, q):
     return round(float(np.interp(q, cw, v)), 4)
 
 
-# ── Value-label recoder ────────────────────────────────────────────────────────
+# ── Value-label helpers ────────────────────────────────────────────────────────
 
-def raw_numeric(dc, var):
-    """Raw numeric column with documented pre-recodes applied (EFA-consistent).
-
-    NOTE: CC24_325 reversal (40-x) is NOT applied here for continuous rows —
-    only for ordinal/mean rows. The caller is responsible for not applying this
-    to continuous types. We always apply it here; the continuous dispatcher
-    overrides with raw un-reversed values.
-    """
-    x = dc[var].values.astype(float)
-    if var in ("CC24_423", "CC24_424"):
-        # Code 8 = "None at all" (substantive data); pre-recode: treat 8 as midpoint 2
-        # so that trust_dist % None at all uses the UNRECODED code 8, not 2.
-        # This recode is for MEAN computation only; _dist rows use original codes.
-        x = np.where(x == 8, 2.0, x)
-    if var == "ideo5":
-        x = np.where(x == 6, np.nan, x)         # "Not sure" -> NaN
-    if var == "CC24_325":
-        x = 40.0 - x                             # weeks -> restrictiveness (for mean only)
-    return x
-
-
-def substantive_codes_denom(reader, var):
-    """All codes valid for the DENOMINATOR of share computations.
-
-    Drops only: codes 8/9/98/99 numerically, or labels containing 'skipped'/'not asked'.
-    Retains 'not sure', 'prefer not to say', 'other' etc. in denominator.
-    Returns [(code, label)] sorted by code.
-    """
+def get_label_to_codes(reader, var):
+    """Return {cleaned_label -> [list of codes]} for a variable."""
     setname = dict(zip(reader._varlist, reader._lbllist))
     labs = reader.value_labels().get(setname.get(var, ''), {})
-    out = []
-    for c in sorted(int(k) for k in labs.keys()):
-        t = str(labs[c]).strip().lower()
-        if any(d in t for d in DENOM_DROP_KW) or c in (8, 9, 98, 99):
-            # Exception: CODE8_SUBST variables use code 8 as a real answer
-            if var in CODE8_SUBST and c == 8:
-                pass  # keep code 8 in denom for these vars
-            else:
-                continue
-        out.append((c, str(labs[c])))
-    return out
+    result = {}
+    for c, l in labs.items():
+        clean = str(l).strip().lower()
+        result.setdefault(clean, []).append(int(c))
+    return result
 
 
-def resolve_dist_codes(reader, var, target_cleaned):
+def resolve_target_codes(reader, var, target_cleaned):
     """Return list of raw codes matching the cleaned stat_label target.
 
-    Checks LABEL_ALIAS first, then falls back to exact match on cleaned label text.
-    Uses the DENOM codes (which include not-sure etc.) for matching, but only
-    returns codes with substantive labels (excludes 'not sure'/'prefer not to say').
-    Returns [] if no match (triggers skip).
+    Checks LABEL_ALIAS first, then falls back to exact label match.
+    Returns [] if no match -> triggers skip for that row.
     """
-    denom_codes = substantive_codes_denom(reader, var)
-    # Check alias table first
+    label_to_codes = get_label_to_codes(reader, var)
     alias = LABEL_ALIAS.get((var, target_cleaned))
     if alias is not None:
-        alias_set = set(alias)
-        return [c for c, l in denom_codes if l.strip().lower() in alias_set]
-    # Exact match fallback
-    return [c for c, l in denom_codes if l.strip().lower() == target_cleaned]
+        result = []
+        for a in alias:
+            result.extend(label_to_codes.get(a, []))
+        return result
+    return label_to_codes.get(target_cleaned, [])
 
 
 def substantive_mean_codes(reader, var):
-    """Codes valid for mean computation: drops non-substantive by label text.
+    """Return set of valid codes for mean computation (drops skipped/not-asked/not-sure/dk).
 
-    More aggressive than denom: also drops 'not sure', 'prefer not to say', 'other' etc.
-    when the variable uses those as ambiguous response options. Returns set of valid codes.
+    More aggressive than denom: drops ambiguous codes. Returns set of valid int codes.
     """
     setname = dict(zip(reader._varlist, reader._lbllist))
     labs = reader.value_labels().get(setname.get(var, ''), {})
     MEAN_DROP_KW = ('skipped', 'not asked', 'not sure', "don't know", 'dk',
                     'refused', 'prefer not to say')
     valid = set()
-    for c in sorted(int(k) for k in labs.keys()):
-        t = str(labs[c]).strip().lower()
+    for c, l in labs.items():
+        c = int(c)
+        t = str(l).strip().lower()
         if any(d in t for d in MEAN_DROP_KW) or c in (9, 98, 99):
+            # Code 8 for trust vars is "None at all" — substantive, but raw_numeric
+            # already recodes it to 2 (midpoint), so it's handled correctly there.
             if var in CODE8_SUBST and c == 8:
-                # code 8 for trust vars is "None at all" - substantive, but already recoded
-                # by raw_numeric (8->2), so it's handled
-                pass
+                valid.add(c)  # keep code 8 for trust vars (recoded -> 2 in raw_numeric)
             elif c == 8 and var not in CODE8_SUBST:
-                continue  # standard 8=skipped
+                continue
             else:
                 continue
         valid.add(c)
     return valid
 
 
+def raw_numeric(dc, var):
+    """Raw numeric column with documented pre-recodes applied (EFA-consistent).
+
+    Applies:
+    - CC24_423/424: code 8 ("None at all") -> 2 (midpoint-impute, EFA-consistent)
+    - ideo5: code 6 ("Not sure") -> NaN
+    - CC24_325: 40 - x (weeks -> restrictiveness); NOT applied for continuous rows.
+    """
+    x = dc[var].values.astype(float)
+    if var in ("CC24_423", "CC24_424"):
+        x = np.where(x == 8, 2.0, x)
+    if var == "ideo5":
+        x = np.where(x == 6, np.nan, x)
+    if var == "CC24_325":
+        x = 40.0 - x                             # for mean (ordinal) only
+    return x
+
+
 # ── Row dispatcher ─────────────────────────────────────────────────────────────
 
-def compute_row(dc, reader, w, grp, synth, row):
+def compute_row(dc, reader, w, grp, synth, denom_map, row):
     """Return {'overall': x, 'DEM': .., 'IND': .., 'REP': ..} or None to skip."""
     var, typ, lbl = row['variable'], row['type'], row['stat_label']
     ALL = np.ones(len(dc), bool)
@@ -421,29 +438,31 @@ def compute_row(dc, reader, w, grp, synth, row):
     if var not in dc.columns:
         return None
 
-    # ── Binary / binary_agree rows -> 0/1 vector ──────────────────────────────
+    # ── Binary / binary_agree rows ────────────────────────────────────────────
     if typ in ('binary', 'binary_agree'):
         x = dc[var].values.astype(float)
         if var in INCR_BINARY:
             # State spending scale: codes 1+2 = increase -> 1; codes 3-5 = 0
             b = np.where(np.isin(x, [1, 2]), 1.0, np.where(np.isin(x, [3, 4, 5]), 0.0, np.nan))
         else:
-            # Support/oppose or selected/not-selected: code 1 -> 1, code 2 -> 0
-            # NOTE: REV_BINARY reversal is NOT applied here — it only affects EFA
-            # factor direction (polychoric coding). '% Supporting' always means code 1.
+            # Support/oppose or selected/not-selected: code 1 -> 1, code 2 -> 0.
+            # REV_BINARY applies only to EFA polychoric direction; '% Supporting'
+            # always means code 1 in the original survey.
             b = np.where(x == 1, 1.0, np.where(x == 2, 0.0, np.nan))
         return out(lambda m, b=b: wshare(b, w, m))
 
-    # ── Distribution rows -> match value-label code(s) in denom ──────────────
+    # ── Distribution rows -> match target code(s) against denom codes ─────────
     if typ.endswith('_dist'):
         target = lbl.replace('%', '').strip().lower()
-        sel_codes = resolve_dist_codes(reader, var, target)
+        sel_codes = resolve_target_codes(reader, var, target)
         if not sel_codes:
             return None   # unresolved label -> skip (logged by caller)
-        denom_codes = substantive_codes_denom(reader, var)
-        all_denom_codes = [c for c, _ in denom_codes]
+        # Denominator = codes present in ALL dist stat_labels for this variable in cluster_stats
+        denom_codes = denom_map.get(var)
+        if denom_codes is None:
+            return None
         x = dc[var].values.astype(float)
-        valid = np.isin(x, all_denom_codes)
+        valid = np.isin(x, list(denom_codes))
         b = np.where(np.isin(x, sel_codes) & valid, 1.0, np.where(valid, 0.0, np.nan))
         return out(lambda m, b=b: wshare(b, w, m))
 
@@ -452,7 +471,6 @@ def compute_row(dc, reader, w, grp, synth, row):
         x = raw_numeric(dc, var)
         # Mask out non-substantive codes (e.g. faminc_new code 97='Prefer not to say')
         valid_codes = substantive_mean_codes(reader, var)
-        # For vars without value labels (synthetic-ish), just use NaN filter
         if valid_codes:
             raw_x = dc[var].values.astype(float)
             x = np.where(np.isin(raw_x, list(valid_codes)), x, np.nan)
@@ -461,7 +479,7 @@ def compute_row(dc, reader, w, grp, synth, row):
     # ── Continuous rows (Median / Q25 / Q75) ─────────────────────────────────
     if typ == 'continuous':
         if var == 'CC24_325':
-            # For continuous, use raw weeks (NOT the 40-x reversal used for means)
+            # Continuous rows use raw weeks (not the 40-x reversal used for ordinal means)
             x = dc[var].values.astype(float)
             x = np.where((x >= 0) & (x <= 40), x, np.nan)
         else:
@@ -484,10 +502,13 @@ def main():
     print(f"  Sample: {len(dc):,} rows  DEM={(pid==1).sum():,}  REP={(pid==2).sum():,}  IND={(pid==3).sum():,}")
 
     stats = pd.read_csv(STATS)
+    print("Building denominator map from cluster_stats dist rows...")
+    denom_map = build_dist_denom_map(reader, stats)
+
     out_rows, gate_fail, skipped = [], [], []
 
     for _, row in stats.iterrows():
-        res = compute_row(dc, reader, w, grp, synth, row)
+        res = compute_row(dc, reader, w, grp, synth, denom_map, row)
         rec = {k: row[k] for k in ('variable', 'domain', 'type', 'stat_label', 'question')}
         if res is None:
             skipped.append(f"{row['variable']} / {row['stat_label']}")
