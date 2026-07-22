@@ -62,6 +62,8 @@ def main():
     typo = pd.read_csv(TYPO)
     assert len(dc) == len(typo), f"row mismatch {len(dc)} vs {len(typo)}"
     cl = typo['cluster'].values
+    pid = pd.to_numeric(typo['pid3'], errors='coerce').values
+    PID_GROUPS = {"DEM": pid == 1, "REP": pid == 2, "IND": pid == 3}
     w = dc['commonpostweight'].values.astype(float)
 
     def substantive_codes(var):
@@ -95,6 +97,8 @@ def main():
         kind = KIND[var]
         national = shares(var, codes, np.ones(len(dc), bool))
         parties = {CLUSTER_TO_PARTY[k]: shares(var, codes, cl == k) for k in range(10)}
+        for code, m in PID_GROUPS.items():
+            parties[code] = shares(var, codes, m)
         # Fixed orientation (no partisan flip): reverse so code 1 lands on the right —
         # i.e. Strongly agree / Greatly increase on the right, Strongly disagree on the left.
         if kind == 'diverging':
