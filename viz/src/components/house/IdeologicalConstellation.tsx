@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import type { ConstellationNode, TransferMatrix } from '../../types';
-import { getBlendColor, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
+import { getBlendColor, isCurrentParty, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../shared/ToggleGroup';
 import { bamForZ, bamForPctile } from '../../lib/bam';
@@ -350,7 +350,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
           .attr('fill-opacity', isDim(cs.party) ? 0.02 : 0.06)
           .attr('stroke', color)
           .attr('stroke-opacity', isDim(cs.party) ? 0.04 : 0.15)
-          .attr('stroke-width', 1);
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', isCurrentParty(String(cs.party)) ? '4 3' : null);
       }
     }
 
@@ -410,6 +411,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       .attr('fill-opacity', d => isDim(d.id) ? 0.12 : 0.55)
       .attr('stroke', d => getStroke(d))
       .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', (d: ConstellationNode) => isCurrentParty(d.id) ? '3 2' : null)
       .style('cursor', 'pointer')
       .on('mouseenter', function (_e, d) {
         d3.select(this).attr('fill-opacity', 0.9).attr('stroke-width', 3);
