@@ -13,7 +13,9 @@ import { PartyRowLabel, SigTag, type RowMark } from '../components/shared/PartyR
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, itemSignature, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
-import { getBlendColor, getPrimaryParty, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple } from '../constants/parties';
+import { getBlendColor, getPrimaryParty, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple, CURRENT_PARTIES, isCurrentParty } from '../constants/parties';
+import currentPartyProfilesData from '../data/currentPartyProfiles.json';
+import currentPartySpreadsData from '../data/currentPartySpreads.json';
 import { bamForZ, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../lib/bam';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
@@ -239,6 +241,8 @@ function getVariables(
   if (cluster) return cluster.variables as Record<string, { pct: number; question: string; domain: string }>;
   const fdp = fdProfiles[code];
   if (fdp?.variables) return fdp.variables as Record<string, { pct: number; question: string; domain: string }>;
+  const cp = (currentPartyProfilesData as unknown as ClusterProfile[]).find(c => c.party === code);
+  if (cp) return cp.variables as Record<string, { pct: number; question: string; domain: string }>;
   return {};
 }
 
@@ -251,6 +255,8 @@ function getFactorScores(
   if (cluster) return { F1: cluster.F1, F2: cluster.F2, F3: cluster.F3, F4: cluster.F4, F5: cluster.F5 };
   const fdp = fdProfiles[code];
   if (fdp) return { F1: fdp.F1, F2: fdp.F2, F3: fdp.F3, F4: fdp.F4, F5: fdp.F5 };
+  const cp = (currentPartyProfilesData as unknown as ClusterProfile[]).find(c => c.party === code);
+  if (cp) return { F1: cp.F1, F2: cp.F2, F3: cp.F3, F4: cp.F4, F5: cp.F5 };
   return null;
 }
 
@@ -593,13 +599,20 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   const saved = useMemo(loadSavedCompare, []);
   const [cmp, setCmp] = useUrlState<string>('cmp', '', { push: false });
   const selected = useMemo(() => (cmp ? cmp.split(',').filter(Boolean) : []), [cmp]);
+  const currentParties = currentPartyProfilesData as unknown as ClusterProfile[];
   // Party rows/columns always render in PC order (PRG→NAT), regardless of pick order.
+  // Current parties (DEM/IND/REP) sort first (DEM→IND→REP), then formulated parties in F5_ORDER.
   // FD variants sort by their base party. Selection-management still uses `selected`.
-  const orderedSelected = useMemo(() =>
-    [...selected].sort((a, b) =>
-      (F5_ORDER as readonly string[]).indexOf(getPrimaryParty(a)) -
-      (F5_ORDER as readonly string[]).indexOf(getPrimaryParty(b))),
-    [selected]);
+  const orderedSelected = useMemo(() => {
+    const curIdx = (c: string) => (CURRENT_PARTIES as readonly string[]).indexOf(getPrimaryParty(c));
+    return [...selected].sort((a, b) => {
+      const ca = isCurrentParty(getPrimaryParty(a)), cb = isCurrentParty(getPrimaryParty(b));
+      if (ca !== cb) return ca ? -1 : 1;                 // current parties first
+      if (ca && cb) return curIdx(a) - curIdx(b);        // DEM -> IND -> REP
+      return (F5_ORDER as readonly string[]).indexOf(getPrimaryParty(a)) -
+             (F5_ORDER as readonly string[]).indexOf(getPrimaryParty(b));
+    });
+  }, [selected]);
   const [minGap, setMinGap] = useState(saved.minGap ?? 15);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
@@ -790,13 +803,20 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
   // Constellation nodes — all parties, always shown as the overview map.
   const constellationNodes = useMemo((): ConstellationNode[] =>
-    F5_ORDER.filter(code => clusters.some(c => c.party === code)).map(code => {
+    (F5_ORDER.filter(code => clusters.some(c => c.party === code)).map(code => {
       const c = clusters.find(x => x.party === code) as unknown as Record<string, number> & { seatsHouse?: number };
       return {
         id: code, label: code, seats: c.seatsHouse ?? 0,
         F1: c.z_F1 ?? 0, F2: c.z_F2 ?? 0, F3: c.z_F3 ?? 0, F4: c.z_F4 ?? 0, F5: c.z_F5 ?? 0,
       };
-    }), [clusters]);
+    }) as ConstellationNode[]).concat(currentParties.map(c => ({
+      id: c.party, label: c.party, seats: 0,
+      F1: (c as unknown as Record<string, number>).z_F1 ?? 0,
+      F2: (c as unknown as Record<string, number>).z_F2 ?? 0,
+      F3: (c as unknown as Record<string, number>).z_F3 ?? 0,
+      F4: (c as unknown as Record<string, number>).z_F4 ?? 0,
+      F5: (c as unknown as Record<string, number>).z_F5 ?? 0,
+    }))), [clusters, currentParties]);
 
   // Spatial map of the parties, driven by the sticky selection (highlight, not filter): all
   // parties stay on the map, the selected ones are emphasized. Rendered below the factor scores.
@@ -808,7 +828,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
         {selected.length > 0 && ' Selected parties are highlighted; the rest stay for context.'}
       </p>
-      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} selection={selected} />
+      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={[...clusterSpreads, ...(currentPartySpreadsData as typeof clusterSpreads)]} selection={selected} />
     </Card>
   );
 
@@ -866,6 +886,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             onToggle={code => (selected.includes(code) ? removeParty(code) : addParty(code))}
             baseParties={pureOptions.map(o => o.code)}
             crossover={fdOptions.filter(o => !pureOptions.some(p => p.code === o.code)).map(o => ({ code: o.code, label: o.code }))}
+            currentParties={CURRENT_PARTIES.map(code => ({ code, label: PARTY_NAMES[code] ?? code }))}
           />
           {selected.length >= 1 && (
             <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
