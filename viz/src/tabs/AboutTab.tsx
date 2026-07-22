@@ -320,6 +320,30 @@ export function AboutTab() {
               </div>
             </div>
           </Card>
+
+          {/* Why the default asks for seven ranks */}
+          <Card className="p-5">
+            <div className="font-semibold text-foreground mb-2">Why ballots ask for at least seven</div>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+              Short ballots break proportional representation. When all of a voter&apos;s ranked choices are
+              eliminated, the ballot exhausts and stops transferring, so late seats fill below the quota that is
+              supposed to earn them. Ballot length is the fix, and the returns diminish fast. Share of House seats
+              filled below quota, by how many candidates voters rank (double-Wyoming, 5% turnout):
+            </p>
+            <div className="grid grid-cols-5 gap-2 text-center mb-3">
+              {([['3', '34%'], ['5', '18%'], ['7', '13%'], ['10', '9%'], ['All', '8%']] as const).map(([r, v]) => (
+                <div key={r} className={`rounded-lg border p-2 ${r === '7' ? 'border-indigo-300 bg-indigo-50' : 'border-border bg-muted/40'}`}>
+                  <div className="text-[11px] text-muted-foreground">Rank {r}</div>
+                  <div className="text-lg font-bold tabular-nums text-foreground">{v}</div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Seven captures most of the gain toward the full-ranking floor without asking voters to rank a whole
+              field. It also matches the standard rule that a voter should rank at least as many candidates as the
+              district has seats: the largest districts here elect seven.
+            </p>
+          </Card>
         </div>
       )}
 
@@ -515,9 +539,9 @@ export function AboutTab() {
               &ldquo;turnout gap closed&rdquo; slider lets you test how much that matters.
             </p>
             <p className="text-slate-300 text-sm leading-relaxed">
-              The default counts every adult&apos;s preference once (latent electorate). But turnout is deeply
-              uneven, and it doesn&apos;t fall evenly across the forces. The slider sweeps that unevenness, from
-              observed 2024 turnout toward a more equal electorate, so you can see which results depend on it.
+              Turnout is deeply uneven, and it doesn&apos;t fall evenly across the forces. The app opens at 5% of that
+              gap closed, a small mobilization of suppressed voters; the slider sweeps the rest, from observed 2024
+              turnout toward a more equal electorate, so you can see which results depend on it.
             </p>
           </Card>
 
@@ -551,7 +575,7 @@ export function AboutTab() {
             </p>
             <div className="grid sm:grid-cols-3 gap-3 mt-3">
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-                <div className="text-xs font-semibold text-emerald-800 mb-1">0% · Observed (default)</div>
+                <div className="text-xs font-semibold text-emerald-800 mb-1">0% · Observed</div>
                 <p className="text-[11px] text-emerald-700 leading-relaxed">Validated 2024 turnout, no assumed behavioral response. The only setting that rests entirely on measured data.</p>
               </div>
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
@@ -563,6 +587,13 @@ export function AboutTab() {
                 <p className="text-[11px] text-amber-700 leading-relaxed">Beyond documented one-cycle effects; included to test what heavier mobilization would take. Above 30% is excluded entirely.</p>
               </div>
             </div>
+            <p className="text-sm text-muted-foreground leading-relaxed mt-4">
+              The app opens at <strong>5% gap closed</strong>, one notch off the pure-observed floor. A proportional
+              system gives currently-suppressed voters someone to vote for, so the opening view credits a small
+              mobilization rather than assuming none. Five percent sits at the conservative low end of the plausible
+              band, well under the ceiling the quasi-experimental evidence supports. Every result is still checkable at
+              0%, and the findings that matter hold at both.
+            </p>
           </Card>
 
           <Card className="p-5">

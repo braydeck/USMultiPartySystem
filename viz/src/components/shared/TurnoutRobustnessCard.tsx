@@ -1,14 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
-// Compression stops: 0 = observed 2024 turnout; 5/10/15/20/25/30 = % of the inter-force gap closed.
-import presL0 from '../../data/rawMultiPresidentialElectionTurnout.json';
-import presL5 from '../../data/rawMultiPresidentialElectionTurnoutL5.json';
-import presL10 from '../../data/rawMultiPresidentialElectionTurnoutL10.json';
-import presL15 from '../../data/rawMultiPresidentialElectionTurnoutL15.json';
-import presL20 from '../../data/rawMultiPresidentialElectionTurnoutL20.json';
-import presL25 from '../../data/rawMultiPresidentialElectionTurnoutL25.json';
-import presL30 from '../../data/rawMultiPresidentialElectionTurnoutL30.json';
+// Senate is the rank-7 winnow (the deployed senate JSONs), tracked across turnout stops.
 import senL0 from '../../data/pureMultiSenateCondorcetTurnout.json';
 import senL5 from '../../data/pureMultiSenateCondorcetTurnoutL5.json';
 import senL10 from '../../data/pureMultiSenateCondorcetTurnoutL10.json';
@@ -16,34 +9,26 @@ import senL15 from '../../data/pureMultiSenateCondorcetTurnoutL15.json';
 import senL20 from '../../data/pureMultiSenateCondorcetTurnoutL20.json';
 import senL25 from '../../data/pureMultiSenateCondorcetTurnoutL25.json';
 import senL30 from '../../data/pureMultiSenateCondorcetTurnoutL30.json';
-import houseL0 from '../../data/houseSeatsTurnout.json';
-import houseL5 from '../../data/houseSeatsTurnoutL5.json';
-import houseL10 from '../../data/houseSeatsTurnoutL10.json';
-import houseL15 from '../../data/houseSeatsTurnoutL15.json';
-import houseL20 from '../../data/houseSeatsTurnoutL20.json';
-import houseL25 from '../../data/houseSeatsTurnoutL25.json';
-import houseL30 from '../../data/houseSeatsTurnoutL30.json';
 
 type Pres = { condorcetWinner: string; irvWinner: string };
 type SenSeat = { senatorParty: string };
-type HouseSeat = { party: number; national: number };
+// President + House use the rank-7 model (the app default), read from the lazy depth bundles;
+// full-ranking would misstate the presidency, which flips at the observed-turnout floor.
+type HplTop7 = Record<string, Record<string, Record<string, { national: { stvSeats: Record<string, number> } }>>>;
+type Gd = Record<string, Record<string, Pres>>;
 
 const party = (code: string) => String(code).split('_')[0];
-const CLUSTER_CODE = ['CON', 'LBR', 'STY', 'NAT', 'LIB', 'POP', 'CUP', 'OAO', 'DSA', 'PRG'];
 
 // % of the inter-force turnout gap closed. 0 = observed; ≤15 plausible; 20–30 stress.
 const STOPS = [0, 5, 10, 15, 20, 25, 30];
-const presData = [presL0, presL5, presL10, presL15, presL20, presL25, presL30] as unknown as Pres[];
+const STOP_KEYS = ['0', '5', '10', '15', '20', '25', '30'];
 const senData = [senL0, senL5, senL10, senL15, senL20, senL25, senL30] as unknown as SenSeat[][];
-const houseData = [houseL0, houseL5, houseL10, houseL15, houseL20, houseL25, houseL30] as unknown as HouseSeat[][];
 
 function plurality(seats: SenSeat[]): [string, number] {
   const counts: Record<string, number> = {};
   for (const s of seats) { const p = party(s.senatorParty); counts[p] = (counts[p] ?? 0) + 1; }
   return Object.entries(counts).sort((a, b) => b[1] - a[1])[0] as [string, number];
 }
-const houseTop = (seats: HouseSeat[]) => CLUSTER_CODE[[...seats].sort((a, b) => b.national - a.national)[0].party];
-const houseSTY = (seats: HouseSeat[]) => seats.find(h => h.party === 2)?.national ?? 0;
 
 function pill(code: string) {
   const p = party(code);
@@ -63,20 +48,39 @@ function flipGap(winners: string[]): number | null {
 }
 
 export function TurnoutRobustnessCard() {
-  const [i, setI] = useState(0); // slider index into STOPS; default = 0 (observed data)
+  const [i, setI] = useState(1); // slider index into STOPS; default = 5% gap closed
+  const [hpl, setHpl] = useState<HplTop7 | null>(null);
+  const [gd, setGd] = useState<Gd | null>(null);
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setHpl).catch(() => {});
+    fetch(`${import.meta.env.BASE_URL}data/generalDepth.json`).then(r => r.json()).then(setGd).catch(() => {});
+  }, []);
 
-  const series = useMemo(() => ({
-    presCond: presData.map(d => party(d.condorcetWinner)),
-    presIrv: presData.map(d => party(d.irvWinner)),
-    senPlur: senData.map(s => plurality(s)),
-    houseTop: houseData.map(h => houseTop(h)),
-    houseSTY: houseData.map(h => houseSTY(h)),
-  }), []);
+  const series = useMemo(() => {
+    if (!hpl || !gd) return null;
+    return {
+      presCond: STOP_KEYS.map(s => party(gd.top7[s].condorcetWinner)),
+      presIrv: STOP_KEYS.map(s => party(gd.top7[s].irvWinner)),
+      presCondRaw: STOP_KEYS.map(s => gd.top7[s].condorcetWinner),
+      presIrvRaw: STOP_KEYS.map(s => gd.top7[s].irvWinner),
+      senPlur: senData.map(s => plurality(s)),
+      houseSTY: STOP_KEYS.map(s => hpl.top7.double[s].national.stvSeats.STY ?? 0),
+    };
+  }, [hpl, gd]);
+
+  if (!series) {
+    return (
+      <Card className="p-5">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Turnout Robustness</h3>
+        <p className="text-[13px] text-muted-foreground">Loading…</p>
+      </Card>
+    );
+  }
 
   const winnerRows = [
-    { office: 'President · Condorcet', winners: series.presCond, cur: presData[i].condorcetWinner,
+    { office: 'President · Condorcet', winners: series.presCond, cur: series.presCondRaw[i],
       note: 'single national head-to-head' },
-    { office: 'President · IRV', winners: series.presIrv, cur: presData[i].irvWinner,
+    { office: 'President · IRV', winners: series.presIrv, cur: series.presIrvRaw[i],
       note: 'strongest first-choice base' },
     { office: 'Senate · Condorcet', winners: series.senPlur.map(p => p[0]), cur: series.senPlur[i][0],
       note: `plurality of 51 · ${series.senPlur[i][0]} ${series.senPlur[i][1]} seats` },
@@ -93,10 +97,10 @@ export function TurnoutRobustnessCard() {
         Turnout Robustness
       </h3>
       <p className="text-[13px] text-muted-foreground mb-4 leading-relaxed">
-        <span className="font-semibold text-foreground">Most outcomes hold even as turnout equalizes.</span> The
+        <span className="font-semibold text-foreground">Most outcomes hold across the plausible turnout band.</span> The
         slider closes the turnout gap between forces (the suppressed voting more, PR&apos;s documented contraction
-        effect) and marks where each office&apos;s winner flips. Default is observed 2024 turnout; ≤15% closure is
-        plausible in one cycle, 20–30% is a stress test.
+        effect) and marks where each office&apos;s winner flips. The app opens at 5% gap closed; 0% is pure observed
+        2024 turnout, ≤15% is plausible in one cycle, 20–30% is a stress test.
       </p>
 
       {/* Slider */}
@@ -110,7 +114,7 @@ export function TurnoutRobustnessCard() {
         </div>
         <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
           <span>Observed (2024)</span>
-          <span className="font-semibold text-foreground">{STOPS[i]}% gap closed{STOPS[i] >= 20 ? ' · stress' : STOPS[i] > 0 ? ' · plausible' : ''}</span>
+          <span className="font-semibold text-foreground">{STOPS[i]}% gap closed{STOPS[i] >= 20 ? ' · stress' : STOPS[i] > 0 ? ' · plausible' : ' · observed'}</span>
           <span>Stress (30%)</span>
         </div>
         <p className="text-[10px] text-muted-foreground mt-1">
@@ -153,12 +157,12 @@ export function TurnoutRobustnessCard() {
 
       <div className="mt-4 space-y-2.5 text-[13px] leading-relaxed">
         <p>
-          <span className="font-semibold text-emerald-700">President: robust.</span>{' '}
-          <span className="text-foreground/90">The winner never changes. Solidarity (Condorcet) and Labor (IRV) hold at observed turnout and at every compression level.</span>
+          <span className="font-semibold text-amber-700">President: the Condorcet winner turns on turnout.</span>{' '}
+          <span className="text-foreground/90">At the 5% default it is Solidarity; at pure observed 2024 turnout (0%) it flips to Labor, which already wins IRV at every level. A Solidarity presidency needs even a small mobilization of suppressed voters; the Labor (IRV) result is robust.</span>
         </p>
         <p>
           <span className="font-semibold text-emerald-700">House: the ranking holds; only margins move.</span>{' '}
-          <span className="text-foreground/90">No party has a majority. Conservative stays the largest delegation and Solidarity stays a smaller minority, below both Conservative and Labor, though its seats grow {styLo}→{styHi} as the gap closes.</span>
+          <span className="text-foreground/90">No party has a majority. Conservative stays the largest delegation and Solidarity a smaller minority, below both Conservative and Labor, though its seats grow {styLo}→{styHi} as the gap closes.</span>
         </p>
         <p>
           <span className="font-semibold text-amber-700">Senate: the one office observed turnout does not hand Solidarity.</span>{' '}
@@ -166,8 +170,8 @@ export function TurnoutRobustnessCard() {
         </p>
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">
-        Contraction is modeled as upward mobilization of the suppressed forces, holding high-turnout forces fixed:
-        conservative for containment, since it never deflates the poles.
+        Chambers use the rank-7 ballot model (the app default). Contraction is modeled as upward mobilization of the
+        suppressed forces, holding high-turnout forces fixed: conservative for containment, since it never deflates the poles.
       </p>
     </Card>
   );
