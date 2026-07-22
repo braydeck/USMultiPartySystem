@@ -9,7 +9,13 @@ import { ElectorateShift } from '../components/singleRace/ElectorateShift';
 import { PartyStackBar } from '../components/singleRace/PartyStackBar';
 import { createEngine, SHIFT_AXES } from '../lib/singleRace';
 import type { SRMeta, SRVoters, ECRule, SingleRaceEngine, SRCandidate, Shift } from '../lib/singleRace';
-import { getFDColor, darkenHex, lightenHex } from '../constants/parties';
+import { getFDColor, darkenHex, lightenHex, CURRENT_PARTIES } from '../constants/parties';
+import currentPartyProfiles from '../data/currentPartyProfiles.json';
+
+// Generic real-party candidates (Democratic / Independent / Republican) placed at their CES pid3
+// factor-space centroid, so a race can pit "generic Dem" vs "generic Rep" against the typology field.
+const CURRENT_CANDS: SRCandidate[] = (currentPartyProfiles as { party: string; F1: number; F2: number; F3: number; F4: number; F5: number }[])
+  .map(e => ({ code: e.party, party: e.party, axis: 'current', direction: 'base', pos: [e.F1, e.F2, e.F3, e.F4, e.F5] }));
 
 type Office = 'house' | 'senate' | 'presidency';
 const OFFICES: Office[] = ['house', 'senate', 'presidency'];
@@ -84,7 +90,13 @@ export function SingleRaceTab() {
   return <SingleRace meta={data.meta} voters={data.voters} />;
 }
 
-function SingleRace({ meta, voters }: { meta: SRMeta; voters: SRVoters }) {
+function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters }) {
+  // Append the generic real parties to the candidate field + party dropdown (they list last).
+  const meta = useMemo<SRMeta>(() => ({
+    ...rawMeta,
+    candidates: [...rawMeta.candidates, ...CURRENT_CANDS],
+    partyOrder: [...rawMeta.partyOrder, ...CURRENT_PARTIES],
+  }), [rawMeta]);
   const engine: SingleRaceEngine = useMemo(() => createEngine(voters, meta), [voters, meta]);
   const validCodes = useMemo(() => new Set(meta.candidates.map(c => c.code)), [meta]);
 

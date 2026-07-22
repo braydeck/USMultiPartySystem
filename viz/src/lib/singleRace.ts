@@ -185,6 +185,9 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
   }
 
   function logScore(row: number[], cand: SRCandidate): number {
+    // Generic real-party candidates (DEM/REP/IND) aren't typology clusters, so they have no
+    // posterior — score them by pure Gaussian proximity to their factor-space centroid.
+    if (cand.axis === 'current') return -sqDist(row, cand.pos) / twoSigmaSq;
     const lp = row[LP_IDX + clusters[cand.party]];
     if (cand.axis === 'base') return lp;
     const dVar = sqDist(row, cand.pos);
@@ -435,7 +438,7 @@ const AXIS_STYLE: Record<string, { hi: string; lo: string }> = {
 
 /** Short style descriptor for a candidate variant, or '' for a base party. */
 export function styleLabel(cand: SRCandidate): string {
-  if (cand.axis === 'base') return '';
+  if (cand.axis === 'base' || cand.axis === 'current') return '';
   const s = AXIS_STYLE[cand.axis];
   if (!s) return `${cand.direction} ${cand.axis}`;
   return cand.direction === 'hi' ? s.hi : s.lo;

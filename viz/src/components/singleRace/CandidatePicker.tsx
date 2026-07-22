@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import type { SRCandidate } from '../../lib/singleRace';
 import { styleLabel } from '../../lib/singleRace';
-import { PARTY_NAMES, getFDColor } from '../../constants/parties';
+import { PARTY_NAMES, getFDColor, CURRENT_PARTIES } from '../../constants/parties';
+
+const CURRENT_SET = new Set<string>(CURRENT_PARTIES);
 
 interface Props {
   candidates: SRCandidate[];
@@ -39,7 +41,7 @@ export function CandidatePicker({ candidates, partyOrder, value, onChange }: Pro
         className="w-full rounded-md border border-border bg-card px-2 py-1 text-xs text-muted-foreground disabled:opacity-60"
       >
         {styles.map(c => (
-          <option key={c.code} value={c.code}>{c.axis === 'base' ? 'Core' : styleLabel(c)}</option>
+          <option key={c.code} value={c.code}>{c.axis === 'base' || c.axis === 'current' ? 'Core' : styleLabel(c)}</option>
         ))}
       </select>
     </div>
@@ -73,20 +75,27 @@ function PartyDropdown({ partyOrder, value, onChange }: {
         <>
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} aria-hidden="true" />
           <div role="listbox" className="absolute left-0 mt-1 z-40 w-64 max-h-96 overflow-auto rounded-md border border-border bg-card shadow-lg py-1">
-            {partyOrder.map(p => {
+            {partyOrder.map((p, i) => {
               const sel = p === value;
+              const divider = CURRENT_SET.has(p) && !CURRENT_SET.has(partyOrder[i - 1]);
               return (
-                <button
-                  key={p}
-                  type="button"
-                  role="option"
-                  aria-selected={sel}
-                  onClick={() => { onChange(p); setOpen(false); }}
-                  className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 transition-colors ${sel ? 'bg-slate-900 text-white' : 'hover:bg-muted'}`}
-                >
-                  <span className="w-3 h-3 rounded-full shrink-0 ring-1 ring-black/10" style={{ background: getFDColor(p, 'base') }} />
-                  <span className="font-medium">{PARTY_NAMES[p]}</span>
-                </button>
+                <div key={p}>
+                  {divider && (
+                    <div className="px-3 pt-2 pb-1 mt-1 border-t border-border text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      Today's parties
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={sel}
+                    onClick={() => { onChange(p); setOpen(false); }}
+                    className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 transition-colors ${sel ? 'bg-slate-900 text-white' : 'hover:bg-muted'}`}
+                  >
+                    <span className="w-3 h-3 rounded-full shrink-0 ring-1 ring-black/10" style={{ background: getFDColor(p, 'base') }} />
+                    <span className="font-medium">{PARTY_NAMES[p]}</span>
+                  </button>
+                </div>
               );
             })}
           </div>
