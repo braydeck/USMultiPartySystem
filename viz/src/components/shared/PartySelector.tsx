@@ -1,25 +1,27 @@
 import { useState } from 'react';
-import { PARTY_NAMES, getBlendColor, getContrastText } from '../../constants/parties';
+import { PARTY_NAMES, getBlendColor, getContrastText, isCurrentParty } from '../../constants/parties';
 
 interface Props {
   selected: string[];                       // full selection (may include crossover codes)
   onToggle: (code: string) => void;
   baseParties: string[];                    // base party codes shown as chips
   crossover?: { code: string; label: string }[]; // optional crossover candidates (in a popover)
+  currentParties?: { code: string; label: string }[]; // today's real parties (dashed)
 }
 
 /** Shared party picker: base parties as compact code chips (full name on hover), with an
  *  optional "crossover candidates" popover that floats over content — so it never grows the
  *  (sticky) bar it lives in. */
-export function PartySelector({ selected, onToggle, baseParties, crossover }: Props) {
+export function PartySelector({ selected, onToggle, baseParties, crossover, currentParties }: Props) {
   const [open, setOpen] = useState(false);
+  const [openCur, setOpenCur] = useState(false);
   const chip = (code: string, title?: string) => {
     const on = selected.includes(code);
     const c = getBlendColor(code);
     return (
       <button key={code} onClick={() => onToggle(code)} title={title}
         className="text-xs font-semibold px-2.5 py-1 rounded-full border transition-all"
-        style={{ borderColor: c, color: on ? getContrastText(c) : c, backgroundColor: on ? c : 'transparent' }}>
+        style={{ borderColor: c, color: on ? getContrastText(c) : c, backgroundColor: on ? c : 'transparent', borderStyle: isCurrentParty(code) ? 'dashed' : 'solid' }}>
         {code}
       </button>
     );
@@ -46,6 +48,24 @@ export function PartySelector({ selected, onToggle, baseParties, crossover }: Pr
       )}
       {/* selected crossover chips stay visible in the bar even when the popover is closed */}
       {!open && selectedCrossover.map(o => chip(o.code, o.label))}
+      {currentParties && currentParties.length > 0 && (
+        <div className="relative">
+          <button onClick={() => setOpenCur(o => !o)}
+            className="text-[11px] font-medium text-muted-foreground hover:text-foreground border border-dashed border-border rounded-full px-2 py-1">
+            {openCur ? '▾' : '＋'} Current parties
+            {(() => { const n = currentParties.filter(o => selected.includes(o.code)).length; return n ? ` · ${n}` : ` (${currentParties.length})`; })()}
+          </button>
+          {openCur && (
+            <>
+              <div className="fixed inset-0 z-30" onClick={() => setOpenCur(false)} aria-hidden="true" />
+              <div className="absolute left-0 mt-1 z-40 w-[min(90vw,360px)] flex flex-wrap gap-1 rounded-md border border-border bg-card shadow-lg p-2">
+                {currentParties.map(o => chip(o.code, o.label))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      {!openCur && currentParties?.filter(o => selected.includes(o.code)).map(o => chip(o.code, o.label))}
     </div>
   );
 }
