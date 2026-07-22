@@ -298,25 +298,57 @@ export function AboutTab() {
 
           {/* Ballot generation detail */}
           <Card className="p-5">
-            <div className="font-semibold text-foreground mb-3">How Ballots Are Generated</div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="bg-muted rounded-lg p-4">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Party ranking</div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Party-Line ballots rank each party by the voter's posterior probability of belonging to that cluster: the same DPGMM membership that defined the typology, so ballots stay consistent with the party assignment. Crossover ballots add the shifted variant candidates via Gaussian factor-space proximity (σ = 0.35, factors weighted equally). Cross-party affinities still shape the lower ranks.
-                </p>
+            <div className="font-semibold text-foreground mb-1">How a voter becomes a ranked ballot</div>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              Proximity does the ranking. Every voter sits in the same five-factor space as the candidates, and the
+              ballot orders those candidates from nearest to farthest. Nothing is hand-assigned.
+            </p>
+
+            <div className="grid sm:grid-cols-3 gap-3 mb-4">
+              {[
+                { n: '1', h: 'Place the voter', b: 'Five factor scores fix each respondent in ideological space.' },
+                { n: '2', h: 'Rank by nearness', b: 'A Gaussian kernel (σ 0.35) scores every candidate; closer ranks higher. Cross-party affinities shape the lower ranks.' },
+                { n: '3', h: 'Break ties by name', b: 'Identical same-party candidates split 40 / 35 / 25 (Plackett-Luce), so the top name never sweeps.' },
+              ].map(s => (
+                <div key={s.n} className="bg-muted rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white text-[11px] font-bold">{s.n}</span>
+                    <span className="text-xs font-semibold text-foreground uppercase tracking-widest">{s.h}</span>
+                  </div>
+                  <p className="text-[13px] text-muted-foreground leading-relaxed">{s.b}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Worked example: one voter's ballot as ranked party pills, with the depth cutoff */}
+            <div className="rounded-lg border border-border p-4 mb-4">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2.5">Example: one ballot, nearest candidate first</div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {['STY', 'LBR', 'LIB', 'PRG', 'DSA', 'CUP', 'OAO'].map((c, idx) => (
+                  <span key={c} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white" style={{ background: PARTY_COLORS[c] }}>
+                    <span className="opacity-70">{idx + 1}</span>{PARTY_NAMES[c]}
+                  </span>
+                ))}
+                <span className="mx-1 text-[11px] font-medium text-indigo-600">│ stops here at 7</span>
+                {['CON', 'POP', 'NAT'].map(c => (
+                  <span key={c} className="inline-flex items-center rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] text-muted-foreground line-through">
+                    {PARTY_NAMES[c]}
+                  </span>
+                ))}
               </div>
-              <div className="bg-muted rounded-lg p-4">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Within-party ordering</div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  For same-party candidates at identical positions, prominence (a proxy for name recognition: 40/35/25%) breaks ties via Plackett-Luce sampling. This ensures the top candidate doesn't sweep all same-party votes, modeling a realistic primary-like distribution.
-                </p>
+              <p className="text-[11px] text-muted-foreground mt-2.5">
+                Ballots run seven deep by default. Past the cutoff the ballot exhausts and stops transferring, which is why seven is the default.
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="bg-muted rounded-lg p-3">
+                <div className="text-xs font-semibold text-foreground mb-1">Party-line field</div>
+                <p className="text-[12px] text-muted-foreground leading-relaxed">Ranks parties by each voter's cluster-membership probability, the DPGMM posterior that defined the typology.</p>
               </div>
-              <div className="bg-muted rounded-lg p-4 sm:col-span-2">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Ballot depth</div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Real voters rank a few candidates, not the whole field. The depth control truncates each ballot to its top 3, 5, 7, 10, or all ranks (default 7). Short ballots exhaust: once your ranked choices are gone, your ballot can't transfer. In STV that fills late seats below quota — worst where the vote is concentrated. In single-winner races it can eliminate the consensus candidate before the final round, changing the Senate and the president. House and Primary expose the toggle; the Senate winnows at rank 7 and the presidential general takes those finalists, then ranks all five.
-                </p>
+              <div className="bg-muted rounded-lg p-3">
+                <div className="text-xs font-semibold text-foreground mb-1">Crossover field</div>
+                <p className="text-[12px] text-muted-foreground leading-relaxed">Adds the shifted variant candidates, each placed by factor-space proximity.</p>
               </div>
             </div>
           </Card>
