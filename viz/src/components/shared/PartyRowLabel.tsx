@@ -2,17 +2,18 @@ import { getBlendColor, getContrastText, isCurrentParty } from '../../constants/
 
 export type RowMark = { dot: boolean; mark: 'D' | 'M' | null };
 
-// Renders a party code label. Current parties (DEM/IND/REP) get a filled color pill with
-// light text so they stand out from the formulated parties, which render as colored text.
+// Renders a party code label. Formulated parties get a filled color pill with light text,
+// matching their selected-chip look in the filter. Current parties (DEM/IND/REP) render as
+// plain colored text so they read as distinct from the formulated typology parties.
 export function PartyCode({ code, className = '' }: { code: string; className?: string }) {
   const color = getBlendColor(code);
   if (isCurrentParty(code)) {
-    return (
-      <span className={`inline-block rounded-[3px] px-1 py-px leading-none ${className}`}
-        style={{ backgroundColor: color, color: getContrastText(color) }}>{code}</span>
-    );
+    return <span className={className} style={{ color }}>{code}</span>;
   }
-  return <span className={className} style={{ color }}>{code}</span>;
+  return (
+    <span className={`inline-block rounded-[3px] px-1 py-px leading-none ${className}`}
+      style={{ backgroundColor: color, color: getContrastText(color) }}>{code}</span>
+  );
 }
 
 // Shared signature tag: a small boxed letter used identically in the heatmap cells and the
