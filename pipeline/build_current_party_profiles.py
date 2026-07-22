@@ -14,6 +14,7 @@ Outputs:
   data/outputs/profiles/current_party_continuous.csv   (Task 2)
   viz/src/data/currentPartySpreads.json                (Task 2)
 """
+import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -492,6 +493,72 @@ def compute_row(dc, reader, w, grp, synth, denom_map, row):
     return None
 
 
+# ── Task 2: Continuous ranges ──────────────────────────────────────────────────
+
+OUT_CONT = ROOT / "data" / "outputs" / "profiles" / "current_party_continuous.csv"
+
+# (out_var, unit, raw_col, transform)
+CONT_VARS = [
+    ("age", "yrs", "birthyr", lambda x: 2024.0 - x),
+    ("abortion_weeks", "wks", "CC24_325", lambda x: x),   # raw weeks (NOT the 40- recode)
+    ("income_k", "$k", "faminc_new", None),               # handled via bracket midpoints below
+]
+# faminc_new bracket midpoints, $k — matches INC_MID list in add_compare_items.py (same values,
+# dict form indexed by bracket code 1..16)
+FAMINC_MID = {1:5,2:15,3:25,4:35,5:45,6:55,7:65,8:75,9:90,10:110,11:135,12:175,13:225,14:300,15:425,16:600}
+
+
+def build_continuous(dc, pid, w):
+    grp = masks(pid)
+    rows = []
+    for out_var, unit, col, tf in CONT_VARS:
+        raw = dc[col].values.astype(float)
+        if out_var == "income_k":
+            vals = np.array([FAMINC_MID.get(int(v), np.nan) if not np.isnan(v) else np.nan for v in raw])
+        else:
+            vals = tf(raw)
+            vals = np.where(vals > 130, np.nan, vals) if out_var == "age" else vals
+        for code, m in grp.items():
+            rows.append({"var": out_var, "unit": unit, "party": code,
+                "p10": wpctile(vals, w, m, .10), "q25": wpctile(vals, w, m, .25),
+                "median": wpctile(vals, w, m, .50), "q75": wpctile(vals, w, m, .75),
+                "p90": wpctile(vals, w, m, .90)})
+    pd.DataFrame(rows).to_csv(OUT_CONT, index=False)
+    print(f"wrote {OUT_CONT.relative_to(ROOT)} — {len(rows)} rows")
+
+
+# ── Task 2: Factor spreads ─────────────────────────────────────────────────────
+
+OUT_SPREADS = ROOT / "viz" / "src" / "data" / "currentPartySpreads.json"
+FCOLS = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
+
+
+def build_spreads(pid):
+    typo = pd.read_csv(TYPO)
+    w = typo['commonpostweight'].values.astype(float)
+    fmap = dict(FCOLS)
+    if "FS_F4" not in typo.columns:
+        fmap["F4"], fmap["F5"] = "FS_F4_resid", "FS_F5_resid"
+    F = {k: pd.to_numeric(typo[v], errors='coerce').values for k, v in fmap.items()}
+    out = []
+    for code, sel in {"DEM": pid == 1, "REP": pid == 2, "IND": pid == 3}.items():
+        ww = w[sel]; ws = ww.sum()
+        rec = {"party": code, "n": int(sel.sum())}
+        means = {}
+        for k in ("F1", "F2", "F3", "F4", "F5"):
+            x = F[k][sel]; mu = float((ww * x).sum() / ws); means[k] = mu
+            rec[f"mean_{k}"] = round(mu, 4)
+            rec[f"sd_{k}"] = round(float(np.sqrt((ww * (x - mu) ** 2).sum() / ws)), 4)
+        ks = ("F1", "F2", "F3", "F4", "F5")
+        for i in range(len(ks)):
+            for j in range(i + 1, len(ks)):
+                a, b = ks[i], ks[j]
+                rec[f"cov_{a}_{b}"] = round(float((ww * (F[a][sel] - means[a]) * (F[b][sel] - means[b])).sum() / ws), 4)
+        out.append(rec)
+    OUT_SPREADS.write_text(json.dumps(out, indent=2))
+    print(f"wrote {OUT_SPREADS.relative_to(ROOT)} — {len(out)} parties")
+
+
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -538,6 +605,9 @@ def main():
     cols = ['variable', 'domain', 'type', 'stat_label', 'question', 'overall', 'DEM', 'IND', 'REP']
     pd.DataFrame(out_rows)[cols].to_csv(OUT_STATS, index=False)
     print(f"\nwrote {OUT_STATS.relative_to(ROOT)} — {len(out_rows)} rows, {len(skipped)} skipped, gate OK")
+
+    build_continuous(dc, pid, w)
+    build_spreads(pid)
 
 
 if __name__ == '__main__':
