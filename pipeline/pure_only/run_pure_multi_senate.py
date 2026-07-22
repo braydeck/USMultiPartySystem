@@ -446,7 +446,11 @@ def make_comp_row(state_fips: int, state_abbr: str, senator_code: str,
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-def main():
+def main(ballot_depth=0):
+    global OUTPUT_DIR
+    # Top-3 ballots exhaust when all ranked candidates lose; output to a parallel _topN tree.
+    if ballot_depth and ballot_depth > 0:
+        OUTPUT_DIR = OUTPUT_DIR.parent.parent / (OUTPUT_DIR.parent.name + f"_top{ballot_depth}") / OUTPUT_DIR.name
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     rng      = np.random.default_rng(42)
     rng_prob = np.random.default_rng(43)
@@ -513,7 +517,10 @@ def main():
         state_weights       = weights[mask]
         state_prob_matrix   = prob_matrix[mask]
         scores              = compute_candidate_scores_prob(state_prob_matrix, candidates)
-        state_ballots       = generate_ballots(scores, rng, candidates)
+        state_ballots_full  = generate_ballots(scores, rng, candidates)
+        # Ballot depth truncates only the WINNOW (which 5 finalists advance). The final IRV/Condorcet
+        # among those 5 uses the full ballots — voters rank all 5.
+        state_ballots = state_ballots_full[:, :ballot_depth] if ballot_depth else state_ballots_full
 
         # STV → finalists
         n_survivors = min(STV_SURVIVORS, n_cands)
@@ -550,11 +557,11 @@ def main():
             cond_winner = finalist_list[0] if finalist_list else "none"
             matchups    = []
         else:
-            raw_matchups          = build_matchups(state_ballots, state_weights, finalist_list)
+            raw_matchups          = build_matchups(state_ballots_full, state_weights, finalist_list)
             cond_winner, matchups = ranked_pairs_winner(raw_matchups, finalist_list)
 
         # IRV
-        irv_win = irv_winner(state_ballots, state_weights, finalist_list)
+        irv_win = irv_winner(state_ballots_full, state_weights, finalist_list)
 
         for m in matchups:
             m["state_fips"] = int(state_fips)
@@ -563,17 +570,18 @@ def main():
 
         comp_rows_cond.append(
             make_comp_row(state_fips, state_abbr, cond_winner,
-                          finalist_list, state_ballots, state_weights, candidates)
+                          finalist_list, state_ballots_full, state_weights, candidates)
         )
         comp_rows_irv.append(
             make_comp_row(state_fips, state_abbr, irv_win,
-                          finalist_list, state_ballots, state_weights, candidates)
+                          finalist_list, state_ballots_full, state_weights, candidates)
         )
 
         # ── Prob-cluster scoring variant ───────────────────────────────────────
         state_prob_matrix  = prob_matrix[mask]
         prob_scores        = compute_candidate_scores_prob(state_prob_matrix, candidates)
-        prob_ballots       = generate_ballots(prob_scores, rng_prob, candidates)
+        prob_ballots_full  = generate_ballots(prob_scores, rng_prob, candidates)
+        prob_ballots       = prob_ballots_full[:, :ballot_depth] if ballot_depth else prob_ballots_full
 
         prob_finalists, _, _ = winnow_stv(prob_ballots, state_weights, set(cand_codes), n_survivors)
         prob_finalist_list = sorted(prob_finalists)
@@ -582,10 +590,10 @@ def main():
             prob_cond_winner = prob_finalist_list[0] if prob_finalist_list else "none"
             prob_matchups    = []
         else:
-            prob_raw_matchups               = build_matchups(prob_ballots, state_weights, prob_finalist_list)
+            prob_raw_matchups               = build_matchups(prob_ballots_full, state_weights, prob_finalist_list)
             prob_cond_winner, prob_matchups = ranked_pairs_winner(prob_raw_matchups, prob_finalist_list)
 
-        prob_irv_win = irv_winner(prob_ballots, state_weights, prob_finalist_list)
+        prob_irv_win = irv_winner(prob_ballots_full, state_weights, prob_finalist_list)
 
         for m in prob_matchups:
             m["state_fips"] = int(state_fips)
@@ -594,11 +602,11 @@ def main():
 
         comp_rows_cond_prob.append(
             make_comp_row(state_fips, state_abbr, prob_cond_winner,
-                          prob_finalist_list, prob_ballots, state_weights, candidates)
+                          prob_finalist_list, prob_ballots_full, state_weights, candidates)
         )
         comp_rows_irv_prob.append(
             make_comp_row(state_fips, state_abbr, prob_irv_win,
-                          prob_finalist_list, prob_ballots, state_weights, candidates)
+                          prob_finalist_list, prob_ballots_full, state_weights, candidates)
         )
 
         finalists_str = ", ".join(finalist_list)
@@ -675,4 +683,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    depth = 0
+    for a in sys.argv:
+        if a.startswith("--depth="):
+            depth = int(a.split("=", 1)[1])
+    main(ballot_depth=depth)

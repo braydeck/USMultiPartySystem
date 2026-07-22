@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, useEffect, type ReactNode } from 'react';
 import { useUrlState, useUrlNumber } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
 // Compression stops for the primary (finalists + buckets + per-stage national shares).
 import pmPrimTurnout from '../data/pureMultiPrimaryTurnout.json';
 import pmPrimL5 from '../data/pureMultiPrimaryTurnoutL5.json';
@@ -34,6 +35,8 @@ import pmShL15 from '../data/pureMultiPrimaryStageSharesTurnoutL15.json';
 import pmShL20 from '../data/pureMultiPrimaryStageSharesTurnoutL20.json';
 import pmShL25 from '../data/pureMultiPrimaryStageSharesTurnoutL25.json';
 import pmShL30 from '../data/pureMultiPrimaryStageSharesTurnoutL30.json';
+// Truncated-ballot variants (depths 3/5/7/10 × 7 stops) live in a lazy-loaded bundle;
+// 'full' ranking uses the static imports above.
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BucketData = any; // from pureMultiPrimaryBuckets.json
@@ -66,17 +69,29 @@ export function PrimaryTab({
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [stageIdx, setStageIdx] = useUrlNumber('stage', 0);
   // Non-voter turnout: share of current non-voters who show up (0 = 2024 actual … 100 = everyone).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
+  // Ballot depth: how many preferences voters rank (rawMulti only). 'full' uses static data;
+  // truncated depths come from a lazy-loaded bundle. Default = top 7 (a realistic voter depth).
+  const [depth, setDepth] = useUrlState<DepthKey>('depth', 'top7', { allowed: [...DEPTH_KEYS] });
+  const [depthBundle, setDepthBundle] = useState<Record<string, { primary: Record<string, FDPrimaryData>; buckets: Record<string, BucketData>; stageShares: Record<string, Record<string, PrimaryStageShares>> }> | null>(null);
+  useEffect(() => {
+    if (depth !== 'full' && !depthBundle) {
+      fetch(`${import.meta.env.BASE_URL}data/primaryDepth.json`).then(r => r.json()).then(setDepthBundle).catch(() => {});
+    }
+  }, [depth, depthBundle]);
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   const primStops   = [pmPrimTurnout, pmPrimL5, pmPrimL10, pmPrimL15, pmPrimL20, pmPrimL25, pmPrimL30] as unknown as FDPrimaryData[];
   const bucketStops = [pmBktTurnout, pmBktL5, pmBktL10, pmBktL15, pmBktL20, pmBktL25, pmBktL30] as unknown as BucketData[];
   const shareStops  = [pmShTurnout, pmShL5, pmShL10, pmShL15, pmShL20, pmShL25, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
-  const rmPrimary = primStops[gi];
-  const rmBuckets = bucketStops[gi];
+  // When a truncated depth is selected, read from the bundle keyed by [depth][part]; fall back to
+  // full static data until the bundle loads (avoids a blank tab on first paint).
+  const db = (depth !== 'full' && pipeline === 'rawMulti') ? depthBundle?.[depth] : null;
+  const rmPrimary = (db?.primary[part] ?? primStops[gi]) as FDPrimaryData;
+  const rmBuckets = (db?.buckets[part] ?? bucketStops[gi]) as BucketData;
 
   const data: FDPrimaryData =
     pipeline === 'factorDev' ? factorDev : rmPrimary;
-  const stageShares  = pipeline === 'factorDev' ? factorDevStageShares : shareStops[gi];
+  const stageShares  = pipeline === 'factorDev' ? factorDevStageShares : (db?.stageShares[part] ?? shareStops[gi]);
   const stage = data.stagesOrder[stageIdx] ?? data.stagesOrder[0];
 
   // National first-choice shares aggregated from stage-specific state data
@@ -128,6 +143,10 @@ export function PrimaryTab({
         />
         {pipeline === 'rawMulti' && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
+        )}
+        {pipeline === 'rawMulti' && (
+          <ToggleGroup label="Ballots ranked" value={depth} onChange={setDepth}
+            options={[...DEPTH_KEYS]} labels={DEPTH_LABELS} />
         )}
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground uppercase tracking-widest">Stage</span>

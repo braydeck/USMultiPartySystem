@@ -1,7 +1,8 @@
 import { Card } from '@/components/ui/card';
 import { CandidatePicker } from './CandidatePicker';
 import { PresidencyGrid } from './PresidencyGrid';
-import type { SRCandidate, H2HResult, ECResult } from '../../lib/singleRace';
+import { PartyStackBar } from './PartyStackBar';
+import type { SRCandidate, H2HResult, ECResult, Coalition } from '../../lib/singleRace';
 import { styleLabel } from '../../lib/singleRace';
 import { PARTY_NAMES, getContrastText } from '../../constants/parties';
 
@@ -21,6 +22,8 @@ interface Props {
   raceLabel: string;
   h2h?: H2HResult;
   ec?: ECResult;
+  coalition?: Coalition;
+  coalitionLabel: string;
   canRemove: boolean;
   onChangeA: (code: string) => void;
   onChangeB: (code: string) => void;
@@ -38,7 +41,7 @@ function pct(x: number): string {
 
 export function ScenarioCard(props: Props) {
   const { index, candidates, partyOrder, aCode, bCode, aCand, bCand, aColor, bColor,
-    office, raceLabel, h2h, ec, canRemove, onChangeA, onChangeB, onRemove } = props;
+    office, raceLabel, h2h, ec, coalition, coalitionLabel, canRemove, onChangeA, onChangeB, onRemove } = props;
 
   return (
     <Card className="p-4 space-y-4">
@@ -71,7 +74,32 @@ export function ScenarioCard(props: Props) {
       {office === 'presidency' && ec && (
         <Presidency ec={ec} aCand={aCand} bCand={bCand} aColor={aColor} bColor={bColor} />
       )}
+
+      {coalition && (
+        <div className="space-y-2 pt-1 border-t border-border/50">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+            Where the votes come from
+          </div>
+          <p className="text-[11px] text-muted-foreground -mt-1">{coalitionLabel}</p>
+          <CoalitionRow name={candName(aCand)} color={aColor} share={coalition.shareA} shares={coalition.a} />
+          <CoalitionRow name={candName(bCand)} color={bColor} share={coalition.shareB} shares={coalition.b} />
+        </div>
+      )}
     </Card>
+  );
+}
+
+function CoalitionRow({ name, color, share, shares }: {
+  name: string; color: string; share: number; shares: Record<string, number>;
+}) {
+  return (
+    <div className="space-y-1">
+      <div className="flex items-baseline justify-between text-xs">
+        <span className="font-medium" style={{ color }}>{name}</span>
+        <span className="text-muted-foreground">{pct(share)} of the vote</span>
+      </div>
+      <PartyStackBar shares={shares} height={22} />
+    </div>
   );
 }
 

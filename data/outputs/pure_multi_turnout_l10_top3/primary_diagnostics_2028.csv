@@ -1,0 +1,14 @@
+winnowing_point,eliminated_code,eliminated_name,dest_code,dest_name,transferred_votes,transfer_type
+After_Retail,CON_1,CON_1,CON_2,CON_2,3648.41,surplus
+After_Retail,LBR_1,LBR_1,LBR_2,LBR_2,1597.37,surplus
+After_Retail,CON_2,CON_2,CON_3,CON_3,1430.44,surplus
+After_Retail,NAT_1,NAT_1,NAT_2,NAT_2,1209.08,surplus
+After_Retail,LIB_1,LIB_1,LIB_2,LIB_2,1054.2,surplus
+After_Retail,POP_1,POP_1,POP_2,POP_2,143.11,surplus
+After_Retail,STY_1,STY_1,STY_2,STY_2,0.79,surplus
+After_Pod_A,CON_1,CON_1,CON_2,CON_2,2983.02,surplus
+After_Pod_A,LBR_1,LBR_1,LBR_2,LBR_2,931.97,surplus
+After_Pod_A,OAO_1,OAO_1,CUP_1,CUP_1,793.92,elimination
+After_Pod_A,OAO_1,OAO_1,STY_1,STY_1,1.09,elimination
+After_Pod_C,CON_1,CON_1,CON_2,CON_2,2699.48,surplus
+After_Pod_BD,CON_1,CON_1,CON_2,CON_2,1498.07,surplus

@@ -1,5 +1,6 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, useEffect, type ReactNode } from 'react';
 import { useUrlState } from '../hooks/useUrlState';
+import { DEPTH_KEYS, type DepthKey } from '../constants/depth';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
@@ -14,6 +15,14 @@ import presTL15 from '../data/rawMultiPresidentialElectionTurnoutL15.json';
 import presTL20 from '../data/rawMultiPresidentialElectionTurnoutL20.json';
 import presTL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
 import presTL30 from '../data/rawMultiPresidentialElectionTurnoutL30.json';
+// Senate bill vote model (rank-7 winnow + depth-7 president) for the divergent-bills panel.
+import senVMTurnout from '../data/senateVoteModelTurnout.json';
+import senVML5 from '../data/senateVoteModelTurnoutL5.json';
+import senVML10 from '../data/senateVoteModelTurnoutL10.json';
+import senVML15 from '../data/senateVoteModelTurnoutL15.json';
+import senVML20 from '../data/senateVoteModelTurnoutL20.json';
+import senVML25 from '../data/senateVoteModelTurnoutL25.json';
+import senVML30 from '../data/senateVoteModelTurnoutL30.json';
 import { PresidentialMap } from '../components/presidential/PresidentialMap';
 import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
@@ -56,10 +65,21 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                                   controlBarExtra }: Props) {
   const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   const rmStops = [rawMultiTurnout, presTL5, presTL10, presTL15, presTL20, presTL25, presTL30] as unknown as PresidentialElection[];
-  const rm = scenario !== 'rawMulti' ? rawMulti : rmStops[gi];
+  // The general is a 5-finalist IRV/Condorcet contest — voters rank all 5, so there is no ballot-
+  // depth toggle here. But WHICH 5 finalists advance depends on the primary's depth setting (shared
+  // with the Primary view via the 'depth' URL param), so the general reads the depth-N finalists.
+  const [depth] = useUrlState<DepthKey>('depth', 'top7', { allowed: [...DEPTH_KEYS] });
+  const [depthBundle, setDepthBundle] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
+  useEffect(() => {
+    if (depth !== 'full' && !depthBundle) {
+      fetch(`${import.meta.env.BASE_URL}data/generalDepth.json`).then(r => r.json()).then(setDepthBundle).catch(() => {});
+    }
+  }, [depth, depthBundle]);
+  const gd = (scenario === 'rawMulti' && depth !== 'full') ? depthBundle?.[depth]?.[part] : null;
+  const rm = scenario !== 'rawMulti' ? rawMulti : (gd ?? rmStops[gi]);
   const data = scenario === 'rawMulti' ? rm : factorDev;
 
   const clusterByParty = useMemo(
@@ -86,14 +106,17 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   const fdWinner     = factorDev.condorcetWinner;
   const fdWinnerParty = fdWinner.split('_')[0];
 
+  // Senate bill vote model at the current turnout stop (rank-7 winnow + depth-7 president).
+  const senVMStops = [senVMTurnout, senVML5, senVML10, senVML15, senVML20, senVML25, senVML30] as unknown as VoteModelRow[][];
+  const senVotesRank7 = senVMStops[gi];
   // Bills where Raw Multi Condorcet and IRV presidents act differently
   const divergentBills = useMemo(
-    () => senateVotes.filter(r =>
+    () => senVotesRank7.filter(r =>
       r.presRawMultiCondSigns !== undefined &&
       r.presRawMultiIRVSigns  !== undefined &&
       r.presRawMultiCondSigns !== r.presRawMultiIRVSigns,
     ),
-    [senateVotes],
+    [senVotesRank7],
   );
 
   return (

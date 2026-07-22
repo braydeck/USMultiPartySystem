@@ -312,6 +312,12 @@ export function AboutTab() {
                   For same-party candidates at identical positions, prominence (a proxy for name recognition: 40/35/25%) breaks ties via Plackett-Luce sampling. This ensures the top candidate doesn't sweep all same-party votes, modeling a realistic primary-like distribution.
                 </p>
               </div>
+              <div className="bg-muted rounded-lg p-4 sm:col-span-2">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Ballot depth</div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Real voters rank a few candidates, not the whole field. The depth control truncates each ballot to its top 3, 5, 7, 10, or all ranks (default 7). Short ballots exhaust: once your ranked choices are gone, your ballot can't transfer. In STV that fills late seats below quota — worst where the vote is concentrated. In single-winner races it can eliminate the consensus candidate before the final round, changing the Senate and the president. House and Primary expose the toggle; the Senate winnows at rank 7 and the presidential general takes those finalists, then ranks all five.
+                </p>
+              </div>
             </div>
           </Card>
         </div>

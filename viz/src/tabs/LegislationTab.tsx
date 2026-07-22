@@ -1,4 +1,5 @@
 import { useUrlState } from '../hooks/useUrlState';
+import { useState, useEffect } from 'react';
 import type { VoteModelRow, CandidateVoteRow, PresidentialElection } from '../types';
 import { UnifiedBillTable } from '../components/legislation/UnifiedBillTable';
 import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
@@ -13,12 +14,24 @@ import houseSeatsTurnoutL15 from '../data/houseSeatsTurnoutL15.json';
 import houseSeatsTurnoutL20 from '../data/houseSeatsTurnoutL20.json';
 import houseSeatsTurnoutL25 from '../data/houseSeatsTurnoutL25.json';
 import houseSeatsTurnoutL30 from '../data/houseSeatsTurnoutL30.json';
-import houseSeatsTripleTurnout from '../data/houseSeatsTripleTurnout.json';
 import fdHouseSeatsTurnout from '../data/fdHouseSeatsTurnout.json';
 import fdHouseSeatsTripleTurnout from '../data/fdHouseSeatsTripleTurnout.json';
 // Senate composition per (pipeline × method), for the coalition Senate view + whipped bloc math.
+// Raw-Multi senate is the rank-7 winnow, tracked across turnout stops (matches the app default).
 import pureMultiSenateCondorcetTurnout from '../data/pureMultiSenateCondorcetTurnout.json';
 import pureMultiSenateIRVTurnout from '../data/pureMultiSenateIRVTurnout.json';
+import senCondL5 from '../data/pureMultiSenateCondorcetTurnoutL5.json';
+import senCondL10 from '../data/pureMultiSenateCondorcetTurnoutL10.json';
+import senCondL15 from '../data/pureMultiSenateCondorcetTurnoutL15.json';
+import senCondL20 from '../data/pureMultiSenateCondorcetTurnoutL20.json';
+import senCondL25 from '../data/pureMultiSenateCondorcetTurnoutL25.json';
+import senCondL30 from '../data/pureMultiSenateCondorcetTurnoutL30.json';
+import senIrvL5 from '../data/pureMultiSenateIRVTurnoutL5.json';
+import senIrvL10 from '../data/pureMultiSenateIRVTurnoutL10.json';
+import senIrvL15 from '../data/pureMultiSenateIRVTurnoutL15.json';
+import senIrvL20 from '../data/pureMultiSenateIRVTurnoutL20.json';
+import senIrvL25 from '../data/pureMultiSenateIRVTurnoutL25.json';
+import senIrvL30 from '../data/pureMultiSenateIRVTurnoutL30.json';
 import fdSenateCondorcet from '../data/fdSenateCondorcet.json';
 import fdSenateIRV from '../data/fdSenateIRV.json';
 import { senateSeatMap } from '../components/legislation/voteBloc';
@@ -66,38 +79,51 @@ const toSeatMap = (arr: { party: number; national: number }[]): Record<string, n
 const rmSeatStops = [houseSeatsTurnout, houseSeatsTurnoutL5, houseSeatsTurnoutL10, houseSeatsTurnoutL15,
   houseSeatsTurnoutL20, houseSeatsTurnoutL25, houseSeatsTurnoutL30] as unknown as { party: number; national: number }[][];
 
-export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElection, rawMultiElection,
+export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElection,
                                  houseVotesTurnout, senateVotesTurnout, rawMultiElectionTurnout }: Props) {
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   // Vote model: free vote (members split by probability) vs whipped (party votes as a bloc).
   const [voteModel, setVoteModel] = useUrlState<VoteMode>('voteModel', 'free', { allowed: ['free', 'whipped'] });
   const rmDouble = pipeline === 'rawMulti' && wyoming === 'double';
+  const isRawMulti = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+
+  // Legislation bakes in the app defaults: rank-7 chambers + depth-7 president. Raw-Multi house
+  // STV seats and the president come from the lazy depth bundles (top7); the vote-model rows,
+  // house seats, and senate composition below are already the rank-7 variants.
+  const [hpl, setHpl] = useState<Record<string, Record<string, Record<string, { national: { stvSeats: Record<string, number> } }>>> | null>(null);
+  const [gd, setGd] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setHpl).catch(() => {});
+    fetch(`${import.meta.env.BASE_URL}data/generalDepth.json`).then(r => r.json()).then(setGd).catch(() => {});
+  }, []);
+
   // Arrays indexed by gap stop [0,5,10,15,20,25,30]: floor(Turnout) … stress ceiling.
   const hStops = [houseVotesTurnout, houseVotesL5, houseVotesL10, houseVotesL15, houseVotesL20, houseVotesL25, houseVotesL30] as unknown as VoteModelRow[][];
   const sStops = [senateVotesTurnout, senateVotesL5, senateVotesL10, senateVotesL15, senateVotesL20, senateVotesL25, senateVotesL30] as unknown as VoteModelRow[][];
+  const senCondStops = [pureMultiSenateCondorcetTurnout, senCondL5, senCondL10, senCondL15, senCondL20, senCondL25, senCondL30] as unknown as { senatorParty: string }[][];
+  const senIrvStops  = [pureMultiSenateIRVTurnout, senIrvL5, senIrvL10, senIrvL15, senIrvL20, senIrvL25, senIrvL30] as unknown as { senatorParty: string }[][];
   const eStops = [rawMultiElectionTurnout, presL5, presL10, presL15, presL20, presL25, presL30] as unknown as PresidentialElection[];
   const hVotes = rmDouble ? hStops[gi] : houseVotes;
-  const sVotes = rmDouble ? sStops[gi] : senateVotes;
-  const election = pipeline !== 'rawMulti' ? fdElection : rmDouble ? eStops[gi] : rawMultiElection;
+  const sVotes = isRawMulti ? sStops[gi] : senateVotes;
+  // Depth-7 president from the bundle; full-ranking stop as the pre-load fallback.
+  const election = isRawMulti ? (gd?.top7?.[part] ?? eStops[gi]) : fdElection;
   const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
 
-  // House seat composition for the coalition seat-stack, following the same controls:
-  // rawMulti+double tracks the participation slider; the others use their observed-turnout base.
-  const houseSeats = rmDouble
-    ? toSeatMap(rmSeatStops[gi])
-    : pipeline === 'factorDev'
-      ? toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[])
-      : toSeatMap(houseSeatsTripleTurnout as unknown as { party: number; national: number }[]);
+  // House seat composition for the coalition seat-stack. Raw-Multi uses the rank-7 STV seats
+  // (top7) from the party-list bundle, tracking turnout; Crossover keeps its own pipeline.
+  const houseSeats = isRawMulti
+    ? (hpl?.top7?.[wyoming]?.[part]?.national?.stvSeats ?? toSeatMap(rmSeatStops[gi]))
+    : toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[]);
 
-  // Senate composition by (pipeline × method). Method drives Senate seats, so both maps are kept
-  // for the divergences view; the coalition/passage views use the active method's map.
-  const senCondSrc = (pipeline === 'factorDev' ? fdSenateCondorcet : pureMultiSenateCondorcetTurnout) as unknown as { senatorParty: string }[];
-  const senIRVSrc  = (pipeline === 'factorDev' ? fdSenateIRV : pureMultiSenateIRVTurnout) as unknown as { senatorParty: string }[];
+  // Senate composition by (pipeline × method). Raw-Multi is the rank-7 winnow tracked across
+  // turnout stops; Crossover uses its own senate. Method drives which map the passage view uses.
+  const senCondSrc = (pipeline === 'factorDev' ? fdSenateCondorcet : senCondStops[gi]) as unknown as { senatorParty: string }[];
+  const senIRVSrc  = (pipeline === 'factorDev' ? fdSenateIRV : senIrvStops[gi]) as unknown as { senatorParty: string }[];
   const senateSeatsCond = senateSeatMap(senCondSrc);
   const senateSeatsIRV  = senateSeatMap(senIRVSrc);
   const senateSeats     = method === 'condorcet' ? senateSeatsCond : senateSeatsIRV;

@@ -14,9 +14,11 @@ interface Props {
   seats: HouseSeat[];
   doubleSeats?: HouseSeat[];
   wyoming?: 'double' | 'triple';
+  /** Label for the simulated system row/title/footer (default 'STV'). */
+  systemLabel?: string;
 }
 
-export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double' }: Props) {
+export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double', systemLabel = 'STV' }: Props) {
   const stvTotal = seats.reduce((s, r) => s + r.national, 0);
   const dblTotal = doubleSeats?.reduce((s, r) => s + r.national, 0) ?? 0;
   const showDouble = wyoming === 'triple' && doubleSeats && dblTotal > 0;
@@ -37,7 +39,7 @@ export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double' }: Props) {
   return (
     <div className="space-y-1">
       <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-        FPTP vs STV — House of Representatives
+        FPTP vs {systemLabel} — House of Representatives
       </div>
 
       {/* FPTP row */}
@@ -101,7 +103,7 @@ export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double' }: Props) {
       {/* STV row */}
       <div className="flex items-center gap-3">
         <div className="shrink-0 text-right" style={{ width: labelColW }}>
-          <div className="text-xs font-semibold text-foreground">{wyoming === 'triple' ? 'Triple' : 'STV (sim)'}</div>
+          <div className="text-xs font-semibold text-foreground">{wyoming === 'triple' ? 'Triple' : `${systemLabel} (sim)`}</div>
           <div className="text-xs text-muted-foreground">{stvTotal} seats</div>
         </div>
         <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: stvBarH }}>
@@ -184,7 +186,7 @@ export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double' }: Props) {
         <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
         <strong className="text-foreground">PR (2-party):</strong> same two parties but seats match vote share.
         <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
-        <strong className="text-foreground">STV:</strong> {stvSegments.length} parties proportionally represented across {stvTotal} seats.
+        <strong className="text-foreground">{systemLabel}:</strong> {stvSegments.length} parties proportionally represented across {stvTotal} seats.
       </p>
     </div>
   );

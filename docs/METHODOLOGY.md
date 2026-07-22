@@ -48,6 +48,32 @@ Two candidate fields are generated:
 - **Crossover** — 9 base candidates plus 28 variants, each shifted ±25% of the
   inter-party standard deviation on one axis (e.g. `STY_hi_so`, `CON_lo_pc`).
 
+## 3b. Ballot depth
+
+Real voters rank only their top few candidates, not the whole field. A **ballot-depth**
+control models this by truncating each ballot to its top *N* ranks (3 / 5 / 7 / 10 / rank-all;
+default **7**). Truncated ballots **exhaust**: once all *N* ranked choices are elected or
+eliminated, the ballot goes dead and can no longer transfer. Depth has two distinct effects:
+
+- **Multi-seat (STV House):** exhaustion makes the field *collapse* before every seat reaches
+  the Droop quota, so late seats are filled **below quota**. This tracks vote *concentration*,
+  not district magnitude — it is worst in homogeneous/rural districts where the field genuinely
+  collapses (≈35% below quota at top-3 vs an ≈8% floor at full ranking; the app surfaces this as
+  "seats won below quota"). It is *not* mainly an exhaustion artifact: concentrated districts sit
+  well above the floor even at full ranking.
+- **Single-winner finalist selection (Senate, President):** a top-*N* winnow can eliminate the
+  broad-appeal (Condorcet) candidate before the final round — a center-squeeze — changing which
+  five finalists advance. The Senate winnows its ~20-candidate field at rank-7; the presidential
+  general takes the rank-7 primary finalists. Both then **full-rank the final five** (there is
+  nothing to truncate past five). At top-3 the consensus party (STY) drops out of several
+  contests and the concentrated-base party (POP) gains — e.g. three Senate seats shift, and the
+  general-election Condorcet winner flips from STY to LBR.
+
+House and Primary expose the depth toggle; Senate and the presidential general are baked at
+rank-7 (their finalists reflect it, the final five are ranked fully). Implementation: the pipeline
+reads `BALLOT_DEPTH=N` / `--depth=N` and writes parallel `*_topN` output trees; the viz reads the
+`housePartyList`, `primaryDepth`, `generalDepth`, and `houseVoteModelDepth` bundles.
+
 ## 4. Elections
 
 | Office | Method | Output |
@@ -71,7 +97,8 @@ counting methods, producing the four scenarios the app compares.
 
 This is a simulation, not a prediction. It assumes **sincere voting** (no strategic
 ranking), a **static ideological space** (the factor structure is fit once and held
-fixed), and **perfect party cohesion** in the legislation model. Party formation,
+fixed), a fixed **ballot depth** (voters rank a set number of candidates rather than a
+behavioral distribution of depths), and **perfect party cohesion** in the legislation model. Party formation,
 candidate emergence, campaign dynamics, money, and media are all absent. The CES sample
 also skews more educated and engaged than the voting public. Full limitations are in
 the app's "What Is This?" page under Caveats.

@@ -39,7 +39,7 @@ FIPS_TO_ABBR = {
 STAGES = ["After_Retail", "After_Pod_A", "After_Pod_C", "After_Pod_BD"]
 
 
-def compute_shares(ballots_path, primary_path, pod_path, output_path):
+def compute_shares(ballots_path, primary_path, pod_path, output_path, ballot_depth=0):
     print(f"\n{'='*60}")
     print(f"Computing state shares: {output_path.name}")
     print(f"{'='*60}")
@@ -60,6 +60,8 @@ def compute_shares(ballots_path, primary_path, pod_path, output_path):
     ballots_df = pd.read_csv(ballots_path, index_col="respondent_id")
     rank_cols = [c for c in ballots_df.columns if c.startswith("rank_")]
     ballots_arr = ballots_df[rank_cols].values
+    if ballot_depth:                          # voters rank only their top N; the rest exhaust
+        ballots_arr = ballots_arr[:, :ballot_depth]
     N = len(ballots_arr)
 
     # Load respondent metadata
@@ -135,16 +137,20 @@ def compute_shares(ballots_path, primary_path, pod_path, output_path):
 
 def main():
     pm = BASE_DIR / "data" / "outputs" / "pure_multi"
+    depth = int(os.environ.get("BALLOT_DEPTH", "0"))
     if TURNOUT_WEIGHT:
         # Turnout-weighted per-stage shares: ballots + pod structure are turnout-independent
         # (reuse the base tree); only the primary_results and the vote weights change.
         out_tree = BASE_DIR / "data" / "outputs" / output_tree("pure_multi")
-        print(f"TURNOUT_WEIGHT=1 λ={TURNOUT_LAMBDA} → {out_tree.name}")
+        if depth:
+            out_tree = out_tree.parent / (out_tree.name + f"_top{depth}")
+        print(f"TURNOUT_WEIGHT=1 λ={TURNOUT_LAMBDA} depth={depth or 'full'} → {out_tree.name}")
         compute_shares(
             ballots_path=pm / "presidential_ballots.csv",
             primary_path=out_tree / "primary_results_2028.csv",
             pod_path=pm / "state_pod_assignments.csv",
             output_path=out_tree / "primary_state_stage_shares.json",
+            ballot_depth=depth,
         )
         return
 

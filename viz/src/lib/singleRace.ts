@@ -114,6 +114,17 @@ export interface SingleRaceEngine {
   essFraction: (turnoutBeta?: number[]) => number;
   headToHead: (cdIds: string[], a: SRCandidate, b: SRCandidate, shift?: Shift) => H2HResult;
   presidencyEC: (a: SRCandidate, b: SRCandidate, rule: ECRule, shift?: Shift) => ECResult;
+  /** First-choice party makeup of an electorate (share per base party, sums to 1). */
+  partyBreakdown: (cdIds: string[], turnoutBeta?: number[]) => Record<string, number>;
+  /** Where each candidate's votes come from — their voters' first-choice-party composition. */
+  coalition: (cdIds: string[], a: SRCandidate, b: SRCandidate, shift?: Shift) => Coalition;
+}
+
+export interface Coalition {
+  a: Record<string, number>; // normalised within candidate A's voters (sums to 1)
+  b: Record<string, number>;
+  shareA: number;
+  shareB: number;
 }
 
 export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
@@ -129,6 +140,9 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
   const statesByFips: Record<string, SRState> = {};
   for (const s of meta.states) statesByFips[s.fips] = s;
   const allCds = Object.keys(voters.byCD);
+
+  const clusterToParty: string[] = [];
+  for (const [party, k] of Object.entries(clusters)) clusterToParty[k] = party;
 
   // Flat national view for factor stats / turnout solves.
   const allRows: number[][] = [];
@@ -209,6 +223,56 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
       margin: Math.abs(wA - wB) / tot,
       n,
     };
+  }
+
+  /** A voter's first-choice party = the base cluster with the highest posterior. */
+  function firstParty(row: number[]): string {
+    let bi = 0;
+    let best = row[LP_IDX];
+    for (let k = 1; k < 10; k++) {
+      const v = row[LP_IDX + k];
+      if (v > best) { best = v; bi = k; }
+    }
+    return clusterToParty[bi];
+  }
+
+  function partyBreakdown(cdIds: string[], turnoutBeta?: number[]): Record<string, number> {
+    const acc: Record<string, number> = {};
+    let tot = 0;
+    for (const cd of cdIds) {
+      const rows = voters.byCD[cd];
+      if (!rows) continue;
+      for (const row of rows) {
+        const w = row[W_IDX] * turnoutMul(row, turnoutBeta);
+        acc[firstParty(row)] = (acc[firstParty(row)] ?? 0) + w;
+        tot += w;
+      }
+    }
+    for (const p in acc) acc[p] /= tot || 1;
+    return acc;
+  }
+
+  function coalition(cdIds: string[], a: SRCandidate, b: SRCandidate, shift?: Shift): Coalition {
+    const k = opinionK(a, b, shift?.opinionDelta);
+    const beta = shift?.turnoutBeta;
+    const aAcc: Record<string, number> = {};
+    const bAcc: Record<string, number> = {};
+    let wA = 0;
+    let wB = 0;
+    for (const cd of cdIds) {
+      const rows = voters.byCD[cd];
+      if (!rows) continue;
+      for (const row of rows) {
+        const w = row[W_IDX] * turnoutMul(row, beta);
+        const p = firstParty(row);
+        if (logScore(row, a) - logScore(row, b) + k >= 0) { aAcc[p] = (aAcc[p] ?? 0) + w; wA += w; }
+        else { bAcc[p] = (bAcc[p] ?? 0) + w; wB += w; }
+      }
+    }
+    for (const p in aAcc) aAcc[p] /= wA || 1;
+    for (const p in bAcc) bAcc[p] /= wB || 1;
+    const tot = wA + wB || 1;
+    return { a: aAcc, b: bAcc, shareA: wA / tot, shareB: wB / tot };
   }
 
   /** Solve β per axis (independent 1-D bisection) so the national weighted mean of each
@@ -307,7 +371,7 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
     return { states, evA, evB, needed, winner };
   }
 
-  return { candByCode, statesByFips, allCds, factorSD, solveTurnoutBeta, essFraction, headToHead, presidencyEC };
+  return { candByCode, statesByFips, allCds, factorSD, solveTurnoutBeta, essFraction, headToHead, presidencyEC, partyBreakdown, coalition };
 }
 
 // ── Candidate labelling (public-writing voice: plain position statements) ──────────

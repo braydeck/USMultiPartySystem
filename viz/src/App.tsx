@@ -32,12 +32,18 @@ import pureMultiSenateIRVData from './data/pureMultiSenateIRV.json';
 // Current-participation (validated-turnout-weighted) datasets — turnout axis.
 import pureMultiSenateCondorcetTurnoutData from './data/pureMultiSenateCondorcetTurnout.json';
 import pureMultiSenateIRVTurnoutData from './data/pureMultiSenateIRVTurnout.json';
+// Overview snapshot uses the 5%-turnout senate (rank-7 winnow, matching the app defaults).
+import pureMultiSenateCondorcetL5Data from './data/pureMultiSenateCondorcetTurnoutL5.json';
+import pureMultiSenateIRVL5Data from './data/pureMultiSenateIRVTurnoutL5.json';
 import rawMultiPresidentialElectionTurnoutData from './data/rawMultiPresidentialElectionTurnout.json';
 import houseSeatsTurnoutData from './data/houseSeatsTurnout.json';
 import houseStateMapTurnoutData from './data/houseStateMapTurnout.json';
 import districtStvResultsTurnoutData from './data/districtStvResultsTurnout.json';
 import houseVoteModelTurnoutData from './data/houseVoteModelTurnout.json';
 import senateVoteModelTurnoutData from './data/senateVoteModelTurnout.json';
+// Overview divergences snapshot: rank-7 chambers at 5% turnout (matches the app defaults).
+import houseVoteModelL5Data from './data/houseVoteModelTurnoutL5.json';
+import senateVoteModelL5Data from './data/senateVoteModelTurnoutL5.json';
 import senateBucketsData from './data/senateBuckets.json';
 import senateCondorcetData from './data/senateCondorcet.json';
 import fdHouseSeatsData from './data/fdHouseSeats.json';
@@ -264,13 +270,13 @@ export default function App() {
           <OverviewTab
             fdElection={fdPresidentialElectionData as unknown as PresidentialElection}
             rawMultiElection={rawMultiPresidentialElectionData as unknown as PresidentialElection}
-            rawMultiSenateCond={pureMultiSenateCondorcetTurnoutData as unknown as FDSenateSeat[]}
-            rawMultiSenateIRV={pureMultiSenateIRVTurnoutData as unknown as FDSenateSeat[]}
+            rawMultiSenateCond={pureMultiSenateCondorcetL5Data as unknown as FDSenateSeat[]}
+            rawMultiSenateIRV={pureMultiSenateIRVL5Data as unknown as FDSenateSeat[]}
             fdSenateCond={fdSenateCondorcetData as unknown as FDSenateSeat[]}
             fdSenateIRV={fdSenateIRVData as unknown as FDSenateSeat[]}
             houseSeats={houseSeatsTurnoutData as HouseSeat[]}
-            senateVotes={senateVoteModelData as VoteModelRow[]}
-            houseVotes={houseVoteModelData as VoteModelRow[]}
+            senateVotes={senateVoteModelL5Data as VoteModelRow[]}
+            houseVotes={houseVoteModelL5Data as VoteModelRow[]}
             clusters={clusterProfilesData as ClusterProfile[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
             fptpStates={fptpDisproportionalityData as FPTPState[]}

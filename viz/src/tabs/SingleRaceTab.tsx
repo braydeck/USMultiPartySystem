@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { RaceMap } from '../components/singleRace/RaceMap';
 import { ScenarioCard } from '../components/singleRace/ScenarioCard';
 import { ElectorateShift } from '../components/singleRace/ElectorateShift';
+import { PartyStackBar } from '../components/singleRace/PartyStackBar';
 import { createEngine, SHIFT_AXES } from '../lib/singleRace';
 import type { SRMeta, SRVoters, ECRule, SingleRaceEngine, SRCandidate, Shift } from '../lib/singleRace';
 import { getFDColor, darkenHex, lightenHex } from '../constants/parties';
@@ -130,6 +131,16 @@ function SingleRace({ meta, voters }: { meta: SRMeta; voters: SRVoters }) {
       ? state.name
       : 'United States';
 
+  const raceCds = useMemo(
+    () => (office === 'house' ? [cd] : office === 'senate' ? state.cds : engine.allCds),
+    [office, cd, state, engine],
+  );
+  const coalitionLabel = office === 'presidency' ? 'National popular vote' : raceLabel;
+  const breakdown = useMemo(
+    () => engine.partyBreakdown(raceCds, shift?.turnoutBeta),
+    [engine, raceCds, shift],
+  );
+
   // Leading-scenario winner tint for the selection map.
   const tint = useMemo(() => {
     if (office === 'presidency') return {};
@@ -216,6 +227,16 @@ function SingleRace({ meta, voters }: { meta: SRMeta; voters: SRVoters }) {
         essFraction={essFraction}
       />
 
+      <Card className="p-4 space-y-2">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+          Party makeup · {coalitionLabel}
+        </h3>
+        <p className="text-xs text-muted-foreground -mt-1">
+          First-choice party of this electorate — the pool each candidate draws from.
+        </p>
+        <PartyStackBar shares={breakdown} height={30} />
+      </Card>
+
       <div className={office === 'presidency' ? 'grid gap-4 lg:grid-cols-2' : 'grid gap-4 md:grid-cols-2'}>
         {scenarios.map((s, i) => {
           const a = engine.candByCode[s.a];
@@ -225,6 +246,7 @@ function SingleRace({ meta, voters }: { meta: SRMeta; voters: SRVoters }) {
             ? engine.headToHead(office === 'house' ? [cd] : state.cds, a, b, shift)
             : undefined;
           const ec = office === 'presidency' ? engine.presidencyEC(a, b, ecRule, shift) : undefined;
+          const coal = engine.coalition(raceCds, a, b, shift);
           return (
             <ScenarioCard
               key={i}
@@ -241,6 +263,8 @@ function SingleRace({ meta, voters }: { meta: SRMeta; voters: SRVoters }) {
               raceLabel={raceLabel}
               h2h={h2h}
               ec={ec}
+              coalition={coal}
+              coalitionLabel={coalitionLabel}
               canRemove={scenarios.length > 1}
               onChangeA={code => setA(i, code)}
               onChangeB={code => setB(i, code)}

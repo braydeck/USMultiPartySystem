@@ -3150,9 +3150,11 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
     write_json(base, out_name)
 
 
-def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json"):
+def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_src=None):
     """houseVoteModelWFP.json — clone of houseVoteModel.json with only the
-    Raw-Multi house column recomputed from the C7 run (WFP seats included)."""
+    Raw-Multi house column recomputed from the C7 run (WFP seats included).
+    triple_src overrides the Raw-Multi triple seat source (defaults to the full-ranking triple tree)."""
+    triple_src = triple_src or PURE_MULTI_TRIPLE_DIR
     with open(DATA_OUT / "houseVoteModel.json", encoding="utf-8") as f:
         base = json.load(f)
     cbv = _cluster_by_var_support()
@@ -3186,7 +3188,7 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json"):
                 _lf_prob_pass(seats, cbv, majority=_tt(tot)))
 
     fd_res,  fd_ovr  = _house_res(FD_DIR / "house" / "stv_seat_summary.csv", by_code=True)
-    rmt_res, rmt_ovr = _house_res(PURE_MULTI_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=False)
+    rmt_res, rmt_ovr = _house_res(triple_src / "house" / "stv_seat_summary.csv", by_code=False)
     fdt_res, fdt_ovr = _house_res(FD_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=True)
     for row in base:
         var = row["variable"]

@@ -246,13 +246,19 @@ def main():
     print("PURE MULTI PRIMARY — 27 candidates, multi-seat STV")
     print("=" * 70)
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Ballot depth: 0 = full ranking; N = voters rank only their top N (truncated ballots
+    # exhaust when all ranked candidates are eliminated). Output goes to a parallel _topN tree.
+    ballot_depth = int(os.environ.get("BALLOT_DEPTH", "0"))
+    out_dir = OUTPUT_DIR if not ballot_depth else OUTPUT_DIR.parent / (OUTPUT_DIR.name + f"_top{ballot_depth}")
+    out_dir.mkdir(parents=True, exist_ok=True)
     ballots, codes, code_idx = load_ballots()
+    if ballot_depth:
+        ballots = ballots[:, :ballot_depth]
     efa     = pd.read_csv(EFA_PATH)
     weights = efa["commonpostweight"].values.astype(np.float64) * turnout_multiplier(len(efa))
     N = len(ballots)
     n_cands = len(codes)
-    print(f"  {N:,} ballots, {n_cands} candidates")
+    print(f"  {N:,} ballots, {n_cands} candidates (depth={ballot_depth or 'full'})")
 
     surviving = set(range(n_cands))
     results_rows  = []
@@ -401,8 +407,8 @@ def main():
     print(f"Ranked Pairs winner: {rp_winner}")
 
     # ── Save ─────────────────────────────────────────────────────────────────
-    pd.DataFrame(results_rows).to_csv(OUTPUT_DIR / "primary_results_2028.csv", index=False)
-    pd.DataFrame(diag_rows).to_csv(OUTPUT_DIR / "primary_diagnostics_2028.csv", index=False)
+    pd.DataFrame(results_rows).to_csv(out_dir / "primary_results_2028.csv", index=False)
+    pd.DataFrame(diag_rows).to_csv(out_dir / "primary_diagnostics_2028.csv", index=False)
     print(f"\nSaved primary_results_2028.csv ({len(results_rows)} rows)")
     print(f"Saved primary_diagnostics_2028.csv ({len(diag_rows)} rows)")
 

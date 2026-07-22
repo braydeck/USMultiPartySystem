@@ -43,6 +43,14 @@ import fdSenIrv15 from '../data/fdSenateIRVTurnoutL15.json';
 import fdSenIrv20 from '../data/fdSenateIRVTurnoutL20.json';
 import fdSenIrv25 from '../data/fdSenateIRVTurnoutL25.json';
 import fdSenIrv30 from '../data/fdSenateIRVTurnoutL30.json';
+// Senate bill vote model, tracked across turnout (rank-7 winnow + depth-7 president = app default).
+import senVMTurnout from '../data/senateVoteModelTurnout.json';
+import senVML5 from '../data/senateVoteModelTurnoutL5.json';
+import senVML10 from '../data/senateVoteModelTurnoutL10.json';
+import senVML15 from '../data/senateVoteModelTurnoutL15.json';
+import senVML20 from '../data/senateVoteModelTurnoutL20.json';
+import senVML25 from '../data/senateVoteModelTurnoutL25.json';
+import senVML30 from '../data/senateVoteModelTurnoutL30.json';
 import SenateBuckets from '../components/senate/SenateBuckets';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { SenateCompositionCard } from '../components/senate/SenateCompositionCard';
@@ -71,15 +79,20 @@ interface Props {
 }
 
 export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
-                             voteModel, clusters, fdProfiles, clusterSpreads,
+                             clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers,
                              senateBuckets, senateCondorcet }: Props) {
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '0', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
+  const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const rawMultiOn = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+  // Bill vote model at the current turnout stop (rank-7 winnow + depth-7 president baked in).
+  const vmStops = [senVMTurnout, senVML5, senVML10, senVML15, senVML20, senVML25, senVML30] as unknown as VoteModelRow[][];
+  const vmRows = vmStops[gi];
+  // Each state elects one senator among 5 finalists via IRV/Condorcet; voters rank all 5 (full
+  // ranking), so there is no ballot-depth toggle here.
   // Compression stops [0,5,10,15,20,25,30] for each pipeline; condRM/irvRM are the ACTIVE
   // scenario's Condorcet/IRV senate at the current turnout stop.
   const rmCondStops = [condorcetRawMultiTurnout, senCondL5, senCondL10, senCondL15, senCondL20, senCondL25, senCondL30] as unknown as FDSenateSeat[][];
@@ -274,7 +287,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         <p className="text-xs text-muted-foreground mb-4">
           Highlighted rows show bills the senate passes but the president vetoes.
         </p>
-        <VoteModelTable rows={voteModel} scenario={scenario} />
+        <VoteModelTable rows={vmRows} scenario={scenario} />
       </Card>
 
       {/* FD Analysis section */}

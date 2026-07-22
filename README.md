@@ -17,6 +17,7 @@ This project explores what American politics might look like under different ele
 - **A rolling presidential primary** with geographic balance across 4 rounds
 - **Ranked Pairs Condorcet and IRV** for senate general elections (reported side by side)
 - **Two candidate fields** — party-line vs. crossover — run through every chamber and the presidency
+- **Ballot depth** — how many candidates voters actually rank (3–10 or all; default 7): short ballots exhaust, fill STV seats below quota, and center-squeeze the consensus winner out of the finalist field
 ---
 
 ## Pipeline at a Glance

@@ -225,18 +225,31 @@ def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarr
 
 
 def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
-            cand_codes: list, n_seats: int) -> list:
-    """Gregory fractional STV; returns elected candidate codes in election order."""
+            cand_codes: list, n_seats: int) -> tuple:
+    """Gregory fractional STV. Returns (elected codes in election order, n_below_quota),
+    where n_below_quota counts seats filled by the field-collapse branch below the Droop
+    quota — the classic 'exhausted-ballots weaken late seats' failure mode."""
     active      = set(cand_codes)
     ballot_wts  = weights.astype(float).copy()
     total_votes = float(weights.sum())
     quota       = total_votes / (n_seats + 1) + 1
     elected: list = []
+    below_quota   = 0
 
     while len(elected) < n_seats and active:
         remaining = n_seats - len(elected)
         if len(active) <= remaining:
-            elected.extend(sorted(active))
+            # Field collapsed (too few continuing candidates): elect the rest regardless of
+            # quota. Count how many are actually below quota at this point.
+            fsc = first_surviving_choice(ballots_arr, active)
+            totals = {c: 0.0 for c in active}
+            for code, w in zip(fsc, ballot_wts):
+                if code in totals:
+                    totals[code] += w
+            for c in sorted(active):
+                elected.append(c)
+                if totals.get(c, 0.0) < quota:
+                    below_quota += 1
             active.clear()
             break
 
@@ -261,13 +274,13 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
         else:
             active.discard(min(active, key=lambda c: (totals[c], c)))
 
-    return elected
+    return elected, below_quota
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
-         output_dir=None, label="PURE MULTI"):
+         output_dir=None, label="PURE MULTI", ballot_depth=0):
     if apportionment_path is None:
         apportionment_path = APPORTIONMENT
     if checkpoint_path is None:
@@ -278,6 +291,10 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
         output_dir = OUTPUT_DIR
     else:
         output_dir = Path(output_dir)
+    # Ballot depth: 0 = full ranking (exhaustive); N = voters rank only their top N candidates.
+    # Truncated ballots can exhaust in STV, so this is what makes exhaustion/representation realistic.
+    if ballot_depth and ballot_depth > 0:
+        output_dir = output_dir.parent.parent / (output_dir.parent.name + f"_top{ballot_depth}") / output_dir.name
 
     rng      = np.random.default_rng(42)
     rng_prob = np.random.default_rng(43)
@@ -410,7 +427,7 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
 
         scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
         ballots   = generate_ballots(scores, rng, candidates)
-        elected   = run_stv(ballots, d_count_weights, cand_codes, n_seats_eff)
+        elected, _ = run_stv(ballots, d_count_weights, cand_codes, n_seats_eff)
 
         # Tally by base party (strip _N suffix)
         elected_parties = [code.rsplit("_", 1)[0] for code in elected]
@@ -432,7 +449,26 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
         # ── Prob-cluster scoring variant ───────────────────────────────────────
         prob_scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
         prob_ballots   = generate_ballots(prob_scores, rng_prob, candidates)
-        prob_elected   = run_stv(prob_ballots, d_count_weights, cand_codes, n_seats_eff)
+        # Truncate to the top-`ballot_depth` preferences for the STV count; truncated ballots
+        # exhaust when all ranked candidates are eliminated (they stop transferring).
+        bal_stv        = prob_ballots if not ballot_depth else prob_ballots[:, :ballot_depth]
+        prob_elected, prob_below = run_stv(bal_stv, d_count_weights, cand_codes, n_seats_eff)
+
+        # ── Representation metrics (canonical prob variant) ────────────────────
+        # non-first-choice: ballot's first choice is not an election winner.
+        # unrepresented:    none of the ballot's top-K ranked candidates won, where
+        #                   K = min(seats, ballot_depth) — under truncation you only have `depth`.
+        elset = set(prob_elected)
+        dcap = ballot_depth if ballot_depth else 10 ** 9
+        K = min(n_seats_eff, dcap)
+        vw = nfc_w = unrep_w = 0.0
+        for i in range(len(prob_ballots)):
+            wt = float(d_count_weights[i]); vw += wt
+            b = prob_ballots[i]
+            if b[0] not in elset:
+                nfc_w += wt
+            if not any(code in elset for code in b[:K]):
+                unrep_w += wt
 
         prob_elected_parties = [code.rsplit("_", 1)[0] for code in prob_elected]
         for party in prob_elected_parties:
@@ -448,6 +484,10 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
             "n_respondents": N_dist,
             "n_candidates":  len(candidates),
             "elected":       prob_elected_parties,
+            "vote_weight":   round(vw, 4),
+            "nonfirst_weight": round(nfc_w, 4),
+            "unrep_weight":  round(unrep_w, 4),
+            "below_quota_seats": prob_below,
         })
         n_processed += 1
 
@@ -486,6 +526,21 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
     dist_df = pd.DataFrame(_dist_rows(district_results)).sort_values(["state_fips", "district_id"])
     dist_df.to_csv(output_dir / "stv_results_by_district_gauss.csv", index=False)
     print(f"Saved stv_results_by_district_gauss.csv  ({len(dist_df)} districts)")
+
+    # ── Representation metrics (non-first-choice / unrepresented) ───────────────
+    rep_df = pd.DataFrame([{
+        "district_id":     r["district_id"],
+        "state_fips":      r["state_fips"],
+        "seat_count":      r["seat_count"],
+        "vote_weight":     r["vote_weight"],
+        "nonfirst_weight": r["nonfirst_weight"],
+        "unrep_weight":    r["unrep_weight"],
+        "below_quota_seats": r["below_quota_seats"],
+    } for r in district_results_prob]).sort_values(["state_fips", "district_id"])
+    rep_df.to_csv(output_dir / "stv_representation_by_district.csv", index=False)
+    tvw = rep_df["vote_weight"].sum()
+    print(f"Saved stv_representation_by_district.csv  |  non-first-choice "
+          f"{rep_df['nonfirst_weight'].sum()/tvw*100:.1f}%  unrepresented {rep_df['unrep_weight'].sum()/tvw*100:.1f}%")
 
     # ── Seat summary (format matches No_C7_canonical/stv_seat_summary.csv) ────
     def _build_summary(tc_dict):
@@ -543,6 +598,10 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
 
 
 if __name__ == "__main__":
+    depth = 0
+    for a in sys.argv:
+        if a.startswith("--depth="):
+            depth = int(a.split("=", 1)[1])
     if "--triple" in sys.argv:
         main(
             apportionment_path=APPORTIONMENT_TRIPLE,
@@ -550,6 +609,7 @@ if __name__ == "__main__":
             county_dist_path=COUNTY_DIST_PATH_TRIPLE,
             output_dir=OUTPUT_DIR_TRIPLE,
             label="PURE MULTI TRIPLE WYOMING",
+            ballot_depth=depth,
         )
     else:
-        main()
+        main(ballot_depth=depth)

@@ -192,6 +192,14 @@ def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
+    global OUTPUT_DIR, PRIMARY_PATH
+    # Ballot depth affects only WHO the 5 finalists are (via the matching top-N primary). The
+    # general itself is a 5-candidate contest, so voters rank all 5 (no truncation of fin_ballots).
+    # Output goes to a parallel _topN tree.
+    depth = int(os.environ.get("BALLOT_DEPTH", "0"))
+    if depth:
+        OUTPUT_DIR = OUTPUT_DIR.parent.parent / (OUTPUT_DIR.parent.name + f"_top{depth}") / OUTPUT_DIR.name
+        PRIMARY_PATH = PRIMARY_PATH.parent.parent / (PRIMARY_PATH.parent.name + f"_top{depth}") / PRIMARY_PATH.name
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     print("=" * 65)
