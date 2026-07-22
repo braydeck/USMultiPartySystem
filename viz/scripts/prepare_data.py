@@ -1286,27 +1286,32 @@ def build_current_party_profiles(out_name="currentPartyProfiles.json"):
         profiles[code] = {"id": code, "party": code, "partyName": NAMES[code], "variables": vars_}
 
     # Factor scores per pid3: weighted FS mean + z/pctile against the SAME pop mean/sd
-    # build_cluster_profiles uses.
-    typo_path = Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"
-    typo = read_csv(str(typo_path))
-    fmap = {"F1":"FS_F1","F2":"FS_F2","F3":"FS_F3","F4":"FS_F4","F5":"FS_F5"}
-    if "FS_F4" not in typo[0]:
-        fmap["F4"], fmap["F5"] = "FS_F4_resid", "FS_F5_resid"
-    W = [float(r["commonpostweight"]) for r in typo]
-    pid = [ (int(float(r["pid3"])) if r.get("pid3") not in (None, '', 'nan') else 0) for r in typo ]
+    # build_cluster_profiles uses.  Read from efa_factor_scores.csv (same source as
+    # _compute_cluster_factor_centroids / build_cluster_profiles) so raw/resid choice
+    # and population reference are identical — not from typology_cluster_assignments.csv
+    # which only has resid columns for F4/F5.
+    efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
+    efa_rows = read_csv(str(efa_path))
+    fmap = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
+    if efa_rows and "FS_F4" not in efa_rows[0]:
+        fmap["F4"] = "FS_F4_resid"
+        fmap["F5"] = "FS_F5_resid"
+    W = [float(r.get("commonpostweight") or 1) for r in efa_rows]
+    pid = [(int(float(r["pid3"])) if r.get("pid3") not in (None, '', 'nan') else 0)
+           for r in efa_rows]
     pidcode = {1: "DEM", 2: "REP", 3: "IND"}
-    N = len(typo)
+    N = len(efa_rows)
     for fk, col in fmap.items():
-        vals = [float(typo[i].get(col) or 0) for i in range(N)]
-        mean = sum(vals) / N
-        sd = (sum((v - mean) ** 2 for v in vals) / N) ** 0.5
+        vals = [float(efa_rows[i].get(col) or 0) for i in range(N)]
+        pop_mean = sum(vals) / N
+        pop_sd = (sum((v - pop_mean) ** 2 for v in vals) / N) ** 0.5
         for code in CODES:
             idx = [i for i in range(N) if pidcode.get(pid[i]) == code]
             ws = sum(W[i] for i in idx)
             centroid = sum(vals[i] * W[i] for i in idx) / ws if ws > 0 else 0.0
             below = sum(1 for v in vals if v < centroid)
             profiles[code][fk] = round(centroid, 4)
-            profiles[code][f"z_{fk}"] = round(centroid / sd, 2) if sd > 0 else 0
+            profiles[code][f"z_{fk}"] = round(centroid / pop_sd, 2) if pop_sd > 0 else 0
             profiles[code][f"pctile_{fk}"] = round(below / N * 100, 1)
     write_json([profiles[c] for c in CODES], out_name)
 
