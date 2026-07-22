@@ -1,8 +1,10 @@
 import { Card } from '@/components/ui/card';
 import { CandidatePicker } from './CandidatePicker';
 import { PresidencyGrid } from './PresidencyGrid';
-import { PartyStackBar } from './PartyStackBar';
-import type { SRCandidate, H2HResult, ECResult, Coalition } from '../../lib/singleRace';
+import { FaceoffBar, ToneLegend } from './FaceoffBar';
+import { MicrotargetTable } from './MicrotargetTable';
+import { aggregateFaceoff } from './faceoff';
+import type { SRCandidate, H2HResult, ECResult, MicrotargetGroup } from '../../lib/singleRace';
 import { styleLabel } from '../../lib/singleRace';
 import { PARTY_NAMES, getContrastText } from '../../constants/parties';
 
@@ -22,7 +24,7 @@ interface Props {
   raceLabel: string;
   h2h?: H2HResult;
   ec?: ECResult;
-  coalition?: Coalition;
+  groups: MicrotargetGroup[];
   coalitionLabel: string;
   canRemove: boolean;
   onChangeA: (code: string) => void;
@@ -35,29 +37,22 @@ function candName(c: SRCandidate): string {
   return s ? `${PARTY_NAMES[c.party]} (${s})` : PARTY_NAMES[c.party];
 }
 
-function pct(x: number): string {
-  return `${(x * 100).toFixed(1)}%`;
-}
+const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 
 export function ScenarioCard(props: Props) {
   const { index, candidates, partyOrder, aCode, bCode, aCand, bCand, aColor, bColor,
-    office, raceLabel, h2h, ec, coalition, coalitionLabel, canRemove, onChangeA, onChangeB, onRemove } = props;
+    office, raceLabel, h2h, ec, groups, coalitionLabel, canRemove, onChangeA, onChangeB, onRemove } = props;
+
+  const agg = aggregateFaceoff(groups);
 
   return (
     <Card className="p-4 space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-          Scenario {index + 1}
-        </h3>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Scenario {index + 1}</h3>
         {canRemove && (
-          <button
-            type="button"
-            onClick={onRemove}
+          <button type="button" onClick={onRemove}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            aria-label={`Remove scenario ${index + 1}`}
-          >
-            Remove
-          </button>
+            aria-label={`Remove scenario ${index + 1}`}>Remove</button>
         )}
       </div>
 
@@ -67,39 +62,40 @@ export function ScenarioCard(props: Props) {
         <CandidatePicker candidates={candidates} partyOrder={partyOrder} value={bCode} onChange={onChangeB} />
       </div>
 
-      {office !== 'presidency' && h2h && (
-        <SingleRace h2h={h2h} aCand={aCand} bCand={bCand} aColor={aColor} bColor={bColor} raceLabel={raceLabel} />
-      )}
+      {/* Headline faceoff — the two-party split, each side labeled in-bar. */}
+      <div className="space-y-1.5">
+        <div className="flex items-baseline justify-between text-sm gap-2">
+          <span className="font-medium truncate" style={{ color: aColor }}>{candName(aCand)} {agg.aPct.toFixed(0)}%</span>
+          <span className="font-medium text-right truncate" style={{ color: bColor }}>{agg.bPct.toFixed(0)}% {candName(bCand)}</span>
+        </div>
+        <FaceoffBar f={agg} aColor={aColor} bColor={bColor} height={40} labels />
+        <ToneLegend color={aColor} />
+        {office !== 'presidency' && h2h && (
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-0.5">
+            <span>{raceLabel}</span>
+            <span>
+              <span className="px-1.5 py-0.5 rounded font-semibold"
+                style={{ background: (h2h.winner === 'A' ? aColor : bColor) + '22', color: h2h.winner === 'A' ? aColor : bColor }}>
+                {candName(h2h.winner === 'A' ? aCand : bCand)}
+              </span>{' '}wins by {pct(h2h.margin)}
+            </span>
+          </div>
+        )}
+      </div>
 
       {office === 'presidency' && ec && (
         <Presidency ec={ec} aCand={aCand} bCand={bCand} aColor={aColor} bColor={bColor} />
       )}
 
-      {coalition && (
-        <div className="space-y-2 pt-1 border-t border-border/50">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-            Where the votes come from
-          </div>
-          <p className="text-[11px] text-muted-foreground -mt-1">{coalitionLabel}</p>
-          <CoalitionRow name={candName(aCand)} color={aColor} share={coalition.shareA} shares={coalition.a} />
-          <CoalitionRow name={candName(bCand)} color={bColor} share={coalition.shareB} shares={coalition.b} />
-        </div>
-      )}
-    </Card>
-  );
-}
-
-function CoalitionRow({ name, color, share, shares }: {
-  name: string; color: string; share: number; shares: Record<string, number>;
-}) {
-  return (
-    <div className="space-y-1">
-      <div className="flex items-baseline justify-between text-xs">
-        <span className="font-medium" style={{ color }}>{name}</span>
-        <span className="text-muted-foreground">{pct(share)} of the vote</span>
+      {/* Where the votes come from — numeric table, heatmapped per column in each party's color. */}
+      <div className="pt-2 border-t border-border/50 space-y-1.5">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Where the votes come from</div>
+        <p className="text-[11px] text-muted-foreground -mt-0.5">
+          {coalitionLabel}. Numbers are % of each group. <span className="font-medium text-foreground">Likely</span> already vote; <span className="font-medium text-foreground">Mobilize</span> = that side's voters who skip midterms; <span className="font-medium text-foreground">Persuade</span> = near-boundary voters who lean that side now but could be flipped either way.
+        </p>
+        <MicrotargetTable groups={groups} aColor={aColor} bColor={bColor} aParty={aCand.party} bParty={bCand.party} />
       </div>
-      <PartyStackBar shares={shares} height={22} />
-    </div>
+    </Card>
   );
 }
 
@@ -117,31 +113,6 @@ function TwoWayBar({ shareA, aColor, bColor }: { shareA: number; aColor: string;
   );
 }
 
-function SingleRace({ h2h, aCand, bCand, aColor, bColor, raceLabel }: {
-  h2h: H2HResult; aCand: SRCandidate; bCand: SRCandidate; aColor: string; bColor: string; raceLabel: string;
-}) {
-  const winner = h2h.winner === 'A' ? aCand : bCand;
-  const winColor = h2h.winner === 'A' ? aColor : bColor;
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-medium" style={{ color: aColor }}>{candName(aCand)}</span>
-        <span className="font-medium text-right" style={{ color: bColor }}>{candName(bCand)}</span>
-      </div>
-      <TwoWayBar shareA={h2h.shareA} aColor={aColor} bColor={bColor} />
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{raceLabel}</span>
-        <span>
-          <span className="px-1.5 py-0.5 rounded font-semibold" style={{ background: winColor + '22', color: winColor }}>
-            {candName(winner)}
-          </span>
-          {' '}wins by {pct(h2h.margin)}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function Presidency({ ec, aCand, bCand, aColor, bColor }: {
   ec: ECResult; aCand: SRCandidate; bCand: SRCandidate; aColor: string; bColor: string;
 }) {
@@ -149,14 +120,13 @@ function Presidency({ ec, aCand, bCand, aColor, bColor }: {
   const winnerLabel = ec.winner === 'A' ? candName(aCand) : ec.winner === 'B' ? candName(bCand) : 'No majority';
   const winColor = ec.winner === 'A' ? aColor : ec.winner === 'B' ? bColor : '#6b7280';
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pt-1 border-t border-border/50">
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium" style={{ color: aColor }}>{candName(aCand)} · {ec.evA}</span>
         <span className="font-medium text-right" style={{ color: bColor }}>{ec.evB} · {candName(bCand)}</span>
       </div>
       <div className="relative">
         <TwoWayBar shareA={total ? ec.evA / total : 0.5} aColor={aColor} bColor={bColor} />
-        {/* 270 threshold marker */}
         <div className="absolute top-0 bottom-0 w-px bg-slate-900" style={{ left: `${(ec.needed / total) * 100}%` }} title={`${ec.needed} to win`} />
       </div>
       <div className="text-xs text-muted-foreground">

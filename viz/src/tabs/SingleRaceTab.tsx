@@ -237,16 +237,19 @@ function SingleRace({ meta, voters }: { meta: SRMeta; voters: SRVoters }) {
         <PartyStackBar shares={breakdown} height={30} />
       </Card>
 
-      <div className={office === 'presidency' ? 'grid gap-4 lg:grid-cols-2' : 'grid gap-4 md:grid-cols-2'}>
+      {/* Each scenario is one full-width card: headline faceoff plus the per-group breakdown, so the
+          in-bar labels have room. */}
+      <div className="space-y-4">
         {scenarios.map((s, i) => {
           const a = engine.candByCode[s.a];
           const b = engine.candByCode[s.b];
+          if (!a || !b) return null;
           const [ac, bc] = resolveColors(a, b);
           const h2h = office !== 'presidency'
             ? engine.headToHead(office === 'house' ? [cd] : state.cds, a, b, shift)
             : undefined;
           const ec = office === 'presidency' ? engine.presidencyEC(a, b, ecRule, shift) : undefined;
-          const coal = engine.coalition(raceCds, a, b, shift);
+          const groups = engine.microtarget(raceCds, a, b, shift);
           return (
             <ScenarioCard
               key={i}
@@ -263,7 +266,7 @@ function SingleRace({ meta, voters }: { meta: SRMeta; voters: SRVoters }) {
               raceLabel={raceLabel}
               h2h={h2h}
               ec={ec}
-              coalition={coal}
+              groups={groups}
               coalitionLabel={coalitionLabel}
               canRemove={scenarios.length > 1}
               onChangeA={code => setA(i, code)}

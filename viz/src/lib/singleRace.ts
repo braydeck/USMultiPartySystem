@@ -118,6 +118,17 @@ export interface SingleRaceEngine {
   partyBreakdown: (cdIds: string[], turnoutBeta?: number[]) => Record<string, number>;
   /** Where each candidate's votes come from — their voters' first-choice-party composition. */
   coalition: (cdIds: string[], a: SRCandidate, b: SRCandidate, shift?: Shift) => Coalition;
+  /** Per-cluster targeting inputs for candidate A in a geography: electorate weight + A's share. */
+  microtarget: (cdIds: string[], a: SRCandidate, b: SRCandidate, shift?: Shift) => MicrotargetGroup[];
+}
+
+/** One cluster's targeting inputs within a geography, from candidate A's perspective. */
+export interface MicrotargetGroup {
+  party: string;
+  weight: number;     // cluster's share of the (turnout-weighted) electorate here, 0–1
+  alignment: number;  // A's two-way share among that cluster's voters, 0–1
+  contestedA: number; // near-boundary voters currently leaning A, as share of the whole electorate
+  contestedB: number; // near-boundary voters currently leaning B, as share of the whole electorate
 }
 
 export interface Coalition {
@@ -275,6 +286,46 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
     return { a: aAcc, b: bAcc, shareA: wA / tot, shareB: wB / tot };
   }
 
+  // A voter is "contested" when the two candidates' deciding scores are within this many log points
+  // (|margin| < CONTEST_BAND ≈ the two scores within ~1.8×, i.e. a two-way prob roughly 0.35–0.65).
+  // These are the swingable voters a modest opinion shift would flip.
+  const CONTEST_BAND = 0.6;
+
+  /** Per first-choice cluster: weight in the electorate, A's share within it, and near-boundary mass. */
+  function microtarget(cdIds: string[], a: SRCandidate, b: SRCandidate, shift?: Shift): MicrotargetGroup[] {
+    const k = opinionK(a, b, shift?.opinionDelta);
+    const beta = shift?.turnoutBeta;
+    const wTot: Record<string, number> = {};
+    const wAwin: Record<string, number> = {};
+    const wCloseA: Record<string, number> = {}; // near-boundary, currently A
+    const wCloseB: Record<string, number> = {}; // near-boundary, currently B
+    let total = 0;
+    for (const cd of cdIds) {
+      const rows = voters.byCD[cd];
+      if (!rows) continue;
+      for (const row of rows) {
+        const w = row[W_IDX] * turnoutMul(row, beta);
+        const p = firstParty(row);
+        wTot[p] = (wTot[p] ?? 0) + w;
+        total += w;
+        const margin = logScore(row, a) - logScore(row, b) + k;
+        if (margin >= 0) {
+          wAwin[p] = (wAwin[p] ?? 0) + w;
+          if (margin < CONTEST_BAND) wCloseA[p] = (wCloseA[p] ?? 0) + w;
+        } else if (-margin < CONTEST_BAND) {
+          wCloseB[p] = (wCloseB[p] ?? 0) + w;
+        }
+      }
+    }
+    return Object.keys(wTot).map(p => ({
+      party: p,
+      weight: wTot[p] / (total || 1),
+      alignment: (wAwin[p] ?? 0) / (wTot[p] || 1),
+      contestedA: (wCloseA[p] ?? 0) / (total || 1),
+      contestedB: (wCloseB[p] ?? 0) / (total || 1),
+    }));
+  }
+
   /** Solve β per axis (independent 1-D bisection) so the national weighted mean of each
    * shifted factor moves by sigmaTargets·SD. Non-shift axes get β=0. */
   function solveTurnoutBeta(sigmaTargets: number[]): number[] {
@@ -371,7 +422,7 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
     return { states, evA, evB, needed, winner };
   }
 
-  return { candByCode, statesByFips, allCds, factorSD, solveTurnoutBeta, essFraction, headToHead, presidencyEC, partyBreakdown, coalition };
+  return { candByCode, statesByFips, allCds, factorSD, solveTurnoutBeta, essFraction, headToHead, presidencyEC, partyBreakdown, coalition, microtarget };
 }
 
 // ── Candidate labelling (public-writing voice: plain position statements) ──────────
