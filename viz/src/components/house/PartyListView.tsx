@@ -103,10 +103,6 @@ export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
   const stvPct = (p: string) => (active.stvSeats[p] ?? 0) / total * 100;
   const maxPct = Math.max(5, ...parties.flatMap(p => [popPct(p), listPct(p), stvPct(p)]));
 
-  // Parties that actually win a seat: 2 today, all 10 under proportional rules.
-  const partiesList = F5_ORDER.filter(p => (nat.listSeats[p] ?? 0) > 0).length;
-  const partiesStv = F5_ORDER.filter(p => (nat.stvSeats[p] ?? 0) > 0).length;
-
   return (
     <div className="space-y-8">
       {/* Seat share vs population share, party list vs STV */}
@@ -138,6 +134,9 @@ export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
             );
           })}
         </div>
+        <p className="text-[11px] text-muted-foreground mt-3">
+          Party-list seats use the Hare quota with largest remainders, within the same multi-member districts as STV. There is no legal threshold: winning a seat takes about one quota, so a party's seats track its vote share times the district's magnitude.
+        </p>
       </Card>
 
       {/* Headline: voters left unrepresented */}
@@ -154,22 +153,6 @@ export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
         <p className="text-[11px] text-muted-foreground mt-3">
           STV passes your vote to your next choice when your first loses. A list can't. Today's number is the real 2024 House.
         </p>
-      </Card>
-
-      {/* Disproportionality — the real story is the representation gap, not national Gallagher */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          The representation gap
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">
-          The electorate sorts into {partiesList} groupings. Two parties can't hold them.
-        </p>
-        <div className="grid grid-cols-3 gap-2">
-          <Stat label="Today's House" value={2} tone="worst" isCount />
-          <Stat label="Party list" value={partiesList} tone="best" isCount />
-          <Stat label="STV" value={partiesStv} tone="best" isCount />
-        </div>
-        <p className="text-[11px] text-muted-foreground mt-3">Parties winning at least one seat.</p>
       </Card>
 
       {/* Over-quota surplus */}
