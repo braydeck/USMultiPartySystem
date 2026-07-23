@@ -1,1 +1,12 @@
-[{"party":"CON","popShare":17.74,"voteShare":19.38,"turnout":63.2},{"party":"LBR","popShare":14.81,"voteShare":14.02,"turnout":54.8},{"party":"STY","popShare":14.25,"voteShare":7.99,"turnout":32.5},{"party":"NAT","popShare":8.71,"voteShare":11.21,"turnout":74.5},{"party":"LIB","popShare":8.81,"voteShare":11.48,"turnout":75.4},{"party":"POP","popShare":10.43,"voteShare":9.5,"turnout":52.7},{"party":"CUP","popShare":9.35,"voteShare":7.96,"turnout":49.3},{"party":"OAO","popShare":5.26,"voteShare":5.79,"turnout":63.8},{"party":"DSA","popShare":5.94,"voteShare":6.04,"turnout":58.8},{"party":"PRG","popShare":4.7,"voteShare":6.61,"turnout":81.4}]
+[
+  {"party":"CON","popShare":17.74,"voteShare":19.38,"turnoutPresidential":66.8,"turnoutMidterm":60.8},
+  {"party":"LBR","popShare":14.81,"voteShare":14.02,"turnoutPresidential":60.1,"turnoutMidterm":43.3},
+  {"party":"STY","popShare":14.25,"voteShare":7.99,"turnoutPresidential":38.0,"turnoutMidterm":24.6},
+  {"party":"NAT","popShare":8.71,"voteShare":11.21,"turnoutPresidential":77.4,"turnoutMidterm":75.2},
+  {"party":"LIB","popShare":8.81,"voteShare":11.48,"turnoutPresidential":78.4,"turnoutMidterm":63.3},
+  {"party":"POP","popShare":10.43,"voteShare":9.5,"turnoutPresidential":57.2,"turnoutMidterm":49.8},
+  {"party":"CUP","popShare":9.35,"voteShare":7.96,"turnoutPresidential":53.6,"turnoutMidterm":37.3},
+  {"party":"OAO","popShare":5.26,"voteShare":5.79,"turnoutPresidential":67.1,"turnoutMidterm":54.5},
+  {"party":"DSA","popShare":5.94,"voteShare":6.04,"turnoutPresidential":61.6,"turnoutMidterm":56.9},
+  {"party":"PRG","popShare":4.7,"voteShare":6.61,"turnoutPresidential":83.3,"turnoutMidterm":75.9}
+]

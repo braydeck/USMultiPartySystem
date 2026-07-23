@@ -427,11 +427,28 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         linkSel.attr('opacity', 0.4).attr('stroke', '#cbd5e1');
       });
 
-    // Labels
+    // Labels — nudge overlapping ones apart so they don't collide (DEM/LBR, etc).
     const labelG = svg.append('g');
+    const labelPositions: { id: string; x: number; y: number; r: number }[] = [];
     for (const d of nodes) {
       const p = posOf(d);
       const r = rScale(getVal(d, sizeFactor));
+      labelPositions.push({ id: d.id, x: p.x, y: p.y - r - 3, r });
+    }
+    // Greedy collision resolve: if two labels are within 10px vertically and 30px horizontally,
+    // nudge the second one down below its circle instead of above.
+    const COLLIDE_V = 10, COLLIDE_H = 30;
+    const labelY: Record<string, number> = {};
+    for (const lp of labelPositions) {
+      let y = lp.y;
+      const collides = labelPositions.some(other =>
+        other.id !== lp.id && Math.abs(other.x - lp.x) < COLLIDE_H && Math.abs((labelY[other.id] ?? other.y) - y) < COLLIDE_V);
+      if (collides) y = lp.y + lp.r * 2 + 12; // below the circle instead
+      labelY[lp.id] = y;
+    }
+    for (const d of nodes) {
+      const p = posOf(d);
+      const y = labelY[d.id];
       const safeClass = `hover-label-${d.id.replace(/[^a-zA-Z0-9]/g, '_')}`;
       const alwaysShow = !manyNodes;
       const fontSize = manyNodes ? '9px' : '10px';
@@ -439,7 +456,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       // White outline
       labelG.append('text')
         .attr('class', safeClass)
-        .attr('x', p.x).attr('y', p.y - r - 3)
+        .attr('x', p.x).attr('y', y)
         .attr('text-anchor', 'middle')
         .style('fill', 'none').style('stroke', '#f8fafc').style('stroke-width', '3px')
         .style('font-size', fontSize).style('font-weight', '700')
@@ -449,7 +466,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       // Label text
       labelG.append('text')
         .attr('class', safeClass)
-        .attr('x', p.x).attr('y', p.y - r - 3)
+        .attr('x', p.x).attr('y', y)
         .attr('text-anchor', 'middle')
         .style('fill', getTextColor()).style('font-size', fontSize).style('font-weight', '700')
         .style('pointer-events', 'none')

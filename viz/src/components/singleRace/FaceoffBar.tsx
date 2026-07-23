@@ -70,7 +70,7 @@ export function ToneLegend({ color }: { color: string }) {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
       <span className="flex items-center gap-1"><span className={sw} style={{ backgroundColor: color }} /> likely to vote</span>
-      <span className="flex items-center gap-1"><span className={sw} style={{ backgroundColor: color, backgroundImage: MOB_HATCH }} /> mobilize (skips midterms)</span>
+      <span className="flex items-center gap-1"><span className={sw} style={{ backgroundColor: color, backgroundImage: MOB_HATCH }} /> mobilize (unlikely voter)</span>
       <span className="flex items-center gap-1"><span className={sw} style={{ backgroundColor: lightenHex(color, 0.5) }} /> persuadable</span>
     </div>
   );

@@ -1,5 +1,5 @@
 import { PARTY_COLORS, getContrastText } from '../../constants/parties';
-import { perClusterFaceoff, carve } from './faceoff';
+import { perClusterFaceoff, carve, type ElectionCycle } from './faceoff';
 import type { MicrotargetGroup } from '../../lib/singleRace';
 
 function rgba(hex: string, a: number): string {
@@ -14,10 +14,11 @@ const fmt = (v: number) => (v < 0.05 ? '—' : v >= 10 ? v.toFixed(0) : v.toFixe
  * each candidate under each action, so the two parties sit side by side within each action. Numbers
  * are % of that group; each column is a unidirectional heatmap in that candidate's color.
  */
-export function MicrotargetTable({ groups, aColor, bColor, aParty, bParty }: {
-  groups: MicrotargetGroup[]; aColor: string; bColor: string; aParty: string; bParty: string;
+export function MicrotargetTable({ groups, cycle = 'midterm', aMobRate = 0, bMobRate = 0, aColor, bColor, aParty, bParty }: {
+  groups: MicrotargetGroup[]; cycle?: ElectionCycle; aMobRate?: number; bMobRate?: number;
+  aColor: string; bColor: string; aParty: string; bParty: string;
 }) {
-  const rows = perClusterFaceoff(groups).map(cf => ({ party: cf.party, weight: cf.weight, ...carve(cf) }));
+  const rows = perClusterFaceoff(groups, cycle, aMobRate, bMobRate).map(cf => ({ party: cf.party, weight: cf.weight, ...carve(cf) }));
   const cols = ['aLik', 'bLik', 'aMob', 'bMob', 'aPer', 'bPer'] as const;
   const max: Record<string, number> = {};
   for (const c of cols) max[c] = Math.max(0.001, ...rows.map(r => r[c]));

@@ -23,6 +23,10 @@ const OFFICE_LABELS: Record<Office, string> = { house: 'House', senate: 'Senate'
 const EC_RULES: ECRule[] = ['currentLaw', 'proportional'];
 const EC_LABELS: Record<ECRule, string> = { currentLaw: 'Current law', proportional: 'Proportional' };
 
+type ElectionCycle = 'midterm' | 'presidential';
+const CYCLES: ElectionCycle[] = ['midterm', 'presidential'];
+const CYCLE_LABELS: Record<ElectionCycle, string> = { midterm: 'Midterm', presidential: 'Presidential' };
+
 interface Scenario { a: string; b: string; }
 
 function parseScenarios(s: string, valid: Set<string>): Scenario[] {
@@ -101,6 +105,7 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
   const validCodes = useMemo(() => new Set(meta.candidates.map(c => c.code)), [meta]);
 
   const [office, setOffice] = useUrlState<Office>('office', 'house', { allowed: OFFICES });
+  const [cycle, setCycle] = useUrlState<ElectionCycle>('cycle', 'midterm', { allowed: CYCLES });
   const [fips, setFips] = useUrlState<string>('st', '06');
   const [cdRaw, setCd] = useUrlState<string>('cd', '');
   const [ecRule, setEcRule] = useUrlState<ECRule>('ec', 'currentLaw', { allowed: EC_RULES });
@@ -197,6 +202,7 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
 
       <div className="flex items-center gap-x-4 gap-y-2 flex-wrap sticky top-[52px] z-10 bg-background/95 backdrop-blur py-2 border-b border-border/50">
         <ToggleGroup label="Office" value={office} onChange={setOffice} options={OFFICES} labels={OFFICE_LABELS} />
+        <ToggleGroup label="Election cycle" value={cycle} onChange={setCycle} options={CYCLES} labels={CYCLE_LABELS} />
         {office === 'presidency' && (
           <ToggleGroup label="Electoral College" value={ecRule} onChange={setEcRule} options={EC_RULES} labels={EC_LABELS} />
         )}
@@ -275,6 +281,7 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
               aColor={ac}
               bColor={bc}
               office={office}
+              cycle={cycle as 'midterm' | 'presidential'}
               raceLabel={raceLabel}
               h2h={h2h}
               ec={ec}

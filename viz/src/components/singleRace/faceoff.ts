@@ -5,25 +5,20 @@ import partyPopulation from '../../data/partyPopulation.json';
 import clusterProfiles from '../../data/clusterProfiles.json';
 import type { MicrotargetGroup } from '../../lib/singleRace';
 
-// ── Midterm dropoff (surge & decline) — LITERATURE PLACEHOLDER ──────────────────────────────
-// Peripheral (low-propensity) voters fall away in midterms; core voters persist. Retention scales
-// with presidential turnout, ~0.90 (core) to ~0.50 (peripheral), weighted mean ~0.70 (Catalist
-// magnitudes; A. Campbell / J.E. Campbell surge-and-decline).
-// TODO: replace with EMPIRICAL per-cluster retention from 2020/2022 (+2016/2018) CES waves.
-const RET_LO = 0.50, RET_HI = 0.90;
-// Civic-engagement composite (Parties-tab items) → persuadability (its inverse): low-engagement
-// voters are more movable but heuristic-driven (Zaller / Popkin).
+// ── Turnout by election cycle — CES 2020-2024 validated voter file data ─────────────────────
+// Presidential turnout from 2024 CES (TargetSmart TS_g2024), midterm from 2022 (TS_g2022),
+// cross-validated against 2020 (Catalist CL_2020gvm). Rates are per-party, nationally weighted.
+// Retention = fraction of the party's base that shows up for the given cycle type.
 const CIVIC = ['newsint', 'CC24_430a_1', 'CC24_430a_2', 'CC24_430a_3', 'CC24_430a_4', 'CC24_430a_5', 'CC24_430a_6'];
 
-type PopRow = { party: string; turnout: number };
+export type ElectionCycle = 'midterm' | 'presidential';
+
+type PopRow = { party: string; turnoutPresidential: number; turnoutMidterm: number };
 type Profile = { party: string; variables: Record<string, { pct?: number }> };
 
-const turnoutByParty: Record<string, number> = {};
-for (const r of partyPopulation as PopRow[]) turnoutByParty[r.party] = r.turnout;
-const tv = Object.values(turnoutByParty);
-const tMin = Math.min(...tv), tMax = Math.max(...tv);
-const retentionByParty: Record<string, number> = {};
-for (const [p, t] of Object.entries(turnoutByParty)) retentionByParty[p] = RET_LO + (RET_HI - RET_LO) * (t - tMin) / ((tMax - tMin) || 1);
+const turnoutByParty: Record<string, { presidential: number; midterm: number }> = {};
+for (const r of partyPopulation as PopRow[])
+  turnoutByParty[r.party] = { presidential: r.turnoutPresidential / 100, midterm: r.turnoutMidterm / 100 };
 
 const engByParty: Record<string, number> = {};
 for (const c of clusterProfiles as Profile[]) {
@@ -35,7 +30,10 @@ const eMin = Math.min(...ev), eMax = Math.max(...ev);
 const persuadByParty: Record<string, number> = {};
 for (const [p, e] of Object.entries(engByParty)) persuadByParty[p] = 1 - (e - eMin) / ((eMax - eMin) || 1);
 
-export const retention = (p: string) => retentionByParty[p] ?? 0.70;
+export const retention = (p: string, cycle: ElectionCycle = 'midterm') => {
+  const t = turnoutByParty[p];
+  return t ? t[cycle] : 0.60;
+};
 export const persuadability = (p: string) => persuadByParty[p] ?? 0.5;
 
 /**
@@ -44,28 +42,48 @@ export const persuadability = (p: string) => persuadByParty[p] ?? 0.5;
  * is A-side vs B-side — different voters — so the bar and table can mark them apart.
  */
 export interface Faceoff {
-  aPct: number; bPct: number;         // total support for A / B
-  aMobPct: number; bMobPct: number;   // "mobilize": aligned voters who skip midterms
+  aPct: number; bPct: number;         // total support for A / B (full population, sums to 100)
+  aMobPct: number; bMobPct: number;   // dormant subset within each side's total
   aPerPct: number; bPerPct: number;   // "persuadable": near-boundary voters currently leaning A / B
+  aLikelyPct: number; bLikelyPct: number; // likely-voter result (active only, sums to 100)
 }
 
-/** Whole-electorate faceoff from the per-cluster microtarget groups. */
-export function aggregateFaceoff(groups: MicrotargetGroup[]): Faceoff {
-  let aSup = 0, bSup = 0, aMob = 0, bMob = 0, aPer = 0, bPer = 0;
+/** Whole-electorate faceoff from the per-cluster microtarget groups.
+ *  aMobRate/bMobRate (0–1): fraction of each side's unlikely-voter pool that gets mobilized
+ *  (converted from dormant to active). At 0 = baseline turnout. At 1 = every aligned unlikely
+ *  voter shows up. The mobilized voters shift the effective electorate composition — if A
+ *  mobilizes but B doesn't, A gains effective vote share. */
+export function aggregateFaceoff(
+  groups: MicrotargetGroup[],
+  cycle: ElectionCycle = 'midterm',
+  aMobRate = 0,
+  bMobRate = 0,
+): Faceoff {
+  let aLik = 0, bLik = 0, aMob = 0, bMob = 0, aPer = 0, bPer = 0;
   for (const g of groups) {
-    const ret = retention(g.party), per = persuadability(g.party);
-    aSup += g.weight * g.alignment;
-    bSup += g.weight * (1 - g.alignment);
-    aMob += g.weight * g.alignment * (1 - ret);
-    bMob += g.weight * (1 - g.alignment) * (1 - ret);
+    const ret = retention(g.party, cycle), per = persuadability(g.party);
+    const aTotal = g.weight * g.alignment;
+    const bTotal = g.weight * (1 - g.alignment);
+    const aDormant = aTotal * (1 - ret);
+    const bDormant = bTotal * (1 - ret);
+    aLik += (aTotal - aDormant) + aDormant * aMobRate;
+    bLik += (bTotal - bDormant) + bDormant * bMobRate;
+    aMob += aDormant * (1 - aMobRate);
+    bMob += bDormant * (1 - bMobRate);
     aPer += g.contestedA * per;
     bPer += g.contestedB * per;
   }
-  const t = aSup + bSup || 1;
+  const total = aLik + bLik + aMob + bMob || 1;
+  const likelyTotal = aLik + bLik || 1;
   return {
-    aPct: aSup / t * 100, bPct: bSup / t * 100,
-    aMobPct: aMob / t * 100, bMobPct: bMob / t * 100,
-    aPerPct: aPer / t * 100, bPerPct: bPer / t * 100,
+    aPct: (aLik + aMob) / total * 100,
+    bPct: (bLik + bMob) / total * 100,
+    aMobPct: aMob / total * 100,
+    bMobPct: bMob / total * 100,
+    aPerPct: aPer / total * 100,
+    bPerPct: bPer / total * 100,
+    aLikelyPct: aLik / likelyTotal * 100,
+    bLikelyPct: bLik / likelyTotal * 100,
   };
 }
 
@@ -87,19 +105,29 @@ export function carve(f: Faceoff): Carved {
 export interface ClusterFaceoff extends Faceoff { party: string; weight: number; }
 
 /** Per contributing cluster, its internal A/B split (0–100 within the cluster) + mobilize + persuade. */
-export function perClusterFaceoff(groups: MicrotargetGroup[]): ClusterFaceoff[] {
+export function perClusterFaceoff(
+  groups: MicrotargetGroup[],
+  cycle: ElectionCycle = 'midterm',
+  aMobRate = 0,
+  bMobRate = 0,
+): ClusterFaceoff[] {
   return groups
     .filter(g => g.weight >= 0.005)
     .map(g => {
-      const ret = retention(g.party), per = persuadability(g.party);
+      const ret = retention(g.party, cycle), per = persuadability(g.party);
       const w = g.weight || 1;
+      const aDorm = g.alignment * (1 - ret);
+      const bDorm = (1 - g.alignment) * (1 - ret);
+      const aAct = (g.alignment - aDorm) + aDorm * aMobRate;
+      const bAct = ((1 - g.alignment) - bDorm) + bDorm * bMobRate;
+      const total = aAct + bAct || 1;
       return {
         party: g.party,
         weight: g.weight,
-        aPct: g.alignment * 100,
-        bPct: (1 - g.alignment) * 100,
-        aMobPct: g.alignment * (1 - ret) * 100,
-        bMobPct: (1 - g.alignment) * (1 - ret) * 100,
+        aPct: aAct / total * 100,
+        bPct: bAct / total * 100,
+        aMobPct: aDorm * (1 - aMobRate) / total * 100,
+        bMobPct: bDorm * (1 - bMobRate) / total * 100,
         aPerPct: Math.min(1, (g.contestedA / w) * per) * 100,
         bPerPct: Math.min(1, (g.contestedB / w) * per) * 100,
       };
