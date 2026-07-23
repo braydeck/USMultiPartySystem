@@ -1,0 +1,46 @@
+construct_id,domain,factor_2024,recode,var_2018,var_2020,var_2022,var_2024,cov_2018,cov_2020,cov_2022,cov_2024,note
+relig_church,Religion,F4,CHURCH6,pew_churatd,pew_churatd,pew_churatd,pew_churatd,exact,exact,exact,exact,Pew church attendance; recode by label (Never=1..>weekly=6)
+econ_income,Econ,econ,INCOME5,CC18_302,CC20_303,CC22_303,CC24_302,exact,exact,exact,exact,Past-year household income change; 5-pt
+econ_price,Econ,econ,PRICE5,,,CC22_304,CC24_303,absent,absent,exact,exact,Perceived price change (inflation); 2018/2020 have no inflation item
+imm_legalstatus,Immigration,F5,SO_hi_oppose,CC18_322b,CC20_331a,CC22_331a,CC24_323a,equivalent,exact,exact,exact,Grant legal status; 2018 = children of immigrants (narrower)
+imm_border,Immigration,F1,SO_hi_support,CC18_322a,CC20_331b,CC22_331b,CC24_323b,equivalent,exact,exact,exact,Border enforcement; 2018 = $25B border security (no patrols item)
+imm_dreamers,Immigration,F5,SO_hi_oppose,CC18_322d_new,CC20_350e,,CC24_323d,weak,equivalent,absent,exact,DACA/Dreamers; 2018 compound (DACA+wall); 2022 absent
+imm_reducelegal,Immigration,F5,SO_hi_support,CC18_322c_new,CC20_331d,CC22_331c,,exact,exact,exact,absent,Reduce legal immigration 50%; not in 2024 24-item set (native-only)
+gun_concealcarry,Guns,F1,SO_hi_support,CC18_320d,CC20_330c,CC22_330c,CC24_321b,exact,exact,exact,exact,Easier concealed carry; 2018 For/Against labels
+gun_assaultban,Guns,F1,SO_hi_oppose,CC18_320c,CC20_330b,CC22_330b,,exact,exact,exact,absent,Ban assault rifles; not in 2024 24-item set (native-only)
+gun_bgchecks,Guns,F1,SO_hi_oppose,CC18_320a,CC20_330a,CC22_330e,,exact,equivalent,exact,absent,Background checks; not in 2024 set (native-only)
+police_increase,Policing,F1,SO_hi_support,,CC20_334c,CC22_334c,CC24_321d,absent,exact,exact,exact,Increase police 10%; 2020+2022+2024 (missed 2022 in original crosswalk)
+police_decrease,Policing,F1,SO_hi_oppose,,CC20_334d,CC22_334d,CC24_321e,absent,exact,exact,exact,Decrease police 10%; 2020+2022+2024 (missed 2022 in original crosswalk)
+abortion_rapeincest,Abortion,F4,SO_hi_support,CC18_321b,CC20_332b,CC22_332b,CC24_324b,exact,exact,exact,exact,Permit abortion only rape/incest/life; clean binary all waves
+abortion_20wk,Abortion,F4,SO_hi_support,CC18_321c,CC20_332c,CC22_332c,,exact,exact,exact,absent,Prohibit abortion after 20 wks; 2024 uses numeric weeks (native-only)
+abortion_alwaysallow,Abortion,F4,SO_hi_oppose,CC18_321a,CC20_332a,CC22_332a,,exact,exact,exact,absent,Always allow abortion; not in 2024 24-item set (native-only)
+abortion_employer,Abortion,F4,SO_hi_support,CC18_321d,CC20_332d,CC22_332d,,exact,exact,exact,absent,Employers decline abortion coverage; native-only
+abortion_illegalall,Abortion,F4,SO_hi_support,CC18_321f,CC20_332f,CC22_332f,,exact,exact,exact,absent,Make abortion illegal all cases (floor); native-only
+race_problemsrare,Racial,F5,AGREE5_hi_agree,CC18_422b,CC20_440b,CC22_440b,CC24_440b,exact,exact,exact,exact,Racial problems rare/isolated; 5-pt agree; clean all waves
+race_whiteadv,Racial,F5,AGREE5_hi_disagree,CC18_422a,CC20_440a,CC22_440a,CC24_440a,exact,exact,exact,exact,White people have advantages; present ALL waves (dropped from 2024 typology for collinearity; still in data)
+race_workedup,Racial,F5,AGREE5_hi_agree,CC18_422e,CC20_441a,CC22_441a,CC24_441a,exact,exact,exact,exact,Racial resentment: other minorities worked their way up; all waves (2018=422e)
+race_slavery,Racial,F5,AGREE5_hi_disagree,CC18_422f,CC20_441b,CC22_441b,CC24_441b,exact,exact,exact,exact,Racial resentment: slavery created conditions (reverse); all waves (2018=422f)
+race_lessdeserve,Racial,F5,AGREE5_hi_disagree,CC18_422g,,,,exact,absent,absent,absent,Blacks gotten less than deserve (2018 classic RR battery; native-only)
+race_tryharder,Racial,F5,AGREE5_hi_agree,CC18_422h,,,,exact,absent,absent,absent,Blacks should try harder (2018 classic RR battery; native-only)
+race_privdeny,Racial,F5,AGREE5_hi_disagree,,CC20_441e,CC22_441e,CC24_441e,absent,exact,exact,exact,Resent whites denying white privilege (reverse); 2020+ battery (native-only pre-common)
+race_privgetaway,Racial,F5,AGREE5_hi_disagree,,CC20_441f,CC22_441f,CC24_441f,absent,exact,exact,exact,Whites get away with offenses (reverse); 2020+ battery
+race_privlengths,Racial,F5,AGREE5_hi_disagree,,CC20_441g,CC22_441g,CC24_441g,absent,exact,exact,exact,Whites dont try to understand (reverse); 2020+ battery
+gender_womenpower,Gender,F5,AGREE5_hi_agree,,CC20_440c,CC22_440c,CC24_440c,absent,exact,exact,exact,Women seek power over men; 2018 has different sexism items
+spend_welfare,Spending,econ,SPEND5_cut,CC18_426_1,CC20_443_1,CC22_443_1,CC24_443_1,exact,exact,exact,exact,State spending welfare (cut=conservative); all waves (2018=426)
+spend_health,Spending,econ,SPEND5_cut,CC18_426_2,CC20_443_2,CC22_443_2,CC24_443_2,exact,exact,exact,exact,State spending health (cut=conservative); all waves
+spend_education,Spending,econ,SPEND5_cut,CC18_426_3,CC20_443_3,CC22_443_3,CC24_443_3,exact,exact,exact,exact,State spending education (cut=conservative); all waves
+spend_lawenforce,Spending,F1,SPEND5_raise,CC18_426_4,CC20_443_4,CC22_443_4,CC24_443_4,exact,exact,exact,exact,State spending law enforcement (raise=conservative/order); all waves
+spend_transport,Spending,econ,SPEND5_cut,CC18_426_5,CC20_443_5,CC22_443_5,CC24_443_5,exact,exact,exact,exact,State spending transportation (cut=conservative); all waves
+trust_fed,GovtTrust,F2F3,GOVT4,,,CC22_423,CC24_423,absent,absent,exact,exact,Trust in federal govt; 2018/2020 absent
+trust_state,GovtTrust,F2F3,GOVT4,,,CC22_424,CC24_424,absent,absent,exact,exact,Trust in state govt; 2018/2020 absent
+elect_fair_us,ElectTrust,F2,ELEC5,,,,CC24_421_1,absent,absent,absent,exact,US elections are fair; 2024-only (F2 signature; verified absent all prior common content)
+elect_fair_state,ElectTrust,F2,ELEC5,,,,CC24_421_2,absent,absent,absent,exact,State election fair; 2024-only (F2 signature)
+civ_samesex,CivRights,F4,SO_hi_oppose,,,,CC24_340c,absent,absent,absent,exact,Require same-sex marriage; verified absent prior common content
+civ_surveillance,CivRights,F1,SO_hi_support,,,,CC24_340e,absent,absent,absent,exact,Renew post-9/11 surveillance; verified absent prior common content
+civ_asylum,CivRights,F1,SO_hi_support,,,,CC24_340f,absent,absent,absent,exact,Deny asylum at border; 2024-only in this battery
+civ_abortionrestrict,CivRights,F4,SO_hi_oppose,,,,CC24_340b,absent,absent,absent,exact,Prohibit abortion service restrictions; 2024-only in this battery
+tax_extendcuts,Tax,econ,SO_hi_support,,,,CC24_341a,absent,absent,absent,exact,Extend 2017 tax cuts; 2024-only framing
+tax_topratesrise,Tax,econ,SO_hi_oppose,,,,CC24_341c,absent,absent,absent,exact,Allow $400k+ tax rates rise; 2024-only
+tax_infra,Tax,econ,SO_hi_oppose,,,,CC24_341d,absent,absent,absent,exact,Infrastructure spending; 2024-only
+tax18_corp,Tax,econ,SO_hi_support,CC18_325a,,,,exact,absent,absent,absent,Cut corporate tax rate (2018 TCJA battery; native-only)
+tax18_richcut,Tax,econ,SO_hi_support,CC18_325f_new,,,,exact,absent,absent,absent,Cut income tax for high earners (2018; native-only)

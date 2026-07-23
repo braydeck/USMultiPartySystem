@@ -1,0 +1,54 @@
+INDEPENDENT FIT: 2018 (midterm)
+items screened: 37  surviving: 36
+listwise N = 45,227  weighted N = 45,033
+parallel analysis -> k = 5  (fit uses k=4)
+
+factor SS-loadings / %var:
+  F1  SS=7.044  19.6%
+  F2  SS=3.611  10.0%
+  F3  SS=1.996  5.5%
+  F4  SS=3.579  9.9%
+
+anchor->factor: {'enf': None, 'rel': 1, 'val': 0}
+effective clusters: 10
+
+ITEM SCREENING:
+construct_id                   domain       N_valid  PID_R2 max_pct    verdict
+--------------------------------------------------------------------------------
+relig_church                   Religion      58,844   0.051   30.7%       KEEP
+econ_income                    Economic      59,878   0.055   49.1%       KEEP
+imm_border25b                  Immigration   59,685   0.333   59.2%       KEEP
+imm_legalstatus                Immigration   59,860   0.106   75.2%       KEEP
+imm_sanctuary                  Immigration   59,945   0.244   53.6%       KEEP
+imm_reducelegal                Immigration   58,666   0.164   57.8%       KEEP
+imm_dacawall                   Immigration   58,656   0.067   66.6%       KEEP
+imm_deportprison               Immigration   59,929   0.151   51.8%       KEEP
+gun_bgchecks                   Guns          59,717   0.035   90.4%  DROP:CEIL
+gun_assaultban                 Guns          59,564   0.155   65.6%       KEEP
+gun_concealcarry               Guns          59,590   0.133   65.5%       KEEP
+abortion_alwaysallow           Abortion      59,901   0.185   59.7%       KEEP
+abortion_rapeincest            Abortion      59,898   0.056   59.4%       KEEP
+abortion_20wk                  Abortion      59,914   0.101   63.9%       KEEP
+abortion_employer              Abortion      59,937   0.185   56.6%       KEEP
+abortion_funding               Abortion      59,931   0.194   56.1%       KEEP
+abortion_illegalall            Abortion      59,909   0.044   84.6%       KEEP
+race_whiteadv                  Racial        51,778   0.247   29.3%       KEEP
+race_problemsrare              Racial        50,144   0.138   38.7%       KEEP
+gender_sexismcomp              Racial        51,539   0.134   27.7%       KEEP
+gender_feministsreasonable     Racial        51,400   0.177   21.9%       KEEP
+race_workedup                  Racial        51,650   0.219   30.1%       KEEP
+race_slavery                   Racial        51,698   0.225   23.3%       KEEP
+race_lessdeserve               Racial        51,641   0.238   23.9%       KEEP
+race_tryharder                 Racial        51,659   0.185   25.5%       KEEP
+spend_welfare                  Spending      51,689   0.181   36.5%       KEEP
+spend_health                   Spending      51,670   0.146   38.4%       KEEP
+spend_education                Spending      51,647   0.094   42.4%       KEEP
+spend_lawenforce               Spending      51,620   0.047   35.7%       KEEP
+spend_transport                Spending      51,636   0.027   36.8%       KEEP
+tax_corprate                   Tax           59,819   0.164   54.4%       KEEP
+tax_richcut                    Tax           58,625   0.091   59.5%       KEEP
+exec_cleanpower                Executive     51,614   0.135   59.5%       KEEP
+exec_iran                      Executive     51,612   0.227   53.0%       KEEP
+exec_travelban                 Executive     51,633   0.263   50.3%       KEEP
+exec_transban                  Executive     51,574   0.218   66.7%       KEEP
+exec_twoforone                 Executive     51,571   0.199   52.8%       KEEP

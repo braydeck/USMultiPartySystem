@@ -1,0 +1,10 @@
+WAVE 2024  fit=common  (presidential)
+items=10  listwise N=48,023  weighted N=47,882
+parallel analysis -> k=1   (fit uses k=2)
+
+factor SS-loadings / %var:
+  F1  SS=3.608  36.1%
+  F2  SS=0.730  7.3%
+
+anchor->factor: {'enf': 1, 'rel': 1, 'val': 0}
+effective clusters: 10

@@ -1,0 +1,10 @@
+WAVE 2020  fit=common  (presidential)
+items=10  listwise N=49,272  weighted N=48,821
+parallel analysis -> k=1   (fit uses k=2)
+
+factor SS-loadings / %var:
+  F1  SS=4.244  42.4%
+  F2  SS=0.438  4.4%
+
+anchor->factor: {'enf': 0, 'rel': 1, 'val': 0}
+effective clusters: 10

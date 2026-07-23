@@ -36,3 +36,7 @@ quiz_key_positions_review.md
 
 # Personal drafts, outreach notes, and local-only working files
 UNTRACKED/
+
+# Cross-wave analysis: large regenerable fit intermediates (CSV/md outputs tracked)
+analysis/efa/previous_years/outputs/*/fit_results.pkl
+analysis/efa/previous_years/outputs/*/independent_fit.pkl

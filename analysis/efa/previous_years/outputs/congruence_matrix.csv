@@ -1,0 +1,13 @@
+comparison,wave,kind,ref_factor,matched_factor,tucker_phi,replication
+k1_dominant,2018,midterm,dom,dom,0.9433,fair
+k1_dominant,2020,presidential,dom,dom,0.9609,identical
+k1_dominant,2022,midterm,dom,dom,0.9984,identical
+k1_dominant,2024,presidential,dom,dom,1.0,identical
+k2_rotated,2018,midterm,F1,F1,0.211,did-not-replicate
+k2_rotated,2018,midterm,F2,F2,0.244,did-not-replicate
+k2_rotated,2020,presidential,F1,F1,0.9622,identical
+k2_rotated,2020,presidential,F2,F2,0.9075,fair
+k2_rotated,2022,midterm,F1,F1,0.9985,identical
+k2_rotated,2022,midterm,F2,F2,0.9856,identical
+k2_rotated,2024,presidential,F1,F1,1.0,identical
+k2_rotated,2024,presidential,F2,F2,1.0,identical

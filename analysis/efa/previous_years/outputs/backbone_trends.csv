@@ -1,0 +1,5 @@
+wave,kind,dem_mean_z,ind_mean_z,rep_mean_z,rep_minus_dem_sd
+2018,midterm,-0.725,0.043,0.86,1.585
+2020,presidential,-0.749,0.071,0.825,1.574
+2022,midterm,-0.722,0.091,0.792,1.514
+2024,presidential,-0.77,0.075,0.779,1.549

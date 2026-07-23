@@ -1,0 +1,13 @@
+WAVE 2022  fit=native  (midterm)
+items=29  listwise N=12,264  weighted N=14,495
+parallel analysis -> k=6   (fit uses k=5)
+
+factor SS-loadings / %var:
+  F1  SS=4.340  15.0%
+  F2  SS=2.307  8.0%
+  F3  SS=1.832  6.3%
+  F4  SS=3.352  11.6%
+  F5  SS=1.333  4.6%
+
+anchor->factor: {'enf': 3, 'rel': 3, 'val': 0}
+effective clusters: 10

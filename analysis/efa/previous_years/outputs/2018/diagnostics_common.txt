@@ -1,0 +1,10 @@
+WAVE 2018  fit=common  (midterm)
+items=10  listwise N=48,009  weighted N=47,743
+parallel analysis -> k=2   (fit uses k=2)
+
+factor SS-loadings / %var:
+  F1  SS=1.938  19.4%
+  F2  SS=2.450  24.5%
+
+anchor->factor: {'enf': 1, 'rel': 1, 'val': 1}
+effective clusters: 10

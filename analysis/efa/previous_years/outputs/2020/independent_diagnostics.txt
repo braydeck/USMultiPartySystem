@@ -1,0 +1,57 @@
+INDEPENDENT FIT: 2020 (presidential)
+items screened: 40  surviving: 39
+listwise N = 48,033  weighted N = 47,507
+parallel analysis -> k = 6  (fit uses k=4)
+
+factor SS-loadings / %var:
+  F1  SS=5.309  13.6%
+  F2  SS=2.067  5.3%
+  F3  SS=4.128  10.6%
+  F4  SS=4.015  10.3%
+
+anchor->factor: {'enf': 0, 'rel': 3, 'val': 0}
+effective clusters: 10
+
+ITEM SCREENING:
+construct_id                   domain       N_valid  PID_R2 max_pct    verdict
+--------------------------------------------------------------------------------
+relig_church                   Religion      59,673   0.047   33.9%       KEEP
+econ_income                    Economic      60,910   0.039   51.3%       KEEP
+imm_legalstatus                Immigration   60,944   0.133   71.0%       KEEP
+imm_border                     Immigration   60,952   0.193   57.9%       KEEP
+imm_sanctuary                  Immigration   60,953   0.163   57.5%       KEEP
+imm_reducelegal                Immigration   60,924   0.140   62.7%       KEEP
+imm_border25b                  Immigration   60,946   0.312   60.8%       KEEP
+gun_registry                   Guns          60,985   0.070   53.9%       KEEP
+gun_assaultban                 Guns          60,986   0.184   64.3%       KEEP
+gun_concealcarry               Guns          60,984   0.134   64.2%       KEEP
+police_mandatorymin            Policing      60,984   0.062   72.4%       KEEP
+police_bodycams                Policing      60,985   0.013   92.1%  DROP:CEIL
+police_increase                Policing      60,981   0.137   55.4%       KEEP
+police_decrease                Policing      60,974   0.142   58.6%       KEEP
+police_chokeholds              Policing      60,974   0.106   76.5%       KEEP
+police_registry                Policing      60,976   0.067   81.3%       KEEP
+police_enddod                  Policing      60,980   0.156   50.8%       KEEP
+police_civilsuits              Policing      60,974   0.096   77.8%       KEEP
+abortion_alwaysallow           Abortion      60,982   0.201   61.1%       KEEP
+abortion_rapeincest            Abortion      60,979   0.058   57.5%       KEEP
+abortion_20wk                  Abortion      60,976   0.116   55.7%       KEEP
+abortion_employer              Abortion      60,980   0.191   60.3%       KEEP
+abortion_funding               Abortion      60,982   0.198   58.6%       KEEP
+abortion_illegalall            Abortion      60,972   0.048   84.0%       KEEP
+abortion_statereqs             Abortion      60,971   0.001   60.5%       KEEP
+race_whiteadv                  Racial        51,522   0.295   34.9%       KEEP
+race_problemsrare              Racial        50,280   0.201   39.0%       KEEP
+gender_womenpower              Racial        51,286   0.094   35.5%       KEEP
+gender_womenoffended           Racial        51,279   0.143   27.7%       KEEP
+race_workedup                  Racial        51,516   0.258   26.6%       KEEP
+race_slavery                   Racial        51,511   0.274   29.9%       KEEP
+spend_welfare                  Spending      51,547   0.171   37.1%       KEEP
+spend_health                   Spending      51,547   0.162   41.4%       KEEP
+spend_education                Spending      51,546   0.110   40.2%       KEEP
+spend_lawenforce               Spending      51,547   0.126   33.0%       KEEP
+spend_transport                Spending      51,537   0.026   33.9%       KEEP
+exec_paris                     Executive     60,568   0.245   63.3%       KEEP
+exec_cleanpower                Executive     60,622   0.080   62.6%       KEEP
+exec_transban                  Executive     60,621   0.178   70.1%       KEEP
+exec_workreqs                  Executive     60,697   0.105   61.3%       KEEP

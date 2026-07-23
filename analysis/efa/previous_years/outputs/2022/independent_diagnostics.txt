@@ -1,0 +1,61 @@
+INDEPENDENT FIT: 2022 (midterm)
+items screened: 41  surviving: 41
+listwise N = 48,095  weighted N = 47,861
+parallel analysis -> k = 7  (fit uses k=7)
+
+factor SS-loadings / %var:
+  F1  SS=2.614  6.4%
+  F2  SS=2.299  5.6%
+  F3  SS=3.350  8.2%
+  F4  SS=2.680  6.5%
+  F5  SS=1.943  4.7%
+  F6  SS=1.901  4.6%
+  F7  SS=2.321  5.7%
+
+anchor->factor: {'enf': 1, 'rel': 2, 'val': 4}
+effective clusters: 10
+
+ITEM SCREENING:
+construct_id                   domain       N_valid  PID_R2 max_pct    verdict
+--------------------------------------------------------------------------------
+relig_church                   Religion      58,743   0.047   35.5%       KEEP
+econ_income                    Economic      59,904   0.036   50.1%       KEEP
+econ_price                     Economic      59,869   0.036   68.4%       KEEP
+imm_legalstatus                Immigration   59,963   0.136   69.8%       KEEP
+imm_border                     Immigration   59,967   0.126   69.1%       KEEP
+imm_reducelegal                Immigration   59,960   0.098   58.4%       KEEP
+imm_border25b                  Immigration   59,968   0.260   54.2%       KEEP
+gun_registry                   Guns          59,995   0.097   55.8%       KEEP
+gun_assaultban                 Guns          59,996   0.187   63.7%       KEEP
+gun_concealcarry               Guns          59,996   0.138   61.8%       KEEP
+gun_redflag                    Guns          59,997   0.183   61.5%       KEEP
+gun_bgchecks                   Guns          59,997   0.034   89.5%       KEEP
+gun_teacherscarry              Guns          59,999   0.183   54.8%       KEEP
+abortion_alwaysallow           Abortion      59,958   0.203   63.7%       KEEP
+abortion_rapeincest            Abortion      59,949   0.061   50.7%       KEEP
+abortion_20wk                  Abortion      59,962   0.136   50.7%       KEEP
+abortion_employer              Abortion      59,971   0.169   62.4%       KEEP
+abortion_funding               Abortion      59,965   0.187   59.9%       KEEP
+abortion_illegalall            Abortion      59,958   0.032   85.3%       KEEP
+race_whiteadv                  Racial        50,727   0.268   31.3%       KEEP
+race_problemsrare              Racial        50,082   0.156   35.4%       KEEP
+gender_womenpower              Racial        50,731   0.074   34.4%       KEEP
+gender_womenoffended           Racial        50,739   0.126   27.8%       KEEP
+race_workedup                  Racial        50,933   0.230   26.1%       KEEP
+race_slavery                   Racial        50,928   0.247   26.7%       KEEP
+spend_welfare                  Spending      50,953   0.146   36.4%       KEEP
+spend_health                   Spending      50,969   0.127   39.2%       KEEP
+spend_education                Spending      50,966   0.082   40.1%       KEEP
+spend_lawenforce               Spending      50,959   0.093   30.6%       KEEP
+spend_transport                Spending      50,969   0.036   35.2%       KEEP
+health_singlepayer             Health        59,993   0.209   69.3%       KEEP
+health_drugnegotiate           Health        59,995   0.047   87.4%       KEEP
+health_acarepeal               Health        59,992   0.180   57.1%       KEEP
+health_drugimport              Health        59,969   0.011   71.7%       KEEP
+env_eparegulate                Environment   59,992   0.195   68.8%       KEEP
+env_renewables                 Environment   59,993   0.181   63.8%       KEEP
+env_epaenforce                 Environment   59,995   0.208   60.9%       KEEP
+env_fuelefficiency             Environment   59,996   0.087   68.0%       KEEP
+env_fossilfuel                 Environment   59,992   0.109   60.8%       KEEP
+trust_fed                      GovtTrust     50,936   0.173   40.1%       KEEP
+trust_state                    GovtTrust     50,848   0.040   36.8%       KEEP
