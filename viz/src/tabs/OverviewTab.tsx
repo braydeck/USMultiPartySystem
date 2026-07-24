@@ -145,6 +145,9 @@ export function OverviewTab({
         <DiveCard label="Dive into the Senate →" onClick={() => onNavigate('senate')} />
       </div>
 
+      {/* Party profiles — blurbs + factor bars */}
+      <PartyProfileGrid clusters={orderedClusters} />
+
       {/* Section 3 — State disproportionality callouts */}
       <div>
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">FPTP Disproportionality — State Examples</h3>
@@ -204,10 +207,7 @@ export function OverviewTab({
         />
       </Card>
 
-      {/* Section 6 — Party profiles */}
-      <PartyProfileGrid clusters={orderedClusters} />
-
-      {/* Section 7 — Turnout robustness + voter-file verification (grouped at the bottom) */}
+      {/* Turnout robustness + voter-file verification (grouped at the bottom) */}
       <TurnoutRobustnessCard />
       <TurnoutVerificationCard />
     </div>
