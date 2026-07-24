@@ -428,15 +428,6 @@ export function AboutTab() {
             })}
           </div>
 
-          <Card className="p-4 bg-amber-50 border-amber-200">
-            <div className="text-xs font-semibold text-amber-800 mb-1">The 10th party: Order &amp; Opportunity</div>
-            <p className="text-sm text-amber-700 leading-relaxed">
-              The DPGMM produces 10 clusters. Cluster 7 was originally set aside as ambiguous, but it&apos;s a
-              real, cross-cutting bloc (law-and-order on security paired with economic progressivism) that
-              doesn&apos;t sit cleanly on the left-right axis. It runs as the Order &amp; Opportunity Party (OAO), a
-              small but distinct force, so all 10 clusters are active.
-            </p>
-          </Card>
         </div>
       )}
 
