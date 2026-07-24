@@ -61,8 +61,7 @@ export function PopulationBreakdown() {
       </div>
 
       <p className="text-xs text-muted-foreground mt-2">
-        Share of adults (top) vs share of people who actually voted in 2024 (bottom). The gap is the turnout
-        distortion: Solidarity falls from 14% of adults to 8% of voters, while high-turnout blocs grow.
+        Share of adults (top) vs share of people who actually voted in 2024 (bottom).
       </p>
     </Card>
   );

@@ -102,27 +102,33 @@ export function OverviewTab({
         </p>
       </div>
 
-      {/* Read the analysis — links to the Substack series */}
-      <div className="flex flex-wrap gap-2">
-        <a href="https://braydendecker.substack.com/p/the-problem-an-electoral-system-engineered"
-          target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
-          <span className="text-muted-foreground">1.</span> The Problem
-        </a>
-        <a href="https://braydendecker.substack.com/p/the-solution-give-everyone-a-voice"
-          target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
-          <span className="text-muted-foreground">2.</span> The Solution
-        </a>
-        <a href="https://braydendecker.substack.com/p/the-simulation-a-multiparty-america"
-          target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
-          <span className="text-muted-foreground">3.</span> The Simulation
-        </a>
-      </div>
-
       {/* Section 0 — Population breakdown */}
       <PopulationBreakdown />
+
+      {/* Read the argument — links to the Substack series */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Read the argument</h3>
+        <div className="grid sm:grid-cols-3 gap-3">
+          <a href="https://braydendecker.substack.com/p/the-problem-an-electoral-system-engineered"
+            target="_blank" rel="noopener noreferrer"
+            className="rounded-md border border-border bg-card p-3 hover:bg-muted transition-colors">
+            <div className="text-sm font-semibold text-foreground">The Problem</div>
+            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">Mutual contempt and polarization are downstream of a Winner-Take-All electoral system.</p>
+          </a>
+          <a href="https://braydendecker.substack.com/p/the-solution-give-everyone-a-voice"
+            target="_blank" rel="noopener noreferrer"
+            className="rounded-md border border-border bg-card p-3 hover:bg-muted transition-colors">
+            <div className="text-sm font-semibold text-foreground">The Solution</div>
+            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">A proportional House, consensus single-winner elections, an open national primary, and public financing.</p>
+          </a>
+          <a href="https://braydendecker.substack.com/p/the-simulation-a-multiparty-america"
+            target="_blank" rel="noopener noreferrer"
+            className="rounded-md border border-border bg-card p-3 hover:bg-muted transition-colors">
+            <div className="text-sm font-semibold text-foreground">The Simulation</div>
+            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">A description of this multiparty democracy simulation.</p>
+          </a>
+        </div>
+      </div>
 
       {/* Section 1 — House FPTP vs STV */}
       <Card className="p-5 border-2 border-indigo-200">
