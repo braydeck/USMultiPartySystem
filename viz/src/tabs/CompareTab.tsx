@@ -7,6 +7,7 @@ import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
+import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { RangeBarCell, CompositionStackCell, HeatmapCell, FactorTags, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
 import { SignatureHeatmap, type HeatRow } from '../components/shared/SignatureHeatmap';
 import { PartyRowLabel, SigTag, PartyCode, type RowMark } from '../components/shared/PartyRowLabel';
@@ -597,6 +598,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   // Selection lives in the URL (?cmp=STY,SD,DSA) so it is deep-linkable (e.g. from the quiz).
   // Selection + filters are also persisted to localStorage and restored on return, since
   // tab navigation clears the query string.
+  const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
+  const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const saved = useMemo(loadSavedCompare, []);
   const [cmp, setCmp] = useUrlState<string>('cmp', '', { push: false });
   const selected = useMemo(() => (cmp ? cmp.split(',').filter(Boolean) : []), [cmp]);
@@ -886,6 +889,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
       {/* Population distribution — share of adults vs share of voters, its own row. */}
       <PopulationBreakdown />
+
+      {/* Party profile cards — blurb + factor bars for each party */}
+      <PartyProfileGrid clusters={orderedClusters} />
 
       {/* Party selector + signature filter — sticky so both can be adjusted while scrolling
           the (long, annotated) list. On mobile it condenses to a summary strip once scrolled;
