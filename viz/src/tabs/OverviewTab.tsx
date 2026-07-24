@@ -102,6 +102,25 @@ export function OverviewTab({
         </p>
       </div>
 
+      {/* Read the analysis — links to the Substack series */}
+      <div className="flex flex-wrap gap-2">
+        <a href="https://braydendecker.substack.com/p/the-problem-an-electoral-system-engineered"
+          target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+          <span className="text-muted-foreground">1.</span> The Problem
+        </a>
+        <a href="https://braydendecker.substack.com/p/the-solution-give-everyone-a-voice"
+          target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+          <span className="text-muted-foreground">2.</span> The Solution
+        </a>
+        <a href="https://braydendecker.substack.com/p/the-simulation-a-multiparty-america"
+          target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+          <span className="text-muted-foreground">3.</span> The Simulation
+        </a>
+      </div>
+
       {/* Section 0 — Population breakdown */}
       <PopulationBreakdown />
 

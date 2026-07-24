@@ -201,6 +201,12 @@ export default function App() {
               className={navTabClass(tab === ABOUT_TAB.id)}>
               {ABOUT_TAB.label}
             </StateLink>
+
+            <div className="flex-1" />
+            <a href="https://brayden-decker-contact.pages.dev/" target="_blank" rel="noopener noreferrer"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5">
+              Contact ↗
+            </a>
           </div>
 
           {/* Mobile: hamburger menu */}
@@ -258,6 +264,10 @@ export default function App() {
                 >
                   {ABOUT_TAB.label}
                 </StateLink>
+                <a href="https://brayden-decker-contact.pages.dev/" target="_blank" rel="noopener noreferrer"
+                  className="text-left px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors border-t border-border/50">
+                  Contact ↗
+                </a>
               </div>
             )}
           </div>
