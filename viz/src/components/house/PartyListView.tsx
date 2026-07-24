@@ -150,9 +150,6 @@ export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
           <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
           <Stat label="STV" value={nat.unrepresented.stv} tone="best" />
         </div>
-        <p className="text-[11px] text-muted-foreground mt-3">
-          STV passes your vote to your next choice when your first loses. A list can't. Today's number is the real 2024 House.
-        </p>
       </Card>
 
       {/* Over-quota surplus */}
@@ -161,7 +158,7 @@ export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
           Over-quota surplus
         </h3>
         <p className="text-xs text-muted-foreground mb-4">
-          Votes above what a winner needed. Today's House and party lists strand them; STV passes them on.
+          Votes above what a winner needed.
         </p>
         <div className="grid grid-cols-3 gap-2">
           <Stat label="Today's House" value={CURRENT_SURPLUS} tone="worst" note="2024" />

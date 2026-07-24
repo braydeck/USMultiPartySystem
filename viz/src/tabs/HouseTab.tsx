@@ -379,9 +379,6 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             Seats won below quota{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
           </h3>
-          <p className="text-xs text-muted-foreground mb-4">
-            STV seats filled without reaching the quota — the field collapsed because ballots ran out of ranked choices. Deeper ballots reduce it.
-          </p>
           <div className="grid grid-cols-2 gap-2 max-w-md">
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
               <div className="text-[11px] text-muted-foreground">Ballots ranked {DEPTH_LABELS[depth].toLowerCase()}</div>
