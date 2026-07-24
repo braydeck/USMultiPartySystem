@@ -2,8 +2,8 @@ import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, getContrastText } from '../../constants/parties';
 import partyPopData from '../../data/partyPopulation.json';
 
-type Row = { party: string; popShare: number; voteShare: number; turnout: number };
-const DATA = partyPopData as Row[];
+type Row = { party: string; popShare: number; voteShare: number; turnoutPresidential: number; turnoutMidterm: number };
+const DATA = partyPopData as unknown as Row[];
 
 const oidx = (p: string) => F5_ORDER.indexOf(p as typeof F5_ORDER[number]);
 const ORDER = [...DATA].sort((a, b) => oidx(a.party) - oidx(b.party));

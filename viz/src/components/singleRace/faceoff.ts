@@ -121,6 +121,7 @@ export function perClusterFaceoff(
       const aAct = (g.alignment - aDorm) + aDorm * aMobRate;
       const bAct = ((1 - g.alignment) - bDorm) + bDorm * bMobRate;
       const total = aAct + bAct || 1;
+      const likelyTotal = aAct + bAct || 1;
       return {
         party: g.party,
         weight: g.weight,
@@ -130,6 +131,8 @@ export function perClusterFaceoff(
         bMobPct: bDorm * (1 - bMobRate) / total * 100,
         aPerPct: Math.min(1, (g.contestedA / w) * per) * 100,
         bPerPct: Math.min(1, (g.contestedB / w) * per) * 100,
+        aLikelyPct: aAct / likelyTotal * 100,
+        bLikelyPct: bAct / likelyTotal * 100,
       };
     })
     .sort((a, b) => b.weight - a.weight);

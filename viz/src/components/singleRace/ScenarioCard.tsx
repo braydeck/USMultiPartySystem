@@ -43,7 +43,7 @@ const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 
 export function ScenarioCard(props: Props) {
   const { index, candidates, partyOrder, aCode, bCode, aCand, bCand, aColor, bColor,
-    office, cycle, raceLabel, h2h, ec, groups, coalitionLabel, canRemove, onChangeA, onChangeB, onRemove } = props;
+    office, cycle, raceLabel, h2h, ec, groups, coalitionLabel: _coalitionLabel, canRemove, onChangeA, onChangeB, onRemove } = props;
 
   const [aMobRate, setAMobRate] = useState(0);
   const [bMobRate, setBMobRate] = useState(0);

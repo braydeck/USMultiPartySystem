@@ -1,8 +1,8 @@
 import partyPopData from '../data/partyPopulation.json';
 
-type Row = { party: string; popShare: number; voteShare: number; turnout: number };
+type Row = { party: string; popShare: number; voteShare: number; turnoutPresidential: number; turnoutMidterm: number };
 const BY_CODE: Record<string, Row> = Object.fromEntries(
-  (partyPopData as Row[]).map(r => [r.party, r]),
+  (partyPopData as unknown as Row[]).map(r => [r.party, r]),
 );
 
 /** Share of the adult population belonging to a party's cluster (0–100). */
