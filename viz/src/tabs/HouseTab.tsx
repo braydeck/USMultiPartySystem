@@ -392,6 +392,53 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
         </Card>
       )}
 
+      {/* Voters left unrepresented + over-quota surplus (mirrored from party-list view) */}
+      {scenario === 'rawMulti' && plConfig && (
+        <>
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              Voters left unrepresented
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
+                <div className="text-[11px] text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
+                <div className="text-2xl font-bold tabular-nums text-rose-700">35.8%</div>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="text-[11px] text-muted-foreground">Party list</div>
+                <div className="text-2xl font-bold tabular-nums text-foreground">{plConfig.national.unrepresented.list.toFixed(1)}%</div>
+              </div>
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <div className="text-[11px] text-muted-foreground">STV</div>
+                <div className="text-2xl font-bold tabular-nums text-emerald-700">{plConfig.national.unrepresented.stv.toFixed(1)}%</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              Over-quota surplus
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">Votes above what a winner needed.</p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
+                <div className="text-[11px] text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
+                <div className="text-2xl font-bold tabular-nums text-rose-700">14.2%</div>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="text-[11px] text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
+                <div className="text-2xl font-bold tabular-nums text-foreground">{plConfig.national.excess.list.toFixed(1)}%</div>
+              </div>
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <div className="text-[11px] text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
+                <div className="text-2xl font-bold tabular-nums text-emerald-700">{plConfig.national.excess.stv.toFixed(1)}%</div>
+              </div>
+            </div>
+          </Card>
+        </>
+      )}
+
       {/* Vote Transfer Destinations — filtered by state/national */}
       {scenario === 'rawMulti' && houseTransfers.length > 0 && (
         <Card className="p-4">
