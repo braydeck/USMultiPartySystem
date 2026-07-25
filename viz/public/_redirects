@@ -1,0 +1,16 @@
+# Clean share URLs -> the app's query-string routes. Cloudflare 302s these into
+# the app, which still loads with ?tab= and fires view_state, so analytics is
+# preserved (and the real referrer, e.g. youtube.com, is captured). Post the
+# clean path (no "?"), which sites like YouTube are less likely to block.
+# Static assets (/r/*, /og/*, /data/*, hashed bundles) are matched first, so
+# these only catch the bare tab paths.
+/overview     /                  302
+/quiz         /?tab=quiz         302
+/parties      /?tab=parties      302
+/presidency   /?tab=presidency   302
+/senate       /?tab=senate       302
+/house        /?tab=house        302
+/single-race  /?tab=singleRace   302
+/legislation  /?tab=legislation  302
+/rcv          /?tab=rcv          302
+/about        /?tab=about        302
