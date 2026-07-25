@@ -513,7 +513,7 @@ export function RCVTab({ data, houseStateMap }: Props) {
         </p>
       </div>
 
-      <StickyControlBar>
+      <StickyControlBar label="RCV settings">
         <ToggleGroup label="State" value={stateTab} onChange={setStateTab}
           options={['AK', 'ME'] as const}
           labels={{ AK: 'Alaska', ME: 'Maine' }} />

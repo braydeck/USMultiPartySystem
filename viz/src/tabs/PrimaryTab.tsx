@@ -133,7 +133,7 @@ export function PrimaryTab({
       </div>
 
       {/* Sticky controls */}
-      <StickyControlBar>
+      <StickyControlBar label="Primary settings">
         {controlBarExtra}
         <ToggleGroup label="Scenario"
           value={pipeline}

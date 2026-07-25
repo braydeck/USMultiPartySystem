@@ -138,7 +138,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
         </p>
       </div>
 
-      <StickyControlBar>
+      <StickyControlBar label="Legislation settings">
         <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}

@@ -129,7 +129,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
         </p>
       </div>
 
-      <StickyControlBar>
+      <StickyControlBar label="Presidency settings">
         {controlBarExtra}
         <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
           options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} />

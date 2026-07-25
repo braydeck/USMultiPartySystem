@@ -196,7 +196,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         </p>
       </div>
 
-      <StickyControlBar>
+      <StickyControlBar label="Senate settings">
         <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
           options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
         <ToggleGroup label="Method" value={method} onChange={setMethod}

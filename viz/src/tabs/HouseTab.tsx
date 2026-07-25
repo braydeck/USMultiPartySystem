@@ -326,7 +326,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
       </div>
 
       {/* Scenario toggle — sticky */}
-      <StickyControlBar>
+      <StickyControlBar label="House settings">
         <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="System" value={system} onChange={setSystem}
