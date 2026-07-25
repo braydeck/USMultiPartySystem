@@ -37,7 +37,7 @@ PARTY_IDX   = {code: i for i, code in enumerate(PARTY_CODES)}
 N_PARTIES   = len(PARTY_CODES)
 
 STAGES = [
-    ("Initial_Slate", N_PARTIES),   # all 9 parties
+    ("Initial_Slate", N_PARTIES),   # all 10 parties
     ("After_Retail",  12),
     ("After_Pod_A",    9),
     ("After_Pod_B",    7),
@@ -58,7 +58,7 @@ def load_ballots():
 
 def main():
     print("=" * 70)
-    print("PARTY PRIMARY — 9 parties, multi-seat STV")
+    print("PARTY PRIMARY — 10 parties, multi-seat STV")
     print("=" * 70)
 
     print("\nLoading ballots…")

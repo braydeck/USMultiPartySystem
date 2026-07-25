@@ -2,9 +2,9 @@
 """
 generate_party_ballots.py
 -------------------------
-Generate ranked-choice ballots for 9 parties using GMM posteriors.
+Generate ranked-choice ballots for 10 parties using GMM posteriors.
 
-Each voter ranks 9 parties via Plackett-Luce sampling weighted by their
+Each voter ranks 10 parties via Plackett-Luce sampling weighted by their
 personal GMM cluster probabilities. No intra-party candidate distinction —
 the party IS the candidate. Multiple "slots" for strong parties are
 determined downstream by Droop quota allocation.
@@ -67,7 +67,7 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     print("=" * 60)
-    print("PARTY BALLOT GENERATION — 9 parties, GMM posteriors")
+    print("PARTY BALLOT GENERATION — 10 parties, GMM posteriors")
     print("=" * 60)
 
     print("\nLoading data…")

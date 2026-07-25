@@ -2,7 +2,7 @@
 """
 run_pure_multi_primary.py
 --------------------------
-2028 Presidential Primary — 27 candidates (9 parties × 3).
+2028 Presidential Primary — 27 candidates (10 parties × 3).
 
 Uses multi-seat STV with Gregory fractional surplus transfers at each stage.
 Surplus from quota winners properly flows to same-party candidates, allowing

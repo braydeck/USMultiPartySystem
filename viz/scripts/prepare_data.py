@@ -3260,7 +3260,7 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
 
 def build_nosty_scenario():
     """Parallel 'no-Solidarity' scenario: cluster 2 is dissolved and its voters' ballots
-    flow to the remaining 9 parties. Reads the NO_STY=1 pipeline outputs (pure_multi_nosty/)
+    flow to the remaining 10 parties. Reads the NO_STY=1 pipeline outputs (pure_multi_nosty/)
     and emits *NoSTY.json for the Presidency / Senate / House toggles."""
     d = PURE_MULTI_NOSTY_DIR
     build_raw_multi_presidential_election(src_dir=d, out_name="rawMultiPresidentialElectionNoSTY.json")

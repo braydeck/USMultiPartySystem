@@ -58,7 +58,7 @@ table.sm td.party{text-align:left;font-weight:700}
 <div class="eyebrow">EFA robustness · adding a 6th dimension</div>
 <h1>What if foreign policy were a <em>factor</em>?</h1>
 <p class="sub">A controlled rebuild: cluster on the five production factors <b>plus</b> a foreign-policy engagement↔isolationism score (PCA of the Ukraine / Israel–Gaza / use-of-force batteries), scaled to a typical factor's strength. Everything else — sample, the five factor scores, DPGMM settings — is identical to production, so any change is attributable to the 6th dimension alone. Question: do the nine parties survive, does a new isolationist split appear, and are the clusters stronger or weaker?</p>
-<div class="meta"><span id="m-n"></span><span>Baseline = production 9 parties (5-D)</span><span>Strength = DPGMM assignment confidence</span></div>
+<div class="meta"><span id="m-n"></span><span>Baseline = production 10 parties (5-D)</span><span>Strength = DPGMM assignment confidence</span></div>
 
 <section>
 <h2>Headline</h2>
@@ -80,7 +80,7 @@ table.sm td.party{text-align:left;font-weight:700}
 </section>
 
 <section>
-<h2>Reference — the production 9 parties (5-D)</h2>
+<h2>Reference — the production 10 parties (5-D)</h2>
 <div class="grid" id="baseline"></div>
 </section>
 <p class="note" id="foot"></p>
@@ -115,7 +115,7 @@ function renderFindings(){const surv=DATA.survival;
   const pres=ORDER.filter(p=>surv[p]==='preserved'), broke=ORDER.filter(p=>surv[p]!=='preserved');
   const d=(DATA.meta.conf6-DATA.meta.conf5);
   document.getElementById('findings').innerHTML=
-   `<div class="callout"><b>${pres.length} of 9 parties survive</b> adding the foreign-policy dimension${broke.length?` — ${broke.map(p=>PNAME[p]).join(', ')} ${broke.length>1?'change':'changes'}`:''}. Overall cluster strength goes ${d>=0?'<b>up</b>':'<b>down</b>'} ${d>=0?'+':''}${(d*100).toFixed(0)} pts of mean assignment confidence (${d>=0?'cleaner':'noisier'} clusters with the 6th dimension).</div>`;}
+   `<div class="callout"><b>${pres.length} of 10 parties survive</b> adding the foreign-policy dimension${broke.length?` — ${broke.map(p=>PNAME[p]).join(', ')} ${broke.length>1?'change':'changes'}`:''}. Overall cluster strength goes ${d>=0?'<b>up</b>':'<b>down</b>'} ${d>=0?'+':''}${(d*100).toFixed(0)} pts of mean assignment confidence (${d>=0?'cleaner':'noisier'} clusters with the 6th dimension).</div>`;}
 function renderMatrix(){let h='<table class="sm"><thead><tr><th class="party">Party</th><th>wt%</th><th>5-D conf</th><th>6-D conf</th><th>6-D outcome</th></tr></thead><tbody>';
   ORDER.forEach(p=>{const b=base[p];const s=DATA.survival[p]||'absent';
     // best matching 6-D cluster conf

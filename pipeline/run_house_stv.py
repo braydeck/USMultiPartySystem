@@ -6,7 +6,7 @@ State-level proportional house election: each state is a single multi-member dis
 
 9 pure party candidates at weighted cluster centroids.
 C7 (Blue Dogs) voters are included in the ballot pool but have no C7 candidate;
-they vote naturally for the 9 parties via Gaussian proximity (CUP ≈76%, LIB ≈15%).
+they vote naturally for the 10 parties via Gaussian proximity (CUP ≈76%, LIB ≈15%).
 
 Seat formula: max(1, round(STATE_POP / 380_000)) → 873 total seats.
 

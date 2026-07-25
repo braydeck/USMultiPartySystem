@@ -492,7 +492,7 @@ def main(output_dir=None, pop_per_seat=POP_PER_SEAT, partition_fn=None, label="C
     sep  = "=" * 70
     thin = "-" * 70
     print(sep)
-    print(f"{label} HOUSE STV  —  9 parties · Gaussian proximity · 2020 Census")
+    print(f"{label} HOUSE STV  —  10 parties · Gaussian proximity · 2020 Census")
     print(sep)
 
     # ── Load data ──────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """6-dimension rebuild: cluster on the 5 production factor scores PLUS a foreign-policy
-engagement score, and compare to the production 9 parties (same lens as the k=4 study).
+engagement score, and compare to the production 10 parties (same lens as the k=4 study).
 
 Setup (documented choices):
 - Sample/space = production: efa_factor_scores.csv (N=45,707) FS_F1..F3, FS_F4_resid, FS_F5_resid,

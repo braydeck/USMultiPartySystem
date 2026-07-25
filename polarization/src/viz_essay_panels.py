@@ -48,7 +48,7 @@ def panel_a(ax):
             va="center", ha="left", fontsize=8, color="#7f8c8d", linespacing=1.35)
     ax.set_xlim(-3.2, 3.35); ax.set_ylim(-0.75, len(a) - 0.15)
     ax.set_xlabel("V-Dem political-polarization score, 2025  (higher = more polarized)", fontsize=10)
-    ax.set_title("Among English-speaking democracies, only the US is polarized",
+    ax.set_title("Among English-speaking democracies, the US is most polarized",
                  fontsize=12.5, weight="bold", loc="left", color="#222", pad=10)
     ax.spines[["top", "right"]].set_visible(False); ax.tick_params(length=0)
     ax.grid(axis="x", color="#eee", zorder=0)

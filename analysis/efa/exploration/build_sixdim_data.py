@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build the JSON for the 5-D vs 6-D comparison infographic, from sixdim_labels.csv
-(produced by sixdim_cluster.py). Per cluster: composition vs the production 9 parties,
+(produced by sixdim_cluster.py). Per cluster: composition vs the production 10 parties,
 factor profile (5 factors + foreign-policy engagement), policy support, demographics,
 and strength = DPGMM assignment confidence (5-D from production posteriors, 6-D from refit)."""
 import json, numpy as np, pandas as pd

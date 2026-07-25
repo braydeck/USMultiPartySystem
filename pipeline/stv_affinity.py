@@ -345,7 +345,7 @@ def main():
                 stv_sub.values, high_is_close=True
             )
         else:
-            print(f"  (Could not subset STV matrix to 9 parties — shape: {stv_sub.shape})")
+            print(f"  (Could not subset STV matrix to 10 parties — shape: {stv_sub.shape})")
     else:
         print(f"\n  NOTE: Scenario A STV matrix not found at {stv_path}")
 

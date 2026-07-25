@@ -4,7 +4,7 @@ run_party_house_stv.py
 ----------------------
 House STV using 9 party slates per district.
 
-Each geographically-drawn district runs multi-seat STV with 9 parties.
+Each geographically-drawn district runs multi-seat STV with 10 parties.
 Parties can win multiple seats proportional to their district vote share.
 Uses the same party ballots (GMM posterior Plackett-Luce) as senate/presidential.
 
@@ -60,7 +60,7 @@ def main():
     thin = "-" * 70
 
     print(sep)
-    print("PARTY HOUSE STV — 9 parties per district")
+    print("PARTY HOUSE STV — 10 parties per district")
     print(sep)
 
     # ── Load ─────────────────────────────────────────────────────────────────

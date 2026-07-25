@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Exploration: do the foreign-policy multi-select batteries (Ukraine CC24_308a,
 Israel/Gaza CC24_308b, use-of-force CC24_420) cohere into a latent dimension, and
-does it run orthogonal to the 5 domestic factors / cut across the 9 parties?
+does it run orthogonal to the 5 domestic factors / cut across the 10 parties?
 
 Method appropriate to check-all-that-apply binary data (NOT polychoric, which is what
 the original EFA correctly rejected): PCA on the 0/1 indicators + weighted correlations

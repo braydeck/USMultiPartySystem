@@ -7,7 +7,7 @@ Plackett-Luce sampling.
 
 Candidate design
 ----------------
-All 9 parties field 3 candidates each. Candidates from the same party
+All 10 parties field 3 candidates each. Candidates from the same party
 share the same factor-space centroid, so cross-party ordering is
 identical to the 9-party pure simulation. Within-party ordering is
 governed by a "prominence weight" that scales each candidate's
@@ -42,7 +42,7 @@ BASE_DIR        = Path(__file__).parent.parent.parent
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 # NO_STY=1 dissolves Solidarity (cluster 2): its candidates are dropped and its voters
-# rank the remaining 9 parties by next-highest posterior. Output goes to a parallel tree.
+# rank the remaining 10 parties by next-highest posterior. Output goes to a parallel tree.
 NO_STY          = os.environ.get("NO_STY") == "1"
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / ("pure_multi_nosty" if NO_STY else "pure_multi")
 

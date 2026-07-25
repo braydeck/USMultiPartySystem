@@ -61,7 +61,7 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     print("=" * 70)
-    print("PARTY SENATE — 9 parties per state, STV → Condorcet/IRV")
+    print("PARTY SENATE — 10 parties per state, STV → Condorcet/IRV")
     print("=" * 70)
 
     print("\nLoading data…")
@@ -92,7 +92,7 @@ def main():
         state_weights = weights[mask]
         n_state       = int(mask.sum())
 
-        # STV: 9 parties → 5 finalist slots
+        # STV: 10 parties → 5 finalist slots
         stv_result = run_multi_seat_stv(
             state_ballots, state_weights, N_PARTIES, STV_SEATS, PARTY_CODES
         )
