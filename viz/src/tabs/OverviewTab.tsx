@@ -154,25 +154,12 @@ export function OverviewTab({
         <DiveCard label="Dive into the Senate →" onClick={() => onNavigate('senate')} />
       </div>
 
-      {/* Party profiles — blurbs + factor bars */}
-      <PartyProfileGrid clusters={orderedClusters} />
-
-      {/* Section 3 — State disproportionality callouts */}
-      <div>
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">FPTP Disproportionality — State Examples</h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Winner-take-all districts systematically over-represent the dominant party. Compare FPTP, 2-party proportional, and multi-party STV.
-        </p>
-        <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />
-      </div>
-
-      {/* Section 4 — Presidential winners + legislative divergences */}
+      {/* Section 3 — Presidential winners */}
       <div className="space-y-4">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Presidential Outcomes</h3>
         <p className="text-xs text-muted-foreground">
           Condorcet and IRV often elect different presidents. The winner shapes which bills become law.
         </p>
-
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">Condorcet Winner</div>
@@ -183,7 +170,23 @@ export function OverviewTab({
             {clusterByParty[irvParty] && <PartyProfileCard cluster={clusterByParty[irvParty]} />}
           </div>
         </div>
+        <DiveCard label="Dive into the Presidency →" onClick={() => onNavigate('presidency')} />
+      </div>
 
+      {/* Party profiles — blurbs + factor bars */}
+      <PartyProfileGrid clusters={orderedClusters} />
+
+      {/* Section 4 — State disproportionality callouts */}
+      <div>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">FPTP Disproportionality — State Examples</h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Winner-take-all districts systematically over-represent the dominant party. Compare FPTP, 2-party proportional, and multi-party STV.
+        </p>
+        <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />
+      </div>
+
+      {/* Method divergences */}
+      <div className="space-y-4">
         <LegislationDivergences
           houseVotes={houseVotes}
           senateVotes={senateVotes}
@@ -191,8 +194,6 @@ export function OverviewTab({
           pipeline="rawMulti"
           wyoming="double"
         />
-
-        <DiveCard label="Dive into the Presidency →" onClick={() => onNavigate('presidency')} />
       </div>
 
       {/* Section 5 — Ideological Constellation */}
