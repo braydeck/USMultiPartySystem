@@ -111,20 +111,29 @@ export function OverviewTab({
         <div className="grid sm:grid-cols-3 gap-3">
           <a href="https://braydendecker.substack.com/p/the-problem-an-electoral-system-engineered"
             target="_blank" rel="noopener noreferrer"
-            className="rounded-md border border-border bg-card p-3 hover:bg-muted transition-colors">
-            <div className="text-sm font-semibold text-foreground">The Problem</div>
+            className="group rounded-md border border-border bg-card p-3 hover:bg-muted hover:border-indigo-300 hover:shadow-sm transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">The Problem</span>
+              <span className="text-xs text-muted-foreground group-hover:text-indigo-500 transition-colors">Read ↗</span>
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">Mutual contempt and polarization are downstream of a Winner-Take-All electoral system.</p>
           </a>
           <a href="https://braydendecker.substack.com/p/the-solution-give-everyone-a-voice"
             target="_blank" rel="noopener noreferrer"
-            className="rounded-md border border-border bg-card p-3 hover:bg-muted transition-colors">
-            <div className="text-sm font-semibold text-foreground">The Solution</div>
+            className="group rounded-md border border-border bg-card p-3 hover:bg-muted hover:border-indigo-300 hover:shadow-sm transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">The Solution</span>
+              <span className="text-xs text-muted-foreground group-hover:text-indigo-500 transition-colors">Read ↗</span>
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">A proportional House, consensus single-winner elections, an open national primary, and public financing.</p>
           </a>
           <a href="https://braydendecker.substack.com/p/the-simulation-a-multiparty-america"
             target="_blank" rel="noopener noreferrer"
-            className="rounded-md border border-border bg-card p-3 hover:bg-muted transition-colors">
-            <div className="text-sm font-semibold text-foreground">The Simulation</div>
+            className="group rounded-md border border-border bg-card p-3 hover:bg-muted hover:border-indigo-300 hover:shadow-sm transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">The Simulation</span>
+              <span className="text-xs text-muted-foreground group-hover:text-indigo-500 transition-colors">Read ↗</span>
+            </div>
             <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">A description of this multiparty democracy simulation.</p>
           </a>
         </div>
