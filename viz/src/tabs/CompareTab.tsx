@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { ClusterProfile, FDCandidateProfile, ConstellationNode } from '../types';
 import { useUrlState } from '../hooks/useUrlState';
+import { useStickyCollapse } from '../hooks/useStickyCollapse';
 import { centralityMark, type SignatureFilter } from '../lib/signature';
 import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
@@ -624,21 +625,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   const [expandedFactors, setExpandedFactors] = useState<Set<string>>(new Set());
   const [factorScale, setFactorScale] = useState<'strength' | 'percentile'>(saved.factorScale ?? 'strength');
   const [divergeOnly, setDivergeOnly] = useState(saved.divergeOnly ?? false);
-  // Mobile: condense the sticky control bar once scrolled into the list; tap to expand.
-  // Desktop keeps the full bar (there's room), so this only gates the small-screen layout.
-  const [filtersExpanded, setFiltersExpanded] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const onScroll = () => {
-      const s = window.scrollY > 140;
-      setScrolled(s);
-      if (!s) setFiltersExpanded(false);   // back at top → always full, reset manual expand
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-  const compact = scrolled && !filtersExpanded;   // collapse only on mobile (md: overrides below)
+  // Mobile: condense the sticky control bar once it's actually scrolled to the top; tap to
+  // expand. Desktop keeps the full bar (there's room), so this only gates the small-screen layout.
+  const { sentinelRef, barRef, compact, scrolled, expanded: filtersExpanded, setExpanded: setFiltersExpanded } = useStickyCollapse();
   // Signature filter shared with Party Platforms (URL params) so the two views agree.
   const sig = useSignatureFilter();
   const sigFilter = sig.filter;
@@ -896,7 +885,10 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
       {/* Party selector + signature filter — sticky so both can be adjusted while scrolling
           the (long, annotated) list. On mobile it condenses to a summary strip once scrolled;
           tap to expand. Desktop (md+) always shows the full bar. */}
-      <div className="sticky top-[40px] z-20 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2">
+      {/* Marks where the bar sits in normal flow, so the collapse triggers off the bar's own
+          position rather than a page-wide scroll count. */}
+      <div ref={sentinelRef} aria-hidden="true" />
+      <div ref={barRef} className="sticky top-[40px] z-10 bg-white/95 backdrop-blur-sm border-b border-border/50 -mx-4 px-4 py-2">
         {/* Condensed summary — mobile only, when scrolled */}
         {compact && (
           <button
