@@ -36,7 +36,7 @@ function buildConceptGroups(): ConceptGroup[] {
           code: 'IRV',
           name: 'Instant-Runoff',
           color: '#16a34a',
-          what: 'Lowest drops each round; votes transfer to a >50% majority.',
+          what: 'Ranked ballot. Lowest drops each round; votes transfer to a majority.',
           here: 'Rewards first-choice strength; largely preserves 2-party balance.',
         },
       ],
@@ -101,14 +101,16 @@ export function ConceptStrip() {
                   className="rounded-lg border border-border bg-card p-3 flex flex-col justify-between"
                 >
                   <div>
-                    <span
-                      className="inline-block text-[11px] font-bold font-mono px-1.5 py-0.5 rounded mb-1.5"
-                      style={{ backgroundColor: c.color + '18', color: c.color }}
-                    >
-                      {c.code}
-                    </span>
-                    <div className="text-xs font-semibold text-foreground mb-1">
-                      {c.name}
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span
+                        className="text-[11px] font-bold font-mono px-1.5 py-0.5 rounded shrink-0"
+                        style={{ backgroundColor: c.color + '18', color: c.color }}
+                      >
+                        {c.code}
+                      </span>
+                      <div className="text-xs font-semibold text-foreground">
+                        {c.name}
+                      </div>
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-snug mb-2">
                       {c.what}
