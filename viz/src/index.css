@@ -31,7 +31,7 @@
 .seat-segment-label {
   display: none;
 }
-@container (min-width: 40px) {
+@container (min-width: 25px) {
   .seat-segment-label {
     display: block;
   }

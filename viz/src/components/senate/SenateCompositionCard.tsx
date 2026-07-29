@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import type { FDSenateSeat } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../../constants/parties';
-import { BAR_HEIGHT, LABEL_COL_WIDTH } from '../house/FPTPvsSTV';
+import { BAR_HEIGHT, LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
+import { useElementWidth } from '../../hooks/useElementWidth';
 
 // Shared "FPTP Today vs Preferential Senate" composition card, used by both the Senate tab
 // and the Overview summary so the two charts are identical. Condorcet/IRV model one winner
@@ -27,12 +28,12 @@ function SenateCompBar({ label, seats, segments, total: totalOverride, multiplie
   const total = totalOverride ?? segs.reduce((s, x) => s + x.n, 0);
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="shrink-0 text-right" style={{ width: LABEL_COL_WIDTH }}>
-        <div className="text-xs font-semibold text-foreground">{label}</div>
-        <div className="text-xs text-muted-foreground">{total} seats</div>
+    <div>
+      <div className="flex items-baseline gap-1.5 mb-1">
+        <span className="text-xs font-semibold text-foreground">{label}</span>
+        <span className="text-xs text-muted-foreground">· {total} seats</span>
       </div>
-      <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
+      <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
         {segs.map(({ party, n, color }) => {
           const pct = (n / total) * 100;
           return (
@@ -56,6 +57,8 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
   condSeats: FDSenateSeat[];
   irvSeats: FDSenateSeat[];
 }) {
+  const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
+
   // Per-party seat counts under each preferential method, for the composition legend.
   const stats = useMemo(() => {
     const tally = (seats: FDSenateSeat[]) => {
@@ -76,8 +79,24 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
     };
   }, [condSeats, irvSeats]);
 
+  // Parties whose sliver is too narrow for its inline label in either bar — same rule as the
+  // House card's legend, so a party present under one method but not the other (e.g. a party
+  // that wins under Condorcet but not IRV) still surfaces with an explicit 0 on the missing side.
+  const smallParties = useMemo(() => {
+    if (!rootWidth) return new Set<string>();
+    const condTotal = stats.rows.reduce((s, r) => s + r.cond, 0);
+    const irvTotal = stats.rows.reduce((s, r) => s + r.irv, 0);
+    const set = new Set<string>();
+    for (const r of stats.rows) {
+      if (r.cond > 0 && condTotal && (r.cond / condTotal) * rootWidth < LABEL_MIN_WIDTH) set.add(r.party);
+      if (r.irv > 0 && irvTotal && (r.irv / irvTotal) * rootWidth < LABEL_MIN_WIDTH) set.add(r.party);
+    }
+    return set;
+  }, [stats, rootWidth]);
+  const shownRows = stats.rows.filter(r => smallParties.has(r.party));
+
   return (
-    <Card className="p-5 border-2 border-indigo-200 space-y-3">
+    <Card ref={rootRef} className="p-5 border-2 border-indigo-200 space-y-3">
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
         FPTP Today vs Preferential Senate
       </h3>
@@ -90,21 +109,22 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
       <SenateCompBar label="Condorcet ×2" seats={condSeats} multiplier={2} />
       <SenateCompBar label="IRV ×2" seats={irvSeats} multiplier={2} />
 
-      {/* Legend — one row per method, so narrow segments (STY, POP…) still show seat counts */}
-      <div className="space-y-1.5 pt-2 border-t border-border/50">
-        {([{ name: 'Condorcet', key: 'cond' as const }, { name: 'IRV', key: 'irv' as const }]).map(({ name, key }) => (
-          <div key={name} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="shrink-0 text-xs font-semibold text-foreground" style={{ width: 68 }}>{name}</span>
-            {stats.rows.filter(r => r[key] > 0).map(r => (
+      {/* Legend — a combined row per party, shown only for slivers too narrow for their inline
+          label; a plainly legible bar segment doesn't need restating below. */}
+      {shownRows.length > 0 && (
+        <div className="space-y-1 pt-2 border-t border-border/50">
+          <div className="text-xs font-semibold text-foreground">Condorcet / IRV</div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {shownRows.map(r => (
               <span key={r.party} className="flex items-center gap-1.5" title={PARTY_NAMES[r.party] ?? r.party}>
                 <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[r.party] ?? '#6b7280' }} />
-                <span className="text-xs text-foreground font-medium">{r.party}</span>
-                <span className="text-xs text-muted-foreground">{r[key]}</span>
+                <span className="text-xs text-foreground font-semibold">{r.party}</span>
+                <span className="text-xs text-muted-foreground">{r.cond}/{r.irv}</span>
               </span>
             ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       <p className="text-[11px] text-muted-foreground/80">
         Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s

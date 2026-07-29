@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import type { HouseSeat } from '../../types';
 import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER, getContrastText } from '../../constants/parties';
+import { useElementWidth } from '../../hooks/useElementWidth';
 
 // 2024 House composition (approximate)
 const FPTP_HOUSE = { GOP: 220, DEM: 215 };
@@ -11,8 +13,15 @@ const PR2_HOUSE = { GOP: 228, DEM: 207 };
 const PR2_TOTAL = PR2_HOUSE.GOP + PR2_HOUSE.DEM;
 
 // Shared with SenateCompositionCard so every seat-share bar in the app reads at the same scale.
-export const BAR_HEIGHT = 52;
-export const LABEL_COL_WIDTH = 90;
+// The label sits above the bar (not beside it), so the bar itself gets the full row width —
+// more room for segment labels, especially on narrow screens. Bar height is shorter than the
+// old side-label layout to offset the label line's added vertical space.
+export const BAR_HEIGHT = 40;
+
+// Keep in sync with the `@container (min-width: …)` rule for `.seat-segment-label` in index.css —
+// that's what actually hides an inline segment label; this is the JS-side mirror of the same
+// threshold, used to decide which parties are worth repeating in the legend below.
+export const LABEL_MIN_WIDTH = 25;
 
 interface Props {
   seats: HouseSeat[];
@@ -36,16 +45,34 @@ function buildSegments(seats: HouseSeat[]): { party: string; seats: number }[] {
   return segments;
 }
 
+// Parties whose rendered sliver would fall under LABEL_MIN_WIDTH in this bar — i.e. the ones
+// whose inline label the container query is hiding, and so are worth surfacing in the legend.
+function smallPartiesIn(segments: { party: string; seats: number }[], total: number, barWidth: number): Set<string> {
+  const set = new Set<string>();
+  if (!barWidth || !total) return set;
+  for (const s of segments) {
+    const pxWidth = (s.seats / total) * barWidth;
+    if (pxWidth < LABEL_MIN_WIDTH) set.add(s.party);
+  }
+  return set;
+}
+
+function BarLabel({ label, total, faded = false }: { label: string; total: number; faded?: boolean }) {
+  return (
+    <div className="flex items-baseline gap-1.5 mb-1">
+      <span className={`text-xs font-semibold ${faded ? 'text-muted-foreground' : 'text-foreground'}`}>{label}</span>
+      <span className="text-xs text-muted-foreground">· {total} seats</span>
+    </div>
+  );
+}
+
 function SeatBar({ label, total, segments, faded = false }: {
   label: string; total: number; segments: { party: string; seats: number }[]; faded?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="shrink-0 text-right" style={{ width: LABEL_COL_WIDTH }}>
-        <div className={`text-xs font-semibold ${faded ? 'text-muted-foreground' : 'text-foreground'}`}>{label}</div>
-        <div className="text-xs text-muted-foreground">{total} seats</div>
-      </div>
-      <div className={`flex-1 flex rounded-lg overflow-hidden ${faded ? 'opacity-60' : ''}`} style={{ height: BAR_HEIGHT }}>
+    <div>
+      <BarLabel label={label} total={total} faded={faded} />
+      <div className={`flex rounded-lg overflow-hidden ${faded ? 'opacity-60' : ''}`} style={{ height: BAR_HEIGHT }}>
         {segments.map(({ party, seats: n }) => {
           const pct = (n / total) * 100;
           const color = PARTY_COLORS[party] ?? '#6b7280';
@@ -69,12 +96,9 @@ function SeatBar({ label, total, segments, faded = false }: {
 
 function FixedPartyBar({ label, total, dem, gop }: { label: string; total: number; dem: number; gop: number }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="shrink-0 text-right" style={{ width: LABEL_COL_WIDTH }}>
-        <div className="text-xs font-semibold text-foreground">{label}</div>
-        <div className="text-xs text-muted-foreground">{total} seats</div>
-      </div>
-      <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
+    <div>
+      <BarLabel label={label} total={total} />
+      <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
         <div className="flex items-center justify-center" style={{ width: `${(dem / total) * 100}%`, backgroundColor: '#1d4ed8' }}>
           <span className="text-white text-sm font-bold">Dem {dem} ({((dem / total) * 100).toFixed(0)}%)</span>
         </div>
@@ -86,15 +110,19 @@ function FixedPartyBar({ label, total, dem, gop }: { label: string; total: numbe
   );
 }
 
-function Legend({ label, segments }: { label: string; segments: { party: string; seats: number }[] }) {
+function Legend({ label, segments, smallParties }: {
+  label: string; segments: { party: string; seats: number }[]; smallParties: Set<string>;
+}) {
   const total = segments.reduce((s, r) => s + r.seats, 0);
+  const shown = segments.filter(s => smallParties.has(s.party));
+  if (!shown.length) return null;
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
       <span className="shrink-0 text-xs font-semibold text-foreground" style={{ width: 68 }}>{label}</span>
-      {segments.map(({ party, seats: n }) => (
+      {shown.map(({ party, seats: n }) => (
         <span key={party} className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }} />
-          <span className="text-xs text-muted-foreground font-medium">{party}</span>
+          <span className="text-xs text-foreground font-semibold">{party}</span>
           <span className="text-xs text-muted-foreground">{total ? (n / total * 100).toFixed(1) : '0.0'}%</span>
         </span>
       ))}
@@ -103,10 +131,13 @@ function Legend({ label, segments }: { label: string; segments: { party: string;
 }
 
 // Percentage-only, one entry per party comparing two systems side by side (e.g. "9.0% / 9.5%")
-// rather than a seat count — seat counts across two different chamber sizes read as noise.
-function CombinedLegend({ primaryLabel, secondaryLabel, primary, secondary }: {
+// rather than a seat count — seat counts across two different chamber sizes read as noise. Only
+// parties whose inline bar label got hidden (a too-narrow sliver in either system) are repeated
+// here; a plainly legible segment doesn't need restating.
+function CombinedLegend({ primaryLabel, secondaryLabel, primary, secondary, smallParties }: {
   primaryLabel: string; secondaryLabel: string;
   primary: { party: string; seats: number }[]; secondary: { party: string; seats: number }[];
+  smallParties: Set<string>;
 }) {
   const primaryTotal = primary.reduce((s, r) => s + r.seats, 0);
   const secondaryTotal = secondary.reduce((s, r) => s + r.seats, 0);
@@ -114,18 +145,20 @@ function CombinedLegend({ primaryLabel, secondaryLabel, primary, secondary }: {
   const secondaryByParty = Object.fromEntries(secondary.map(s => [s.party, s.seats]));
   const parties = [...primary.map(s => s.party)];
   for (const s of secondary) if (!parties.includes(s.party)) parties.push(s.party);
+  const shown = parties.filter(p => smallParties.has(p));
+  if (!shown.length) return null;
 
   return (
     <div className="space-y-1">
       <div className="text-xs font-semibold text-foreground">{primaryLabel} / {secondaryLabel}</div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        {parties.map(party => {
+        {shown.map(party => {
           const pPct = primaryTotal ? (primaryByParty[party] ?? 0) / primaryTotal * 100 : 0;
           const sPct = secondaryTotal ? (secondaryByParty[party] ?? 0) / secondaryTotal * 100 : 0;
           return (
             <span key={party} className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }} />
-              <span className="text-xs text-muted-foreground font-medium">{party}</span>
+              <span className="text-xs text-foreground font-semibold">{party}</span>
               <span className="text-xs text-muted-foreground">{pPct.toFixed(1)}% / {sPct.toFixed(1)}%</span>
             </span>
           );
@@ -136,6 +169,8 @@ function CombinedLegend({ primaryLabel, secondaryLabel, primary, secondary }: {
 }
 
 export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLabel, doubleSeats, wyoming = 'double' }: Props) {
+  const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
+
   const total = seats.reduce((s, r) => s + r.national, 0);
   const segments = buildSegments(seats);
 
@@ -150,9 +185,18 @@ export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLab
     ? `${systemLabel} — Double vs Triple Wyoming`
     : `FPTP vs ${systemLabel}${otherSegments ? ` vs ${otherSystemLabel}` : ''}`;
 
+  // Union of parties whose sliver is too narrow for its inline label in either bar being compared.
+  const smallParties = useMemo(() => {
+    const secondarySegments = isTriple ? dblSegments : otherSegments;
+    const secondaryTotal = isTriple ? dblTotal : otherTotal;
+    const a = smallPartiesIn(segments, total, rootWidth);
+    const b = secondarySegments ? smallPartiesIn(secondarySegments, secondaryTotal, rootWidth) : new Set<string>();
+    return new Set([...a, ...b]);
+  }, [segments, total, otherSegments, otherTotal, dblSegments, dblTotal, isTriple, rootWidth]);
+
   return (
-    <div className="space-y-1">
-      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+    <div ref={rootRef} className="space-y-3">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
         {title} — House of Representatives
       </div>
 
@@ -163,17 +207,19 @@ export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLab
         ? dblSegments && <SeatBar label={`${systemLabel} (double)`} total={dblTotal} segments={dblSegments} faded />
         : otherSegments && <SeatBar label={`${otherSystemLabel} (sim)`} total={otherTotal} segments={otherSegments} />}
 
-      {/* Legend — a combined row per party when two systems are shown, so seat counts across two
-          different chamber sizes don't have to be mentally converted to compare. */}
-      <div className="mt-3 pt-2 border-t border-border/50">
-        {isTriple
-          ? (dblSegments
-              ? <CombinedLegend primaryLabel={`${systemLabel} (triple)`} secondaryLabel={`${systemLabel} (double)`} primary={segments} secondary={dblSegments} />
-              : <Legend label={systemLabel} segments={segments} />)
-          : (otherSegments
-              ? <CombinedLegend primaryLabel={systemLabel} secondaryLabel={otherSystemLabel ?? ''} primary={segments} secondary={otherSegments} />
-              : <Legend label={systemLabel} segments={segments} />)}
-      </div>
+      {/* Legend — a combined row per party, shown only for slivers too narrow for their inline
+          label; a plainly legible bar segment doesn't need restating below. */}
+      {smallParties.size > 0 && (
+        <div className="mt-3 pt-2 border-t border-border/50">
+          {isTriple
+            ? (dblSegments
+                ? <CombinedLegend primaryLabel={`${systemLabel} (triple)`} secondaryLabel={`${systemLabel} (double)`} primary={segments} secondary={dblSegments} smallParties={smallParties} />
+                : <Legend label={systemLabel} segments={segments} smallParties={smallParties} />)
+            : (otherSegments
+                ? <CombinedLegend primaryLabel={systemLabel} secondaryLabel={otherSystemLabel ?? ''} primary={segments} secondary={otherSegments} smallParties={smallParties} />
+                : <Legend label={systemLabel} segments={segments} smallParties={smallParties} />)}
+        </div>
+      )}
     </div>
   );
 }
