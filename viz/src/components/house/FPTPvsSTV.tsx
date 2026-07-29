@@ -10,184 +10,170 @@ const FPTP_TOTAL = FPTP_HOUSE.GOP + FPTP_HOUSE.DEM;
 const PR2_HOUSE = { GOP: 228, DEM: 207 };
 const PR2_TOTAL = PR2_HOUSE.GOP + PR2_HOUSE.DEM;
 
+// Shared with SenateCompositionCard so every seat-share bar in the app reads at the same scale.
+export const BAR_HEIGHT = 52;
+export const LABEL_COL_WIDTH = 90;
+
 interface Props {
   seats: HouseSeat[];
+  systemLabel: 'STV' | 'Party List';
+  /** The other proportional system's seats at the current Wyoming rule — a 4th row in double-Wyoming view. */
+  otherSystemSeats?: HouseSeat[];
+  otherSystemLabel?: 'STV' | 'Party List';
+  /** This system's seats under double-Wyoming — the comparison row in triple-Wyoming view. */
   doubleSeats?: HouseSeat[];
   wyoming?: 'double' | 'triple';
-  /** Label for the simulated system row/title/footer (default 'STV'). */
-  systemLabel?: string;
 }
 
-export function FPTPvsSTV({ seats, doubleSeats, wyoming = 'double', systemLabel = 'STV' }: Props) {
-  const stvTotal = seats.reduce((s, r) => s + r.national, 0);
-  const dblTotal = doubleSeats?.reduce((s, r) => s + r.national, 0) ?? 0;
-  const showDouble = wyoming === 'triple' && doubleSeats && dblTotal > 0;
-
-  // Build STV segments in F5 order
-  const stvSegments: { party: string; seats: number }[] = [];
+function buildSegments(seats: HouseSeat[]): { party: string; seats: number }[] {
+  const segments: { party: string; seats: number }[] = [];
   for (const party of F5_ORDER) {
     const clusterId = Object.entries(CLUSTER_TO_PARTY).find(([, p]) => p === party)?.[0];
     if (!clusterId) continue;
     const row = seats.find(s => String(s.party) === clusterId);
-    if (row && row.national > 0) stvSegments.push({ party, seats: row.national });
+    if (row && row.national > 0) segments.push({ party, seats: row.national });
   }
+  return segments;
+}
 
-  const fptpBarH = 52;
-  const stvBarH = 52;
-  const labelColW = 80;
+function SeatBar({ label, total, segments, faded = false }: {
+  label: string; total: number; segments: { party: string; seats: number }[]; faded?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="shrink-0 text-right" style={{ width: LABEL_COL_WIDTH }}>
+        <div className={`text-xs font-semibold ${faded ? 'text-muted-foreground' : 'text-foreground'}`}>{label}</div>
+        <div className="text-xs text-muted-foreground">{total} seats</div>
+      </div>
+      <div className={`flex-1 flex rounded-lg overflow-hidden ${faded ? 'opacity-60' : ''}`} style={{ height: BAR_HEIGHT }}>
+        {segments.map(({ party, seats: n }) => {
+          const pct = (n / total) * 100;
+          const color = PARTY_COLORS[party] ?? '#6b7280';
+          return (
+            <div
+              key={party}
+              title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(1)}%)`}
+              className="seat-segment flex min-w-0 items-center justify-center overflow-hidden"
+              style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}
+            >
+              <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text" style={{ color: getContrastText(color) }}>
+                {party}<br />{pct.toFixed(1)}%
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function FixedPartyBar({ label, total, dem, gop }: { label: string; total: number; dem: number; gop: number }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="shrink-0 text-right" style={{ width: LABEL_COL_WIDTH }}>
+        <div className="text-xs font-semibold text-foreground">{label}</div>
+        <div className="text-xs text-muted-foreground">{total} seats</div>
+      </div>
+      <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
+        <div className="flex items-center justify-center" style={{ width: `${(dem / total) * 100}%`, backgroundColor: '#1d4ed8' }}>
+          <span className="text-white text-sm font-bold">Dem {dem} ({((dem / total) * 100).toFixed(0)}%)</span>
+        </div>
+        <div className="flex items-center justify-center" style={{ width: `${(gop / total) * 100}%`, backgroundColor: '#dc2626' }}>
+          <span className="text-white text-sm font-bold">Rep {gop} ({((gop / total) * 100).toFixed(0)}%)</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Legend({ label, segments }: { label: string; segments: { party: string; seats: number }[] }) {
+  const total = segments.reduce((s, r) => s + r.seats, 0);
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <span className="shrink-0 text-xs font-semibold text-foreground" style={{ width: 68 }}>{label}</span>
+      {segments.map(({ party, seats: n }) => (
+        <span key={party} className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }} />
+          <span className="text-xs text-muted-foreground font-medium">{party}</span>
+          <span className="text-xs text-muted-foreground">{total ? (n / total * 100).toFixed(1) : '0.0'}%</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// Percentage-only, one entry per party comparing two systems side by side (e.g. "9.0% / 9.5%")
+// rather than a seat count — seat counts across two different chamber sizes read as noise.
+function CombinedLegend({ primaryLabel, secondaryLabel, primary, secondary }: {
+  primaryLabel: string; secondaryLabel: string;
+  primary: { party: string; seats: number }[]; secondary: { party: string; seats: number }[];
+}) {
+  const primaryTotal = primary.reduce((s, r) => s + r.seats, 0);
+  const secondaryTotal = secondary.reduce((s, r) => s + r.seats, 0);
+  const primaryByParty = Object.fromEntries(primary.map(s => [s.party, s.seats]));
+  const secondaryByParty = Object.fromEntries(secondary.map(s => [s.party, s.seats]));
+  const parties = [...primary.map(s => s.party)];
+  for (const s of secondary) if (!parties.includes(s.party)) parties.push(s.party);
+
+  return (
+    <div className="space-y-1">
+      <div className="text-xs font-semibold text-foreground">{primaryLabel} / {secondaryLabel}</div>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        {parties.map(party => {
+          const pPct = primaryTotal ? (primaryByParty[party] ?? 0) / primaryTotal * 100 : 0;
+          const sPct = secondaryTotal ? (secondaryByParty[party] ?? 0) / secondaryTotal * 100 : 0;
+          return (
+            <span key={party} className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }} />
+              <span className="text-xs text-muted-foreground font-medium">{party}</span>
+              <span className="text-xs text-muted-foreground">{pPct.toFixed(1)}% / {sPct.toFixed(1)}%</span>
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLabel, doubleSeats, wyoming = 'double' }: Props) {
+  const total = seats.reduce((s, r) => s + r.national, 0);
+  const segments = buildSegments(seats);
+
+  const otherTotal = otherSystemSeats?.reduce((s, r) => s + r.national, 0) ?? 0;
+  const otherSegments = otherSystemSeats && otherTotal > 0 ? buildSegments(otherSystemSeats) : null;
+
+  const dblTotal = doubleSeats?.reduce((s, r) => s + r.national, 0) ?? 0;
+  const dblSegments = doubleSeats && dblTotal > 0 ? buildSegments(doubleSeats) : null;
+
+  const isTriple = wyoming === 'triple';
+  const title = isTriple
+    ? `${systemLabel} — Double vs Triple Wyoming`
+    : `FPTP vs ${systemLabel}${otherSegments ? ` vs ${otherSystemLabel}` : ''}`;
 
   return (
     <div className="space-y-1">
       <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-        FPTP vs {systemLabel} — House of Representatives
+        {title} — House of Representatives
       </div>
 
-      {/* FPTP row */}
-      <div className="flex items-center gap-3">
-        <div className="shrink-0 text-right" style={{ width: labelColW }}>
-          <div className="text-xs font-semibold text-foreground">FPTP Today</div>
-          <div className="text-xs text-muted-foreground">{FPTP_TOTAL} seats</div>
-        </div>
-        <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: fptpBarH }}>
-          <div
-            className="flex items-center justify-center"
-            style={{
-              width: `${(FPTP_HOUSE.DEM / FPTP_TOTAL) * 100}%`,
-              backgroundColor: '#1d4ed8',
-            }}
-          >
-            <span className="text-white text-sm font-bold">
-              Dem {FPTP_HOUSE.DEM} ({((FPTP_HOUSE.DEM / FPTP_TOTAL) * 100).toFixed(0)}%)
-            </span>
-          </div>
-          <div
-            className="flex items-center justify-center"
-            style={{
-              width: `${(FPTP_HOUSE.GOP / FPTP_TOTAL) * 100}%`,
-              backgroundColor: '#dc2626',
-            }}
-          >
-            <span className="text-white text-sm font-bold">
-              Rep {FPTP_HOUSE.GOP} ({((FPTP_HOUSE.GOP / FPTP_TOTAL) * 100).toFixed(0)}%)
-            </span>
-          </div>
-        </div>
+      <FixedPartyBar label="FPTP Today" total={FPTP_TOTAL} dem={FPTP_HOUSE.DEM} gop={FPTP_HOUSE.GOP} />
+      <FixedPartyBar label="PR (2-party)" total={PR2_TOTAL} dem={PR2_HOUSE.DEM} gop={PR2_HOUSE.GOP} />
+      <SeatBar label={isTriple ? `${systemLabel} (triple)` : `${systemLabel} (sim)`} total={total} segments={segments} />
+      {isTriple
+        ? dblSegments && <SeatBar label={`${systemLabel} (double)`} total={dblTotal} segments={dblSegments} faded />
+        : otherSegments && <SeatBar label={`${otherSystemLabel} (sim)`} total={otherTotal} segments={otherSegments} />}
+
+      {/* Legend — a combined row per party when two systems are shown, so seat counts across two
+          different chamber sizes don't have to be mentally converted to compare. */}
+      <div className="mt-3 pt-2 border-t border-border/50">
+        {isTriple
+          ? (dblSegments
+              ? <CombinedLegend primaryLabel={`${systemLabel} (triple)`} secondaryLabel={`${systemLabel} (double)`} primary={segments} secondary={dblSegments} />
+              : <Legend label={systemLabel} segments={segments} />)
+          : (otherSegments
+              ? <CombinedLegend primaryLabel={systemLabel} secondaryLabel={otherSystemLabel ?? ''} primary={segments} secondary={otherSegments} />
+              : <Legend label={systemLabel} segments={segments} />)}
       </div>
-
-      {/* Proportional 2-party row */}
-      <div className="flex items-center gap-3">
-        <div className="shrink-0 text-right" style={{ width: labelColW }}>
-          <div className="text-xs font-semibold text-foreground">PR (2-party)</div>
-          <div className="text-xs text-muted-foreground">{PR2_TOTAL} seats</div>
-        </div>
-        <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: fptpBarH }}>
-          <div
-            className="flex items-center justify-center"
-            style={{ width: `${(PR2_HOUSE.DEM / PR2_TOTAL) * 100}%`, backgroundColor: '#1d4ed8' }}
-          >
-            <span className="text-white text-sm font-bold">
-              Dem {PR2_HOUSE.DEM} ({((PR2_HOUSE.DEM / PR2_TOTAL) * 100).toFixed(0)}%)
-            </span>
-          </div>
-          <div
-            className="flex items-center justify-center"
-            style={{ width: `${(PR2_HOUSE.GOP / PR2_TOTAL) * 100}%`, backgroundColor: '#dc2626' }}
-          >
-            <span className="text-white text-sm font-bold">
-              Rep {PR2_HOUSE.GOP} ({((PR2_HOUSE.GOP / PR2_TOTAL) * 100).toFixed(0)}%)
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* STV row */}
-      <div className="flex items-center gap-3">
-        <div className="shrink-0 text-right" style={{ width: labelColW }}>
-          <div className="text-xs font-semibold text-foreground">{wyoming === 'triple' ? 'Triple' : `${systemLabel} (sim)`}</div>
-          <div className="text-xs text-muted-foreground">{stvTotal} seats</div>
-        </div>
-        <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: stvBarH }}>
-          {stvSegments.map(({ party, seats: n }) => {
-            const pct = (n / stvTotal) * 100;
-            const color = PARTY_COLORS[party] ?? '#6b7280';
-            return (
-              <div
-                key={party}
-                title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(1)}%)`}
-                className="flex items-center justify-center overflow-hidden"
-                style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}
-              >
-                {pct >= 5 && (
-                  <span className="text-xs font-bold leading-tight text-center px-0.5 chip-text" style={{ color: getContrastText(color) }}>
-                    {party}<br />{pct.toFixed(1)}%
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Double Wyoming comparison row (only in triple view) */}
-      {showDouble && (() => {
-        const dblSegments: { party: string; seats: number }[] = [];
-        for (const party of F5_ORDER) {
-          const clusterId = Object.entries(CLUSTER_TO_PARTY).find(([, p]) => p === party)?.[0];
-          if (!clusterId) continue;
-          const row = doubleSeats!.find(s => String(s.party) === clusterId);
-          if (row && row.national > 0) dblSegments.push({ party, seats: row.national });
-        }
-        return (
-          <div className="flex items-center gap-3">
-            <div className="shrink-0 text-right" style={{ width: labelColW }}>
-              <div className="text-xs font-semibold text-muted-foreground">Double</div>
-              <div className="text-xs text-muted-foreground">{dblTotal} seats</div>
-            </div>
-            <div className="flex-1 flex rounded-lg overflow-hidden opacity-60" style={{ height: stvBarH - 8 }}>
-              {dblSegments.map(({ party, seats: n }) => {
-                const pct = (n / dblTotal) * 100;
-                const color = PARTY_COLORS[party] ?? '#6b7280';
-                return (
-                  <div
-                    key={party}
-                    title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(1)}%)`}
-                    className="flex items-center justify-center overflow-hidden"
-                    style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}
-                  >
-                    {pct >= 5 && (
-                      <span className="text-[10px] font-bold leading-tight text-center px-0.5 chip-text" style={{ color: getContrastText(color) }}>
-                        {pct.toFixed(1)}%
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-3 pt-2 border-t border-border/50">
-        {stvSegments.map(({ party, seats: n }) => {
-          const pct = (n / stvTotal) * 100;
-          return (
-          <div key={party} className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }} />
-            <span className="text-xs text-muted-foreground font-medium">{party}</span>
-            <span className="text-xs text-muted-foreground">{n} ({pct.toFixed(1)}%)</span>
-          </div>
-          );
-        })}
-      </div>
-
-      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-        <strong className="text-foreground">FPTP:</strong> winner-take-all produces a 2-party monopoly with disproportionate seat shares.
-        <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
-        <strong className="text-foreground">PR (2-party):</strong> same two parties but seats match vote share.
-        <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
-        <strong className="text-foreground">{systemLabel}:</strong> {stvSegments.length} parties proportionally represented across {stvTotal} seats.
-      </p>
     </div>
   );
 }

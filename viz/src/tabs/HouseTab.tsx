@@ -15,7 +15,7 @@ import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
-import { PartyListView } from '../components/house/PartyListView';
+import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
 import type { PLConfig } from '../components/house/PartyListView';
 import { ScenarioComparison } from '../components/house/ScenarioComparison';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -148,6 +148,12 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   }, [hvmDepth]);
   const billRows = hvmDepth?.[depth]?.[part] ?? voteModel;
   const plConfig = plData?.[depth]?.[wyoming]?.[part];
+  // Double-Wyoming party-list config, for the party-list view's double-vs-triple comparison rows.
+  const plConfigDouble = plData?.[depth]?.['double']?.[part];
+  const partyListSeatsForChart = useMemo(
+    () => (scenario === 'rawMulti' && plConfig ? seatMapToHouseSeats(plConfig.national.listSeats) : undefined),
+    [scenario, plConfig],
+  );
   // Compression stops [0,5,10,15,20,25,30] per scenario × Wyoming. Every cell now tracks the
   // slider: RawMulti/Crossover × double/triple.
   const rmSeats    = [seatsTurnout, houseSeatsL5, houseSeatsL10, houseSeatsL15, houseSeatsL20, houseSeatsL25, houseSeatsL30][gi] as unknown as HouseSeat[];
@@ -343,7 +349,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
       </StickyControlBar>
 
       {system === 'list' && (plConfig
-        ? <PartyListView config={plConfig} wyoming={wyoming}
+        ? <PartyListView config={plConfig} wyoming={wyoming} doubleConfig={plConfigDouble}
             districtCountyMap={wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap} />
         : <div className="py-24 text-center text-sm text-muted-foreground">Loading party-list results…</div>)}
 
@@ -352,9 +358,16 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           SECTION 1: REPRESENTATION
           ═══════════════════════════════════════════════════════════════════════ */}
 
-      {/* Hero: FPTP vs STV */}
+      {/* Hero: FPTP vs STV vs Party List */}
       <Card className="p-5 border-2 border-indigo-200">
-        <FPTPvsSTV seats={activeSeats} doubleSeats={rmSeats} wyoming={wyoming} />
+        <FPTPvsSTV
+          seats={activeSeats}
+          systemLabel="STV"
+          otherSystemSeats={partyListSeatsForChart}
+          otherSystemLabel="Party List"
+          doubleSeats={rmSeats}
+          wyoming={wyoming}
+        />
       </Card>
 
       {/* Population vs Seat Share */}

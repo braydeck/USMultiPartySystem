@@ -3,7 +3,7 @@ import type {
   PresidentialElection, FDSenateSeat, HouseSeat, VoteModelRow, ClusterProfile, FDCandidateProfile,
   FPTPState, HouseStateEntry,
 } from '../types';
-import { F5_ORDER, PARTY_NAMES } from '../constants/parties';
+import { F5_ORDER } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
@@ -15,6 +15,8 @@ import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCar
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
 import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
 import { SenateCompositionCard } from '../components/senate/SenateCompositionCard';
+import { ConceptStrip } from '../components/shared/ConceptStrip';
+import { seatMapToHouseSeats } from '../components/house/PartyListView';
 
 interface Props {
   fdElection: PresidentialElection;
@@ -52,8 +54,6 @@ function DiveCard({ label, onClick }: { label: string; onClick: () => void }) {
 
 // ── Main component ─────────────────────────────────────────────────────────
 
-const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
-
 export function OverviewTab({
   rawMultiElection,
   rawMultiSenateCond, rawMultiSenateIRV,
@@ -64,7 +64,7 @@ export function OverviewTab({
   // The Overview is the headline snapshot at the app's DEFAULT settings: ballots ranked 7, 5% of the
   // turnout gap closed. House STV seats + the presidency general at that depth live in the lazy
   // bundles (party-list STV seats are depth-invariant only for list; STV changes), so derive them here.
-  const [hpl, setHpl] = useState<Record<string, Record<string, Record<string, { national: { stvSeats: Record<string, number> } }>>> | null>(null);
+  const [hpl, setHpl] = useState<Record<string, Record<string, Record<string, { national: { stvSeats: Record<string, number>; listSeats: Record<string, number> } }>>> | null>(null);
   const [gd, setGd] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setHpl).catch(() => {});
@@ -73,11 +73,11 @@ export function OverviewTab({
 
   const houseSeats7 = useMemo<HouseSeat[] | null>(() => {
     const stv = hpl?.top7?.double?.['5']?.national?.stvSeats;
-    if (!stv) return null;
-    return F5_ORDER.map(p => ({
-      party: CLUSTER_OF[p], partyName: PARTY_NAMES[p], national: stv[p] ?? 0,
-      urban: 0, suburban: 0, rural: 0, pctNational: 0, pctPopulation: 0,
-    })).filter(s => s.national > 0) as unknown as HouseSeat[];
+    return stv ? seatMapToHouseSeats(stv) : null;
+  }, [hpl]);
+  const houseListSeats7 = useMemo<HouseSeat[] | null>(() => {
+    const list = hpl?.top7?.double?.['5']?.national?.listSeats;
+    return list ? seatMapToHouseSeats(list) : null;
   }, [hpl]);
   const election = gd?.top7?.['5'] ?? rawMultiElection;
   const seats = houseSeats7 ?? houseSeats;
@@ -139,10 +139,13 @@ export function OverviewTab({
         </div>
       </div>
 
+      {/* Concept strip — FPTP / Condorcet / IRV / STV / Party List, so the results below don't assume prior knowledge */}
+      <ConceptStrip />
+
       {/* Section 1 — House FPTP vs STV */}
       <Card className="p-5 border-2 border-indigo-200">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">House of Representatives</h3>
-        <FPTPvsSTV seats={seats} />
+        <FPTPvsSTV seats={seats} systemLabel="STV" otherSystemSeats={houseListSeats7 ?? undefined} otherSystemLabel="Party List" />
         <div className="mt-4">
           <DiveCard label="Dive into the House →" onClick={() => onNavigate('house')} />
         </div>

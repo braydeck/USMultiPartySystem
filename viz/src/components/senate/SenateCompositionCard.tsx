@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import type { FDSenateSeat } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../../constants/parties';
+import { BAR_HEIGHT, LABEL_COL_WIDTH } from '../house/FPTPvsSTV';
 
 // Shared "FPTP Today vs Preferential Senate" composition card, used by both the Senate tab
 // and the Overview summary so the two charts are identical. Condorcet/IRV model one winner
@@ -27,24 +28,22 @@ function SenateCompBar({ label, seats, segments, total: totalOverride, multiplie
 
   return (
     <div className="flex items-center gap-3">
-      <div className="shrink-0 text-right" style={{ width: 110 }}>
+      <div className="shrink-0 text-right" style={{ width: LABEL_COL_WIDTH }}>
         <div className="text-xs font-semibold text-foreground">{label}</div>
         <div className="text-xs text-muted-foreground">{total} seats</div>
       </div>
-      <div className="flex-1 flex rounded-lg overflow-hidden h-11">
+      <div className="flex-1 flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
         {segs.map(({ party, n, color }) => {
           const pct = (n / total) * 100;
           return (
             <div key={party}
               title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(0)}%)`}
-              className="flex items-center justify-center overflow-hidden"
+              className="seat-segment flex min-w-0 items-center justify-center overflow-hidden"
               style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
-              {pct >= 5 && (
-                <span className="text-[10px] font-bold leading-tight text-center px-0.5 chip-text"
-                  style={{ color: getContrastText(color) }}>
-                  {party}<br />{n}
-                </span>
-              )}
+              <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text"
+                style={{ color: getContrastText(color) }}>
+                {party}<br />{n}
+              </span>
             </div>
           );
         })}
@@ -74,8 +73,6 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
     return {
       rows: parties.map(p => ({ party: p, cond: (cond[p] ?? 0) * 2, irv: (irv[p] ?? 0) * 2 })),
       total: condSeats.length * 2,
-      condParties: parties.filter(p => (cond[p] ?? 0) > 0).length,
-      irvParties: parties.filter(p => (irv[p] ?? 0) > 0).length,
     };
   }, [condSeats, irvSeats]);
 
@@ -108,14 +105,6 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
           </div>
         ))}
       </div>
-
-      <p className="text-xs text-muted-foreground leading-relaxed">
-        <strong className="text-foreground">FPTP:</strong> each state&apos;s plurality winner takes the seat, so two parties hold every chair.
-        <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
-        <strong className="text-foreground">Condorcet:</strong> the seat goes to the candidate who beats every rival one-on-one in a round-robin, the broad consensus pick ({stats.condParties} parties win seats).
-        <span className="mx-1.5 text-muted-foreground/50" aria-hidden>&bull;</span>
-        <strong className="text-foreground">IRV:</strong> eliminate the last-place candidate and transfer ballots until one clears a majority, rewarding strong first-choice bases ({stats.irvParties} parties win seats).
-      </p>
 
       <p className="text-[11px] text-muted-foreground/80">
         Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s

@@ -12,14 +12,22 @@ interface FactorDef {
 // Generated from analysis/efa/efa_loadings_k5_final.csv + clusterProfiles (make_factor_reference.py).
 const FACTORS = factorLoadingsData as FactorDef[];
 
-const VOTING_SYSTEMS = [
+const SINGLE_SEAT_SYSTEMS = [
   {
-    name: 'STV',
-    full: 'Single Transferable Vote',
-    used: 'Presidential Primary · House',
-    color: '#1d4ed8',
-    how: 'Voters rank candidates. Once a candidate passes the Droop quota (the vote share needed to lock a seat), their surplus votes transfer to next choices. Losers also transfer. Continues until seats are filled.',
-    why: 'Produces proportional outcomes in multi-seat races. Penalizes parties that run too many candidates (vote-splitting). Rewards coalition-building.',
+    name: 'FPTP',
+    full: 'First Past the Post',
+    used: "Today's system (comparison baseline)",
+    color: '#64748b',
+    how: 'Whoever wins the most votes in a single-member district takes the seat outright, even without a majority. Every other vote in that district elects no one.',
+    why: 'The baseline every chamber in this app compares against. Produces the two-party equilibrium and the disproportionality shown throughout.',
+  },
+  {
+    name: 'Condorcet',
+    full: 'Condorcet Method',
+    used: 'Presidential General · Senate',
+    color: '#a16207',
+    how: 'Every candidate faces every other in a head-to-head matchup. The candidate who beats everyone else wins. If no one does, a tiebreak applies.',
+    why: 'Finds the candidate most preferred by the electorate overall. Often selects a centrist who may not win IRV, revealing tension between the two methods.',
   },
   {
     name: 'IRV',
@@ -29,13 +37,24 @@ const VOTING_SYSTEMS = [
     how: 'Voters rank candidates. The last-place candidate is eliminated each round and their votes redistribute. Continues until someone clears 50%.',
     why: 'Eliminates spoiler effects. The winner has majority support after preferences are accounted for, often different from first-choice plurality.',
   },
+];
+
+const PROPORTIONAL_SYSTEMS = [
   {
-    name: 'Condorcet',
-    full: 'Condorcet Method',
-    used: 'Presidential General · Senate',
-    color: '#a16207',
-    how: 'Every candidate faces every other in a head-to-head matchup. The candidate who beats everyone else wins. If no one does, a tiebreak applies.',
-    why: 'Finds the candidate most preferred by the electorate overall. Often selects a centrist who may not win IRV, revealing tension between the two methods.',
+    name: 'STV',
+    full: 'Single Transferable Vote',
+    used: 'Presidential Primary · House',
+    color: '#1d4ed8',
+    how: 'Voters rank candidates. Once a candidate passes the Droop quota (the vote share needed to lock a seat), their surplus votes transfer to next choices. Losers also transfer. Continues until seats are filled.',
+    why: 'Produces proportional outcomes in multi-seat races. Penalizes parties that run too many candidates (vote-splitting). Rewards coalition-building.',
+  },
+  {
+    name: 'Party List',
+    full: 'Open Party List',
+    used: 'House alternative view',
+    color: '#0369a1',
+    how: "Candidate votes are pooled by party within each multi-member district. Seats go to parties by quota (Hare quota with largest remainders here), then filled by each party's top vote-getters.",
+    why: "Delivers proportional seat shares directly from vote share, without STV's ranked transfers. Shown alongside STV as a second proportional method for the House.",
   },
 ];
 
@@ -435,10 +454,46 @@ export function AboutTab() {
       {active === 'voting' && (
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            <span className="font-medium text-foreground">Three ranked-choice methods, and why the choice matters.</span> The
-            same ballots can elect different winners depending on the counting rule, and that disagreement is itself a finding.
+            <span className="font-medium text-foreground">Five counting methods, and why the choice matters.</span> The
+            same ballots (or the same district votes) can elect different winners, or different seat splits, depending
+            on the counting rule, and that disagreement is itself a finding.
           </p>
-          {VOTING_SYSTEMS.map(vs => (
+
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pt-1">Single-Seat Systems</h4>
+          {SINGLE_SEAT_SYSTEMS.map(vs => (
+            <Card key={vs.name} className="overflow-hidden">
+              <div
+                className="px-5 py-4 border-b"
+                style={{ backgroundColor: vs.color + '10', borderBottomColor: vs.color + '30' }}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="text-sm font-bold font-mono px-2.5 py-1 rounded"
+                    style={{ backgroundColor: vs.color + '20', color: vs.color }}
+                  >
+                    {vs.name}
+                  </span>
+                  <div>
+                    <div className="font-semibold text-foreground">{vs.full}</div>
+                    <div className="text-xs text-muted-foreground">Used in: {vs.used}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="px-5 py-4 grid sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">How it works</div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{vs.how}</p>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Why it matters here</div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{vs.why}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pt-3">Proportional Systems</h4>
+          {PROPORTIONAL_SYSTEMS.map(vs => (
             <Card key={vs.name} className="overflow-hidden">
               <div
                 className="px-5 py-4 border-b"

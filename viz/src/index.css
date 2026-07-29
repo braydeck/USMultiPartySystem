@@ -22,6 +22,21 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* Seat-share bar segments: show the inline party/pct label only once the segment itself
+   (not the viewport) is wide enough to hold it. A viewport breakpoint hides labels on wide
+   segments in a merely-narrow window; a container query tracks the segment's own width. */
+.seat-segment {
+  container-type: inline-size;
+}
+.seat-segment-label {
+  display: none;
+}
+@container (min-width: 40px) {
+  .seat-segment-label {
+    display: block;
+  }
+}
+
 @layer base {
   :root {
     --background: 210 40% 98%;

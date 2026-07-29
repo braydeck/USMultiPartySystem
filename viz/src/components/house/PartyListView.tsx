@@ -47,11 +47,20 @@ interface Props {
   config: PLConfig;
   wyoming: 'double' | 'triple';
   districtCountyMap: Record<string, string[]>;
+  /** Double-Wyoming config, for the triple view's double-vs-triple comparison rows. */
+  doubleConfig?: PLConfig;
 }
 
 const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
 
-export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
+export function seatMapToHouseSeats(seatMap: SeatMap): HouseSeat[] {
+  return F5_ORDER.map(p => ({
+    party: CLUSTER_OF[p], partyName: PARTY_NAMES[p], national: seatMap[p] ?? 0,
+    urban: 0, suburban: 0, rural: 0, pctNational: 0, pctPopulation: 0,
+  })).filter(s => s.national > 0) as unknown as HouseSeat[];
+}
+
+export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig }: Props) {
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [selState, setSelState] = useUrlState<string>('plstate', 'national');
   const nat = config.national;
@@ -87,13 +96,13 @@ export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
     return out;
   }, [config]);
 
-  // HouseSeat[] shaped party-list seats for the FPTP-vs-list chart (only party + national are read).
-  const partyListSeats = useMemo<HouseSeat[]>(() =>
-    F5_ORDER.map(p => ({
-      party: CLUSTER_OF[p], partyName: PARTY_NAMES[p], national: nat.listSeats[p] ?? 0,
-      urban: 0, suburban: 0, rural: 0, pctNational: 0, pctPopulation: 0,
-    })).filter(s => s.national > 0) as unknown as HouseSeat[],
-  [nat]);
+  // HouseSeat[] shaped seats for the FPTP/STV/list chart (only party + national are read).
+  const partyListSeats = useMemo(() => seatMapToHouseSeats(nat.listSeats), [nat]);
+  const stvSeats = useMemo(() => seatMapToHouseSeats(nat.stvSeats), [nat]);
+  const doubleListSeats = useMemo(
+    () => (wyoming === 'triple' && doubleConfig ? seatMapToHouseSeats(doubleConfig.national.listSeats) : undefined),
+    [wyoming, doubleConfig],
+  );
 
   const total = active.totalSeats || 1;
   const parties = F5_ORDER.filter(p => (active.listSeats[p] ?? 0) > 0 || (active.stvSeats[p] ?? 0) > 0 || (active.voteShare[p] ?? 0) > 0);
@@ -105,6 +114,18 @@ export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
 
   return (
     <div className="space-y-8">
+      {/* FPTP vs STV vs Party list — the hero comparison, mirroring the STV view */}
+      <Card className="p-5 border-2 border-indigo-200">
+        <FPTPvsSTV
+          seats={partyListSeats}
+          systemLabel="Party List"
+          otherSystemSeats={stvSeats}
+          otherSystemLabel="STV"
+          doubleSeats={doubleListSeats}
+          wyoming={wyoming}
+        />
+      </Card>
+
       {/* Seat share vs population share, party list vs STV */}
       <Card className="p-5 border-2 border-indigo-200">
         <div className="flex items-center justify-between gap-2 mb-1">
@@ -165,11 +186,6 @@ export function PartyListView({ config, wyoming, districtCountyMap }: Props) {
           <Stat label="Party list" value={nat.excess.list} tone="mid" note="stranded" />
           <Stat label="STV" value={nat.excess.stv} tone="best" note="transferred" />
         </div>
-      </Card>
-
-      {/* FPTP vs Party list — the hero comparison, mirroring the STV view */}
-      <Card className="p-5 border-2 border-indigo-200">
-        <FPTPvsSTV seats={partyListSeats} wyoming={wyoming} systemLabel="Party list" />
       </Card>
 
       {/* State composition — reuse STV components with list results */}
