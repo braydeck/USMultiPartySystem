@@ -28,6 +28,7 @@ import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+import { uncertaintyAt } from '../lib/uncertainty';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import houseSeatsL5 from '../data/houseSeatsTurnoutL5.json';
 import houseSeatsL10 from '../data/houseSeatsTurnoutL10.json';
@@ -165,6 +166,12 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   const fdDistrictGi       = [fdDist0, fdDist5, fdDist10, fdDist15, fdDist20, fdDist25, fdDist30][gi] as unknown as Record<string, DistrictResult[]>;
   const fdDistrictTripleGi = [fdDistTri0, fdDistTri5, fdDistTri10, fdDistTri15, fdDistTri20, fdDistTri25, fdDistTri30][gi] as unknown as Record<string, DistrictResult[]>;
   const districtTripleGi   = [distTri0, distTri5, distTri10, distTri15, distTri20, distTri25, distTri30][gi] as unknown as Record<string, DistrictResult[]>;
+  // Sampling uncertainty at the active stop. The bootstrap ran the party-line pipeline with
+  // rank-7 ballots on the 873-seat double-Wyoming map, so its seat counts describe that
+  // configuration only; every other combination degrades to bars without whiskers.
+  const houseU = scenario === 'rawMulti' && wyoming === 'double' && depth === 'top7'
+    ? uncertaintyAt(gi)?.house.seats
+    : undefined;
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -383,6 +390,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           doubleStateMap={rmStateMap}
           selectedState={seatShareState}
           onStateChange={setSeatShareState}
+          houseU={houseU}
         />
       </Card>
 
