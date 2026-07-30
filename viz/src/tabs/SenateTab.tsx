@@ -279,7 +279,8 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       )}
 
       <Card className="p-4">
-        <SenateMap seats={activeSeats} />
+        <SenateMap seats={activeSeats}
+          states={method === 'condorcet' ? unc?.senate.cond.states : unc?.senate.irv.states} />
       </Card>
 
       {/* One slot, switched by method: IRV builds a coalition through transfers, so it
