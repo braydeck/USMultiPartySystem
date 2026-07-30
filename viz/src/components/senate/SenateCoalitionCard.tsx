@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button';
 import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/parties';
 import { IRVSankey } from '../presidential/IRVSankey';
 import type { SenateIrvRoundsData, SenateCoalitionAverage } from '../../types';
+import type { StateUncertainty } from '../../lib/uncertainty';
 
 interface Props {
   data: SenateIrvRoundsData;
+  states?: Record<string, StateUncertainty>;
 }
 
 interface TooltipInfo { x: number; y: number; lines: string[] }
@@ -105,7 +107,7 @@ function CoalitionBar({ avg, onTip }: {
   );
 }
 
-export function SenateCoalitionCard({ data }: Props) {
+export function SenateCoalitionCard({ data, states }: Props) {
   const [selectedFips, setSelectedFips] = useState<string | null>(null);
   const [tip, setTip] = useState<TooltipInfo | null>(null);
 
@@ -116,6 +118,12 @@ export function SenateCoalitionCard({ data }: Props) {
     [data],
   );
   const selected = selectedFips ? data.states[selectedFips] : null;
+  const su = selectedFips ? states?.[selectedFips] : undefined;
+  // In a state where the observed run names a different winner than the likely one, show a
+  // representative run that produces the likely winner instead — a real coherent count,
+  // labelled as an example rather than as measurement.
+  const shownRounds = su?.repRounds ?? selected?.rounds;
+  const shownWinner = su?.repRounds ? su.modal : selected?.winner;
 
   // Segments too narrow to carry their own inline label surface in a legend instead.
   const legendParties = useMemo(() => {
@@ -128,7 +136,7 @@ export function SenateCoalitionCard({ data }: Props) {
   }, [data]);
 
   // Final-round head-to-head for the selected state.
-  const finalRound = selected?.rounds[selected.rounds.length - 1];
+  const finalRound = shownRounds?.[shownRounds.length - 1];
   const finalStandings = useMemo(() => {
     if (!finalRound) return [];
     return [...finalRound.candidates].sort((a, b) => b.pct - a.pct);
@@ -216,7 +224,15 @@ export function SenateCoalitionCard({ data }: Props) {
       {/* Per-state: the actual round-by-round flow, then the final two */}
       {selected && (
         <div className="space-y-3">
-          <IRVSankey rounds={selected.rounds} irvWinner={selected.winner} />
+          {su?.repRounds && (
+            <div className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">
+              Example count producing the likely winner ({su.modal.split('_')[0]},{' '}
+              {Math.round(su.pModal * 100)}% of resamples). The observed sample gives{' '}
+              {su.observed.split('_')[0]} at {Math.round(su.pObserved * 100)}%. Individual
+              percentages here illustrate one path rather than measuring this state.
+            </div>
+          )}
+          <IRVSankey rounds={shownRounds!} irvWinner={shownWinner!} />
 
           <div className="pt-3 border-t border-border/50">
             <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
@@ -238,6 +254,35 @@ export function SenateCoalitionCard({ data }: Props) {
               ))}
             </div>
           </div>
+
+          {su?.decomp && (
+            <div className="pt-3 border-t border-border/50">
+              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                Across {Object.keys(su.dist).length > 0 ? 'resamples' : ''} — why this race is close
+              </div>
+              <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr] gap-x-3 gap-y-1 text-[10px] items-center">
+                <span className="text-muted-foreground">Party</span>
+                <span className="text-muted-foreground">Makes final 5</span>
+                <span className="text-muted-foreground">Reaches last round</span>
+                <span className="text-muted-foreground">Wins</span>
+                <span className="text-muted-foreground">Wins if it gets there</span>
+                {Object.entries(su.decomp)
+                  .sort((a, b) => b[1].win - a[1].win)
+                  .filter(([, d]) => d.slate > 0.02)
+                  .map(([p, d]) => (
+                    <div key={p} className="contents">
+                      <PartyPill party={p} />
+                      <span className="tabular-nums text-muted-foreground">{Math.round(d.slate * 100)}%</span>
+                      <span className="tabular-nums text-muted-foreground">{Math.round(d.final * 100)}%</span>
+                      <span className="tabular-nums text-foreground font-semibold">{Math.round(d.win * 100)}%</span>
+                      <span className="tabular-nums text-muted-foreground">
+                        {d.winIfFinal == null ? '—' : `${Math.round(d.winIfFinal * 100)}%`}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -297,7 +297,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
             picked up as rivals were eliminated, ending at the tally that won.
             Select a state to watch the rounds play out.
           </p>
-          <SenateCoalitionCard data={irvRoundsStops[gi]} />
+          <SenateCoalitionCard data={irvRoundsStops[gi]} states={unc?.senate.irv.states} />
         </Card>
       ) : (
         <Card className="p-4">
