@@ -6,8 +6,8 @@ import { ToggleGroup } from '../shared/ToggleGroup';
 import type { SeatMap } from './voteBloc';
 
 // Who combines to pass each bill. Every bill is a row; parties are stacked left→right, each
-// segment sized by its seats. The dashed line is the majority. Parties left of it are the
-// coalition that carries the bill; the one straddling it (white/dark ring) is pivotal.
+// segment sized by its seats. The solid vertical rule at 50% is the majority. Parties left of it
+// are the coalition that carries the bill; the one straddling it (white/dark ring) is pivotal.
 //   • Whipped: a party casts all its seats for the side its majority favors — one segment per party.
 //   • Free vote: each party's seats split by its yes-probability, so a split party shows on BOTH
 //     sides (solid yes chunk left of the line, faded no chunk right of it).
@@ -106,14 +106,17 @@ export function CoalitionMap({ candidateVotes, houseSeats, senateSeats, voteMode
   const [chamber, setChamber] = useState<Chamber>('house');
   const seats = chamber === 'house' ? houseSeats : senateSeats;
 
+  // Group by domain, not by runs of adjacent rows. Bills arrive in CES variable order, which
+  // interleaves domains — a student-loan item sits inside the immigration battery — so comparing
+  // against the previous row alone printed "Immigration" three times and duplicated React keys.
   const groups = useMemo(() => {
-    const g: { domain: string; rows: CandidateVoteRow[] }[] = [];
+    const byDomain = new Map<string, CandidateVoteRow[]>();
     for (const b of candidateVotes) {
-      const last = g[g.length - 1];
-      if (last && last.domain === b.domain) last.rows.push(b);
-      else g.push({ domain: b.domain, rows: [b] });
+      const rows = byDomain.get(b.domain);
+      if (rows) rows.push(b);
+      else byDomain.set(b.domain, [b]);
     }
-    return g;
+    return [...byDomain].map(([domain, rows]) => ({ domain, rows }));
   }, [candidateVotes]);
 
   return (
@@ -133,7 +136,24 @@ export function CoalitionMap({ candidateVotes, houseSeats, senateSeats, voteMode
 
       <div className="hidden md:grid grid-cols-[minmax(140px,1.3fr)_2fr] gap-3 px-0 pb-1 text-[10px] text-muted-foreground uppercase tracking-widest">
         <div>Bill</div>
-        <div>{voteModel === 'whipped' ? 'Parties by support' : 'Votes by party'} · seat-weighted · ◆ = pivotal · dashed = majority</div>
+        {/* Swatches rather than words: the two marks are a ring and a line, and naming them was
+            how the header came to claim a diamond and a dashed rule that were never drawn. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span>{voteModel === 'whipped' ? 'Parties by support' : 'Votes by party'} · seat-weighted</span>
+          <span className="flex items-center gap-1.5 normal-case tracking-normal">
+            <span className="w-4 h-3.5 rounded-sm bg-muted-foreground/30"
+              style={{ boxShadow: 'inset 0 0 0 1.5px #fff, inset 0 0 0 3px rgba(15,23,42,0.85)' }} />
+            pivotal
+          </span>
+          <span className="flex items-center gap-1.5 normal-case tracking-normal">
+            <span className="relative w-4 h-3.5">
+              <span className="absolute inset-y-0 left-1/2 -ml-px" style={{
+                width: 2, backgroundColor: '#0f172a', boxShadow: '0 0 0 1.5px rgba(255,255,255,0.9)',
+              }} />
+            </span>
+            majority
+          </span>
+        </div>
       </div>
 
       {groups.map((g) => (
