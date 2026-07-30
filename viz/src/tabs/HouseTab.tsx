@@ -307,7 +307,11 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
     const stateMap: Record<string, HouseStateEntry> = {};
     for (const [fips, s] of Object.entries(cfg.byState)) {
       const plur = Object.entries(s.stvSeats).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-      stateMap[fips] = { stateAbbr: s.abbr, pluralityParty: plur, totalSeats: s.totalSeats, seats: s.stvSeats, popShares: s.voteShare } as unknown as HouseStateEntry;
+      // No popShares: this held s.voteShare until 2026-07-30, which the state-level card rendered
+      // under a "Population" label (California Conservative 12.8 against a real 12.2). The depth
+      // bundle carries no per-state population field, so leaving it out lets the card fall back to
+      // the state map's own popShares, which are population and stop-invariant. Do not restore.
+      stateMap[fips] = { stateAbbr: s.abbr, pluralityParty: plur, totalSeats: s.totalSeats, seats: s.stvSeats } as unknown as HouseStateEntry;
     }
     return { seats, stateMap, districts };
   }, [depth, scenario, plData, wyoming, part]);
