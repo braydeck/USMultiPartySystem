@@ -725,6 +725,71 @@ export function AboutTab() {
             </p>
           </Card>
 
+          <Card className="p-5">
+            <div className="font-semibold text-foreground mb-2">How precise are the seat counts?</div>
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+              <p>
+                The card above names the limit: which individual voter lands in which party is a
+                statistical estimate. This section is what that limit costs in seats. Each state&apos;s
+                respondents are resampled 1,000 times, with replacement and within state so every state
+                keeps its own sample size, and the whole election is re-run on every draw, at all seven
+                participation stops. The headline is the{' '}
+                <strong className="text-foreground">most likely</strong> winner across those draws; the
+                whiskers and ranges show how far the result travels.
+              </p>
+              <p>
+                Most results barely move. The few that do are thin samples rather than unusually divided
+                states. Wyoming has the smallest CES sample of any state at 70 respondents, and its spread
+                of opinion is close to the national spread, so it is the sample doing the work. Under IRV
+                its observed winner is the less likely one: Populist takes 29% of resamples and
+                Conservative 52%.
+              </p>
+              <p>
+                Wyoming also shows why a race can be unstable without either party being weak. Conservative
+                and Populist win almost the same share of the draws in which they reach the final round,
+                57% and 60%. What separates them is getting there. Conservative reaches the final round in
+                92% of draws and Populist in 49%. Populist won the observed sample because it survived that
+                far, which happens less than half the time.
+              </p>
+              <p>
+                Where the observed sample names a different winner than the likely one, the vote-flow chart
+                for that state shows an <strong className="text-foreground">example count</strong> that
+                produces the likely winner instead, chosen to be typical of those draws. Its individual
+                percentages illustrate one path rather than measuring that state. Four states are
+                substituted this way under IRV and five under Condorcet.
+              </p>
+              <p>
+                The two counting methods are equally reliable on average and differently shaped. Mean
+                confidence in the winner is 71% under both. The distributions are not alike: Condorcet
+                reproduces its winner in over 90% of draws in 19 of 51 races but falls below 50% in 13,
+                while IRV clears 90% in only 8 races, drops below 50% in 6, and puts 21 races between 50%
+                and 70%. Condorcet is more decisive where it is decisive and closer to a coin flip where it
+                is not. That follows from what each rule asks. Condorcet asks whether one party beats every
+                rival head to head, a question with either a robust answer or a fragile one, while IRV&apos;s
+                answer rides on an elimination order that reshuffles support every round, which keeps most
+                races off both extremes. Neither method is the more trustworthy one here; they concentrate
+                their uncertainty in different places.
+              </p>
+              <p>
+                The presidency shows the same contrast. IRV returns Labor in 100% of draws. Condorcet
+                returns Solidarity in 62% and Labor in 38%, so the Condorcet presidency is close to a coin
+                flip even though the observed sample names a single winner. No draw of the 7,000 produced a
+                Condorcet cycle, so every one resolved to a winner.
+              </p>
+              <p className="text-[11px]">
+                These are <strong className="text-foreground">bootstrap percentile intervals</strong>, not
+                credible intervals. An election outcome is a complex, discontinuous function of the
+                underlying data, so resampling is the right tool for it. Per-party ranges do not sum to the
+                chamber size, because two parties cannot both land at their maximum; the most likely and
+                expected chambers both do sum correctly. And this captures <em>sampling</em> uncertainty
+                only. Candidate fields are held fixed, because the senate&apos;s per-state candidate pool
+                comes from a committed 52-row state profile that cannot be resampled, so the true
+                uncertainty is wider than shown and the senate ranges carry no uncertainty at all about who
+                runs.
+              </p>
+            </div>
+          </Card>
+
           <Card className="overflow-hidden">
             <div className="px-5 py-4 border-b border-border/50 bg-muted">
               <div className="font-semibold text-foreground">Key Assumptions</div>
