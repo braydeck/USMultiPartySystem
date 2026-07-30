@@ -17,6 +17,14 @@ Output: data/processed/county_to_district.csv
   state_fips    — 2-digit zero-padded state FIPS
   district_id   — e.g. "17-01"
   density_tier  — URBAN | SUBURBAN | RURAL
+
+Reproducibility: the tie-breaks below name the county FIPS explicitly and the output is sorted, so
+the same inputs now draw the same map byte for byte. They did not before — ties fell through to set
+iteration order, which varies with PYTHONHASHSEED, moving ~52 of 3,142 counties per run. The
+committed data/processed/county_to_district.csv predates that fix, so regenerating it WILL produce a
+different (and thereafter stable) map. Do not regenerate it without also re-running the house STV
+chain that consumes it: run_house_canonical.py, pure_only/run_pure_multi_house_stv.py and
+pure_only/run_party_house_stv.py — the district map is an input to the published seat counts.
 """
 
 import csv
@@ -182,7 +190,10 @@ def draw_state_districts(state_fips: str,
         if not pool:
             continue
 
-        seed = max(pool, key=lambda c: county_pops.get(c, 0))
+        # Tie-breaks name the FIPS explicitly. Without it these max() calls fell through to set
+        # iteration order, which varies with PYTHONHASHSEED, so the same inputs drew a different
+        # map on every run (~52 of 3,142 counties moved).
+        seed = max(pool, key=lambda c: (county_pops.get(c, 0), c))
         in_district: set = {seed}
         unassigned.discard(seed)
         frontier: set = {n for n in adjacency.get(seed, set()) if n in unassigned}
@@ -193,6 +204,7 @@ def draw_state_districts(state_fips: str,
             best = max(frontier, key=lambda c: (
                 int(county_tiers.get(c, "") == tier),
                 county_pops.get(c, 0),
+                c,
             ))
             in_district.add(best)
             unassigned.discard(best)
@@ -207,8 +219,8 @@ def draw_state_districts(state_fips: str,
     changed = True
     while changed and unassigned:
         changed = False
-        for c in list(unassigned):
-            for nbr in adjacency.get(c, set()):
+        for c in sorted(unassigned):
+            for nbr in sorted(adjacency.get(c, set())):
                 if nbr in assignment:
                     assignment[c] = assignment[nbr]
                     unassigned.discard(c)
@@ -303,7 +315,9 @@ def main(triple=False):
             f, fieldnames=["county_fips5", "state_fips", "district_id", "density_tier"]
         )
         writer.writeheader()
-        writer.writerows(rows)
+        # Sorted: the per-district assignment dict is keyed off a set, so row order alone used to
+        # vary run to run even when every assignment matched.
+        writer.writerows(sorted(rows, key=lambda r: r["county_fips5"]))
     print(f"Saved {output_path}  ({len(rows):,} county-district mappings)")
 
 
