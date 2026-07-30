@@ -151,7 +151,7 @@ def stratified_indices(strata: np.ndarray, seed: int) -> np.ndarray:
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 4 lines of `ok` then `4 checks passed`
+Expected: 6 lines of `ok` then `6 checks passed`
 
 - [ ] **Step 5: Commit**
 
@@ -291,7 +291,7 @@ def resampled_inputs(idx, extra_paths: Iterable[Path] = ()):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 7 `ok` lines, `7 checks passed`
+Expected: 9 `ok` lines, `9 checks passed`
 
 - [ ] **Step 5: Commit**
 
@@ -497,7 +497,7 @@ def run_draw(seed: int, lam: float, depth: int = 7, observed: bool = False) -> d
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 9 `ok` lines, `9 checks passed`. If `run_pure_multi_presidential` has no `PRIMARY_PATH` or `OUTPUT_DIR` module global, run `grep -n "^PRIMARY_PATH\|^OUTPUT_DIR" pipeline/pure_only/run_pure_multi_presidential.py` and adjust the attribute names to match, keeping the save/restore pattern.
+Expected: 11 `ok` lines, `11 checks passed`. If `run_pure_multi_presidential` has no `PRIMARY_PATH` or `OUTPUT_DIR` module global, run `grep -n "^PRIMARY_PATH\|^OUTPUT_DIR" pipeline/pure_only/run_pure_multi_presidential.py` and adjust the attribute names to match, keeping the save/restore pattern.
 
 - [ ] **Step 5: Verify nothing canonical was written**
 
@@ -614,7 +614,7 @@ def pick_representative(draws: list, fips: str, winner_party: str):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 11 `ok` lines, `11 checks passed`
+Expected: 13 `ok` lines, `13 checks passed`
 
 - [ ] **Step 5: Commit**
 
@@ -827,7 +827,7 @@ def build_uncertainty(draws, observed, n_draws, seed):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 12 `ok` lines, `12 checks passed`
+Expected: 14 `ok` lines, `14 checks passed`
 
 - [ ] **Step 5: Write the CLI**
 
