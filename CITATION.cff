@@ -6,7 +6,7 @@ authors:
   - family-names: Decker
     given-names: Brayden
 repository-code: "https://github.com/braydeck/USMultiPartySystem"
-url: "https://usmultipartysystem.pages.dev/"
+url: "https://usmultiparty.com/"
 abstract: >-
   An interactive simulation of US elections under proportional representation,
   built from 45,707 2024 Cooperative Election Study responses via polychoric EFA,
