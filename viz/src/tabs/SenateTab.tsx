@@ -81,6 +81,7 @@ import { SenateCompositionCard } from '../components/senate/SenateCompositionCar
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
+import { uncertaintyAt } from '../lib/uncertainty';
 
 interface Props {
   condorcetFD:       FDSenateSeat[];
@@ -120,6 +121,9 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   const fdIrvStops  = [fdSenIrv0, fdSenIrv5, fdSenIrv10, fdSenIrv15, fdSenIrv20, fdSenIrv25, fdSenIrv30] as unknown as FDSenateSeat[][];
   const condRM = (rawMultiOn ? rmCondStops : fdCondStops)[gi];
   const irvRM  = (rawMultiOn ? rmIrvStops  : fdIrvStops )[gi];
+  // Sampling uncertainty at the active stop. Party-line only — the Crossover pipeline
+  // is not bootstrapped, so these are undefined there and every consumer degrades.
+  const unc = rawMultiOn ? uncertaintyAt(gi) : undefined;
   // Coalition / head-to-head / winnow at the current stop. Party-line only — the
   // Crossover pipeline has no equivalent per-state round data.
   const irvRoundsStops = [senIrvRounds0, senIrvRounds5, senIrvRounds10, senIrvRounds15,
@@ -235,7 +239,8 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       </StickyControlBar>
 
       {/* FPTP vs Preferential Senate Comparison (shared with Overview) */}
-      <SenateCompositionCard condSeats={condRM} irvSeats={irvRM} />
+      <SenateCompositionCard condSeats={condRM} irvSeats={irvRM}
+        condU={unc?.senate.cond} irvU={unc?.senate.irv} nDraws={unc?.nDraws} />
 
       {/* Parliament fan chart */}
       <Card className="p-4">

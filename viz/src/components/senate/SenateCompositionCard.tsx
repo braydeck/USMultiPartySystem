@@ -4,6 +4,14 @@ import type { FDSenateSeat } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../../constants/parties';
 import { BAR_HEIGHT, LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
+import { SeatRangeStrip } from '../shared/SeatRangeStrip';
+import { UncertaintyDetail } from '../shared/UncertaintyDetail';
+import type { MethodUncertainty } from '../../lib/uncertainty';
+
+// Built from the seat array so it always matches whatever states the model covers.
+function fipsToAbbr(seats: FDSenateSeat[]): Record<string, string> {
+  return Object.fromEntries(seats.map(s => [s.stateFips, s.stateAbbr]));
+}
 
 // Shared "FPTP Today vs Preferential Senate" composition card, used by both the Senate tab
 // and the Overview summary so the two charts are identical. Condorcet/IRV model one winner
@@ -53,11 +61,15 @@ function SenateCompBar({ label, seats, segments, total: totalOverride, multiplie
   );
 }
 
-export function SenateCompositionCard({ condSeats, irvSeats }: {
+export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws }: {
   condSeats: FDSenateSeat[];
   irvSeats: FDSenateSeat[];
+  condU?: MethodUncertainty;
+  irvU?: MethodUncertainty;
+  nDraws?: number;
 }) {
   const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
+  const FIPS_TO_ABBR = useMemo(() => fipsToAbbr(condSeats), [condSeats]);
 
   // Per-party seat counts under each preferential method, for the composition legend.
   const stats = useMemo(() => {
@@ -69,15 +81,21 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
       }
       return c;
     };
-    const cond = tally(condSeats);
-    const irv = tally(irvSeats);
+    // Headline is the modal chamber where we have it — it is the most likely winner in
+    // each state and still one winner per state, so it sums to the chamber size.
+    const cond: Record<string, number> = condU
+      ? Object.fromEntries(Object.entries(condU.seats).map(([p, v]) => [p, v.modal / 2]))
+      : tally(condSeats);
+    const irv: Record<string, number> = irvU
+      ? Object.fromEntries(Object.entries(irvU.seats).map(([p, v]) => [p, v.modal / 2]))
+      : tally(irvSeats);
     const parties = F5_ORDER.filter(p => (cond[p] ?? 0) > 0 || (irv[p] ?? 0) > 0);
     // ×2: model gives one winner per state; each fills both of the state's seats.
     return {
       rows: parties.map(p => ({ party: p, cond: (cond[p] ?? 0) * 2, irv: (irv[p] ?? 0) * 2 })),
       total: condSeats.length * 2,
     };
-  }, [condSeats, irvSeats]);
+  }, [condSeats, irvSeats, condU, irvU]);
 
   // Parties whose sliver is too narrow for its inline label in either bar — same rule as the
   // House card's legend, so a party present under one method but not the other (e.g. a party
@@ -106,8 +124,20 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
         { party: 'GOP', n: 53, color: '#dc2626' },
       ]} total={100} />
       {/* Condorcet + IRV, doubled to a full chamber */}
-      <SenateCompBar label="Condorcet ×2" seats={condSeats} multiplier={2} />
-      <SenateCompBar label="IRV ×2" seats={irvSeats} multiplier={2} />
+      <SenateCompBar label="Condorcet ×2" total={stats.total}
+        segments={stats.rows.filter(r => r.cond > 0)
+          .map(r => ({ party: r.party, n: r.cond, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
+      {condU && (
+        <SeatRangeStrip seats={condU.seats} order={stats.rows.map(r => r.party)}
+          label="Condorcet — range across resamples (tick = most likely, dot = expected)" />
+      )}
+      <SenateCompBar label="IRV ×2" total={stats.total}
+        segments={stats.rows.filter(r => r.irv > 0)
+          .map(r => ({ party: r.party, n: r.irv, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
+      {irvU && (
+        <SeatRangeStrip seats={irvU.seats} order={stats.rows.map(r => r.party)}
+          label="IRV — range across resamples (tick = most likely, dot = expected)" />
+      )}
 
       {/* Legend — a combined row per party, shown only for slivers too narrow for their inline
           label; a plainly legible bar segment doesn't need restating below. */}
@@ -130,6 +160,15 @@ export function SenateCompositionCard({ condSeats, irvSeats }: {
         Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s
         seats for a full-chamber view ({stats.total} seats), which assumes matched delegations and so drops today&apos;s split D/R states.
       </p>
+      {irvU && nDraws && (
+        <>
+          <p className="text-[11px] text-muted-foreground/80">
+            {irvU.nBelow50} of {condSeats.length} seats are close enough to flip on sampling alone.
+          </p>
+          <UncertaintyDetail seats={irvU.seats} states={irvU.states} nDraws={nDraws}
+            stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
+        </>
+      )}
     </Card>
   );
 }
