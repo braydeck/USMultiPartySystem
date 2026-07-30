@@ -46,10 +46,11 @@ export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
       </p>
       {/* Full party order, not just the parties in the headline bars: a party with no modal
           seats can still have a real sampling range, and the strip is where that range shows up. */}
+      {/* One key for the pair, on the lower strip: the marks are identical in both. */}
       <SeatRangeStrip seats={condU.seats} order={[...F5_ORDER]} max={rangeStripMax}
-        label="Condorcet — range across resamples (tick = most likely, dot = expected)" />
+        label="Condorcet" showKey={false} />
       <SeatRangeStrip seats={irvU.seats} order={[...F5_ORDER]} max={rangeStripMax}
-        label="IRV — range across resamples (tick = most likely, dot = expected)" />
+        label="IRV" />
 
       {/* Both methods, named: the card draws both strips and Condorcet is the Senate tab's
           default, so quoting one method's close-race count unlabelled reads as the other's. */}

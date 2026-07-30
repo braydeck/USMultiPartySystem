@@ -7,7 +7,32 @@ import type { SeatInterval } from '../../lib/uncertainty';
 /** Compact always-visible range rows, one per seat-holding party: the 95% span, the
  *  expected value, and a tick at the most likely count. Used where the chamber bar is
  *  stacked and an inline whisker would overlap into neighbouring parties' segments. */
-export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
+/** Visual key for the three marks. Neutral-coloured so it reads as a key rather than as one
+ *  party's row; each swatch is drawn with the same styles the rows use. */
+function RangeKey() {
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] text-muted-foreground">
+      <span className="flex items-center gap-1.5">
+        <span className="w-5 h-2.5 rounded-sm bg-foreground/25" />
+        95% of resamples
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="relative w-5 h-2.5">
+          <span className="absolute inset-y-0 left-1/2 -ml-px w-0.5 bg-foreground/70" />
+        </span>
+        most likely
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="relative w-5 h-2.5">
+          <span className="absolute top-1/2 left-1/2 -mt-[3px] -ml-[3px] w-1.5 h-1.5 rounded-full bg-foreground/85" />
+        </span>
+        expected
+      </span>
+    </div>
+  );
+}
+
+export function SeatRangeStrip({ seats, order, label, max: maxOverride, showKey = true }: {
   seats: Record<string, SeatInterval>;
   order: string[];
   label: string;
@@ -15,6 +40,8 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
    *  stacked and must read on the same scale for their bar positions to be comparable. Falls
    *  back to this strip's own largest `hi` when omitted. */
   max?: number;
+  /** Off for all but the last strip in a stack, so one key serves the whole group. */
+  showKey?: boolean;
 }) {
   const rows = useMemo(
     () => order
@@ -64,6 +91,13 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
         </div>
         <span className="w-24 shrink-0" />
       </div>
+      {showKey && (
+        <div className="flex items-center gap-2 pt-0.5">
+          <span className="w-10 shrink-0" />
+          <div className="flex-1"><RangeKey /></div>
+          <span className="w-24 shrink-0" />
+        </div>
+      )}
     </div>
   );
 }
