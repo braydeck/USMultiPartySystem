@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { uncertaintyAt, chamberTotal, UNCERTAINTY_STOPS, POPULATION_SHARE, populationShares } from './uncertainty'
+import { uncertaintyAt, chamberTotal, UNCERTAINTY_STOPS, SHARE_RANGES, VOTE_STOP_KEYS, populationShares, voteSharesAt } from './uncertainty'
 
 describe('uncertainty accessor', () => {
   it('exposes one payload per turnout stop', () => {
@@ -94,28 +94,48 @@ describe('uncertainty accessor', () => {
   })
 })
 
-describe('population share range', () => {
-  it('covers all ten parties and both point and expected shares total 100%', () => {
-    const shares = populationShares()
-    expect(Object.keys(shares)).toHaveLength(10)
-    for (const k of ['point', 'expected'] as const) {
-      const sum = Object.values(shares).reduce((s, v) => s + v[k], 0)
-      expect(sum).toBeCloseTo(100, 1)
-    }
+describe('share ranges', () => {
+  // One population block plus one vote block per turnout stop.
+  const blocks = () => [
+    ['population', populationShares()] as const,
+    ...VOTE_STOP_KEYS.map((k, gi) => [`votes.${k}`, voteSharesAt(gi)!] as const),
+  ]
+
+  it('carries eight blocks: one population, seven vote stops', () => {
+    expect(blocks()).toHaveLength(8)
+    expect(Object.keys(SHARE_RANGES.votes)).toHaveLength(7)
+    expect(voteSharesAt(-1)).toBeUndefined()
+    expect(voteSharesAt(7)).toBeUndefined()
   })
 
-  it('brackets every expected share inside its own bounds', () => {
-    for (const [code, iv] of Object.entries(populationShares())) {
-      expect(iv.lo, code).toBeLessThanOrEqual(iv.expected)
-      expect(iv.expected, code).toBeLessThanOrEqual(iv.hi)
-      for (const k of ['point', 'expected', 'lo', 'hi'] as const) {
-        expect(typeof iv[k], `${code}.${k}`).toBe('number')
+  it('covers all ten parties and totals 100% in every block', () => {
+    for (const [label, shares] of blocks()) {
+      expect(Object.keys(shares), label).toHaveLength(10)
+      for (const k of ['point', 'expected'] as const) {
+        const sum = Object.values(shares).reduce((s, v) => s + v[k], 0)
+        expect(sum, `${label}.${k}`).toBeCloseTo(100, 1)
       }
     }
   })
 
-  it('is stop-invariant: population share is never turnout-weighted', () => {
-    expect(POPULATION_SHARE.stopInvariant).toBe(true)
-    expect(POPULATION_SHARE.nDraws).toBe(1000)
+  it('brackets every expected share inside its own bounds', () => {
+    for (const [label, shares] of blocks()) {
+      for (const [code, iv] of Object.entries(shares)) {
+        expect(iv.lo, `${label}.${code}`).toBeLessThanOrEqual(iv.expected)
+        expect(iv.expected, `${label}.${code}`).toBeLessThanOrEqual(iv.hi)
+        for (const k of ['point', 'expected', 'lo', 'hi'] as const) {
+          expect(typeof iv[k], `${label}.${code}.${k}`).toBe('number')
+        }
+      }
+    }
+  })
+
+  it('keeps population stop-invariant while votes are keyed by stop', () => {
+    expect(SHARE_RANGES.population.stopInvariant).toBe(true)
+    expect(SHARE_RANGES.nDraws).toBe(1000)
+    // Turnout weighting has to bite somewhere, or the votes blocks are silently population.
+    const first = voteSharesAt(0)!, last = voteSharesAt(6)!
+    expect(first.STY.point).not.toBeCloseTo(last.STY.point, 2)
+    expect(first.STY.point).not.toBeCloseTo(populationShares().STY.point, 2)
   })
 })

@@ -28,7 +28,7 @@ import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-import { uncertaintyAt } from '../lib/uncertainty';
+import { uncertaintyAt, populationShares } from '../lib/uncertainty';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import houseSeatsL5 from '../data/houseSeatsTurnoutL5.json';
 import houseSeatsL10 from '../data/houseSeatsTurnoutL10.json';
@@ -123,6 +123,10 @@ interface Props {
 }
 
 type WyomingRule = 'double' | 'triple';
+
+// Population share by party code, stop-invariant. The pre-built houseSeats*.json bundles already
+// carry these as pctPopulation; the depth bundles carry no population field, so they read it here.
+const POP_SHARES = populationShares();
 
 export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
@@ -294,7 +298,11 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
     const seats = Object.entries(byC).map(([k, v]) => ({
       party: Number(k), partyName: CN[Number(k)], urban: v.urban, suburban: v.suburban, rural: v.rural,
       national: v.national, pctNational: v.national / total * 100,
-      pctPopulation: cfg.national.voteShare[CLUSTER_TO_PARTY[k]] ?? 0,
+      // True population share, matching the field's name and the "Population" label it renders
+      // under. This held cfg.national.voteShare until 2026-07-30 — vote share, a different
+      // quantity (Solidarity showed 9.84 against a real 14.25). Vote share is now its own row in
+      // the range view, read from the same populationShareRange payload as this. Do not restore.
+      pctPopulation: POP_SHARES[CLUSTER_TO_PARTY[k]]?.point ?? 0,
     })) as unknown as HouseSeat[];
     const stateMap: Record<string, HouseStateEntry> = {};
     for (const [fips, s] of Object.entries(cfg.byState)) {
@@ -396,6 +404,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           selectedState={seatShareState}
           onStateChange={setSeatShareState}
           houseU={houseU}
+          gi={gi}
         />
       </Card>
 

@@ -3,7 +3,7 @@ import type { HouseSeat, HouseStateEntry } from '../../types';
 import { getPartyColor, PARTY_NAMES, F5_ORDER, CLUSTER_TO_PARTY } from '../../constants/parties';
 import { SeatShareBar as Bar } from './SeatShareBar';
 import { PopSeatRanges, type PopSeatRangeRow, type Span } from './PopSeatRanges';
-import { populationShares, type SeatInterval, type ShareInterval } from '../../lib/uncertainty';
+import { populationShares, voteSharesAt, type SeatInterval, type ShareInterval } from '../../lib/uncertainty';
 
 /** One party's row. Interval fields are only populated in the national view, where the
  *  bootstrap's national seat counts share the row's denominator. */
@@ -17,11 +17,14 @@ interface Row {
   seatIv?: Span;
   /** Percent-of-population span and point. One payload for every turnout stop: population share
    *  is weighted by the survey weight alone, never by turnout, because it describes the
-   *  population rather than the electorate. The seat span is turnout-weighted and does move —
-   *  that asymmetry is where disproportionality comes from, not a bug.
-   *  Carries its own `point` because `popPct` above is `voteShare` in the depth-bundle path
-   *  (electorate share, stop-dependent), which is a different quantity from this span. */
+   *  population rather than the electorate. The vote and seat spans are turnout-weighted and do
+   *  move — that asymmetry is where the turnout effect comes from, not a bug. */
   popIv?: ShareInterval;
+  /** Percent-of-national-vote span and point at this turnout stop. Both come from the same
+   *  payload, so tick and band are one computation. The card's district-aggregated vote share
+   *  differs from this national figure by at most 0.16pp against 0.6-1.1pp interval widths, and
+   *  mixing the two sources is the mistake this row exists to avoid. */
+  voteIv?: ShareInterval;
 }
 
 // Static: population share does not vary by turnout stop, so this needs no hook.
@@ -39,9 +42,11 @@ interface Props {
   selectedState: string;
   onStateChange: (state: string) => void;
   houseU?: Record<string, SeatInterval>;
+  /** Turnout stop, index 0-6. Only the vote spans need it; population is stop-invariant. */
+  gi: number;
 }
 
-export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSeats, doubleFdSeats, wyoming = 'double', stateMap, doubleStateMap, selectedState, onStateChange, houseU }: Props) {
+export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSeats, doubleFdSeats, wyoming = 'double', stateMap, doubleStateMap, selectedState, onStateChange, houseU, gi }: Props) {
   const isNational = selectedState === 'national';
 
   const stateOpts = useMemo(() => [
@@ -60,12 +65,13 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
       const dblArr = showDbl ? (showFD && doubleFdSeats ? doubleFdSeats : doubleSeats!) : [];
       const dblTotal = dblArr.reduce((s, r) => s + r.national, 0) || 1;
 
+      const voteIvs = houseU ? voteSharesAt(gi) : undefined;
       const rows: Row[] = F5_ORDER.map(code => {
         const rm = rawMultiSeats.find(s => CLUSTER_TO_PARTY[String(s.party)] === code);
         const fd = fdSeats.find(s => CLUSTER_TO_PARTY[String(s.party)] === code);
         const dbl = dblArr.find(s => CLUSTER_TO_PARTY[String(s.party)] === code);
         // Bootstrap bounds are seat counts, so they convert on rmTotal — the same denominator
-        // this row's seatPct came from. Population bounds arrive already in percent.
+        // this row's seatPct came from. Population and vote bounds arrive already in percent.
         const u = houseU?.[code];
         const pop = houseU ? POP_IVS[code] : undefined;
         return {
@@ -78,18 +84,20 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
             ? { lo: u.lo / rmTotal * 100, hi: u.hi / rmTotal * 100, expected: u.expected / rmTotal * 100 }
             : undefined,
           popIv: pop,
+          voteIv: voteIvs?.[code],
         };
       }).filter(r => r.popPct > 0 || r.seatPct > 0 || r.fdPct > 0);
       // The axis has to clear the widest sampling bound — the leading party's upper bound sits
       // past its own seat share — plus a hair of headroom, or that bound's 1px end cap lands on
       // the track's clipping edge and disappears.
-      const uCeil = Math.max(0, ...rows.flatMap(r => [r.seatIv?.hi ?? 0, r.popIv?.hi ?? 0])) * 1.02;
+      const uCeil = Math.max(0, ...rows.flatMap(
+        r => [r.seatIv?.hi ?? 0, r.popIv?.hi ?? 0, r.voteIv?.hi ?? 0])) * 1.02;
       const maxPct = Math.max(5, uCeil, ...rows.flatMap(r => [r.popPct, r.seatPct, r.fdPct, r.dblPct]));
-      // The range view draws population and seats only, so its axis ignores the two bar-only
-      // quantities. Crossover's leading share runs well past any STV bound and would otherwise
-      // squeeze every span into the left two-thirds of the track.
+      // The range view draws population, votes and seats only, so its axis ignores the two
+      // bar-only quantities. Crossover's leading share runs well past any STV bound and would
+      // otherwise squeeze every span into the left two-thirds of the track.
       const rangeMaxPct = Math.max(5, uCeil,
-        ...rows.flatMap(r => [r.popIv?.point ?? 0, r.seatPct]));
+        ...rows.flatMap(r => [r.popIv?.point ?? 0, r.voteIv?.point ?? 0, r.seatPct]));
       return { rows, maxPct, rangeMaxPct, showFD, showDouble: showDbl };
     }
 
@@ -115,15 +123,16 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
     }).filter(r => r.popPct > 0 || r.seatPct > 0 || r.dblPct > 0);
     const maxPct = Math.max(5, ...rows.flatMap(r => [r.popPct, r.seatPct, r.dblPct]));
     return { rows, maxPct, rangeMaxPct: maxPct, showFD: false, showDouble: showDbl };
-  }, [selectedState, isNational, rawMultiSeats, fdSeats, scenario, wyoming, doubleSeats, doubleFdSeats, stateMap, doubleStateMap, houseU]);
+  }, [selectedState, isNational, rawMultiSeats, fdSeats, scenario, wyoming, doubleSeats, doubleFdSeats, stateMap, doubleStateMap, houseU, gi]);
 
   const seatLabel = wyoming === 'triple' ? 'Triple' : 'STV';
-  // Range rows carry population and seats only, so they need the two optional bars to be absent.
-  // The houseU gate already implies that (rawMulti hides Crossover, double-Wyoming hides Double);
-  // asserting it here keeps the range view from silently dropping a bar if that ever changes.
+  // Range rows carry population, votes and seats only, so they need the two optional bars to be
+  // absent. The houseU gate already implies that (rawMulti hides Crossover, double-Wyoming hides
+  // Double); asserting it here keeps the range view from silently dropping a bar if that changes.
   const rangeRows: PopSeatRangeRow[] | null = !showFD && !showDouble
-    ? rows.filter((r): r is Row & { popIv: ShareInterval; seatIv: Span } => !!r.popIv && !!r.seatIv)
-      .map(r => ({ code: r.code, popIv: r.popIv, seatPct: r.seatPct, seats: r.seats, seatIv: r.seatIv }))
+    ? rows.filter((r): r is Row & { popIv: ShareInterval; voteIv: ShareInterval; seatIv: Span } =>
+      !!r.popIv && !!r.voteIv && !!r.seatIv)
+      .map(r => ({ code: r.code, popIv: r.popIv, voteIv: r.voteIv, seatPct: r.seatPct, seats: r.seats, seatIv: r.seatIv }))
     : null;
   const showRanges = !!rangeRows && rangeRows.length === rows.length && rows.length > 0;
 
@@ -143,11 +152,10 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
         {isNational ? '' : `${selectedState}. `}
         {showRanges ? (
           <>
-            Each band spans 1,000 resamples, tick at the estimate, dot at the expected share.
-            Outline: population share. Solid: {seatLabel} seat share of 873. Bands that miss each
-            other mark real over- or under-representation; bands that overlap put the gap inside
-            sampling noise. Population share is weighted by the survey weight alone, so it holds
-            still as turnout changes; seat share is turnout-weighted and moves.
+            Outline: population share. Hatched: vote share. Solid: {seatLabel} seat share of 873.
+            Population to votes is turnout; votes to seats is what the counting rule does.
+            Bands span 1,000 resamples, tick at the estimate, dot at the expected share — two that
+            miss each other mark a real gap, two that overlap put it inside sampling noise.
           </>
         ) : (
           <>
