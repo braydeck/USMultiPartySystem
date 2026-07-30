@@ -221,6 +221,34 @@ def test_resampled_draw_preserves_state_counts():
     assert got["president"]["cond"], "no presidential Condorcet winner under resampling"
 
 
+def test_representative_run_is_coherent_and_matches_winner():
+    from analysis.bootstrap.contests import run_draw
+    from analysis.bootstrap.representative import pick_representative
+
+    draws = [run_draw(seed=42 + d, lam=0.05, depth=7) for d in range(12)]
+    fips = "56"  # Wyoming
+    winners = [d["senate"]["irv"][fips].rsplit("_", 1)[0] for d in draws]
+    top = Counter(winners).most_common(1)[0][0]
+
+    rep = pick_representative(draws, fips, top)
+    assert rep is not None, f"no representative run for {top} in {fips}"
+    rs = rep["rounds"]
+    for rd in rs:
+        total = sum(c["pct"] for c in rd["candidates"])
+        assert abs(total - 100.0) < 0.5, f"round {rd['round']} sums to {total}, not 100"
+    final = max(rs[-1]["candidates"], key=lambda c: c["pct"])
+    assert final["code"].rsplit("_", 1)[0] == top, (
+        f"representative run's winner {final['code']} is not {top}")
+    assert 0 < rep["share"] <= 1
+
+
+def test_representative_returns_none_for_never_winner():
+    from analysis.bootstrap.contests import run_draw
+    from analysis.bootstrap.representative import pick_representative
+    draws = [run_draw(seed=42 + d, lam=0.05, depth=7) for d in range(4)]
+    assert pick_representative(draws, "56", "DSA") is None
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:
