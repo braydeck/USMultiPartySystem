@@ -21,25 +21,25 @@ from pathlib import Path
 # ── Cluster index mapping ──────────────────────────────────────────────────
 CLUSTER_NAMES = {
     0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-    5: "POP", 6: "CUP", 7: "OAO",  8: "DSA", 9: "PRG",
+    5: "REF", 6: "CTR", 7: "C7",  8: "DSA", 9: "PRG",
 }
 
 # ── Blend definitions: (label, primary_cluster, secondary_cluster, w_primary) ──
 # Weights = mean w_primary across all winning senators of that blend type
 # in the senate simulation (cooc + wildcard winners).
 BLENDS = [
-    ("CON/CUP",  0, 6, 0.6231),  # n=8,  range 0.50–0.70
+    ("CON/CTR",  0, 6, 0.6231),  # n=8,  range 0.50–0.70
     ("CON/LBR",   0, 1, 0.5545),  # n=7,  range 0.55–0.57
     ("CON/STY",  0, 2, 0.5800),  # n=5,  range 0.55–0.70
     ("LBR/STY",   1, 2, 0.6684),  # n=11, range 0.57–0.70
     ("LBR/CON",   1, 0, 0.5208),  # n=3,  range 0.50–0.56
     ("LBR/DSA",   1, 8, 0.5000),  # n=1,  equal cluster shares
-    ("LBR/CUP",   1, 6, 0.5000),  # n=1,  equal cluster shares
+    ("LBR/CTR",   1, 6, 0.5000),  # n=1,  equal cluster shares
     ("LBR/LIB",   1, 4, 0.5000),  # n=1,  equal cluster shares
-    ("STY/POP",  2, 5, 0.5500),  # n=4,  range 0.50–0.70
+    ("STY/REF",  2, 5, 0.5500),  # n=4,  range 0.50–0.70
     ("STY/LBR",   2, 1, 0.5000),  # n=3,  equal cluster shares
     ("STY/CON",  2, 0, 0.5923),  # n=1,  wildcard weight
-    ("POP/STY",  5, 2, 0.6311),  # n=2,  range 0.56–0.70
+    ("REF/STY",  5, 2, 0.6311),  # n=2,  range 0.56–0.70
 ]
 
 # ── Paths ──────────────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ def main():
     print(f"Saved {len(out_df)} rows → {OUT_PATH}")
     print(f"Blend columns: {blend_labels}")
 
-    # ── Spot-check: CON/LBR row for CC24_341a (extend 2017 tax cuts) ──
+    # ── Spot-check: CON/SD row for CC24_341a (extend 2017 tax cuts) ──
     con_sd = next(b for b in BLENDS if b[0] == "CON/LBR")
     _, cp, cs, wp = con_sd
     ws = 1.0 - wp
@@ -93,7 +93,7 @@ def main():
         c1  = src[f"c{cs}"].iloc[0]
         exp = round(wp * c0 + ws * c1, 4)
         match = "✓" if abs(val - exp) < 0.01 else "✗"
-        print(f"\nSpot-check CON/LBR | CC24_341a (extend tax cuts):")
+        print(f"\nSpot-check CON/SD | CC24_341a (extend tax cuts):")
         print(f"  {wp}×{c0:.2f} + {ws:.4f}×{c1:.2f} = {exp:.2f}  →  file={val:.4f}  {match}")
 
     print("\n✓ Done.")

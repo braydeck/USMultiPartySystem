@@ -2,8 +2,11 @@
 """
 chamber_vote_model.py
 ----------------------
-For each binary policy item, models the probability of a bill passing a
-floor vote in the Senate and House under each electoral scenario.
+For each bill in stv_config.BILL_VARS, models the probability of it passing a floor vote in the
+House. The senate half was dropped: it scored the retired mixed-senate model's blended senator
+types (CON/CUP, STY/LBR and the like) against a profile that can no longer be regenerated, and its
+output had no consumer — the live senate probabilities are computed by viz/scripts/prepare_data.py
+from pure party types.
 
 Method: Sum-of-Independent-Binomials, approximated by Normal distribution.
   - Each seat in a type bloc is a Bernoulli trial with p = group % support / 100
@@ -13,7 +16,6 @@ Method: Sum-of-Independent-Binomials, approximated by Normal distribution.
 
 Outputs
 -------
-  Claude/outputs/senate/senate_vote_model.csv
   Claude/outputs/house_vote_model.csv
 """
 
@@ -28,16 +30,6 @@ BASE        = Path(__file__).parent.parent
 PROFILE_DIR = BASE / "data" / "outputs" / "profiles"
 SENATE_DIR  = BASE / "data" / "outputs" / "senate"
 OUT_DIR     = BASE / "data" / "outputs"
-
-# ── Senate type columns (from senate_chamber_profile.csv) ──────────────────
-SENATE_TYPES = [
-    "CON", "LBR", "STY", "POP",
-    "CON/CUP", "CON/LBR", "CON/STY",
-    "LBR/STY", "LBR/CON", "LBR/CUP", "LBR/LIB",
-    "STY/POP", "STY/LBR", "STY/CON",
-    "POP/STY",
-    "CON/POP", "CON/NAT", "LIB/CUP",
-]
 
 # ── House type columns (from house_chamber_profile.csv) ────────────────────
 HOUSE_CLUSTER_NAMES = {
@@ -134,14 +126,6 @@ def vote_model(
     }
 
 
-def load_senate_seats(csv_path: Path, label_col: str) -> dict:
-    return (
-        pd.read_csv(csv_path)[label_col]
-        .value_counts()
-        .to_dict()
-    )
-
-
 def load_house_seats(csv_path: Path) -> dict:
     df = pd.read_csv(csv_path)
     return {
@@ -150,30 +134,10 @@ def load_house_seats(csv_path: Path) -> dict:
     }
 
 
-def _rename_legacy_types(df):
-    """senate_chamber_profile.csv still labels Labor's columns SD, the pre-rename code, while
-    senate_composition.csv labels its seats LBR. The profile cannot be regenerated — its generator
-    needs data/outputs/pure_only/, which is not in the checkout — so translate on read. Applies to
-    the blend labels too (CON/SD, STY/SD, …), which is why this is a substring swap on the code."""
-    ren = {c: "/".join("LBR" if part == "SD" else part for part in c.split("/"))
-           for c in df.columns if "SD" in c.split("/")}
-    collisions = set(ren.values()) & set(df.columns)
-    if collisions:
-        raise SystemExit(f"chamber_vote_model: legacy rename would collide on {sorted(collisions)}")
-    return df.rename(columns=ren)
-
-
 def main():
     # ── Load chamber profiles ───────────────────────────────────────────────
-    senate_profile = _rename_legacy_types(pd.read_csv(SENATE_DIR / "senate_chamber_profile.csv"))
-    house_profile  = pd.read_csv(OUT_DIR    / "house_chamber_profile.csv")
+    house_profile = pd.read_csv(OUT_DIR / "house_chamber_profile.csv")
 
-    # Filter to binary "% Supporting" rows that are CES policy questions (CC24_)
-    # Excludes demographic/employment binary items (pew_bornagain, milstat, etc.)
-    senate_binary = senate_profile[
-        (senate_profile["stat_label"] == "% Supporting") &
-        (senate_profile["variable"].str.startswith("CC24_"))
-    ].copy()
     # BILL_VARS, not every "% Supporting" CC24_ row: the profile also carries attitude and
     # behaviour items that belong in the policy comparison, not in a chamber vote.
     house_binary = house_profile[
@@ -184,35 +148,9 @@ def main():
     if absent:
         print(f"  ⚠ bill(s) with no house profile row: {absent}")
 
-    print(f"Senate binary policy rows: {len(senate_binary)}")
     print(f"House  binary policy rows: {len(house_binary)}")
 
-    # ── Senate: Condorcet and IRV ───────────────────────────────────────────
-    print("\n── SENATE ────────────────────────────────────────────────────")
-    SENATE_MAJORITY = 26
-
-    cond_seats = load_senate_seats(
-        SENATE_DIR / "senate_composition.csv", "senator_label")
-    irv_seats  = load_senate_seats(
-        SENATE_DIR / "senate_irv_composition.csv", "winner_label")
-
-    cond_results = vote_model(senate_binary, SENATE_TYPES, cond_seats,
-                              SENATE_MAJORITY, "Condorcet")
-    irv_results  = vote_model(senate_binary, SENATE_TYPES, irv_seats,
-                              SENATE_MAJORITY, "IRV")
-
-    senate_out = senate_binary[["variable", "domain", "question", "overall"]].copy()
-    senate_out = senate_out.rename(columns={"overall": "overall_pct"})
-
-    for prefix, results in [("cond", cond_results), ("irv", irv_results)]:
-        for suffix, vals in results.items():
-            senate_out[f"{prefix}_{suffix}"] = vals
-
-    senate_path = SENATE_DIR / "senate_vote_model.csv"
-    senate_out.to_csv(senate_path, index=False)
-    print(f"\nSaved {len(senate_out)} rows → {senate_path}")
-
-    # ── House: baseline, no_C2, no_C7 ──────────────────────────────────────
+    # ── House ──────────────────────────────────────────────────────────────
     print("\n── HOUSE ─────────────────────────────────────────────────────")
     HOUSE_MAJORITY = 437
 
@@ -238,7 +176,7 @@ def main():
     # ── Spot-checks ─────────────────────────────────────────────────────────
     print("\n── SPOT CHECKS ───────────────────────────────────────────────")
 
-    for label, df in [("Senate", senate_out), ("House", house_out)]:
+    for label, df in [("House", house_out)]:
         # Background checks — should be near-certain pass everywhere
         bc = df[df["variable"] == "CC24_321c"]
         if not bc.empty:
@@ -261,9 +199,9 @@ def main():
                 print(f"  {c}: {p:.4f}")
 
     # Sigma sanity: all sigmas should be > 0
-    all_sigma_cols = [c for c in senate_out.columns if "sigma" in c]
-    all_positive = all((senate_out[c] > 0).all() for c in all_sigma_cols)
-    print(f"\nAll Senate sigmas > 0: {'✓' if all_positive else '✗'}")
+    all_sigma_cols = [c for c in house_out.columns if "sigma" in c]
+    all_positive = all((house_out[c] > 0).all() for c in all_sigma_cols)
+    print(f"\nAll House sigmas > 0: {'✓' if all_positive else '✗'}")
 
     print("\n✓ Done.")
 

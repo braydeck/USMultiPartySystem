@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { HouseSeat, CoalitionProfile, TransferMatrix, VoteModelRow, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
+import type { HouseSeat, TransferMatrix, VoteModelRow, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { BillSimulator } from '../components/house/BillSimulator';
 import { HouseMap } from '../components/house/HouseMap';
@@ -97,7 +97,6 @@ import fdDistTri30 from '../data/fdDistrictStvResultsTripleTurnoutL30.json';
 interface Props {
   seats: HouseSeat[];
   seatsProbBased: HouseSeat[];
-  coalitions: CoalitionProfile[];
   transfers: TransferMatrix;
   voteModel: VoteModelRow[];
   stateMap: Record<string, HouseStateEntry>;
@@ -273,12 +272,12 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   }, [fdSeatsTripleGi, seats]);
 
   // Helper: convert cluster to percentile-based constellation node
-  const clusterToNode = (c: CoalitionProfile | ClusterProfile) => {
-    const party = 'type' in c ? (c as CoalitionProfile).type : (c as ClusterProfile).party;
+  const clusterToNode = (c: ClusterProfile) => {
+    const party = c.party;
     const cp = clusterByParty[party] ?? clusterByParty[party.split('_')[0]];
     return {
       id: party, label: party,
-      seats: 'seatsHouse' in c ? (c as any).seatsHouse : 0,
+      seats: c.seatsHouse ?? 0,
       F1: ((cp as any)?.z_F1 ?? 0),
       F2: ((cp as any)?.z_F2 ?? 0),
       F3: ((cp as any)?.z_F3 ?? 0),

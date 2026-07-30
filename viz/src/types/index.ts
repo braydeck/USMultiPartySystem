@@ -143,19 +143,6 @@ export interface HouseSeat {
   pctPopulation: number;
 }
 
-export interface CoalitionProfile {
-  type: string;
-  chamber: string;
-  F1: number;
-  F2: number;
-  F3: number;
-  F4: number;
-  F5: number;
-  seatsHouse: number;
-  seatsSenateCondorcet: number;
-  seatsSenateIRV: number;
-}
-
 export interface ClusterVariable {
   pct: number;
   question: string;

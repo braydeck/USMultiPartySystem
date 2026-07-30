@@ -93,16 +93,10 @@ def write_json(data, name):
 
 
 
-# ── LF senate vote model helpers ─────────────────────────────────────────────
+# ── Senate vote model helpers ────────────────────────────────────────────────
+# Senators are pure party types. The blended types this file used to carry (SD_sty, CON_ctr and the
+# rest) came from the retired mixed-senate model; every live seat map keys on a party code alone.
 
-_LF_CLUSTER_MAP: dict = {
-    "PRG_dsa": (9, 8), "DSA_prg": (8, 9), "DSA_lib": (8, 4),
-    "LIB_dsa": (4, 8), "LIB_sd":  (4, 1), "SD_lib":  (1, 4),
-    "SD_sty":  (1, 2), "STY_sd":  (2, 1), "STY_ctr": (2, 6),
-    "CUP_sty": (6, 2), "CUP_con": (6, 0), "CON_ctr": (0, 6),
-    "CON_ref": (0, 5), "POP_con": (5, 0), "POP_nat": (5, 3),
-    "NAT_ref": (3, 5),
-}
 _PURE_CLUSTER: dict = {
     "CON": 0, "LBR": 1, "STY": 2, "NAT": 3, "LIB": 4,
     "POP": 5, "CUP": 6, "DSA": 8, "PRG": 9,
@@ -110,14 +104,10 @@ _PURE_CLUSTER: dict = {
 }
 
 def _lf_senator_support(code: str, cluster_row: dict) -> float:
-    """Return the % supporting a bill for a given LF senator, using cluster stats row."""
-    def _c(k: int) -> float:
-        return float(cluster_row.get(f"c{k}") or 0)
+    """% of a party's coalition supporting a bill, from its cluster_stats row. Returns 0 for an
+    unknown code, which _lf_prob_pass reports as excluded seats rather than absorbing silently."""
     if code in _PURE_CLUSTER:
-        return _c(_PURE_CLUSTER[code])
-    if code in _LF_CLUSTER_MAP:
-        p, s = _LF_CLUSTER_MAP[code]
-        return 0.80 * _c(p) + 0.20 * _c(s)
+        return float(cluster_row.get(f"c{_PURE_CLUSTER[code]}") or 0)
     return 0.0
 
 def _fd_prob_pass(seat_counts: dict, fd_by_var: dict, majority: int = 26) -> dict:
@@ -157,6 +147,12 @@ def _lf_prob_pass(seat_counts: dict, cluster_by_var: dict, majority: int = 26) -
     Returns: {variable: {"prob_pass": float, "verdict": str}}
     """
     import math
+    # An unrecognised senator code scores 0% support, which would quietly drag every probability
+    # down instead of failing. Say so once: this is the live path for both chambers.
+    unknown = {c: n for c, n in seat_counts.items() if n and c not in _PURE_CLUSTER}
+    if unknown:
+        print(f"  ⚠ _lf_prob_pass: {sum(unknown.values())} seat(s) on unrecognised code(s) "
+              f"{sorted(unknown)} — counted as 0% support")
     results = {}
     for var, crow in cluster_by_var.items():
         mu = 0.0
@@ -777,28 +773,6 @@ def build_house_state_map(src_dir=None, out_name="houseStateMap.json", include_c
             "popShares": state_pop_shares.get(fips, {}),
         }
     write_json(out, out_name)
-
-
-# ---------- coalitionProfiles.json ----------
-def build_coalition_profiles():
-    rows = read_csv(OUTPUTS / "coalitions" / "coalition_type_profiles.csv")
-    out = []
-    for r in rows:
-        if '/' in r["type"]:
-            continue  # skip legacy blended senate entries
-        out.append({
-            "type": r["type"],
-            "chamber": r["chamber"],
-            "F1": float(r["F1_security_order"]),
-            "F2": float(r["F2_electoral_skepticism"]),
-            "F3": float(r["F3_government_distrust"]),
-            "F4": float(r["F4_religious_traditionalism"]),
-            "F5": float(r["F5_populist_conservatism"]),
-            "seatsHouse": int(r["seats_house"]),
-            "seatsSenateCondorcet": int(r.get("seats_senate_cond", 0)),
-            "seatsSenateIRV": int(r.get("seats_senate_irv", 0)),
-        })
-    write_json(out, "coalitionProfiles.json")
 
 
 # ---------- transferMatrix.json ----------
@@ -3821,7 +3795,7 @@ if __name__ == "__main__":
 
     for fn in (
         build_house_seats, build_house_transfers, build_fd_variant_attraction,
-        build_house_state_map, build_coalition_profiles, build_transfer_matrix,
+        build_house_state_map, build_transfer_matrix,
         build_cluster_profiles,
         build_current_party_profiles,
         build_fd_senate, build_fd_house_seats, build_fd_primary,

@@ -11,7 +11,8 @@ Produces all summary outputs in results/:
                                                   presidential ratification (mixed and pure)
 
 Reads from data/outputs/. Requires senate_chamber_profile.csv to be current
-(run pipeline/senate_chamber_profile.py first if senate data changed).
+(senate_chamber_profile.csv is now inert — its generator moved to pipeline/archive/ with the rest
+of the retired blended-senator-type layer, so the senate charts here describe that old model).
 """
 
 import numpy as np

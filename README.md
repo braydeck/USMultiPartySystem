@@ -231,18 +231,20 @@ These chambers are cross-cutting — they simultaneously pass both tax cuts AND 
 
 ---
 
-## Coalition Analysis
+## Retired: blended senator types
 
-**Script:** `pipeline/cross_chamber_coalitions.py`
-**Output:** `data/outputs/coalitions/` (feeds the viz House tab's coalition view)
+An earlier senate model elected *blended* senator types — `CON/CUP`, `STY/LBR`, `SD/LIB` and the
+like — each a weighted mix of two clusters. The current senate elects pure party types only, so the
+whole layer is gone from the live pipeline and from the app. Six scripts moved to
+`pipeline/archive/`: `run_senate_simulation.py` and `run_senate_irv.py` (the mixed senate itself),
+`generate_blend_stats.py` and `senate_chamber_profile.py` (its profiles), and
+`cross_chamber_coalitions.py` and `analyze_senate_ideology.py` (the coalition-type diagnostics).
+`chamber_vote_model.py` lost its senate half for the same reason.
 
-A secondary diagnostic — *not* the election model (the chambers are elected via the party-line and crossover fields above). For each of the 5 factor dimensions it shows which house and senate party types fall on the same side, surfacing issue-specific coalition partners rather than overall ideological proximity. Per factor it computes `k=2` poles (1D k-means) and absolute EFA-scale tiers.
-
-| Output File | Contents |
-|-------------|----------|
-| `coalition_type_profiles.csv` | per-type F1–F5 scores, chamber tag, seat counts |
-| `coalition_factor_alignment.csv` | per-(factor × type) rank, k=2 pole, absolute tier |
-| `coalition_pairwise.csv` | per-factor pairwise alignment scores (0–1) |
+Their outputs under `data/outputs/senate/`, `data/outputs/coalitions/` and
+`data/outputs/profiles/blend_stats.csv` are left in place but inert — nothing in the live pipeline or
+the app reads them. `generate_results.py` still charts a couple of them; those charts aren't
+published anywhere.
 
 ---
 
@@ -308,7 +310,6 @@ python3 pipeline/run_fd_irv_2028.py                        # FD presidential
 # ── Canonical house + shared profiles ───────────────────────────────────────
 python3 pipeline/run_house_canonical.py            # → No_C7_canonical/ (party-card seats)
 python3 pipeline/house_chamber_profile.py          # House chamber policy aggregate
-python3 pipeline/generate_blend_stats.py           # blended-type policy support (senate analysis)
 
 # ── Respondent-level extras (read the raw .dta directly) ────────────────────
 python3 pipeline/add_compare_items.py              # FP/abortion/voting items → cluster_stats.csv
