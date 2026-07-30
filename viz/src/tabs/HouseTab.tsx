@@ -141,11 +141,15 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Party-list results are lazy-fetched (public static asset) only when the list flip is on.
   const [plData, setPlData] = useState<Record<string, Record<string, Record<string, PLConfig>>> | null>(null);
+  // Tracked separately from `plData === null` so a failed fetch can fall back to bars rather than
+  // leaving the seat-share card on its loading state forever.
+  const [plFailed, setPlFailed] = useState(false);
   useEffect(() => {
-    if ((system === 'list' || scenario === 'rawMulti') && !plData) {
-      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData).catch(() => {});
+    if ((system === 'list' || scenario === 'rawMulti') && !plData && !plFailed) {
+      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData)
+        .catch(() => setPlFailed(true));
     }
-  }, [system, scenario, plData]);
+  }, [system, scenario, plData, plFailed]);
   // Bill Simulator vote model, tracked across ballot depth × turnout (rank-7 default). Lazy bundle.
   const [hvmDepth, setHvmDepth] = useState<Record<string, Record<string, VoteModelRow[]>> | null>(null);
   useEffect(() => {
@@ -186,6 +190,11 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   // list is depth-invariant, but its STV comparison row's point estimate is not, and pairing a
   // top-3 point with rank-7 bounds would describe two different chambers.
   const houseUList = wyoming === 'double' && depth === 'top7' ? uncertaintyAt(gi)?.house.seats : undefined;
+  // housePartyList.json is 4.1 MB and fetched at runtime, so `houseU` stays undefined for a few
+  // hundred ms after mount even when the configuration qualifies. Without this flag the seat-share
+  // card renders bars first and swaps to ranges when the fetch lands, which reads as a bug.
+  const houseRangesPending = scenario === 'rawMulti' && wyoming === 'double' && depth === 'top7'
+    && !plFailed && !plData?.[depth]?.[wyoming]?.[part];
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -414,6 +423,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           selectedState={seatShareState}
           onStateChange={setSeatShareState}
           houseU={houseU}
+          rangesPending={houseRangesPending}
           gi={gi}
         />
       </Card>

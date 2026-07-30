@@ -13,6 +13,7 @@ import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { uncertaintyAt } from '../lib/uncertainty';
+import { SlateRangeCard } from '../components/primary/SlateRangeCard';
 import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
 // Compression stops for the primary (finalists + buckets + per-stage national shares).
 import pmPrimTurnout from '../data/pureMultiPrimaryTurnout.json';
@@ -86,6 +87,7 @@ export function PrimaryTab({
   // top7 depth, so `observedSlate` is the top7 slate and would misclassify holders and
   // challengers against any other depth's slate. Same gate PresidentialTab/HouseTab use.
   const su = pipeline === 'rawMulti' && depth === 'top7' ? uncertaintyAt(gi)?.primary : undefined;
+  const nDraws = uncertaintyAt(gi)?.nDraws ?? 0;
   const primStops   = [pmPrimTurnout, pmPrimL5, pmPrimL10, pmPrimL15, pmPrimL20, pmPrimL25, pmPrimL30] as unknown as FDPrimaryData[];
   const bucketStops = [pmBktTurnout, pmBktL5, pmBktL10, pmBktL15, pmBktL20, pmBktL25, pmBktL30] as unknown as BucketData[];
   const shareStops  = [pmShTurnout, pmShL5, pmShL10, pmShL15, pmShL20, pmShL25, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
@@ -178,29 +180,13 @@ export function PrimaryTab({
           </span>
         ))}
       </div>
-      {(() => {
-        if (!su) return null;
-        // su.slate maps EVERY contender to P(reaches the slate), flattening two distinct
-        // populations: observed finalists whose seat might not hold, and non-finalists who
-        // sometimes break in. Splitting by observedSlate membership keeps that distinction
-        // legible instead of calling a 13%-chance challenger a "finalist".
-        const observed = new Set(su.observedSlate);
-        const holds = Object.entries(su.slate)
-          .filter(([c, v]) => observed.has(c) && v < 0.95)
-          .sort((a, b) => a[1] - b[1]);
-        const breaksIn = Object.entries(su.slate)
-          .filter(([c, v]) => !observed.has(c) && v > 0.05)
-          .sort((a, b) => a[1] - b[1]);
-        if (!holds.length && !breaksIn.length) return null;
-        const fmt = ([c, v]: [string, number]) => `${PARTY_NAMES[c.split('_')[0]] ?? c} ${Math.round(v * 100)}%`;
-        return (
-          <p className="text-[11px] text-muted-foreground">
-            Slate across resamples
-            {holds.length > 0 && <> — holds its place: {holds.map(fmt).join(', ')}</>}
-            {breaksIn.length > 0 && <>{holds.length > 0 ? '.' : ' —'} Breaks in: {breaksIn.map(fmt).join(', ')}</>}
-          </p>
-        );
-      })()}
+      {/* Replaces a one-line "holds its place / breaks in" note, which reported the current stop
+          only and so could not show that the last slot is decided by the turnout assumption. */}
+      {su && (
+        <Card className="p-4">
+          <SlateRangeCard gi={gi} nDraws={nDraws} />
+        </Card>
+      )}
 
       {/* Primary Winnowing — bucket composition */}
       {(() => {
