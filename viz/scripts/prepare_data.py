@@ -3172,6 +3172,22 @@ def _cluster_by_var_support() -> dict:
             if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"}
 
 
+def _modal_seats(suffix: str, chamber: str, method: str | None = None):
+    """Per-party seat counts from the modal chamber, on the 51-seat senate basis
+    (_lf_prob_pass uses majority=26), or the 873-seat house basis. Returns None when
+    the uncertainty payload is absent so the builder falls back to the observed run."""
+    path = DATA_OUT / f"uncertainty{suffix}.json"
+    if not path.exists():
+        return None
+    with open(path, encoding="utf-8") as f:
+        u = json.load(f)
+    if chamber == "senate":
+        seats = u["senate"][method]["seats"]
+        return {p: v["modal"] // 2 for p, v in seats.items() if v["modal"] > 0}
+    seats = u["house"]["seats"]
+    return {p: v["modal"] for p, v in seats.items() if v["modal"] > 0}
+
+
 def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
     """senateVoteModelWFP.json — clone of senateVoteModel.json with only the
     Raw-Multi senate + president columns recomputed from the C7 run."""
@@ -3196,6 +3212,11 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
         p = r["senator_code"].rsplit("_", 1)[0]; cond_seats[p] = cond_seats.get(p, 0) + 1
     for r in read_csv(src / "senate" / "senate_irv_composition.csv"):
         p = r["senator_code"].rsplit("_", 1)[0]; irv_seats[p] = irv_seats.get(p, 0) + 1
+    # The headline chamber is the modal one, so the legislation model must describe
+    # that chamber rather than the single observed run.
+    _suffix = out_name.replace("senateVoteModel", "").replace(".json", "")
+    cond_seats = _modal_seats(_suffix, "senate", "cond") or cond_seats
+    irv_seats = _modal_seats(_suffix, "senate", "irv") or irv_seats
     cond_res = _lf_prob_pass(cond_seats, cbv)
     irv_res  = _lf_prob_pass(irv_seats,  cbv)
     import math as _m
@@ -3274,6 +3295,11 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
         code = _cluster_to_party.get(cl, str(cl))
         rm_seats[code] = rm_seats.get(code, 0) + int(r["NATIONAL"])
         total += int(r["NATIONAL"])
+    # The headline chamber is the modal one, so the legislation model must describe
+    # that chamber rather than the single observed run. Total/maj stay put — the
+    # modal house still sums to 873.
+    _suffix = out_name.replace("houseVoteModel", "").replace(".json", "")
+    rm_seats = _modal_seats(_suffix, "house") or rm_seats
     maj = total // 2 + 1
     import math as _m
     def _tt(t):
