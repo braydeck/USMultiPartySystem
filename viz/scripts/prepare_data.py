@@ -52,9 +52,26 @@ PARTY_NAMES = {
     "DSA": "Democratic Socialists", "PRG": "Progressive",
 }
 
+# Domains are assigned upstream by CES variable battery, which misfiles the items whose subject
+# does not match the battery they were asked in. CC24_323f (student-loan forgiveness) sits inside
+# the CC24_323* immigration battery. Corrected here, at the one boundary every builder reads
+# through, so the bill tables, the policy comparison and the key-positions grouping agree.
+DOMAIN_FIXES = {"CC24_323f": "Taxes & Economy"}
+
+
+def apply_domain_fixes(rows):
+    """Correct misfiled domains in place. Also used by the builders that clone an already-emitted
+    JSON rather than re-reading a CSV, so a stale base cannot carry a wrong domain forward."""
+    for r in rows:
+        fixed = DOMAIN_FIXES.get(r.get("variable"))
+        if fixed and "domain" in r:
+            r["domain"] = fixed
+    return rows
+
+
 def read_csv(path):
     with open(path, newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+        return apply_domain_fixes(list(csv.DictReader(f)))
 
 
 def write_json(data, name):
@@ -1005,7 +1022,7 @@ def collect_cluster_variables(rows, include_c7=True):
         'gigwork':   ('Economics',       'Gig / freelance worker'),
         'investor':  ('Economics',       'Owns stocks or mutual funds'),
         'child18':   ('Household',       'Has children under 18'),
-        'CC24_323f': ('Taxes & Economy', 'Forgive up to $20k of student loan debt per person'),
+        'CC24_323f': (DOMAIN_FIXES['CC24_323f'], 'Forgive up to $20k of student loan debt per person'),
         'milstat_1': ('Other',           'Currently serving in the military'),
         'milstat_3': ('Other',           'Previously served in the military'),
         'CC24_445b': ('Abortion',        "SCOTUS: Constitution doesn't protect abortion; Roe overruled (Agree/Disagree)"),
@@ -3212,7 +3229,7 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
     """senateVoteModelWFP.json — clone of senateVoteModel.json with only the
     Raw-Multi senate + president columns recomputed from the C7 run."""
     with open(DATA_OUT / "senateVoteModel.json", encoding="utf-8") as f:
-        base = json.load(f)
+        base = apply_domain_fixes(json.load(f))
     cbv = _cluster_by_var_support()
 
     rm_irv_winner = None
@@ -3319,7 +3336,7 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
     triple_src overrides the Raw-Multi triple seat source (defaults to the full-ranking triple tree)."""
     triple_src = triple_src or PURE_MULTI_TRIPLE_DIR
     with open(DATA_OUT / "houseVoteModel.json", encoding="utf-8") as f:
-        base = json.load(f)
+        base = apply_domain_fixes(json.load(f))
     cbv = _cluster_by_var_support()
     _cluster_to_party = {v: k for k, v in _PURE_CLUSTER.items()}
 
