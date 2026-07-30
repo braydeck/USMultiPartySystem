@@ -10,7 +10,9 @@ export function SeatWhisker({ lo, hi, centre, max, title }: {
   const g = whiskerGeometry(lo, hi, centre, max);
   if (!g) return null;
   return (
-    <div className="absolute inset-y-0 pointer-events-none" aria-hidden="true" title={title}>
+    // inset-0 (not inset-y-0): children are positioned with left:X%, so this container
+    // must span the parent's full width or those percentages resolve against 0px.
+    <div className="absolute inset-0 pointer-events-none" aria-hidden="true" title={title}>
       <div className="absolute top-1/2 -translate-y-1/2 h-px bg-foreground/70"
         style={{ left: `${g.leftPct}%`, width: `${g.widthPct}%` }} />
       {[g.leftPct, g.leftPct + g.widthPct].map((x, i) => (

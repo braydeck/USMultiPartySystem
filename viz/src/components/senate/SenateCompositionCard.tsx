@@ -163,7 +163,7 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
       {irvU && nDraws && (
         <>
           <p className="text-[11px] text-muted-foreground/80">
-            {irvU.nBelow50} of {condSeats.length} seats are close enough to flip on sampling alone.
+            {irvU.nBelow50} of {condSeats.length} races are close enough to flip on sampling alone.
           </p>
           <UncertaintyDetail seats={irvU.seats} states={irvU.states} nDraws={nDraws}
             stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
