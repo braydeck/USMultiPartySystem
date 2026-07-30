@@ -19,6 +19,8 @@ def test_preserves_stratum_sizes():
     assert len(idx) == len(strata), f"length {len(idx)} != {len(strata)}"
     got = Counter(strata[idx])
     assert got == Counter(strata), f"stratum sizes changed: {got} vs {Counter(strata)}"
+    # Later tasks rely on int64 indices; a dtype regression must fail here, not downstream.
+    assert idx.dtype == np.int64, f"expected int64, got {idx.dtype}"
 
 
 def test_only_draws_within_stratum():
@@ -41,6 +43,20 @@ def test_resamples_with_replacement():
     strata = np.zeros(200, dtype=int)
     idx = stratified_indices(strata, seed=1)
     assert len(set(idx.tolist())) < len(idx), "no duplicates — not sampling with replacement"
+
+
+def test_handles_empty_input():
+    idx = stratified_indices(np.array([], dtype=int), seed=1)
+    assert len(idx) == 0, f"expected empty result, got length {len(idx)}"
+    assert idx.dtype == np.int64, f"expected int64, got {idx.dtype}"
+
+
+def test_handles_singleton_stratum():
+    strata = np.array([1, 2, 2])
+    idx = stratified_indices(strata, seed=3)
+    # Stratum 1 has one member (row 0); with replacement, its only possible draw is itself.
+    singleton_draws = idx[strata[idx] == 1]
+    assert list(singleton_draws) == [0], f"singleton stratum should draw row 0, got {singleton_draws}"
 
 
 if __name__ == "__main__":

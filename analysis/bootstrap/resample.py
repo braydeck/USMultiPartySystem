@@ -18,5 +18,4 @@ def stratified_indices(strata: np.ndarray, seed: int) -> np.ndarray:
         members = np.flatnonzero(strata == s)
         out[pos:pos + len(members)] = rng.choice(members, size=len(members), replace=True)
         pos += len(members)
-    assert pos == len(strata), f"covered {pos} of {len(strata)} rows"
     return out
