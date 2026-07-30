@@ -4,8 +4,12 @@
 import csv
 import json
 import os
+import sys
 from pathlib import Path
 from collections import defaultdict
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "pipeline"))
+from stv_config import BILL_VARS  # noqa: E402  — the canonical bill set, shared with the pipeline
 
 OUTPUTS          = Path(__file__).parent.parent.parent / "data" / "outputs"
 FD_DIR           = OUTPUTS / "factor_deviation"
@@ -3195,6 +3199,33 @@ def _cluster_by_var_support() -> dict:
             if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"}
 
 
+def _reconcile_bills(base: list) -> list:
+    """Make a cloned vote-model base carry exactly BILL_VARS.
+
+    The builders below clone an already-emitted JSON, so without this the bill set is whatever that
+    base happened to hold — which is how two bills stayed missing. A bill absent from the base gets
+    a metadata-only row here; every column the app reads is computed downstream from cluster_stats,
+    so a fresh row is as complete as an inherited one. Existing rows keep their order to keep the
+    diff readable; new ones append."""
+    cbv = _cluster_by_var_support()
+    have = {r["variable"] for r in base}
+    out = [r for r in base if r["variable"] in set(BILL_VARS)]
+    for var in BILL_VARS:
+        if var in have:
+            continue
+        crow = cbv.get(var)
+        if crow is None:
+            print(f"  ⚠ bill {var} has no cluster_stats row — omitted")
+            continue
+        out.append({
+            "variable": var,
+            "domain": crow.get("domain", ""),
+            "question": crow.get("question", var),
+            "overallPct": round(float(crow.get("overall") or 0), 4),
+        })
+    return out
+
+
 def _modal_seats(suffix: str, chamber: str, method: str | None = None):
     """Per-party seat counts from the modal chamber, on the 51-seat senate basis
     (_lf_prob_pass uses majority=26), or the 873-seat house basis. Returns None when
@@ -3235,7 +3266,7 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
     """senateVoteModelWFP.json — clone of senateVoteModel.json with only the
     Raw-Multi senate + president columns recomputed from the C7 run."""
     with open(DATA_OUT / "senateVoteModel.json", encoding="utf-8") as f:
-        base = apply_domain_fixes(json.load(f))
+        base = _reconcile_bills(apply_domain_fixes(json.load(f)))
     cbv = _cluster_by_var_support()
 
     rm_irv_winner = None
@@ -3343,7 +3374,7 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
     triple_src overrides the Raw-Multi triple seat source (defaults to the full-ranking triple tree)."""
     triple_src = triple_src or PURE_MULTI_TRIPLE_DIR
     with open(DATA_OUT / "houseVoteModel.json", encoding="utf-8") as f:
-        base = apply_domain_fixes(json.load(f))
+        base = _reconcile_bills(apply_domain_fixes(json.load(f)))
     cbv = _cluster_by_var_support()
     _cluster_to_party = {v: k for k, v in _PURE_CLUSTER.items()}
 

@@ -22,6 +22,8 @@ import pandas as pd
 from pathlib import Path
 from scipy.stats import norm
 
+from stv_config import BILL_VARS
+
 BASE        = Path(__file__).parent.parent
 PROFILE_DIR = BASE / "data" / "outputs" / "profiles"
 SENATE_DIR  = BASE / "data" / "outputs" / "senate"
@@ -172,10 +174,15 @@ def main():
         (senate_profile["stat_label"] == "% Supporting") &
         (senate_profile["variable"].str.startswith("CC24_"))
     ].copy()
+    # BILL_VARS, not every "% Supporting" CC24_ row: the profile also carries attitude and
+    # behaviour items that belong in the policy comparison, not in a chamber vote.
     house_binary = house_profile[
         (house_profile["stat_label"] == "% Supporting") &
-        (house_profile["variable"].str.startswith("CC24_"))
+        (house_profile["variable"].isin(BILL_VARS))
     ].copy()
+    absent = [v for v in BILL_VARS if v not in set(house_binary["variable"])]
+    if absent:
+        print(f"  ⚠ bill(s) with no house profile row: {absent}")
 
     print(f"Senate binary policy rows: {len(senate_binary)}")
     print(f"House  binary policy rows: {len(house_binary)}")

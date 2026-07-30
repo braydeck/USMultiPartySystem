@@ -33,6 +33,35 @@ PROB_COLS  = [f"prob_cluster_{k}" for k in range(N_PARTIES)]
 # All 10 clusters are active parties (C7 reintroduced as Order and Opportunity Party).
 DISSOLVED_PARTIES = []
 
+# ── The bill set ───────────────────────────────────────────────────────────────
+# Every CES item the legislative model treats as a bill: something a chamber could hold a vote on.
+# This list is the definition. It used to be whatever survived the "% Supporting CC24_*" filter,
+# which meant the set was decided by whichever chamber profile happened to be oldest, and it
+# silently widened whenever add_compare_items appended to cluster_stats.
+#
+# Deliberately excluded, because they measure a disposition rather than a proposition, and belong
+# in the Parties policy comparison instead: the CC24_430a_* past-year behaviours, the CC24_420_*
+# "would you use troops for…" hypotheticals, the CC24_443_* state-spending items (these chambers
+# are federal), and the CC24_308a/b_* Ukraine and Israel/Gaza check-all batteries, whose options
+# are mutually exclusive and so cannot all be live bills at once.
+BILL_VARS = (
+    # Taxes & economy
+    "CC24_341a", "CC24_341b", "CC24_341c", "CC24_341d", "CC24_323f",
+    # Immigration
+    "CC24_323a", "CC24_323b", "CC24_323c", "CC24_323d", "CC24_340f",
+    # Police & guns
+    "CC24_321a", "CC24_321b", "CC24_321c", "CC24_321d", "CC24_321e", "CC24_321f",
+    # Abortion & contraception
+    "CC24_324b", "CC24_340a", "CC24_340b", "CC24_444c", "CC24_444d",
+    # Civil liberties
+    "CC24_340c", "CC24_340d", "CC24_340e",
+    "CC24_444a", "CC24_444b", "CC24_444e", "CC24_444f",
+    # Environment & climate
+    "CC24_326a", "CC24_326b", "CC24_326c", "CC24_326d", "CC24_326e", "CC24_326f",
+    # Healthcare & housing
+    "CC24_328a", "CC24_328b", "CC24_328c", "CC24_328d", "CC24_328e",
+)
+
 # ── Items used for listwise deletion (replicates efa_update.py) ───────────────
 ITEMS_25 = [
     "pew_churatd", "CC24_302",   "CC24_303",   "CC24_341a",  "CC24_341c",
