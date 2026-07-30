@@ -10,10 +10,13 @@ interface Props {
 }
 
 interface PresidentEntry {
-  key: string;
+  /** 'rawMulti' resolves by the party of `code`; 'fd' reads its own columns, because Crossover
+   *  candidates are blends of two clusters and no party-keyed map covers them. */
+  key: 'fd' | 'rawMulti';
   code: string;
-  signField: string;
-  pctField: string;
+  /** Crossover fallbacks. Unused for the party-line entry. */
+  signField: keyof VoteModelRow;
+  pctField: keyof VoteModelRow;
   label: string;
 }
 
@@ -58,8 +61,12 @@ export function PresidentialComparison({ rows, factorDev, rawMulti }: Props) {
   const scored = useMemo(() => {
     const pres = method === 'irv' ? IRV_PRESIDENTS : COND_PRESIDENTS;
     return rows.map(r => {
-      const signs = pres.map(p => (r as any)[p.signField] as string | undefined);
-      const pcts = pres.map(p => (r as any)[p.pctField] as number | undefined);
+      const signs = pres.map(p => p.key === 'fd'
+        ? (r[p.signField] as string | undefined)
+        : r.presSignsByParty?.[p.code.split('_')[0]]);
+      const pcts = pres.map(p => p.key === 'fd'
+        ? (r[p.pctField] as number | undefined)
+        : r.presPctByParty?.[p.code.split('_')[0]]);
       const defined = signs.filter(Boolean);
       const disagreeCount = defined.length > 0
         ? defined.filter(s => s !== defined[0]).length
@@ -152,8 +159,12 @@ export function PresidentialComparison({ rows, factorDev, rawMulti }: Props) {
                 <div className="text-xs text-muted-foreground mt-0.5">{r.domain}</div>
               </div>
               {presidents.map(p => {
-                const sign = (r as any)[p.signField] as string | undefined;
-                const pct = (r as any)[p.pctField] as number | undefined;
+                const sign = p.key === 'fd'
+                  ? (r[p.signField] as string | undefined)
+                  : r.presSignsByParty?.[p.code.split('_')[0]];
+                const pct = p.key === 'fd'
+                  ? (r[p.pctField] as number | undefined)
+                  : r.presPctByParty?.[p.code.split('_')[0]];
                 return (
                   <div key={p.key} className="flex justify-center mt-1 md:mt-0">
                     {sign ? (

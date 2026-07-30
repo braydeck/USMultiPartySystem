@@ -6,6 +6,18 @@ import { blocOutcome, presSigns, type SeatMap } from './voteBloc';
 import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, WhippedBadge, type VerdictLabel } from './UnifiedBillTable';
 import { Card } from '@/components/ui/card';
 
+// Crossover only; the party-line side resolves by the party of the president in `election`,
+// which is the one this panel displays.
+const FD_SIGN: Record<string, keyof VoteModelRow> = {
+  'factorDev+condorcet': 'presFDCondSigns',
+  'factorDev+irv':       'presFDIRVSigns',
+};
+
+const FD_PCT: Record<string, keyof VoteModelRow> = {
+  'factorDev+condorcet': 'presFDCondPct',
+  'factorDev+irv':       'presFDIRVPct',
+};
+
 interface Props {
   houseVotes: VoteModelRow[];
   senateVotes: VoteModelRow[];
@@ -43,6 +55,9 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
 
   const condCombo = `${pipeline}+condorcet`;
   const irvCombo  = `${pipeline}+irv`;
+  const isFD = pipeline === 'factorDev';
+  const condPresParty = election.condorcetWinner.split('_')[0];
+  const irvPresParty  = election.irvWinner.split('_')[0];
 
   const SENATE_PROB: Record<string, keyof VoteModelRow> = {
     'rawMulti+condorcet':  'condRawMultiProbPass',
@@ -51,19 +66,6 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
     'factorDev+irv':       'irvFDProbPass',
   };
 
-  const PRES_SIGN: Record<string, keyof VoteModelRow> = {
-    'rawMulti+condorcet':  'presRawMultiCondSigns',
-    'rawMulti+irv':        'presRawMultiIRVSigns',
-    'factorDev+condorcet': 'presFDCondSigns',
-    'factorDev+irv':       'presFDIRVSigns',
-  };
-
-  const PRES_PCT: Record<string, keyof VoteModelRow> = {
-    'rawMulti+condorcet':  'presRawMultiCondPct',
-    'rawMulti+irv':        'presRawMultiIRVPct',
-    'factorDev+condorcet': 'presFDCondPct',
-    'factorDev+irv':       'presFDIRVPct',
-  };
 
   const HOUSE_PROB: keyof VoteModelRow = wyoming === 'triple'
     ? (pipeline === 'rawMulti' ? 'houseRawMultiTripleProbPass' : 'houseFDTripleProbPass')
@@ -108,10 +110,12 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
         const houseLabel     = getBayesianLabel([hr?.[HOUSE_PROB] as number | undefined]);
         const senateCondLabel = getBayesianLabel([row[SENATE_PROB[condCombo]] as number | undefined]);
         const senateIRVLabel  = getBayesianLabel([row[SENATE_PROB[irvCombo]] as number | undefined]);
-        const condPresSign    = row[PRES_SIGN[condCombo]] as string | undefined;
-        const irvPresSign     = row[PRES_SIGN[irvCombo]] as string | undefined;
-        const condPresPct     = row[PRES_PCT[condCombo]] as number | undefined;
-        const irvPresPct      = row[PRES_PCT[irvCombo]] as number | undefined;
+        // See VoteModelRow.presSignsByParty: the party-line side must key on the president this
+        // panel displays, not on the fixed columns, which carry the full-depth tree's winners.
+        const condPresSign    = isFD ? (row[FD_SIGN[condCombo]] as string | undefined) : row.presSignsByParty?.[condPresParty];
+        const irvPresSign     = isFD ? (row[FD_SIGN[irvCombo]]  as string | undefined) : row.presSignsByParty?.[irvPresParty];
+        const condPresPct     = isFD ? (row[FD_PCT[condCombo]]  as number | undefined) : row.presPctByParty?.[condPresParty];
+        const irvPresPct      = isFD ? (row[FD_PCT[irvCombo]]   as number | undefined) : row.presPctByParty?.[irvPresParty];
 
         const hDir     = getDirection(houseLabel);
         const sCondDir = getDirection(senateCondLabel);
@@ -134,7 +138,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
       })
       .filter(Boolean)
       .sort((a, b) => b!.score - a!.score) as Row[];
-  }, [senateVotes, houseByVar, candByVar, condCombo, irvCombo, HOUSE_PROB, whipped, houseSeats, senateSeatsCond, senateSeatsIRV, condWinner, irvWinner]);
+  }, [senateVotes, houseByVar, candByVar, condCombo, irvCombo, HOUSE_PROB, whipped, houseSeats, senateSeatsCond, senateSeatsIRV, condWinner, irvWinner, isFD, condPresParty, irvPresParty]);
 
   if (divergentBills.length === 0) {
     return (

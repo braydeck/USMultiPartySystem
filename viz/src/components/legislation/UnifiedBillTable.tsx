@@ -27,16 +27,14 @@ const SENATE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
   'factorDev+irv':       'irvFDProbPass',
 };
 
-const PRES_SIGN_FIELD: Record<string, keyof VoteModelRow> = {
-  'rawMulti+condorcet':  'presRawMultiCondSigns',
-  'rawMulti+irv':        'presRawMultiIRVSigns',
+// Crossover only: the party-line side resolves through presSignOf against `presWinner`, the
+// president this table already names in its own column header.
+const FD_SIGN_FIELD: Record<string, keyof VoteModelRow> = {
   'factorDev+condorcet': 'presFDCondSigns',
   'factorDev+irv':       'presFDIRVSigns',
 };
 
-const PRES_PCT_FIELD: Record<string, keyof VoteModelRow> = {
-  'rawMulti+condorcet':  'presRawMultiCondPct',
-  'rawMulti+irv':        'presRawMultiIRVPct',
+const FD_PCT_FIELD: Record<string, keyof VoteModelRow> = {
   'factorDev+condorcet': 'presFDCondPct',
   'factorDev+irv':       'presFDIRVPct',
 };
@@ -161,8 +159,10 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
   const combo          = `${pipeline}+${senateMethod}`;
   const senateProbField = SENATE_PROB_FIELD[combo];
   const houseProbField  = HOUSE_PROB_FIELD[`${pipeline}+${wyoming}`] ?? 'houseRawMultiProbPass';
-  const presSignField   = PRES_SIGN_FIELD[combo];
-  const presPctField    = PRES_PCT_FIELD[combo];
+  const isFD            = pipeline === 'factorDev';
+  const presParty       = getPrimaryParty(presWinner);
+  const fdSignField     = FD_SIGN_FIELD[combo] ?? 'presFDCondSigns';
+  const fdPctField      = FD_PCT_FIELD[combo] ?? 'presFDCondPct';
   const presColor       = getBlendColor(presWinner);
   const presLabel       = `President: ${getPrimaryParty(presWinner)}`;
 
@@ -206,15 +206,17 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
         }
         const houseProb  = hr?.[houseProbField] as number | undefined;
         const senateProb = sr?.[senateProbField] as number | undefined;
-        const signs      = (sr?.[presSignField] as string | undefined) ?? '';
-        const presPct    = sr?.[presPctField] as number | undefined;
+        // See VoteModelRow.presSignsByParty: keyed on `presWinner`, the president this table
+        // names in its own header, not on the fixed columns' full-depth winners.
+        const signs      = (isFD ? (sr?.[fdSignField] as string | undefined) : sr?.presSignsByParty?.[presParty]) ?? '';
+        const presPct    = isFD ? (sr?.[fdPctField] as number | undefined) : sr?.presPctByParty?.[presParty];
         // The president's coalition-support % is the chance they sign (>50% → signs).
         const presProb   = presPct !== undefined ? presPct / 100 : undefined;
         return { variable, ref, houseProb, senateProb, signs, presPct, presProb,
                  housePass: undefined as boolean | undefined, senatePass: undefined as boolean | undefined, presSign: undefined as boolean | undefined };
       })
       .filter((r): r is typeof r & { ref: VoteModelRow } => !!r.ref);
-  }, [allVars, domain, houseByVar, senateByVar, candByVar, houseProbField, senateProbField, presSignField, presPctField, whipped, houseSeats, senateSeats, presWinner]);
+  }, [allVars, domain, houseByVar, senateByVar, candByVar, houseProbField, senateProbField, fdSignField, fdPctField, isFD, presParty, whipped, houseSeats, senateSeats, presWinner]);
 
   const sorted = useMemo(() => {
     const arr = [...rows];

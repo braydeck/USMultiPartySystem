@@ -290,7 +290,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
             Amber rows highlight where the presidents disagree. % = fraction of the president&apos;s
             voter coalition that supports the bill.
           </p>
-          <PresidentialComparison rows={senateVotes} factorDev={factorDev} rawMulti={rawMulti} />
+          {/* `rm`, not the static `rawMulti` prop: this card names its party-line president, and
+              the depth and turnout controls above have to move it too. */}
+          <PresidentialComparison rows={senateVotes} factorDev={factorDev} rawMulti={rm} />
         </Card>
       )}
     </div>
