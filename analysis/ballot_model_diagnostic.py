@@ -83,25 +83,73 @@ def tally_line(a: Counter, b: Counter) -> str:
     return "  ".join(f"{k}:{a.get(k, 0)}→{b.get(k, 0)}" for k in keys)
 
 
-def build_proximity() -> np.ndarray:
-    """(N,10) Gaussian proximity of each voter to each party's position in the shared
-    factor metric — the same formula compute_candidate_scores() uses."""
+def _factor_meta():
+    """eta-squared per factor: how much of each factor's variance is between-party.
+    F3 is 0.057 (near-noise for party discrimination) and is excluded from the viz's
+    own DISTANCE_FACTORS, so metrics that honour that convention drop it."""
+    import json
+    fl = json.loads((BASE / "viz" / "src" / "data" / "factorLoadings.json").read_text())
+    return {f["factor"]: float(f["eta"]) for f in fl}
+
+
+ETA = _factor_meta()
+METRICS = ("raw5", "eta5", "eta4", "pooled")
+
+
+def build_proximity(metric: str) -> np.ndarray:
+    """(N,10) voter→party affinity, higher = closer. Ranking only depends on the
+    distance ordering, so any monotone transform of distance would do.
+
+      raw5   unweighted Euclidean on the raw factor scores (scale-naive: the factors
+             have SDs 0.50-0.87, so this weights them by accident)
+      eta5   z-scored factors, weighted by eta-squared, all five
+      eta4   z-scored, eta-weighted, F1/F2/F4/F5 — matches viz/src/lib/partyDistance.ts
+      pooled Mahalanobis under ONE covariance shared by all clusters (pooled
+             within-cluster). Accounts for factor correlations while removing the
+             per-cluster spread advantage that biases the posterior.
+    """
     efa = pd.read_csv(BASE / "data" / "processed" / "efa_factor_scores.csv")
     typ = pd.read_csv(BASE / "data" / "processed" / "typology_cluster_assignments.csv")
     assert len(efa) == len(typ), f"row mismatch {len(efa)} vs {len(typ)}"
     X = efa[FACTOR_COLS].values.astype(np.float64)
     w = efa["commonpostweight"].values.astype(float)
     hard = typ[PROB10].values.argmax(axis=1)
+
+    if metric != "raw5":
+        sd = np.sqrt(np.average((X - np.average(X, weights=w, axis=0)) ** 2, weights=w, axis=0))
+        X = (X - np.average(X, weights=w, axis=0)) / sd
+
     mu = np.vstack([np.average(X[hard == k], weights=w[hard == k], axis=0) for k in range(10)])
-    d2 = ((X[:, None, :] - mu[None, :, :]) ** 2).sum(axis=2)
-    prox = np.exp(-d2 / (2.0 * SIGMA ** 2))
-    assert np.isfinite(prox).all(), "proximity overflow"
-    # Exact ties would be broken by candidate index rather than preference.
-    assert (np.diff(np.sort(prox, axis=1), axis=1) > 0).all(axis=1).mean() > 0.999
-    return prox, mu
+    diff = X[:, None, :] - mu[None, :, :]
+
+    if metric == "pooled":
+        cov = sum((hard == k).sum() * np.cov(X[hard == k].T) for k in range(10)) / len(X)
+        inv = np.linalg.inv(cov)
+        d2 = np.einsum("nkf,fg,nkg->nk", diff, inv, diff)
+    else:
+        keys = ["F1", "F2", "F3", "F4", "F5"]
+        if metric == "raw5":
+            wts = np.ones(5)
+        elif metric == "eta5":
+            wts = np.array([ETA[k] for k in keys])
+        else:  # eta4 — drop F3
+            wts = np.array([0.0 if k == "F3" else ETA[k] for k in keys])
+        wts = wts / wts.sum()
+        d2 = ((diff ** 2) * wts).sum(axis=2)
+
+    assert np.isfinite(d2).all()
+    # Rank by -d2 directly; no sigma needed, and no underflow to create ties.
+    prox = -d2
+    assert (np.diff(np.sort(prox, axis=1), axis=1) > 0).all(axis=1).mean() > 0.999, "ties"
+    return prox
 
 
-PROX, MU = build_proximity()
+PROX = None   # set per run by use_metric()
+
+
+def use_metric(metric: str):
+    global PROX
+    PROX = build_proximity(metric)
 
 
 def make_scorer(offset: int):
@@ -164,19 +212,22 @@ def senate_run(offset):
             dict(zip(irv["state_abbr"], irv["senator_code"])))
 
 
-def senate_report():
-    res = {name: senate_run(off) for name, off in MODELS}
-    print(f"\n### SENATE — 51 single-winner races (5 finalists via STV winnow)\n")
-    for i, method in enumerate(("Condorcet", "IRV")):
-        p, x = res["posterior"][i], res["proximity"][i]
-        states = sorted(p)
-        moved = [s for s in states if p[s] != x[s]]
-        print(f"{method}: {len(moved)}/{len(states)} states change winner "
-              f"({len(moved) / len(states) * 100:.0f}%)")
-        print("   seats  " + tally_line(Counter(party(p[s]) for s in states),
-                                        Counter(party(x[s]) for s in states)))
-        if moved:
-            print("   moved  " + ", ".join(f"{s} {party(p[s])}→{party(x[s])}" for s in moved))
+def senate_report(metrics):
+    use_metric(metrics[0])
+    base = senate_run(0)   # posterior baseline; independent of the metric
+    print("\n### SENATE — 51 single-winner races (5 finalists via STV winnow)\n")
+    print("  each row swaps ONLY the voter→party affinity metric; posterior is the baseline\n")
+    for m in metrics:
+        use_metric(m)
+        alt = senate_run(10)
+        for i, method in enumerate(("Condorcet", "IRV")):
+            p_, x_ = base[i], alt[i]
+            states = sorted(p_)
+            moved = [st for st in states if p_[st] != x_[st]]
+            print(f"  {m:7s} {method:10s} {len(moved):2d}/{len(states)} flip "
+                  f"({len(moved)/len(states)*100:3.0f}%)   "
+                  + tally_line(Counter(party(p_[st]) for st in states),
+                               Counter(party(x_[st]) for st in states)))
         print()
 
 
@@ -192,8 +243,9 @@ def house_run(offset, depth):
     return dist, summ
 
 
-def house_report(depth):
-    print(f"\n### HOUSE — district STV, ballot depth {depth}\n")
+def house_report(depth, metric):
+    use_metric(metric)
+    print(f"\n### HOUSE — district STV, ballot depth {depth}, metric={metric}\n")
     dist, summ = {}, {}
     for name, off in MODELS:
         dist[name], summ[name] = house_run(off, depth)
@@ -225,7 +277,8 @@ def house_report(depth):
 
 # ── President (indicative: general-election pool, not the full primary chain) ──
 
-def president_report():
+def president_report(metric):
+    use_metric(metric)
     print("\n### PRESIDENT — indicative national contest over the committed candidate pool")
     print("    (not the full primary→general chain)\n")
     efa = pd.read_csv(BASE / "data" / "processed" / "efa_factor_scores.csv")
@@ -270,22 +323,38 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--lam", type=float, default=float(_LAM))
     ap.add_argument("--depth", type=int, default=7)
+    ap.add_argument("--metrics", default=",".join(METRICS))
+    ap.add_argument("--only", default="senate,house,president")
     a = ap.parse_args()
+    metrics = [m.strip() for m in a.metrics.split(",") if m.strip()]
+    only = {s_.strip() for s_ in a.only.split(",")}
 
     bar = "=" * 78
     print(bar)
-    print("BALLOT MODEL DIAGNOSTIC   posterior (canonical)  →  proximity (never used)")
-    print(f"turnout lambda={a.lam}   house ballot depth={a.depth}")
+    print("BALLOT MODEL DIAGNOSTIC   posterior (canonical)  vs  distance-based alternatives")
+    print(f"turnout lambda={a.lam}   house depth={a.depth}   metrics={metrics}")
     print(bar)
-    print("\nParty positions are identical in both runs; only voter→candidate affinity changes.")
+    print("\nParty positions, candidate pools, turnout weights, prominence and rng are")
+    print("identical across runs. Only the voter→party affinity metric changes.")
+    print(f"eta-squared: " + ", ".join(f"{k}={v}" for k, v in sorted(ETA.items())))
 
-    for fn, args in ((senate_report, ()), (house_report, (a.depth,)), (president_report, ())):
+    if "senate" in only:
         try:
-            fn(*args)
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            print(f"  FAILED: {type(e).__name__}: {e}")
+            senate_report(metrics)
+        except Exception:
+            import traceback; traceback.print_exc()
+    if "house" in only:
+        for m in metrics:
+            try:
+                house_report(a.depth, m)
+            except Exception:
+                import traceback; traceback.print_exc()
+    if "president" in only:
+        for m in metrics:
+            try:
+                president_report(m)
+            except Exception:
+                import traceback; traceback.print_exc()
     print("\n" + bar)
 
 
