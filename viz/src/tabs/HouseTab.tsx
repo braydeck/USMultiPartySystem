@@ -169,7 +169,12 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   // Sampling uncertainty at the active stop. The bootstrap ran the party-line pipeline with
   // rank-7 ballots on the 873-seat double-Wyoming map, so its seat counts describe that
   // configuration only; every other combination degrades to bars without whiskers.
+  // Also wait for the depth bundle: until housePartyList.json resolves (or if that fetch
+  // fails), the bars fall back to a chamber whose per-party seats differ from the one the
+  // bootstrap measured by up to 6 seats, so a whisker drawn then would describe a
+  // different chamber than the bar beneath it. Same condition stvDepth resolves on.
   const houseU = scenario === 'rawMulti' && wyoming === 'double' && depth === 'top7'
+    && !!plData?.[depth]?.[wyoming]?.[part]
     ? uncertaintyAt(gi)?.house.seats
     : undefined;
 
