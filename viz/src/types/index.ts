@@ -111,8 +111,6 @@ export interface VoteModelRow {
 /** One party's predicted candidate vote on a bill (candidateVoteModel.json). */
 export interface PartyVote {
   pYes: number;          // factor-logit probability the party's candidate votes yes
-  bandLo: number;        // within-party spread band, 10th percentile
-  bandHi: number;        // within-party spread band, 90th percentile
   observedPct: number | null;   // observed % support in that cluster (0–100)
   delta: number | null;         // observed − predicted, in points (+ = more supportive than ideology predicts)
   diverges: boolean;            // |delta| ≥ 15pp

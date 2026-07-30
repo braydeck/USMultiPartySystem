@@ -17,9 +17,12 @@ Method
   For each bill P:
     fit  logit(P(yes)) = b0 + Σ b_k · F_k     (weighted GLM over all respondents)
     then P(yes | party) = logistic(b0 + Σ b_k · centroid_k[party])
-  Spread band: draw candidate positions ~ Normal(centroid, within-party SD)
-  per factor, push through the logit, take p10..p90.
   Divergence: observed party support − factor-predicted, flagged at |Δ| ≥ 15pp.
+
+  A p10..p90 "spread band" per party used to be emitted alongside pYes, drawn by a 500-sample
+  Monte Carlo off the within-party factor SD. Nothing ever rendered it, and because all the draws
+  came from one sequentially-consumed RNG the bill set was effectively part of the seed — adding or
+  removing a bill re-rolled every band after it. Removed rather than reseeded.
 
 Two validation gates guard correctness:
   A) recoded binary → weighted per-cluster mean must reproduce cluster_stats c0..c9
@@ -62,8 +65,6 @@ ANCHORS = ['pew_churatd', 'CC24_302', 'CC24_303', 'CC24_341a', 'CC24_341c',
            'CC24_421_1', 'CC24_421_2', 'CC24_423', 'CC24_424']
 
 DIVERGENCE_THRESHOLD = 15.0   # |observed − predicted| in pp to flag a divergence
-N_DRAWS = 500                 # spread-band Monte-Carlo draws
-RNG_SEED = 20260715
 
 
 def wpct(binvals, w, m):
@@ -99,7 +100,6 @@ def logistic(x):
 
 
 def main():
-    rng = np.random.default_rng(RNG_SEED)
 
     bills = pd.read_csv(VOTE_MODEL)[["variable", "domain", "question"]]
     bill_vars = bills["variable"].tolist()
@@ -153,11 +153,6 @@ def main():
           f"({'OK' if maxdev_b <= 0.02 else 'FAIL'})")
     assert maxdev_b <= 0.05, "centroid reconstruction off — wrong factor-score columns or join"
 
-    # within-cluster factor SD (for spread band)
-    cluster_sd = {}
-    for party, cluster in PARTY_TO_CLUSTER.items():
-        cluster_sd[party] = np.array([wstd(F[f], w, cl == cluster) for f in FACTORS])
-
     # ── Per-bill: recode, validate, fit, predict ─────────────────────────────
     print("\n── Fitting per-bill logits ──")
     out_rows = []
@@ -202,19 +197,12 @@ def main():
             c = pure[party]
             lin = beta[0] + float(np.dot(beta[1:], c))
             p_yes = logistic(lin)
-            # spread band from within-party factor SD
-            draws = rng.normal(loc=c, scale=cluster_sd[party], size=(N_DRAWS, 5))
-            lin_draws = beta[0] + draws @ beta[1:]
-            p_draws = logistic(lin_draws)
-            band_lo, band_hi = np.percentile(p_draws, [10, 90])
             observed = stats.loc[var, f"c{cluster}"] if var in stats.index else np.nan
             delta = (observed - p_yes * 100.0) if not np.isnan(observed) else np.nan
             out_rows.append({
                 "variable": var, "domain": domain, "question": question,
                 "party": party,
                 "pYes": round(float(p_yes), 4),
-                "bandLo": round(float(band_lo), 4),
-                "bandHi": round(float(band_hi), 4),
                 "observedPct": round(float(observed), 2) if not np.isnan(observed) else "",
                 "delta": round(float(delta), 2) if not np.isnan(delta) else "",
                 "diverges": bool(abs(delta) >= DIVERGENCE_THRESHOLD) if not np.isnan(delta) else False,

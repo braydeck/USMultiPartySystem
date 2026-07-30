@@ -360,7 +360,7 @@ def build_house_seats_gauss():
 def build_candidate_vote_model(out_name="candidateVoteModel.json"):
     """candidateVoteModel.json — per-bill, per-party predicted candidate vote from
     the 5-factor logit (pipeline/candidate_vote_model.py). One record per bill with
-    a `parties` map: pYes, spread band (bandLo/bandHi), observed support, divergence."""
+    a `parties` map: pYes, observed support, divergence."""
     rows = read_csv(OUTPUTS / "candidate_vote_model.csv")
     by_bill: dict = {}
     order: list = []
@@ -375,8 +375,6 @@ def build_candidate_vote_model(out_name="candidateVoteModel.json"):
             return float(v) if v not in ("", None) else None
         by_bill[var]["parties"][r["party"]] = {
             "pYes":        _f("pYes"),
-            "bandLo":      _f("bandLo"),
-            "bandHi":      _f("bandHi"),
             "observedPct": _f("observedPct"),
             "delta":       _f("delta"),
             "diverges":    str(r.get("diverges", "")).strip().lower() == "true",
