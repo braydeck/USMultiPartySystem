@@ -291,7 +291,7 @@ def resampled_inputs(idx, extra_paths: Iterable[Path] = ()):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 9 `ok` lines, `9 checks passed`
+Expected: 10 `ok` lines, `10 checks passed`
 
 - [ ] **Step 5: Commit**
 
@@ -396,6 +396,9 @@ from .resample import stratified_indices
 CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
                     5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
 
+# The app publishes the rank-7 model for the house, primary and president.
+DEPTH = 7
+
 _MODS = {}
 
 
@@ -406,6 +409,10 @@ def _pipelines(lam: float):
         return _MODS
     os.environ["TURNOUT_WEIGHT"] = "1"
     os.environ["TURNOUT_LAMBDA"] = str(lam)
+    # The primary and the president read BALLOT_DEPTH from the environment (default 0 =
+    # full ranking). The app publishes the rank-7 model, so leaving this unset would
+    # bootstrap a different contest than the one on the page.
+    os.environ["BALLOT_DEPTH"] = str(DEPTH)
     sys.path.insert(0, str(BASE / "pipeline" / "pure_only"))
     import run_pure_multi_house_stv as hou
     import run_pure_multi_presidential as pres
@@ -465,26 +472,34 @@ def run_draw(seed: int, lam: float, depth: int = 7, observed: bool = False) -> d
         house = {CLUSTER_TO_PARTY[int(r.party)]: int(r.NATIONAL) for r in hs.itertuples()}
 
         # ── primary → president (president reads the primary's finalists) ─────
+        # Both modules rewrite their own paths when BALLOT_DEPTH is set, appending a
+        # _top{depth} sibling. So always hand them the UNSUFFIXED path and let them do
+        # the rewrite — pre-suffixing gets double-suffixed into a directory that does
+        # not exist. Read the primary's location from the same formula it uses, and the
+        # president's from its module global *after* main(), since main() reassigns it.
         real_prim_out, prim.OUTPUT_DIR = prim.OUTPUT_DIR, tmp / "prim"
         try:
             _quiet(prim.main)
+            prim_dir = (tmp / "prim" if not DEPTH
+                        else (tmp / "prim").parent / (f"prim_top{DEPTH}"))
         finally:
             prim.OUTPUT_DIR = real_prim_out
-        pr = pd.read_csv(tmp / "prim" / "primary_results_2028.csv")
+        pr = pd.read_csv(prim_dir / "primary_results_2028.csv")
         last = pr["winnowing_point"].unique()[-1]
         primary = sorted(pr[(pr.winnowing_point == last) & (pr.status == "surviving")]["candidate_code"])
 
-        real_pres_out, pres.OUTPUT_DIR = pres.OUTPUT_DIR, tmp / "pres"
+        real_pres_out, pres.OUTPUT_DIR = pres.OUTPUT_DIR, tmp / "pres" / "irv"
         real_pres_prim, pres.PRIMARY_PATH = pres.PRIMARY_PATH, tmp / "prim" / "primary_results_2028.csv"
         try:
             _quiet(pres.main)
+            pres_dir = pres.OUTPUT_DIR          # main() has rewritten this when DEPTH is set
         finally:
             pres.OUTPUT_DIR = real_pres_out
             pres.PRIMARY_PATH = real_pres_prim
-        nat = pd.read_csv(tmp / "pres" / "irv" / "irv_presidential_national_2028.csv")
+        nat = pd.read_csv(pres_dir / "irv_presidential_national_2028.csv")
         won = nat[nat["winner"].astype(str).str.strip() == "True"]
         irv_pres = won["candidate_code"].iloc[0] if len(won) else ""
-        cm = pd.read_csv(tmp / "pres" / "irv" / "condorcet_matchups_2028.csv")
+        cm = pd.read_csv(pres_dir / "condorcet_matchups_2028.csv")
         cond_pres = str(cm["condorcet_winner"].iloc[0]) if "condorcet_winner" in cm.columns and len(cm) else ""
 
     return {"seed": seed,
@@ -497,7 +512,7 @@ def run_draw(seed: int, lam: float, depth: int = 7, observed: bool = False) -> d
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 11 `ok` lines, `11 checks passed`. If `run_pure_multi_presidential` has no `PRIMARY_PATH` or `OUTPUT_DIR` module global, run `grep -n "^PRIMARY_PATH\|^OUTPUT_DIR" pipeline/pure_only/run_pure_multi_presidential.py` and adjust the attribute names to match, keeping the save/restore pattern.
+Expected: 12 `ok` lines, `12 checks passed`. If `run_pure_multi_presidential` has no `PRIMARY_PATH` or `OUTPUT_DIR` module global, run `grep -n "^PRIMARY_PATH\|^OUTPUT_DIR" pipeline/pure_only/run_pure_multi_presidential.py` and adjust the attribute names to match, keeping the save/restore pattern.
 
 - [ ] **Step 5: Verify nothing canonical was written**
 
@@ -614,7 +629,7 @@ def pick_representative(draws: list, fips: str, winner_party: str):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 13 `ok` lines, `13 checks passed`
+Expected: 14 `ok` lines, `14 checks passed`
 
 - [ ] **Step 5: Commit**
 
@@ -827,7 +842,7 @@ def build_uncertainty(draws, observed, n_draws, seed):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 14 `ok` lines, `14 checks passed`
+Expected: 15 `ok` lines, `15 checks passed`
 
 - [ ] **Step 5: Write the CLI**
 
