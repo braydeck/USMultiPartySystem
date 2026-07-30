@@ -10,13 +10,20 @@ phrasing/sign conventions don't have to be reconciled by hand.
 
 Retune by editing QUESTIONS and re-running.
 """
+import csv
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PROFILES = ROOT / "viz" / "src" / "data" / "clusterProfiles.json"
+# CC24_325 is a continuous item (weeks), so it has no "% Supporting" row and no entry in
+# clusterProfiles' variables map — prepare_data stopped synthesising a median bar for it when the
+# abortion cutoff became a box-plot distribution item. Read it from the stats CSV instead: the quiz
+# should not depend on which bars the Parties tab happens to display.
+CLUSTER_STATS = ROOT / "data" / "outputs" / "profiles" / "cluster_stats.csv"
+CONTINUOUS_SRC = {"CC24_325_median": ("CC24_325", "Median")}
 OUT = ROOT / "viz" / "src" / "data" / "quizQuestions.json"
-ACTIVE = ["0", "1", "2", "3", "4", "5", "6", "8", "9"]  # cluster 7 dissolved
+ACTIVE = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]  # all 10; C7 is OAO, reinstated
 
 # Response scales: exact CES wording on the surface, each option's `value` keyed to the
 # clusterSupport axis (clusterSupport = pct/100 = fraction giving the keyed response, so
@@ -122,16 +129,28 @@ QUESTIONS = [
 
 profiles = json.loads(PROFILES.read_text())
 by_id = {p["id"]: p for p in profiles}
+with open(CLUSTER_STATS, newline="", encoding="utf-8") as f:
+    stats_rows = list(csv.DictReader(f))
 
 out = []
 for code, factor, loading, question, options, section_key in QUESTIONS:
-    meta = by_id["2"]["variables"].get(code) or next(
-        (by_id[a]["variables"][code] for a in ACTIVE if code in by_id[a]["variables"]), None)
-    if meta is None:
-        raise SystemExit(f"missing variable: {code}")
-    denom = 40.0 if code == "CC24_325_median" else 100.0  # weeks/40 vs pct/100
-    support = {a: round(min(by_id[a]["variables"][code]["pct"] / denom, 1.0), 6) for a in ACTIVE
-               if code in by_id[a]["variables"]}
+    denom = 40.0 if code in CONTINUOUS_SRC else 100.0  # weeks/40 vs pct/100
+    if code in CONTINUOUS_SRC:
+        var, stat = CONTINUOUS_SRC[code]
+        row = next((r for r in stats_rows
+                    if r["variable"] == var and r["stat_label"] == stat), None)
+        if row is None:
+            raise SystemExit(f"missing {stat} row for {var} in cluster_stats.csv")
+        meta = {"domain": row.get("domain", "")}
+        support = {a: round(min(float(row[f"c{a}"]) / denom, 1.0), 6) for a in ACTIVE
+                   if row.get(f"c{a}") not in (None, "")}
+    else:
+        meta = by_id["2"]["variables"].get(code) or next(
+            (by_id[a]["variables"][code] for a in ACTIVE if code in by_id[a]["variables"]), None)
+        if meta is None:
+            raise SystemExit(f"missing variable: {code}")
+        support = {a: round(min(by_id[a]["variables"][code]["pct"] / denom, 1.0), 6) for a in ACTIVE
+                   if code in by_id[a]["variables"]}
     if len(support) != len(ACTIVE):
         raise SystemExit(f"{code} missing in some clusters")
     info = SECTION_INFO[section_key]
