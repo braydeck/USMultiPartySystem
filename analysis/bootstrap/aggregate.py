@@ -6,6 +6,7 @@ Three statistics per party, and they answer different questions:
   expected  mean seat count across draws — also sums to chamber size, by linearity
 """
 
+import math
 from collections import Counter
 
 import numpy as np
@@ -38,17 +39,26 @@ def _rounded_to_total(values: dict, places: int, total: float, on=None) -> dict:
 
 
 def _seat_stats(per_draw_counts, parties, observed_counts, multiplier=1):
-    out, means = {}, {}
+    out, means, series = {}, {}, {}
     for p in parties:
-        series = np.array([c.get(p, 0) * multiplier for c in per_draw_counts], dtype=float)
-        means[p] = float(series.mean())
+        series[p] = np.array([c.get(p, 0) * multiplier for c in per_draw_counts], dtype=float)
+        means[p] = float(series[p].mean())
+    expected = _rounded_to_total(means, 2, sum(means.values()))
+    for p in parties:
+        # Floor the low end and ceil the high end: truncating both with int() narrows every
+        # interval at the top by up to a seat. Then widen `hi` to cover `expected`, because
+        # a party winning seats in under 2.5% of draws gets lo=hi=0 with expected>0, and the
+        # viz draws `expected` as the centre dot of this span.
+        # `modal` may still legitimately fall outside [lo, hi]: the modal chamber is
+        # assembled from independent per-state argmaxes, so it is not a sampled chamber and
+        # has no reason to lie inside a sampled interval. The viz shows it as its own tick —
+        # do not "fix" this by clamping modal into the interval.
         out[p] = {
-            "lo": int(np.percentile(series, 2.5)),
-            "hi": int(np.percentile(series, 97.5)),
+            "lo": int(np.floor(np.percentile(series[p], 2.5))),
+            "hi": max(int(np.ceil(np.percentile(series[p], 97.5))), math.ceil(expected[p])),
             "observed": int(observed_counts.get(p, 0) * multiplier),
+            "expected": expected[p],
         }
-    for p, exp in _rounded_to_total(means, 2, sum(means.values())).items():
-        out[p]["expected"] = exp
     return out
 
 
@@ -65,8 +75,17 @@ def _senate_block(draws, observed, method):
         modal_party = best[0]
         modal_counts[modal_party] += 1
         # Read pModal/pObserved back out of the corrected dist so the three cannot disagree.
-        shares = _rounded_to_total({k: v / n for k, v in dist.most_common()}, 4, 1.0,
-                                   on=modal_party)
+        raw = {k: v / n for k, v in dist.most_common()}
+        shares = _rounded_to_total(raw, 4, 1.0, on=modal_party)
+        if shares[modal_party] < max(shares.values()):
+            # A negative rounding residual can push the sink below a tied peer, and the viz
+            # reads pModal as the peak of dist. Park the residual on the next party that
+            # keeps the modal maximal.
+            for alt in sorted(raw, key=lambda k: -raw[k]):
+                cand = _rounded_to_total(raw, 4, 1.0, on=alt)
+                if cand[modal_party] >= max(cand.values()):
+                    shares = cand
+                    break
         entry = {
             "observed": obs_code,
             "modal": modal_party,
@@ -81,12 +100,17 @@ def _senate_block(draws, observed, method):
                 entry["repRounds"] = rep["rounds"]
                 entry["repShare"] = round(rep["share"], 4)
         # Decomposition for close races: how often each party makes the slate,
-        # reaches the last round, wins, and wins given it got there.
-        if entry["pModal"] < 0.70:
+        # reaches the last round, wins, and wins given it got there. IRV only, like
+        # repRounds: it reads the recorded IRV elimination path, so pairing it with the
+        # Condorcet winner would splice two elimination models.
+        if entry["pModal"] < 0.70 and method == "irv":
             entry["decomp"] = _decomp(draws, fips, method)
         states[fips] = entry
 
-    per_draw = [Counter(_party(c) for c in d["senate"][method].values()) for d in draws]
+    # Count seats over the observed fips set only, the same set `states`/`modal_counts` use:
+    # a draw carrying an extra state would otherwise inflate `expected` past the chamber.
+    per_draw = [Counter(_party(d["senate"][method][f]) for f in fips_list
+                        if f in d["senate"][method]) for d in draws]
     obs_counts = Counter(_party(c) for c in observed["senate"][method].values())
     parties = sorted({p for c in per_draw for p in c} | set(obs_counts) | set(modal_counts))
     seats = _seat_stats(per_draw, parties, obs_counts, SENATE_MULTIPLIER)
@@ -118,7 +142,11 @@ def _decomp(draws, fips, method):
         if w in last:
             win_given[w] += 1
     out = {}
-    for c in slate:
+    # Emit in descending win probability. `slate` is filled by iterating sets of party codes,
+    # so its own insertion order follows randomised string hashing — sorting is what makes the
+    # payload byte-reproducible across processes, and it puts the likely winner first for a
+    # viz that reads these positionally.
+    for c in sorted(slate, key=lambda k: (-win.get(k, 0), -slate[k], k)):
         out[c] = {
             "slate": round(slate[c] / n, 4),
             "final": round(final.get(c, 0) / n, 4),
@@ -137,16 +165,25 @@ def build_uncertainty(draws, observed, n_draws, seed):
     ho = Counter(observed["house"])
     parties = sorted({p for c in hp for p in c} | set(ho))
     hseats = _seat_stats(hp, parties, ho)
-    # House modal: per-party mode of its own seat-count distribution, then rescale the
-    # largest party so the chamber sums exactly (modes of marginals need not sum).
+    # House modal: per-party mode of its own seat-count distribution. Modes of marginals
+    # need not sum to the chamber, and because skewed marginals systematically undershoot
+    # their means the shortfall is large (~20 seats). Apportion it by largest remainder over
+    # `expected` rather than dumping it all on the largest party: over synthetic 1000-draw
+    # chambers that single sink landed 16-22 seats above its own mode, which no longer
+    # describes anything "most likely".
     for p in parties:
         series = [c.get(p, 0) for c in hp]
         hseats[p]["modal"] = Counter(series).most_common(1)[0][0]
-    total = sum(hseats[p]["modal"] for p in parties)
-    target = sum(ho.values())
-    if total != target and parties:
-        biggest = max(parties, key=lambda p: hseats[p]["modal"])
-        hseats[biggest]["modal"] += target - total
+    residual = sum(ho.values()) - sum(hseats[p]["modal"] for p in parties)
+    step = 1 if residual > 0 else -1
+    for _ in range(abs(residual)):
+        cands = [p for p in parties if step > 0 or hseats[p]["modal"] > 0]
+        if not cands:
+            break
+        # Give the seat to the party whose mode most understates its mean (or take it from
+        # the one that most overstates it), so no party moves far from its own mode.
+        pick = max(cands, key=lambda p: step * (hseats[p]["expected"] - hseats[p]["modal"]))
+        hseats[pick]["modal"] += step
     out["house"] = {"seats": hseats}
 
     slate = Counter()
@@ -159,11 +196,14 @@ def build_uncertainty(draws, observed, n_draws, seed):
     out["president"] = {}
     for method in ("irv", "cond"):
         c = Counter(_party(d["president"][method]) for d in draws if d["president"][method])
-        tot = sum(c.values()) or 1
+        tot = sum(c.values())
         modal = c.most_common(1)[0][0] if c else ""
+        # `dist` is conditional on the contest resolving — a Condorcet cycle leaves `cond`
+        # empty — so publish the denominator too, or a cycle rate reads as certainty.
         out["president"][method] = {
             "dist": _rounded_to_total({k: v / tot for k, v in c.most_common()}, 4, 1.0, on=modal)
                     if c else {},
             "observed": _party(observed["president"][method]),
-            "modal": modal}
+            "modal": modal,
+            "nResolved": tot}
     return out

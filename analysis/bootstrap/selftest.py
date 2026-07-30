@@ -3,6 +3,7 @@
 
 This repo has no pytest; these are plain asserts so they run with the stdlib interpreter.
 """
+import math
 import sys
 from collections import Counter
 from pathlib import Path
@@ -280,8 +281,12 @@ def test_aggregate_sums_and_shape():
         exp = sum(v["expected"] for v in seats.values())
         assert abs(exp - 102) < 1e-6, f"{method} expected sums to {exp}, not 102"
         for p, v in seats.items():
-            assert v["lo"] <= v["modal"] <= v["hi"] or v["lo"] <= v["expected"] <= v["hi"], (
-                f"{method}/{p}: interval [{v['lo']},{v['hi']}] excludes both centres")
+            # The viz draws `expected` as the centre dot of the [lo, hi] span, so it must be
+            # inside it. `modal` is deliberately not checked: the modal chamber is 51
+            # independent per-state argmaxes, not a sampled chamber, and can fall outside.
+            assert v["lo"] <= v["expected"] <= v["hi"], (
+                f"{method}/{p}: expected {v['expected']} outside interval "
+                f"[{v['lo']},{v['hi']}]")
         for fips, s in u["senate"][method]["states"].items():
             assert 0 < s["pModal"] <= 1
             assert abs(sum(s["dist"].values()) - 1.0) < 1e-6, f"{fips} dist does not sum to 1"
@@ -289,6 +294,22 @@ def test_aggregate_sums_and_shape():
     hs = u["house"]["seats"]
     assert sum(v["modal"] for v in hs.values()) == 873, "house modal does not sum to 873"
     assert abs(sum(v["expected"] for v in hs.values()) - 873) < 1e-6
+    # The chamber's modal shortfall is apportioned by largest remainder, so a party may only
+    # move from its own mode toward its mean, and only as far as reaching it. A single-sink
+    # rescale instead pushed the largest party up to 16 seats past its mode and past its mean.
+    # This cannot be asserted as |modal - round(expected)| <= 2: the mode of a 4-seat-wide
+    # marginal sits several seats off the mean on its own (LBR: mode 158, mean 152.33), which
+    # no apportionment can remove.
+    modes = {p: Counter(d["house"].get(p, 0) for d in draws).most_common(1)[0][0] for p in hs}
+    moved = sum(abs(hs[p]["modal"] - modes[p]) for p in hs)
+    assert moved == abs(873 - sum(modes.values())), (
+        f"apportionment moved {moved} seats, not the {abs(873 - sum(modes.values()))}-seat residual")
+    for p, v in hs.items():
+        assert v["lo"] <= v["expected"] <= v["hi"], (
+            f"house/{p}: expected {v['expected']} outside interval [{v['lo']},{v['hi']}]")
+        assert (math.floor(min(modes[p], v["expected"])) <= v["modal"]
+                <= math.ceil(max(modes[p], v["expected"]))), (
+            f"house/{p}: modal {v['modal']} left [mode {modes[p]}, expected {v['expected']}]")
 
     assert u["nDraws"] == len(draws) and u["seed"] == 42
 

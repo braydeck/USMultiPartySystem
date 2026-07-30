@@ -26,7 +26,8 @@ STOPS = [(0, "Turnout"), (5, "TurnoutL5"), (10, "TurnoutL10"), (15, "TurnoutL15"
 def _work(args):
     seed, lam, depth, observed = args
     import sys
-    sys.path.insert(0, str(BASE))
+    if str(BASE) not in sys.path:      # a worker runs ~26 jobs; don't grow sys.path per draw
+        sys.path.insert(0, str(BASE))
     from analysis.bootstrap.contests import run_draw
     try:
         return run_draw(seed=seed, lam=lam, depth=depth, observed=observed)
@@ -40,14 +41,32 @@ def main():
     ap.add_argument("--depth", type=int, default=7)
     ap.add_argument("--procs", type=int, default=max(1, (mp.cpu_count() or 2) - 2))
     ap.add_argument("--stops", default="", help="comma-separated stop percentages, e.g. 0,5")
+    ap.add_argument("--force", action="store_true",
+                    help="overwrite payloads that already hold more draws than this run")
     a = ap.parse_args()
 
     import sys
-    sys.path.insert(0, str(BASE))
+    if str(BASE) not in sys.path:
+        sys.path.insert(0, str(BASE))
     from analysis.bootstrap.aggregate import build_uncertainty
 
     want = {int(s) for s in a.stops.split(",") if s.strip()} if a.stops else None
     stops = [(p, s) for p, s in STOPS if want is None or p in want]
+
+    # Check every stop before spending an hour on the first: a small smoke run must not
+    # silently replace a full-size payload with a handful of draws.
+    if not a.force:
+        for _, suffix in stops:
+            path = OUT / f"uncertainty{suffix}.json"
+            if not path.exists():
+                continue
+            try:
+                prev = int(json.loads(path.read_text()).get("nDraws", 0))
+            except (ValueError, OSError):
+                prev = 0
+            if prev > a.draws:
+                raise RuntimeError(f"{path.name} already holds {prev} draws; refusing to "
+                                   f"overwrite it with {a.draws} (pass --force to override)")
 
     for pct, suffix in stops:
         lam = pct / 100.0
@@ -60,12 +79,18 @@ def main():
         with mp.Pool(a.procs) as pool:
             results = pool.map(_work, jobs)
         failed = [r for r in results if "error" in r]
-        assert not failed, (f"{len(failed)} of {len(jobs)} runs failed, first "
-                            f"(seed {failed[0]['seed']}): {failed[0]['error']}")
+        if failed:
+            # An assert would vanish under -O, and an error dict then reaches the aggregator
+            # as a KeyError instead of naming the failing seed.
+            raise RuntimeError(f"{len(failed)} of {len(jobs)} runs failed, first "
+                               f"(seed {failed[0]['seed']}): {failed[0]['error']}")
         observed, draws = results[0], results[1:]
         u = build_uncertainty(draws, observed, n_draws=len(draws), seed=42)
         path = OUT / f"uncertainty{suffix}.json"
-        path.write_text(json.dumps(u, separators=(",", ":"), sort_keys=True))
+        # No sort_keys: every state's `dist` and the president's are built in descending
+        # probability order, and the viz reads them positionally (modal first, then
+        # runners-up). Dicts are built deterministically, so output stays reproducible.
+        path.write_text(json.dumps(u, separators=(",", ":")))
         irv = u["senate"]["irv"]
         print(f"{suffix:12s} {len(draws)} draws  {time.time()-t0:5.0f}s  "
               f"substituted={irv['nSubstituted']} below50={irv['nBelow50']}  "
