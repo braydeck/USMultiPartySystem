@@ -7,6 +7,7 @@ the most common slate, then the most common elimination order within it, then ta
 the medoid of that bucket.
 """
 
+import copy
 from collections import Counter
 
 import numpy as np
@@ -18,6 +19,13 @@ def pick_representative(draws: list, fips: str, winner_party: str):
             and d["senate"]["irv"][fips].rsplit("_", 1)[0] == winner_party]
     if not wins:
         return None
+
+    # contests.py populates "paths" and "irv" for the same states in one loop, so a
+    # winning draw always has a path entry here — but nothing enforces that across
+    # files, so make the dependency explicit instead of failing on a bare KeyError.
+    for d in wins:
+        assert fips in d["senate"]["paths"], (
+            f"{fips}: draw has an IRV winner but no matching paths entry")
 
     def slate_of(d):
         return tuple(d["senate"]["paths"][fips]["slate"])
@@ -31,7 +39,7 @@ def pick_representative(draws: list, fips: str, winner_party: str):
     bucket = [d for d in in_slate if elim_of(d) == top_elim]
 
     # Medoid: the draw whose round-1 vote vector is closest to the bucket mean.
-    keys = sorted(top_slate)
+    keys = top_slate  # already sorted by contests.py when it built "slate"
     def vec(d):
         r1 = {c["code"]: c["pct"] for c in d["senate"]["paths"][fips]["rounds"][0]["candidates"]}
         return np.array([r1.get(k, 0.0) for k in keys])
@@ -39,5 +47,7 @@ def pick_representative(draws: list, fips: str, winner_party: str):
     medoid = bucket[int(np.argmin(((M - M.mean(axis=0)) ** 2).sum(axis=1)))]
 
     p = medoid["senate"]["paths"][fips]
-    return {"rounds": p["rounds"], "slate": list(p["slate"]), "elim": list(p["elim"]),
-            "share": len(bucket) / len(wins)}
+    # Deep-copy rounds (unlike the list-copied slate/elim) since it nests per-candidate
+    # dicts; without this the caller shares mutable state with the source draw.
+    return {"rounds": copy.deepcopy(p["rounds"]), "slate": list(p["slate"]),
+            "elim": list(p["elim"]), "share": len(bucket) / len(wins)}

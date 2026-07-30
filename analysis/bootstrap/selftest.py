@@ -230,8 +230,24 @@ def test_representative_run_is_coherent_and_matches_winner():
     winners = [d["senate"]["irv"][fips].rsplit("_", 1)[0] for d in draws]
     top = Counter(winners).most_common(1)[0][0]
 
+    # Independently recompute the expected slate/elim bucket from the winning draws,
+    # without calling into representative.py, so this test can't pass by construction
+    # (every draw in `wins` already has `top` as its IRV winner regardless of bucketing).
+    wins = [d for d in draws if d["senate"]["irv"][fips].rsplit("_", 1)[0] == top]
+    slate_of = lambda d: tuple(d["senate"]["paths"][fips]["slate"])
+    elim_of = lambda d: tuple(d["senate"]["paths"][fips]["elim"])
+    want_slate = Counter(slate_of(d) for d in wins).most_common(1)[0][0]
+    in_slate = [d for d in wins if slate_of(d) == want_slate]
+    want_elim = Counter(elim_of(d) for d in in_slate).most_common(1)[0][0]
+    bucket = [d for d in in_slate if elim_of(d) == want_elim]
+
     rep = pick_representative(draws, fips, top)
     assert rep is not None, f"no representative run for {top} in {fips}"
+    assert tuple(rep["slate"]) == want_slate, f"slate {rep['slate']} != recomputed {want_slate}"
+    assert tuple(rep["elim"]) == want_elim, f"elim {rep['elim']} != recomputed {want_elim}"
+    assert any(rep["rounds"] == d["senate"]["paths"][fips]["rounds"] for d in bucket), (
+        "returned rounds do not match any draw in the recomputed slate/elim bucket")
+
     rs = rep["rounds"]
     for rd in rs:
         total = sum(c["pct"] for c in rd["candidates"])
