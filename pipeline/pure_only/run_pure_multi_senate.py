@@ -21,6 +21,7 @@ Outputs to data/outputs/pure_multi/senate/:
   senate_condorcet_results.csv   — Ranked Pairs matchup detail per state
 """
 
+import json
 import os
 import sys
 import numpy as np
@@ -398,22 +399,62 @@ def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
 
 # ── IRV ───────────────────────────────────────────────────────────────────────
 
-def irv_winner(ballots_arr: np.ndarray, weights: np.ndarray,
-               candidates: list) -> str:
-    """Plain IRV (instant runoff) among a candidate list."""
+def _irv_round(idx: int, totals: dict, total: float, eliminated) -> dict:
+    return {
+        "round": idx,
+        "candidates": sorted(
+            [{"code":       c,
+              "party":      party_of(c),
+              "votes":      round(v, 4),
+              "pct":        round(v / total * 100, 4) if total else 0.0,
+              "eliminated": c == eliminated}
+             for c, v in totals.items()],
+            key=lambda d: (-d["votes"], d["code"]),
+        ),
+    }
+
+
+def irv_rounds(ballots_arr: np.ndarray, weights: np.ndarray,
+               candidates: list) -> tuple:
+    """Plain IRV (instant runoff) among a candidate list.
+
+    Returns (winner_code, rounds). The winner is identical to the plain
+    single-value result; `rounds` additionally records every active candidate's
+    tally per round and which one that round eliminated, so the viz can draw the
+    vote flow. Finalists are ranked on every ballot, so no ballot exhausts and a
+    candidate's round-over-round gain equals the transfer volume it received.
+    """
     active = set(candidates)
     bwts   = weights.astype(float).copy()
+    rounds: list = []
+    winner = None
+
     while len(active) > 1:
         fsc    = first_surviving_choice(ballots_arr, active)
         totals = compute_vote_totals(fsc, bwts, active)
         total  = sum(totals.values())
         if total == 0:
+            rounds.append(_irv_round(len(rounds) + 1, totals, total, None))
             break
-        winner_candidates = [c for c in active if totals[c] / total > 0.5]
-        if winner_candidates:
-            return winner_candidates[0]
-        active.discard(min(active, key=lambda c: (totals[c], c)))
-    return next(iter(active)) if active else "none"
+        majority = [c for c in active if totals[c] / total > 0.5]
+        if majority:
+            winner = majority[0]
+            rounds.append(_irv_round(len(rounds) + 1, totals, total, None))
+            break
+        loser = min(active, key=lambda c: (totals[c], c))
+        rounds.append(_irv_round(len(rounds) + 1, totals, total, loser))
+        active.discard(loser)
+
+    if winner is None:
+        winner = next(iter(active)) if active else "none"
+        # Single survivor by elimination: record a terminal round so the flow
+        # chart has a final column to anchor on.
+        if len(active) == 1:
+            fsc    = first_surviving_choice(ballots_arr, active)
+            totals = compute_vote_totals(fsc, bwts, active)
+            rounds.append(_irv_round(len(rounds) + 1, totals,
+                                     sum(totals.values()), None))
+    return winner, rounds
 
 
 # ── Composition row builder ───────────────────────────────────────────────────
@@ -481,6 +522,7 @@ def main(ballot_depth=0):
     comp_rows_cond: list = []
     comp_rows_irv:  list = []
     all_bucket_rows: list = []  # per-state STV bucket compositions
+    irv_rounds_by_state: dict = {}  # fips → per-round IRV tallies (vote-flow chart)
 
     all_condorcet_prob:  list = []
     comp_rows_cond_prob: list = []
@@ -561,7 +603,13 @@ def main(ballot_depth=0):
             cond_winner, matchups = ranked_pairs_winner(raw_matchups, finalist_list)
 
         # IRV
-        irv_win = irv_winner(state_ballots_full, state_weights, finalist_list)
+        irv_win, irv_round_log = irv_rounds(state_ballots_full, state_weights, finalist_list)
+        irv_rounds_by_state[f"{int(state_fips):02d}"] = {
+            "abbr":        state_abbr,
+            "winner":      irv_win,
+            "totalWeight": round(float(state_weights.sum()), 2),
+            "rounds":      irv_round_log,
+        }
 
         for m in matchups:
             m["state_fips"] = int(state_fips)
@@ -593,7 +641,7 @@ def main(ballot_depth=0):
             prob_raw_matchups               = build_matchups(prob_ballots_full, state_weights, prob_finalist_list)
             prob_cond_winner, prob_matchups = ranked_pairs_winner(prob_raw_matchups, prob_finalist_list)
 
-        prob_irv_win = irv_winner(prob_ballots_full, state_weights, prob_finalist_list)
+        prob_irv_win, _ = irv_rounds(prob_ballots_full, state_weights, prob_finalist_list)
 
         for m in prob_matchups:
             m["state_fips"] = int(state_fips)
@@ -633,6 +681,11 @@ def main(ballot_depth=0):
     bucket_df = pd.DataFrame(all_bucket_rows).fillna(0)
     bucket_df.to_csv(OUTPUT_DIR / "senate_stv_buckets.csv", index=False)
     print(f"  senate_stv_buckets.csv  ({len(bucket_df)} rows)")
+
+    # Round-by-round IRV tallies among the finalists (drives the senate vote-flow chart)
+    with open(OUTPUT_DIR / "senate_irv_rounds.json", "w", encoding="utf-8") as f:
+        json.dump(irv_rounds_by_state, f, separators=(",", ":"), sort_keys=True)
+    print(f"  senate_irv_rounds.json  ({len(irv_rounds_by_state)} states)")
     print(f"  senate_composition.csv:              {len(cond_df_primary)} rows")
     print(f"  senate_irv_composition.csv:          {len(irv_df_primary)} rows")
 

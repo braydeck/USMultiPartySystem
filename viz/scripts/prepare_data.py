@@ -2578,17 +2578,17 @@ def build_fd_primary_buckets():
 
 # ---------- pureMultiSenate*.json ----------
 # ---------- senateBuckets.json ----------
-def build_senate_buckets():
-    """Per-state and national-average bucket compositions for senate finalists."""
-    bucket_rows  = read_csv(PURE_MULTI_DIR / "senate" / "senate_stv_buckets.csv")
-    cond_rows    = read_csv(PURE_MULTI_DIR / "senate" / "senate_composition.csv")
-    irv_rows     = read_csv(PURE_MULTI_DIR / "senate" / "senate_irv_composition.csv")
-
-    # Winner lookups: {fips: winner_code}
-    cond_winner = {r["state_fips"].zfill(2): r["senator_code"] for r in cond_rows}
-    irv_winner  = {r["state_fips"].zfill(2): r["senator_code"]  for r in irv_rows}
+def build_senate_buckets(src_dir=None, out_name="senateBuckets.json"):
+    """Per-state finalist compositions from the 5-seat STV *winnow* — the stage that
+    cuts a state's full candidate field to the 5 finalists IRV/Condorcet then choose
+    between. Its Droop quota is 100/(5+1) ≈ 16.7%, which is the scale these bars sit
+    on; it is NOT how the eventual single senator assembled a majority (that is
+    build_senate_irv_rounds)."""
+    src_dir = src_dir or PURE_MULTI_DIR
+    bucket_rows  = read_csv(src_dir / "senate" / "senate_stv_buckets.csv")
 
     PARTIES = ["CON", "CUP", "DSA", "LIB", "NAT", "PRG", "POP", "LBR", "STY", "OAO"]
+    STV_SURVIVORS = 5
 
     # Build per-state finalist bucket data
     states = {}  # fips → {finalists: [...], condWinner, irvWinner}
@@ -2606,12 +2606,7 @@ def build_senate_buckets():
 
         if fips not in states:
             abbr = r.get("state_abbr", fips)
-            states[fips] = {
-                "fips": fips, "abbr": abbr,
-                "condWinner": cond_winner.get(fips, ""),
-                "irvWinner":  irv_winner.get(fips, ""),
-                "finalists": [],
-            }
+            states[fips] = {"fips": fips, "abbr": abbr, "finalists": []}
         states[fips]["finalists"].append({
             "code": code, "party": party,
             "firstChoice": round(fc, 2),
@@ -2623,56 +2618,53 @@ def build_senate_buckets():
     for st in states.values():
         st["finalists"].sort(key=lambda f: -f["total"])
 
-    # Build national averages: for each winning party, average the bucket composition
-    # across all states where that party's candidate wins (Condorcet)
+    # National view: how many of the 51×5 finalist slots each party holds, and the
+    # average composition of those finalist tallies. Averaging over finalist slots —
+    # not over seats won — is what this stage actually describes.
     from collections import defaultdict as _dd
-    party_buckets = _dd(lambda: {"fc_sum": 0.0, "inc_sums": _dd(float), "count": 0})
-    for fips, st in states.items():
-        winner_code = st["condWinner"]
-        if not winner_code:
-            continue
-        winner_party = winner_code.split("_")[0]
-        # Find the winner's finalist entry
-        winner_fin = next((f for f in st["finalists"] if f["code"] == winner_code), None)
-        if not winner_fin:
-            continue
-        pb = party_buckets[winner_party]
-        pb["count"] += 1
-        pb["fc_sum"] += winner_fin["firstChoice"]
-        for s in winner_fin["sources"]:
-            pb["inc_sums"][s["party"]] += s["pct"]
+    party_slots = _dd(lambda: {"fc_sum": 0.0, "inc_sums": _dd(float), "count": 0})
+    for st in states.values():
+        for fin in st["finalists"]:
+            ps = party_slots[fin["party"]]
+            ps["count"] += 1
+            ps["fc_sum"] += fin["firstChoice"]
+            for s in fin["sources"]:
+                ps["inc_sums"][s["party"]] += s["pct"]
 
     averages = []
     for party in PARTIES:
-        pb = party_buckets.get(party)
-        if not pb or pb["count"] == 0:
+        ps = party_slots.get(party)
+        if not ps or ps["count"] == 0:
             continue
-        n = pb["count"]
+        n = ps["count"]
         avg_sources = []
-        for p, total in sorted(pb["inc_sums"].items(), key=lambda x: -x[1]):
+        for p, total in sorted(ps["inc_sums"].items(), key=lambda x: -x[1]):
             avg = total / n
             if avg > 0.1:
                 avg_sources.append({"party": p, "pct": round(avg, 2)})
-        avg_fc = round(pb["fc_sum"] / n, 2)
+        avg_fc = round(ps["fc_sum"] / n, 2)
         averages.append({
             "party": party,
-            "seats": n,
+            "finalistSlots": n,
             "avgFirstChoice": avg_fc,
             "avgSources": avg_sources,
             "avgTotal": round(avg_fc + sum(s["pct"] for s in avg_sources), 2),
         })
-    averages.sort(key=lambda a: -a["seats"])
+    averages.sort(key=lambda a: -a["finalistSlots"])
 
     write_json({
         "states": states,
         "averages": averages,
-    }, "senateBuckets.json")
+        "quotaPct": round(100 / (STV_SURVIVORS + 1), 2),
+        "totalSlots": sum(a["finalistSlots"] for a in averages),
+    }, out_name)
 
 
 # ---------- senateCondorcet.json ----------
-def build_senate_condorcet():
+def build_senate_condorcet(src_dir=None, out_name="senateCondorcet.json"):
     """National-average Condorcet matrix + per-state matchups for senate finalists."""
-    cond_rows = read_csv(PURE_MULTI_DIR / "senate" / "senate_condorcet_results.csv")
+    src_dir = src_dir or PURE_MULTI_DIR
+    cond_rows = read_csv(src_dir / "senate" / "senate_condorcet_results.csv")
 
     PARTIES = ["PRG", "LIB", "DSA", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
 
@@ -2751,7 +2743,74 @@ def build_senate_condorcet():
         "matrix": matrix,
         "overallWinner": overall_winner,
         "states": states,
-    }, "senateCondorcet.json")
+    }, out_name)
+
+
+# ---------- senateIrvRounds*.json ----------
+def build_senate_irv_rounds(src_dir=None, out_name="senateIrvRounds.json"):
+    """Round-by-round IRV among each state's 5 finalists, plus per-party coalition
+    averages for the winners.
+
+    Transfer attribution is exact rather than estimated: every finalist is ranked on
+    every ballot, so no ballot exhausts and a candidate's round-over-round gain equals
+    the volume transferred to it from that round's eliminated candidate."""
+    src_dir = src_dir or PURE_MULTI_DIR
+    with open(src_dir / "senate" / "senate_irv_rounds.json", encoding="utf-8") as f:
+        raw = json.load(f)
+
+    from collections import defaultdict as _dd
+    states = {}
+    party_agg = _dd(lambda: {"fc_sum": 0.0, "final_sum": 0.0,
+                             "src_sums": _dd(float), "seats": 0})
+
+    for fips, st in raw.items():
+        rounds = st["rounds"]
+        winner = st["winner"]
+        states[fips] = {
+            "abbr":   st["abbr"],
+            "winner": winner,
+            "rounds": rounds,
+        }
+        if not rounds or winner == "none":
+            continue
+
+        pct_at = [{c["code"]: c["pct"] for c in r["candidates"]} for r in rounds]
+        first_choice = pct_at[0].get(winner, 0.0)
+        final_pct    = pct_at[-1].get(winner, 0.0)
+
+        # Each round's gain for the winner came from that round's eliminated candidate.
+        src_pcts = _dd(float)
+        for i in range(len(rounds) - 1):
+            elim = next((c for c in rounds[i]["candidates"] if c["eliminated"]), None)
+            if elim is None:
+                continue
+            gain = pct_at[i + 1].get(winner, 0.0) - pct_at[i].get(winner, 0.0)
+            if gain > 0:
+                src_pcts[elim["party"]] += gain
+
+        pa = party_agg[winner.split("_")[0]]
+        pa["seats"] += 1
+        pa["fc_sum"] += first_choice
+        pa["final_sum"] += final_pct
+        for p, v in src_pcts.items():
+            pa["src_sums"][p] += v
+
+    averages = []
+    for party, pa in party_agg.items():
+        n = pa["seats"]
+        avg_sources = [{"party": p, "pct": round(v / n, 2)}
+                       for p, v in sorted(pa["src_sums"].items(), key=lambda x: -x[1])
+                       if v / n > 0.1]
+        averages.append({
+            "party":          party,
+            "seats":          n,
+            "avgFirstChoice": round(pa["fc_sum"] / n, 2),
+            "avgSources":     avg_sources,
+            "avgFinal":       round(pa["final_sum"] / n, 2),
+        })
+    averages.sort(key=lambda a: -a["seats"])
+
+    write_json({"states": states, "averages": averages}, out_name)
 
 
 def build_pure_multi_senate(src_dir=PURE_MULTI_DIR,
@@ -3282,6 +3341,9 @@ def _build_turnout_variant(d, suffix):
     build_district_stv_results(src_csv=d / "house" / "stv_results_by_district.csv", out_name=f"districtStvResults{suffix}.json")
     build_senate_vote_model_wfp(d, out_name=f"senateVoteModel{suffix}.json")
     build_house_vote_model_wfp(d, out_name=f"houseVoteModel{suffix}.json")
+    build_senate_irv_rounds(d, f"senateIrvRounds{suffix}.json")
+    build_senate_condorcet(d, f"senateCondorcet{suffix}.json")
+    build_senate_buckets(d, f"senateBuckets{suffix}.json")
 
 
 def build_pure_multi_primary_state_shares(src_dir, out_name):
@@ -3307,10 +3369,16 @@ def build_turnout_scenario():
     (TURNOUT_WEIGHT=1 pipeline). Emits *Turnout.json for president/senate/house/vote-models,
     plus the turnout-responsive primary (finalists, buckets, per-stage state shares)."""
     _build_turnout_variant(PURE_MULTI_TURNOUT_DIR, "Turnout")
-    _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")  # dormant (not wired)
     build_pure_multi_primary(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryTurnout.json")
     build_pure_multi_primary_buckets(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryBucketsTurnout.json")
     build_pure_multi_primary_state_shares(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryStageSharesTurnout.json")
+    # Dormant NoSty tree: kept for reference, not wired into the app, and not
+    # regenerated by the senate reruns — so a missing input here must not block
+    # the live path above.
+    try:
+        _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")
+    except FileNotFoundError as e:
+        print(f"  SKIP NoStyTurnout variant (dormant): missing {e.filename}")
 
 
 def build_party_population():
@@ -3624,7 +3692,7 @@ if __name__ == "__main__":
         build_pure_multi_primary_state_winners, build_fd_presidential_election,
         build_fd_profiles, build_pure_multi_primary, build_pure_multi_primary_sankey,
         build_pure_multi_primary_buckets, build_pure_multi_senate,
-        build_senate_buckets, build_senate_condorcet,
+        build_senate_buckets, build_senate_condorcet, build_senate_irv_rounds,
         build_raw_multi_presidential_election, build_house_seats_gauss,
         build_fptp_disproportionality, build_district_stv_results,
         build_fd_district_stv_results, build_district_county_map,

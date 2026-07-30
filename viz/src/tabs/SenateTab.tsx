@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { SenateSeat, VoteModelRow, SenateScenario, ClusterProfile, ConstellationNode, FDSenateSeat, FDHouseSeat, FDCandidateProfile } from '../types';
+import type { SenateSeat, VoteModelRow, SenateScenario, ClusterProfile, ConstellationNode, FDSenateSeat, FDHouseSeat, FDCandidateProfile, SenateIrvRoundsData, SenateWinnowData } from '../types';
 import { SenateMap } from '../components/senate/SenateMap';
 import { VoteModelTable } from '../components/senate/VoteModelTable';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
@@ -51,7 +51,31 @@ import senVML15 from '../data/senateVoteModelTurnoutL15.json';
 import senVML20 from '../data/senateVoteModelTurnoutL20.json';
 import senVML25 from '../data/senateVoteModelTurnoutL25.json';
 import senVML30 from '../data/senateVoteModelTurnoutL30.json';
-import SenateBuckets from '../components/senate/SenateBuckets';
+// Coalition / head-to-head / winnow, tracked across the turnout stops so every senate
+// card reports the same chamber the seat data does.
+import senIrvRounds0 from '../data/senateIrvRoundsTurnout.json';
+import senIrvRounds5 from '../data/senateIrvRoundsTurnoutL5.json';
+import senIrvRounds10 from '../data/senateIrvRoundsTurnoutL10.json';
+import senIrvRounds15 from '../data/senateIrvRoundsTurnoutL15.json';
+import senIrvRounds20 from '../data/senateIrvRoundsTurnoutL20.json';
+import senIrvRounds25 from '../data/senateIrvRoundsTurnoutL25.json';
+import senIrvRounds30 from '../data/senateIrvRoundsTurnoutL30.json';
+import senCondView0 from '../data/senateCondorcetTurnout.json';
+import senCondView5 from '../data/senateCondorcetTurnoutL5.json';
+import senCondView10 from '../data/senateCondorcetTurnoutL10.json';
+import senCondView15 from '../data/senateCondorcetTurnoutL15.json';
+import senCondView20 from '../data/senateCondorcetTurnoutL20.json';
+import senCondView25 from '../data/senateCondorcetTurnoutL25.json';
+import senCondView30 from '../data/senateCondorcetTurnoutL30.json';
+import senWinnow0 from '../data/senateBucketsTurnout.json';
+import senWinnow5 from '../data/senateBucketsTurnoutL5.json';
+import senWinnow10 from '../data/senateBucketsTurnoutL10.json';
+import senWinnow15 from '../data/senateBucketsTurnoutL15.json';
+import senWinnow20 from '../data/senateBucketsTurnoutL20.json';
+import senWinnow25 from '../data/senateBucketsTurnoutL25.json';
+import senWinnow30 from '../data/senateBucketsTurnoutL30.json';
+import { SenateCoalitionCard } from '../components/senate/SenateCoalitionCard';
+import { SenateWinnowCard } from '../components/senate/SenateWinnowCard';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { SenateCompositionCard } from '../components/senate/SenateCompositionCard';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
@@ -72,16 +96,11 @@ interface Props {
   houseTransfers: { source: string; totalVoters: number; destinations: { party: string; pct: number }[] }[];
   fdVariantAttraction: { variant: string; party: string; axis: string; direction: string; totalVoters: number; homePct: number; crossPct: number; sources: { party: string; pct: number }[] }[];
   fdAttractionDrivers: { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  senateBuckets: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  senateCondorcet: any;
 }
 
 export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
                              clusters, fdProfiles, clusterSpreads,
-                             fdVariantAttraction, fdAttractionDrivers,
-                             senateBuckets, senateCondorcet }: Props) {
+                             fdVariantAttraction, fdAttractionDrivers }: Props) {
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
@@ -101,6 +120,14 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   const fdIrvStops  = [fdSenIrv0, fdSenIrv5, fdSenIrv10, fdSenIrv15, fdSenIrv20, fdSenIrv25, fdSenIrv30] as unknown as FDSenateSeat[][];
   const condRM = (rawMultiOn ? rmCondStops : fdCondStops)[gi];
   const irvRM  = (rawMultiOn ? rmIrvStops  : fdIrvStops )[gi];
+  // Coalition / head-to-head / winnow at the current stop. Party-line only — the
+  // Crossover pipeline has no equivalent per-state round data.
+  const irvRoundsStops = [senIrvRounds0, senIrvRounds5, senIrvRounds10, senIrvRounds15,
+                          senIrvRounds20, senIrvRounds25, senIrvRounds30] as unknown as SenateIrvRoundsData[];
+  const condViewStops  = [senCondView0, senCondView5, senCondView10, senCondView15,
+                          senCondView20, senCondView25, senCondView30];
+  const winnowStops    = [senWinnow0, senWinnow5, senWinnow10, senWinnow15,
+                          senWinnow20, senWinnow25, senWinnow30] as unknown as SenateWinnowData[];
 
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: [...DISPLAY_FACTORS] });
 
@@ -150,11 +177,14 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
     return vals.length > 0 ? [Math.min(...vals), Math.max(...vals)] : [-2, 2];
   }, [clusters, fdProfiles, parliamentFactor]);
 
+  // ×2: the model elects one winner per state, who fills both of that state's seats —
+  // same convention as SenateCompositionCard, so the two charts read on one scale.
+  const chamberSeats = activeSeats.length * 2;
   const parliamentSegments: ParliamentSegment[] = Object.entries(seatCounts)
     .map(([code, seats]) => {
       const base = getFactorScore(code, parliamentFactor);
       const nSuffix = parseInt(code.split('_').pop() ?? '') || 0;
-      return { code, seats, fVal: base + (nSuffix > 0 ? (nSuffix - 1) * 0.001 : 0) };
+      return { code, seats: seats * 2, fVal: base + (nSuffix > 0 ? (nSuffix - 1) * 0.001 : 0) };
     })
     .sort((a, b) => a.fVal - b.fVal);
 
@@ -209,6 +239,13 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
       {/* Parliament fan chart */}
       <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Senate Chamber — {METHOD_LABELS[method]} · {chamberSeats} seats
+        </h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          One winner per state, doubled (&times;2) to fill both of the state&apos;s seats, matching the
+          composition bars above.
+        </p>
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="text-xs text-muted-foreground uppercase tracking-widest">Order by</span>
           {DISPLAY_FACTORS.map(f => (
@@ -239,32 +276,50 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         <SenateMap seats={activeSeats} />
       </Card>
 
-      {/* Senate Coalition Composition — how winners fill their quota */}
-      {pipeline === 'rawMulti' && senateBuckets && (
+      {/* One slot, switched by method: IRV builds a coalition through transfers, so it
+          gets the vote-flow view. Condorcet never transfers anything — it compares every
+          pair directly, so it gets the matrix. */}
+      {rawMultiOn && (method === 'irv' ? (
         <Card className="p-4">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            How Senators Build Their Coalition
+            How Senators Build Their Coalition (IRV)
           </h3>
           <p className="text-xs text-muted-foreground mb-3">
-            Each bar shows where a senator&apos;s votes came from during IRV winnowing.
-            Darkest = own first-choice supporters. Other colors = transfers from eliminated parties.
-            Select a state to see the full finalist breakdown.
+            No party starts near a majority, so every winner assembles one from transfers.
+            Each bar runs from that party&apos;s own first-choice block through the transfers it
+            picked up as rivals were eliminated, ending at the tally that won.
+            Select a state to watch the rounds play out.
           </p>
-          <SenateBuckets data={senateBuckets} method={method} />
+          <SenateCoalitionCard data={irvRoundsStops[gi]} />
         </Card>
-      )}
-
-      {/* Senate Condorcet Matrix */}
-      {pipeline === 'rawMulti' && senateCondorcet && (
+      ) : (
         <Card className="p-4">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
             Head-to-Head Matrix (Condorcet)
           </h3>
           <p className="text-xs text-muted-foreground mb-3">
-            National average shows how often each party beats every other in head-to-head matchups across all 51 state races.
-            Select a state to see actual margins for that race&apos;s 5 finalists.
+            Condorcet picks the candidate who beats every rival one-on-one, so what matters is
+            the full grid of pairings rather than a transfer sequence. The national view counts
+            how often each party wins its matchups across the {activeSeats.length} state races.
+            Select a state for that race&apos;s actual margins.
           </p>
-          <SenateCondorcetView data={senateCondorcet} />
+          <SenateCondorcetView data={condViewStops[gi]} />
+        </Card>
+      ))}
+
+      {/* The winnow runs before either method, so it shows under both. */}
+      {rawMultiOn && (
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            How the Field Narrows to Five Finalists
+          </h3>
+          <p className="text-xs text-muted-foreground mb-3">
+            Before either method picks a senator, a five-seat STV round cuts the state&apos;s full
+            candidate field to five. Its Droop quota is {winnowStops[gi].quotaPct.toFixed(1)}%, not a
+            majority, so these tallies sit on a much lower scale than the winning coalitions above
+            and say which candidates survived, not who won.
+          </p>
+          <SenateWinnowCard data={winnowStops[gi]} />
         </Card>
       )}
 

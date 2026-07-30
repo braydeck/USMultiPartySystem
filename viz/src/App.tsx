@@ -44,8 +44,6 @@ import senateVoteModelTurnoutData from './data/senateVoteModelTurnout.json';
 // Overview divergences snapshot: rank-7 chambers at 5% turnout (matches the app defaults).
 import houseVoteModelL5Data from './data/houseVoteModelTurnoutL5.json';
 import senateVoteModelL5Data from './data/senateVoteModelTurnoutL5.json';
-import senateBucketsData from './data/senateBuckets.json';
-import senateCondorcetData from './data/senateCondorcet.json';
 import fdHouseSeatsData from './data/fdHouseSeats.json';
 import fdPrimaryData from './data/fdPrimary.json';
 import fdPrimaryStateWinnersData from './data/fdPrimaryStateWinners.json';
@@ -337,8 +335,6 @@ export default function App() {
             houseTransfers={houseTransfersData as { source: string; totalVoters: number; destinations: { party: string; pct: number }[] }[]}
             fdVariantAttraction={fdVariantAttractionData as { variant: string; party: string; axis: string; direction: string; totalVoters: number; homePct: number; crossPct: number; sources: { party: string; pct: number }[] }[]}
             fdAttractionDrivers={fdAttractionDriversData as { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[]}
-            senateBuckets={senateBucketsData}
-            senateCondorcet={senateCondorcetData}
           />
         )}
         {tab === 'house' && (

@@ -3,10 +3,12 @@ import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal, sankeyLeft } from 'd3-sankey';
 import type { SankeyNode, SankeyLink } from 'd3-sankey';
 import { getBlendColor, buildDisplayLabels } from '../../constants/parties';
-import type { IRVRound } from '../../types';
+import type { IRVFlowRound } from '../../types';
 
 interface Props {
-  rounds: IRVRound[];
+  // Widened to the fields this chart actually reads, so the senate's round data
+  // (which carries a party field the presidential rounds lack) works here too.
+  rounds: IRVFlowRound[];
   irvWinner: string;
 }
 

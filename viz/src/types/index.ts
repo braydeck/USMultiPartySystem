@@ -444,3 +444,70 @@ export interface RCVData {
   AK: RCVRace[];
   ME: RCVRace[];
 }
+
+// ── Senate coalition / winnow ──────────────────────────────────────────────────
+
+/** Minimum a round needs for the vote-flow Sankey. Both the presidential IRVRound and
+ *  the senate rounds below satisfy it, so IRVSankey serves both. */
+export interface IRVFlowRound {
+  round: number;
+  candidates: { code: string; pct: number; eliminated: boolean }[];
+}
+
+export interface SenateIrvRound {
+  round: number;
+  candidates: { code: string; party: string; votes: number; pct: number; eliminated: boolean }[];
+}
+
+/** One state's round-by-round IRV among its 5 finalists. */
+export interface SenateIrvRoundsState {
+  abbr: string;
+  winner: string;
+  rounds: SenateIrvRound[];
+}
+
+/** Average coalition of a party's IRV-winning senators: own first-choice share plus
+ *  transfers attributed to the party each was eliminated from. */
+export interface SenateCoalitionAverage {
+  party: string;
+  seats: number;
+  avgFirstChoice: number;
+  avgSources: { party: string; pct: number }[];
+  avgFinal: number;
+}
+
+export interface SenateIrvRoundsData {
+  states: Record<string, SenateIrvRoundsState>;
+  averages: SenateCoalitionAverage[];
+}
+
+/** 5-seat STV winnow that cuts a state's field to 5 finalists. Tallies sit on a
+ *  Droop-quota scale (`quotaPct` ≈ 16.7), not a majority scale. */
+export interface SenateWinnowFinalist {
+  code: string;
+  party: string;
+  firstChoice: number;
+  sources: { party: string; pct: number }[];
+  total: number;
+}
+
+export interface SenateWinnowState {
+  fips: string;
+  abbr: string;
+  finalists: SenateWinnowFinalist[];
+}
+
+export interface SenateWinnowAverage {
+  party: string;
+  finalistSlots: number;
+  avgFirstChoice: number;
+  avgSources: { party: string; pct: number }[];
+  avgTotal: number;
+}
+
+export interface SenateWinnowData {
+  states: Record<string, SenateWinnowState>;
+  averages: SenateWinnowAverage[];
+  quotaPct: number;
+  totalSlots: number;
+}

@@ -80,7 +80,10 @@ export default function SenateCondorcetView({ data }: Props) {
         <div>
           <div className="text-[10px] text-muted-foreground mb-3">
             Win rate across all states where both parties appear as finalists. Green = row party wins more often.
-            Overall Condorcet champion: <strong className="text-muted-foreground">{data.overallWinner}</strong>
+            Broadest appeal, by average win rate across its pairings:{' '}
+            <strong className="text-muted-foreground">{data.overallWinner}</strong> — a party can be the
+            hardest to beat one-on-one without winning the most seats, since it has to be on the ballot
+            in enough states to convert that into a majority.
           </div>
           <div className="flex justify-center" style={{ overflowX: 'auto' }}>
             <div style={{ minWidth: labelW + parties.length * cellSize }}>
@@ -148,7 +151,7 @@ export default function SenateCondorcetView({ data }: Props) {
                           <span style={{ fontSize: 13, fontWeight: 700, color: wins ? '#15803d' : '#b91c1c' }}>
                             {Math.round(cell.winRate * 100)}%
                           </span>
-                          <span style={{ fontSize: 8, color: '#94a3b8' }}>
+                          <span style={{ fontSize: 8, color: wins ? '#15803d' : '#b91c1c', opacity: 0.7 }}>
                             n={cell.n}
                           </span>
                         </div>
@@ -168,7 +171,7 @@ export default function SenateCondorcetView({ data }: Props) {
                   <span className="inline-block w-3 h-3 rounded-sm bg-red-400 opacity-60 mr-1 align-middle" />
                   Row wins &lt;50%
                 </span>
-                <span className="text-amber-500">★ Overall Condorcet champion</span>
+                <span className="text-amber-500">★ Highest average win rate</span>
               </div>
             </div>
           </div>
