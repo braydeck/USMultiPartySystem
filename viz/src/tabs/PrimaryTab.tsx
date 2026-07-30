@@ -180,14 +180,6 @@ export function PrimaryTab({
           </span>
         ))}
       </div>
-      {/* Replaces a one-line "holds its place / breaks in" note, which reported the current stop
-          only and so could not show that the last slot is decided by the turnout assumption. */}
-      {su && (
-        <Card className="p-4">
-          <SlateRangeCard gi={gi} nDraws={nDraws} />
-        </Card>
-      )}
-
       {/* Primary Winnowing — bucket composition */}
       {(() => {
         const buckets = pipeline === 'rawMulti' ? rmBuckets : factorDevBuckets;
@@ -204,6 +196,22 @@ export function PrimaryTab({
           </Card>
         ) : null;
       })()}
+
+      {/* State Vote Shares */}
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+            State Vote Shares
+          </h3>
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground bg-muted rounded px-1.5 py-0.5">
+            {data.stageLabels[stage] ?? stage}
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          States light up as their pod votes. Bars show first-choice vote proportions. Hover for breakdown.
+        </p>
+        <PrimaryStateMap stageShares={stageShares} stage={stage} primaryData={data} />
+      </Card>
 
       {/* National First-Choice Share */}
       {nationalShares.length > 0 && (
@@ -248,21 +256,13 @@ export function PrimaryTab({
         </Card>
       )}
 
-      {/* State Vote Shares */}
-      <Card className="p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-            State Vote Shares
-          </h3>
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground bg-muted rounded px-1.5 py-0.5">
-            {data.stageLabels[stage] ?? stage}
-          </span>
-        </div>
-        <p className="text-xs text-muted-foreground mb-3">
-          States light up as their pod votes. Bars show first-choice vote proportions. Hover for breakdown.
-        </p>
-        <PrimaryStateMap stageShares={stageShares} stage={stage} primaryData={data} />
-      </Card>
+      {/* Replaces a one-line "holds its place / breaks in" note, which reported the current stop
+          only and so could not show that the last slot is decided by the turnout assumption. */}
+      {su && (
+        <Card className="p-4">
+          <SlateRangeCard gi={gi} nDraws={nDraws} />
+        </Card>
+      )}
 
       {/* Ideological Constellation + Party Profiles */}
       <Card className="p-4">
