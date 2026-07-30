@@ -735,12 +735,13 @@ export function AboutTab() {
                 keeps its own sample size, and the whole election is re-run on every draw, at all seven
                 participation stops. The headline is the{' '}
                 <strong className="text-foreground">most likely</strong> winner across those draws; the
-                whiskers and ranges show how far the result travels.
+                whiskers and ranges show how far the result travels. The figures below describe the
+                app&apos;s default 5% stop; the pattern holds at the others, the particular states change.
               </p>
               <p>
                 Most results barely move, and the ones that do skew small: the median sample across the
                 13 least stable Condorcet races is 385 respondents against 661 across all 51. But sample
-                size explains part of this, not most. Log sample size correlates with confidence in the
+                size explains only a small part of this. Log sample size correlates with confidence in the
                 winner at only +0.30 under Condorcet and +0.34 under IRV, and some of the least stable
                 Condorcet races are among the largest samples in the file. Michigan is the eighth-largest
                 state sample of the 51 at 1,531 respondents and reproduces its most likely winner in 43%
@@ -765,8 +766,10 @@ export function AboutTab() {
                 percentages illustrate one path rather than measuring that state. Four states are
                 substituted this way under IRV. Five more disagree under Condorcet — Arkansas, Michigan,
                 Nebraska, North Carolina and South Carolina — where there are no elimination rounds to
-                substitute, so those races are hatched on the map and noted in the head-to-head view
-                instead, with the observed sample&apos;s own margins left on screen.
+                substitute, so the head-to-head view names the likely winner in a note and leaves the
+                observed sample&apos;s own margins on screen. The hatching on the map marks something
+                broader and not the same set: any race whose winner changes in more than half of
+                resamples.
               </p>
               <p>
                 The two counting methods are equally reliable on average and differently shaped. Mean

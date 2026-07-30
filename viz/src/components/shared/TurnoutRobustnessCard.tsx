@@ -174,7 +174,7 @@ export function TurnoutRobustnessCard() {
         </p>
         <p>
           <span className="font-semibold text-emerald-700">Senate: Labor holds the plurality at every level of turnout.</span>{' '}
-          <span className="text-foreground/90">Labor leads at observed turnout and at every stop through the 30% stress ceiling, {senLbrLo} seats falling to {senLbrHi} as the gap closes. Solidarity takes most of what Labor and Conservative give up, {senStyLo}&rarr;{senStyHi} seats, and closes to within {senLbrHi - senStyHi} seat{senLbrHi - senStyHi === 1 ? '' : 's'} at the stress ceiling without ever taking the plurality. Turnout changes how large Labor&apos;s Senate plurality is, not who holds it, and no party is close to 26 at any stop.</span>
+          <span className="text-foreground/90">Labor leads at observed turnout and at every stop through the 30% stress ceiling, {senLbrLo} seats falling to {senLbrHi} as the gap closes. Solidarity takes most of what Labor and Conservative give up, {senStyLo}&rarr;{senStyHi} seats, and closes to within {senLbrHi - senStyHi} seat{senLbrHi - senStyHi === 1 ? '' : 's'} at the stress ceiling without ever taking the plurality. Turnout changes how large Labor&apos;s Senate plurality is, not who holds it. Two calibrations: no party&apos;s most likely delegation reaches the 26 needed for a majority, though Labor&apos;s resample range touches a bare one at the lower stops; and at the stress ceiling the lead is a single seat, where the observed sample hands the plurality to Solidarity instead.</span>
         </p>
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">
