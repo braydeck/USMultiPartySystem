@@ -13,12 +13,12 @@ const FACTOR_SHORT_LABEL: Record<string, string> = {
 };
 
 const PARTY_BLURBS: Record<string, string> = {
-  LBR: 'The center-left baseline. Working-class, racially diverse, moderate on tax policy, immigration enforcement, and abortion. Low political engagement.',
+  LBR: 'The center-left baseline. Working-class, racially diverse. Relatively moderate on tax policy, immigration enforcement, and abortion compared to other "left" clusters. Low political engagement.',
   LIB: 'The establishment center-left. Professional-class, educated, progressive on all policy dimensions, and strongly institutionalist. High political engagement, interventionist on foreign policy.',
   DSA: 'The anti-establishment far left. Youngest profile, urban-concentrated, culturally progressive, social libertarian. High institutional distrust, non-interventionist, universally pro-legalization for undocumented immigrants, opposes border patrols.',
   PRG: 'The establishment far left. Wealthy, highly educated, intensely pro-choice, and strongly institutionalist. Highest voter turnout of any party. Tied with NAT as the wealthiest profile.',
   OAO: 'The cross-cutting center. Oldest profile, economically progressive but strongly law-and-order. Supports raising taxes on the wealthy, increasing policing and border patrols, and granting legal status to Dreamers and undocumented immigrants.',
-  STY: 'The disaffected center. Young, urban, most racially diverse, lowest income, lowest education. High institutional distrust, non-interventionist, pro-Medicaid, pro-debt-forgiveness, pro-legalization. Lowest voter turnout of any party.',
+  STY: 'The disaffected center. Young, urban, most racially diverse, lowest income, lowest education. High institutional distrust, non-interventionist, pro-Medicaid, pro-immigrant-legalization. Lowest voter turnout of any party.',
   CUP: 'The institutionalist center. Religious, law-and-order, pro-police, tough on borders, but economically progressive. The most institutionally trusting profile in the system.',
   CON: 'The pre-Trump Republican coalition. Law-and-order, low-tax, pro-police, pro-border-patrol. Trusts elections, backs universal background checks on firearms. Supports fossil fuel production, socially conservative on trans issues.',
   POP: 'The anti-establishment right. Nativist, economically conservative, isolationist, skeptical of government power. Majority opposed to increased police spending. Most racially diverse right-wing profile, highest homemaker population.',
