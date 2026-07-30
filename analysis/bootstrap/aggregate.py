@@ -46,15 +46,18 @@ def _seat_stats(per_draw_counts, parties, observed_counts, multiplier=1):
     expected = _rounded_to_total(means, 2, sum(means.values()))
     for p in parties:
         # Floor the low end and ceil the high end: truncating both with int() narrows every
-        # interval at the top by up to a seat. Then widen `hi` to cover `expected`, because
-        # a party winning seats in under 2.5% of draws gets lo=hi=0 with expected>0, and the
-        # viz draws `expected` as the centre dot of this span.
+        # interval at the top by up to a seat. Then widen the span to cover `expected` on both
+        # sides, because the viz draws `expected` as the centre dot of it. `hi`: a party
+        # winning seats in under 2.5% of draws gets lo=hi=0 with expected>0. `lo`: the mirror
+        # case, a party at its maximum in over 97.5% of draws — 5 downside draws in 1000 is
+        # enough — puts the 2.5th percentile *on* that maximum, above the mean by
+        # construction, which also collapses the whisker the viz derives from hi>lo.
         # `modal` may still legitimately fall outside [lo, hi]: the modal chamber is
         # assembled from independent per-state argmaxes, so it is not a sampled chamber and
         # has no reason to lie inside a sampled interval. The viz shows it as its own tick —
         # do not "fix" this by clamping modal into the interval.
         out[p] = {
-            "lo": int(np.floor(np.percentile(series[p], 2.5))),
+            "lo": min(int(np.floor(np.percentile(series[p], 2.5))), math.floor(expected[p])),
             "hi": max(int(np.ceil(np.percentile(series[p], 97.5))), math.ceil(expected[p])),
             "observed": int(observed_counts.get(p, 0) * multiplier),
             "expected": expected[p],
@@ -86,6 +89,13 @@ def _senate_block(draws, observed, method):
                 if cand[modal_party] >= max(cand.values()):
                     shares = cand
                     break
+        # `most_common()` orders by count, but `modal_party` is chosen with a tie-break toward
+        # the observed winner, so under a tied peak the modal party can sit in a later slot —
+        # and the viz renders dist's first key as the modal pill and the rest as runners-up.
+        # Reorder (values untouched) so the modal party leads and the remainder descends.
+        shares = {modal_party: shares[modal_party],
+                  **{k: v for k, v in sorted(shares.items(), key=lambda kv: -kv[1])
+                     if k != modal_party}}
         entry = {
             "observed": obs_code,
             "modal": modal_party,

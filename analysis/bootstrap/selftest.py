@@ -314,6 +314,53 @@ def test_aggregate_sums_and_shape():
     assert u["nDraws"] == len(draws) and u["seed"] == 42
 
 
+def test_house_apportionment_bounds_movement():
+    """The real draws leave a residual of a few seats; that is too small to distinguish
+    largest-remainder apportionment from dumping the whole shortfall on one party. Fabricate
+    a ~20-seat residual instead — build_uncertainty is pure, so this needs no pipeline run.
+    """
+    from analysis.bootstrap.aggregate import build_uncertainty
+
+    # Lumpy bases summing to 873, right-skewed noise: in 1 draw of 10 a party takes +18 while
+    # the other nine give up 2 each. Every draw still sums to 873, each party's mode sits at
+    # base-2 and its mean at base, so the chamber's modes undershoot by exactly 20 seats.
+    base = {"AAA": 201, "BBB": 158, "CCC": 122, "DDD": 97, "EEE": 84,
+            "FFF": 63, "GGG": 51, "HHH": 43, "III": 32, "JJJ": 22}
+    parties = list(base)
+    assert sum(base.values()) == 873
+    draws = []
+    for i in range(50):
+        up = parties[i % len(parties)]
+        house = {p: base[p] + (18 if p == up else -2) for p in parties}
+        assert sum(house.values()) == 873
+        draws.append({
+            "house": house,
+            "senate": {"irv": {"56": "AAA_1"}, "cond": {"56": "AAA_1"}, "paths": {}},
+            "primary": ["AAA_1"],
+            "president": {"irv": "AAA_1", "cond": "AAA_1"},
+        })
+    observed = {
+        "house": dict(base),
+        "senate": {"irv": {"56": "AAA_1"}, "cond": {"56": "AAA_1"}, "paths": {}},
+        "primary": ["AAA_1"],
+        "president": {"irv": "AAA_1", "cond": "AAA_1"},
+    }
+
+    u = build_uncertainty(draws, observed, n_draws=len(draws), seed=42)
+    hs = u["house"]["seats"]
+    modes = {p: Counter(d["house"][p] for d in draws).most_common(1)[0][0] for p in hs}
+    residual = 873 - sum(modes.values())
+    assert residual == 20, f"fixture no longer engineers a 20-seat residual, got {residual}"
+    assert sum(v["modal"] for v in hs.values()) == 873, "house modal does not sum to 873"
+
+    moved = sum(abs(hs[p]["modal"] - modes[p]) for p in hs)
+    assert moved == residual, f"apportionment moved {moved} seats, not the {residual}-seat residual"
+    for p, v in hs.items():
+        assert (math.floor(min(modes[p], v["expected"])) <= v["modal"]
+                <= math.ceil(max(modes[p], v["expected"]))), (
+            f"house/{p}: modal {v['modal']} left [mode {modes[p]}, expected {v['expected']}]")
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:

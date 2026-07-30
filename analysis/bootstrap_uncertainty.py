@@ -35,6 +35,35 @@ def _work(args):
         return {"error": f"{type(e).__name__}: {e}", "seed": seed}
 
 
+def _validate(u, suffix):
+    """Re-check the sum invariants on the real payload before it is published.
+
+    The 12-draw selftest asserts these, but a full run can break them in ways a smoke run
+    cannot: one draw missing a senate fips leaves `expected` summing to 101.9x. Failing here
+    aborts the bad stop instead of shipping it and finding out from the viz's tests.
+    """
+    def fail(what):
+        raise RuntimeError(f"uncertainty{suffix}.json invariant violated: {what}")
+
+    for chamber, methods, total in (("senate", ("cond", "irv"), 102), ("house", (None,), 873)):
+        for method in methods:
+            block = u[chamber][method] if method else u[chamber]
+            label = f"{chamber}/{method}" if method else chamber
+            seats = block["seats"]
+            modal = sum(v["modal"] for v in seats.values())
+            if modal != total:
+                fail(f"{label} modal sums to {modal}, not {total}")
+            exp = sum(v["expected"] for v in seats.values())
+            if abs(exp - total) >= 1e-6:
+                fail(f"{label} expected sums to {exp}, not {total}")
+
+    for method in ("cond", "irv"):
+        for fips, s in u["senate"][method]["states"].items():
+            got = sum(s["dist"].values())
+            if abs(got - 1.0) >= 1e-6:
+                fail(f"senate/{method} fips {fips} dist sums to {got}, not 1.0")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--draws", type=int, default=1000)
@@ -86,6 +115,7 @@ def main():
                                f"(seed {failed[0]['seed']}): {failed[0]['error']}")
         observed, draws = results[0], results[1:]
         u = build_uncertainty(draws, observed, n_draws=len(draws), seed=42)
+        _validate(u, suffix)
         path = OUT / f"uncertainty{suffix}.json"
         # No sort_keys: every state's `dist` and the president's are built in descending
         # probability order, and the viz reads them positionally (modal first, then
