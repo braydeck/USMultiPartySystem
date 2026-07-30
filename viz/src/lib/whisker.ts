@@ -9,3 +9,10 @@ export function whiskerGeometry(
   const leftPct = pct(lo);
   return { leftPct, widthPct: pct(hi) - leftPct, centrePct: pct(centre) };
 }
+
+/** Axis ceiling for a range strip: an explicit shared max when sibling strips have to read
+ *  on one scale, otherwise the strip's own largest `hi`. Floored at 1 so an all-zero strip
+ *  still divides. */
+export function rangeAxisMax(his: number[], override?: number): number {
+  return override ?? Math.max(1, ...his);
+}

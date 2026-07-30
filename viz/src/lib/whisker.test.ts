@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { whiskerGeometry } from './whisker'
+import { whiskerGeometry, rangeAxisMax } from './whisker'
 
 describe('whiskerGeometry', () => {
   it('maps values onto percentages of the axis', () => {
@@ -18,5 +18,21 @@ describe('whiskerGeometry', () => {
     const g = whiskerGeometry(-10, 120, 50, 100)!
     expect(g.leftPct).toBe(0)
     expect(g.leftPct + g.widthPct).toBeLessThanOrEqual(100)
+  })
+})
+
+describe('rangeAxisMax', () => {
+  it('uses an explicit shared max when one is given', () => {
+    expect(rangeAxisMax([4, 9], 40)).toBe(40)
+  })
+  it('honours a shared max below the largest hi, so siblings stay on one scale', () => {
+    expect(rangeAxisMax([4, 60], 40)).toBe(40)
+  })
+  it('falls back to the largest hi when no max is given', () => {
+    expect(rangeAxisMax([4, 9, 2])).toBe(9)
+  })
+  it('floors the fallback at 1 for an all-zero or empty strip', () => {
+    expect(rangeAxisMax([0, 0])).toBe(1)
+    expect(rangeAxisMax([])).toBe(1)
   })
 })

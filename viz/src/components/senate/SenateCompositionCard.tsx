@@ -6,7 +6,7 @@ import { BAR_HEIGHT, LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import { SeatRangeStrip } from '../shared/SeatRangeStrip';
 import { UncertaintyDetail } from '../shared/UncertaintyDetail';
-import type { MethodUncertainty } from '../../lib/uncertainty';
+import { chamberTotal, type MethodUncertainty } from '../../lib/uncertainty';
 
 // Built from the seat array so it always matches whatever states the model covers.
 function fipsToAbbr(seats: FDSenateSeat[]): Record<string, string> {
@@ -90,10 +90,13 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
       ? Object.fromEntries(Object.entries(irvU.seats).map(([p, v]) => [p, v.modal / 2]))
       : tally(irvSeats);
     const parties = F5_ORDER.filter(p => (cond[p] ?? 0) > 0 || (irv[p] ?? 0) > 0);
-    // ×2: model gives one winner per state; each fills both of the state's seats.
+    // Each bar's total comes from the same data as its segments, so the label can never
+    // disagree with what the bar actually draws.
     return {
+      // ×2: model gives one winner per state; each fills both of the state's seats.
       rows: parties.map(p => ({ party: p, cond: (cond[p] ?? 0) * 2, irv: (irv[p] ?? 0) * 2 })),
-      total: condSeats.length * 2,
+      condTotal: condU ? chamberTotal(condU.seats, 'modal') : condSeats.length * 2,
+      irvTotal: irvU ? chamberTotal(irvU.seats, 'modal') : irvSeats.length * 2,
     };
   }, [condSeats, irvSeats, condU, irvU]);
 
@@ -135,18 +138,20 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
         { party: 'GOP', n: 53, color: '#dc2626' },
       ]} total={100} />
       {/* Condorcet + IRV, doubled to a full chamber */}
-      <SenateCompBar label="Condorcet ×2" total={stats.total}
+      <SenateCompBar label="Condorcet ×2" total={stats.condTotal}
         segments={stats.rows.filter(r => r.cond > 0)
           .map(r => ({ party: r.party, n: r.cond, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
       {condU && (
-        <SeatRangeStrip seats={condU.seats} order={stats.rows.map(r => r.party)} max={rangeStripMax}
+        // Full party order, not just the parties in the bar: a party with no modal seats can
+        // still have a real sampling range, and the strip is where that range has to show up.
+        <SeatRangeStrip seats={condU.seats} order={[...F5_ORDER]} max={rangeStripMax}
           label="Condorcet — range across resamples (tick = most likely, dot = expected)" />
       )}
-      <SenateCompBar label="IRV ×2" total={stats.total}
+      <SenateCompBar label="IRV ×2" total={stats.irvTotal}
         segments={stats.rows.filter(r => r.irv > 0)
           .map(r => ({ party: r.party, n: r.irv, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
       {irvU && (
-        <SeatRangeStrip seats={irvU.seats} order={stats.rows.map(r => r.party)} max={rangeStripMax}
+        <SeatRangeStrip seats={irvU.seats} order={[...F5_ORDER]} max={rangeStripMax}
           label="IRV — range across resamples (tick = most likely, dot = expected)" />
       )}
 
@@ -169,12 +174,12 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
 
       <p className="text-[11px] text-muted-foreground/80">
         Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s
-        seats for a full-chamber view ({stats.total} seats), which assumes matched delegations and so drops today&apos;s split D/R states.
+        seats for a full-chamber view ({stats.condTotal} seats), which assumes matched delegations and so drops today&apos;s split D/R states.
       </p>
-      {irvU && nDraws && (
+      {irvU && !!nDraws && (
         <>
           <p className="text-[11px] text-muted-foreground/80">
-            {irvU.nBelow50} of {condSeats.length} races are close enough to flip on sampling alone.
+            {irvU.nBelow50} of {Object.keys(irvU.states).length} races are close enough to flip on sampling alone.
           </p>
           <UncertaintyDetail seats={irvU.seats} states={irvU.states} nDraws={nDraws}
             stateLabel={f => FIPS_TO_ABBR[f] ?? f} />

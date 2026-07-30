@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
 import { SeatWhisker } from './SeatWhisker';
+import { rangeAxisMax } from '../../lib/whisker';
 import type { SeatInterval } from '../../lib/uncertainty';
 
 /** Compact always-visible range rows, one per seat-holding party: the 95% span, the
@@ -22,8 +23,7 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
         !!r.iv && (r.iv.modal > 0 || r.iv.hi > 0)),
     [seats, order],
   );
-  const selfMax = useMemo(() => Math.max(1, ...rows.map(r => r.iv.hi)), [rows]);
-  const max = maxOverride ?? selfMax;
+  const max = useMemo(() => rangeAxisMax(rows.map(r => r.iv.hi), maxOverride), [rows, maxOverride]);
 
   if (!rows.length) return null;
 
@@ -46,8 +46,10 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
               }} />
               <SeatWhisker lo={iv.lo} hi={iv.hi} centre={iv.expected} max={max}
                 title={`${PARTY_NAMES[party] ?? party}: ${iv.lo}–${iv.hi} seats across resamples, ${iv.expected.toFixed(1)} expected`} />
+              {/* The modal chamber is 51 independent per-state argmaxes, so `modal` is not bounded
+                  by `hi`; clamp only the tick's position, never the value it reports. */}
               <div className="absolute inset-y-0 w-0.5" title={`most likely: ${iv.modal}`}
-                style={{ left: `${(iv.modal / max) * 100}%`, backgroundColor: color }} />
+                style={{ left: `${Math.min(100, (iv.modal / max) * 100)}%`, backgroundColor: color }} />
             </div>
             <span className="w-24 shrink-0 text-[10px] tabular-nums text-muted-foreground">
               <span className="font-semibold text-foreground">{iv.modal}</span> · {iv.lo}–{iv.hi}
