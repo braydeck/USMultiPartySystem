@@ -263,7 +263,7 @@ export function SenateCoalitionCard({ data, states }: Props) {
           {su?.decomp && (
             <div className="pt-3 border-t border-border/50">
               <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-                Across {Object.keys(su.dist).length > 0 ? 'resamples' : ''} — why this race is close
+                Across resamples — why this race is close
               </div>
               <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr] gap-x-3 gap-y-1 text-[10px] items-center">
                 <span className="text-muted-foreground">Party</span>
