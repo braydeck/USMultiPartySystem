@@ -3188,6 +3188,26 @@ def _modal_seats(suffix: str, chamber: str, method: str | None = None):
     return {p: v["modal"] for p, v in seats.items() if v["modal"] > 0}
 
 
+# Turnout-variant file suffix → the gap-compression stop it describes, as the party-list tree
+# keys it. 'Turnout' is the floor (observed 2024 turnout, 0% of the gap closed).
+_PART_BY_SUFFIX = {"Turnout": "0", **{f"TurnoutL{n}": str(n) for n in (5, 10, 15, 20, 25, 30)}}
+
+
+def _party_list_seats(suffix: str, wyoming: str, depth: str = "top7"):
+    """National party-list seat counts for one turnout stop, from the tree
+    build_house_partylist.py emits. Depth is fixed at top7 because the legislation model bakes in
+    the app's rank-7 default everywhere else. Returns None for a non-turnout suffix (WFP, NoSTY)
+    or a missing file, so the caller omits the column rather than inventing one."""
+    part = _PART_BY_SUFFIX.get(suffix)
+    path = DATA_OUT / "houseDepthNational.json"
+    if part is None or not path.exists():
+        return None
+    with open(path, encoding="utf-8") as f:
+        tree = json.load(f)
+    seats = tree.get(depth, {}).get(wyoming, {}).get(part, {}).get("national", {}).get("listSeats")
+    return seats or None
+
+
 def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
     """senateVoteModelWFP.json — clone of senateVoteModel.json with only the
     Raw-Multi senate + president columns recomputed from the C7 run."""
@@ -3335,9 +3355,21 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
         return (_lf_prob_pass(seats, cbv, majority=tot // 2 + 1),
                 _lf_prob_pass(seats, cbv, majority=_tt(tot)))
 
+    def _list_res(wyoming):
+        """Same districts, Hare quota instead of STV transfers. The observed run, not the modal
+        chamber: the bootstrap resamples STV only, so there is no modal list chamber to use."""
+        seats = _party_list_seats(_suffix, wyoming)
+        if not seats:
+            return {}, {}
+        tot = sum(seats.values())
+        return (_lf_prob_pass(seats, cbv, majority=tot // 2 + 1),
+                _lf_prob_pass(seats, cbv, majority=_tt(tot)))
+
     fd_res,  fd_ovr  = _house_res(FD_DIR / "house" / "stv_seat_summary.csv", by_code=True)
     rmt_res, rmt_ovr = _house_res(triple_src / "house" / "stv_seat_summary.csv", by_code=False)
     fdt_res, fdt_ovr = _house_res(FD_TRIPLE_DIR / "house" / "stv_seat_summary.csv", by_code=True)
+    lst_res,  lst_ovr  = _list_res("double")
+    lstt_res, lstt_ovr = _list_res("triple")
     for row in base:
         var = row["variable"]
         row["houseRawMultiProbPass"] = res.get(var, {}).get("prob_pass", 0.0)
@@ -3354,6 +3386,14 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
             row["houseFDTripleProbPass"] = fdt_res.get(var, {}).get("prob_pass", 0.0)
             row["houseFDTripleVerdict"]  = fdt_res.get(var, {}).get("verdict", "N/A")
             row["houseFDTripleProbOverride"] = fdt_ovr.get(var, {}).get("prob_pass", 0.0)
+        if lst_res:
+            row["houseListProbPass"] = lst_res.get(var, {}).get("prob_pass", 0.0)
+            row["houseListVerdict"]  = lst_res.get(var, {}).get("verdict", "N/A")
+            row["houseListProbOverride"] = lst_ovr.get(var, {}).get("prob_pass", 0.0)
+        if lstt_res:
+            row["houseListTripleProbPass"] = lstt_res.get(var, {}).get("prob_pass", 0.0)
+            row["houseListTripleVerdict"]  = lstt_res.get(var, {}).get("verdict", "N/A")
+            row["houseListTripleProbOverride"] = lstt_ovr.get(var, {}).get("prob_pass", 0.0)
     write_json(base, out_name)
 
 

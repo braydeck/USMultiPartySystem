@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import type { VoteModelRow, CandidateVoteRow } from '../../types';
 import { getBlendColor, getPrimaryParty } from '../../constants/parties';
-import type { VoteMode } from '../../constants/labels';
-import { blocOutcome, presSigns, type SeatMap } from './voteBloc';
+import type { VoteMode, HouseSystem } from '../../constants/labels';
+import { blocOutcome, houseProbField, presSigns, type SeatMap } from './voteBloc';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -13,6 +13,8 @@ interface Props {
   senateMethod: 'condorcet' | 'irv';
   presWinner: string;
   wyoming?: 'double' | 'triple';
+  /** Which House counting rule seats the chamber: STV transfers or a Hare-quota party list. */
+  system?: HouseSystem;
   // Whipped mode: deterministic party-bloc verdicts computed from candidate support + seats.
   voteModel?: VoteMode;
   candidateVotes?: CandidateVoteRow[];
@@ -140,25 +142,18 @@ function ProbBar({ prob }: { prob: number | undefined }) {
   );
 }
 
-const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
-  'rawMulti+double':    'houseRawMultiProbPass',
-  'rawMulti+triple':    'houseRawMultiTripleProbPass',
-  'factorDev+double':   'houseFDProbPass',
-  'factorDev+triple':   'houseFDTripleProbPass',
-};
-
 type SortKey = 'bill' | 'house' | 'senate' | 'pres';
 const GRID = 'md:grid-cols-[1fr_150px_150px_150px]';
 
 export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod, presWinner, wyoming = 'double',
-                                   voteModel = 'free', candidateVotes = [], houseSeats = {}, senateSeats = {} }: Props) {
+                                   system = 'stv', voteModel = 'free', candidateVotes = [], houseSeats = {}, senateSeats = {} }: Props) {
   const [domain, setDomain] = useState<string>('All');
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'senate', dir: 'desc' });
   const whipped = voteModel === 'whipped';
 
   const combo          = `${pipeline}+${senateMethod}`;
   const senateProbField = SENATE_PROB_FIELD[combo];
-  const houseProbField  = HOUSE_PROB_FIELD[`${pipeline}+${wyoming}`] ?? 'houseRawMultiProbPass';
+  const houseField      = houseProbField(system, pipeline, wyoming);
   const isFD            = pipeline === 'factorDev';
   const presParty       = getPrimaryParty(presWinner);
   const fdSignField     = FD_SIGN_FIELD[combo] ?? 'presFDCondSigns';
@@ -204,7 +199,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
             housePass: house.pass, senatePass: senate.pass, presSign: sign,
           };
         }
-        const houseProb  = hr?.[houseProbField] as number | undefined;
+        const houseProb  = hr?.[houseField] as number | undefined;
         const senateProb = sr?.[senateProbField] as number | undefined;
         // See VoteModelRow.presSignsByParty: keyed on `presWinner`, the president this table
         // names in its own header, not on the fixed columns' full-depth winners.
@@ -216,7 +211,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
                  housePass: undefined as boolean | undefined, senatePass: undefined as boolean | undefined, presSign: undefined as boolean | undefined };
       })
       .filter((r): r is typeof r & { ref: VoteModelRow } => !!r.ref);
-  }, [allVars, domain, houseByVar, senateByVar, candByVar, houseProbField, senateProbField, fdSignField, fdPctField, isFD, presParty, whipped, houseSeats, senateSeats, presWinner]);
+  }, [allVars, domain, houseByVar, senateByVar, candByVar, houseField, senateProbField, fdSignField, fdPctField, isFD, presParty, whipped, houseSeats, senateSeats, presWinner]);
 
   const sorted = useMemo(() => {
     const arr = [...rows];

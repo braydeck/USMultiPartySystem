@@ -24,7 +24,7 @@ import { VariantAttractionChart } from '../components/house/VariantAttractionCha
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { CLUSTER_TO_PARTY, F5_ORDER, PARTY_NAMES, partyOrder, FACTOR_LABELS, DISPLAY_FACTORS } from '../constants/parties';
 import depthNational from '../data/houseDepthNational.json';
-import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
+import { PIPELINE_LABELS, WYOMING_LABELS, HOUSE_SYSTEM_LABELS } from '../constants/labels';
 import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
@@ -386,7 +386,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
         <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="System" value={system} onChange={setSystem}
-          options={['stv', 'list'] as const} labels={{ stv: 'STV', list: 'Party list' }} />
+          options={['stv', 'list'] as const} labels={HOUSE_SYSTEM_LABELS} />
         {SHOW_CROSSOVER && system === 'stv' && (
           <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
             options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />

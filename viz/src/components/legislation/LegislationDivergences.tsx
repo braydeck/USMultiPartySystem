@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import type { VoteModelRow, PresidentialElection, CandidateVoteRow } from '../../types';
 import { getBlendColor } from '../../constants/parties';
-import type { VoteMode } from '../../constants/labels';
+import type { VoteMode, HouseSystem } from '../../constants/labels';
 import { SHOW_CROSSOVER } from '../../constants/features';
-import { blocOutcome, presSigns, type SeatMap } from './voteBloc';
+import { blocOutcome, houseProbField, presSigns, type SeatMap } from './voteBloc';
 import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, WhippedBadge, type VerdictLabel } from './UnifiedBillTable';
 import { Card } from '@/components/ui/card';
 
@@ -25,6 +25,8 @@ interface Props {
   election: PresidentialElection;
   pipeline: 'rawMulti' | 'factorDev';
   wyoming?: 'double' | 'triple';
+  /** Which House counting rule seats the chamber: STV transfers or a Hare-quota party list. */
+  system?: HouseSystem;
   // Whipped mode: deterministic party-bloc verdicts. Senate composition differs by method,
   // so the two methods can pass/fail a bill differently even under whipping.
   voteModel?: VoteMode;
@@ -48,7 +50,7 @@ type Row = {
 };
 
 export function LegislationDivergences({ houseVotes, senateVotes, election, pipeline, wyoming = 'double',
-                                         voteModel = 'free', candidateVotes = [], houseSeats = {},
+                                         system = 'stv', voteModel = 'free', candidateVotes = [], houseSeats = {},
                                          senateSeatsCond = {}, senateSeatsIRV = {} }: Props) {
   const whipped = voteModel === 'whipped';
   const condWinner = election.condorcetWinner;
@@ -68,9 +70,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
   };
 
 
-  const HOUSE_PROB: keyof VoteModelRow = wyoming === 'triple'
-    ? (pipeline === 'rawMulti' ? 'houseRawMultiTripleProbPass' : 'houseFDTripleProbPass')
-    : (pipeline === 'rawMulti' ? 'houseRawMultiProbPass' : 'houseFDProbPass');
+  const HOUSE_PROB = houseProbField(system, pipeline, wyoming);
 
   const houseByVar = useMemo(
     () => Object.fromEntries(houseVotes.map(r => [r.variable, r])),

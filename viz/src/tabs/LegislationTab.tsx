@@ -16,6 +16,7 @@ import houseSeatsTurnoutL25 from '../data/houseSeatsTurnoutL25.json';
 import houseSeatsTurnoutL30 from '../data/houseSeatsTurnoutL30.json';
 import fdHouseSeatsTurnout from '../data/fdHouseSeatsTurnout.json';
 import fdHouseSeatsTripleTurnout from '../data/fdHouseSeatsTripleTurnout.json';
+import depthNational from '../data/houseDepthNational.json';
 // Senate composition per (pipeline × method), for the coalition Senate view + whipped bloc math.
 // Raw-Multi senate is the rank-7 winnow, tracked across turnout stops (matches the app default).
 import pureMultiSenateCondorcetTurnout from '../data/pureMultiSenateCondorcetTurnout.json';
@@ -39,8 +40,8 @@ import { uncertaintyAt, type SeatInterval } from '../lib/uncertainty';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS, VOTE_MODEL_LABELS } from '../constants/labels';
-import type { Pipeline, Method, WyomingRule, VoteMode } from '../constants/labels';
+import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS, VOTE_MODEL_LABELS, HOUSE_SYSTEM_LABELS } from '../constants/labels';
+import type { Pipeline, Method, WyomingRule, VoteMode, HouseSystem } from '../constants/labels';
 import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import houseVotesL5 from '../data/houseVoteModelTurnoutL5.json';
@@ -85,29 +86,36 @@ const modalMap = (seats: Record<string, SeatInterval>, divisor: 1 | 2): Record<s
     .map(([p, v]) => [p, v.modal / divisor]));
 const rmSeatStops = [houseSeatsTurnout, houseSeatsTurnoutL5, houseSeatsTurnoutL10, houseSeatsTurnoutL15,
   houseSeatsTurnoutL20, houseSeatsTurnoutL25, houseSeatsTurnoutL30] as unknown as { party: number; national: number }[][];
+/** National seat totals under both House counting rules, per (depth × Wyoming rule × turnout stop).
+ *  The 71 KB projection of housePartyList.json, bundled rather than fetched so the seat maps the
+ *  coalition and whipped views need are on hand at first paint. */
+type PartyCounts = Record<string, number>;
+const DEPTH_NATIONAL = depthNational as unknown as Record<string, Record<string, Record<string, {
+  national: { stvSeats: PartyCounts; listSeats: PartyCounts };
+}>>>;
 
 export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElection,
                                  houseVotesTurnout, senateVotesTurnout, rawMultiElectionTurnout }: Props) {
   const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
+  // House counting rule, on the same districts. Shares the 'system' param with the House tab.
+  const [system,   setSystem]   = useUrlState<HouseSystem>('system', 'stv', { allowed: ['stv', 'list'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   // Vote model: free vote (members split by probability) vs whipped (party votes as a bloc).
   const [voteModel, setVoteModel] = useUrlState<VoteMode>('voteModel', 'free', { allowed: ['free', 'whipped'] });
-  const rmDouble = pipeline === 'rawMulti' && wyoming === 'double';
   const isRawMulti = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
 
   // Legislation bakes in the app defaults: rank-7 chambers + depth-7 president. Raw-Multi house
   // STV seats and the president come from the lazy depth bundles (top7); the vote-model rows,
   // house seats, and senate composition below are already the rank-7 variants.
-  const [hpl, setHpl] = useState<Record<string, Record<string, Record<string, { national: { stvSeats: Record<string, number> } }>>> | null>(null);
   const [gd, setGd] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setHpl).catch(() => {});
     fetch(`${import.meta.env.BASE_URL}data/generalDepth.json`).then(r => r.json()).then(setGd).catch(() => {});
   }, []);
+  const houseNat = DEPTH_NATIONAL.top7?.[wyoming]?.[part]?.national;
 
   // Arrays indexed by gap stop [0,5,10,15,20,25,30]: floor(Turnout) … stress ceiling.
   const hStops = [houseVotesTurnout, houseVotesL5, houseVotesL10, houseVotesL15, houseVotesL20, houseVotesL25, houseVotesL30] as unknown as VoteModelRow[][];
@@ -115,7 +123,10 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const senCondStops = [pureMultiSenateCondorcetTurnout, senCondL5, senCondL10, senCondL15, senCondL20, senCondL25, senCondL30] as unknown as { senatorParty: string }[][];
   const senIrvStops  = [pureMultiSenateIRVTurnout, senIrvL5, senIrvL10, senIrvL15, senIrvL20, senIrvL25, senIrvL30] as unknown as { senatorParty: string }[][];
   const eStops = [rawMultiElectionTurnout, presL5, presL10, presL15, presL20, presL25, presL30] as unknown as PresidentialElection[];
-  const hVotes = rmDouble ? hStops[gi] : houseVotes;
+  // Every party-line stop file carries all four House columns, and the triple-Wyoming STV column is
+  // computed from a fixed tree so it is identical in each — reading the stop file at triple costs
+  // nothing there and is what makes the party-list column, which does move with turnout, available.
+  const hVotes = isRawMulti ? hStops[gi] : houseVotes;
   const sVotes = isRawMulti ? sStops[gi] : senateVotes;
   // Depth-7 president from the bundle; full-ranking stop as the pre-load fallback.
   const election = isRawMulti ? (gd?.top7?.[part] ?? eStops[gi]) : fdElection;
@@ -130,13 +141,15 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const unc = isRawMulti ? uncertaintyAt(gi) : undefined;
 
   // House seat composition for the coalition seat-stack. The bootstrap ran only the 873-seat
-  // double-Wyoming map, which is also the only house column recomputed from the modal chamber,
-  // so triple keeps the observed party-list tree it already matches.
-  const houseSeats = unc && wyoming === 'double'
-    ? modalMap(unc.house.seats, 1)
-    : isRawMulti
-      ? (hpl?.top7?.[wyoming]?.[part]?.national?.stvSeats ?? toSeatMap(rmSeatStops[gi]))
-      : toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[]);
+  // double-Wyoming STV map, which is also the only house column recomputed from the modal chamber,
+  // so triple and the party list keep the observed tree their own columns are computed from.
+  const houseSeats = system === 'list'
+    ? (houseNat?.listSeats ?? {})
+    : unc && wyoming === 'double'
+      ? modalMap(unc.house.seats, 1)
+      : isRawMulti
+        ? (houseNat?.stvSeats ?? toSeatMap(rmSeatStops[gi]))
+        : toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[]);
 
   // Senate composition by (pipeline × method). Senate uncertainty seats are on the 102 basis;
   // these maps are on the 51 basis the bloc majority (26) assumes, hence /2. Crossover falls
@@ -160,6 +173,8 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
       <StickyControlBar label="Legislation settings">
         <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
+        <ToggleGroup label="House" value={system} onChange={setSystem}
+          options={['stv', 'list'] as const} labels={HOUSE_SYSTEM_LABELS} />
         {SHOW_CROSSOVER && (
           <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
             options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />
@@ -168,7 +183,9 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
         <ToggleGroup label="Vote Model" value={voteModel} onChange={setVoteModel}
           options={['free', 'whipped'] as const} labels={VOTE_MODEL_LABELS} />
-        {pipeline === 'rawMulti' && wyoming === 'double' && (
+        {/* The slider only earns its place when the House column responds to it: the STV triple
+            column comes from a fixed tree, but the party-list column is per stop at both rules. */}
+        {isRawMulti && (wyoming === 'double' || system === 'list') && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}
       </StickyControlBar>
@@ -179,6 +196,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
         election={election}
         pipeline={pipeline}
         wyoming={wyoming}
+        system={system}
         voteModel={voteModel}
         candidateVotes={candidateVotes}
         houseSeats={houseSeats}
@@ -188,7 +206,10 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
 
       <Card className="p-4">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Bill Passage Likelihood — {WYOMING_LABELS[wyoming]} · {PIPELINE_LABELS[pipeline]} · {METHOD_LABELS[method]}
+          Bill Passage Likelihood — {[
+            WYOMING_LABELS[wyoming], HOUSE_SYSTEM_LABELS[system],
+            ...(SHOW_CROSSOVER ? [PIPELINE_LABELS[pipeline]] : []), METHOD_LABELS[method],
+          ].join(' · ')}
         </h3>
         <p className="text-xs text-muted-foreground mb-4">
           {voteModel === 'whipped'
@@ -202,6 +223,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           senateMethod={method}
           presWinner={presWinner}
           wyoming={wyoming}
+          system={system}
           voteModel={voteModel}
           candidateVotes={candidateVotes}
           houseSeats={houseSeats}

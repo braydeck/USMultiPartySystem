@@ -1,7 +1,24 @@
-import type { CandidateVoteRow } from '../../types';
+import type { CandidateVoteRow, VoteModelRow } from '../../types';
+import type { HouseSystem, Pipeline, WyomingRule } from '../../constants/labels';
 import { F5_ORDER, getPrimaryParty } from '../../constants/parties';
 
 export type SeatMap = Record<string, number>;
+
+const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
+  'rawMulti+double':  'houseRawMultiProbPass',
+  'rawMulti+triple':  'houseRawMultiTripleProbPass',
+  'factorDev+double': 'houseFDProbPass',
+  'factorDev+triple': 'houseFDTripleProbPass',
+};
+
+/** The precomputed pass-probability column for one House configuration. Shared so the bill table
+ *  and the divergences panel can never disagree about which chamber they are describing. The list
+ *  columns are party-line only — a Hare-quota allocation of Crossover variants is not in the data —
+ *  so the pipeline drops out of the key when the list is selected. */
+export function houseProbField(system: HouseSystem, pipeline: Pipeline, wyoming: WyomingRule): keyof VoteModelRow {
+  if (system === 'list') return wyoming === 'triple' ? 'houseListTripleProbPass' : 'houseListProbPass';
+  return HOUSE_PROB_FIELD[`${pipeline}+${wyoming}`] ?? 'houseRawMultiProbPass';
+}
 
 /** Count senators per party from a per-senator scenario array. */
 export function senateSeatMap(senators: { senatorParty: string }[]): SeatMap {

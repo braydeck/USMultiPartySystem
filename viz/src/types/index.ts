@@ -94,11 +94,20 @@ export interface VoteModelRow {
   // House Triple Wyoming Factor Dev
   houseFDTripleProbPass?: number;
   houseFDTripleVerdict?:  string;
+  /** Party-list House on the same districts (Hare quota + largest remainders) instead of STV.
+   *  The observed run rather than the modal chamber — the bootstrap resamples STV only — and, like
+   *  the STV columns, computed at the rank-7 ballot depth the legislation model assumes. */
+  houseListProbPass?: number;
+  houseListVerdict?:  string;
+  houseListTripleProbPass?: number;
+  houseListTripleVerdict?:  string;
   // Veto-override probabilities (2/3 threshold) — parallel to the pass fields
   houseRawMultiProbOverride?: number;
   houseFDProbOverride?: number;
   houseRawMultiTripleProbOverride?: number;
   houseFDTripleProbOverride?: number;
+  houseListProbOverride?: number;
+  houseListTripleProbOverride?: number;
   condRawMultiProbOverride?: number;
   irvRawMultiProbOverride?: number;
   condFDProbOverride?: number;

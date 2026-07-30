@@ -3,6 +3,8 @@
 export type Pipeline = 'rawMulti' | 'factorDev';
 export type Method = 'condorcet' | 'irv';
 export type WyomingRule = 'double' | 'triple';
+/** House counting rule on the same multi-member districts. */
+export type HouseSystem = 'stv' | 'list';
 export type WfpMode = 'off' | 'on';
 export type VoteMode = 'free' | 'whipped';
 
@@ -29,6 +31,11 @@ export const PIPELINE_DESC: Record<Pipeline, string> = {
 export const METHOD_LABELS: Record<Method, string> = {
   condorcet: 'Condorcet',
   irv:       'IRV',
+};
+
+export const HOUSE_SYSTEM_LABELS: Record<HouseSystem, string> = {
+  stv:  'STV',
+  list: 'Party list',
 };
 
 export const WYOMING_LABELS: Record<WyomingRule, string> = {
