@@ -34,11 +34,21 @@ def ballots_path(tree: str = "pure_multi") -> Path:
 def resampled_inputs(idx, extra_paths: Iterable[Path] = ()):
     """Within this block, reads of the per-respondent files return df.iloc[idx]."""
     real = pd.read_csv
-    targets = {str(p) for p in PROCESSED_FILES} | {str(p) for p in extra_paths}
+    targets = {str(Path(p).resolve()) for p in PROCESSED_FILES} | {
+        str(Path(p).resolve()) for p in extra_paths
+    }
+
+    def _resolved(path):
+        # Callers build paths inconsistently (some BASE_DIRs skip .resolve()), and a
+        # relative/absolute mismatch here silently reads unresampled data with no error.
+        try:
+            return str(Path(path).resolve())
+        except (TypeError, ValueError):
+            return None
 
     def patched(path, *args, **kwargs):
         df = real(path, *args, **kwargs)
-        if str(path) in targets:
+        if _resolved(path) in targets:
             assert len(df) == len(idx), (
                 f"{Path(path).name}: {len(df)} rows but index has {len(idx)}"
             )

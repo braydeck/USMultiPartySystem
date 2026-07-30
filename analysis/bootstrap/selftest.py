@@ -89,6 +89,28 @@ def test_injection_leaves_non_targets_alone():
     assert len(during) == len(before), "a non-target file was reindexed"
 
 
+def test_injection_matches_relative_paths():
+    """Pipelines build BASE_DIR without .resolve(), so callers may pass relative
+    paths; those must match the (absolute) PROCESSED_FILES targets too, or the
+    file silently reads unresampled."""
+    import os
+
+    import pandas as pd
+    from analysis.bootstrap.inject import PROCESSED_FILES, resampled_inputs
+
+    target = PROCESSED_FILES[0]
+    repo_root = Path(__file__).resolve().parents[2]
+    rel_target = os.path.relpath(target, repo_root)
+
+    real = pd.read_csv(target)
+    idx = stratified_indices(real["inputstate"].values, seed=42)
+    with resampled_inputs(idx):
+        got = pd.read_csv(rel_target)
+    assert list(got["inputstate"]) == list(real["inputstate"].values[idx]), (
+        "relative path was not matched against absolute PROCESSED_FILES targets"
+    )
+
+
 def test_injection_restores_pandas_and_asserts_on_mismatch():
     import pandas as pd
     from analysis.bootstrap.inject import PROCESSED_FILES, resampled_inputs
