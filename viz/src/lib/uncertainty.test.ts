@@ -43,8 +43,10 @@ describe('uncertainty accessor', () => {
 
   it('substituted states carry a representative run whose winner is the modal party', () => {
     const u = uncertaintyAt(1)!
+    let checked = 0
     for (const s of Object.values(u.senate.irv.states)) {
       if (!s.substituted || !s.repRounds) continue
+      checked++
       const last = s.repRounds[s.repRounds.length - 1].candidates
       const top = [...last].sort((a, b) => b.pct - a.pct)[0]
       expect(top.code.split('_')[0]).toBe(s.modal.split('_')[0])
@@ -52,6 +54,42 @@ describe('uncertainty accessor', () => {
         const total = rd.candidates.reduce((a, c) => a + c.pct, 0)
         expect(total).toBeCloseTo(100, 0)
       }
+    }
+    // Without this the loop would pass vacuously if a data regeneration ever produced
+    // no substituted states, silently dropping all coverage here.
+    expect(checked).toBe(u.senate.irv.nSubstituted)
+    expect(checked).toBeGreaterThan(0)
+  })
+
+  it('every payload carries the fields the types promise', () => {
+    // The JSON is loaded through `as unknown as`, so tsc cannot catch a regeneration that
+    // drops or renames a field. This is the only guard against that drift.
+    for (let gi = 0; gi < 7; gi++) {
+      const u = uncertaintyAt(gi)!
+      expect(typeof u.nDraws).toBe('number')
+      expect(typeof u.seed).toBe('number')
+      for (const m of ['cond', 'irv'] as const) {
+        const mu = u.senate[m]
+        expect(typeof mu.nSubstituted).toBe('number')
+        expect(typeof mu.nBelow50).toBe('number')
+        for (const v of Object.values(mu.seats)) {
+          for (const k of ['modal', 'expected', 'lo', 'hi', 'observed'] as const) {
+            expect(typeof v[k]).toBe('number')
+          }
+        }
+        for (const s of Object.values(mu.states)) {
+          expect(typeof s.observed).toBe('string')
+          expect(typeof s.modal).toBe('string')
+          expect(typeof s.pModal).toBe('number')
+          expect(typeof s.pObserved).toBe('number')
+          expect(typeof s.substituted).toBe('boolean')
+        }
+      }
+      for (const m of ['irv', 'cond'] as const) {
+        expect(typeof u.president[m].nResolved).toBe('number')
+        expect(typeof u.president[m].modal).toBe('string')
+      }
+      expect(Array.isArray(u.primary.observedSlate)).toBe(true)
     }
   })
 })

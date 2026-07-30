@@ -38,7 +38,10 @@ export interface UncertaintyData {
   senate: { cond: MethodUncertainty; irv: MethodUncertainty };
   house: { seats: Record<string, SeatInterval> };
   primary: { slate: Record<string, number>; observedSlate: string[] };
-  president: Record<'irv' | 'cond', { dist: Record<string, number>; observed: string; modal: string }>;
+  // nResolved counts draws that produced a winner at all: a Condorcet cycle yields none, so
+  // dist is conditional on resolution and the denominator has to stay visible.
+  president: Record<'irv' | 'cond',
+    { dist: Record<string, number>; observed: string; modal: string; nResolved: number }>;
 }
 
 export const UNCERTAINTY_STOPS = [u0, u5, u10, u15, u20, u25, u30] as unknown as UncertaintyData[];
