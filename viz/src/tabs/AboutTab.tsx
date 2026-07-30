@@ -738,8 +738,15 @@ export function AboutTab() {
                 whiskers and ranges show how far the result travels.
               </p>
               <p>
-                Most results barely move. The few that do are thin samples rather than unusually divided
-                states. Wyoming has the smallest CES sample of any state at 70 respondents, and its spread
+                Most results barely move, and the ones that do skew small: the median sample across the
+                13 least stable Condorcet races is 385 respondents against 661 across all 51. But sample
+                size explains part of this, not most. Log sample size correlates with confidence in the
+                winner at only +0.30 under Condorcet and +0.34 under IRV, and some of the least stable
+                Condorcet races are among the largest samples in the file. Michigan is the eighth-largest
+                state sample of the 51 at 1,531 respondents and reproduces its most likely winner in 43%
+                of draws; North Carolina is tenth-largest at 1,444 and 35%; Indiana, at 978, sits well
+                above the median and reproduces its winner in 34%. The clearest case where the sample is
+                the explanation is Wyoming, which has the smallest CES sample of any state at 70 respondents, and its spread
                 of opinion is close to the national spread, so it is the sample doing the work. Under IRV
                 its observed winner is the less likely one: Populist takes 29% of resamples and
                 Conservative 52%.
@@ -756,7 +763,10 @@ export function AboutTab() {
                 for that state shows an <strong className="text-foreground">example count</strong> that
                 produces the likely winner instead, chosen to be typical of those draws. Its individual
                 percentages illustrate one path rather than measuring that state. Four states are
-                substituted this way under IRV and five under Condorcet.
+                substituted this way under IRV. Five more disagree under Condorcet — Arkansas, Michigan,
+                Nebraska, North Carolina and South Carolina — where there are no elimination rounds to
+                substitute, so those races are hatched on the map and noted in the head-to-head view
+                instead, with the observed sample&apos;s own margins left on screen.
               </p>
               <p>
                 The two counting methods are equally reliable on average and differently shaped. Mean

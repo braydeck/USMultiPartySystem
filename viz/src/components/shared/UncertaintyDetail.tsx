@@ -13,11 +13,13 @@ function Pill({ code }: { code: string }) {
   );
 }
 
-export function UncertaintyDetail({ seats, states, nDraws, stateLabel }: {
+export function UncertaintyDetail({ seats, states, nDraws, stateLabel, label }: {
   seats: Record<string, SeatInterval>;
   states?: Record<string, StateUncertainty>;
   nDraws: number;
   stateLabel?: (fips: string) => string;
+  /** Which method/chamber this block describes. Required wherever more than one is on screen. */
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -37,7 +39,7 @@ export function UncertaintyDetail({ seats, states, nDraws, stateLabel }: {
       <button onClick={() => setOpen(o => !o)}
         className="text-[11px] font-semibold text-muted-foreground hover:text-foreground"
         aria-expanded={open}>
-        {open ? '▾' : '▸'} Range across {nDraws.toLocaleString()} resamples
+        {open ? '▾' : '▸'} {label ? `${label} — range` : 'Range'} across {nDraws.toLocaleString()} resamples
       </button>
 
       {open && (

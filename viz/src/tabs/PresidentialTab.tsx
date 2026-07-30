@@ -78,14 +78,16 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  // Bootstrap resample probabilities exist only for the raw multi-party pipeline — Crossover
-  // (Factor Dev) has no uncertainty payload, matching the gate SenateTab uses for the same data.
-  const ud = scenario === 'rawMulti' ? uncertaintyAt(gi) : undefined;
   const rmStops = [rawMultiTurnout, presTL5, presTL10, presTL15, presTL20, presTL25, presTL30] as unknown as PresidentialElection[];
   // The general is a 5-finalist IRV/Condorcet contest — voters rank all 5, so there is no ballot-
   // depth toggle here. But WHICH 5 finalists advance depends on the primary's depth setting (shared
   // with the Primary view via the 'depth' URL param), so the general reads the depth-N finalists.
   const [depth] = useUrlState<DepthKey>('depth', 'top7', { allowed: [...DEPTH_KEYS] });
+  // Bootstrap resample probabilities exist only for the raw multi-party pipeline at rank-7
+  // ballots — Crossover (Factor Dev) has no uncertainty payload, and the bootstrap ran only the
+  // top7 depth, so at any other depth the distribution describes a different finalist field and
+  // a different president than the one on screen. Same gate HouseTab uses for its whiskers.
+  const ud = scenario === 'rawMulti' && depth === 'top7' ? uncertaintyAt(gi) : undefined;
   const [depthBundle, setDepthBundle] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
   useEffect(() => {
     if (depth !== 'full' && !depthBundle) {

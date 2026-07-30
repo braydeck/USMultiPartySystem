@@ -176,13 +176,19 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
         Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s
         seats for a full-chamber view ({stats.condTotal} seats), which assumes matched delegations and so drops today&apos;s split D/R states.
       </p>
-      {irvU && !!nDraws && (
+      {/* Both methods, named: the card draws both strips and Condorcet is the Senate tab's
+          default, so quoting one method's close-race count unlabelled reads as the other's. */}
+      {condU && irvU && !!nDraws && (
         <>
           <p className="text-[11px] text-muted-foreground/80">
-            {irvU.nBelow50} of {Object.keys(irvU.states).length} races are close enough to flip on sampling alone.
+            Races close enough to flip on sampling alone: {condU.nBelow50} of{' '}
+            {Object.keys(condU.states).length} under Condorcet, {irvU.nBelow50} of{' '}
+            {Object.keys(irvU.states).length} under IRV.
           </p>
+          <UncertaintyDetail seats={condU.seats} states={condU.states} nDraws={nDraws}
+            label="Condorcet" stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
           <UncertaintyDetail seats={irvU.seats} states={irvU.states} nDraws={nDraws}
-            stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
+            label="IRV" stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
         </>
       )}
     </Card>

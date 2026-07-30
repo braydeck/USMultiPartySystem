@@ -81,9 +81,11 @@ export function PrimaryTab({
     }
   }, [depth, depthBundle]);
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  // Bootstrap resample probabilities exist only for the raw multi-party pipeline — Crossover
-  // (Factor Dev) has no uncertainty payload, matching the gate SenateTab/PresidentialTab use.
-  const su = pipeline === 'rawMulti' ? uncertaintyAt(gi)?.primary : undefined;
+  // Bootstrap resample probabilities exist only for the raw multi-party pipeline at rank-7
+  // ballots — Crossover (Factor Dev) has no uncertainty payload, and the bootstrap ran only the
+  // top7 depth, so `observedSlate` is the top7 slate and would misclassify holders and
+  // challengers against any other depth's slate. Same gate PresidentialTab/HouseTab use.
+  const su = pipeline === 'rawMulti' && depth === 'top7' ? uncertaintyAt(gi)?.primary : undefined;
   const primStops   = [pmPrimTurnout, pmPrimL5, pmPrimL10, pmPrimL15, pmPrimL20, pmPrimL25, pmPrimL30] as unknown as FDPrimaryData[];
   const bucketStops = [pmBktTurnout, pmBktL5, pmBktL10, pmBktL15, pmBktL20, pmBktL25, pmBktL30] as unknown as BucketData[];
   const shareStops  = [pmShTurnout, pmShL5, pmShL10, pmShL15, pmShL20, pmShL25, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
