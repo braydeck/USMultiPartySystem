@@ -3,12 +3,12 @@ import { useUrlState } from '../hooks/useUrlState';
 import { DEPTH_KEYS, type DepthKey } from '../constants/depth';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
 import { Card } from '@/components/ui/card';
-import { PARTY_COLORS, PARTY_NAMES, buildDisplayLabels } from '../constants/parties';
+import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
 import { PIPELINE_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
-import { uncertaintyAt, type UncertaintyData } from '../lib/uncertainty';
+import { uncertaintyAt } from '../lib/uncertainty';
 // Gap-compression stops (5-point steps to 30%); the λ=0 floor comes via props.
 import presTL5 from '../data/rawMultiPresidentialElectionTurnoutL5.json';
 import presTL10 from '../data/rawMultiPresidentialElectionTurnoutL10.json';
@@ -29,6 +29,7 @@ import { IRVSankey } from '../components/presidential/IRVSankey';
 import { PresidentialComparison } from '../components/presidential/PresidentialComparison';
 import { CondorcetMatrix } from '../components/presidential/CondorcetMatrix';
 import { PartyProfileCard } from '../components/shared/PartyProfileCard';
+import { PresidentRangeCard } from '../components/presidential/PresidentRangeCard';
 
 interface Props {
   factorDev: PresidentialElection;
@@ -43,16 +44,6 @@ interface Props {
 }
 
 const PRES_LABELS = PIPELINE_LABELS;
-
-// dist is ordered modal-first, strictly descending, so no re-sorting is needed here.
-// nResolved < nDraws only when some resamples hit a Condorcet cycle with no winner — surface the
-// denominator so a cycle would show up rather than being silently renormalized away.
-function formatPresidentDist(m: UncertaintyData['president']['irv'], nDraws: number): string {
-  const shares = Object.entries(m.dist)
-    .map(([code, v]) => `${PARTY_NAMES[code] ?? code} ${Math.round(v * 100)}%`)
-    .join(' · ');
-  return m.nResolved < nDraws ? `${shares} (${m.nResolved}/${nDraws} resamples resolved)` : shares;
-}
 
 function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: string }) {
   const color = PARTY_COLORS[partyCode] ?? '#6b7280';
@@ -226,10 +217,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
             </>
           )}
           {ud && ud.president && (
-            <p className="text-[11px] text-muted-foreground">
-              Across resamples — IRV: {formatPresidentDist(ud.president.irv, ud.nDraws)};{' '}
-              Condorcet: {formatPresidentDist(ud.president.cond, ud.nDraws)}
-            </p>
+            <Card className="p-4">
+              <PresidentRangeCard gi={gi} nDraws={ud.nDraws} />
+            </Card>
           )}
         </div>
       ) : (
