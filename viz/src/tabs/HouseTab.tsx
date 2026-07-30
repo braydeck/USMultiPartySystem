@@ -22,7 +22,8 @@ import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { CLUSTER_TO_PARTY, partyOrder, FACTOR_LABELS, DISPLAY_FACTORS } from '../constants/parties';
+import { CLUSTER_TO_PARTY, F5_ORDER, PARTY_NAMES, partyOrder, FACTOR_LABELS, DISPLAY_FACTORS } from '../constants/parties';
+import depthNational from '../data/houseDepthNational.json';
 import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
 import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
@@ -128,6 +129,18 @@ type WyomingRule = 'double' | 'triple';
 // carry these as pctPopulation; the depth bundles carry no population field, so they read it here.
 const POP_SHARES = populationShares();
 
+/** National seat counts and their density-tier split, per ballot depth x Wyoming map x turnout
+ *  stop. A 71 KB projection of housePartyList.json's national blocks, emitted by the same script
+ *  in the same loop, so it cannot disagree with the 4.1 MB file it is drawn from. */
+type PartyCounts = Record<string, number>;
+const DEPTH_NATIONAL = depthNational as unknown as Record<string, Record<string, Record<string, {
+  national: { stvSeats: PartyCounts };
+  stvTiers: { urban: PartyCounts; suburban: PartyCounts; rural: PartyCounts };
+}>>>;
+// Party code to the cluster index HouseSeat.party carries.
+const CLUSTER_OF: Record<string, number> = Object.fromEntries(
+  Object.entries(CLUSTER_TO_PARTY).map(([k, v]) => [v, Number(k)]));
+
 export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
@@ -141,15 +154,11 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Party-list results are lazy-fetched (public static asset) only when the list flip is on.
   const [plData, setPlData] = useState<Record<string, Record<string, Record<string, PLConfig>>> | null>(null);
-  // Tracked separately from `plData === null` so a failed fetch can fall back to bars rather than
-  // leaving the seat-share card on its loading state forever.
-  const [plFailed, setPlFailed] = useState(false);
   useEffect(() => {
-    if ((system === 'list' || scenario === 'rawMulti') && !plData && !plFailed) {
-      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData)
-        .catch(() => setPlFailed(true));
+    if ((system === 'list' || scenario === 'rawMulti') && !plData) {
+      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData).catch(() => {});
     }
-  }, [system, scenario, plData, plFailed]);
+  }, [system, scenario, plData]);
   // Bill Simulator vote model, tracked across ballot depth × turnout (rank-7 default). Lazy bundle.
   const [hvmDepth, setHvmDepth] = useState<Record<string, Record<string, VoteModelRow[]>> | null>(null);
   useEffect(() => {
@@ -177,12 +186,11 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   // Sampling uncertainty at the active stop. The bootstrap ran the party-line pipeline with
   // rank-7 ballots on the 873-seat double-Wyoming map, so its seat counts describe that
   // configuration only; every other combination degrades to plain bars with no ranges.
-  // Also wait for the depth bundle: until housePartyList.json resolves (or if that fetch
-  // fails), the bars fall back to a chamber whose per-party seats differ from the one the
-  // bootstrap measured by up to 6 seats, so a range drawn then would describe a
-  // different chamber than the point estimate beside it. Same condition stvDepth resolves on.
+  // The depth condition is what pairs the bounds with a matching point estimate: at any other
+  // depth the chamber differs by up to 6 seats per party, so a range drawn then would describe a
+  // different chamber than the number beside it. Since `stvDepthSeats` now comes from a bundled
+  // projection rather than the 4.1 MB fetch, this resolves at first paint.
   const houseU = scenario === 'rawMulti' && wyoming === 'double' && depth === 'top7'
-    && !!plData?.[depth]?.[wyoming]?.[part]
     ? uncertaintyAt(gi)?.house.seats
     : undefined;
   // The party-list view has no Scenario control — the list is always allocated from the party-line
@@ -190,11 +198,6 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   // list is depth-invariant, but its STV comparison row's point estimate is not, and pairing a
   // top-3 point with rank-7 bounds would describe two different chambers.
   const houseUList = wyoming === 'double' && depth === 'top7' ? uncertaintyAt(gi)?.house.seats : undefined;
-  // housePartyList.json is 4.1 MB and fetched at runtime, so `houseU` stays undefined for a few
-  // hundred ms after mount even when the configuration qualifies. Without this flag the seat-share
-  // card renders bars first and swaps to ranges when the fetch lands, which reads as a bug.
-  const houseRangesPending = scenario === 'rawMulti' && wyoming === 'double' && depth === 'top7'
-    && !plFailed && !plData?.[depth]?.[wyoming]?.[part];
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -285,7 +288,36 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
 
   // Truncated ballots: the rawMulti STV results come from the depth-limited runs (party-list is
   // depth-invariant). Adapt housePartyList's per-depth STV fields into the STV view's shapes.
-  const stvDepth = useMemo(() => {
+  // National seat counts by party for the active depth, from the 71 KB bundled projection of
+  // housePartyList.json rather than the 4.1 MB file itself. These drive the headline charts, so
+  // sourcing them here is what lets those render at first paint instead of after a fetch.
+  const stvDepthSeats = useMemo(() => {
+    if (depth === 'full' || scenario !== 'rawMulti') return null;
+    const cfg = DEPTH_NATIONAL[depth]?.[wyoming]?.[part];
+    if (!cfg) return null;
+    const total = Object.values(cfg.national.stvSeats).reduce((a, b) => a + b, 0) || 1;
+    return F5_ORDER.map(code => {
+      const k = CLUSTER_OF[code];
+      const n = cfg.national.stvSeats[code] ?? 0;
+      return {
+        party: k, partyName: PARTY_NAMES[code],
+        urban: cfg.stvTiers.urban[code] ?? 0,
+        suburban: cfg.stvTiers.suburban[code] ?? 0,
+        rural: cfg.stvTiers.rural[code] ?? 0,
+        national: n, pctNational: n / total * 100,
+        // True population share, matching the field's name and the "Population" label it renders
+        // under. This held vote share until 2026-07-30 — a different quantity (Solidarity showed
+        // 9.84 against a real 14.25). Vote share is now its own row in the range view, read from
+        // the same populationShareRange payload as this. Do not restore.
+        pctPopulation: POP_SHARES[code]?.point ?? 0,
+      };
+    }).filter(r => r.national > 0) as unknown as HouseSeat[];
+  }, [depth, scenario, wyoming, part]);
+
+  // Per-state and per-district detail for the same run. This is the part that genuinely needs the
+  // big payload, and it feeds the map and state table further down the page, where arriving a
+  // moment late is not visible the way a swapped headline chart is.
+  const stvDepthDetail = useMemo(() => {
     if (depth === 'full' || scenario !== 'rawMulti') return null;
     const cfg = plData?.[depth]?.[wyoming]?.[part] as unknown as {
       national: { voteShare: Record<string, number> };
@@ -293,31 +325,10 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
       districts: Record<string, { districtId: string; densityTier: string; seatCount: number; stvElected: string[]; nRespondents: number }[]>;
     } | undefined;
     if (!cfg) return null;
-    const CN: Record<number, string> = { 0: 'Conservative', 1: 'Labor', 2: 'Solidarity', 3: 'Nationalist', 4: 'Liberal', 5: 'Populist', 6: 'Civic Union Party', 7: 'Order and Opportunity Party', 8: 'DSA', 9: 'Progressive' };
-    const CTC: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
     const districts: Record<string, DistrictResult[]> = {};
-    const byC: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
     for (const [fips, ds] of Object.entries(cfg.districts)) {
       districts[fips] = ds.map(d => ({ districtId: d.districtId, densityTier: d.densityTier as DistrictResult['densityTier'], seatCount: d.seatCount, elected: d.stvElected, nRespondents: d.nRespondents }));
-      for (const d of ds) {
-        const tier = d.densityTier.toLowerCase() as 'urban' | 'suburban' | 'rural';
-        for (const code of d.stvElected) {
-          const k = CTC[code]; if (k === undefined) continue;
-          if (!byC[k]) byC[k] = { urban: 0, suburban: 0, rural: 0, national: 0 };
-          byC[k][tier] += 1; byC[k].national += 1;
-        }
-      }
     }
-    const total = Object.values(byC).reduce((s, r) => s + r.national, 0) || 1;
-    const seats = Object.entries(byC).map(([k, v]) => ({
-      party: Number(k), partyName: CN[Number(k)], urban: v.urban, suburban: v.suburban, rural: v.rural,
-      national: v.national, pctNational: v.national / total * 100,
-      // True population share, matching the field's name and the "Population" label it renders
-      // under. This held cfg.national.voteShare until 2026-07-30 — vote share, a different
-      // quantity (Solidarity showed 9.84 against a real 14.25). Vote share is now its own row in
-      // the range view, read from the same populationShareRange payload as this. Do not restore.
-      pctPopulation: POP_SHARES[CLUSTER_TO_PARTY[k]]?.point ?? 0,
-    })) as unknown as HouseSeat[];
     const stateMap: Record<string, HouseStateEntry> = {};
     for (const [fips, s] of Object.entries(cfg.byState)) {
       const plur = Object.entries(s.stvSeats).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
@@ -327,20 +338,20 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
       // the state map's own popShares, which are population and stop-invariant. Do not restore.
       stateMap[fips] = { stateAbbr: s.abbr, pluralityParty: plur, totalSeats: s.totalSeats, seats: s.stvSeats } as unknown as HouseStateEntry;
     }
-    return { seats, stateMap, districts };
+    return { stateMap, districts };
   }, [depth, scenario, plData, wyoming, part]);
 
   const activeSeats = useMemo(() => {
-    if (stvDepth) return stvDepth.seats;
+    if (stvDepthSeats) return stvDepthSeats;
     if (wyoming === 'triple') return scenario === 'rawMulti' ? seatsTripleGi : fdSeatsTripleAggregated;
     return scenario === 'rawMulti' ? rmSeats : fdSeatsAggregated;
-  }, [stvDepth, wyoming, scenario, rmSeats, seatsTripleGi, fdSeatsAggregated, fdSeatsTripleAggregated]);
+  }, [stvDepthSeats, wyoming, scenario, rmSeats, seatsTripleGi, fdSeatsAggregated, fdSeatsTripleAggregated]);
   const activeTotalSeats = activeSeats.reduce((s, r) => s + r.national, 0);
-  const activeDistrictResults = stvDepth ? stvDepth.districts : (wyoming === 'triple'
+  const activeDistrictResults = stvDepthDetail ? stvDepthDetail.districts : (wyoming === 'triple'
     ? (scenario === 'factorDev' ? fdDistrictTripleGi : districtTripleGi)
     : (scenario === 'factorDev' ? fdDistrictGi : rmDistrict));
   const activeDistrictCountyMap = wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap;
-  const activeStateMap = stvDepth ? stvDepth.stateMap : (wyoming === 'triple' ? stateMapTriple : rmStateMap);
+  const activeStateMap = stvDepthDetail ? stvDepthDetail.stateMap : (wyoming === 'triple' ? stateMapTriple : rmStateMap);
   const activeFdHouseSeats = wyoming === 'triple' ? fdSeatsTripleGi : fdSeatsGi;
   const activeFdSeatsByCode = useMemo(() => {
     const map: Record<string, number> = {};
@@ -412,7 +423,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
       {/* Population vs Seat Share */}
       <Card className="p-4">
         <ScenarioComparison
-          rawMultiSeats={stvDepth ? stvDepth.seats : (wyoming === 'triple' ? seatsTripleGi : rmSeats)}
+          rawMultiSeats={stvDepthSeats ?? (wyoming === 'triple' ? seatsTripleGi : rmSeats)}
           fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
           scenario={scenario}
           wyoming={wyoming}
@@ -423,7 +434,6 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           selectedState={seatShareState}
           onStateChange={setSeatShareState}
           houseU={houseU}
-          rangesPending={houseRangesPending}
           gi={gi}
         />
       </Card>

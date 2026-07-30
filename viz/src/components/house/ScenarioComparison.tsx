@@ -46,14 +46,11 @@ interface Props {
   selectedState: string;
   onStateChange: (state: string) => void;
   houseU?: Record<string, SeatInterval>;
-  /** True while the configuration qualifies for ranges but the payload they depend on is still
-   *  in flight. Holds the chart back rather than showing bars that will be replaced. */
-  rangesPending?: boolean;
   /** Turnout stop, index 0-6. Only the vote spans need it; population is stop-invariant. */
   gi: number;
 }
 
-export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSeats, doubleFdSeats, wyoming = 'double', stateMap, doubleStateMap, selectedState, onStateChange, houseU, rangesPending, gi }: Props) {
+export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSeats, doubleFdSeats, wyoming = 'double', stateMap, doubleStateMap, selectedState, onStateChange, houseU, gi }: Props) {
   const isNational = selectedState === 'national';
 
   const stateOpts = useMemo(() => [
@@ -150,7 +147,6 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
         seatPct: r.seatPct, seats: r.seats, seatIv: r.seatIv,
       }))
     : null;
-  const pending = !!rangesPending && isNational;
   const showRanges = !!rangeRows && rangeRows.length === rows.length && rows.length > 0;
   const hasList = !!rangeRows?.every(r => !!r.cmpIv);
 
@@ -158,7 +154,7 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
     <div>
       <div className="flex items-center justify-between gap-2 mb-1">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-          {showRanges || pending ? 'Votes vs seat share' : 'Population vs seat share'}
+          {showRanges ? 'Votes vs seat share' : 'Population vs seat share'}
         </h3>
         <select value={isNational ? 'national' : selectedState}
           onChange={e => onStateChange(e.target.value === 'national' ? 'national' : e.target.value)}
@@ -168,7 +164,7 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
       </div>
       <p className="text-xs text-muted-foreground mb-3">
         {isNational ? '' : `${selectedState}. `}
-        {showRanges || pending ? (
+        {showRanges ? (
           <>
             What each party earns against what it wins, out of 873 seats. Add population to see the
             turnout step{hasList && ', or party list to split the counting rule into the district-magnitude penalty and what transferable voting adds'}.
@@ -180,12 +176,7 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
           </>
         )}
       </p>
-      {pending ? (
-        // Reserves roughly the chart's height so the card does not jump when it arrives.
-        <div className="h-[420px] flex items-center justify-center text-xs text-muted-foreground">
-          Loading sampling ranges…
-        </div>
-      ) : showRanges ? (
+      {showRanges ? (
         <PopSeatRanges rows={rangeRows!} max={rangeMaxPct} seatLabel={seatLabel}
           compareLabel={hasList ? 'Party list' : undefined} />
       ) : (

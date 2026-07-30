@@ -39,6 +39,12 @@ TYPO_PATH = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 TURNOUT_PATH = BASE_DIR / "data" / "processed" / "turnout_propensity.csv"
 HSM_BASE = BASE_DIR / "viz" / "src" / "data" / "houseStateMap.json"
 OUT_PATH = BASE_DIR / "viz" / "public" / "data" / "housePartyList.json"
+# Small companion to the above. housePartyList.json is ~4 MB because per-state (1.5 MB) and
+# per-district (1.8 MB) detail is replicated across all 70 depth x map x turnout configurations,
+# so it has to be lazy-fetched. The national blocks are only ~0.7 KB per configuration, and the
+# House tab's headline charts need nothing else — so they get bundled at build time instead of
+# waiting on the big fetch. Same numbers, same loop: this is a projection, not a second source.
+SUMMARY_PATH = BASE_DIR / "viz" / "src" / "data" / "houseDepthNational.json"
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
@@ -227,6 +233,7 @@ def main():
 
             # ── aggregate ───────────────────────────────────────────────────
             nat_V = np.zeros(10); nat_list = np.zeros(10, int); nat_stv = np.zeros(10, int); nat_fptp = np.zeros(10, int)
+            tiers = {t: np.zeros(10, int) for t in ("urban", "suburban", "rural")}
             nat_totV = 0.0; nat_wl = 0.0; nat_ws = 0.0; nat_wf = 0.0; nat_surp = 0.0
             nat_vw = 0.0; nat_sol = 0.0; nat_sos = 0.0
             nat_rvw = 0.0; nat_rnfc = 0.0; nat_runrep = 0.0; nat_rbq = 0
@@ -244,6 +251,7 @@ def main():
                     ssurp += r["_surp"]
                     svw += r["_vw"]; ssol += r["_sol"]; ssos += r["_sos"]
                     srvw += r["_rep"][0]; srnfc += r["_rep"][1]; srunrep += r["_rep"][2]; srbq += r["_rep"][3]
+                    tiers[r["densityTier"].lower()] += r["_stv"]
                     clean.append({k: r[k] for k in ("districtId", "densityTier", "seatCount",
                                                     "listElected", "stvElected", "nRespondents")})
                 nat_V += sV; nat_list += sl; nat_stv += ss; nat_fptp += sf
@@ -295,13 +303,29 @@ def main():
                 },
                 "byState": by_state,
                 "districts": districts_out,
+                # Consumed only by the summary projection below, then stripped.
+                "_stvTiers": {t: as_party_map(v, cast=int) for t, v in tiers.items()},
             }
         print(f"  [{dkey}] {wyo}: {len(district_ids)} districts × {len(PARTS)} turnout stops")
 
+    # Project the national blocks out, and strip the scratch tier field from the big payload.
+    summary: dict = {}
+    for dk, dv in out.items():
+        for wy, wv in dv.items():
+            for pt, cfg in wv.items():
+                summary.setdefault(dk, {}).setdefault(wy, {})[pt] = {
+                    "national": cfg["national"],
+                    "stvTiers": cfg.pop("_stvTiers"),
+                }
+
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(out, separators=(",", ":")))
+    SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SUMMARY_PATH.write_text(json.dumps(summary, separators=(",", ":"), sort_keys=True))
     mb = OUT_PATH.stat().st_size / 1e6
+    kb = SUMMARY_PATH.stat().st_size / 1024
     print(f"\nWrote {OUT_PATH}  ({mb:.2f} MB)")
+    print(f"Wrote {SUMMARY_PATH}  ({kb:.0f} KB)")
 
     # ── validation: the soft-posterior share basis IS the app's vote share. ──
     # commonpostweight (turnout-off) soft shares must reproduce houseStateMap popShares exactly.

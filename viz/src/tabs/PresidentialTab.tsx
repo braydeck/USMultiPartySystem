@@ -149,11 +149,6 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
       {scenario === 'rawMulti' ? (
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Presidential Outcomes</h3>
-          {ud && ud.president && (
-            <Card className="p-4">
-              <PresidentRangeCard gi={gi} nDraws={ud.nDraws} />
-            </Card>
-          )}
           {rmSameWinner ? (
             <div>
               <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
@@ -180,8 +175,23 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                   {clusterByParty[rmIrvParty] && <PartyProfileCard cluster={clusterByParty[rmIrvParty]} />}
                 </div>
               </div>
+            </>
+          )}
 
-              {divergentBills.length > 0 && (
+          {/* Directly under the winner cards in both branches: how certain the office is belongs
+              with the winners, not after the consequences of one of them. */}
+          {ud && ud.president && (
+            <Card className="p-4">
+              <PresidentRangeCard gi={gi} nDraws={ud.nDraws} />
+            </Card>
+          )}
+
+          {/* Gated on rmSameWinner, not just on the count: presRawMultiCondSigns and
+              presRawMultiIRVSigns are identical at every turnout stop (6 divergent bills at all
+              seven), so they are baked at one configuration and do not track the presidents shown
+              above. At λ=0 both methods elect Labor, and these columns would name a Condorcet
+              president who is not on screen. */}
+          {!rmSameWinner && divergentBills.length > 0 && (
                 <Card className="overflow-hidden border-amber-300">
                   <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
                     <h4 className="text-sm font-semibold text-amber-900">
@@ -219,8 +229,6 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                   </div>
                 </Card>
               )}
-            </>
-          )}
         </div>
       ) : (
         /* Factor Dev — single winner */
