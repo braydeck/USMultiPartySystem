@@ -63,7 +63,7 @@ def _quiet(fn, *a, **k):
         return fn(*a, **k)
 
 
-def run_draw(seed: int, lam: float, depth: int = 7, observed: bool = False) -> dict:
+def run_draw(seed: int, lam: float, depth: int = DEPTH, observed: bool = False) -> dict:
     # Only the house takes depth as an argument; the primary and president follow the
     # module DEPTH via BALLOT_DEPTH, frozen at import, so any other depth mixes contests.
     assert depth == DEPTH, "depth is frozen at import; one DEPTH per process"
@@ -155,3 +155,6 @@ def run_draw(seed: int, lam: float, depth: int = 7, observed: bool = False) -> d
                 "president": {"irv": irv_pres, "cond": cond_pres}}
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+        # Leave no resampled turnout behind: anything else in this process that touches
+        # turnout_weights would otherwise read the last draw's table.
+        m["tw"]._cache = None

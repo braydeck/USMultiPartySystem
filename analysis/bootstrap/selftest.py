@@ -128,8 +128,9 @@ def test_injection_restores_pandas_and_asserts_on_mismatch():
 
 
 def test_observed_draw_matches_committed_counts():
-    """The observed-sample draw must reproduce the committed deterministic seat counts.
-    If this fails, the harness is resampling something it shouldn't."""
+    """The house seat VECTOR is the only assertion here that discriminates ballot depth:
+    the primary slate and both president winners are identical at top5/top7/full, so if
+    a cleanup ever relaxes the house check to a total, BALLOT_DEPTH stops being pinned."""
     import json
     from collections import Counter
 
