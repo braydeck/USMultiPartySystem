@@ -178,17 +178,24 @@ export function PrimaryTab({
       </div>
       {(() => {
         if (!su) return null;
-        // Candidates whose slate-membership probability is farthest from certain — either shaky
-        // finalists or close non-finalists — sorted least-certain first.
-        const shaky = Object.entries(su.slate)
-          .filter(([, v]) => v < 0.9)
-          .sort((a, b) => a[1] - b[1])
-          .slice(0, 4);
-        if (!shaky.length) return null;
+        // su.slate maps EVERY contender to P(reaches the slate), flattening two distinct
+        // populations: observed finalists whose seat might not hold, and non-finalists who
+        // sometimes break in. Splitting by observedSlate membership keeps that distinction
+        // legible instead of calling a 13%-chance challenger a "finalist".
+        const observed = new Set(su.observedSlate);
+        const holds = Object.entries(su.slate)
+          .filter(([c, v]) => observed.has(c) && v < 0.95)
+          .sort((a, b) => a[1] - b[1]);
+        const breaksIn = Object.entries(su.slate)
+          .filter(([c, v]) => !observed.has(c) && v > 0.05)
+          .sort((a, b) => a[1] - b[1]);
+        if (!holds.length && !breaksIn.length) return null;
+        const fmt = ([c, v]: [string, number]) => `${PARTY_NAMES[c.split('_')[0]] ?? c} ${Math.round(v * 100)}%`;
         return (
           <p className="text-[11px] text-muted-foreground">
-            Least certain finalists across resamples:{' '}
-            {shaky.map(([c, v]) => `${PARTY_NAMES[c.split('_')[0]] ?? c} ${Math.round(v * 100)}%`).join(' · ')}
+            Slate across resamples
+            {holds.length > 0 && <> — holds its place: {holds.map(fmt).join(', ')}</>}
+            {breaksIn.length > 0 && <>{holds.length > 0 ? '.' : ' —'} Breaks in: {breaksIn.map(fmt).join(', ')}</>}
           </p>
         );
       })()}
