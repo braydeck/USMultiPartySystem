@@ -71,7 +71,7 @@ for cx, code in below:
 # spectrum cue + footer
 ax.text(x0, by + bh + 30, "◀  progressive left", ha="left", va="center", color="#94a3b8", fontsize=13)
 ax.text(x1, by + bh + 30, "populist right  ▶", ha="right", va="center", color="#94a3b8", fontsize=13)
-ax.text(W / 2, 52, "usmultipartysystem.pages.dev", ha="center", color="#4338ca", fontsize=19, fontweight="bold")
+ax.text(W / 2, 52, "usmultiparty.com", ha="center", color="#4338ca", fontsize=19, fontweight="bold")
 
 out = ROOT / "public" / "og-image.png"
 fig.savefig(out, dpi=100, facecolor="#ffffff")

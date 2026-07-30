@@ -4,7 +4,7 @@ A full-stack simulation of what American politics might look like under proporti
 
 ![The simulated ten-party U.S. House: 873 seats across an ideological spectrum, no party near a majority.](viz/public/og-image.png)
 
-> **▶ Explore the live simulation: <https://usmultipartysystem.pages.dev/>**
+> **▶ Explore the live simulation: <https://usmultiparty.com/>**
 >
 > **Methodology:** [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) — how 45,707 survey responses become a ten-party legislature, with caveats.
 > For the full technical reference (agent/developer guide), see [`docs/AGENTS.md`](docs/AGENTS.md); for EFA factor loadings, [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md).

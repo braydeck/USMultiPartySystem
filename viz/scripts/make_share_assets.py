@@ -5,7 +5,7 @@
                                     humans to /?tab=quiz&result=<CODE>
 
 Pure-static (no edge function); files in public/ deploy verbatim to the site root,
-so a shared https://usmultipartysystem.pages.dev/r/<CODE> previews with the party card.
+so a shared https://usmultiparty.com/r/<CODE> previews with the party card.
 """
 import json
 import matplotlib
@@ -19,7 +19,7 @@ PROFILES = json.loads((ROOT / "viz" / "src" / "data" / "clusterProfiles.json").r
 HOUSE = json.loads((ROOT / "viz" / "src" / "data" / "houseSeats.json").read_text())
 OG_DIR = ROOT / "viz" / "public" / "og"
 R_DIR = ROOT / "viz" / "public" / "r"
-SITE = "https://usmultipartysystem.pages.dev"
+SITE = "https://usmultiparty.com"
 
 # Names / colors / taglines mirror viz/src/constants/parties.ts (PARTY_NAMES, PARTY_COLORS,
 # PARTY_TAGLINES). Keep in sync if those change. All ten current parties, incl. LBR (formerly

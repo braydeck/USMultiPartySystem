@@ -141,7 +141,8 @@ event shipped).
 - **Most-used filters:** event `filter_changed` → break down by `filter`; filter to one
   `filter` and break down by `value` for popular settings.
 - **Traffic sources:** break down by `$channel_type` (buckets) or `$referring_domain`
-  (raw domains). Exclude the `usmultipartysystem.pages.dev` self-referral (share redirects).
+  (raw domains). Exclude both hosts' self-referrals (share redirects): `usmultiparty.com`, the
+  canonical domain, and `usmultipartysystem.pages.dev`, which still resolves.
 - **Shares:** filter `utm_source = result_share` (survives the /r redirect even with no
   referrer), or the `shared_result_opened` event; break down by `party`/`utm_content`.
 

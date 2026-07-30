@@ -30,7 +30,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissi
   const [copied, setCopied] = useState(false);
   const [voted, setVoted] = useState<'fit' | 'miss' | null>(null);
 
-  const shareUrl = `https://usmultipartysystem.pages.dev/r/${cluster.party}`;
+  const shareUrl = `https://usmultiparty.com/r/${cluster.party}`;
   const shareText = `I'm ${cluster.partyName} in a multi-party America. Which party are you?`;
 
   // Defining positions: stances the party holds cohesively that also set it apart from its
