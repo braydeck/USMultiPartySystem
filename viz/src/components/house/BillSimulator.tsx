@@ -33,7 +33,7 @@ function VerdictBadge({ verdict }: { verdict: string }) {
   );
 }
 
-export function BillSimulator({ rows, probField = 'probPass' }: Props) {
+export function BillSimulator({ rows, probField = 'houseRawMultiProbPass' }: Props) {
   const [domain, setDomain] = useState<string>('All');
   const domains = useMemo(() => {
     const d = Array.from(new Set(rows.map(r => r.domain))).sort();

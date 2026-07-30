@@ -39,12 +39,6 @@ export interface VoteModelRow {
   domain: string;
   question: string;
   overallPct: number;
-  // House canonical (houseVoteModel.json)
-  probPass?: number;
-  verdict?: string;
-  // House State STV (9-party, 873 seats)
-  houseStvProbPass?: number;
-  houseStvVerdict?: string;
   // House Raw Multi (pure_multi, 873 seats)
   houseRawMultiProbPass?: number;
   houseRawMultiVerdict?: string;

@@ -285,15 +285,6 @@ def build_senate_vote_model(rm_dir=PURE_MULTI_DIR, out_name="senateVoteModel.jso
         presPure_signs[var] = "SIGN" if sd_sup > 50 else "VETO"
         presPure_pct[var]   = round(sd_sup, 2)
 
-    # State STV house (873 seats, majority = 437) — for LegislationTab house column
-    stv_house_seat_counts = {}
-    stv_house_total = 0
-    for r in read_csv(OUTPUTS / "house" / "house_seat_summary.csv"):
-        stv_house_seat_counts[r["party"]] = int(r["seats"])
-        stv_house_total += int(r["seats"])
-    stv_house_majority = stv_house_total // 2 + 1
-    stv_house_results = _lf_prob_pass(stv_house_seat_counts, cluster_by_var, majority=stv_house_majority)
-
     # Compute SD/CON (Condorcet blended president) signing decisions from chamber profile
     senate_prof_rows = read_csv(OUTPUTS / "senate" / "senate_chamber_profile.csv")
     sdcon_pct = {}
@@ -377,8 +368,6 @@ def build_senate_vote_model(rm_dir=PURE_MULTI_DIR, out_name="senateVoteModel.jso
             "presRawMultiCondSigns": presRawMultiCond_signs.get(var, "VETO"),
             "presRawMultiCondPct":   presRawMultiCond_pct.get(var, 0.0),
             # State STV house (for LegislationTab house column)
-            "houseStvProbPass": stv_house_results.get(var, {}).get("prob_pass", 0.0),
-            "houseStvVerdict":  stv_house_results.get(var, {}).get("verdict", "N/A"),
         })
     write_json(out, out_name)
 
@@ -584,15 +573,6 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
         if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"
     }
 
-    # State STV seat counts (from new house pipeline)
-    stv_seat_counts = {}
-    total_stv = 0
-    for r in read_csv(OUTPUTS / "house" / "house_seat_summary.csv"):
-        stv_seat_counts[r["party"]] = int(r["seats"])
-        total_stv += int(r["seats"])
-    stv_majority = total_stv // 2 + 1
-    stv_results = _lf_prob_pass(stv_seat_counts, cluster_by_var_h, majority=stv_majority)
-
     # Raw Multi house seats (pure_multi — integer cluster id -> party code)
     _cluster_to_party = {v: k for k, v in _PURE_CLUSTER.items()}
     rm_house_seats: dict = {}
@@ -649,7 +629,6 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
     import math as _math
     def _twothirds(total):
         return _math.ceil(2.0 / 3.0 * total) if total else 1
-    stv_ovr = _lf_prob_pass(stv_seat_counts, cluster_by_var_h, majority=_twothirds(total_stv))
     rm_ovr  = _lf_prob_pass(rm_house_seats,  cluster_by_var_h, majority=_twothirds(rm_house_total))
     fd_ovr  = _lf_prob_pass(fd_house_seats,  cluster_by_var_h, majority=_twothirds(fd_house_total))
     rmt_ovr = _lf_prob_pass(rm_triple_seats, cluster_by_var_h, majority=_twothirds(rm_triple_total)) if rm_triple_seats else {}
@@ -658,7 +637,6 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
     out = []
     for r in rows:
         var = r["variable"]
-        stv = stv_results.get(var, {"prob_pass": 0.0, "verdict": "N/A"})
         rm  = rm_house_results.get(var, {"prob_pass": 0.0, "verdict": "N/A"})
         fd  = fd_house_results.get(var, {"prob_pass": 0.0, "verdict": "N/A"})
         rmt = rm_triple_results.get(var, {"prob_pass": 0.0, "verdict": "N/A"})
@@ -668,10 +646,6 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
             "domain": r["domain"],
             "question": r["question"],
             "overallPct": float(r["overall_pct"]),
-            "probPass": float(r["house_prob_pass"]),
-            "verdict": r["house_verdict"],
-            "houseStvProbPass":      stv["prob_pass"],
-            "houseStvVerdict":       stv["verdict"],
             "houseRawMultiProbPass": rm["prob_pass"],
             "houseRawMultiVerdict":  rm["verdict"],
             "houseFDProbPass":       fd["prob_pass"],
@@ -680,7 +654,6 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
             "houseRawMultiTripleVerdict":  rmt["verdict"],
             "houseFDTripleProbPass":       fdt["prob_pass"],
             "houseFDTripleVerdict":        fdt["verdict"],
-            "houseStvProbOverride":        stv_ovr.get(var, {}).get("prob_pass", 0.0),
             "houseRawMultiProbOverride":   rm_ovr.get(var, {}).get("prob_pass", 0.0),
             "houseFDProbOverride":         fd_ovr.get(var, {}).get("prob_pass", 0.0),
             "houseRawMultiTripleProbOverride": rmt_ovr.get(var, {}).get("prob_pass", 0.0),
@@ -3173,6 +3146,14 @@ def _cluster_by_var_support() -> dict:
             if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"}
 
 
+# Columns no builder emits any more. Stripped from clones so a retired column cannot outlive its
+# emitter: houseStv* duplicated houseRawMulti* on the same chamber, and probPass/verdict were the
+# same figure again from chamber_vote_model's CSV. Nothing read any of them.
+RETIRED_KEYS = frozenset({
+    "houseStvProbPass", "houseStvVerdict", "houseStvProbOverride", "probPass", "verdict",
+})
+
+
 def _reconcile_bills(base: list) -> list:
     """Make a cloned vote-model base carry exactly BILL_VARS.
 
@@ -3183,7 +3164,8 @@ def _reconcile_bills(base: list) -> list:
     diff readable; new ones append."""
     cbv = _cluster_by_var_support()
     have = {r["variable"] for r in base}
-    out = [r for r in base if r["variable"] in set(BILL_VARS)]
+    out = [{k: v for k, v in r.items() if k not in RETIRED_KEYS}
+           for r in base if r["variable"] in set(BILL_VARS)]
     for var in BILL_VARS:
         if var in have:
             continue
