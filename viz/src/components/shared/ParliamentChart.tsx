@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import { getBlendColor, FACTOR_LABELS } from '../../constants/parties';
+import { layoutSeatDots, INNER_R, RING_GAP } from '../../lib/parliamentLayout';
+import type { ParliamentSegment } from '../../lib/parliamentLayout';
 
-export interface ParliamentSegment {
-  code: string;
-  seats: number;
-  fVal: number;
-}
+// Re-exported so existing `import type { ParliamentSegment } from '.../ParliamentChart'`
+// call sites keep working; the layout itself lives in lib/parliamentLayout.
+export type { ParliamentSegment };
 
 interface Props {
   segments: ParliamentSegment[];  // pre-sorted by fVal ascending
@@ -13,83 +13,14 @@ interface Props {
   globalRange?: [number, number]; // fixed min/max across all scenarios for stable labels
 }
 
-function computeRings(total: number, innerR: number, ringGap: number): number[] {
-  const nRings = Math.max(3, Math.ceil(Math.sqrt(total / 5)));
-  const perims = Array.from({ length: nRings }, (_, i) => Math.PI * (innerR + ringGap * i));
-  const totalPerim = perims.reduce((s, p) => s + p, 0);
-  const raw = perims.map(p => (p / totalPerim) * total);
-  const floored = raw.map(Math.floor);
-  let rem = total - floored.reduce((s, n) => s + n, 0);
-  const fracs = raw.map((v, i) => ({ i, f: v - floored[i] })).sort((a, b) => b.f - a.f);
-  for (let k = 0; k < rem; k++) floored[fracs[k].i]++;
-  return floored;
-}
-
 const CAT_LABELS = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
 const DIV_FRACS  = [0.20, 0.40, 0.60, 0.80];
 const MID_FRACS  = [0.10, 0.30, 0.50, 0.70, 0.90];
 
 export function ParliamentChart({ segments, factor, globalRange }: Props) {
-  const INNER_R = 60;
-  const RING_GAP = 15;
-
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
 
-  const { groupedDots, nRings, dotSize } = useMemo(() => {
-    const totalSeats = segments.reduce((s, seg) => s + seg.seats, 0);
-    if (totalSeats === 0) return { groupedDots: {}, nRings: 3, dotSize: 4, cumFracs: [] };
-
-    const rings = computeRings(totalSeats, INNER_R, RING_GAP);
-    const nRings = rings.length;
-
-    const sumR = rings.reduce((s, _, i) => s + INNER_R + RING_GAP * i, 0);
-    const spacing = Math.PI * sumR / totalSeats;
-    const dotSize = Math.max(2.5, Math.min(10, spacing * 0.68));
-
-    // Cumulative fraction ranges for wedge assignment
-    const cumFracs: { code: string; start: number; end: number }[] = [];
-    let cum = 0;
-    for (const seg of segments) {
-      const frac = seg.seats / totalSeats;
-      cumFracs.push({ code: seg.code, start: cum, end: cum + frac });
-      cum += frac;
-    }
-    if (cumFracs.length > 0) cumFracs[cumFracs.length - 1].end = 1.0001;
-
-    // Generate dots grouped by party code
-    const groupedDots: Record<string, { cx: number; cy: number }[]> = {};
-    for (let ring = 0; ring < nRings; ring++) {
-      const n = rings[ring];
-      const r = INNER_R + RING_GAP * ring;
-      for (let i = 0; i < n; i++) {
-        const frac = n === 1 ? 0.5 : i / (n - 1);
-
-        let code = cumFracs[cumFracs.length - 1]?.code ?? '';
-        for (const cf of cumFracs) {
-          if (frac >= cf.start && frac < cf.end) { code = cf.code; break; }
-        }
-        const angle = Math.PI - frac * Math.PI;
-        if (!groupedDots[code]) groupedDots[code] = [];
-        groupedDots[code].push({ cx: r * Math.cos(angle), cy: -r * Math.sin(angle) });
-      }
-    }
-
-    // Guarantee at least one dot for every segment with seats
-    const outerRingR = INNER_R + RING_GAP * (nRings - 1);
-    for (const cf of cumFracs) {
-      if (cf.end - cf.start > 0 && !groupedDots[cf.code]?.length) {
-        const midFrac = (cf.start + cf.end) / 2;
-        const angle = Math.PI - midFrac * Math.PI;
-        if (!groupedDots[cf.code]) groupedDots[cf.code] = [];
-        groupedDots[cf.code].push({
-          cx: outerRingR * Math.cos(angle),
-          cy: -outerRingR * Math.sin(angle),
-        });
-      }
-    }
-
-    return { groupedDots, nRings, dotSize, cumFracs };
-  }, [segments]);
+  const { groupedDots, nRings, dotSize } = useMemo(() => layoutSeatDots(segments), [segments]);
 
   const totalSeats = segments.reduce((s, seg) => s + seg.seats, 0);
   if (totalSeats === 0) return null;
