@@ -18,6 +18,7 @@ import { IntensityBar, IntensityLegend, intensityFor, splitShares, itemSignature
 import { getBlendColor, getPrimaryParty, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple, CURRENT_PARTIES, isCurrentParty } from '../constants/parties';
 import currentPartyProfilesData from '../data/currentPartyProfiles.json';
 import currentPartySpreadsData from '../data/currentPartySpreads.json';
+import { SHOW_CROSSOVER } from '../constants/features';
 import { bamForZ, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../lib/bam';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
@@ -922,7 +923,9 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             selected={selected}
             onToggle={code => (selected.includes(code) ? removeParty(code) : addParty(code))}
             baseParties={pureOptions.map(o => o.code)}
-            crossover={fdOptions.filter(o => !pureOptions.some(p => p.code === o.code)).map(o => ({ code: o.code, label: o.code }))}
+            crossover={SHOW_CROSSOVER
+              ? fdOptions.filter(o => !pureOptions.some(p => p.code === o.code)).map(o => ({ code: o.code, label: o.code }))
+              : undefined}
             currentParties={CURRENT_PARTIES.map(code => ({ code, label: PARTY_NAMES[code] ?? code }))}
           />
           {selected.length >= 1 && (
@@ -947,7 +950,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         <>
           <p className="text-xs text-muted-foreground">
             Select a party for its platform, or several to compare. Try: PRG + NAT (maximum divergence) ·
-            LBR + CON (presidential rivals) · LBR_hi_so + LBR (crossover vs base).
+            LBR + CON (presidential rivals){SHOW_CROSSOVER && ' · LBR_hi_so + LBR (crossover vs base)'}.
           </p>
           {constellationCard}
         </>

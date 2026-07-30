@@ -5,6 +5,7 @@ import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteMo
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
 import { PIPELINE_LABELS } from '../constants/labels';
+import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
@@ -65,7 +66,7 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
 export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                                   clusters, senateVotes, houseStateMap,
                                   controlBarExtra }: Props) {
-  const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
@@ -142,8 +143,10 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
 
       <StickyControlBar label="Presidency settings">
         {controlBarExtra}
-        <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
-          options={['rawMulti', 'factorDev'] as const} labels={PRES_LABELS} />
+        {SHOW_CROSSOVER && (
+          <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
+            options={PIPELINE_OPTIONS} labels={PRES_LABELS} />
+        )}
         {scenario === 'rawMulti' && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}

@@ -2,6 +2,7 @@ import { useUrlState } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, PARTY_TAGLINES, etaPurple } from '../constants/parties';
 import { popShare } from '../lib/population';
+import { SHOW_CROSSOVER } from '../constants/features';
 import factorLoadingsData from '../data/factorLoadings.json';
 
 interface FactorDef {
@@ -96,7 +97,9 @@ const STEPS = [
   {
     n: 4, color: '#ea580c',
     title: 'Ballot Generation',
-    body: 'Each voter gets a ranked preference list. Party-Line ballots rank parties by the voter\'s cluster-membership probability (the same GMM posterior that defined the typology). Crossover ballots start from that and use factor-space proximity to place the shifted variant candidates. Within-party ordering follows candidate prominence.',
+    body: SHOW_CROSSOVER
+      ? 'Each voter gets a ranked preference list. Party-Line ballots rank parties by the voter\'s cluster-membership probability (the same GMM posterior that defined the typology). Crossover ballots start from that and use factor-space proximity to place the shifted variant candidates. Within-party ordering follows candidate prominence.'
+      : 'Each voter gets a ranked preference list, ordered by the voter\'s cluster-membership probability — the same GMM posterior that defined the typology. Within-party ordering follows candidate prominence.',
   },
   {
     n: 5, color: '#a16207',
@@ -106,7 +109,8 @@ const STEPS = [
 ];
 
 type Section = 'overview' | 'data' | 'parties' | 'voting' | 'scenarios' | 'turnout' | 'caveats';
-const SECTIONS: { id: Section; label: string }[] = [
+// 'Two Scenarios' is entirely a Party-Line-vs-Crossover comparison, so it goes with the flag.
+const SECTIONS = ([
   { id: 'overview',  label: 'Overview'        },
   { id: 'data',      label: 'Methodology'     },
   { id: 'parties',   label: 'The 10 Parties'  },
@@ -114,10 +118,11 @@ const SECTIONS: { id: Section; label: string }[] = [
   { id: 'scenarios', label: 'Two Scenarios'   },
   { id: 'turnout',   label: 'Turnout'         },
   { id: 'caveats',   label: 'Caveats'         },
-];
+] as { id: Section; label: string }[]).filter(s => SHOW_CROSSOVER || s.id !== 'scenarios');
+const SECTION_IDS = SECTIONS.map(s => s.id);
 
 export function AboutTab() {
-  const [active, setActive] = useUrlState<Section>('about', 'overview', { allowed: ['overview', 'data', 'parties', 'voting', 'scenarios', 'turnout', 'caveats'] });
+  const [active, setActive] = useUrlState<Section>('about', 'overview', { allowed: SECTION_IDS });
 
   return (
     <div className="space-y-6">
@@ -201,7 +206,7 @@ export function AboutTab() {
               {[
                 { tab: 'Party Quiz', desc: 'Answer the actual CES survey questions and see which of the ten parties your factor scores land closest to.', group: '' },
                 { tab: 'Overview', desc: 'A proportional government at a glance: how each chamber\'s composition shifts from winner-take-all to STV, a population-vs-voters breakdown, and a turnout-robustness check across the whole model.', group: '' },
-                { tab: 'Parties', desc: 'The ten parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties or crossover candidates.', group: '' },
+                { tab: 'Parties', desc: `The ten parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties${SHOW_CROSSOVER ? ' or crossover candidates' : ''}.`, group: '' },
                 { tab: 'Presidency', desc: 'A 4-round STV primary that consolidates a 9+ party field into finalists, then a head-to-head general where IRV and Condorcet often pick different winners.', group: 'Scenarios' },
                 { tab: 'Senate',   desc: 'Per-state elections for 51 seats (one per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.', group: 'Scenarios' },
                 { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type, with a representation-gap analysis.', group: 'Scenarios' },
@@ -360,15 +365,19 @@ export function AboutTab() {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className={`grid gap-3 ${SHOW_CROSSOVER ? 'sm:grid-cols-2' : ''}`}>
               <div className="bg-muted rounded-lg p-3">
-                <div className="text-xs font-semibold text-foreground mb-1">Party-line field</div>
+                <div className="text-xs font-semibold text-foreground mb-1">
+                  {SHOW_CROSSOVER ? 'Party-line field' : 'How ballots are ordered'}
+                </div>
                 <p className="text-[12px] text-muted-foreground leading-relaxed">Ranks parties by each voter's cluster-membership probability, the DPGMM posterior that defined the typology.</p>
               </div>
-              <div className="bg-muted rounded-lg p-3">
-                <div className="text-xs font-semibold text-foreground mb-1">Crossover field</div>
-                <p className="text-[12px] text-muted-foreground leading-relaxed">Adds the shifted variant candidates, each placed by factor-space proximity.</p>
-              </div>
+              {SHOW_CROSSOVER && (
+                <div className="bg-muted rounded-lg p-3">
+                  <div className="text-xs font-semibold text-foreground mb-1">Crossover field</div>
+                  <p className="text-[12px] text-muted-foreground leading-relaxed">Adds the shifted variant candidates, each placed by factor-space proximity.</p>
+                </div>
+              )}
             </div>
           </Card>
 
@@ -890,7 +899,7 @@ export function AboutTab() {
               <div><span className="font-medium text-muted-foreground">Survey:</span> Cooperative Election Study (CES) 2024, Harvard/YouGov</div>
               <div><span className="font-medium text-muted-foreground">Factor analysis:</span> Polychoric EFA, 24 items → 5 factors, oblique (oblimin) rotation</div>
               <div><span className="font-medium text-muted-foreground">Clustering:</span> Dirichlet Process Gaussian Mixture Model (DPGMM), 10 clusters</div>
-              <div><span className="font-medium text-muted-foreground">Ballot scoring:</span> GMM cluster posterior (Party-Line); + Gaussian proximity σ=0.35, equal factor weights (Crossover variants)</div>
+              <div><span className="font-medium text-muted-foreground">Ballot scoring:</span> GMM cluster posterior{SHOW_CROSSOVER && ' (Party-Line); + Gaussian proximity σ=0.35, equal factor weights (Crossover variants)'}</div>
               <div><span className="font-medium text-muted-foreground">Legislation model:</span> Normal approximation of chamber Bernoulli vote counts</div>
             </div>
           </Card>

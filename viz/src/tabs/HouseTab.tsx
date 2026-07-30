@@ -25,6 +25,7 @@ import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { CLUSTER_TO_PARTY, F5_ORDER, PARTY_NAMES, partyOrder, FACTOR_LABELS, DISPLAY_FACTORS } from '../constants/parties';
 import depthNational from '../data/houseDepthNational.json';
 import { PIPELINE_LABELS, WYOMING_LABELS } from '../constants/labels';
+import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
@@ -142,7 +143,7 @@ const CLUSTER_OF: Record<string, number> = Object.fromEntries(
   Object.entries(CLUSTER_TO_PARTY).map(([k, v]) => [v, Number(k)]));
 
 export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
-  const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Voting system: STV (default) vs a Hare-quota party list on the same districts.
   const [system, setSystem] = useUrlState<'stv' | 'list'>('system', 'stv', { allowed: ['stv', 'list'] });
@@ -386,9 +387,9 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="System" value={system} onChange={setSystem}
           options={['stv', 'list'] as const} labels={{ stv: 'STV', list: 'Party list' }} />
-        {system === 'stv' && (
+        {SHOW_CROSSOVER && system === 'stv' && (
           <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
-            options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
+            options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />
         )}
         {(system === 'list' || scenario === 'rawMulti') && (
           <ToggleGroup label="Ballots ranked" value={depth} onChange={setDepth}

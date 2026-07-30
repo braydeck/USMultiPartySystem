@@ -9,6 +9,7 @@ import { IdeologicalConstellation } from '../components/house/IdeologicalConstel
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PARTY_NAMES, PARTY_COLORS, F5_ORDER, getBlendColor, getContrastText } from '../constants/parties';
 import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
+import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
@@ -68,7 +69,7 @@ export function PrimaryTab({
 }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
-  const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [stageIdx, setStageIdx] = useUrlNumber('stage', 0);
   // Non-voter turnout: share of current non-voters who show up (0 = 2024 actual … 100 = everyone).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
@@ -143,12 +144,14 @@ export function PrimaryTab({
       {/* Sticky controls */}
       <StickyControlBar label="Primary settings">
         {controlBarExtra}
-        <ToggleGroup label="Scenario"
-          value={pipeline}
-          onChange={(p) => { setPipeline(p); setStageIdx(0); }}
-          options={['rawMulti', 'factorDev'] as const}
-          labels={PIPELINE_LABELS_LONG}
-        />
+        {SHOW_CROSSOVER && (
+          <ToggleGroup label="Scenario"
+            value={pipeline}
+            onChange={(p) => { setPipeline(p); setStageIdx(0); }}
+            options={PIPELINE_OPTIONS}
+            labels={PIPELINE_LABELS_LONG}
+          />
+        )}
         {pipeline === 'rawMulti' && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}

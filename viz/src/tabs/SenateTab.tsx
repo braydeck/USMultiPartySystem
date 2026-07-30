@@ -12,6 +12,7 @@ import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { FACTOR_LABELS, DISPLAY_FACTORS, partyOrder } from '../constants/parties';
 import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
+import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { DEFAULT_GAP_STOP } from '../lib/participationStops';
@@ -104,7 +105,7 @@ interface Props {
 export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
                              clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers }: Props) {
-  const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', String(DEFAULT_GAP_STOP), { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
@@ -250,8 +251,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       </div>
 
       <StickyControlBar label="Senate settings">
-        <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
-          options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
+        {SHOW_CROSSOVER && (
+          <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
+            options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />
+        )}
         <ToggleGroup label="Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
         <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />

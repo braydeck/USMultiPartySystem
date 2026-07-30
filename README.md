@@ -16,8 +16,25 @@ This project explores what American politics might look like under different ele
 - **Single Transferable Vote (STV)** primaries with Droop quota surplus transfers
 - **A rolling presidential primary** with geographic balance across 4 rounds
 - **Ranked Pairs Condorcet and IRV** for senate general elections (reported side by side)
-- **Two candidate fields** — party-line vs. crossover — run through every chamber and the presidency
+- **Two candidate fields** — party-line vs. crossover — run through every chamber and the presidency (the crossover field is [dormant](#crossover-field-dormant): still in the pipeline, hidden from the site)
 - **Ballot depth** — how many candidates voters actually rank (3–10 or all; default 7): short ballots exhaust, fill STV seats below quota, and center-squeeze the consensus winner out of the finalist field
+
+### Crossover field (dormant)
+
+The crossover field is hidden from the site. It is the least data-driven half of the model — the variants
+are synthetic positions (one axis shifted by ±25% of the inter-party SD) scored by factor-space proximity
+rather than by the DPGMM posterior everything else uses — and it never picked up the bootstrap, the turnout
+stops, or the ballot-depth variants, so it falls further behind the party-line side with each change.
+
+Nothing is deleted: the pipeline scripts, the `factor_deviation/` outputs, the JSON payloads, and every
+crossover-only card in the viz still exist and still work. `viz/src/constants/features.ts` only removes the
+affordances that reach them. Two ways back in:
+
+- load any page with `?lab=crossover` — read once at startup, so it survives tab navigation and lasts until reload
+- flip `CROSSOVER_BY_DEFAULT` to `true` in that file and rebuild, to restore it for everyone
+
+Regenerating the field is unchanged — see the crossover block under [Running the Pipeline](#running-the-pipeline).
+
 ---
 
 ## Pipeline at a Glance
@@ -150,7 +167,7 @@ Broader modeling caveats (party cohesion, sincere voting, static factor space, t
 | DSA | 22 | 2.5% | 14 | 6 | 2 |
 | PRG | 14 | 1.6% | 10 | 3 | 1 |
 
-This is the **party-line** field. The **crossover** field (`run_fd_house_stv.py` → `data/outputs/factor_deviation/house/`) runs the same STV over axis-shifted candidates; the viz House tab toggles between the two fields and the double/triple Wyoming-rule apportionments.
+This is the **party-line** field, the only one the site shows. The **crossover** field (`run_fd_house_stv.py` → `data/outputs/factor_deviation/house/`) runs the same STV over axis-shifted candidates; the House tab's Scenario toggle switches between the two fields, and appears only when the [crossover flag](#crossover-field-dormant) is on.
 
 ---
 

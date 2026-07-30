@@ -41,6 +41,7 @@ import { ParticipationSlider, GAP_STOPS } from '../components/shared/Participati
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { PIPELINE_LABELS, METHOD_LABELS, WYOMING_LABELS, VOTE_MODEL_LABELS } from '../constants/labels';
 import type { Pipeline, Method, WyomingRule, VoteMode } from '../constants/labels';
+import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import houseVotesL5 from '../data/houseVoteModelTurnoutL5.json';
 import houseVotesL10 from '../data/houseVoteModelTurnoutL10.json';
@@ -87,7 +88,7 @@ const rmSeatStops = [houseSeatsTurnout, houseSeatsTurnoutL5, houseSeatsTurnoutL1
 
 export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElection,
                                  houseVotesTurnout, senateVotesTurnout, rawMultiElectionTurnout }: Props) {
-  const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: ['rawMulti', 'factorDev'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
@@ -159,8 +160,10 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
       <StickyControlBar label="Legislation settings">
         <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
-        <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
-          options={['rawMulti', 'factorDev'] as const} labels={PIPELINE_LABELS} />
+        {SHOW_CROSSOVER && (
+          <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
+            options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />
+        )}
         <ToggleGroup label="Senate Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
         <ToggleGroup label="Vote Model" value={voteModel} onChange={setVoteModel}

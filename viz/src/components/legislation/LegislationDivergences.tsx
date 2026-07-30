@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { VoteModelRow, PresidentialElection, CandidateVoteRow } from '../../types';
 import { getBlendColor } from '../../constants/parties';
 import type { VoteMode } from '../../constants/labels';
+import { SHOW_CROSSOVER } from '../../constants/features';
 import { blocOutcome, presSigns, type SeatMap } from './voteBloc';
 import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, WhippedBadge, type VerdictLabel } from './UnifiedBillTable';
 import { Card } from '@/components/ui/card';
@@ -148,7 +149,8 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
     );
   }
 
-  const label = pipeline === 'rawMulti' ? 'Party-Line' : 'Crossover';
+  // The candidate field only needs naming when there are two of them to tell apart.
+  const label = SHOW_CROSSOVER ? ` (${pipeline === 'rawMulti' ? 'Party-Line' : 'Crossover'})` : '';
   const condColor = getBlendColor(condWinner);
   const irvColor = getBlendColor(irvWinner);
   const condParty = condWinner.split('_')[0];
@@ -160,7 +162,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
     <Card className="border-amber-300 overflow-hidden">
       <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
         <h3 className="text-sm font-semibold text-amber-900">
-          Method Divergences ({label}) — {divergentBills.length} bill{divergentBills.length !== 1 ? 's' : ''} where IRV ≠ Condorcet
+          Method Divergences{label} — {divergentBills.length} bill{divergentBills.length !== 1 ? 's' : ''} where IRV ≠ Condorcet
         </h3>
         <p className="text-xs text-amber-700 mt-0.5">
           Bills where the election method (Condorcet vs IRV) changes the Senate outcome, the president&apos;s veto decision, or creates a House–Senate split.
