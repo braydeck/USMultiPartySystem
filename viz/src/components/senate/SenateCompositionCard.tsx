@@ -113,6 +113,17 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
   }, [stats, rootWidth]);
   const shownRows = stats.rows.filter(r => smallParties.has(r.party));
 
+  // Condorcet and IRV strips sit stacked in this card specifically so a reader can compare
+  // the two methods' bar positions at a glance; sharing one axis ceiling (rather than each
+  // strip scaling to its own largest `hi`) is what makes that comparison honest.
+  const rangeStripMax = useMemo(() => {
+    const his = [
+      ...Object.values(condU?.seats ?? {}).map(v => v.hi),
+      ...Object.values(irvU?.seats ?? {}).map(v => v.hi),
+    ];
+    return his.length ? Math.max(1, ...his) : undefined;
+  }, [condU, irvU]);
+
   return (
     <Card ref={rootRef} className="p-5 border-2 border-indigo-200 space-y-3">
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
@@ -128,14 +139,14 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
         segments={stats.rows.filter(r => r.cond > 0)
           .map(r => ({ party: r.party, n: r.cond, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
       {condU && (
-        <SeatRangeStrip seats={condU.seats} order={stats.rows.map(r => r.party)}
+        <SeatRangeStrip seats={condU.seats} order={stats.rows.map(r => r.party)} max={rangeStripMax}
           label="Condorcet — range across resamples (tick = most likely, dot = expected)" />
       )}
       <SenateCompBar label="IRV ×2" total={stats.total}
         segments={stats.rows.filter(r => r.irv > 0)
           .map(r => ({ party: r.party, n: r.irv, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
       {irvU && (
-        <SeatRangeStrip seats={irvU.seats} order={stats.rows.map(r => r.party)}
+        <SeatRangeStrip seats={irvU.seats} order={stats.rows.map(r => r.party)} max={rangeStripMax}
           label="IRV — range across resamples (tick = most likely, dot = expected)" />
       )}
 

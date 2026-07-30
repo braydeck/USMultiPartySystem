@@ -6,10 +6,14 @@ import type { SeatInterval } from '../../lib/uncertainty';
 /** Compact always-visible range rows, one per seat-holding party: the 95% span, the
  *  expected value, and a tick at the most likely count. Used where the chamber bar is
  *  stacked and an inline whisker would overlap into neighbouring parties' segments. */
-export function SeatRangeStrip({ seats, order, label }: {
+export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
   seats: Record<string, SeatInterval>;
   order: string[];
   label: string;
+  /** Shared axis ceiling across sibling strips, e.g. when a Condorcet and an IRV strip sit
+   *  stacked and must read on the same scale for their bar positions to be comparable. Falls
+   *  back to this strip's own largest `hi` when omitted. */
+  max?: number;
 }) {
   const rows = useMemo(
     () => order
@@ -18,7 +22,8 @@ export function SeatRangeStrip({ seats, order, label }: {
         !!r.iv && (r.iv.modal > 0 || r.iv.hi > 0)),
     [seats, order],
   );
-  const max = useMemo(() => Math.max(1, ...rows.map(r => r.iv.hi)), [rows]);
+  const selfMax = useMemo(() => Math.max(1, ...rows.map(r => r.iv.hi)), [rows]);
+  const max = maxOverride ?? selfMax;
 
   if (!rows.length) return null;
 
