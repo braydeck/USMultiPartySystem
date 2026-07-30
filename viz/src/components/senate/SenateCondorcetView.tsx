@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import { CondorcetMatrix } from '../presidential/CondorcetMatrix';
 import type { CondorcetMatchup } from '../../types';
+import type { StateUncertainty } from '../../lib/uncertainty';
 import { Button } from '@/components/ui/button';
 
 interface CellData { winRate: number; avgMargin: number; n: number }
@@ -16,9 +17,10 @@ interface SenateCondorcetData {
 
 interface Props {
   data: SenateCondorcetData;
+  states?: Record<string, StateUncertainty>;
 }
 
-export default function SenateCondorcetView({ data }: Props) {
+export default function SenateCondorcetView({ data, states }: Props) {
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; lines: string[] } | null>(null);
 
@@ -36,6 +38,11 @@ export default function SenateCondorcetView({ data }: Props) {
   );
 
   const selectedData = selectedState ? data.states[selectedState] : null;
+  // Condorcet has no elimination sequence, so a state whose observed winner is not the likely
+  // one cannot be shown a substituted count the way the IRV vote-flow chart is. The matrix
+  // stays the observed run and says so, because the map above it is coloured by the modal
+  // winner and the two would otherwise name different senators with nothing to explain it.
+  const su = selectedState ? states?.[selectedState] : undefined;
 
   // Convert state matchups to CondorcetMatchup[] for the reusable component
   const stateMatchups: CondorcetMatchup[] = useMemo(() => {
@@ -181,6 +188,14 @@ export default function SenateCondorcetView({ data }: Props) {
       {/* Per-state drill-down */}
       {selectedData && (
         <div>
+          {su?.substituted && (
+            <div className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">
+              The observed sample gives {su.observed.split('_')[0]}; the likely winner is{' '}
+              {su.modal.split('_')[0]}, in {Math.round(su.pModal * 100)}% of resamples. Condorcet
+              has no elimination rounds, so there is no example count to show here — the margins
+              below are the observed sample&apos;s.
+            </div>
+          )}
           <div className="text-[10px] text-muted-foreground mb-3">
             {selectedData.abbr} · Condorcet winner: <strong className="text-muted-foreground">{selectedData.winner}</strong>
           </div>

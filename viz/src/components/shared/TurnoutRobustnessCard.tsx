@@ -1,17 +1,9 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
-// Senate is the rank-7 winnow (the deployed senate JSONs), tracked across turnout stops.
-import senL0 from '../../data/pureMultiSenateCondorcetTurnout.json';
-import senL5 from '../../data/pureMultiSenateCondorcetTurnoutL5.json';
-import senL10 from '../../data/pureMultiSenateCondorcetTurnoutL10.json';
-import senL15 from '../../data/pureMultiSenateCondorcetTurnoutL15.json';
-import senL20 from '../../data/pureMultiSenateCondorcetTurnoutL20.json';
-import senL25 from '../../data/pureMultiSenateCondorcetTurnoutL25.json';
-import senL30 from '../../data/pureMultiSenateCondorcetTurnoutL30.json';
+import { uncertaintyAt } from '../../lib/uncertainty';
 
 type Pres = { condorcetWinner: string; irvWinner: string };
-type SenSeat = { senatorParty: string };
 // President + House use the rank-7 model (the app default), read from the lazy depth bundles;
 // full-ranking would misstate the presidency, which flips at the observed-turnout floor.
 type HplTop7 = Record<string, Record<string, Record<string, { national: { stvSeats: Record<string, number> } }>>>;
@@ -22,12 +14,23 @@ const party = (code: string) => String(code).split('_')[0];
 // % of the inter-force turnout gap closed. 0 = observed; ≤15 plausible; 20–30 stress.
 const STOPS = [0, 5, 10, 15, 20, 25, 30];
 const STOP_KEYS = ['0', '5', '10', '15', '20', '25', '30'];
-const senData = [senL0, senL5, senL10, senL15, senL20, senL25, senL30] as unknown as SenSeat[][];
 
-function plurality(seats: SenSeat[]): [string, number] {
-  const counts: Record<string, number> = {};
-  for (const s of seats) { const p = party(s.senatorParty); counts[p] = (counts[p] ?? 0) + 1; }
-  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0] as [string, number];
+/** Largest party in the MODAL Condorcet senate, on the 51-seat basis (uncertainty seats are on
+ *  102). This has to be the modal chamber: the Senate composition card on this same tab reports
+ *  the modal headline, and a plurality tallied from the observed per-state JSONs contradicts it.
+ *  Ties break on party code so the answer never depends on key insertion order. */
+function modalSenatePlurality(gi: number): [string, number] {
+  const seats = uncertaintyAt(gi)?.senate.cond.seats ?? {};
+  const ranked = Object.entries(seats)
+    .map(([p, v]) => [p, v.modal / 2] as [string, number])
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  return ranked[0] ?? ['—', 0];
+}
+
+/** One party's modal Condorcet senate seats, 51-seat basis. */
+function modalSenateSeats(gi: number, p: string): number {
+  return (uncertaintyAt(gi)?.senate.cond.seats[p]?.modal ?? 0) / 2;
 }
 
 function pill(code: string) {
@@ -63,7 +66,9 @@ export function TurnoutRobustnessCard() {
       presIrv: STOP_KEYS.map(s => party(gd.top7[s].irvWinner)),
       presCondRaw: STOP_KEYS.map(s => gd.top7[s].condorcetWinner),
       presIrvRaw: STOP_KEYS.map(s => gd.top7[s].irvWinner),
-      senPlur: senData.map(s => plurality(s)),
+      senPlur: STOPS.map((_, gi) => modalSenatePlurality(gi)),
+      senLBR: STOPS.map((_, gi) => modalSenateSeats(gi, 'LBR')),
+      senSTY: STOPS.map((_, gi) => modalSenateSeats(gi, 'STY')),
       houseSTY: STOP_KEYS.map(s => hpl.top7.double[s].national.stvSeats.STY ?? 0),
     };
   }, [hpl, gd]);
@@ -83,13 +88,16 @@ export function TurnoutRobustnessCard() {
     { office: 'President · IRV', winners: series.presIrv, cur: series.presIrvRaw[i],
       note: 'strongest first-choice base' },
     { office: 'Senate · Condorcet', winners: series.senPlur.map(p => p[0]), cur: series.senPlur[i][0],
-      note: `plurality of 51 · ${series.senPlur[i][0]} ${series.senPlur[i][1]} seats` },
+      note: `most likely plurality of 51 · ${series.senPlur[i][0]} ${series.senPlur[i][1]} seats` },
   ].map(r => ({ ...r, flip: flipGap(r.winners) }));
 
   // House is a proportional chamber — plurality is uninformative. Track Solidarity's
   // delegation, the quantity that actually moves.
   const styLo = Math.min(...series.houseSTY), styHi = Math.max(...series.houseSTY);
   const houseSwing = styHi - styLo;
+  // Senate endpoints for the paragraph below, read from the same modal series the table uses.
+  const senLbrLo = series.senLBR[0], senLbrHi = series.senLBR[series.senLBR.length - 1];
+  const senStyLo = series.senSTY[0], senStyHi = series.senSTY[series.senSTY.length - 1];
 
   return (
     <Card className="p-5">
@@ -165,8 +173,8 @@ export function TurnoutRobustnessCard() {
           <span className="text-foreground/90">No party has a majority. Conservative stays the largest delegation and Solidarity a smaller minority, below both Conservative and Labor, though its seats grow {styLo}→{styHi} as the gap closes.</span>
         </p>
         <p>
-          <span className="font-semibold text-amber-700">Senate: the one office observed turnout does not hand Solidarity.</span>{' '}
-          <span className="text-foreground/90">Labor leads at observed turnout, across the plausible band (≤15%), and through 20%. Solidarity reaches the plurality only at 25%, inside the stress band. At observed turnout the Senate is Labor&apos;s; a Solidarity Senate is conditional on mobilization.</span>
+          <span className="font-semibold text-emerald-700">Senate: Labor holds the plurality at every level of turnout.</span>{' '}
+          <span className="text-foreground/90">Labor leads at observed turnout and at every stop through the 30% stress ceiling, {senLbrLo} seats falling to {senLbrHi} as the gap closes. Solidarity takes most of what Labor and Conservative give up, {senStyLo}&rarr;{senStyHi} seats, and closes to within {senLbrHi - senStyHi} seat{senLbrHi - senStyHi === 1 ? '' : 's'} at the stress ceiling without ever taking the plurality. Turnout changes how large Labor&apos;s Senate plurality is, not who holds it, and no party is close to 26 at any stop.</span>
         </p>
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">

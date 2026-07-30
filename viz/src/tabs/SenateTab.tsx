@@ -82,7 +82,7 @@ import { SenateCompositionCard } from '../components/senate/SenateCompositionCar
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
-import { uncertaintyAt } from '../lib/uncertainty';
+import { uncertaintyAt, chamberTotal } from '../lib/uncertainty';
 
 interface Props {
   condorcetFD:       FDSenateSeat[];
@@ -156,6 +156,18 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
     seatCounts[s.senatorCode] = (seatCounts[s.senatorCode] ?? 0) + 1;
   }
 
+  // The composition card's headline is the MODAL chamber, so the fan chart and the
+  // constellation below it have to report that same chamber — a chart drawn from the single
+  // observed run sits under a modal headline and contradicts it. Party level, on the 51-seat
+  // basis `seatCounts` uses. Undefined for Crossover, which has no bootstrap and keeps the
+  // observed run everywhere. Do not revert these two consumers to `seatCounts`.
+  const methodU = method === 'condorcet' ? unc?.senate.cond : unc?.senate.irv;
+  const modalCounts = useMemo(() => methodU
+    ? Object.fromEntries(Object.entries(methodU.seats)
+        .filter(([, v]) => v.modal > 0)
+        .map(([p, v]) => [p, v.modal / 2]))
+    : undefined, [methodU]);
+
   const clusterByParty = useMemo(
     () => Object.fromEntries(clusters.map(c => [c.party, c])),
     [clusters]
@@ -184,14 +196,19 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
   // ×2: the model elects one winner per state, who fills both of that state's seats —
   // same convention as SenateCompositionCard, so the two charts read on one scale.
-  const chamberSeats = activeSeats.length * 2;
-  const parliamentSegments: ParliamentSegment[] = Object.entries(seatCounts)
-    .map(([code, seats]) => {
-      const base = getFactorScore(code, parliamentFactor);
-      const nSuffix = parseInt(code.split('_').pop() ?? '') || 0;
-      return { code, seats: seats * 2, fVal: base + (nSuffix > 0 ? (nSuffix - 1) * 0.001 : 0) };
-    })
-    .sort((a, b) => a.fVal - b.fVal);
+  const chamberSeats = methodU ? chamberTotal(methodU.seats, 'modal') : activeSeats.length * 2;
+  // On the modal path the counts are already collapsed to parties, so the _1/_2 ordinal
+  // jitter the observed path needs to separate CON_1 from CON_2 has nothing to separate.
+  const parliamentSegments: ParliamentSegment[] = (modalCounts
+    ? Object.entries(modalCounts).map(([code, seats]) => ({
+        code, seats: seats * 2, fVal: getFactorScore(code, parliamentFactor),
+      }))
+    : Object.entries(seatCounts).map(([code, seats]) => {
+        const base = getFactorScore(code, parliamentFactor);
+        const nSuffix = parseInt(code.split('_').pop() ?? '') || 0;
+        return { code, seats: seats * 2, fVal: base + (nSuffix > 0 ? (nSuffix - 1) * 0.001 : 0) };
+      })
+  ).sort((a, b) => a.fVal - b.fVal);
 
   // Variant seat data for PartyVariantBar
   const fdVariantSeats = useMemo((): FDHouseSeat[] => {
@@ -211,7 +228,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
     return Object.values(countByCode);
   }, [condRM, irvRM, method]);
 
-  const constellationNodes: ConstellationNode[] = Object.entries(seatCounts)
+  const constellationNodes: ConstellationNode[] = Object.entries(modalCounts ?? seatCounts)
     .map(([code, seats]) => ({
       id: code, label: code, seats,
       F1: getFactorScore(code, 'F1'), F2: getFactorScore(code, 'F2'),
@@ -249,8 +266,8 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
           Senate Chamber — {METHOD_LABELS[method]} · {chamberSeats} seats
         </h3>
         <p className="text-xs text-muted-foreground mb-3">
-          One winner per state, doubled (&times;2) to fill both of the state&apos;s seats, matching the
-          composition bars above.
+          {modalCounts ? 'The most likely winner in each state' : 'One winner per state'}, doubled
+          (&times;2) to fill both of the state&apos;s seats, matching the composition bars above.
         </p>
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="text-xs text-muted-foreground uppercase tracking-widest">Order by</span>
@@ -310,7 +327,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
             how often each party wins its matchups across the {activeSeats.length} state races.
             Select a state for that race&apos;s actual margins.
           </p>
-          <SenateCondorcetView data={condViewStops[gi]} />
+          <SenateCondorcetView data={condViewStops[gi]} states={unc?.senate.cond.states} />
         </Card>
       ))}
 

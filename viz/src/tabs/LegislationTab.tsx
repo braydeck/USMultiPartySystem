@@ -35,6 +35,7 @@ import senIrvL30 from '../data/pureMultiSenateIRVTurnoutL30.json';
 import fdSenateCondorcet from '../data/fdSenateCondorcet.json';
 import fdSenateIRV from '../data/fdSenateIRV.json';
 import { senateSeatMap } from '../components/legislation/voteBloc';
+import { uncertaintyAt, type SeatInterval } from '../lib/uncertainty';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
@@ -76,6 +77,11 @@ const CLUSTER_TO_PARTY: Record<number, string> = {
 };
 const toSeatMap = (arr: { party: number; national: number }[]): Record<string, number> =>
   Object.fromEntries(arr.map((r) => [CLUSTER_TO_PARTY[r.party], r.national]));
+/** Modal seats per party. `divisor` converts the senate's 102 basis to the 51 basis these maps use. */
+const modalMap = (seats: Record<string, SeatInterval>, divisor: 1 | 2): Record<string, number> =>
+  Object.fromEntries(Object.entries(seats)
+    .filter(([, v]) => v.modal > 0)
+    .map(([p, v]) => [p, v.modal / divisor]));
 const rmSeatStops = [houseSeatsTurnout, houseSeatsTurnoutL5, houseSeatsTurnoutL10, houseSeatsTurnoutL15,
   houseSeatsTurnoutL20, houseSeatsTurnoutL25, houseSeatsTurnoutL30] as unknown as { party: number; national: number }[][];
 
@@ -114,18 +120,30 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const election = isRawMulti ? (gd?.top7?.[part] ?? eStops[gi]) : fdElection;
   const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
 
-  // House seat composition for the coalition seat-stack. Raw-Multi uses the rank-7 STV seats
-  // (top7) from the party-list bundle, tracking turnout; Crossover keeps its own pipeline.
-  const houseSeats = isRawMulti
-    ? (hpl?.top7?.[wyoming]?.[part]?.national?.stvSeats ?? toSeatMap(rmSeatStops[gi]))
-    : toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[]);
+  // Both Vote Model settings have to describe ONE chamber: the toggle changes party discipline,
+  // not who sits in the seats. The Raw-Multi vote-model columns are computed from the modal
+  // chamber, so the browser-side seat maps that drive whipped mode, CoalitionMap and the bloc
+  // arithmetic must be the modal chamber too. Do not revert these to the committed per-state
+  // JSONs — that puts the observed chamber on one side of the toggle and the modal one on the
+  // other. Crossover has no bootstrap and keeps its own maps.
+  const unc = isRawMulti ? uncertaintyAt(gi) : undefined;
 
-  // Senate composition by (pipeline × method). Raw-Multi is the rank-7 winnow tracked across
-  // turnout stops; Crossover uses its own senate. Method drives which map the passage view uses.
+  // House seat composition for the coalition seat-stack. The bootstrap ran only the 873-seat
+  // double-Wyoming map, which is also the only house column recomputed from the modal chamber,
+  // so triple keeps the observed party-list tree it already matches.
+  const houseSeats = unc && wyoming === 'double'
+    ? modalMap(unc.house.seats, 1)
+    : isRawMulti
+      ? (hpl?.top7?.[wyoming]?.[part]?.national?.stvSeats ?? toSeatMap(rmSeatStops[gi]))
+      : toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[]);
+
+  // Senate composition by (pipeline × method). Senate uncertainty seats are on the 102 basis;
+  // these maps are on the 51 basis the bloc majority (26) assumes, hence /2. Crossover falls
+  // back to the rank-7 winnow / its own senate. Method drives which map the passage view uses.
   const senCondSrc = (pipeline === 'factorDev' ? fdSenateCondorcet : senCondStops[gi]) as unknown as { senatorParty: string }[];
   const senIRVSrc  = (pipeline === 'factorDev' ? fdSenateIRV : senIrvStops[gi]) as unknown as { senatorParty: string }[];
-  const senateSeatsCond = senateSeatMap(senCondSrc);
-  const senateSeatsIRV  = senateSeatMap(senIRVSrc);
+  const senateSeatsCond = unc ? modalMap(unc.senate.cond.seats, 2) : senateSeatMap(senCondSrc);
+  const senateSeatsIRV  = unc ? modalMap(unc.senate.irv.seats, 2)  : senateSeatMap(senIRVSrc);
   const senateSeats     = method === 'condorcet' ? senateSeatsCond : senateSeatsIRV;
 
   return (
