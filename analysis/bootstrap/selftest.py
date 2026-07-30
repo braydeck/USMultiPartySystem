@@ -127,6 +127,38 @@ def test_injection_restores_pandas_and_asserts_on_mismatch():
     assert pd.read_csv is original, "pandas was not restored after the block raised"
 
 
+def test_observed_draw_matches_committed_counts():
+    """The observed-sample draw must reproduce the committed deterministic seat counts.
+    If this fails, the harness is resampling something it shouldn't."""
+    import json
+    from collections import Counter
+    from analysis.bootstrap.contests import run_draw
+
+    got = run_draw(seed=0, lam=0.05, depth=7, observed=True)
+
+    root = Path(__file__).resolve().parents[2]
+    committed = json.loads((root / "viz" / "src" / "data" / "pureMultiSenateIRVTurnoutL5.json").read_text())
+    want = Counter(x["senatorParty"] for x in committed)
+    have = Counter(c.rsplit("_", 1)[0] for c in got["senate"]["irv"].values())
+    assert have == want, f"IRV senate drifted: {dict(have)} vs {dict(want)}"
+
+    cond_committed = json.loads((root / "viz" / "src" / "data" / "pureMultiSenateCondorcetTurnoutL5.json").read_text())
+    want_c = Counter(x["senatorParty"] for x in cond_committed)
+    have_c = Counter(c.rsplit("_", 1)[0] for c in got["senate"]["cond"].values())
+    assert have_c == want_c, f"Condorcet senate drifted: {dict(have_c)} vs {dict(want_c)}"
+
+    assert sum(got["house"].values()) == 873, f"house total {sum(got['house'].values())} != 873"
+    assert len(got["primary"]) == 5, f"primary slate has {len(got['primary'])} candidates, expected 5"
+    assert got["president"]["irv"], "no presidential IRV winner"
+
+
+def test_resampled_draw_preserves_state_counts():
+    from analysis.bootstrap.contests import run_draw
+    got = run_draw(seed=43, lam=0.05, depth=7)
+    assert len(got["senate"]["irv"]) == 51, f"{len(got['senate']['irv'])} senate races, expected 51"
+    assert sum(got["house"].values()) == 873, "house total changed under resampling"
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:
