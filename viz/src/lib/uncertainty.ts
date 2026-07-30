@@ -8,6 +8,7 @@ import u20 from '../data/uncertaintyTurnoutL20.json';
 import u25 from '../data/uncertaintyTurnoutL25.json';
 import u30 from '../data/uncertaintyTurnoutL30.json';
 import shareRanges from '../data/populationShareRange.json';
+import partyListRanges from '../data/partyListSeatRange.json';
 import type { SenateIrvRound } from '../types';
 
 export interface SeatInterval {
@@ -91,6 +92,35 @@ export function populationShares(): Record<string, ShareInterval> {
 export function voteSharesAt(gi: number): Record<string, ShareInterval> | undefined {
   const key = VOTE_STOP_KEYS[gi];
   return key ? SHARE_RANGES.votes[key]?.shares : undefined;
+}
+
+interface PartyListRangeData {
+  nDraws: number;
+  seed: number;
+  /** Seven blocks keyed by `VOTE_STOP_KEYS`: list allocation is turnout-weighted like the vote
+   *  row. Values are seat COUNTS out of `totalSeats`, not percentages. */
+  stops: Record<string, { totalSeats: number; shares: Record<string, ShareInterval> }>;
+}
+
+const PARTY_LIST_RANGES = partyListRanges as unknown as PartyListRangeData;
+
+/** Party-list seat spans at one turnout stop, converted to percent of the chamber so they share
+ *  the STV row's axis. Undefined outside 0-6. */
+export function partyListSharesAt(gi: number): Record<string, ShareInterval> | undefined {
+  const key = VOTE_STOP_KEYS[gi];
+  const stop = key ? PARTY_LIST_RANGES.stops[key] : undefined;
+  if (!stop) return undefined;
+  const total = stop.totalSeats || 1;
+  const pct = (v: number) => v / total * 100;
+  return Object.fromEntries(Object.entries(stop.shares).map(([code, iv]) => [code, {
+    point: pct(iv.point), expected: pct(iv.expected), lo: pct(iv.lo), hi: pct(iv.hi),
+  }]));
+}
+
+/** Party-list seat counts at one turnout stop, for readouts that name seats rather than shares. */
+export function partyListSeatsAt(gi: number): Record<string, ShareInterval> | undefined {
+  const key = VOTE_STOP_KEYS[gi];
+  return key ? PARTY_LIST_RANGES.stops[key]?.shares : undefined;
 }
 
 export function chamberTotal(

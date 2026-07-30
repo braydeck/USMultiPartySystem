@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { HouseSeat, HouseStateEntry } from '../../types';
 import { getPartyColor, PARTY_NAMES, F5_ORDER, CLUSTER_TO_PARTY } from '../../constants/parties';
 import { SeatShareBar as Bar } from './SeatShareBar';
 import { PopSeatRanges, type PopSeatRangeRow, type Span } from './PopSeatRanges';
-import { populationShares, voteSharesAt, type SeatInterval, type ShareInterval } from '../../lib/uncertainty';
+import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval, type ShareInterval } from '../../lib/uncertainty';
 
 /** One party's row. Interval fields are only populated in the national view, where the
  *  bootstrap's national seat counts share the row's denominator. */
@@ -25,10 +25,26 @@ interface Row {
    *  differs from this national figure by at most 0.16pp against 0.6-1.1pp interval widths, and
    *  mixing the two sources is the mistake this row exists to avoid. */
   voteIv?: ShareInterval;
+  /** Percent-of-chamber span under party-list PR at this turnout stop, on the STV row's
+   *  denominator, plus the seat count for the readout. */
+  listIv?: ShareInterval;
+  listSeats?: number;
 }
 
 // Static: population share does not vary by turnout stop, so this needs no hook.
 const POP_IVS = populationShares();
+
+/** Adds or removes one range row. Votes and seats have no toggle: they are the comparison. */
+function RowToggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
+  return (
+    <button type="button" onClick={onClick} aria-pressed={on}
+      className={`rounded-full border px-2.5 py-0.5 text-[11px] transition-colors ${on
+        ? 'border-foreground/25 bg-muted text-foreground'
+        : 'border-border text-muted-foreground hover:text-foreground'}`}>
+      {on ? '−' : '+'} {label}
+    </button>
+  );
+}
 
 interface Props {
   rawMultiSeats: HouseSeat[];
@@ -48,6 +64,10 @@ interface Props {
 
 export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSeats, doubleFdSeats, wyoming = 'double', stateMap, doubleStateMap, selectedState, onStateChange, houseU, gi }: Props) {
   const isNational = selectedState === 'national';
+  // Votes against seats is the card's claim; population and party list are context the reader
+  // opts into, because four rows across ten parties is too dense to read cold.
+  const [showPop, setShowPop] = useState(false);
+  const [showList, setShowList] = useState(false);
 
   const stateOpts = useMemo(() => [
     { v: 'national', label: 'National' },
@@ -66,6 +86,8 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
       const dblTotal = dblArr.reduce((s, r) => s + r.national, 0) || 1;
 
       const voteIvs = houseU ? voteSharesAt(gi) : undefined;
+      const listIvs = houseU ? partyListSharesAt(gi) : undefined;
+      const listSeats = houseU ? partyListSeatsAt(gi) : undefined;
       const rows: Row[] = F5_ORDER.map(code => {
         const rm = rawMultiSeats.find(s => CLUSTER_TO_PARTY[String(s.party)] === code);
         const fd = fdSeats.find(s => CLUSTER_TO_PARTY[String(s.party)] === code);
@@ -85,19 +107,23 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
             : undefined,
           popIv: pop,
           voteIv: voteIvs?.[code],
+          listIv: listIvs?.[code],
+          listSeats: listSeats?.[code]?.point,
         };
       }).filter(r => r.popPct > 0 || r.seatPct > 0 || r.fdPct > 0);
       // The axis has to clear the widest sampling bound — the leading party's upper bound sits
       // past its own seat share — plus a hair of headroom, or that bound's 1px end cap lands on
       // the track's clipping edge and disappears.
+      // Every quantity counts toward the ceiling whether or not its row is switched on, so the
+      // axis holds still when a row is toggled rather than rescaling under the reader.
       const uCeil = Math.max(0, ...rows.flatMap(
-        r => [r.seatIv?.hi ?? 0, r.popIv?.hi ?? 0, r.voteIv?.hi ?? 0])) * 1.02;
+        r => [r.seatIv?.hi ?? 0, r.popIv?.hi ?? 0, r.voteIv?.hi ?? 0, r.listIv?.hi ?? 0])) * 1.02;
       const maxPct = Math.max(5, uCeil, ...rows.flatMap(r => [r.popPct, r.seatPct, r.fdPct, r.dblPct]));
       // The range view draws population, votes and seats only, so its axis ignores the two
       // bar-only quantities. Crossover's leading share runs well past any STV bound and would
       // otherwise squeeze every span into the left two-thirds of the track.
       const rangeMaxPct = Math.max(5, uCeil,
-        ...rows.flatMap(r => [r.popIv?.point ?? 0, r.voteIv?.point ?? 0, r.seatPct]));
+        ...rows.flatMap(r => [r.popIv?.point ?? 0, r.voteIv?.point ?? 0, r.listIv?.point ?? 0, r.seatPct]));
       return { rows, maxPct, rangeMaxPct, showFD, showDouble: showDbl };
     }
 
@@ -132,15 +158,19 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
   const rangeRows: PopSeatRangeRow[] | null = !showFD && !showDouble
     ? rows.filter((r): r is Row & { popIv: ShareInterval; voteIv: ShareInterval; seatIv: Span } =>
       !!r.popIv && !!r.voteIv && !!r.seatIv)
-      .map(r => ({ code: r.code, popIv: r.popIv, voteIv: r.voteIv, seatPct: r.seatPct, seats: r.seats, seatIv: r.seatIv }))
+      .map(r => ({
+        code: r.code, popIv: r.popIv, voteIv: r.voteIv, listIv: r.listIv, listSeats: r.listSeats,
+        seatPct: r.seatPct, seats: r.seats, seatIv: r.seatIv,
+      }))
     : null;
   const showRanges = !!rangeRows && rangeRows.length === rows.length && rows.length > 0;
+  const hasList = !!rangeRows?.every(r => !!r.listIv);
 
   return (
     <div>
       <div className="flex items-center justify-between gap-2 mb-1">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-          Population vs seat share
+          {showRanges ? 'Votes vs seat share' : 'Population vs seat share'}
         </h3>
         <select value={isNational ? 'national' : selectedState}
           onChange={e => onStateChange(e.target.value === 'national' ? 'national' : e.target.value)}
@@ -148,14 +178,12 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
           {stateOpts.map(o => <option key={o.v} value={o.v}>{o.label}</option>)}
         </select>
       </div>
-      <p className="text-xs text-muted-foreground mb-4">
+      <p className="text-xs text-muted-foreground mb-3">
         {isNational ? '' : `${selectedState}. `}
         {showRanges ? (
           <>
-            Outline: population share. Hatched: vote share. Solid: {seatLabel} seat share of 873.
-            Population to votes is turnout; votes to seats is what the counting rule does.
-            Bands span 1,000 resamples, tick at the estimate, dot at the expected share — two that
-            miss each other mark a real gap, two that overlap put it inside sampling noise.
+            What each party earns against what it wins, out of 873 seats. Add population to see the
+            turnout step{hasList && ', or party list to split the counting rule into the district-magnitude penalty and what transferable voting adds'}.
           </>
         ) : (
           <>
@@ -164,7 +192,16 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
           </>
         )}
       </p>
-      {showRanges ? <PopSeatRanges rows={rangeRows!} max={rangeMaxPct} seatLabel={seatLabel} /> : (
+      {showRanges && (
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+          <RowToggle on={showPop} onClick={() => setShowPop(v => !v)} label="Population" />
+          {hasList && <RowToggle on={showList} onClick={() => setShowList(v => !v)} label="Party list" />}
+        </div>
+      )}
+      {showRanges ? (
+        <PopSeatRanges rows={rangeRows!} max={rangeMaxPct} seatLabel={seatLabel}
+          showPop={showPop} showList={showList && hasList} />
+      ) : (
         <div className="space-y-3">
           {rows.map(r => {
             const c = getPartyColor(r.code);
