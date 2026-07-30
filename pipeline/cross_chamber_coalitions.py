@@ -166,9 +166,11 @@ house_seats_raw = pd.read_csv(
 )[["party_name", "NATIONAL"]].rename(
     columns={"party_name": "type", "NATIONAL": "seats_house"}
 )
-# Normalise names: stv_seat_summary uses full names, we need short names
+# Normalise names: stv_seat_summary uses full names, we need short names.
+# "Social Democrat" is the pre-rename name for Labor; both map to LBR so older trees still resolve.
 NAME_MAP = {
     "Conservative":   "CON",
+    "Labor":          "LBR",
     "Social Democrat":"LBR",
     "Solidarity":     "STY",
     "Nationalist":    "NAT",
@@ -179,10 +181,17 @@ NAME_MAP = {
     "Progressive":    "PRG",
     "Order and Opportunity Party": "OAO",
 }
-house_seats_raw["type"] = house_seats_raw["type"].map(NAME_MAP)
-house_seats = (house_seats_raw
-               .dropna(subset=["type"])
-               .set_index("type")["seats_house"])
+house_seats_raw["short"] = house_seats_raw["type"].map(NAME_MAP)
+# A party missing from NAME_MAP used to be dropped silently, which is how Labor sat at 0 seats
+# through a rename. Refuse to run on an incomplete map rather than publish a zero.
+unmapped = house_seats_raw.loc[house_seats_raw["short"].isna(), "type"].tolist()
+if unmapped:
+    raise SystemExit(
+        f"cross_chamber_coalitions: party name(s) missing from NAME_MAP: {unmapped}. "
+        "Add them before rerunning — an unmapped party silently reports 0 house seats."
+    )
+house_seats_raw["type"] = house_seats_raw["short"]
+house_seats = house_seats_raw.set_index("type")["seats_house"]
 
 # ── Merge seat counts ─────────────────────────────────────────────────────────
 types_df = (types_df

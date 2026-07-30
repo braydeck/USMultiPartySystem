@@ -80,11 +80,17 @@ def vote_model(
     -------
     dict of column_name -> list of values (parallel to policy_rows index)
     """
-    total_seats = sum(seats.get(t, 0) for t in type_cols)
-    missing = [t for t in type_cols if seats.get(t, 0) > 0
-               and t not in policy_rows.columns]
-    if missing:
-        print(f"  ⚠ {label}: type(s) with seats but missing from profile: {missing}")
+    # A seated type contributes only if the profile has a column of support values for it. Both
+    # ways of failing that used to be quiet — a type in type_cols but absent from the profile raised
+    # a KeyError below, and a seated type absent from type_cols entirely was dropped without a word.
+    # Report the seats each case costs, since the model is a seat-weighted sum and an unnoticed
+    # exclusion just lowers every probability.
+    usable = [t for t in type_cols if t in policy_rows.columns]
+    dropped = {t: n for t, n in seats.items() if n > 0 and t not in usable}
+    if dropped:
+        print(f"  ⚠ {label}: {sum(dropped.values())} seat(s) excluded — no profile column for "
+              f"{', '.join(f'{t} ({n})' for t, n in sorted(dropped.items()))}")
+    total_seats = sum(seats.get(t, 0) for t in usable)
 
     exp_yes = []
     sigmas  = []
@@ -94,7 +100,7 @@ def vote_model(
     for _, row in policy_rows.iterrows():
         mu     = 0.0
         sigma2 = 0.0
-        for t in type_cols:
+        for t in usable:
             n_t = seats.get(t, 0)
             if n_t == 0:
                 continue
@@ -142,9 +148,22 @@ def load_house_seats(csv_path: Path) -> dict:
     }
 
 
+def _rename_legacy_types(df):
+    """senate_chamber_profile.csv still labels Labor's columns SD, the pre-rename code, while
+    senate_composition.csv labels its seats LBR. The profile cannot be regenerated — its generator
+    needs data/outputs/pure_only/, which is not in the checkout — so translate on read. Applies to
+    the blend labels too (CON/SD, STY/SD, …), which is why this is a substring swap on the code."""
+    ren = {c: "/".join("LBR" if part == "SD" else part for part in c.split("/"))
+           for c in df.columns if "SD" in c.split("/")}
+    collisions = set(ren.values()) & set(df.columns)
+    if collisions:
+        raise SystemExit(f"chamber_vote_model: legacy rename would collide on {sorted(collisions)}")
+    return df.rename(columns=ren)
+
+
 def main():
     # ── Load chamber profiles ───────────────────────────────────────────────
-    senate_profile = pd.read_csv(SENATE_DIR / "senate_chamber_profile.csv")
+    senate_profile = _rename_legacy_types(pd.read_csv(SENATE_DIR / "senate_chamber_profile.csv"))
     house_profile  = pd.read_csv(OUT_DIR    / "house_chamber_profile.csv")
 
     # Filter to binary "% Supporting" rows that are CES policy questions (CC24_)

@@ -1,5 +1,5 @@
 type,chamber,F1_security_order,F2_electoral_skepticism,F3_government_distrust,F4_religious_traditionalism,F5_populist_conservatism,seats_senate_cond,seats_senate_irv,seats_house,seats_total_irv_house
-LBR,both,-0.4143,-0.0321,0.0915,-0.3447,-0.5640,5,8,0,8
+LBR,both,-0.4143,-0.0321,0.0915,-0.3447,-0.5640,5,8,159,167
 LIB,both,-0.4623,-0.7437,-0.0862,-0.3230,-0.9496,1,4,93,97
 CON,both,0.7674,-0.0235,0.1108,0.2186,0.4424,3,3,201,204
 CUP,both,0.2658,-0.8166,-0.1744,0.1296,0.0387,2,1,89,90
