@@ -1,14 +1,10 @@
 // Shared seat-share bar: a full-width track with the label overlaid inside the bar. Used by both
 // the party-list view and the STV "Population vs seat share" chart so the two read identically.
 import { getContrastText } from '../../constants/parties';
-import { SeatWhisker } from '../shared/SeatWhisker';
 
-export function SeatShareBar({ pct, max, color, label, faded, outline, dashed, lo, hi, centre }: {
+export function SeatShareBar({ pct, max, color, label, faded, outline, dashed }: {
   pct: number; max: number; color: string; label: string;
   faded?: boolean; outline?: boolean; dashed?: boolean;
-  // Sampling interval, in the same percent units as `pct`/`max`. Omitted by callers with no
-  // bootstrap data, and by quantities that are not sampled seat counts (e.g. population share).
-  lo?: number; hi?: number; centre?: number;
 }) {
   const w = Math.max((pct / max) * 100, pct > 0 ? 2 : 0);
   const isSolid = !faded && !outline && !dashed;
@@ -24,10 +20,6 @@ export function SeatShareBar({ pct, max, color, label, faded, outline, dashed, l
       <div className="h-full rounded" style={style} />
       <span className={`absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold whitespace-nowrap ${textClass}`}
         style={{ color: textColor }}>{label}</span>
-      {lo != null && hi != null && centre != null && (
-        <SeatWhisker lo={lo} hi={hi} centre={centre} max={max}
-          title={`95% of resamples: ${lo.toFixed(1)}–${hi.toFixed(1)}%`} />
-      )}
     </div>
   );
 }

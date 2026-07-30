@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { uncertaintyAt, chamberTotal, UNCERTAINTY_STOPS } from './uncertainty'
+import { uncertaintyAt, chamberTotal, UNCERTAINTY_STOPS, POPULATION_SHARE, populationShares } from './uncertainty'
 
 describe('uncertainty accessor', () => {
   it('exposes one payload per turnout stop', () => {
@@ -91,5 +91,31 @@ describe('uncertainty accessor', () => {
       }
       expect(Array.isArray(u.primary.observedSlate)).toBe(true)
     }
+  })
+})
+
+describe('population share range', () => {
+  it('covers all ten parties and both point and expected shares total 100%', () => {
+    const shares = populationShares()
+    expect(Object.keys(shares)).toHaveLength(10)
+    for (const k of ['point', 'expected'] as const) {
+      const sum = Object.values(shares).reduce((s, v) => s + v[k], 0)
+      expect(sum).toBeCloseTo(100, 1)
+    }
+  })
+
+  it('brackets every expected share inside its own bounds', () => {
+    for (const [code, iv] of Object.entries(populationShares())) {
+      expect(iv.lo, code).toBeLessThanOrEqual(iv.expected)
+      expect(iv.expected, code).toBeLessThanOrEqual(iv.hi)
+      for (const k of ['point', 'expected', 'lo', 'hi'] as const) {
+        expect(typeof iv[k], `${code}.${k}`).toBe('number')
+      }
+    }
+  })
+
+  it('is stop-invariant: population share is never turnout-weighted', () => {
+    expect(POPULATION_SHARE.stopInvariant).toBe(true)
+    expect(POPULATION_SHARE.nDraws).toBe(1000)
   })
 })
