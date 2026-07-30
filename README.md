@@ -35,6 +35,39 @@ affordances that reach them. Two ways back in:
 
 Regenerating the field is unchanged — see the crossover block under [Running the Pipeline](#running-the-pipeline).
 
+### District map: deferred resync
+
+`data/processed/county_to_district.csv` assigns each of the 3,142 counties to a multi-member
+district. It is an *input* to the House simulation — STV pools voters district by district — and the
+script that draws it, `draw_geographic_districts.py`, used to produce a different map on every run
+(tie-breaks resolved through set iteration order, which varies with `PYTHONHASHSEED`). That is fixed;
+the map is now byte-identical across runs.
+
+The committed map predates the fix, so it cannot be reproduced by the current code. The two disagree
+on 65 of 3,142 counties, and adopting the new one moves **three seats of 873**:
+
+| | committed | deterministic |
+|---|--:|--:|
+| Conservative | 201 | 202 |
+| Labor | 159 | 158 |
+| Populist | 106 | 104 |
+| Nationalist | 41 | 43 |
+
+Six parties unchanged, chamber still 873. Every moved county stays inside its own state and its own
+density tier, and apportionment is by state population, so no state's seat count changes — only which
+same-tier district within a state a county sits in.
+
+Deliberately deferred. Nothing is wrong today: every published figure came from the committed map and
+the site is self-consistent. Adopting the new map means rebuilding everything downstream, and it is
+all-or-nothing — `uncertainty*.json` carries the modal seat counts the headline chamber uses, so a
+partial rebuild would leave the modal chamber on the old map and the observed chamber on the new one.
+
+`pipeline/resync_district_map.py` holds the whole sequence: 90 commands across six stages, ending in
+the 1,000-draw bootstraps that dominate the runtime. It prints the plan and runs nothing without
+`--run`, and `--draws 50` gives a cheap smoke test of the chain first. Stages 1–3 are verified
+deterministic and reproduce their committed output byte for byte; stages 4–6 were scoped from the code
+rather than executed.
+
 ### No-Solidarity scenario (dormant)
 
 A robustness check that dissolves Solidarity (cluster 2) and lets its voters' ballots flow to the

@@ -20,11 +20,13 @@ Output: data/processed/county_to_district.csv
 
 Reproducibility: the tie-breaks below name the county FIPS explicitly and the output is sorted, so
 the same inputs now draw the same map byte for byte. They did not before — ties fell through to set
-iteration order, which varies with PYTHONHASHSEED, moving ~52 of 3,142 counties per run. The
-committed data/processed/county_to_district.csv predates that fix, so regenerating it WILL produce a
-different (and thereafter stable) map. Do not regenerate it without also re-running the house STV
-chain that consumes it: run_house_canonical.py, pure_only/run_pure_multi_house_stv.py and
-pure_only/run_party_house_stv.py — the district map is an input to the published seat counts.
+iteration order, which varies with PYTHONHASHSEED, moving 65 of 3,142 counties per run.
+
+The committed data/processed/county_to_district.csv predates that fix, so running this script WILL
+replace it with a different (thereafter stable) map, and the district assignment is an input to every
+published House figure. Do not run it on its own. pipeline/resync_district_map.py holds the full
+ordered rebuild — 90 commands across six stages, ending in the 1,000-draw bootstraps — and prints the
+plan without executing unless given --run.
 """
 
 import csv
