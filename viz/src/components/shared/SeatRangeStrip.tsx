@@ -8,8 +8,9 @@ import type { SeatInterval } from '../../lib/uncertainty';
  *  expected value, and a tick at the most likely count. Used where the chamber bar is
  *  stacked and an inline whisker would overlap into neighbouring parties' segments. */
 /** Visual key for the three marks. Neutral-coloured so it reads as a key rather than as one
- *  party's row; each swatch is drawn with the same styles the rows use. */
-function RangeKey() {
+ *  party's row; each swatch is drawn with the same styles the rows use. Exported because a stack
+ *  of strips needs one key above the group, not one per strip. */
+export function RangeKey() {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] text-muted-foreground">
       <span className="flex items-center gap-1.5">
@@ -32,7 +33,7 @@ function RangeKey() {
   );
 }
 
-export function SeatRangeStrip({ seats, order, label, max: maxOverride, showKey = true }: {
+export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
   seats: Record<string, SeatInterval>;
   order: string[];
   label: string;
@@ -40,8 +41,6 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride, showKey 
    *  stacked and must read on the same scale for their bar positions to be comparable. Falls
    *  back to this strip's own largest `hi` when omitted. */
   max?: number;
-  /** Off for all but the last strip in a stack, so one key serves the whole group. */
-  showKey?: boolean;
 }) {
   const rows = useMemo(
     () => order
@@ -91,13 +90,6 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride, showKey 
         </div>
         <span className="w-24 shrink-0" />
       </div>
-      {showKey && (
-        <div className="flex items-center gap-2 pt-0.5">
-          <span className="w-10 shrink-0" />
-          <div className="flex-1"><RangeKey /></div>
-          <span className="w-24 shrink-0" />
-        </div>
-      )}
     </div>
   );
 }

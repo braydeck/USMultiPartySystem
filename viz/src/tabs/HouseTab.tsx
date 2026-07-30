@@ -181,6 +181,11 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
     && !!plData?.[depth]?.[wyoming]?.[part]
     ? uncertaintyAt(gi)?.house.seats
     : undefined;
+  // The party-list view has no Scenario control — the list is always allocated from the party-line
+  // vote — so it must not inherit a stale `factorDev` from the STV view. Depth still binds: the
+  // list is depth-invariant, but its STV comparison row's point estimate is not, and pairing a
+  // top-3 point with rank-7 bounds would describe two different chambers.
+  const houseUList = wyoming === 'double' && depth === 'top7' ? uncertaintyAt(gi)?.house.seats : undefined;
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -374,7 +379,8 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
 
       {system === 'list' && (plConfig
         ? <PartyListView config={plConfig} wyoming={wyoming} doubleConfig={plConfigDouble}
-            districtCountyMap={wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap} />
+            districtCountyMap={wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap}
+            houseU={houseUList} gi={gi} />
         : <div className="py-24 text-center text-sm text-muted-foreground">Loading party-list results…</div>)}
 
       {system === 'stv' && (<>

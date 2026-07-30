@@ -8,6 +8,8 @@ import { FPTPvsSTV } from './FPTPvsSTV';
 import { useUrlState } from '../../hooks/useUrlState';
 import { F5_ORDER, getPartyColor, PARTY_NAMES } from '../../constants/parties';
 import { SeatShareBar as Bar } from './SeatShareBar';
+import { PopSeatRanges, type PopSeatRangeRow } from './PopSeatRanges';
+import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval } from '../../lib/uncertainty';
 import type { DistrictResult, HouseStateEntry, HouseSeat } from '../../types';
 
 type SeatMap = Record<string, number>;
@@ -49,6 +51,12 @@ interface Props {
   districtCountyMap: Record<string, string[]>;
   /** Double-Wyoming config, for the triple view's double-vs-triple comparison rows. */
   doubleConfig?: PLConfig;
+  /** STV seat spans at this turnout stop, present only when the caller's gate holds (rank-7,
+   *  double Wyoming). Its presence is what switches the seat-share card from bars to ranges,
+   *  because the STV comparison row has no bounds without it. */
+  houseU?: Record<string, SeatInterval>;
+  /** Turnout stop, index 0-6. */
+  gi: number;
 }
 
 const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
@@ -60,7 +68,7 @@ export function seatMapToHouseSeats(seatMap: SeatMap): HouseSeat[] {
   })).filter(s => s.national > 0) as unknown as HouseSeat[];
 }
 
-export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig }: Props) {
+export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig, houseU, gi }: Props) {
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [selState, setSelState] = useUrlState<string>('plstate', 'national');
   const nat = config.national;
@@ -106,11 +114,51 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
 
   const total = active.totalSeats || 1;
   const parties = F5_ORDER.filter(p => (active.listSeats[p] ?? 0) > 0 || (active.stvSeats[p] ?? 0) > 0 || (active.voteShare[p] ?? 0) > 0);
-  // Everything in share terms (%), with the raw seat count annotated.
-  const popPct = (p: string) => active.voteShare[p] ?? 0;
+  // Everything in share terms (%), with the raw seat count annotated. `voteShare` is the electorate's
+  // vote, not the population's: the two differ by up to 4.4pp once turnout weighting is applied, and
+  // the range view below carries them as separate rows.
+  const votePct = (p: string) => active.voteShare[p] ?? 0;
   const listPct = (p: string) => (active.listSeats[p] ?? 0) / total * 100;
   const stvPct = (p: string) => (active.stvSeats[p] ?? 0) / total * 100;
-  const maxPct = Math.max(5, ...parties.flatMap(p => [popPct(p), listPct(p), stvPct(p)]));
+  const maxPct = Math.max(5, ...parties.flatMap(p => [votePct(p), listPct(p), stvPct(p)]));
+
+  // Range rows: list is primary here, STV the opt-in comparison — the mirror image of the STV
+  // view, which shares this component. National only, because the bootstrap has no per-state
+  // seat spans; a selected state falls back to bars.
+  const { rangeRows, rangeMaxPct } = useMemo(() => {
+    if (!houseU || stateSel) return { rangeRows: null, rangeMaxPct: 5 };
+    const pop = populationShares();
+    const votes = voteSharesAt(gi);
+    const listIvs = partyListSharesAt(gi);
+    const listPts = partyListSeatsAt(gi);
+    if (!votes || !listIvs || !listPts) return { rangeRows: null, rangeMaxPct: 5 };
+    // STV bounds are seat counts, so they convert on the STV chamber's own total — the same
+    // denominator `stvPct` uses — rather than on the list total.
+    const stvTotal = Object.values(nat.stvSeats).reduce((a, b) => a + b, 0) || 1;
+
+    const rows: PopSeatRangeRow[] = [];
+    for (const code of F5_ORDER) {
+      const pv = pop[code], vv = votes[code], lv = listIvs[code], u = houseU[code];
+      if (!pv || !vv || !lv) continue;
+      rows.push({
+        code, popIv: pv, voteIv: vv,
+        cmpIv: u
+          ? { point: (nat.stvSeats[code] ?? 0) / stvTotal * 100, expected: u.expected / stvTotal * 100,
+              lo: u.lo / stvTotal * 100, hi: u.hi / stvTotal * 100 }
+          : undefined,
+        cmpSeats: u ? (nat.stvSeats[code] ?? 0) : undefined,
+        seatPct: (nat.listSeats[code] ?? 0) / (nat.totalSeats || 1) * 100,
+        seats: nat.listSeats[code] ?? 0,
+        seatIv: lv,
+      });
+    }
+    if (!rows.length) return { rangeRows: null, rangeMaxPct: 5 };
+    // Every quantity counts toward the ceiling whether or not its row is switched on, so toggling
+    // a row does not rescale the axis under the reader.
+    const ceil = Math.max(...rows.flatMap(r =>
+      [r.popIv.hi, r.voteIv.hi, r.cmpIv?.hi ?? 0, r.seatIv.hi])) * 1.02;
+    return { rangeRows: rows, rangeMaxPct: Math.max(5, ceil) };
+  }, [houseU, gi, stateSel, nat]);
 
   return (
     <div className="space-y-8">
@@ -130,31 +178,37 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
       <Card className="p-5 border-2 border-indigo-200">
         <div className="flex items-center justify-between gap-2 mb-1">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-            Population vs seat share
+            {rangeRows ? 'Votes vs seat share' : 'Vote vs seat share'}
           </h3>
           <select value={selState} onChange={e => setSelState(e.target.value)}
             className="rounded-md border border-border bg-card px-2 py-1 text-xs">
             {stateOpts.map(o => <option key={o.v} value={o.v}>{o.label}</option>)}
           </select>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">
-          {stateSel ? `${stateSel.abbr}. ` : ''}Outline: population share. Solid: party list. Hollow: STV. Percent is seat share, parentheses are seats.
+        <p className="text-xs text-muted-foreground mb-3">
+          {stateSel ? `${stateSel.abbr}. ` : ''}What each party earns against what it wins under the
+          list, out of {active.totalSeats} seats. Add population to see the turnout step, or STV to
+          see what transferable voting changes on the same districts.
         </p>
-        <div className="space-y-3">
-          {parties.map(p => {
-            const c = getPartyColor(p);
-            return (
-              <div key={p} className="grid grid-cols-[110px_1fr] items-center gap-2">
-                <span className="text-xs font-medium text-foreground truncate">{PARTY_NAMES[p]}</span>
-                <div className="space-y-0.5">
-                  <Bar pct={popPct(p)} max={maxPct} color={c} outline label={`Population ${popPct(p).toFixed(1)}%`} />
-                  <Bar pct={listPct(p)} max={maxPct} color={c} label={`List ${listPct(p).toFixed(1)}% (${active.listSeats[p] ?? 0})`} />
-                  <Bar pct={stvPct(p)} max={maxPct} color={c} faded label={`STV ${stvPct(p).toFixed(1)}% (${active.stvSeats[p] ?? 0})`} />
+        {rangeRows ? (
+          <PopSeatRanges rows={rangeRows} max={rangeMaxPct} seatLabel="List" compareLabel="STV" />
+        ) : (
+          <div className="space-y-3">
+            {parties.map(p => {
+              const c = getPartyColor(p);
+              return (
+                <div key={p} className="grid grid-cols-[110px_1fr] items-center gap-2">
+                  <span className="text-xs font-medium text-foreground truncate">{PARTY_NAMES[p]}</span>
+                  <div className="space-y-0.5">
+                    <Bar pct={votePct(p)} max={maxPct} color={c} outline label={`Votes ${votePct(p).toFixed(1)}%`} />
+                    <Bar pct={listPct(p)} max={maxPct} color={c} label={`List ${listPct(p).toFixed(1)}% (${active.listSeats[p] ?? 0})`} />
+                    <Bar pct={stvPct(p)} max={maxPct} color={c} faded label={`STV ${stvPct(p).toFixed(1)}% (${active.stvSeats[p] ?? 0})`} />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
         <p className="text-[11px] text-muted-foreground mt-3">
           Party-list seats use the Hare quota with largest remainders, within the same multi-member districts as STV. There is no legal threshold: winning a seat takes about one quota, so a party's seats track its vote share times the district's magnitude.
         </p>

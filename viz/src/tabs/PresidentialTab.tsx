@@ -149,6 +149,11 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
       {scenario === 'rawMulti' ? (
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Presidential Outcomes</h3>
+          {ud && ud.president && (
+            <Card className="p-4">
+              <PresidentRangeCard gi={gi} nDraws={ud.nDraws} />
+            </Card>
+          )}
           {rmSameWinner ? (
             <div>
               <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
@@ -215,11 +220,6 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                 </Card>
               )}
             </>
-          )}
-          {ud && ud.president && (
-            <Card className="p-4">
-              <PresidentRangeCard gi={gi} nDraws={ud.nDraws} />
-            </Card>
           )}
         </div>
       ) : (

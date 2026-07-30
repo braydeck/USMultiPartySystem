@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import type { FDSenateSeat } from '../../types';
 import { F5_ORDER } from '../../constants/parties';
-import { SeatRangeStrip } from '../shared/SeatRangeStrip';
+import { SeatRangeStrip, RangeKey } from '../shared/SeatRangeStrip';
 import { UncertaintyDetail } from '../shared/UncertaintyDetail';
 import type { MethodUncertainty } from '../../lib/uncertainty';
 
@@ -46,9 +46,10 @@ export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
       </p>
       {/* Full party order, not just the parties in the headline bars: a party with no modal
           seats can still have a real sampling range, and the strip is where that range shows up. */}
-      {/* One key for the pair, on the lower strip: the marks are identical in both. */}
+      {/* One key above the pair: the marks are identical in both strips. */}
+      <RangeKey />
       <SeatRangeStrip seats={condU.seats} order={[...F5_ORDER]} max={rangeStripMax}
-        label="Condorcet" showKey={false} />
+        label="Condorcet" />
       <SeatRangeStrip seats={irvU.seats} order={[...F5_ORDER]} max={rangeStripMax}
         label="IRV" />
 

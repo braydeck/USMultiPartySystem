@@ -1,9 +1,12 @@
-// Up to four range rows per party on one axis: population, votes, party list, seats. The steps
-// separate what a single population-to-seats gap conflates — population to votes is turnout, votes
-// to list is the district-magnitude penalty, list to seats is what transferable voting adds.
-// Votes and seats are the pair that answers the card's question, so they are always on; the other
-// two are opt-in, because ten parties times four rows is unreadable by default.
-import type { CSSProperties } from 'react';
+// Up to four range rows per party on one axis: population, votes, the other counting rule, and the
+// rule this view is about. The steps separate what a single population-to-seats gap conflates —
+// population to votes is turnout, and splitting votes-to-seats across the two rules separates the
+// district-magnitude penalty they share from what each rule adds on top.
+//
+// Serves both House views: the STV view makes STV primary and party list the comparison, the
+// party-list view swaps them. Votes and the primary rule are always on; the other two are opt-in,
+// because ten parties times four rows is unreadable by default.
+import { useState, type CSSProperties } from 'react';
 import { getPartyColor, PARTY_NAMES } from '../../constants/parties';
 import { SeatWhisker } from '../shared/SeatWhisker';
 import { whiskerGeometry } from '../../lib/whisker';
@@ -21,11 +24,13 @@ export interface PopSeatRangeRow {
    *  payload; sourcing a tick from one place and a band from another is what went wrong on the
    *  population row. */
   voteIv: ShareInterval;
-  /** Share of the chamber under party-list PR, percent, on the same denominator as the STV row. */
-  listIv?: ShareInterval;
-  /** Party-list seat count, for the readout. */
-  listSeats?: number;
-  /** Share of the chamber, percent, on the same denominator as `seats`. */
+  /** The comparison rule's share of the chamber, percent, on the same denominator as the primary
+   *  row: party list when STV is primary, STV when the list is. Optional because it needs its own
+   *  bootstrap payload, which not every gate has. */
+  cmpIv?: ShareInterval;
+  /** Comparison-rule seat count, for the readout. */
+  cmpSeats?: number;
+  /** The primary rule's share of the chamber, percent, on the same denominator as `seats`. */
   seatPct: number;
   seats: number;
   seatIv: Span;
@@ -33,11 +38,11 @@ export interface PopSeatRangeRow {
 
 /** One band style per quantity. Encoded by height and weight rather than by fill pattern: the vote
  *  bands are under a percentage point wide, and a hatch or a dash inside a 4px sliver is noise. */
-type Texture = 'pop' | 'votes' | 'list' | 'seats';
+type Texture = 'pop' | 'votes' | 'cmp' | 'seats';
 
 function bandStyle(texture: Texture, color: string): CSSProperties {
   if (texture === 'pop') return { background: `${color}1f`, border: `1.5px solid ${color}`, top: 2, bottom: 2 };
-  if (texture === 'list') return { background: `${color}66`, top: 4, bottom: 4 };
+  if (texture === 'cmp') return { background: `${color}66`, top: 4, bottom: 4 };
   // Not fully opaque: the expected dot sits inside this band and has to stay visible through it.
   if (texture === 'votes') return { backgroundColor: color, opacity: 0.7, top: 5, bottom: 5 };
   return { backgroundColor: color, opacity: 0.3, top: 1, bottom: 1 };
@@ -110,23 +115,55 @@ function Legend({ rows }: { rows: { texture: Texture; label: string }[] }) {
   );
 }
 
-export function PopSeatRanges({ rows, max, seatLabel, showPop, showList }: {
-  rows: PopSeatRangeRow[]; max: number; seatLabel: string;
-  showPop: boolean; showList: boolean;
+/** Adds or removes one range row. Votes and the primary rule have no toggle: they are the
+ *  comparison the card exists to make. */
+function RowToggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
+  return (
+    <button type="button" onClick={onClick} aria-pressed={on}
+      className={`rounded-full border px-2.5 py-0.5 text-[11px] transition-colors ${on
+        ? 'border-foreground/25 bg-muted text-foreground'
+        : 'border-border text-muted-foreground hover:text-foreground'}`}>
+      {on ? '\u2212' : '+'} {label}
+    </button>
+  );
+}
+
+export function PopSeatRanges({ rows, max, seatLabel, compareLabel }: {
+  rows: PopSeatRangeRow[]; max: number;
+  /** The rule whose row is always on, drawn as the widest band: 'STV' or 'List'. */
+  seatLabel: string;
+  /** The opt-in comparison rule. Absent when no comparison payload is available. */
+  compareLabel?: string;
 }) {
+  // Votes against the primary rule is the card's claim; population and the other counting rule are
+  // context the reader opts into, because four rows across ten parties is too dense to read cold.
+  const [showPop, setShowPop] = useState(false);
+  const [showCmp, setShowCmp] = useState(false);
+  const hasCmp = !!compareLabel && rows.every(r => !!r.cmpIv);
+  const showCompare = showCmp && hasCmp;
+
   const legend: { texture: Texture; label: string }[] = [
     ...(showPop ? [{ texture: 'pop' as Texture, label: 'Population' }] : []),
     { texture: 'votes', label: 'Votes' },
-    ...(showList ? [{ texture: 'list' as Texture, label: 'Party list' }] : []),
+    ...(showCompare ? [{ texture: 'cmp' as Texture, label: compareLabel! }] : []),
     { texture: 'seats', label: `${seatLabel} seats` },
   ];
 
   return (
     <div className="space-y-2.5">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <RowToggle on={showPop} onClick={() => setShowPop(v => !v)} label="Population" />
+        {hasCmp && <RowToggle on={showCmp} onClick={() => setShowCmp(v => !v)} label={compareLabel!} />}
+      </div>
+      {/* Above the rows: the key has to be read before the rows mean anything. */}
+      <div className="grid grid-cols-[110px_1fr] gap-2 pb-1">
+        <span />
+        <Legend rows={legend} />
+      </div>
       {rows.map(r => {
         const c = getPartyColor(r.code);
         const name = PARTY_NAMES[r.code] ?? r.code;
-        const list = r.listIv;
+        const cmp = r.cmpIv;
         return (
           <div key={r.code} className="grid grid-cols-[110px_1fr] items-center gap-2">
             <span className="text-xs font-medium text-foreground truncate">{name}</span>
@@ -145,12 +182,12 @@ export function PopSeatRanges({ rows, max, seatLabel, showPop, showList }: {
                   pointTitle={`vote share: ${r.voteIv.point.toFixed(1)}%`} />
                 <Readout head={`Votes ${r.voteIv.point.toFixed(1)}%`} iv={r.voteIv} />
               </div>
-              {showList && list && (
+              {showCompare && cmp && (
                 <div className="flex items-center gap-2">
-                  <RangeTrack iv={list} point={list.point} max={max} color={c} texture="list"
-                    title={`${name} party list: ${list.lo.toFixed(1)}–${list.hi.toFixed(1)}% of the chamber across resamples, ${list.expected.toFixed(1)}% expected`}
-                    pointTitle={`party-list seat share: ${list.point.toFixed(1)}%${r.listSeats === undefined ? '' : ` (${r.listSeats})`}`} />
-                  <Readout head={`List ${list.point.toFixed(1)}%${r.listSeats === undefined ? '' : ` (${r.listSeats})`}`} iv={list} />
+                  <RangeTrack iv={cmp} point={cmp.point} max={max} color={c} texture="cmp"
+                    title={`${name} under ${compareLabel}: ${cmp.lo.toFixed(1)}–${cmp.hi.toFixed(1)}% of the chamber across resamples, ${cmp.expected.toFixed(1)}% expected`}
+                    pointTitle={`${compareLabel} seat share: ${cmp.point.toFixed(1)}%${r.cmpSeats === undefined ? '' : ` (${r.cmpSeats})`}`} />
+                  <Readout head={`${compareLabel} ${cmp.point.toFixed(1)}%${r.cmpSeats === undefined ? '' : ` (${r.cmpSeats})`}`} iv={cmp} />
                 </div>
               )}
               <div className="flex items-center gap-2">
@@ -171,10 +208,6 @@ export function PopSeatRanges({ rows, max, seatLabel, showPop, showList }: {
           </div>
           <span className={READOUT} />
         </div>
-      </div>
-      <div className="grid grid-cols-[110px_1fr] gap-2 pt-1">
-        <span />
-        <Legend rows={legend} />
       </div>
     </div>
   );
