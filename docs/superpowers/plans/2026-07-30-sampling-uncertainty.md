@@ -178,49 +178,50 @@ git commit -m "Add stratified respondent resampling for the bootstrap harness"
 Append to `analysis/bootstrap/selftest.py`, before the `__main__` block:
 
 ```python
-def test_injection_reindexes_only_targets():
+def test_injection_reindexes_targets():
     import pandas as pd
     from analysis.bootstrap.inject import PROCESSED_FILES, resampled_inputs
 
-    target = PROCESSED_FILES[0]
+    target, turnout = PROCESSED_FILES[0], PROCESSED_FILES[2]
     real = pd.read_csv(target)
     idx = stratified_indices(real["inputstate"].values, seed=42)
     with resampled_inputs(idx):
         got = pd.read_csv(target)
-        other = pd.read_csv(PROCESSED_FILES[2])          # turnout_propensity, also a target
-        untouched = pd.read_csv(
-            Path(__file__).resolve().parents[2] / "viz" / "src" / "data" / "senateBuckets.json"
-            if False else target                          # sanity: targets are reindexed
-        )
+        other = pd.read_csv(turnout)
     assert len(got) == len(real), "row count changed"
     assert len(other) == len(real), "second target not length-preserved"
     assert list(got["inputstate"]) == list(real["inputstate"].values[idx]), "wrong reindex"
     assert list(got.index) == list(range(len(got))), "index not reset"
-    # Outside the block, reads are normal again.
-    after = pd.read_csv(target)
-    assert list(after["inputstate"]) == list(real["inputstate"]), "patch leaked out of the block"
-    assert untouched is not None
 
 
-def test_injection_asserts_on_length_mismatch():
-    from analysis.bootstrap.inject import resampled_inputs
+def test_injection_leaves_non_targets_alone():
+    """A file that is not per-respondent must read normally inside the block."""
     import pandas as pd
-    bad = np.arange(10)
+    from analysis.bootstrap.inject import resampled_inputs
+
+    root = Path(__file__).resolve().parents[2]
+    other = root / "data" / "outputs" / "pure_multi" / "state_candidate_profiles.csv"
+    before = pd.read_csv(other)
+    idx = stratified_indices(pd.read_csv(root / "data" / "processed" / "efa_factor_scores.csv")["inputstate"].values, seed=1)
+    with resampled_inputs(idx):
+        during = pd.read_csv(other)
+    assert len(during) == len(before), "a non-target file was reindexed"
+
+
+def test_injection_restores_pandas_and_asserts_on_mismatch():
+    import pandas as pd
+    from analysis.bootstrap.inject import PROCESSED_FILES, resampled_inputs
+
+    target = PROCESSED_FILES[0]
+    original = pd.read_csv
     try:
-        with resampled_inputs(bad):
-            pd.read_csv(PROCESSED_FILES_FOR_TEST)
+        with resampled_inputs(np.arange(10)):
+            pd.read_csv(target)
     except AssertionError:
-        return
-    except Exception as e:
-        raise AssertionError(f"expected AssertionError, got {type(e).__name__}: {e}")
-    raise AssertionError("no AssertionError on length mismatch")
-```
-
-Add near the imports at the top of `selftest.py`:
-
-```python
-from analysis.bootstrap.inject import PROCESSED_FILES as PROCESSED_FILES_ALL
-PROCESSED_FILES_FOR_TEST = PROCESSED_FILES_ALL[0]
+        pass
+    else:
+        raise AssertionError("no AssertionError on length mismatch")
+    assert pd.read_csv is original, "pandas was not restored after the block raised"
 ```
 
 - [ ] **Step 2: Run it to verify it fails**
@@ -290,7 +291,7 @@ def resampled_inputs(idx, extra_paths: Iterable[Path] = ()):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 6 `ok` lines, `6 checks passed`
+Expected: 7 `ok` lines, `7 checks passed`
 
 - [ ] **Step 5: Commit**
 
@@ -496,7 +497,7 @@ def run_draw(seed: int, lam: float, depth: int = 7, observed: bool = False) -> d
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 8 `ok` lines, `8 checks passed`. If `run_pure_multi_presidential` has no `PRIMARY_PATH` or `OUTPUT_DIR` module global, run `grep -n "^PRIMARY_PATH\|^OUTPUT_DIR" pipeline/pure_only/run_pure_multi_presidential.py` and adjust the attribute names to match, keeping the save/restore pattern.
+Expected: 9 `ok` lines, `9 checks passed`. If `run_pure_multi_presidential` has no `PRIMARY_PATH` or `OUTPUT_DIR` module global, run `grep -n "^PRIMARY_PATH\|^OUTPUT_DIR" pipeline/pure_only/run_pure_multi_presidential.py` and adjust the attribute names to match, keeping the save/restore pattern.
 
 - [ ] **Step 5: Verify nothing canonical was written**
 
@@ -613,7 +614,7 @@ def pick_representative(draws: list, fips: str, winner_party: str):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 10 `ok` lines, `10 checks passed`
+Expected: 11 `ok` lines, `11 checks passed`
 
 - [ ] **Step 5: Commit**
 
@@ -826,7 +827,7 @@ def build_uncertainty(draws, observed, n_draws, seed):
 - [ ] **Step 4: Run it to verify it passes**
 
 Run: `cd "/Users/bdecker/Local Projects/Personal/STV" && python3 analysis/bootstrap/selftest.py`
-Expected: 11 `ok` lines, `11 checks passed`
+Expected: 12 `ok` lines, `12 checks passed`
 
 - [ ] **Step 5: Write the CLI**
 
@@ -1237,13 +1238,14 @@ git commit -m "Add uncertainty types and stop-indexed accessor"
 
 ---
 
-### Task 9: SeatWhisker primitive
+### Task 9: SeatWhisker primitive and SeatRangeStrip
 
 **Files:**
-- Create: `viz/src/components/shared/SeatWhisker.tsx`, `viz/src/lib/whisker.ts`, `viz/src/lib/whisker.test.ts`
+- Create: `viz/src/components/shared/SeatWhisker.tsx`, `viz/src/components/shared/SeatRangeStrip.tsx`, `viz/src/lib/whisker.ts`, `viz/src/lib/whisker.test.ts`
 
 **Interfaces:**
-- Produces: `whiskerGeometry(lo, hi, centre, max) -> { leftPct, widthPct, centrePct } | null` in `lib/whisker.ts` (pure, testable), and `<SeatWhisker lo hi centre max />` rendering an absolutely-positioned overlay. Returns `null` when `max <= 0` or `hi <= lo`.
+- Produces: `whiskerGeometry(lo, hi, centre, max) -> { leftPct, widthPct, centrePct } | null` in `lib/whisker.ts` (pure, testable); `<SeatWhisker lo hi centre max title? />` rendering an absolutely-positioned overlay (parent must be `relative`); and `<SeatRangeStrip seats order label />` rendering one compact range row per seat-holding party.
+- Two consumers, two shapes: the House's bars are one per party so a whisker sits directly on them, but the Senate's chamber bar is stacked, so an inline whisker would overlap into neighbouring segments. The strip is the Senate's answer.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1326,17 +1328,86 @@ export function SeatWhisker({ lo, hi, centre, max, title }: {
 }
 ```
 
-- [ ] **Step 4: Run it to verify it passes**
+- [ ] **Step 4: Write SeatRangeStrip**
 
-Run: `cd "/Users/bdecker/Local Projects/Personal/STV/viz" && npx vitest run src/lib/whisker.test.ts && npx tsc -b`
-Expected: 5 passing tests, tsc silent
+Create `viz/src/components/shared/SeatRangeStrip.tsx`:
 
-- [ ] **Step 5: Commit**
+```tsx
+import { useMemo } from 'react';
+import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { SeatWhisker } from './SeatWhisker';
+import type { SeatInterval } from '../../lib/uncertainty';
+
+/** Compact always-visible range rows, one per seat-holding party: the 95% span, the
+ *  expected value, and a tick at the most likely count. Used where the chamber bar is
+ *  stacked and an inline whisker would overlap into neighbouring parties' segments. */
+export function SeatRangeStrip({ seats, order, label }: {
+  seats: Record<string, SeatInterval>;
+  order: string[];
+  label: string;
+}) {
+  const rows = useMemo(
+    () => order
+      .map(p => ({ party: p, iv: seats[p] }))
+      .filter((r): r is { party: string; iv: SeatInterval } =>
+        !!r.iv && (r.iv.modal > 0 || r.iv.hi > 0)),
+    [seats, order],
+  );
+  const max = useMemo(() => Math.max(1, ...rows.map(r => r.iv.hi)), [rows]);
+
+  if (!rows.length) return null;
+
+  return (
+    <div className="space-y-1 pt-1">
+      <div className="text-[10px] text-muted-foreground">{label}</div>
+      {rows.map(({ party, iv }) => {
+        const color = PARTY_COLORS[party] ?? '#6b7280';
+        return (
+          <div key={party} className="flex items-center gap-2">
+            <span className="w-10 shrink-0 text-[10px] font-bold text-right" style={{ color }}>
+              {party}
+            </span>
+            <div className="relative flex-1 h-4 rounded bg-muted/50">
+              <div className="absolute inset-y-1 rounded-sm" style={{
+                left: `${(iv.lo / max) * 100}%`,
+                width: `${((iv.hi - iv.lo) / max) * 100}%`,
+                backgroundColor: color,
+                opacity: 0.28,
+              }} />
+              <SeatWhisker lo={iv.lo} hi={iv.hi} centre={iv.expected} max={max}
+                title={`${PARTY_NAMES[party] ?? party}: ${iv.lo}–${iv.hi} seats across resamples, ${iv.expected.toFixed(1)} expected`} />
+              <div className="absolute inset-y-0 w-0.5" title={`most likely: ${iv.modal}`}
+                style={{ left: `${(iv.modal / max) * 100}%`, backgroundColor: color }} />
+            </div>
+            <span className="w-24 shrink-0 text-[10px] tabular-nums text-muted-foreground">
+              <span className="font-semibold text-foreground">{iv.modal}</span> · {iv.lo}–{iv.hi}
+            </span>
+          </div>
+        );
+      })}
+      <div className="flex items-center gap-2">
+        <span className="w-10 shrink-0" />
+        <div className="flex-1 flex justify-between text-[9px] text-muted-foreground">
+          <span>0</span><span>{max} seats</span>
+        </div>
+        <span className="w-24 shrink-0" />
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 5: Run it to verify everything passes**
+
+Run: `cd "/Users/bdecker/Local Projects/Personal/STV/viz" && npx vitest run src/lib/whisker.test.ts && npx tsc -b && npx eslint src/components/shared/SeatWhisker.tsx src/components/shared/SeatRangeStrip.tsx`
+Expected: 5 passing tests, tsc silent, eslint silent
+
+- [ ] **Step 6: Commit**
 
 ```bash
 cd "/Users/bdecker/Local Projects/Personal/STV"
-git add viz/src/lib/whisker.ts viz/src/lib/whisker.test.ts viz/src/components/shared/SeatWhisker.tsx
-git commit -m "Add SeatWhisker overlay primitive"
+git add viz/src/lib/whisker.ts viz/src/lib/whisker.test.ts viz/src/components/shared/SeatWhisker.tsx viz/src/components/shared/SeatRangeStrip.tsx
+git commit -m "Add SeatWhisker overlay and SeatRangeStrip"
 ```
 
 ---
@@ -1496,58 +1567,17 @@ Change the composition card call site from `<SenateCompositionCard condSeats={co
         condU={unc?.senate.cond} irvU={unc?.senate.irv} nDraws={unc?.nDraws} />
 ```
 
-- [ ] **Step 2: Use modal counts and whiskers in the card**
+- [ ] **Step 2: Use modal counts and add the range strip**
 
-In `SenateCompositionCard.tsx`, replace the `SenateCompBar` signature and body with a version that accepts explicit segments plus intervals. Change the props interface and `stats` memo to prefer modal counts:
+In `SenateCompositionCard.tsx`, add these imports:
 
 ```tsx
-import { SeatWhisker } from '../shared/SeatWhisker';
+import { SeatRangeStrip } from '../shared/SeatRangeStrip';
 import { UncertaintyDetail } from '../shared/UncertaintyDetail';
 import type { MethodUncertainty } from '../../lib/uncertainty';
 ```
 
-Replace the `SenateCompBar` component with:
-
-```tsx
-function SenateCompBar({ label, segments, total, unc }: {
-  label: string;
-  segments: { party: string; n: number; color: string }[];
-  total: number;
-  unc?: MethodUncertainty;
-}) {
-  return (
-    <div>
-      <div className="flex items-baseline gap-1.5 mb-1">
-        <span className="text-xs font-semibold text-foreground">{label}</span>
-        <span className="text-xs text-muted-foreground">· {total} seats</span>
-      </div>
-      <div className="relative flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
-        {segments.map(({ party, n, color }) => {
-          const pct = (n / total) * 100;
-          return (
-            <div key={party}
-              title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(0)}%)`}
-              className="seat-segment relative flex min-w-0 items-center justify-center overflow-hidden"
-              style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
-              <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text"
-                style={{ color: getContrastText(color) }}>
-                {party}<br />{n}
-              </span>
-              {unc?.seats[party] && (
-                <SeatWhisker lo={unc.seats[party].lo} hi={unc.seats[party].hi}
-                  centre={unc.seats[party].expected} max={n}
-                  title={`${party}: ${unc.seats[party].lo}–${unc.seats[party].hi} seats across resamples`} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-```
-
-Note the whisker's `max={n}` scales it to that segment's own width, so a party's interval reads against its own bar rather than the whole chamber.
+Leave `SenateCompBar` exactly as it is. The chamber bar is stacked, so a per-party whisker drawn inside a segment would have to extend into neighbouring parties' segments to show its range, and would read as belonging to the wrong party. The ranges go in a separate strip below instead.
 
 Replace the `stats` memo's tally so it prefers modal counts:
 
@@ -1577,15 +1607,23 @@ Replace the `stats` memo's tally so it prefers modal counts:
   }, [condSeats, irvSeats, condU, irvU]);
 ```
 
-Change the two preferential bars to build segments from `stats.rows` and pass `unc`:
+Change the two preferential bars to build segments from `stats.rows`, and add a range strip under each:
 
 ```tsx
-      <SenateCompBar label="Condorcet ×2" total={stats.total} unc={condU}
+      <SenateCompBar label="Condorcet ×2" total={stats.total}
         segments={stats.rows.filter(r => r.cond > 0)
           .map(r => ({ party: r.party, n: r.cond, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
-      <SenateCompBar label="IRV ×2" total={stats.total} unc={irvU}
+      {condU && (
+        <SeatRangeStrip seats={condU.seats} order={stats.rows.map(r => r.party)}
+          label="Condorcet — range across resamples (tick = most likely, dot = expected)" />
+      )}
+      <SenateCompBar label="IRV ×2" total={stats.total}
         segments={stats.rows.filter(r => r.irv > 0)
           .map(r => ({ party: r.party, n: r.irv, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
+      {irvU && (
+        <SeatRangeStrip seats={irvU.seats} order={stats.rows.map(r => r.party)}
+          label="IRV — range across resamples (tick = most likely, dot = expected)" />
+      )}
 ```
 
 Add the detail block and the one-line summary just before the closing `</Card>`, after the existing explanatory `<p>`:
@@ -1651,14 +1689,14 @@ const { chromium } = require('playwright');
 "
 ```
 
-Expected: no page errors; the IRV row's seat numbers reflect the modal chamber and still total 102; the "close enough to flip" line appears. Read `/tmp/comp.png` to confirm whiskers render inside the bar segments.
+Expected: no page errors; the IRV row's seat numbers reflect the modal chamber and still total 102; the "close enough to flip" line appears. Read `/tmp/comp.png` to confirm the range strips render below each stacked bar with the modal tick inside the shaded span.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 cd "/Users/bdecker/Local Projects/Personal/STV"
 git add viz/src/components/senate/SenateCompositionCard.tsx viz/src/tabs/SenateTab.tsx
-git commit -m "Show the modal senate chamber with sampling whiskers"
+git commit -m "Show the modal senate chamber with sampling ranges"
 ```
 
 ---
@@ -1699,19 +1737,10 @@ Inside `<ComposableMap>`, before `<Geographies>`, add the pattern definition:
           </defs>
 ```
 
-Change the geography mapping to render a second overlay `<Geography>` for unstable states, and extend the tooltip. Replace the `onMouseEnter` tooltip string with:
+Now replace the geography mapping so unstable states get a hatch overlay and every
+tooltip carries the win probability.
 
-```tsx
-                    onMouseEnter={() => {
-                      if (seat) {
-                        const u = states?.[fips];
-                        const prob = u ? ` — ${Math.round(u.pModal * 100)}% of resamples` : '';
-                        setTooltip(`${seat.stateAbbr}: ${seat.senatorLabel} (${seat.senatorType})${prob}`);
-                      }
-                    }}
-```
-
-Immediately after the `<Geography ... />` element inside the `.map`, return a fragment so the hatch sits on top:
+Replace the whole `return (...)` inside the `.map` with a `<g>` wrapper so the hatch draws on top. This is the complete replacement — the `key` moves to the `<g>`, and the hatch layer is `pointerEvents: 'none'` so it never steals the tooltip hover:
 
 ```tsx
                 return (
@@ -1719,7 +1748,21 @@ Immediately after the `<Geography ... />` element inside the `.map`, return a fr
                     <Geography
                       geography={geo}
                       fill={fill}
-                      /* …all existing props unchanged, minus the key… */
+                      stroke="#cbd5e1"
+                      strokeWidth={1}
+                      style={{
+                        default: { outline: 'none', cursor: seat ? 'pointer' : 'default' },
+                        hover:   { outline: 'none', opacity: 0.8 },
+                        pressed: { outline: 'none' },
+                      }}
+                      onMouseEnter={() => {
+                        if (seat) {
+                          const u = states?.[fips];
+                          const prob = u ? ` — ${Math.round(u.pModal * 100)}% of resamples` : '';
+                          setTooltip(`${seat.stateAbbr}: ${seat.senatorLabel} (${seat.senatorType})${prob}`);
+                        }
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
                     />
                     {states?.[fips] && states[fips].pModal < 0.5 && (
                       <Geography geography={geo} fill="url(#unstable-hatch)" stroke="none"
@@ -1730,6 +1773,8 @@ Immediately after the `<Geography ... />` element inside the `.map`, return a fr
                   </g>
                 );
 ```
+
+Read `SenateMap.tsx` first: if the existing `<Geography>` has props not shown above, carry them onto the first `<Geography>` unchanged.
 
 Add a legend line under the map, inside the outer `<div>`:
 
@@ -1950,13 +1995,20 @@ In `ScenarioComparison.tsx`, add to `Props`:
   houseU?: Record<string, import('../../lib/uncertainty').SeatInterval>;
 ```
 
-and to the destructured params: `houseU`. Then change the seat-share bar at line 103 to supply percentage-scaled bounds. Total seats differ per view, so convert seat counts to percentages using the same denominator the bar already uses:
+and to the destructured params: `houseU`.
+
+The bar's axis is in **percent** (`max={maxPct}`) but `houseU` is in **seats**, so the bounds must be converted with the same denominator the row's own `seatPct` was computed from. Both branches of this component already have that denominator in scope as a local (`rmTotal` in the first, `totalSeats` in the second) — use it directly rather than re-deriving it by dividing, which blows up when `seatPct` is near zero.
+
+First, read `ScenarioComparison.tsx:40-75` and note two things: the name of the seat-total local in the branch you are editing, and whether `r.party` holds a cluster index (a number) or a party code (a string). `houseU` is keyed by party code (`CON`, `LBR`, …), so if `r.party` is numeric you must index with `CLUSTER_TO_PARTY[r.party]`, which is already imported in this file.
+
+Then replace the seat-share `<Bar>` at line 103 with:
 
 ```tsx
                 {(() => {
-                  const u = houseU?.[r.party];
-                  const denom = r.seats > 0 && r.seatPct > 0 ? r.seats / (r.seatPct / 100) : 0;
-                  const toPct = (n: number) => (denom > 0 ? (n / denom) * 100 : undefined);
+                  const key = typeof r.party === 'number' ? CLUSTER_TO_PARTY[r.party] : r.party;
+                  const u = houseU?.[key];
+                  const denom = SEAT_TOTAL_LOCAL;   // rmTotal or totalSeats — see note above
+                  const toPct = (n: number) => (n / denom) * 100;
                   return (
                     <Bar pct={r.seatPct} max={maxPct} color={c}
                       label={`${seatLabel} ${r.seatPct.toFixed(1)}% (${r.seats})`}
@@ -1967,7 +2019,7 @@ and to the destructured params: `houseU`. Then change the seat-share bar at line
                 })()}
 ```
 
-`r.party` is a cluster index in this component; map it with `CLUSTER_TO_PARTY[r.party]` when indexing `houseU` if the row's party field is numeric — check the row construction at `ScenarioComparison.tsx:44-49` and use whichever key type matches `houseU`'s party codes.
+Substitute the actual local name for `SEAT_TOTAL_LOCAL`. If the two branches use different names, each branch's bar uses its own.
 
 - [ ] **Step 3: Pass the data from HouseTab**
 
