@@ -12,6 +12,7 @@ import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+import { uncertaintyAt } from '../lib/uncertainty';
 import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
 // Compression stops for the primary (finalists + buckets + per-stage national shares).
 import pmPrimTurnout from '../data/pureMultiPrimaryTurnout.json';
@@ -80,6 +81,9 @@ export function PrimaryTab({
     }
   }, [depth, depthBundle]);
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+  // Bootstrap resample probabilities exist only for the raw multi-party pipeline — Crossover
+  // (Factor Dev) has no uncertainty payload, matching the gate SenateTab/PresidentialTab use.
+  const su = pipeline === 'rawMulti' ? uncertaintyAt(gi)?.primary : undefined;
   const primStops   = [pmPrimTurnout, pmPrimL5, pmPrimL10, pmPrimL15, pmPrimL20, pmPrimL25, pmPrimL30] as unknown as FDPrimaryData[];
   const bucketStops = [pmBktTurnout, pmBktL5, pmBktL10, pmBktL15, pmBktL20, pmBktL25, pmBktL30] as unknown as BucketData[];
   const shareStops  = [pmShTurnout, pmShL5, pmShL10, pmShL15, pmShL20, pmShL25, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
@@ -172,6 +176,22 @@ export function PrimaryTab({
           </span>
         ))}
       </div>
+      {(() => {
+        if (!su) return null;
+        // Candidates whose slate-membership probability is farthest from certain — either shaky
+        // finalists or close non-finalists — sorted least-certain first.
+        const shaky = Object.entries(su.slate)
+          .filter(([, v]) => v < 0.9)
+          .sort((a, b) => a[1] - b[1])
+          .slice(0, 4);
+        if (!shaky.length) return null;
+        return (
+          <p className="text-[11px] text-muted-foreground">
+            Least certain finalists across resamples:{' '}
+            {shaky.map(([c, v]) => `${PARTY_NAMES[c.split('_')[0]] ?? c} ${Math.round(v * 100)}%`).join(' · ')}
+          </p>
+        );
+      })()}
 
       {/* Primary Winnowing — bucket composition */}
       {(() => {

@@ -3,11 +3,12 @@ import { useUrlState } from '../hooks/useUrlState';
 import { DEPTH_KEYS, type DepthKey } from '../constants/depth';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
 import { Card } from '@/components/ui/card';
-import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
+import { PARTY_COLORS, PARTY_NAMES, buildDisplayLabels } from '../constants/parties';
 import { PIPELINE_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+import { uncertaintyAt, type UncertaintyData } from '../lib/uncertainty';
 // Gap-compression stops (5-point steps to 30%); the λ=0 floor comes via props.
 import presTL5 from '../data/rawMultiPresidentialElectionTurnoutL5.json';
 import presTL10 from '../data/rawMultiPresidentialElectionTurnoutL10.json';
@@ -43,6 +44,16 @@ interface Props {
 
 const PRES_LABELS = PIPELINE_LABELS;
 
+// dist is ordered modal-first, strictly descending, so no re-sorting is needed here.
+// nResolved < nDraws only when some resamples hit a Condorcet cycle with no winner — surface the
+// denominator so a cycle would show up rather than being silently renormalized away.
+function formatPresidentDist(m: UncertaintyData['president']['irv'], nDraws: number): string {
+  const shares = Object.entries(m.dist)
+    .map(([code, v]) => `${PARTY_NAMES[code] ?? code} ${Math.round(v * 100)}%`)
+    .join(' · ');
+  return m.nResolved < nDraws ? `${shares} (${m.nResolved}/${nDraws} resamples resolved)` : shares;
+}
+
 function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: string }) {
   const color = PARTY_COLORS[partyCode] ?? '#6b7280';
   if (!signs) return <span className="text-slate-300 text-xs">—</span>;
@@ -67,6 +78,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+  // Bootstrap resample probabilities exist only for the raw multi-party pipeline — Crossover
+  // (Factor Dev) has no uncertainty payload, matching the gate SenateTab uses for the same data.
+  const ud = scenario === 'rawMulti' ? uncertaintyAt(gi) : undefined;
   const rmStops = [rawMultiTurnout, presTL5, presTL10, presTL15, presTL20, presTL25, presTL30] as unknown as PresidentialElection[];
   // The general is a 5-finalist IRV/Condorcet contest — voters rank all 5, so there is no ballot-
   // depth toggle here. But WHICH 5 finalists advance depends on the primary's depth setting (shared
@@ -208,6 +222,12 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                 </Card>
               )}
             </>
+          )}
+          {ud && ud.president && (
+            <p className="text-[11px] text-muted-foreground">
+              Across resamples — IRV: {formatPresidentDist(ud.president.irv, ud.nDraws)};{' '}
+              Condorcet: {formatPresidentDist(ud.president.cond, ud.nDraws)}
+            </p>
           )}
         </div>
       ) : (
