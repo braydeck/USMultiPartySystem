@@ -275,7 +275,8 @@ def generate_seat_charts():
     print("\n── SEAT LAYOUT CHARTS ────────────────────────────────────────")
 
     # House seat counts
-    house_summary = pd.read_csv(DATA / "No_C7_canonical" / "stv_seat_summary.csv")
+    # The canonical 873-seat chamber, not No_C7_canonical's 850-seat older run.
+    house_summary = pd.read_csv(DATA / "pure_multi" / "house" / "stv_seat_summary.csv")
     house_seats   = {
         CLUSTER_NAMES[int(r["party"])]: int(r["NATIONAL"])
         for _, r in house_summary.iterrows()

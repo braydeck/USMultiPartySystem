@@ -38,9 +38,10 @@ TYPE_COLS = [CLUSTER_NAMES[i] for i in range(10)]
 
 META_COLS = ["variable", "domain", "type", "stat_label", "question", "overall"]
 
-# Canonical scenario: C7 (Blue Dogs) pre-dissolved, all other parties active
+# The canonical 873-seat chamber. No_C7_canonical/stv_seat_summary.csv is an 850-seat artifact of
+# an older run — that directory is kept for its ballot checkpoint and apportionment, not its seats.
 SCENARIOS = [
-    ("house_chamber", "No_C7_canonical"),
+    ("house_chamber", "pure_multi/house"),
 ]
 
 

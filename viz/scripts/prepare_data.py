@@ -74,8 +74,14 @@ def read_csv(path):
         return apply_domain_fixes(list(csv.DictReader(f)))
 
 
+# Dormant scenarios emit here instead of alongside the live payloads: nothing imports them, so
+# keeping them in src/data made 16 orphaned files look like part of the app.
+ARCHIVE = "archive/"
+
+
 def write_json(data, name):
     path = DATA_OUT / name
+    path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, separators=(",", ":"))
     print(f"  Wrote {path.name} ({os.path.getsize(path):,} bytes)")
@@ -3251,7 +3257,8 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
         p = r["senator_code"].rsplit("_", 1)[0]; irv_seats[p] = irv_seats.get(p, 0) + 1
     # The headline chamber is the modal one, so the legislation model must describe
     # that chamber rather than the single observed run.
-    _suffix = out_name.replace("senateVoteModel", "").replace(".json", "")
+    # Path(...).name so an archive-prefixed out_name still yields the bare turnout suffix.
+    _suffix = Path(out_name).name.replace("senateVoteModel", "").replace(".json", "")
     cond_seats = _modal_seats(_suffix, "senate", "cond") or cond_seats
     irv_seats = _modal_seats(_suffix, "senate", "irv") or irv_seats
     cond_res = _lf_prob_pass(cond_seats, cbv)
@@ -3349,7 +3356,8 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
     # The headline chamber is the modal one, so the legislation model must describe
     # that chamber rather than the single observed run. Total/maj stay put — the
     # modal house still sums to 873.
-    _suffix = out_name.replace("houseVoteModel", "").replace(".json", "")
+    # Path(...).name so an archive-prefixed out_name still yields the bare turnout suffix.
+    _suffix = Path(out_name).name.replace("houseVoteModel", "").replace(".json", "")
     rm_seats = _modal_seats(_suffix, "house") or rm_seats
     maj = total // 2 + 1
     import math as _m
@@ -3415,32 +3423,33 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
 
 
 def build_nosty_scenario():
-    """Parallel 'no-Solidarity' scenario: cluster 2 is dissolved and its voters' ballots
-    flow to the remaining 10 parties. Reads the NO_STY=1 pipeline outputs (pure_multi_nosty/)
-    and emits *NoSTY.json for the Presidency / Senate / House toggles."""
+    """Dormant 'no-Solidarity' scenario: cluster 2 is dissolved and its voters' ballots flow to the
+    remaining 10 parties. Reads the NO_STY=1 pipeline outputs (pure_multi_nosty/). The UI toggle it
+    fed was removed, so it emits under src/data/archive/ — kept as a robustness check, not shipped."""
     d = PURE_MULTI_NOSTY_DIR
-    build_raw_multi_presidential_election(src_dir=d, out_name="rawMultiPresidentialElectionNoSTY.json")
-    build_pure_multi_senate(src_dir=d, cond_name="pureMultiSenateCondorcetNoSTY.json", irv_name="pureMultiSenateIRVNoSTY.json")
-    build_house_seats(src_csv=d / "house" / "stv_seat_summary.csv", out_name="houseSeatsNoSTY.json")
-    build_house_state_map(src_dir=d, out_name="houseStateMapNoSTY.json")
-    build_district_stv_results(src_csv=d / "house" / "stv_results_by_district.csv", out_name="districtStvResultsNoSTY.json")
+    build_raw_multi_presidential_election(src_dir=d, out_name=f"{ARCHIVE}rawMultiPresidentialElectionNoSTY.json")
+    build_pure_multi_senate(src_dir=d, cond_name=f"{ARCHIVE}pureMultiSenateCondorcetNoSTY.json", irv_name=f"{ARCHIVE}pureMultiSenateIRVNoSTY.json")
+    build_house_seats(src_csv=d / "house" / "stv_seat_summary.csv", out_name=f"{ARCHIVE}houseSeatsNoSTY.json")
+    build_house_state_map(src_dir=d, out_name=f"{ARCHIVE}houseStateMapNoSTY.json")
+    build_district_stv_results(src_csv=d / "house" / "stv_results_by_district.csv", out_name=f"{ARCHIVE}districtStvResultsNoSTY.json")
     # Legislation vote models — Raw-Multi chamber pass + president sign/veto recomputed from the no-STY run.
-    build_senate_vote_model_wfp(d, out_name="senateVoteModelNoSTY.json")
-    build_house_vote_model_wfp(d, out_name="houseVoteModelNoSTY.json")
+    build_senate_vote_model_wfp(d, out_name=f"{ARCHIVE}senateVoteModelNoSTY.json")
+    build_house_vote_model_wfp(d, out_name=f"{ARCHIVE}houseVoteModelNoSTY.json")
 
 
-def _build_turnout_variant(d, suffix):
-    """Emit the *<suffix>.json family from a turnout-weighted pipeline tree `d`."""
-    build_raw_multi_presidential_election(src_dir=d, out_name=f"rawMultiPresidentialElection{suffix}.json")
-    build_pure_multi_senate(src_dir=d, cond_name=f"pureMultiSenateCondorcet{suffix}.json", irv_name=f"pureMultiSenateIRV{suffix}.json")
-    build_house_seats(src_csv=d / "house" / "stv_seat_summary.csv", out_name=f"houseSeats{suffix}.json")
-    build_house_state_map(src_dir=d, out_name=f"houseStateMap{suffix}.json")
-    build_district_stv_results(src_csv=d / "house" / "stv_results_by_district.csv", out_name=f"districtStvResults{suffix}.json")
-    build_senate_vote_model_wfp(d, out_name=f"senateVoteModel{suffix}.json")
-    build_house_vote_model_wfp(d, out_name=f"houseVoteModel{suffix}.json")
-    build_senate_irv_rounds(d, f"senateIrvRounds{suffix}.json")
-    build_senate_condorcet(d, f"senateCondorcet{suffix}.json")
-    build_senate_buckets(d, f"senateBuckets{suffix}.json")
+def _build_turnout_variant(d, suffix, prefix=""):
+    """Emit the *<suffix>.json family from a turnout-weighted pipeline tree `d`. `prefix` routes a
+    dormant scenario into a subdirectory of src/data without changing the file names."""
+    build_raw_multi_presidential_election(src_dir=d, out_name=f"{prefix}rawMultiPresidentialElection{suffix}.json")
+    build_pure_multi_senate(src_dir=d, cond_name=f"{prefix}pureMultiSenateCondorcet{suffix}.json", irv_name=f"{prefix}pureMultiSenateIRV{suffix}.json")
+    build_house_seats(src_csv=d / "house" / "stv_seat_summary.csv", out_name=f"{prefix}houseSeats{suffix}.json")
+    build_house_state_map(src_dir=d, out_name=f"{prefix}houseStateMap{suffix}.json")
+    build_district_stv_results(src_csv=d / "house" / "stv_results_by_district.csv", out_name=f"{prefix}districtStvResults{suffix}.json")
+    build_senate_vote_model_wfp(d, out_name=f"{prefix}senateVoteModel{suffix}.json")
+    build_house_vote_model_wfp(d, out_name=f"{prefix}houseVoteModel{suffix}.json")
+    build_senate_irv_rounds(d, f"{prefix}senateIrvRounds{suffix}.json")
+    build_senate_condorcet(d, f"{prefix}senateCondorcet{suffix}.json")
+    build_senate_buckets(d, f"{prefix}senateBuckets{suffix}.json")
 
 
 def build_pure_multi_primary_state_shares(src_dir, out_name):
@@ -3473,7 +3482,7 @@ def build_turnout_scenario():
     # regenerated by the senate reruns — so a missing input here must not block
     # the live path above.
     try:
-        _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout")
+        _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout", prefix=ARCHIVE)
     except FileNotFoundError as e:
         print(f"  SKIP NoStyTurnout variant (dormant): missing {e.filename}")
 

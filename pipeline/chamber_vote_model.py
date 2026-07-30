@@ -190,9 +190,9 @@ def main():
     print("\n── HOUSE ─────────────────────────────────────────────────────")
     HOUSE_MAJORITY = 437
 
-    # Canonical scenario: C7 (Blue Dogs) pre-dissolved, all other parties active
+    # The canonical 873-seat chamber, not No_C7_canonical's 850-seat older run.
     scenarios = [
-        ("house", OUT_DIR / "No_C7_canonical" / "stv_seat_summary.csv"),
+        ("house", OUT_DIR / "pure_multi" / "house" / "stv_seat_summary.csv"),
     ]
 
     house_out = house_binary[["variable", "domain", "question", "overall"]].copy()

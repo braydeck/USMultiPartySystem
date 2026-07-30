@@ -1,116 +1,116 @@
 factor,factor_short,type,chamber,score,rank,k2_cluster,k2_label,tier_id,tier_label,seats_senate_cond,seats_senate_irv,seats_house
-F1_security_order,F1_SecOrd,CON,both,0.7674,1,1,High Security/Order,4,Very High,3,3,133
+F1_security_order,F1_SecOrd,CON,both,0.7674,1,1,High Security/Order,4,Very High,3,3,201
 F1_security_order,F1_SecOrd,CON/NAT,senate,0.7523,2,1,High Security/Order,4,Very High,0,2,0
-F1_security_order,F1_SecOrd,NAT,house,0.7366,3,1,High Security/Order,3,High,0,0,75
+F1_security_order,F1_SecOrd,NAT,house,0.7366,3,1,High Security/Order,3,High,0,0,41
 F1_security_order,F1_SecOrd,CON/POP,senate,0.5922,4,1,High Security/Order,3,High,2,4,0
 F1_security_order,F1_SecOrd,CON/CUP,senate,0.5768,5,1,High Security/Order,3,High,12,9,0
-F1_security_order,F1_SecOrd,CUP,both,0.2658,6,1,High Security/Order,3,High,2,1,103
+F1_security_order,F1_SecOrd,CUP,both,0.2658,6,1,High Security/Order,3,High,2,1,89
 F1_security_order,F1_SecOrd,CON/STY,senate,0.2577,7,1,High Security/Order,3,High,3,2,0
-F1_security_order,F1_SecOrd,CON/SD,senate,0.2357,8,1,High Security/Order,2,Medium,0,0,0
-F1_security_order,F1_SecOrd,POP,both,0.2023,9,1,High Security/Order,2,Medium,0,0,88
-F1_security_order,F1_SecOrd,SD/CON,senate,0.1529,10,1,High Security/Order,2,Medium,0,0,0
+F1_security_order,F1_SecOrd,CON/LBR,senate,0.2357,8,1,High Security/Order,2,Medium,4,1,0
+F1_security_order,F1_SecOrd,POP,both,0.2023,9,1,High Security/Order,2,Medium,0,0,106
+F1_security_order,F1_SecOrd,LBR/CON,senate,0.1529,10,1,High Security/Order,2,Medium,4,1,0
 F1_security_order,F1_SecOrd,STY/CON,senate,0.0758,11,1,High Security/Order,2,Medium,1,0,0
 F1_security_order,F1_SecOrd,POP/STY,senate,-0.0376,12,1,High Security/Order,2,Medium,0,0,0
-F1_security_order,F1_SecOrd,SD/CUP,senate,-0.1219,13,0,Low Security (Liberty),2,Medium,0,0,0
+F1_security_order,F1_SecOrd,LBR/CUP,senate,-0.1219,13,0,Low Security (Liberty),2,Medium,0,0,0
 F1_security_order,F1_SecOrd,STY/POP,senate,-0.1543,14,0,Low Security (Liberty),2,Medium,0,0,0
 F1_security_order,F1_SecOrd,LIB/CUP,senate,-0.1711,15,0,Low Security (Liberty),2,Medium,0,0,0
-F1_security_order,F1_SecOrd,SD,senate,-0.4143,16,0,Low Security (Liberty),1,Low,0,0,0
-F1_security_order,F1_SecOrd,SD/STY,senate,-0.4247,17,0,Low Security (Liberty),1,Low,0,0,0
-F1_security_order,F1_SecOrd,STY/SD,senate,-0.4301,18,0,Low Security (Liberty),1,Low,0,0,0
-F1_security_order,F1_SecOrd,SD/LIB,senate,-0.4378,19,0,Low Security (Liberty),1,Low,0,0,0
-F1_security_order,F1_SecOrd,STY,both,-0.446,20,0,Low Security (Liberty),1,Low,0,0,84
-F1_security_order,F1_SecOrd,LIB,both,-0.4623,21,0,Low Security (Liberty),1,Low,1,4,73
-F1_security_order,F1_SecOrd,PRG,house,-1.26,22,0,Low Security (Liberty),0,Very Low,0,1,73
-F1_security_order,F1_SecOrd,DSA,house,-1.3034,23,0,Low Security (Liberty),0,Very Low,0,0,33
-F2_electoral_skepticism,F2_ElecSkep,POP,both,0.7593,1,1,High Elec. Skepticism,4,Very High,0,0,88
+F1_security_order,F1_SecOrd,LBR,both,-0.4143,16,0,Low Security (Liberty),1,Low,5,8,0
+F1_security_order,F1_SecOrd,LBR/STY,senate,-0.4247,17,0,Low Security (Liberty),1,Low,4,3,0
+F1_security_order,F1_SecOrd,STY/LBR,senate,-0.4301,18,0,Low Security (Liberty),1,Low,3,3,0
+F1_security_order,F1_SecOrd,LBR/LIB,senate,-0.4378,19,0,Low Security (Liberty),1,Low,4,6,0
+F1_security_order,F1_SecOrd,STY,both,-0.446,20,0,Low Security (Liberty),1,Low,0,0,129
+F1_security_order,F1_SecOrd,LIB,both,-0.4623,21,0,Low Security (Liberty),1,Low,1,4,93
+F1_security_order,F1_SecOrd,PRG,house,-1.26,22,0,Low Security (Liberty),0,Very Low,0,1,15
+F1_security_order,F1_SecOrd,DSA,house,-1.3034,23,0,Low Security (Liberty),0,Very Low,0,0,25
+F2_electoral_skepticism,F2_ElecSkep,POP,both,0.7593,1,1,High Elec. Skepticism,4,Very High,0,0,106
 F2_electoral_skepticism,F2_ElecSkep,POP/STY,senate,0.7218,2,1,High Elec. Skepticism,3,High,0,0,0
 F2_electoral_skepticism,F2_ElecSkep,STY/POP,senate,0.7035,3,1,High Elec. Skepticism,3,High,0,0,0
-F2_electoral_skepticism,F2_ElecSkep,STY,both,0.6579,4,1,High Elec. Skepticism,3,High,0,0,84
-F2_electoral_skepticism,F2_ElecSkep,DSA,house,0.504,5,1,High Elec. Skepticism,3,High,0,0,33
-F2_electoral_skepticism,F2_ElecSkep,NAT,house,0.4278,6,1,High Elec. Skepticism,3,High,0,0,75
+F2_electoral_skepticism,F2_ElecSkep,STY,both,0.6579,4,1,High Elec. Skepticism,3,High,0,0,129
+F2_electoral_skepticism,F2_ElecSkep,DSA,house,0.504,5,1,High Elec. Skepticism,3,High,0,0,25
+F2_electoral_skepticism,F2_ElecSkep,NAT,house,0.4278,6,1,High Elec. Skepticism,3,High,0,0,41
 F2_electoral_skepticism,F2_ElecSkep,STY/CON,senate,0.3649,7,1,High Elec. Skepticism,3,High,1,0,0
-F2_electoral_skepticism,F2_ElecSkep,STY/SD,senate,0.3129,8,1,High Elec. Skepticism,3,High,0,0,0
+F2_electoral_skepticism,F2_ElecSkep,STY/LBR,senate,0.3129,8,1,High Elec. Skepticism,3,High,3,3,0
 F2_electoral_skepticism,F2_ElecSkep,CON/STY,senate,0.2627,9,1,High Elec. Skepticism,3,High,3,2,0
 F2_electoral_skepticism,F2_ElecSkep,CON/POP,senate,0.2192,10,1,High Elec. Skepticism,2,Medium,2,4,0
 F2_electoral_skepticism,F2_ElecSkep,CON/NAT,senate,0.1976,11,1,High Elec. Skepticism,2,Medium,0,2,0
-F2_electoral_skepticism,F2_ElecSkep,SD/STY,senate,0.1956,12,1,High Elec. Skepticism,2,Medium,0,0,0
-F2_electoral_skepticism,F2_ElecSkep,CON,both,-0.0235,13,1,High Elec. Skepticism,2,Medium,3,3,133
-F2_electoral_skepticism,F2_ElecSkep,CON/SD,senate,-0.0274,14,1,High Elec. Skepticism,2,Medium,0,0,0
-F2_electoral_skepticism,F2_ElecSkep,SD/CON,senate,-0.028,15,1,High Elec. Skepticism,2,Medium,0,0,0
-F2_electoral_skepticism,F2_ElecSkep,SD,senate,-0.0321,16,1,High Elec. Skepticism,2,Medium,0,0,0
+F2_electoral_skepticism,F2_ElecSkep,LBR/STY,senate,0.1956,12,1,High Elec. Skepticism,2,Medium,4,3,0
+F2_electoral_skepticism,F2_ElecSkep,CON,both,-0.0235,13,1,High Elec. Skepticism,2,Medium,3,3,201
+F2_electoral_skepticism,F2_ElecSkep,CON/LBR,senate,-0.0274,14,1,High Elec. Skepticism,2,Medium,4,1,0
+F2_electoral_skepticism,F2_ElecSkep,LBR/CON,senate,-0.028,15,1,High Elec. Skepticism,2,Medium,4,1,0
+F2_electoral_skepticism,F2_ElecSkep,LBR,both,-0.0321,16,1,High Elec. Skepticism,2,Medium,5,8,0
 F2_electoral_skepticism,F2_ElecSkep,CON/CUP,senate,-0.3248,17,0,Low Skepticism (Pro-Sys),1,Low,12,9,0
-F2_electoral_skepticism,F2_ElecSkep,SD/CUP,senate,-0.3694,18,0,Low Skepticism (Pro-Sys),1,Low,0,0,0
-F2_electoral_skepticism,F2_ElecSkep,SD/LIB,senate,-0.3808,19,0,Low Skepticism (Pro-Sys),1,Low,0,0,0
-F2_electoral_skepticism,F2_ElecSkep,PRG,house,-0.6338,20,0,Low Skepticism (Pro-Sys),1,Low,0,1,73
-F2_electoral_skepticism,F2_ElecSkep,LIB,both,-0.7437,21,0,Low Skepticism (Pro-Sys),1,Low,1,4,73
+F2_electoral_skepticism,F2_ElecSkep,LBR/CUP,senate,-0.3694,18,0,Low Skepticism (Pro-Sys),1,Low,0,0,0
+F2_electoral_skepticism,F2_ElecSkep,LBR/LIB,senate,-0.3808,19,0,Low Skepticism (Pro-Sys),1,Low,4,6,0
+F2_electoral_skepticism,F2_ElecSkep,PRG,house,-0.6338,20,0,Low Skepticism (Pro-Sys),1,Low,0,1,15
+F2_electoral_skepticism,F2_ElecSkep,LIB,both,-0.7437,21,0,Low Skepticism (Pro-Sys),1,Low,1,4,93
 F2_electoral_skepticism,F2_ElecSkep,LIB/CUP,senate,-0.7729,22,0,Low Skepticism (Pro-Sys),0,Very Low,0,0,0
-F2_electoral_skepticism,F2_ElecSkep,CUP,both,-0.8166,23,0,Low Skepticism (Pro-Sys),0,Very Low,2,1,103
-F3_government_distrust,F3_GovtDis,STY,both,0.1333,1,1,High Govt Distrust,2,Medium,0,0,84
+F2_electoral_skepticism,F2_ElecSkep,CUP,both,-0.8166,23,0,Low Skepticism (Pro-Sys),0,Very Low,2,1,89
+F3_government_distrust,F3_GovtDis,STY,both,0.1333,1,1,High Govt Distrust,2,Medium,0,0,129
 F3_government_distrust,F3_GovtDis,STY/CON,senate,0.1236,2,1,High Govt Distrust,2,Medium,1,0,0
 F3_government_distrust,F3_GovtDis,CON/STY,senate,0.1202,3,1,High Govt Distrust,2,Medium,3,2,0
-F3_government_distrust,F3_GovtDis,STY/SD,senate,0.1124,4,1,High Govt Distrust,2,Medium,0,0,0
-F3_government_distrust,F3_GovtDis,CON,both,0.1108,5,1,High Govt Distrust,2,Medium,3,3,133
-F3_government_distrust,F3_GovtDis,SD/STY,senate,0.1053,6,1,High Govt Distrust,2,Medium,0,0,0
-F3_government_distrust,F3_GovtDis,CON/SD,senate,0.1021,7,1,High Govt Distrust,2,Medium,0,0,0
-F3_government_distrust,F3_GovtDis,SD/CON,senate,0.1007,8,1,High Govt Distrust,2,Medium,0,0,0
-F3_government_distrust,F3_GovtDis,SD,senate,0.0915,9,1,High Govt Distrust,2,Medium,0,0,0
-F3_government_distrust,F3_GovtDis,DSA,house,0.0761,10,1,High Govt Distrust,2,Medium,0,0,33
+F3_government_distrust,F3_GovtDis,STY/LBR,senate,0.1124,4,1,High Govt Distrust,2,Medium,3,3,0
+F3_government_distrust,F3_GovtDis,CON,both,0.1108,5,1,High Govt Distrust,2,Medium,3,3,201
+F3_government_distrust,F3_GovtDis,LBR/STY,senate,0.1053,6,1,High Govt Distrust,2,Medium,4,3,0
+F3_government_distrust,F3_GovtDis,CON/LBR,senate,0.1021,7,1,High Govt Distrust,2,Medium,4,1,0
+F3_government_distrust,F3_GovtDis,LBR/CON,senate,0.1007,8,1,High Govt Distrust,2,Medium,4,1,0
+F3_government_distrust,F3_GovtDis,LBR,both,0.0915,9,1,High Govt Distrust,2,Medium,5,8,0
+F3_government_distrust,F3_GovtDis,DSA,house,0.0761,10,1,High Govt Distrust,2,Medium,0,0,25
 F3_government_distrust,F3_GovtDis,CON/POP,senate,0.0126,11,1,High Govt Distrust,2,Medium,2,4,0
-F3_government_distrust,F3_GovtDis,SD/LIB,senate,0.0044,12,1,High Govt Distrust,2,Medium,0,0,0
+F3_government_distrust,F3_GovtDis,LBR/LIB,senate,0.0044,12,1,High Govt Distrust,2,Medium,4,6,0
 F3_government_distrust,F3_GovtDis,CON/CUP,senate,0.0024,13,1,High Govt Distrust,2,Medium,12,9,0
 F3_government_distrust,F3_GovtDis,STY/POP,senate,-0.0194,14,1,High Govt Distrust,2,Medium,0,0,0
-F3_government_distrust,F3_GovtDis,SD/CUP,senate,-0.0228,15,1,High Govt Distrust,2,Medium,0,0,0
+F3_government_distrust,F3_GovtDis,LBR/CUP,senate,-0.0228,15,1,High Govt Distrust,2,Medium,0,0,0
 F3_government_distrust,F3_GovtDis,CON/NAT,senate,-0.0453,16,0,Low Govt Distrust,2,Medium,0,2,0
 F3_government_distrust,F3_GovtDis,POP/STY,senate,-0.0805,17,0,Low Govt Distrust,2,Medium,0,0,0
-F3_government_distrust,F3_GovtDis,LIB,both,-0.0862,18,0,Low Govt Distrust,2,Medium,1,4,73
+F3_government_distrust,F3_GovtDis,LIB,both,-0.0862,18,0,Low Govt Distrust,2,Medium,1,4,93
 F3_government_distrust,F3_GovtDis,LIB/CUP,senate,-0.1215,19,0,Low Govt Distrust,2,Medium,0,0,0
-F3_government_distrust,F3_GovtDis,CUP,both,-0.1744,20,0,Low Govt Distrust,2,Medium,2,1,103
-F3_government_distrust,F3_GovtDis,PRG,house,-0.2057,21,0,Low Govt Distrust,2,Medium,0,1,73
-F3_government_distrust,F3_GovtDis,POP,both,-0.2061,22,0,Low Govt Distrust,2,Medium,0,0,88
-F3_government_distrust,F3_GovtDis,NAT,house,-0.2078,23,0,Low Govt Distrust,2,Medium,0,0,75
-F4_religious_traditionalism,F4_ReligTrad,NAT,house,0.4573,1,1,High Relig. Trad.,3,High,0,0,75
+F3_government_distrust,F3_GovtDis,CUP,both,-0.1744,20,0,Low Govt Distrust,2,Medium,2,1,89
+F3_government_distrust,F3_GovtDis,PRG,house,-0.2057,21,0,Low Govt Distrust,2,Medium,0,1,15
+F3_government_distrust,F3_GovtDis,POP,both,-0.2061,22,0,Low Govt Distrust,2,Medium,0,0,106
+F3_government_distrust,F3_GovtDis,NAT,house,-0.2078,23,0,Low Govt Distrust,2,Medium,0,0,41
+F4_religious_traditionalism,F4_ReligTrad,NAT,house,0.4573,1,1,High Relig. Trad.,3,High,0,0,41
 F4_religious_traditionalism,F4_ReligTrad,CON/NAT,senate,0.3356,2,1,High Relig. Trad.,3,High,0,2,0
-F4_religious_traditionalism,F4_ReligTrad,CON,both,0.2186,3,1,High Relig. Trad.,2,Medium,3,3,133
+F4_religious_traditionalism,F4_ReligTrad,CON,both,0.2186,3,1,High Relig. Trad.,2,Medium,3,3,201
 F4_religious_traditionalism,F4_ReligTrad,CON/POP,senate,0.1964,4,1,High Relig. Trad.,2,Medium,2,4,0
 F4_religious_traditionalism,F4_ReligTrad,CON/STY,senate,0.1959,5,1,High Relig. Trad.,2,Medium,3,2,0
 F4_religious_traditionalism,F4_ReligTrad,STY/CON,senate,0.1878,6,1,High Relig. Trad.,2,Medium,1,0,0
 F4_religious_traditionalism,F4_ReligTrad,CON/CUP,senate,0.1848,7,1,High Relig. Trad.,2,Medium,12,9,0
-F4_religious_traditionalism,F4_ReligTrad,STY,both,0.1645,8,1,High Relig. Trad.,2,Medium,0,0,84
+F4_religious_traditionalism,F4_ReligTrad,STY,both,0.1645,8,1,High Relig. Trad.,2,Medium,0,0,129
 F4_religious_traditionalism,F4_ReligTrad,STY/POP,senate,0.1566,9,1,High Relig. Trad.,2,Medium,0,0,0
 F4_religious_traditionalism,F4_ReligTrad,POP/STY,senate,0.1535,10,1,High Relig. Trad.,2,Medium,0,0,0
-F4_religious_traditionalism,F4_ReligTrad,POP,both,0.147,11,1,High Relig. Trad.,2,Medium,0,0,88
-F4_religious_traditionalism,F4_ReligTrad,CUP,both,0.1296,12,1,High Relig. Trad.,2,Medium,2,1,103
-F4_religious_traditionalism,F4_ReligTrad,CON/SD,senate,-0.0349,13,0,Low Relig. Trad. (Secular),2,Medium,0,0,0
-F4_religious_traditionalism,F4_ReligTrad,SD/CON,senate,-0.0743,14,0,Low Relig. Trad. (Secular),2,Medium,0,0,0
-F4_religious_traditionalism,F4_ReligTrad,STY/SD,senate,-0.0901,15,0,Low Relig. Trad. (Secular),2,Medium,0,0,0
-F4_religious_traditionalism,F4_ReligTrad,SD/CUP,senate,-0.1408,16,0,Low Relig. Trad. (Secular),2,Medium,0,0,0
+F4_religious_traditionalism,F4_ReligTrad,POP,both,0.147,11,1,High Relig. Trad.,2,Medium,0,0,106
+F4_religious_traditionalism,F4_ReligTrad,CUP,both,0.1296,12,1,High Relig. Trad.,2,Medium,2,1,89
+F4_religious_traditionalism,F4_ReligTrad,CON/LBR,senate,-0.0349,13,0,Low Relig. Trad. (Secular),2,Medium,4,1,0
+F4_religious_traditionalism,F4_ReligTrad,LBR/CON,senate,-0.0743,14,0,Low Relig. Trad. (Secular),2,Medium,4,1,0
+F4_religious_traditionalism,F4_ReligTrad,STY/LBR,senate,-0.0901,15,0,Low Relig. Trad. (Secular),2,Medium,3,3,0
+F4_religious_traditionalism,F4_ReligTrad,LBR/CUP,senate,-0.1408,16,0,Low Relig. Trad. (Secular),2,Medium,0,0,0
 F4_religious_traditionalism,F4_ReligTrad,LIB/CUP,senate,-0.142,17,0,Low Relig. Trad. (Secular),2,Medium,0,0,0
-F4_religious_traditionalism,F4_ReligTrad,SD/STY,senate,-0.1767,18,0,Low Relig. Trad. (Secular),2,Medium,0,0,0
-F4_religious_traditionalism,F4_ReligTrad,LIB,both,-0.323,19,0,Low Relig. Trad. (Secular),1,Low,1,4,73
-F4_religious_traditionalism,F4_ReligTrad,SD/LIB,senate,-0.3341,20,0,Low Relig. Trad. (Secular),1,Low,0,0,0
-F4_religious_traditionalism,F4_ReligTrad,SD,senate,-0.3447,21,0,Low Relig. Trad. (Secular),1,Low,0,0,0
-F4_religious_traditionalism,F4_ReligTrad,DSA,house,-0.3869,22,0,Low Relig. Trad. (Secular),1,Low,0,0,33
-F4_religious_traditionalism,F4_ReligTrad,PRG,house,-0.3869,22,0,Low Relig. Trad. (Secular),1,Low,0,1,73
-F5_populist_conservatism,F5_PopCons,NAT,house,1.5101,1,1,High Populist-Right,4,Very High,0,0,75
-F5_populist_conservatism,F5_PopCons,POP,both,0.9903,2,1,High Populist-Right,4,Very High,0,0,88
+F4_religious_traditionalism,F4_ReligTrad,LBR/STY,senate,-0.1767,18,0,Low Relig. Trad. (Secular),2,Medium,4,3,0
+F4_religious_traditionalism,F4_ReligTrad,LIB,both,-0.323,19,0,Low Relig. Trad. (Secular),1,Low,1,4,93
+F4_religious_traditionalism,F4_ReligTrad,LBR/LIB,senate,-0.3341,20,0,Low Relig. Trad. (Secular),1,Low,4,6,0
+F4_religious_traditionalism,F4_ReligTrad,LBR,both,-0.3447,21,0,Low Relig. Trad. (Secular),1,Low,5,8,0
+F4_religious_traditionalism,F4_ReligTrad,DSA,house,-0.3869,22,0,Low Relig. Trad. (Secular),1,Low,0,0,25
+F4_religious_traditionalism,F4_ReligTrad,PRG,house,-0.3869,22,0,Low Relig. Trad. (Secular),1,Low,0,1,15
+F5_populist_conservatism,F5_PopCons,NAT,house,1.5101,1,1,High Populist-Right,4,Very High,0,0,41
+F5_populist_conservatism,F5_PopCons,POP,both,0.9903,2,1,High Populist-Right,4,Very High,0,0,106
 F5_populist_conservatism,F5_PopCons,CON/NAT,senate,0.9656,3,1,High Populist-Right,4,Very High,0,2,0
 F5_populist_conservatism,F5_PopCons,CON/POP,senate,0.6122,4,1,High Populist-Right,3,High,2,4,0
 F5_populist_conservatism,F5_PopCons,POP/STY,senate,0.6008,5,1,High Populist-Right,3,High,0,0,0
-F5_populist_conservatism,F5_PopCons,CON,both,0.4424,6,1,High Populist-Right,3,High,3,3,133
+F5_populist_conservatism,F5_PopCons,CON,both,0.4424,6,1,High Populist-Right,3,High,3,3,201
 F5_populist_conservatism,F5_PopCons,STY/POP,senate,0.4114,7,1,High Populist-Right,3,High,0,0,0
 F5_populist_conservatism,F5_PopCons,CON/CUP,senate,0.289,8,1,High Populist-Right,3,High,12,9,0
 F5_populist_conservatism,F5_PopCons,CON/STY,senate,0.2304,9,1,High Populist-Right,2,Medium,3,2,0
 F5_populist_conservatism,F5_PopCons,STY/CON,senate,0.1547,10,1,High Populist-Right,2,Medium,1,0,0
-F5_populist_conservatism,F5_PopCons,CUP,both,0.0387,11,0,Low Populist (Progressive),2,Medium,2,1,103
-F5_populist_conservatism,F5_PopCons,CON/SD,senate,-0.0105,12,0,Low Populist (Progressive),2,Medium,0,0,0
-F5_populist_conservatism,F5_PopCons,STY,both,-0.0623,13,0,Low Populist (Progressive),2,Medium,0,0,84
-F5_populist_conservatism,F5_PopCons,SD/CON,senate,-0.0809,14,0,Low Populist (Progressive),2,Medium,0,0,0
-F5_populist_conservatism,F5_PopCons,SD/CUP,senate,-0.3048,15,0,Low Populist (Progressive),1,Low,0,0,0
-F5_populist_conservatism,F5_PopCons,STY/SD,senate,-0.3132,16,0,Low Populist (Progressive),1,Low,0,0,0
-F5_populist_conservatism,F5_PopCons,SD/STY,senate,-0.3984,17,0,Low Populist (Progressive),1,Low,0,0,0
+F5_populist_conservatism,F5_PopCons,CUP,both,0.0387,11,0,Low Populist (Progressive),2,Medium,2,1,89
+F5_populist_conservatism,F5_PopCons,CON/LBR,senate,-0.0105,12,0,Low Populist (Progressive),2,Medium,4,1,0
+F5_populist_conservatism,F5_PopCons,STY,both,-0.0623,13,0,Low Populist (Progressive),2,Medium,0,0,129
+F5_populist_conservatism,F5_PopCons,LBR/CON,senate,-0.0809,14,0,Low Populist (Progressive),2,Medium,4,1,0
+F5_populist_conservatism,F5_PopCons,LBR/CUP,senate,-0.3048,15,0,Low Populist (Progressive),1,Low,0,0,0
+F5_populist_conservatism,F5_PopCons,STY/LBR,senate,-0.3132,16,0,Low Populist (Progressive),1,Low,3,3,0
+F5_populist_conservatism,F5_PopCons,LBR/STY,senate,-0.3984,17,0,Low Populist (Progressive),1,Low,4,3,0
 F5_populist_conservatism,F5_PopCons,LIB/CUP,senate,-0.5543,18,0,Low Populist (Progressive),1,Low,0,0,0
-F5_populist_conservatism,F5_PopCons,SD,senate,-0.564,19,0,Low Populist (Progressive),1,Low,0,0,0
-F5_populist_conservatism,F5_PopCons,SD/LIB,senate,-0.7529,20,0,Low Populist (Progressive),0,Very Low,0,0,0
-F5_populist_conservatism,F5_PopCons,DSA,house,-0.874,21,0,Low Populist (Progressive),0,Very Low,0,0,33
-F5_populist_conservatism,F5_PopCons,LIB,both,-0.9496,22,0,Low Populist (Progressive),0,Very Low,1,4,73
-F5_populist_conservatism,F5_PopCons,PRG,house,-0.99,23,0,Low Populist (Progressive),0,Very Low,0,1,73
+F5_populist_conservatism,F5_PopCons,LBR,both,-0.564,19,0,Low Populist (Progressive),1,Low,5,8,0
+F5_populist_conservatism,F5_PopCons,LBR/LIB,senate,-0.7529,20,0,Low Populist (Progressive),0,Very Low,4,6,0
+F5_populist_conservatism,F5_PopCons,DSA,house,-0.874,21,0,Low Populist (Progressive),0,Very Low,0,0,25
+F5_populist_conservatism,F5_PopCons,LIB,both,-0.9496,22,0,Low Populist (Progressive),0,Very Low,1,4,93
+F5_populist_conservatism,F5_PopCons,PRG,house,-0.99,23,0,Low Populist (Progressive),0,Very Low,0,1,15

@@ -35,6 +35,17 @@ affordances that reach them. Two ways back in:
 
 Regenerating the field is unchanged — see the crossover block under [Running the Pipeline](#running-the-pipeline).
 
+### No-Solidarity scenario (dormant)
+
+A robustness check that dissolves Solidarity (cluster 2) and lets its voters' ballots flow to the
+remaining parties. Its UI toggle was added, removed, restored and removed again, and nothing in the
+app imports its payloads today, so `build_nosty_scenario()` emits them to `viz/src/data/archive/`
+alongside the other retired scenarios rather than into the live payload directory.
+
+The `NO_STY=1` branches in `pipeline/pure_only/` are untouched and are how you regenerate it. The
+turnout-weighted variant is wrapped in a try/except that prints `SKIP NoStyTurnout variant
+(dormant)`, so a pruned input there cannot block the live build.
+
 ---
 
 ## Pipeline at a Glance
@@ -144,7 +155,7 @@ Broader modeling caveats (party cohesion, sincere voting, static factor space, t
 
 **Scripts:** `pipeline/stv_main.py` and supporting `pipeline/stv_step1.py`–`pipeline/stv_step5.py`
 **Published result:** `data/outputs/pure_multi/house/stv_seat_summary.csv` → `viz/src/data/houseSeats.json` (the party-line view the viz shows).
-**Note:** published seat counts come from `pure_multi`, *not* from `data/outputs/No_C7_canonical/stv_seat_summary.csv` (an outdated 750-seat summary — don't quote it). The `No_C7_*` directories are retained on purpose: the pure_multi and factor_deviation runs read their `ballots_checkpoint.parquet` + `district_apportionment.csv`, and the viz transfer matrix is built from `No_C7_canonical/transfer_matrix_10party.csv`. See [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
+**Note:** published seat counts come from `pure_multi`, *not* from `data/outputs/No_C7_canonical/stv_seat_summary.csv` (an outdated 850-seat summary — don't quote it, and don't read it: the four scripts that used to were repointed at `pure_multi/house/`). The `No_C7_*` directories are retained on purpose, but for their inputs rather than their results: the pure_multi and factor_deviation runs read `ballots_checkpoint.parquet` + `district_apportionment.csv`, and the viz transfer matrix is built from `No_C7_canonical/transfer_matrix_10party.csv`. See [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
 
 - **873 seats** across **180 multi-member districts** (Urban / Suburban / Rural tiers per state)
 - Apportionment: Hamilton method, ~380,000 pop/seat from 2020 Census
@@ -275,8 +286,9 @@ python3 pipeline/pure_only/run_pure_multi_house_stv.py             # → pure_mu
 python3 pipeline/pure_only/run_pure_multi_house_stv.py --triple    # → pure_multi_triple/house/
 python3 pipeline/pure_only/run_pure_multi_senate.py               # → pure_multi/senate/ (Condorcet + IRV)
 
-# ── "No Solidarity" scenario: cluster 2 dissolved, its voters flow to the ──────
-# remaining 9. NO_STY=1 drops STY candidates and redirects output to pure_multi_nosty/.
+# ── "No Solidarity" scenario (dormant — see below): cluster 2 dissolved, its ───
+# voters flow to the remaining 9. NO_STY=1 drops STY candidates and redirects
+# output to pure_multi_nosty/. Viz payloads land in viz/src/data/archive/.
 NO_STY=1 python3 pipeline/pure_only/generate_pure_multi_ballots.py
 NO_STY=1 python3 pipeline/pure_only/run_pure_multi_primary.py
 NO_STY=1 python3 pipeline/pure_only/run_pure_multi_presidential.py

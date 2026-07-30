@@ -161,7 +161,8 @@ irv_seats  = (irv_comp["winner_label"]
 
 # ── House seat counts ─────────────────────────────────────────────────────────
 house_seats_raw = pd.read_csv(
-    BASE / "data" / "outputs" / "No_C7_canonical" / "stv_seat_summary.csv"
+    # The canonical 873-seat chamber, not No_C7_canonical's 850-seat older run.
+    BASE / "data" / "outputs" / "pure_multi" / "house" / "stv_seat_summary.csv"
 )[["party_name", "NATIONAL"]].rename(
     columns={"party_name": "type", "NATIONAL": "seats_house"}
 )
