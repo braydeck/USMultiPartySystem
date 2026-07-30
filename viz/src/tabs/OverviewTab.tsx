@@ -161,7 +161,7 @@ export function OverviewTab({
       {/* Section 2 — Senate (shared card, identical to the Senate tab) */}
       <div className="space-y-3">
         <SenateCompositionCard condSeats={rawMultiSenateCond} irvSeats={rawMultiSenateIRV}
-          condU={senateUnc?.senate.cond} irvU={senateUnc?.senate.irv} nDraws={senateUnc?.nDraws} />
+          condU={senateUnc?.senate.cond} irvU={senateUnc?.senate.irv} />
         <DiveCard label="Dive into the Senate →" onClick={() => onNavigate('senate')} />
       </div>
 

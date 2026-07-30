@@ -4,14 +4,7 @@ import type { FDSenateSeat } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../../constants/parties';
 import { BAR_HEIGHT, LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
-import { SeatRangeStrip } from '../shared/SeatRangeStrip';
-import { UncertaintyDetail } from '../shared/UncertaintyDetail';
 import { chamberTotal, type MethodUncertainty } from '../../lib/uncertainty';
-
-// Built from the seat array so it always matches whatever states the model covers.
-function fipsToAbbr(seats: FDSenateSeat[]): Record<string, string> {
-  return Object.fromEntries(seats.map(s => [s.stateFips, s.stateAbbr]));
-}
 
 // Shared "FPTP Today vs Preferential Senate" composition card, used by both the Senate tab
 // and the Overview summary so the two charts are identical. Condorcet/IRV model one winner
@@ -61,15 +54,13 @@ function SenateCompBar({ label, seats, segments, total: totalOverride, multiplie
   );
 }
 
-export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws }: {
+export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
   condSeats: FDSenateSeat[];
   irvSeats: FDSenateSeat[];
   condU?: MethodUncertainty;
   irvU?: MethodUncertainty;
-  nDraws?: number;
 }) {
   const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
-  const FIPS_TO_ABBR = useMemo(() => fipsToAbbr(condSeats), [condSeats]);
 
   // Per-party seat counts under each preferential method, for the composition legend.
   const stats = useMemo(() => {
@@ -116,17 +107,6 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
   }, [stats, rootWidth]);
   const shownRows = stats.rows.filter(r => smallParties.has(r.party));
 
-  // Condorcet and IRV strips sit stacked in this card specifically so a reader can compare
-  // the two methods' bar positions at a glance; sharing one axis ceiling (rather than each
-  // strip scaling to its own largest `hi`) is what makes that comparison honest.
-  const rangeStripMax = useMemo(() => {
-    const his = [
-      ...Object.values(condU?.seats ?? {}).map(v => v.hi),
-      ...Object.values(irvU?.seats ?? {}).map(v => v.hi),
-    ];
-    return his.length ? Math.max(1, ...his) : undefined;
-  }, [condU, irvU]);
-
   return (
     <Card ref={rootRef} className="p-5 border-2 border-indigo-200 space-y-3">
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
@@ -141,19 +121,9 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
       <SenateCompBar label="Condorcet ×2" total={stats.condTotal}
         segments={stats.rows.filter(r => r.cond > 0)
           .map(r => ({ party: r.party, n: r.cond, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
-      {condU && (
-        // Full party order, not just the parties in the bar: a party with no modal seats can
-        // still have a real sampling range, and the strip is where that range has to show up.
-        <SeatRangeStrip seats={condU.seats} order={[...F5_ORDER]} max={rangeStripMax}
-          label="Condorcet — range across resamples (tick = most likely, dot = expected)" />
-      )}
       <SenateCompBar label="IRV ×2" total={stats.irvTotal}
         segments={stats.rows.filter(r => r.irv > 0)
           .map(r => ({ party: r.party, n: r.irv, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
-      {irvU && (
-        <SeatRangeStrip seats={irvU.seats} order={[...F5_ORDER]} max={rangeStripMax}
-          label="IRV — range across resamples (tick = most likely, dot = expected)" />
-      )}
 
       {/* Legend — a combined row per party, shown only for slivers too narrow for their inline
           label; a plainly legible bar segment doesn't need restating below. */}
@@ -176,21 +146,6 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, nDraws
         Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s
         seats for a full-chamber view ({stats.condTotal} seats), which assumes matched delegations and so drops today&apos;s split D/R states.
       </p>
-      {/* Both methods, named: the card draws both strips and Condorcet is the Senate tab's
-          default, so quoting one method's close-race count unlabelled reads as the other's. */}
-      {condU && irvU && !!nDraws && (
-        <>
-          <p className="text-[11px] text-muted-foreground/80">
-            Races close enough to flip on sampling alone: {condU.nBelow50} of{' '}
-            {Object.keys(condU.states).length} under Condorcet, {irvU.nBelow50} of{' '}
-            {Object.keys(irvU.states).length} under IRV.
-          </p>
-          <UncertaintyDetail seats={condU.seats} states={condU.states} nDraws={nDraws}
-            label="Condorcet" stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
-          <UncertaintyDetail seats={irvU.seats} states={irvU.states} nDraws={nDraws}
-            label="IRV" stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
-        </>
-      )}
     </Card>
   );
 }

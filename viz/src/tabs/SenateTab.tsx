@@ -79,6 +79,7 @@ import { SenateCoalitionCard } from '../components/senate/SenateCoalitionCard';
 import { SenateWinnowCard } from '../components/senate/SenateWinnowCard';
 import SenateCondorcetView from '../components/senate/SenateCondorcetView';
 import { SenateCompositionCard } from '../components/senate/SenateCompositionCard';
+import { SenateRangeCard } from '../components/senate/SenateRangeCard';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
@@ -258,7 +259,14 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
       {/* FPTP vs Preferential Senate Comparison (shared with Overview) */}
       <SenateCompositionCard condSeats={condRM} irvSeats={irvRM}
-        condU={unc?.senate.cond} irvU={unc?.senate.irv} nDraws={unc?.nDraws} />
+        condU={unc?.senate.cond} irvU={unc?.senate.irv} />
+
+      {/* Sampling range, split from the composition card above so the headline bars stay
+          clean; party-line only, since Crossover has no bootstrap. */}
+      {rawMultiOn && (
+        <SenateRangeCard condSeats={condRM}
+          condU={unc?.senate.cond} irvU={unc?.senate.irv} nDraws={unc?.nDraws} />
+      )}
 
       {/* Parliament fan chart */}
       <Card className="p-4">
