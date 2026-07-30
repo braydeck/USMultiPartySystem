@@ -3236,6 +3236,20 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
             row["presRawMultiIRVPct"]    = round(irv_sup, 2)
             row["presRawMultiCondSigns"] = "SIGN" if cond_sup > 50 else "VETO"
             row["presRawMultiCondPct"]   = round(cond_sup, 2)
+            # Every party's verdict on this bill, not just the two presidents this tree elected.
+            # `_lf_senator_support` reads cluster_stats.csv, so a sign is a pure function of
+            # (party, bill) — independent of turnout stop and of ballot depth. Only *which* party
+            # holds the office depends on those. Emitting all ten lets the viz look up whichever
+            # president it is displaying, which the two fixed columns above cannot do: they carry
+            # this tree's winners, and at rank-7 with no turnout compression the app shows a
+            # different Condorcet president than the full-depth tree elects.
+            row["presSignsByParty"] = {
+                party: ("SIGN" if _lf_senator_support(party, crow) > 50 else "VETO")
+                for party in _PURE_CLUSTER
+            }
+            row["presPctByParty"] = {
+                party: round(_lf_senator_support(party, crow), 2) for party in _PURE_CLUSTER
+            }
         row["condRawMultiProbPass"] = cond_res.get(var, {}).get("prob_pass", 0.0)
         row["condRawMultiVerdict"]  = cond_res.get(var, {}).get("verdict", "N/A")
         row["irvRawMultiProbPass"]  = irv_res.get(var, {}).get("prob_pass", 0.0)

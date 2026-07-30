@@ -76,11 +76,18 @@ export interface VoteModelRow {
   condRawMultiVerdict?:  string;
   irvRawMultiProbPass?:  number;
   irvRawMultiVerdict?:   string;
-  // Raw Multi president (SD_1 IRV, CUP_1 Condorcet)
+  // Raw Multi president, from whichever winners the tree that built this file elected. Prefer
+  // `presSignsByParty` where the displayed president can differ — at rank-7 with no turnout
+  // compression the app elects a different Condorcet president than the full-depth tree does.
   presRawMultiIRVSigns?:  string;
   presRawMultiIRVPct?:    number;
   presRawMultiCondSigns?: string;
   presRawMultiCondPct?:   number;
+  /** Every party's verdict on this bill, keyed by party code. A sign is a pure function of
+   *  (party, bill) — it reads cluster_stats.csv and so is independent of turnout stop and ballot
+   *  depth — so looking up the president actually on screen is always correct. */
+  presSignsByParty?: Record<string, string>;
+  presPctByParty?:   Record<string, number>;
   // House Triple Wyoming (pure_multi_triple, ~1726 seats)
   houseRawMultiTripleProbPass?: number;
   houseRawMultiTripleVerdict?:  string;

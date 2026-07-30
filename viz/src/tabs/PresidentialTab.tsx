@@ -118,12 +118,16 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   const senVotesRank7 = senVMStops[gi];
   // Bills where Raw Multi Condorcet and IRV presidents act differently
   const divergentBills = useMemo(
-    () => senVotesRank7.filter(r =>
-      r.presRawMultiCondSigns !== undefined &&
-      r.presRawMultiIRVSigns  !== undefined &&
-      r.presRawMultiCondSigns !== r.presRawMultiIRVSigns,
-    ),
-    [senVotesRank7],
+    // Keyed on the presidents this tab is displaying, not on the fixed columns: those carry the
+    // winners of the tree that built the file, which at rank-7 and no turnout compression is a
+    // different Condorcet president than the one shown above. Identical parties give identical
+    // signs, so this is empty whenever both methods elect the same president — no branch needed.
+    () => senVotesRank7.filter(r => {
+      const cond = r.presSignsByParty?.[rmCondParty];
+      const irv = r.presSignsByParty?.[rmIrvParty];
+      return cond !== undefined && irv !== undefined && cond !== irv;
+    }),
+    [senVotesRank7, rmCondParty, rmIrvParty],
   );
 
   return (
@@ -186,12 +190,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
             </Card>
           )}
 
-          {/* Gated on rmSameWinner, not just on the count: presRawMultiCondSigns and
-              presRawMultiIRVSigns are identical at every turnout stop (6 divergent bills at all
-              seven), so they are baked at one configuration and do not track the presidents shown
-              above. At λ=0 both methods elect Labor, and these columns would name a Condorcet
-              president who is not on screen. */}
-          {!rmSameWinner && divergentBills.length > 0 && (
+          {divergentBills.length > 0 && (
                 <Card className="overflow-hidden border-amber-300">
                   <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
                     <h4 className="text-sm font-semibold text-amber-900">
@@ -219,10 +218,10 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                           <div className="text-xs text-muted-foreground mt-0.5">{r.domain}</div>
                         </div>
                         <div className="flex justify-center">
-                          <PresCell signs={r.presRawMultiCondSigns} partyCode={rmCondParty} />
+                          <PresCell signs={r.presSignsByParty?.[rmCondParty]} partyCode={rmCondParty} />
                         </div>
                         <div className="flex justify-center">
-                          <PresCell signs={r.presRawMultiIRVSigns} partyCode={rmIrvParty} />
+                          <PresCell signs={r.presSignsByParty?.[rmIrvParty]} partyCode={rmIrvParty} />
                         </div>
                       </div>
                     ))}
