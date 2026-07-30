@@ -265,6 +265,34 @@ def test_representative_returns_none_for_never_winner():
     assert pick_representative(draws, "56", "DSA") is None
 
 
+def test_aggregate_sums_and_shape():
+    from analysis.bootstrap.aggregate import build_uncertainty
+    from analysis.bootstrap.contests import run_draw
+
+    observed = run_draw(seed=0, lam=0.05, depth=7, observed=True)
+    draws = [run_draw(seed=42 + d, lam=0.05, depth=7) for d in range(12)]
+    u = build_uncertainty(draws, observed, n_draws=len(draws), seed=42)
+
+    for method in ("cond", "irv"):
+        seats = u["senate"][method]["seats"]
+        assert sum(v["modal"] for v in seats.values()) == 102, (
+            f"{method} modal sums to {sum(v['modal'] for v in seats.values())}, not 102")
+        exp = sum(v["expected"] for v in seats.values())
+        assert abs(exp - 102) < 1e-6, f"{method} expected sums to {exp}, not 102"
+        for p, v in seats.items():
+            assert v["lo"] <= v["modal"] <= v["hi"] or v["lo"] <= v["expected"] <= v["hi"], (
+                f"{method}/{p}: interval [{v['lo']},{v['hi']}] excludes both centres")
+        for fips, s in u["senate"][method]["states"].items():
+            assert 0 < s["pModal"] <= 1
+            assert abs(sum(s["dist"].values()) - 1.0) < 1e-6, f"{fips} dist does not sum to 1"
+
+    hs = u["house"]["seats"]
+    assert sum(v["modal"] for v in hs.values()) == 873, "house modal does not sum to 873"
+    assert abs(sum(v["expected"] for v in hs.values()) - 873) < 1e-6
+
+    assert u["nDraws"] == len(draws) and u["seed"] == 42
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:
