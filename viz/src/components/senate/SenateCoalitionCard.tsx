@@ -123,7 +123,12 @@ export function SenateCoalitionCard({ data, states }: Props) {
   // representative run that produces the likely winner instead — a real coherent count,
   // labelled as an example rather than as measurement.
   const shownRounds = su?.repRounds ?? selected?.rounds;
-  const shownWinner = su?.repRounds ? su.modal : selected?.winner;
+  // IRVSankey bolds the winner by matching a candidate code (CON_1), while `modal` is a
+  // bare party code (CON), so take the substituted run's own final-round leader instead —
+  // otherwise the winner silently loses its emphasis on exactly the substituted states.
+  const shownWinner = su?.repRounds
+    ? [...su.repRounds[su.repRounds.length - 1].candidates].sort((a, b) => b.pct - a.pct)[0]?.code
+    : selected?.winner;
 
   // Segments too narrow to carry their own inline label surface in a legend instead.
   const legendParties = useMemo(() => {
