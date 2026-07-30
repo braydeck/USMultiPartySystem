@@ -52,7 +52,7 @@ NEW=[
  ('CC24_324a','Abortion','Always allow abortion as a matter of personal choice'),
  ('CC24_324c','Abortion','Make abortion illegal in all circumstances'),
  ('CC24_324d','Abortion','Expand abortion access and affordability'),
- ('CC24_340a','Abortion','Protect access to contraception (Congress bill)'),
+ ('CC24_340a','Abortion','Protect access to contraception'),
  # Civic engagement / donor battery (CC24_430a "in the past year did you…"; 1=yes, 2=no).
  ('CC24_430a_6','Civic Engagement','Donated to a candidate, campaign, or party (past year)'),
  ('CC24_430a_1','Civic Engagement','Attended a local political meeting (past year)'),

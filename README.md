@@ -76,7 +76,7 @@ turnout-weighted variant is wrapped in a try/except that prints `SKIP NoStyTurno
         └──────────────┬───────────────────────┘
                        ▼
              Chamber Vote Model
-             37 binary policy items
+             38 bills (stv_config.BILL_VARS)
              Sum-of-Binomials → P(pass)
 ```
 
@@ -241,10 +241,10 @@ whole layer is gone from the live pipeline and from the app. Six scripts moved t
 `cross_chamber_coalitions.py` and `analyze_senate_ideology.py` (the coalition-type diagnostics).
 `chamber_vote_model.py` lost its senate half for the same reason.
 
-Their outputs under `data/outputs/senate/`, `data/outputs/coalitions/` and
-`data/outputs/profiles/blend_stats.csv` are left in place but inert — nothing in the live pipeline or
-the app reads them. `generate_results.py` still charts a couple of them; those charts aren't
-published anywhere.
+Their outputs are deleted too: `data/outputs/senate/`, `data/outputs/coalitions/` and
+`data/outputs/profiles/blend_stats.csv`. `generate_results.py` was the only remaining reader — it
+charted the mixed senate to an untracked `results/` directory nothing links to — so it moved to the
+archive with them.
 
 ---
 

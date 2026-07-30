@@ -26,10 +26,8 @@ from scipy.stats import norm
 
 from stv_config import BILL_VARS
 
-BASE        = Path(__file__).parent.parent
-PROFILE_DIR = BASE / "data" / "outputs" / "profiles"
-SENATE_DIR  = BASE / "data" / "outputs" / "senate"
-OUT_DIR     = BASE / "data" / "outputs"
+BASE    = Path(__file__).parent.parent
+OUT_DIR = BASE / "data" / "outputs"
 
 # ── House type columns (from house_chamber_profile.csv) ────────────────────
 HOUSE_CLUSTER_NAMES = {

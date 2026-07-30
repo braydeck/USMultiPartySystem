@@ -47,15 +47,19 @@ META = {
     "F1": {"short": "SO", "label": "Security & Order", "color": "#1d4ed8", "eta": 0.701, "bw": 1.53,
            "strength": "Nearly as strong. The main law-and-order axis.",
            "hi": "Pro-police, tougher sentencing, strong military", "lo": "Reform policing, de-escalation, diplomacy-first"},
-    "F2": {"short": "ES", "label": "Electoral Skepticism", "color": "#7c3aed", "eta": 0.375, "bw": 0.775,
-           "strength": "Cross-cutting. Within-party noise is larger than the gap between parties, and it cuts across left and right.",
-           "hi": "Questions election integrity, anti-establishment media", "lo": "Trusts institutions, accepts electoral outcomes"},
+    # F2 was relabelled from "Electoral Skepticism": it absorbs the government-trust items too and
+    # carries the real distrust signal (party-level r=+0.84 with raw government distrust).
+    "F2": {"short": "ID", "label": "Institutional Distrust", "color": "#7c3aed", "eta": 0.375, "bw": 0.775,
+           "strength": "The genuine distrust-of-institutions axis — carries both electoral and government distrust (party-level r=+0.84 with raw government distrust). Cross-cutting: POP and STY both score high despite opposite left-right positions.",
+           "hi": "Distrusts elections and government; anti-establishment", "lo": "Trusts institutions; accepts electoral and government legitimacy"},
     "F4": {"short": "RT", "label": "Religious Traditionalism", "color": "#dc2626", "eta": 0.305, "bw": 0.663,
            "strength": "Moderate. Sorts parties mainly on abortion and marriage, with substantial within-party noise.",
            "hi": "Faith-informed policy, traditional family structures", "lo": "Secular policy, pluralist social norms"},
-    "F3": {"short": "GD", "label": "Government Distrust", "color": "#b45309", "eta": 0.057, "bw": 0.246,
-           "strength": "Essentially non-differentiating: every party scores Medium, so it is not used to place you in the quiz.",
-           "hi": "Government is inefficient and overreaches", "lo": "Government can solve problems, trusts agencies"},
+    # F3's party scores run OPPOSITE to real government distrust (r=-0.38) because F2 absorbs the
+    # signal; it is kept only so splitting the trust variance lets clustering separate CUP.
+    "F3": {"short": "GD", "label": "Government Distrust (residual)", "color": "#b45309", "eta": 0.057, "bw": 0.246,
+           "strength": "Non-interpretable residual, shown for transparency only. Its party scores run OPPOSITE to actual government distrust (party-level r=-0.38) because Institutional Distrust absorbs the real signal. Retained in the model solely because splitting the trust variance lets clustering separate the institutionalist party (CUP). Not used to place you in the quiz.",
+           "hi": "(residual factor — no clean interpretation)", "lo": "(residual factor — no clean interpretation)"},
 }
 
 rows = list(csv.DictReader(open(LOADINGS)))

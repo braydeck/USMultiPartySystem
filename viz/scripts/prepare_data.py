@@ -62,20 +62,30 @@ PARTY_NAMES = {
 # through, so the bill tables, the policy comparison and the key-positions grouping agree.
 DOMAIN_FIXES = {"CC24_323f": "Taxes & Economy"}
 
+# Question text corrections. The CES framed two items as "(Congress bill)" and the rest of the
+# battery without it, which read as a distinction where there is none — every bill here is a floor
+# vote. Dropped so no single item carries a stray qualifier.
+QUESTION_FIXES = {
+    "CC24_340a": "Protect access to contraception",
+    "CC24_340b": "Prohibit restrictions on abortion access",
+}
 
-def apply_domain_fixes(rows):
-    """Correct misfiled domains in place. Also used by the builders that clone an already-emitted
-    JSON rather than re-reading a CSV, so a stale base cannot carry a wrong domain forward."""
+
+def apply_item_fixes(rows):
+    """Correct misfiled domains and question text in place. Also used by the builders that clone an
+    already-emitted JSON rather than re-reading a CSV, so a stale base cannot carry either forward."""
     for r in rows:
-        fixed = DOMAIN_FIXES.get(r.get("variable"))
-        if fixed and "domain" in r:
-            r["domain"] = fixed
+        var = r.get("variable")
+        if "domain" in r and var in DOMAIN_FIXES:
+            r["domain"] = DOMAIN_FIXES[var]
+        if "question" in r and var in QUESTION_FIXES:
+            r["question"] = QUESTION_FIXES[var]
     return rows
 
 
 def read_csv(path):
     with open(path, newline="", encoding="utf-8") as f:
-        return apply_domain_fixes(list(csv.DictReader(f)))
+        return apply_item_fixes(list(csv.DictReader(f)))
 
 
 # Dormant scenarios emit here instead of alongside the live payloads: nothing imports them, so
@@ -183,193 +193,6 @@ def _lf_prob_pass(seat_counts: dict, cluster_by_var: dict, majority: int = 26) -
             verdict = "TOSS-UP"
         results[var] = {"prob_pass": round(prob, 4), "verdict": verdict}
     return results
-
-
-# ---------- senateVoteModel.json ----------
-def build_senate_vote_model(rm_dir=PURE_MULTI_DIR, out_name="senateVoteModel.json"):
-    rows = read_csv(RESULTS / "vote_model.csv")
-
-    # Load cluster stats for vote model computation
-    cluster_rows = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
-    cluster_by_var = {
-        r["variable"]: r
-        for r in cluster_rows
-        if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"
-    }
-
-    # ── Factor Deviation senate vote model ──────────────────────────────────
-    fd_stats_rows = read_csv(FD_DIR / "profiles" / "factor_deviation_stats.csv")
-    fd_by_var = {
-        r["variable"]: r
-        for r in fd_stats_rows
-        if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"
-           and r.get("variable", "").startswith("CC24_")
-    }
-
-    cond_fd_seats = {}
-    irv_fd_seats = {}
-    for r in read_csv(FD_DIR / "senate" / "senate_composition.csv"):
-        cond_fd_seats[r["senator_code"]] = cond_fd_seats.get(r["senator_code"], 0) + 1
-    for r in read_csv(FD_DIR / "senate" / "senate_irv_composition.csv"):
-        irv_fd_seats[r["senator_code"]] = irv_fd_seats.get(r["senator_code"], 0) + 1
-
-    fd_cond_results = _fd_prob_pass(cond_fd_seats, fd_by_var)
-    fd_irv_results  = _fd_prob_pass(irv_fd_seats,  fd_by_var)
-
-    # FD presidential winners — read dynamically from simulation outputs
-    fd_irv_winner = None
-    for r in read_csv(FD_DIR / "irv" / "irv_presidential_national_2028.csv"):
-        if r.get("winner") == "True":
-            fd_irv_winner = r["candidate_code"]
-    fd_cond_winner = None
-    _cm_rows = list(read_csv(FD_DIR / "irv" / "condorcet_matchups_2028.csv"))
-    if _cm_rows:
-        fd_cond_winner = _cm_rows[0].get("condorcet_winner") or None
-
-    fd_pres_irv_signs = {}
-    fd_pres_irv_pct   = {}
-    fd_pres_cond_signs = {}
-    fd_pres_cond_pct   = {}
-    for var, row in fd_by_var.items():
-        irv_sup  = float(row.get(fd_irv_winner)  or 0) if fd_irv_winner  else 0.0
-        cond_sup = float(row.get(fd_cond_winner) or 0) if fd_cond_winner else 0.0
-        fd_pres_irv_signs[var]   = "SIGN" if irv_sup  > 50 else "VETO"
-        fd_pres_irv_pct[var]     = round(irv_sup, 2)
-        fd_pres_cond_signs[var]  = "SIGN" if cond_sup > 50 else "VETO"
-        fd_pres_cond_pct[var]    = round(cond_sup, 2)
-    # Alias for backwards compat — IRV winner is the "default" FD president
-    fd_pres_signs = fd_pres_irv_signs
-    fd_pres_pct   = fd_pres_irv_pct
-
-    # ── Raw Multi presidential winners ───────────────────────────────────────
-    rm_irv_winner = None
-    for r in read_csv(rm_dir / "irv" / "irv_presidential_national_2028.csv"):
-        if r.get("winner", "").strip() == "True":
-            rm_irv_winner = r["candidate_code"]   # e.g. "SD_1"
-    rm_cond_winner = None
-    _rm_cm = list(read_csv(rm_dir / "irv" / "condorcet_matchups_2028.csv"))
-    if _rm_cm:
-        rm_cond_winner = _rm_cm[0].get("condorcet_winner") or None   # e.g. "CUP_1"
-
-    def _rm_party(code):
-        return code.rsplit("_", 1)[0] if code else ""
-
-    presRawMultiIRV_signs,  presRawMultiIRV_pct  = {}, {}
-    presRawMultiCond_signs, presRawMultiCond_pct = {}, {}
-    for var, crow in cluster_by_var.items():
-        irv_party  = _rm_party(rm_irv_winner)
-        cond_party = _rm_party(rm_cond_winner)
-        irv_sup  = _lf_senator_support(irv_party,  crow)
-        cond_sup = _lf_senator_support(cond_party, crow)
-        presRawMultiIRV_signs[var]  = "SIGN" if irv_sup  > 50 else "VETO"
-        presRawMultiIRV_pct[var]    = round(irv_sup, 2)
-        presRawMultiCond_signs[var] = "SIGN" if cond_sup > 50 else "VETO"
-        presRawMultiCond_pct[var]   = round(cond_sup, 2)
-
-    # Raw Multi senate seat counts (strip _N suffix to aggregate by pure party)
-    cond_rm_seats, irv_rm_seats = {}, {}
-    for r in read_csv(rm_dir / "senate" / "senate_composition.csv"):
-        party = r["senator_code"].rsplit("_", 1)[0]
-        cond_rm_seats[party] = cond_rm_seats.get(party, 0) + 1
-    for r in read_csv(rm_dir / "senate" / "senate_irv_composition.csv"):
-        party = r["senator_code"].rsplit("_", 1)[0]
-        irv_rm_seats[party] = irv_rm_seats.get(party, 0) + 1
-
-    rm_cond_results = _lf_prob_pass(cond_rm_seats, cluster_by_var)
-    rm_irv_results  = _lf_prob_pass(irv_rm_seats,  cluster_by_var)
-
-    # Corrected pure presidential signing — actual winner is SD, not STY as in legacy vote_model.csv
-    presPure_signs, presPure_pct = {}, {}
-    for var, crow in cluster_by_var.items():
-        sd_sup = _lf_senator_support("LBR", crow)
-        presPure_signs[var] = "SIGN" if sd_sup > 50 else "VETO"
-        presPure_pct[var]   = round(sd_sup, 2)
-
-    # Compute SD/CON (Condorcet blended president) signing decisions from chamber profile
-    senate_prof_rows = read_csv(OUTPUTS / "senate" / "senate_chamber_profile.csv")
-    sdcon_pct = {}
-    for r in senate_prof_rows:
-        if r.get("stat_label") == "% Supporting" and r.get("variable", "").startswith("CC24_"):
-            try:
-                sdcon_pct[r["variable"]] = float(r["SD/CON"])
-            except (KeyError, ValueError):
-                pass
-
-    # Veto-override probabilities (2/3 of the 50-seat Senate = 34) for the
-    # scenarios the Legislation tab exposes: Raw Multi and Factor Deviation.
-    import math as _math_s
-    def _tt_senate(seats):
-        tot = sum(seats.values())
-        return _math_s.ceil(2.0 / 3.0 * tot) if tot else 1
-    rm_cond_ovr = _lf_prob_pass(cond_rm_seats, cluster_by_var, majority=_tt_senate(cond_rm_seats))
-    rm_irv_ovr  = _lf_prob_pass(irv_rm_seats,  cluster_by_var, majority=_tt_senate(irv_rm_seats))
-    fd_cond_ovr = _fd_prob_pass(cond_fd_seats, fd_by_var,      majority=_tt_senate(cond_fd_seats))
-    fd_irv_ovr  = _fd_prob_pass(irv_fd_seats,  fd_by_var,      majority=_tt_senate(irv_fd_seats))
-
-    out = []
-    for r in rows:
-        var = r["variable"]
-        sdcon_support = sdcon_pct.get(var)
-        pres_mixed_cond_pct = round(sdcon_support, 2) if sdcon_support is not None else float(r.get("pres_mixed_support_pct", 0))
-        pres_mixed_cond_signs = ("SIGN" if sdcon_support > 50 else "VETO") if sdcon_support is not None else r["pres_mixed_signs"]
-
-        out.append({
-            "variable": var,
-            "domain": r["domain"],
-            "question": r["question"],
-            "overallPct": float(r["overall_pct"]),
-            # Mixed senate scenarios (new keys + legacy aliases for UnifiedBillTable)
-            "condMixedProbPass": float(r["senate_cond_prob_pass"]),
-            "condMixedVerdict": r["senate_cond_verdict"],
-            "irvMixedProbPass": float(r["senate_irv_prob_pass"]),
-            "irvMixedVerdict": r["senate_irv_verdict"],
-            # Legacy aliases (UnifiedBillTable reads these)
-            "condProbPass": float(r["senate_cond_prob_pass"]),
-            "condVerdict": r["senate_cond_verdict"],
-            "irvProbPass": float(r["senate_irv_prob_pass"]),
-            "irvVerdict": r["senate_irv_verdict"],
-            # Pure senate scenarios
-            "condPureProbPass": float(r["senate_cond_pure_prob_pass"]),
-            "condPureVerdict": r["senate_cond_pure_verdict"],
-            "irvPureProbPass": float(r["senate_irv_pure_prob_pass"]),
-            "irvPureVerdict": r["senate_irv_pure_verdict"],
-            # Factor Deviation senate scenarios
-            "condFDProbPass": fd_cond_results.get(var, {}).get("prob_pass", 0.0),
-            "condFDVerdict":  fd_cond_results.get(var, {}).get("verdict", "N/A"),
-            "irvFDProbPass":  fd_irv_results.get(var, {}).get("prob_pass", 0.0),
-            "irvFDVerdict":   fd_irv_results.get(var, {}).get("verdict", "N/A"),
-            # FD president — separate fields for IRV and Condorcet winners
-            "presFDSigns":     fd_pres_irv_signs.get(var, "VETO"),   # alias = IRV
-            "presFDPct":       fd_pres_irv_pct.get(var, 0.0),
-            "presFDIRVSigns":  fd_pres_irv_signs.get(var, "VETO"),
-            "presFDIRVPct":    fd_pres_irv_pct.get(var, 0.0),
-            "presFDCondSigns": fd_pres_cond_signs.get(var, "VETO"),
-            "presFDCondPct":   fd_pres_cond_pct.get(var, 0.0),
-            # Presidential sign + support pct
-            "presMixedSigns": r["pres_mixed_signs"],         # CON/SD (blended IRV winner)
-            "presMixedPct":   float(r.get("pres_mixed_support_pct", 0)),
-            "presMixedCondSigns": pres_mixed_cond_signs,     # SD/CON (blended Condorcet)
-            "presMixedCondPct": pres_mixed_cond_pct,
-            "presPureSigns": presPure_signs.get(var, "VETO"),  # SD (actual pure winner)
-            "presPurePct":   presPure_pct.get(var, 0.0),
-            # Raw Multi senate scenarios
-            "condRawMultiProbPass": rm_cond_results.get(var, {}).get("prob_pass", 0.0),
-            "condRawMultiVerdict":  rm_cond_results.get(var, {}).get("verdict", "N/A"),
-            "irvRawMultiProbPass":  rm_irv_results.get(var, {}).get("prob_pass", 0.0),
-            "irvRawMultiVerdict":   rm_irv_results.get(var, {}).get("verdict", "N/A"),
-            # Veto-override probabilities (2/3 threshold) per scenario
-            "condRawMultiProbOverride": rm_cond_ovr.get(var, {}).get("prob_pass", 0.0),
-            "irvRawMultiProbOverride":  rm_irv_ovr.get(var, {}).get("prob_pass", 0.0),
-            "condFDProbOverride":       fd_cond_ovr.get(var, {}).get("prob_pass", 0.0),
-            "irvFDProbOverride":        fd_irv_ovr.get(var, {}).get("prob_pass", 0.0),
-            # Raw Multi president (SD_1 IRV, CUP_1 Condorcet)
-            "presRawMultiIRVSigns":  presRawMultiIRV_signs.get(var, "VETO"),
-            "presRawMultiIRVPct":    presRawMultiIRV_pct.get(var, 0.0),
-            "presRawMultiCondSigns": presRawMultiCond_signs.get(var, "VETO"),
-            "presRawMultiCondPct":   presRawMultiCond_pct.get(var, 0.0),
-            # State STV house (for LegislationTab house column)
-        })
-    write_json(out, out_name)
 
 
 # ---------- houseSeats.json ----------
@@ -3222,7 +3045,7 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
     """senateVoteModelWFP.json — clone of senateVoteModel.json with only the
     Raw-Multi senate + president columns recomputed from the C7 run."""
     with open(DATA_OUT / "senateVoteModel.json", encoding="utf-8") as f:
-        base = _reconcile_bills(apply_domain_fixes(json.load(f)))
+        base = _reconcile_bills(apply_item_fixes(json.load(f)))
     cbv = _cluster_by_var_support()
 
     rm_irv_winner = None
@@ -3330,7 +3153,7 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
     triple_src overrides the Raw-Multi triple seat source (defaults to the full-ranking triple tree)."""
     triple_src = triple_src or PURE_MULTI_TRIPLE_DIR
     with open(DATA_OUT / "houseVoteModel.json", encoding="utf-8") as f:
-        base = _reconcile_bills(apply_domain_fixes(json.load(f)))
+        base = _reconcile_bills(apply_item_fixes(json.load(f)))
     cbv = _cluster_by_var_support()
     _cluster_to_party = {v: k for k, v in _PURE_CLUSTER.items()}
 

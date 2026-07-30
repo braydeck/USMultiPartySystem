@@ -108,7 +108,7 @@
     "color": "#7c3aed",
     "eta": 0.375,
     "bw": 0.775,
-    "strength": "The genuine distrust-of-institutions axis — carries both electoral and government distrust (party-level r=+0.84 with raw government distrust). Cross-cutting: POP and STY both score high despite opposite left-right positions.",
+    "strength": "The genuine distrust-of-institutions axis \u2014 carries both electoral and government distrust (party-level r=+0.84 with raw government distrust). Cross-cutting: POP and STY both score high despite opposite left-right positions.",
     "hi": "Distrusts elections and government; anti-establishment",
     "lo": "Trusts institutions; accepts electoral and government legitimacy",
     "factor": "F2",
@@ -164,7 +164,7 @@
       },
       {
         "loading": 0.489,
-        "question": "Prohibit restrictions on abortion access (Congress bill)"
+        "question": "Prohibit restrictions on abortion access"
       },
       {
         "loading": 0.3,
@@ -195,8 +195,8 @@
     "eta": 0.057,
     "bw": 0.246,
     "strength": "Non-interpretable residual, shown for transparency only. Its party scores run OPPOSITE to actual government distrust (party-level r=-0.38) because Institutional Distrust absorbs the real signal. Retained in the model solely because splitting the trust variance lets clustering separate the institutionalist party (CUP). Not used to place you in the quiz.",
-    "hi": "(residual factor — no clean interpretation)",
-    "lo": "(residual factor — no clean interpretation)",
+    "hi": "(residual factor \u2014 no clean interpretation)",
+    "lo": "(residual factor \u2014 no clean interpretation)",
     "factor": "F3",
     "items": [
       {

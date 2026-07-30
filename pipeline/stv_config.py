@@ -51,8 +51,9 @@ BILL_VARS = (
     "CC24_323a", "CC24_323b", "CC24_323c", "CC24_323d", "CC24_340f",
     # Police & guns
     "CC24_321a", "CC24_321b", "CC24_321c", "CC24_321d", "CC24_321e", "CC24_321f",
-    # Abortion & contraception
-    "CC24_324b", "CC24_340a", "CC24_340b", "CC24_444c", "CC24_444d",
+    # Abortion. CC24_340a (protect contraception access) is out: CC24_340b already puts the
+    # question of restricting abortion access on the floor, and the two moved together anyway.
+    "CC24_324b", "CC24_340b", "CC24_444c", "CC24_444d",
     # Civil liberties
     "CC24_340c", "CC24_340d", "CC24_340e",
     "CC24_444a", "CC24_444b", "CC24_444e", "CC24_444f",
