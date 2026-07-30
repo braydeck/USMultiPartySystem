@@ -18,6 +18,7 @@ import { SenateCompositionCard } from '../components/senate/SenateCompositionCar
 import { ConceptStrip } from '../components/shared/ConceptStrip';
 import { seatMapToHouseSeats } from '../components/house/PartyListView';
 import { uncertaintyAt } from '../lib/uncertainty';
+import { DEFAULT_STOP_INDEX } from '../lib/participationStops';
 
 interface Props {
   fdElection: PresidentialElection;
@@ -94,9 +95,10 @@ export function OverviewTab({
   );
   const orderedClusters = F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[];
 
-  // Stop index 1 is the 5%-gap (TurnoutL5) payload, i.e. the senate data Overview is pinned to
-  // and the Senate tab's default. Threading it here keeps both cards on the same chamber.
-  const senateUnc = uncertaintyAt(1);
+  // Overview is pinned to the app's default stop, the same one the Senate tab opens on, so
+  // both cards report the same chamber. Derived rather than hardcoded so changing the
+  // default in one place cannot leave the two silently disagreeing.
+  const senateUnc = uncertaintyAt(DEFAULT_STOP_INDEX);
 
   return (
     <div className="space-y-10">

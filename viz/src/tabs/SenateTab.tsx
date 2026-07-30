@@ -14,6 +14,7 @@ import { FACTOR_LABELS, DISPLAY_FACTORS, partyOrder } from '../constants/parties
 import { PIPELINE_LABELS, METHOD_LABELS } from '../constants/labels';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
+import { DEFAULT_GAP_STOP } from '../lib/participationStops';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import senCondL5 from '../data/pureMultiSenateCondorcetTurnoutL5.json';
@@ -105,7 +106,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: ['factorDev', 'rawMulti'], map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
-  const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
+  const [part, setPart] = useUrlState<string>('part', String(DEFAULT_GAP_STOP), { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const rawMultiOn = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Bill vote model at the current turnout stop (rank-7 winnow + depth-7 president baked in).
