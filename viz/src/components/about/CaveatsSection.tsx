@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
-import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { F5_ORDER, PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { RangeKey, SeatRangeStrip } from '../shared/SeatRangeStrip';
 import { UNCERTAINTY_STOPS, uncertaintyAt } from '../../lib/uncertainty';
 import type { StateUncertainty } from '../../lib/uncertainty';
 import { DEFAULT_GAP_STOP, DEFAULT_STOP_INDEX } from '../../lib/participationStops';
@@ -33,6 +34,34 @@ const BANDS = [
 const bandOf = (p: number) => BANDS.find(b => p >= b.min) ?? BANDS[BANDS.length - 1];
 
 interface Race { abbr: string; p: number; party: string }
+
+/** Half the 95% seat band as a share of the delegation, which is where House uncertainty
+ *  actually differs by party: absolute widths look alike, relative ones do not. */
+function BandWidths({ rows, max }: { rows: { party: string; rel: number }[]; max: number }) {
+  return (
+    <div className="rounded-lg border border-border divide-y divide-border/60">
+      {rows.map(r => (
+        <div key={r.party} className="flex items-center gap-3 px-3 py-1.5">
+          <span className="w-24 shrink-0 text-[12px] font-medium leading-tight" style={{ color: PARTY_COLORS[r.party] }}>
+            {PARTY_NAMES[r.party] ?? r.party}
+          </span>
+          <span className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+            <span
+              className="block h-full rounded-full"
+              style={{ width: `${(r.rel / max) * 100}%`, backgroundColor: PARTY_COLORS[r.party] }}
+            />
+          </span>
+          <span className="text-[11px] tabular-nums text-foreground w-12 text-right">
+            ±{Math.round(r.rel * 100)}%
+          </span>
+        </div>
+      ))}
+      <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+        Half the 95% band, as a share of the delegation
+      </div>
+    </div>
+  );
+}
 
 function racesOf(states: Record<string, StateUncertainty>): Race[] {
   return Object.entries(states)
@@ -215,6 +244,21 @@ export function CaveatsSection() {
     };
   }, [u]);
 
+  const house = useMemo(() => {
+    const rows = Object.entries(u?.house.seats ?? {})
+      .map(([party, iv]) => ({ party, iv, rel: (iv.hi - iv.lo) / 2 / iv.expected }))
+      .sort((a, b) => b.iv.expected - a.iv.expected);
+    const bands = [...rows].sort((a, b) => b.rel - a.rel);
+    return rows.length < 2 ? null : {
+      bands,
+      widest: bands[0],
+      tightest: bands[bands.length - 1],
+      first: rows[0],
+      second: rows[1],
+      pluralityGap: rows[0].iv.lo - rows[1].iv.hi,
+    };
+  }, [u]);
+
   const wy = u?.senate.irv.states['56']?.decomp;
   const nDraws = u?.nDraws ?? 1000;
   const nElections = nDraws * UNCERTAINTY_STOPS.length;
@@ -292,11 +336,13 @@ export function CaveatsSection() {
       {/* Sampling precision */}
       {senate && (
         <Card className="p-5">
-          <div className="font-semibold text-foreground mb-1">Most races reproduce themselves</div>
+          <div className="font-semibold text-foreground mb-1">
+            Resampling moves the small delegations and the close races, not the headlines
+          </div>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
             Each state&apos;s respondents are resampled {nDraws.toLocaleString()} times, with replacement
-            and within state, and the whole election re-runs on every draw at all seven participation
-            stops. Headlines report the most likely winner across those draws. Figures here describe the
+            and within state, and every chamber re-runs on every draw at all seven participation stops.
+            Headlines report the most likely result across those draws. Figures here describe the
             app&apos;s default {DEFAULT_GAP_STOP}% stop.
           </p>
 
@@ -313,14 +359,48 @@ export function CaveatsSection() {
             ))}
           </div>
 
+          {house && (
+            <>
+              <div className="text-sm font-semibold text-foreground mb-1">
+                The House barely moves, because 873 seats average their own noise away
+              </div>
+              <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
+                Every delegation lands inside a band a few seats wide. {partyName(house.first.party)}&apos;s
+                floor across resamples sits {house.pluralityGap} seats above{' '}
+                {partyName(house.second.party)}&apos;s ceiling, so the plurality is not what sampling puts
+                at risk here. Each seat is one of hundreds of district counts, and the draws that cost a
+                party a seat in one district hand it one in another.
+              </p>
+              <div className="mb-2">
+                <SeatRangeStrip seats={u!.house.seats} order={[...F5_ORDER]} label="Seats across resamples" />
+              </div>
+              <div className="mb-5"><RangeKey /></div>
+
+              <div className="text-sm font-semibold text-foreground mb-1">
+                What sampling does put at risk is the small delegations
+              </div>
+              <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
+                The same few-seat band is a rounding error against{' '}
+                {partyName(house.tightest.party)}&apos;s {Math.round(house.tightest.iv.expected)} seats and
+                close to a third of {partyName(house.widest.party)}&apos;s{' '}
+                {Math.round(house.widest.iv.expected)}. Read the large delegations as counts and the small
+                ones as ranges.
+              </p>
+              <div className="mb-5">
+                <BandWidths rows={house.bands} max={house.widest.rel} />
+              </div>
+            </>
+          )}
+
           <div className="text-sm font-semibold text-foreground mb-1">
-            The two methods are equally reliable on average and differently shaped
+            A senate seat is one winner, so nothing averages out
           </div>
           <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
-            Each cell is one senate race, sorted by how often the winner repeats. Condorcet is more
-            decisive where it is decisive and closer to a coin flip where it is not, because it asks
-            whether one party beats every rival head to head. IRV&apos;s answer rides on an elimination
-            order that reshuffles every round, which keeps most races off both extremes.
+            Each cell is one of the 51 races, sorted by how often its winner repeats. The two methods are
+            equally reliable on average and differently shaped. Condorcet is more decisive where it is
+            decisive and closer to a coin flip where it is not, because it asks whether one party beats
+            every rival head to head. IRV&apos;s answer rides on an elimination order that reshuffles every
+            round, which keeps most races off both extremes.
           </p>
           <div className="space-y-4 mb-5">
             <ConfidenceStrip name="Condorcet" races={senate.cond} />
@@ -420,6 +500,12 @@ export function CaveatsSection() {
                 underlying data, so resampling is the right tool for it. Per-party ranges do not sum to the
                 chamber size, because two parties cannot both land at their maximum; the most likely and
                 expected chambers both do sum correctly.
+              </p>
+              <p>
+                The House bootstrap resolves to chamber totals, not to per-district winners, so there is
+                no district-level counterpart to the senate&apos;s reproduction rates. A delegation&apos;s
+                band is the net of hundreds of districts moving in both directions, and which particular
+                districts moved is not recoverable from it.
               </p>
               <p>
                 This captures <em>sampling</em> uncertainty only. Candidate fields are held fixed, because
