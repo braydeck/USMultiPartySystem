@@ -334,7 +334,8 @@ def main():
                 order_here = [PREFERRED[ab]] + [c for c in CANDIDATES
                                                 if c != PREFERRED[ab]]
             for side, bias in order_here:
-                for gap in (0.55 * R, 1.1 * R, 1.8 * R):
+                for gap in (0.55 * R, 1.1 * R, 1.8 * R, 2.8 * R, 4.2 * R,
+                            6.0 * R, 8.5 * R):
                     ax_, ay_, ha, va = anchor_for(pts, side, bias, gap)
                     lx0 = (ax_ if ha == "left" else ax_ - lab_w if ha == "right"
                            else ax_ - lab_w / 2)
@@ -345,23 +346,60 @@ def main():
                             & (occupied[:, 1] > ly0 - m)
                             & (occupied[:, 1] < ly0 + lab_h + m)).any():
                         continue        # would sit on some state's tiles
-                    box = (lx0 - 0.5 * lab_h, ly0 - 0.4 * lab_h,
-                           lx0 + lab_w + 0.5 * lab_h, ly0 + lab_h + 0.4 * lab_h)
+                    box = (lx0 - 0.85 * lab_h, ly0 - 0.5 * lab_h,
+                           lx0 + lab_w + 0.85 * lab_h, ly0 + lab_h + 0.5 * lab_h)
                     if any(box[0] < b[2] and b[0] < box[2]
                            and box[1] < b[3] and b[1] < box[3] for b in taken):
                         continue        # would sit on another label
-                    chosen = (ax_, ay_, ha, va, box, side, bias)
+                    chosen = (ax_, ay_, ha, va, box, side, bias, gap, pts)
                     break
                 if chosen:
                     break
             if chosen is None:
+                # Ringed in on every side (West Virginia). Sweep outward in all
+                # directions for the first clear spot; a leader line will connect it.
                 cx, cy = shift(ab, centroids[ab])
-                chosen = (cx, cy, "center", "center", None, "none", "none")
+                reach0 = max(math.hypot(q[0] - cx, q[1] - cy) for q in pts)
+                for mult in (1.4, 1.9, 2.5, 3.2, 4.0):
+                    for k in range(24):
+                        ang = 2 * math.pi * k / 24
+                        dx, dy = math.cos(ang), math.sin(ang)
+                        ax_, ay_ = cx + dx * reach0 * mult, cy + dy * reach0 * mult
+                        ha = "left" if dx > 0.3 else "right" if dx < -0.3 else "center"
+                        va = "bottom" if dy > 0.3 else "top" if dy < -0.3 else "center"
+                        lx0 = (ax_ if ha == "left" else ax_ - lab_w if ha == "right"
+                               else ax_ - lab_w / 2)
+                        ly0 = (ay_ if va == "bottom" else ay_ - lab_h if va == "top"
+                               else ay_ - lab_h / 2)
+                        m = 0.95 * R
+                        if ((occupied[:, 0] > lx0 - m) & (occupied[:, 0] < lx0 + lab_w + m)
+                                & (occupied[:, 1] > ly0 - m)
+                                & (occupied[:, 1] < ly0 + lab_h + m)).any():
+                            continue
+                        box = (lx0 - 0.85 * lab_h, ly0 - 0.5 * lab_h,
+                               lx0 + lab_w + 0.85 * lab_h, ly0 + lab_h + 0.5 * lab_h)
+                        if any(box[0] < b[2] and b[0] < box[2]
+                               and box[1] < b[3] and b[1] < box[3] for b in taken):
+                            continue
+                        chosen = (ax_, ay_, ha, va, box, "far", "sweep", 9.9 * R, pts)
+                        break
+                    if chosen:
+                        break
+            if chosen is None:
+                cx, cy = shift(ab, centroids[ab])
+                chosen = (cx, cy, "center", "center", None, "none", "none", 0.0, pts)
             if chosen[4]:
                 taken.append(chosen[4])
             placements[ab] = chosen
 
         for ab, pl in placements.items():
+            # A state wedged between neighbours has no room beside it, so its label goes
+            # out into open space with a leader line back — standard practice for
+            # Delaware and Rhode Island on any printed map.
+            if pl[7] > 2.0 * R:
+                near = min(pl[8], key=lambda q: (q[0] - pl[0]) ** 2 + (q[1] - pl[1]) ** 2)
+                ax.plot([near[0], pl[0]], [near[1], pl[1]], color="#0b1220",
+                        lw=0.7 * lw, zorder=5, solid_capstyle="round")
             ax.text(pl[0], pl[1], ab, ha=pl[2], va=pl[3], zorder=6,
                     fontsize=fs, fontweight="bold", color="#0b1220",
                     path_effects=[matplotlib.patheffects.withStroke(
