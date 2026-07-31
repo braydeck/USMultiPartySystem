@@ -146,7 +146,8 @@ point size.
   silhouette. 97% of interior districts have 6–7 internal tile contacts of a possible 7.
 - **Both border fixes matter, at different scales.** Weight is what makes districts legible
   zoomed out; rounding is what makes them look deliberate zoomed in. Rounding alone is
-  nearly invisible at map scale — don't skip the weight.
+  nearly invisible at map scale — don't skip the weight. *(Half of this did not survive
+  the port: rounding is dropped on screen. See the port notes.)*
 
 ## Known issues
 
@@ -189,6 +190,15 @@ The spec above describes the print prototype. Five things had to differ in the b
   unclipped state, so the fill has nothing to hide behind and inflated it into a blob,
   and its delegate-hexagon ring is bigger than its tiles so stroking that ring left a
   stray outline floating around them.
+- **No corner fillet — district borders trace the hex edges exactly.** This reverses the
+  prototype's rounding decision. The fillet cuts each corner back along its two edges,
+  which at print scale was invisible but on screen visibly crossed jutting hexes: a
+  district's own fill showed on the far side of its border, most obviously in Utah. The
+  line is still chained into continuous paths and takes a round join and cap, which is
+  what keeps a true-to-the-tiles staircase from reading as mitred sawteeth. At map scale
+  the traced line is indistinguishable from the filleted one, which is the earlier
+  finding — weight does the work zoomed out — arriving at the opposite conclusion about
+  what to do zoomed in.
 
 Behaviour differences a reader would notice: the map now opens on the whole country
 rather than zoomed to Illinois, and clicking a selected state zooms back out. Selection

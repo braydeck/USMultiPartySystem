@@ -152,35 +152,6 @@ function chain(segments: [number, number][][]): [number, number][][] {
   return out;
 }
 
-/**
- * Cut each corner back along its two edges, twice.
- *
- * Deliberately local: the line stays on the lattice along straight runs and only softens
- * at the turns, so it never drifts off the hexagon fills underneath it.
- */
-function fillet(pts: [number, number][], frac = 0.28, iters = 2): [number, number][] {
-  const same = (a: [number, number], b: [number, number]) =>
-    Math.abs(a[0] - b[0]) < 1e-9 && Math.abs(a[1] - b[1]) < 1e-9;
-  const closed = pts.length > 2 && same(pts[0], pts[pts.length - 1]);
-  let out = pts;
-  for (let it = 0; it < iters; it++) {
-    if (out.length < 3) break;
-    const seq = closed ? out.slice(0, -1) : out;
-    const n = seq.length;
-    const next: [number, number][] = closed ? [] : [out[0]];
-    const lo = closed ? 0 : 1;
-    const hi = closed ? n : n - 1;
-    for (let i = lo; i < hi; i++) {
-      const prv = seq[(i - 1 + n) % n], cur = seq[i], nxt = seq[(i + 1) % n];
-      next.push([cur[0] + frac * (prv[0] - cur[0]), cur[1] + frac * (prv[1] - cur[1])]);
-      next.push([cur[0] + frac * (nxt[0] - cur[0]), cur[1] + frac * (nxt[1] - cur[1])]);
-    }
-    next.push(closed ? next[0] : out[out.length - 1]);
-    out = next;
-  }
-  return out;
-}
-
 const F = (v: number) => (Math.round(v * 100) / 100).toString();
 
 function polyline(pts: [number, number][]): string {
@@ -299,10 +270,13 @@ export function buildCartogram(raw: RawCartogram, explode = EXPLODE): Cartogram 
       districts: st.districts,
       seatsByDistrict,
       districtPaths: districtRings.map(polygons),
-      // Chained then filleted: chaining is what lets a single round join carry the
-      // whole border, the fillet is what stops it reading as a staircase up close.
-      seatEdges: chain(seatSeg).map(l => polyline(l)).join(''),
-      districtEdges: chain(distSeg).map(l => polyline(fillet(l))).join(''),
+      // Chained so a single round join carries the whole border, but traced exactly
+      // along the hex edges. The print prototype filleted the corners here; on screen
+      // that cut visibly across jutting hexes and left the fill showing on the wrong
+      // side of its own district line. A staircase that is true to the tiles beats a
+      // smooth line that is not.
+      seatEdges: chain(seatSeg).map(polyline).join(''),
+      districtEdges: chain(distSeg).map(polyline).join(''),
       seatCount: st.seats.length,
       bbox: { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) },
       centroid: [cx + ox, -(cy + oy)],
