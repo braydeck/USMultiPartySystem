@@ -39,15 +39,37 @@ USAGE
   python3 pipeline/resync_district_map.py --run --stage 3
   python3 pipeline/resync_district_map.py --run --draws 50   # cheap bootstrap smoke test
 
-Budget hours: stages 1-4 are minutes, stage 5 is 1,000 draws x 7 turnout stops through
-the whole House pipeline. Run it with --draws 50 first to confirm the chain works.
+PERFORMANCE  (measured on an M4 Pro, 8 performance + 4 efficiency cores, 24 GB)
+------------------------------------------------------------------------------
+One bootstrap draw costs ~7.0s alone and ~14s under 10-way parallelism — the work is
+pure-Python STV counting, not BLAS, so capping Accelerate/OMP threads changes nothing
+(measured: 0.66 vs 0.68 draws/s). RAM is not a constraint; workers are small.
+
+  procs        4      8     10 (default)    12
+  draws/s   0.49   0.64          0.66     0.75
+
+Stage 5 is 7 stops x 1,001 jobs = 7,007 draws: ~2.9 h at the default, ~2.6 h at
+--procs 12. Stages 1-4 are minutes once stage 3 runs --jobs-way parallel (79 trees,
+~4s each: ~5 min serial, ~45s at 10-way). Budget ~3.5 h all in, or ~2 h tuned.
+
+Where a draw goes: senate 3.3s, primary 3.3s, house 1.8s, CSV reads 0.6s. Note that
+neither the senate nor the primary depends on the district map — senate is per-state,
+primary is national — so ~74% of this particular rebuild recomputes numbers that cannot
+change. A house-only draw mode reusing the other blocks from the existing payloads would
+cut stage 5 to roughly 50 min; it is real work and a real correctness risk (draw indices
+must stay aligned), so it is not done here. Separately, `first_surviving` is ~19% of
+every draw and is the obvious vectorisation target if the bootstrap is ever run often.
+
+Run --draws 50 first to confirm the chain works before committing hours.
 """
 import argparse
+import multiprocessing as mp
 import os
 import re
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
@@ -81,7 +103,7 @@ def house_runs() -> list:
     return runs
 
 
-def stages(draws: int) -> list:
+def stages(draws: int, procs_arg: list) -> list:
     """(number, title, [(env, argv), ...]). Ordered: each stage consumes the one before."""
     pure = "pipeline/pure_only/run_pure_multi_house_stv.py"
     return [
@@ -92,14 +114,15 @@ def stages(draws: int) -> list:
             ({}, ["python3", "pipeline/run_house_canonical.py"]),
             ({}, ["python3", "pipeline/run_house_canonical.py", "--triple"]),
         ]),
-        (3, f"Re-run the House STV trees ({len(house_runs())} of them, ~4s each)", [
+        # Independent of each other — one tree per process, run --jobs at a time.
+        (3, f"Re-run the House STV trees ({len(house_runs())} of them, ~4s each, parallel)", [
             (env, ["python3", pure, *args]) for _, env, args in house_runs()
         ]),
         (4, "Rebuild the party-list tree (drives its own depth x Wyoming x turnout matrix)", [
             ({}, ["python3", "pipeline/build_house_partylist.py"]),
         ]),
         (5, f"Re-run the bootstraps ({draws} draws) — THE EXPENSIVE STAGE", [
-            ({}, ["python3", "analysis/bootstrap_uncertainty.py", "--draws", str(draws)]),
+            ({}, ["python3", "analysis/bootstrap_uncertainty.py", "--draws", str(draws), *procs_arg]),
             ({}, ["python3", "analysis/bootstrap_partylist.py", "--draws", str(draws)]),
             ({}, ["python3", "analysis/bootstrap_population.py", "--draws", str(draws)]),
         ]),
@@ -118,9 +141,13 @@ def main() -> int:
     ap.add_argument("--run", action="store_true", help="execute; otherwise print the plan only")
     ap.add_argument("--stage", type=int, help="run a single stage (1-6)")
     ap.add_argument("--draws", type=int, default=1000, help="bootstrap draws (stage 5)")
+    ap.add_argument("--jobs", type=int, default=max(1, (mp.cpu_count() or 4) - 2),
+                    help="parallel House STV trees in stage 3")
+    ap.add_argument("--procs", type=int, help="worker processes for the stage-5 bootstraps")
     a = ap.parse_args()
 
-    plan = [s for s in stages(a.draws) if a.stage in (None, s[0])]
+    procs_arg = ["--procs", str(a.procs)] if a.procs else []
+    plan = [s for s in stages(a.draws, procs_arg) if a.stage in (None, s[0])]
 
     if not a.run:
         print(__doc__)
@@ -136,8 +163,25 @@ def main() -> int:
         print("chamber still totals 873, and check the OG cards — they print seat counts.")
         return 0
 
+    def run_one(job):
+        env, argv = job
+        t0 = time.time()
+        # Quiet: 79 trees running at once would interleave into unreadable output. stderr stays.
+        r = subprocess.run(argv, cwd=BASE, env={**os.environ, **env}, stdout=subprocess.DEVNULL)
+        return r.returncode, time.time() - t0, " ".join(argv[-2:])
+
     for n, title, cmds in plan:
         print(f"\n=== Stage {n}: {title} " + "=" * 20)
+        if n == 3 and len(cmds) > 1:
+            # The trees do not read each other; only the checkpoints they share, already built.
+            t0 = time.time()
+            with ThreadPoolExecutor(max_workers=a.jobs) as ex:
+                for rc, dt, label in ex.map(run_one, cmds):
+                    if rc != 0:
+                        print(f"  FAILED: {label} — stopping.", file=sys.stderr)
+                        return rc
+            print(f"  {len(cmds)} trees ok ({time.time() - t0:.0f}s, {a.jobs}-way)")
+            continue
         for env, argv in cmds:
             shown = " ".join(f"{k}={v}" for k, v in env.items()) + " " + " ".join(argv)
             print(f"  -> {shown.strip()}")

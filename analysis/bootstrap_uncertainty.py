@@ -68,6 +68,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--draws", type=int, default=1000)
     ap.add_argument("--depth", type=int, default=7)
+    # Default leaves two cores free so the machine stays usable across a multi-hour run.
+    # Measured on an M4 Pro (8P+4E): 0.66 draws/s at 10 procs, 0.75 at 12 — pass --procs 12 to
+    # trade responsiveness for ~14%.
     ap.add_argument("--procs", type=int, default=max(1, (mp.cpu_count() or 2) - 2))
     ap.add_argument("--stops", default="", help="comma-separated stop percentages, e.g. 0,5")
     ap.add_argument("--force", action="store_true",
@@ -106,7 +109,12 @@ def main():
         jobs = ([(0, lam, a.depth, True)]
                 + [(42 + d, lam, a.depth, False) for d in range(a.draws)])
         with mp.Pool(a.procs) as pool:
-            results = pool.map(_work, jobs)
+            # chunksize=1, not pool.map's default. For 1,001 jobs over 12 workers the default is
+            # 21, so the last worker can still be 21 draws (~5 min) behind when the others are
+            # idle — about 34 min across the seven stops. Draws cost seconds, so per-job dispatch
+            # overhead is noise against the balance it buys. Still map, not imap_unordered:
+            # results[0] must stay the observed anchor.
+            results = pool.map(_work, jobs, chunksize=1)
         failed = [r for r in results if "error" in r]
         if failed:
             # An assert would vanish under -O, and an error dict then reaches the aggregator
