@@ -3324,8 +3324,28 @@ def build_party_population():
         "party": code,
         "popShare": round(pops[k], 2),
         "voteShare": round(votes[k] / vtot * 100, 2),
-        "turnout": round(turns[k] * 100, 1),
+        # No plain `turnout` field: nothing reads it, and emitting it would put the corrected
+        # per-cluster 2024 figure (STY 32.5) next to the stale turnoutPresidential (38.0) —
+        # two 2024 turnout numbers side by side inviting someone to grab the wrong one. The
+        # corrected figure lives in turnout_propensity.csv and turnoutVerification.json.
     } for k, code in enumerate(CODES)]
+    # turnoutPresidential / turnoutMidterm are not derivable here: they come from the cross-wave
+    # imposed-2024-Gaussian analysis (2024 vs 2022 validated turnout), which no script in the repo
+    # reproduces — see the wave-turnout-partypopulation note. They were hand-written into this file,
+    # so carry them forward instead of dropping them; without this, running prepare_data.py silently
+    # strips two fields the Single Race cycle model needs and the build fails on the missing type.
+    prior_path = DATA_OUT / "partyPopulation.json"
+    if prior_path.exists():
+        with open(prior_path, encoding="utf-8") as f:
+            prior = {r["party"]: r for r in json.load(f)}
+        carried = 0
+        for r in rows:
+            for key in ("turnoutPresidential", "turnoutMidterm"):
+                if key not in r and key in prior.get(r["party"], {}):
+                    r[key] = prior[r["party"]][key]
+                    carried += 1
+        if carried:
+            print(f"  partyPopulation: carried {carried} hand-authored turnout field(s) forward")
     write_json(rows, "partyPopulation.json")
 
 
