@@ -71,6 +71,7 @@ export function seatMapToHouseSeats(seatMap: SeatMap): HouseSeat[] {
 export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig, houseU, gi }: Props) {
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [selState, setSelState] = useUrlState<string>('plstate', 'national');
+  const [mapState, setMapState] = useUrlState<string>('mapstate', 'national');
   const nat = config.national;
 
   const stateOpts = useMemo(() => [
@@ -253,7 +254,8 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
           </div>
         </div>
         {mapView === 'map'
-          ? <HouseMap districtResults={districtResults} districtCountyMap={districtCountyMap} />
+          ? <HouseMap districtResults={districtResults} districtCountyMap={districtCountyMap}
+              wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} />
           : <HouseGridChart stateMap={stateMap} districtResults={districtResults} />}
       </Card>
 

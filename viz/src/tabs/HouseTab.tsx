@@ -202,6 +202,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
+  const [mapState, setMapState] = useUrlState<string>('mapstate', 'national');
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: [...DISPLAY_FACTORS] });
   const [seatShareState, setSeatShareState] = useUrlState<string>('state', 'national');
 
@@ -587,7 +588,8 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
             ))}
           </div>
         </div>
-        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap} />}
+        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap}
+          wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} />}
         {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} />}
       </Card>
 

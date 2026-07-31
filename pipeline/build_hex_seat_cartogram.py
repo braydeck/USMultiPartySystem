@@ -73,6 +73,7 @@ from hexmap_io import load_layer, county_centroids
 BASE_DIR = Path(__file__).parent.parent
 TOPO_PATH = BASE_DIR / "viz" / "public" / "topojson" / "counties-10m.json"
 OUT_DIR = BASE_DIR / "data" / "processed"
+VIZ_HEX_DIR = BASE_DIR / "viz" / "public" / "hexmap"
 
 # Pointy-top hexagon: vertex at the top. width = sqrt(3)*R, height = 2*R.
 SQRT3 = math.sqrt(3.0)
@@ -988,6 +989,60 @@ def assign_parties(seat_cells, elected, R, x0, y0, order):
     return dict(zip(ordered, seq))
 
 
+# ── viz payload ──────────────────────────────────────────────────────────────
+
+def viz_payload(out, R, x0, y0):
+    """Re-shape the build output into the geometry-only file the app fetches.
+
+    Two differences from the prototype JSON, both deliberate:
+
+    - **No party.** The app recolours the same geometry for STV vs party list, for every
+      ballot depth and turnout stop. Baking one scenario's winners in would freeze the
+      map on whichever run happened to build it.
+    - **Seats are pre-sorted west→east within their district**, so the app fills them by
+      zipping F5_ORDER against `seats` and never has to redo the centroid sort. The
+      left→right ideological gradient is defined once, here.
+
+    Cells become a flat `[col, row, seatIdx, isCore]` run rather than objects: the same
+    information at about a third of the bytes, which matters for a file that ships to
+    the browser on every House-tab visit.
+    """
+    states = {}
+    for ab, s in out["states"].items():
+        by_district = defaultdict(list)
+        for cell in s["cells"]:
+            if cell["isCore"]:
+                by_district[cell["district"]].append(cell["core"])
+
+        seat_ids, seat_district = [], []
+        district_ids = sorted(d for d in by_district if d)
+        for di, did in enumerate(district_ids):
+            def west_east(core):
+                col, row = (int(v) for v in core.split(","))
+                cx, cy = hex_center(col, row, R, x0, y0)
+                return (cx, cy, core)
+            for core in sorted(set(by_district[did]), key=west_east):
+                seat_ids.append(core)
+                seat_district.append(di)
+
+        index_of = {core: i for i, core in enumerate(seat_ids)}
+        flat = []
+        for cell in s["cells"]:
+            idx = index_of.get(cell["core"])
+            if idx is None:      # boundary fill merged into another state's seat
+                continue
+            flat += [cell["col"], cell["row"], idx, 1 if cell["isCore"] else 0]
+
+        states[ab] = {
+            "clip": s["clip"],
+            "rings": [[[round(x, 4), round(y, 4)] for x, y in ring] for ring in s["rings"]],
+            "districts": district_ids,
+            "seats": seat_district,
+            "cells": flat,
+        }
+    return {"meta": out["meta"], "states": states}
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -997,6 +1052,10 @@ def main():
     ap.add_argument("--cells-per-seat", type=int, default=1,
                     choices=[1, 2, 3, 4, 5, 6],
                     help="hexagons per seat: 1 = single hex, 2+ = conjoined cluster")
+    ap.add_argument("--viz-out", default=None,
+                    help="geometry-only JSON for the app (default viz/public/hexmap/)")
+    ap.add_argument("--no-viz", action="store_true",
+                    help="skip the app payload; write only the prototype JSON")
     args = ap.parse_args()
 
     cpp = args.cells_per_seat
@@ -1212,6 +1271,13 @@ def main():
     path.write_text(json.dumps(out))
     n_cells = sum(len(s["cells"]) for s in out["states"].values())
     print(f"\nwrote {path} ({n_cells} cells across {len(out['states'])} states)")
+
+    if not args.no_viz:
+        vpath = (Path(args.viz_out) if args.viz_out
+                 else VIZ_HEX_DIR / f"hex_seat_cartogram{suffix}.json")
+        vpath.parent.mkdir(parents=True, exist_ok=True)
+        vpath.write_text(json.dumps(viz_payload(out, R, x0, y0)))
+        print(f"wrote {vpath} ({vpath.stat().st_size // 1024} KB, geometry only)")
 
 
 if __name__ == "__main__":

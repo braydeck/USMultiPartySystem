@@ -5,6 +5,12 @@ viz. Everything below was measured, not guessed; don't re-derive it.
 
 Branch: `worktree-hexmap-seat-cartogram`. Reference render: `prototype/SHIP_x1_clipped.png`.
 
+> **Shipped.** The port is done — `viz/src/lib/hexCartogram.ts` (geometry) and
+> `viz/src/components/house/HexCartogram.tsx` (rendering), replacing the county-gradient
+> map inside `HouseMap`. It serves STV and party list, double and triple Wyoming. See
+> [What changed in the port](#what-changed-in-the-port) for where the shipped code
+> departs from the spec below.
+
 ## What it is
 
 A cartogram of the multi-member House where **one hexagon = one seat**. States keep a
@@ -154,6 +160,40 @@ point size.
 - Hawaii and Virginia have legitimately detached cells (islands, Eastern Shore).
 - `docs/DATA_SOURCES.md` House table agreed with `houseSeats.json` after the last rebuild;
   worth rechecking the non-Conservative rows.
+
+## What changed in the port
+
+The spec above describes the print prototype. Five things had to differ in the browser.
+
+- **The app fetches a geometry-only payload**, `viz/public/hexmap/hex_seat_cartogram{,_triple}.json`,
+  written by the same build (`--viz-out` / `--no-viz`). It drops `party` — the map has to
+  recolour for STV vs list, every ballot depth and every turnout stop, so baking one
+  scenario's winners in would freeze it — pre-sorts each district's seats west→east so
+  the app never redoes the centroid sort, and flattens cells to `[col, row, seatIdx,
+  isCore]`. 255 KB → 132 KB, and 430 KB → 151 KB for triple.
+- **Seat counts are exact in both files**: 873 across 150 districts, 1,726 across 243,
+  checked against `districtStvResults{,Triple}.json`. Triple has 9 blobs with a detached
+  cell against double's 3.
+- **Weights are pixels, not points.** The app renders about five times smaller than the
+  poster, so the prototype's map-unit widths land sub-pixel. They are converted to screen
+  pixels with floors (seat 0.55, district 1.9, state 1.1) and drawn with
+  `vector-effect: non-scaling-stroke`. Zooming multiplies them by `min(2.6, sqrt(k))`:
+  the hexes grow, so the lines have to, but matching the zoom outright has a district
+  line swallow the seats it separates.
+- **Labels are pinned to 11 screen px** and the frame is widened afterwards to whatever
+  they need — Massachusetts places past Cape Cod and was being cut off. They sit inside
+  the zoom group with `fontSize / k` so they hold their size. At app scale a label is
+  ~2R rather than the poster's 0.7R, so the algorithm's "drop it rather than overlap"
+  branch does real work; all 51 still place.
+- **DC drops its boundary fill and is outlined by its own tiling.** It is the one
+  unclipped state, so the fill has nothing to hide behind and inflated it into a blob,
+  and its delegate-hexagon ring is bigger than its tiles so stroking that ring left a
+  stray outline floating around them.
+
+Behaviour differences a reader would notice: the map now opens on the whole country
+rather than zoomed to Illinois, and clicking a selected state zooms back out. Selection
+lives in `?mapstate=`. The Grid toggle, state dropdown, zoom buttons, district cards and
+the statewide-pool note are all unchanged.
 
 ## Porting notes
 
