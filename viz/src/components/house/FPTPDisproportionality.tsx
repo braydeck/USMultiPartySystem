@@ -7,7 +7,10 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 
 interface Props {
   states: FPTPState[];
+  /** STV seats per state, FIPS-keyed. */
   stateMap?: Record<string, HouseStateEntry>;
+  /** Party-list seats per state, FIPS-keyed, shown as a fourth bar. */
+  listStateMap?: Record<string, HouseStateEntry>;
 }
 
 const STATE_ABBR: Record<string, string> = {
@@ -66,12 +69,12 @@ function SpotlightBar({
   );
 }
 
-function StvBar({ entry }: { entry: HouseStateEntry }) {
+function PartyBar({ entry, label }: { entry: HouseStateEntry; label: string }) {
   const { seats, totalSeats } = entry;
   const segments = F5_ORDER.filter(p => (seats[p] ?? 0) > 0).map(p => ({ party: p, n: seats[p] }));
   return (
     <div>
-      <div className="text-xs text-muted-foreground font-medium mb-1">Multi-party STV ({totalSeats} seats)</div>
+      <div className="text-xs text-muted-foreground font-medium mb-1">{label} ({totalSeats} seats)</div>
       <div className="flex rounded overflow-hidden" style={{ height: 26 }}>
         {segments.map(({ party, n }) => {
           const pct = (n / totalSeats) * 100;
@@ -103,12 +106,13 @@ function StvBar({ entry }: { entry: HouseStateEntry }) {
 }
 
 function SpotlightCard({
-  stateName, allStates, onChangeState, stvEntry,
+  stateName, allStates, onChangeState, stvEntry, listEntry,
 }: {
   stateName: string;
   allStates: FPTPState[];
   onChangeState: (s: string) => void;
   stvEntry?: HouseStateEntry;
+  listEntry?: HouseStateEntry;
 }) {
   const data = allStates.find(s => s.state === stateName);
   if (!data) return null;
@@ -157,7 +161,8 @@ function SpotlightCard({
         total={data.totalSeats}
         lightColors
       />
-      {stvEntry && <StvBar entry={stvEntry} />}
+      {stvEntry && <PartyBar entry={stvEntry} label="Multi-party STV" />}
+      {listEntry && <PartyBar entry={listEntry} label="Multi-party list" />}
 
       <p className="text-xs text-muted-foreground leading-snug">
         {isGopOver ? 'Republican' : 'Democrat'}s hold{' '}
@@ -170,7 +175,7 @@ function SpotlightCard({
   );
 }
 
-export function FPTPDisproportionality({ states, stateMap }: Props) {
+export function FPTPDisproportionality({ states, stateMap, listStateMap }: Props) {
   const [spotlights, setSpotlights] = useState<[string, string, string]>([
     'Illinois', 'North Carolina', 'Florida',
   ]);
@@ -194,9 +199,20 @@ export function FPTPDisproportionality({ states, stateMap }: Props) {
     return lookup;
   }, [stateMap]);
 
+  const abbrToListEntry = useMemo(() => {
+    if (!listStateMap) return {} as Record<string, HouseStateEntry>;
+    const lookup: Record<string, HouseStateEntry> = {};
+    for (const entry of Object.values(listStateMap)) lookup[entry.stateAbbr] = entry;
+    return lookup;
+  }, [listStateMap]);
+
   const getStvEntry = (stateName: string) => {
     const abbr = STATE_ABBR[stateName];
     return abbr ? abbrToEntry[abbr] : undefined;
+  };
+  const getListEntry = (stateName: string) => {
+    const abbr = STATE_ABBR[stateName];
+    return abbr ? abbrToListEntry[abbr] : undefined;
   };
 
   const validStates = states.filter(s => s.totalSeats > 0);
@@ -217,7 +233,8 @@ export function FPTPDisproportionality({ states, stateMap }: Props) {
       <div>
         <p className="text-xs text-muted-foreground mb-3">
           Use the dropdowns to compare any states, sorted by gerrymander score (seat share − vote share gap).
-          {stateMap && <span> Third bar shows the 9-party STV simulation result.</span>}
+          {stateMap && <span> The lower bars show what the same state returns under the
+            ten-party simulation, by STV and by party list.</span>}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {([0, 1, 2] as const).map(i => (
@@ -227,6 +244,7 @@ export function FPTPDisproportionality({ states, stateMap }: Props) {
               allStates={validStates}
               onChangeState={setSpotlight(i)}
               stvEntry={getStvEntry(spotlights[i])}
+              listEntry={getListEntry(spotlights[i])}
             />
           ))}
         </div>

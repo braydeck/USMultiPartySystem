@@ -69,6 +69,8 @@ interface Props {
   profilesExtra?: ReactNode;
   /** Chamber composition card, built by the tab which owns the factor selector. */
   chamber?: ReactNode;
+  /** FPTP-by-state card, which now carries a party-list bar alongside the STV one. */
+  fptpDispro?: ReactNode;
 }
 
 const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
@@ -80,7 +82,7 @@ export function seatMapToHouseSeats(seatMap: SeatMap): HouseSeat[] {
   })).filter(s => s.national > 0) as unknown as HouseSeat[];
 }
 
-export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig, houseU, gi, clusters, profilesExtra, chamber }: Props) {
+export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig, houseU, gi, clusters, profilesExtra, chamber, fptpDispro }: Props) {
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [selState, setSelState] = useUrlState<string>('plstate', 'national');
   const [mapState, setMapState] = useUrlState<string>('mapstate', 'national');
@@ -218,7 +220,7 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
       </CollapsibleSection>
 
       {/* Seat share vs population share, party list vs STV */}
-      <Card className="p-5 border-2 border-indigo-200">
+      <Card className="p-4">
         <div className="flex items-center justify-between gap-2 mb-1">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
             {rangeRows ? 'Votes vs seat share' : 'Vote vs seat share'}
@@ -252,10 +254,39 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
             })}
           </div>
         )}
-        <p className="text-[11px] text-muted-foreground mt-3">
-          Party-list seats use the Hare quota with largest remainders, within the same multi-member districts as STV. There is no legal threshold: winning a seat takes about one quota, so a party's seats track its vote share times the district's magnitude.
-        </p>
       </Card>
+
+      <CollapsibleSection id="dispro" title="See disproportionality" hint="Unrepresented voters and over-quota surplus">
+        <div className="grid gap-4 lg:grid-cols-3 items-start">
+        {/* Headline: voters left unrepresented */}
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Voters left unrepresented
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+          <div className="grid grid-cols-3 gap-2">
+            <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
+            <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
+            <Stat label="STV" value={nat.unrepresented.stv} tone="best" />
+          </div>
+        </Card>
+
+        {/* Over-quota surplus */}
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Over-quota surplus
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Votes above what a winner needed.
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <Stat label="Today's House" value={CURRENT_SURPLUS} tone="worst" note="2024" />
+            <Stat label="Party list" value={nat.excess.list} tone="mid" note="stranded" />
+            <Stat label="STV" value={nat.excess.stv} tone="best" note="transferred" />
+          </div>
+        </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* State composition — reuse STV components with list results */}
       <Card className="p-4">
@@ -287,39 +318,9 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
         <UrbSubRurChart seats={tierSeats} />
       </Card>
 
-      <CollapsibleSection id="dispro" title="See disproportionality" hint="Unrepresented voters and over-quota surplus">
-        <div className="grid gap-4 lg:grid-cols-3 items-start">
-        {/* Headline: voters left unrepresented */}
-        <Card className="p-5 border-2 border-indigo-200">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            Voters left unrepresented
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
-          <div className="grid grid-cols-3 gap-2">
-            <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
-            <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
-            <Stat label="STV" value={nat.unrepresented.stv} tone="best" />
-          </div>
-        </Card>
-
-        {/* Over-quota surplus */}
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            Over-quota surplus
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">
-            Votes above what a winner needed.
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            <Stat label="Today's House" value={CURRENT_SURPLUS} tone="worst" note="2024" />
-            <Stat label="Party list" value={nat.excess.list} tone="mid" note="stranded" />
-            <Stat label="STV" value={nat.excess.stv} tone="best" note="transferred" />
-          </div>
-        </Card>
-        </div>
-      </CollapsibleSection>
-
       {chamber}
+
+      {fptpDispro}
 
       <Card className="p-4">
         <StateSeatsTable stateMap={stateMap} wyoming={wyoming} />

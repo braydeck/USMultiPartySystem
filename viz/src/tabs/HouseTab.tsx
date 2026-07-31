@@ -358,6 +358,17 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
     : (scenario === 'factorDev' ? fdDistrictGi : rmDistrict));
   const activeDistrictCountyMap = wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap;
   const mapTotals = useMemo(() => seatTotals(activeDistrictResults), [activeDistrictResults]);
+  // Party-list seats per state, so the FPTP spotlight can show list beside STV.
+  const listStateMap = useMemo(() => {
+    if (!plConfig) return undefined;
+    const out: Record<string, HouseStateEntry> = {};
+    for (const [fips, st] of Object.entries(plConfig.byState)) {
+      const plur = Object.entries(st.listSeats).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+      out[fips] = { stateAbbr: st.abbr, pluralityParty: plur, totalSeats: st.totalSeats,
+        seats: st.listSeats } as unknown as HouseStateEntry;
+    }
+    return out;
+  }, [plConfig]);
   const activeStateMap = stvDepthDetail ? stvDepthDetail.stateMap : (wyoming === 'triple' ? stateMapTriple : rmStateMap);
   const activeFdHouseSeats = wyoming === 'triple' ? fdSeatsTripleGi : fdSeatsGi;
   const activeFdSeatsByCode = useMemo(() => {
@@ -395,6 +406,17 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
     <ParliamentChart segments={parliamentSegments} factor={parliamentFactor} />
   </Card>
   );
+  const fptpDisproNode = fptpStates.length > 0 ? (
+    <Card className="p-4">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        FPTP Disproportionality by State
+      </h3>
+      <p className="text-xs text-muted-foreground mb-4">
+        How far each state&apos;s FPTP outcome diverges from proportional representation.
+      </p>
+      <FPTPDisproportionality states={fptpStates} stateMap={activeStateMap} listStateMap={listStateMap} />
+    </Card>
+  ) : null;
   const constellationNode = (
   <Card className="p-4">
     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
@@ -455,7 +477,8 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
         ? <PartyListView config={plConfig} wyoming={wyoming} doubleConfig={plConfigDouble}
             districtCountyMap={wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap}
             houseU={houseUList} gi={gi} clusters={orderedClusters}
-            profilesExtra={constellationNode} chamber={chamberNode} />
+            profilesExtra={constellationNode} chamber={chamberNode}
+            fptpDispro={fptpDisproNode} />
         : <div className="py-24 text-center text-sm text-muted-foreground">Loading party-list results…</div>)}
 
       {system === 'stv' && (<>
@@ -499,39 +522,6 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           houseU={houseU}
           gi={gi}
         />
-      </Card>
-
-      {/* State Composition — both views */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
-          <div className="flex gap-1">
-            {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
-              <Button key={v} onClick={() => setMapView(v)}
-                variant={mapView === v ? 'default' : 'secondary'}
-                size="sm">
-                {label}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <div className="mb-3">
-          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
-        </div>
-        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap}
-          wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />}
-        {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} highlight={highlight} />}
-      </Card>
-
-      {/* Seats by District Type */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Seats by District Type
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
-        </p>
-        <UrbSubRurChart seats={activeSeats} />
       </Card>
 
       {/* Proportionality detail. Three cards across on a wide screen — they were one
@@ -629,6 +619,39 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
         )}
       </CollapsibleSection>
 
+      {/* State Composition — both views */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
+          <div className="flex gap-1">
+            {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
+              <Button key={v} onClick={() => setMapView(v)}
+                variant={mapView === v ? 'default' : 'secondary'}
+                size="sm">
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <div className="mb-3">
+          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
+        </div>
+        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap}
+          wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />}
+        {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} highlight={highlight} />}
+      </Card>
+
+      {/* Seats by District Type */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Seats by District Type
+        </h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
+        </p>
+        <UrbSubRurChart seats={activeSeats} />
+      </Card>
+
       {chamberNode}
 
       {/* FD: Variant bar right after seat share */}
@@ -648,18 +671,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           SECTION 2: PARTIES & GEOGRAPHY
           ═══════════════════════════════════════════════════════════════════════ */}
 
-      {/* FPTP disproportionality — below maps */}
-      {fptpStates.length > 0 && (
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            FPTP Disproportionality by State
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">
-            How far each state&apos;s FPTP outcome diverges from proportional representation.
-          </p>
-          <FPTPDisproportionality states={fptpStates} stateMap={activeStateMap} />
-        </Card>
-      )}
+      {fptpDisproNode}
 
       {/* Vote Transfer Destinations removed — now below Population vs Seat Share */}
 
