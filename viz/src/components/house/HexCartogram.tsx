@@ -56,6 +56,9 @@ const C_MUTED = '#e7ecf2';
 /** Target on-screen size of a state label. Placement drops any that cannot clear. */
 const LABEL_PX = 11;
 
+/** Tallest the map may get, as a share of the viewport, so it fits a laptop screen. */
+const MAX_MAP_VH = 68;
+
 /** A fixed heavy stroke is wider than Alaska's panhandle, so taper the outline by size. */
 const stateTaper = (seats: number) => Math.min(1, Math.max(0.4, Math.sqrt(seats / 10)));
 
@@ -78,9 +81,11 @@ interface Props {
   highlight?: ReadonlySet<string>;
   /** rendered under the map; the caller owns the wording */
   footnote?: React.ReactNode;
+  /** controls placed above the map, aligned to its edge rather than the card's */
+  toolbar?: React.ReactNode;
 }
 
-export function HexCartogram({ wyoming, districtResults, selected, onSelectState, highlight, footnote }: Props) {
+export function HexCartogram({ wyoming, districtResults, selected, onSelectState, highlight, footnote, toolbar }: Props) {
   const [cg, setCg] = useState<Cartogram | null>(null);
   const [err, setErr] = useState(false);
   const [hover, setHover] = useState<HoverInfo | null>(null);
@@ -172,6 +177,11 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
       .scaleExtent([1, 14])
       .extent([[view.x, view.y], [view.x + view.w, view.y + view.h]])
       .translateExtent([[view.x, view.y], [view.x + view.w, view.y + view.h]])
+      // A plain wheel scrolls the page. The map is tall enough that on a laptop it can
+      // fill the viewport, and swallowing the wheel there traps the reader: they try to
+      // scroll away and zoom instead. Ctrl/⌘+wheel still zooms, which is also what a
+      // trackpad pinch sends, and the +/− buttons and drag-to-pan are unaffected.
+      .filter(e => e.type !== 'wheel' || (e as WheelEvent).ctrlKey || (e as WheelEvent).metaKey)
       .on('zoom', e => setZt(e.transform));
     zoomRef.current = z;
     d3.select(svgRef.current).call(z).on('dblclick.zoom', null);
@@ -210,9 +220,21 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
 
   const hoverDistrict = hover ? districtById[hover.districtId] : undefined;
 
+  // Bound the height rather than the width: the cartogram is about 1.4:1, so at full
+  // width it runs taller than a laptop viewport and the reader never sees it whole.
+  // Capping the *container* keeps `width` truthful — a max-height on the SVG would
+  // letterbox the drawing while the box stayed full width, and every stroke that is
+  // sized from px-per-degree would come out wrong.
+  const maxW = `${(MAX_MAP_VH * view.w) / view.h}vh`;
+
   return (
-    <div className="space-y-2">
-      <div ref={boxRef} className="relative rounded-lg bg-white border border-border" aria-label="House seat cartogram" role="img">
+    <div className="space-y-2 mx-auto w-full" style={{ maxWidth: maxW }}>
+      {toolbar && <div className="flex justify-end">{toolbar}</div>}
+      <div
+        ref={boxRef}
+        className="relative rounded-lg bg-white border border-border"
+        aria-label="House seat cartogram" role="img"
+      >
         {hover && hoverDistrict && (
           <div
             className="absolute z-10 bg-white border border-border rounded px-2 py-1 text-xs text-foreground shadow-sm pointer-events-none"

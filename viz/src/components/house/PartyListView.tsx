@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { HouseMap } from './HouseMap';
 import { HouseGridChart } from './HouseGridChart';
+import { PartyHighlightFilter } from './PartyHighlightFilter';
+import { seatTotals } from '../../lib/seatTotals';
 import { StateSeatsTable } from './StateSeatsTable';
 import { FPTPvsSTV } from './FPTPvsSTV';
 import { useUrlState } from '../../hooks/useUrlState';
@@ -72,6 +74,8 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [selState, setSelState] = useUrlState<string>('plstate', 'national');
   const [mapState, setMapState] = useUrlState<string>('mapstate', 'national');
+  // Shared by the map and the grid, so switching views keeps the coalition you built.
+  const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
   const nat = config.national;
 
   const stateOpts = useMemo(() => [
@@ -94,6 +98,8 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
     }
     return out;
   }, [config]);
+
+  const mapTotals = useMemo(() => seatTotals(districtResults), [districtResults]);
 
   const stateMap = useMemo(() => {
     const out: Record<string, HouseStateEntry> = {};
@@ -253,10 +259,13 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
             ))}
           </div>
         </div>
+        <div className="mb-3">
+          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
+        </div>
         {mapView === 'map'
           ? <HouseMap districtResults={districtResults} districtCountyMap={districtCountyMap}
-              wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} />
-          : <HouseGridChart stateMap={stateMap} districtResults={districtResults} />}
+              wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />
+          : <HouseGridChart stateMap={stateMap} districtResults={districtResults} highlight={highlight} />}
       </Card>
 
       <Card className="p-4">

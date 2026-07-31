@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { DistrictResult } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, getContrastText } from '../../constants/parties';
 import { Card } from '@/components/ui/card';
@@ -52,122 +52,49 @@ interface Props {
   /** state FIPS, or 'national' for the whole map */
   selectedFips: string;
   onSelectFips: (fips: string) => void;
+  /** parties to keep lit, owned by the parent so the grid shares the same selection */
+  highlight: ReadonlySet<string>;
 }
 
-export function HouseMap({ districtResults, districtCountyMap, wyoming, selectedFips, onSelectFips }: Props) {
+export function HouseMap({ districtResults, districtCountyMap, wyoming, selectedFips, onSelectFips, highlight }: Props) {
   const abbrToFips = useMemo(
     () => Object.fromEntries(US_STATES.map(s => [s.abbr, s.fips])), [],
   );
   const stateEntry = US_STATES.find(s => s.fips === selectedFips);
   const districts  = stateEntry ? (districtResults[stateEntry.fips] ?? []) : [];
 
-  // Multi-select rather than the grid's one-at-a-time, so a coalition can be assembled
-  // and read as a single footprint.
-  const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
-  const toggleParty = (p: string) => setHighlight(prev => {
-    const next = new Set(prev);
-    if (!next.delete(p)) next.add(p);
-    return next;
-  });
-
-  const seatTotals = useMemo(() => {
-    const per: Record<string, number> = {};
-    let all = 0;
-    for (const rows of Object.values(districtResults)) {
-      for (const d of rows) for (const p of d.elected) { per[p] = (per[p] ?? 0) + 1; all++; }
-    }
-    return { per, all };
-  }, [districtResults]);
-
-  const picked = F5_ORDER.filter(p => highlight.has(p));
-  const pickedSeats = picked.reduce((s, p) => s + (seatTotals.per[p] ?? 0), 0);
-  const majority = Math.floor(seatTotals.all / 2) + 1;
-
   return (
-    <div className="space-y-4">
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* The legend doubles as the highlight control — the party names are already
-            here, so a separate row of the same names would just be the list twice.
-            F5_ORDER, not the colour table: that also carries DEM/IND/REP for the
-            current-party comparisons, which have no seats on this map, and it holds OAO
-            out of ideological sequence. */}
-        <div className="flex flex-wrap gap-x-3 gap-y-1 items-center">
-          {F5_ORDER.map(party => {
-            const on = highlight.has(party);
-            const off = highlight.size > 0 && !on;
-            return (
-              <button
-                key={party}
-                onClick={() => toggleParty(party)}
-                aria-pressed={on}
-                title={`Highlight ${PARTY_NAMES[party]} — ${seatTotals.per[party] ?? 0} seats`}
-                className="flex items-center gap-1 text-xs font-semibold rounded px-1 -mx-1 py-0.5 transition-opacity hover:bg-slate-100"
-                style={{ color: PARTY_COLORS[party], opacity: off ? 0.4 : 1 }}
-              >
-                <span
-                  className="w-2.5 h-2.5 rounded-sm"
-                  style={{
-                    backgroundColor: on || !highlight.size ? PARTY_COLORS[party] : 'transparent',
-                    boxShadow: `inset 0 0 0 1.5px ${PARTY_COLORS[party]}`,
-                  }}
-                />
-                {PARTY_NAMES[party]}
-              </button>
-            );
-          })}
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <label className="text-xs font-semibold text-muted-foreground">State:</label>
-          <select
-            value={selectedFips}
-            onChange={e => onSelectFips(e.target.value)}
-            className="text-sm border border-border rounded px-2 py-1 bg-white text-foreground"
-          >
-            <option value="national">All states</option>
-            {US_STATES.map(s => (
-              <option key={s.fips} value={s.fips}>{s.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {picked.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-muted-foreground">Highlighted:</span>
-          {picked.map(p => (
-            <span key={p} className="font-bold px-1.5 py-0.5 rounded chip-text"
-              style={{ backgroundColor: PARTY_COLORS[p], color: getContrastText(PARTY_COLORS[p]) }}>
-              {p} {seatTotals.per[p] ?? 0}
-            </span>
-          ))}
-          <span className="tabular-nums font-semibold text-foreground">
-            {pickedSeats} of {seatTotals.all} seats ({(pickedSeats / seatTotals.all * 100).toFixed(1)}%)
-          </span>
-          <span className={pickedSeats >= majority ? 'text-emerald-700 font-semibold' : 'text-muted-foreground'}>
-            {pickedSeats >= majority
-              ? `majority, +${pickedSeats - majority}`
-              : `${majority - pickedSeats} short of ${majority}`}
-          </span>
-          <button onClick={() => setHighlight(new Set())}
-            className="px-2 py-0.5 rounded border border-border text-muted-foreground hover:bg-slate-100">
-            clear
-          </button>
-        </div>
-      )}
-
+    <div className="space-y-3">
       <HexCartogram
         wyoming={wyoming}
         districtResults={districtResults}
         highlight={highlight}
         selected={stateEntry?.abbr ?? null}
+        toolbar={
+          /* Map-only control. The colour key and party filter are the shared
+             PartyHighlightFilter above, which the grid answers to as well. */
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-muted-foreground">State:</label>
+            <select
+              value={selectedFips}
+              onChange={e => onSelectFips(e.target.value)}
+              className="text-sm border border-border rounded px-2 py-1 bg-white text-foreground"
+            >
+              <option value="national">All states</option>
+              {US_STATES.map(s => (
+                <option key={s.fips} value={s.fips}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+        }
         onSelectState={abbr => onSelectFips(
           abbrToFips[abbr] === selectedFips ? 'national' : (abbrToFips[abbr] ?? 'national'),
         )}
         footnote={
           <>One hexagon is one seat, filled with the party that won it. Heavy outlines
           separate districts; states are scaled so area tracks population. Click a state
-          to zoom, click it again to zoom back out.</>
+          to zoom, click it again to zoom back out; hold ⌘ or Ctrl while scrolling to
+          zoom anywhere.</>
         }
       />
 

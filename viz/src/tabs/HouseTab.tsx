@@ -7,6 +7,8 @@ import { IdeologicalConstellation } from '../components/house/IdeologicalConstel
 import { BillSimulator } from '../components/house/BillSimulator';
 import { HouseMap } from '../components/house/HouseMap';
 import { HouseGridChart } from '../components/house/HouseGridChart';
+import { PartyHighlightFilter } from '../components/house/PartyHighlightFilter';
+import { seatTotals } from '../lib/seatTotals';
 import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
@@ -203,6 +205,8 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [mapState, setMapState] = useUrlState<string>('mapstate', 'national');
+  // Shared by the map and the grid, so switching views keeps the coalition you built.
+  const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: [...DISPLAY_FACTORS] });
   const [seatShareState, setSeatShareState] = useUrlState<string>('state', 'national');
 
@@ -352,6 +356,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
     ? (scenario === 'factorDev' ? fdDistrictTripleGi : districtTripleGi)
     : (scenario === 'factorDev' ? fdDistrictGi : rmDistrict));
   const activeDistrictCountyMap = wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap;
+  const mapTotals = useMemo(() => seatTotals(activeDistrictResults), [activeDistrictResults]);
   const activeStateMap = stvDepthDetail ? stvDepthDetail.stateMap : (wyoming === 'triple' ? stateMapTriple : rmStateMap);
   const activeFdHouseSeats = wyoming === 'triple' ? fdSeatsTripleGi : fdSeatsGi;
   const activeFdSeatsByCode = useMemo(() => {
@@ -588,9 +593,12 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
             ))}
           </div>
         </div>
+        <div className="mb-3">
+          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
+        </div>
         {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap}
-          wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} />}
-        {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} />}
+          wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />}
+        {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} highlight={highlight} />}
       </Card>
 
       {/* FPTP disproportionality — below maps */}

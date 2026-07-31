@@ -5,6 +5,8 @@ import type { HouseStateEntry, DistrictResult } from '../../types';
 interface Props {
   stateMap: Record<string, HouseStateEntry>;
   districtResults: Record<string, DistrictResult[]>;
+  /** parties to keep lit, owned by the parent so the map shares the same selection */
+  highlight: ReadonlySet<string>;
 }
 
 // Geographic grid [row, col]
@@ -49,9 +51,9 @@ function cellHeight(numDists: number): number {
   return numDists * SQ + Math.max(0, numDists - 1) * DIST_GAP + LABEL_H + PAD * 2;
 }
 
-export function HouseGridChart({ stateMap, districtResults }: Props) {
-  const [activeParty, setActiveParty] = useState<string | null>(null);
+export function HouseGridChart({ stateMap, districtResults, highlight }: Props) {
   const [tooltip, setTooltip] = useState<string | null>(null);
+  const highlighting = highlight.size > 0;
 
   const byAbbr: Record<string, HouseStateEntry> = {};
   for (const [fips, entry] of Object.entries(stateMap)) {
@@ -75,13 +77,6 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
     }
     return out;
   }, [districtResults]);
-
-  // Parties actually present across states (so the highlight legend only lists real parties).
-  const presentParties = useMemo(() => {
-    const s = new Set<string>();
-    for (const e of Object.values(stateMap)) for (const p of Object.keys(e.seats ?? {})) s.add(p);
-    return s;
-  }, [stateMap]);
 
   const maxRow = Math.max(...Object.values(STATE_GRID).map(([r]) => r));
   const maxCol = Math.max(...Object.values(STATE_GRID).map(([, c]) => c));
@@ -117,34 +112,8 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
 
   return (
     <div>
-      {/* Party highlight filter */}
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        <span className="text-xs text-muted-foreground self-center mr-1">Highlight:</span>
-        {F5_ORDER.filter(p => presentParties.has(p)).map(p => (
-          <button
-            key={p}
-            onClick={() => setActiveParty(activeParty === p ? null : p)}
-            className="text-xs px-2 py-0.5 rounded border transition-all"
-            style={{
-              borderColor: PARTY_COLORS[p],
-              color: activeParty === p ? 'white' : PARTY_COLORS[p],
-              backgroundColor: activeParty === p ? PARTY_COLORS[p] : 'transparent',
-              opacity: activeParty && activeParty !== p ? 0.35 : 1,
-            }}
-          >
-            {p}
-          </button>
-        ))}
-        {activeParty && (
-          <button
-            onClick={() => setActiveParty(null)}
-            className="text-xs px-2 py-0.5 rounded border border-slate-300 text-muted-foreground"
-          >
-            clear
-          </button>
-        )}
-      </div>
-
+      {/* The party filter is the shared PartyHighlightFilter above, which the seat
+          cartogram answers to as well. */}
       <div className="h-8 mb-1">
         {tooltip && (
           <div className="text-sm text-foreground bg-white border border-border rounded px-3 py-1.5 shadow-sm inline-block">
@@ -168,7 +137,7 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
             const cy = rowY[row] + Math.floor((rowHeights[row] - ch) / 2);
 
             const pluralityParty = dists[0]?.elected[0] ?? entry?.pluralityParty ?? '';
-            const labelColor = activeParty
+            const labelColor = highlighting
               ? '#94a3b8'
               : (PARTY_COLORS[pluralityParty] ?? '#64748b');
 
@@ -212,7 +181,7 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
                           width={SQ}
                           height={SQ}
                           fill={PARTY_COLORS[party] ?? '#6b7280'}
-                          opacity={!activeParty || party === activeParty ? 0.88 : 0.06}
+                          opacity={!highlighting || highlight.has(party) ? 0.88 : 0.06}
                           rx={1}
                         />
                       ))}
@@ -237,7 +206,7 @@ export function HouseGridChart({ stateMap, districtResults }: Props) {
         </svg>
       </div>
       <p className="text-xs text-muted-foreground mt-2 text-center">
-        Each square = one STV seat · rows = districts (urban → suburban → rural) · cell size ∝ state representation · click a party to see its geographic reach
+        Each square = one STV seat · rows = districts (urban → suburban → rural) · cell size ∝ state representation · highlight parties above to see their geographic reach
       </p>
     </div>
   );
