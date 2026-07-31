@@ -92,6 +92,7 @@ def main():
     ap.add_argument("--no-labels", action="store_true", help="omit state abbreviations")
     ap.add_argument("--style", choices=["cased", "gap"], default="cased",
                     help="district separation: dark line cased in white, or white gap")
+    ap.add_argument("--data", default=None, help="explicit cartogram JSON path")
     ap.add_argument("--no-clip", action="store_true",
                     help="let hexagons extend past the state border instead of being "
                          "clipped to it")
@@ -100,8 +101,9 @@ def main():
     args = ap.parse_args()
 
     suffix = "_triple" if args.triple else ""
-    data = json.loads((BASE_DIR / "data" / "processed"
-                       / f"hex_seat_cartogram{suffix}.json").read_text())
+    src = (Path(args.data) if args.data else
+           BASE_DIR / "data" / "processed" / f"hex_seat_cartogram{suffix}.json")
+    data = json.loads(src.read_text())
     meta = data["meta"]
     R, x0, y0 = meta["R"], meta["x0"], meta["y0"]
     colors, names, left_right = load_palette()
@@ -138,7 +140,7 @@ def main():
     tally = defaultdict(int)
     districts_seen = set()
     for ab, st in sorted(data["states"].items()):
-        n_seats = sum(c["isCore"] for c in st["cells"])
+        n_seats = len({c["core"] for c in st["cells"] if c["isCore"]})
         clipped = st["clip"] and not args.no_clip
         # Unclipped, a seat is one whole hexagon. The boundary cells exist only to fill
         # the outline for the clip, so drawing them here would inflate every state past
@@ -146,9 +148,11 @@ def main():
         cells = {(c["col"], c["row"]): c for c in st["cells"]
                  if clipped or c["isCore"]}
         w_state = state_stroke(n_seats)
+        seen_seats = set()
         for c in st["cells"]:
             districts_seen.add(c["district"])
-            if c["isCore"]:
+            if c["isCore"] and c["core"] not in seen_seats:
+                seen_seats.add(c["core"])
                 tally[c["party"]] += 1
 
         verts = {k: hex_vertices(*hex_center(k[0], k[1], R, x0, y0), R) for k in cells}

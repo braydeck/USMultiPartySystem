@@ -25,10 +25,15 @@ Method
      state. State area is population-proportional, so this lands within ~1 cell/state.
      Seats are apportioned across a state's separate rings by area, so Michigan's
      peninsulas and Hawaii's islands each get their own share.
-  2. Grow each state's cells into district blobs of exactly seatCount cells, seeded at
-     each district's real county centroid mapped into the state's distorted frame.
-     Growth is adjacency-only, so blobs stay contiguous.
-  3. Give each hexagon one elected member's party.
+     Cells per ring are sized to the districts assigned to that ring, not to its area,
+     because only districts sharing a ring can trade cells.
+  2. Assign each ring's cells to districts by capacity-constrained nearest-seed, seeded
+     at each district's real county centroid mapped into the state's distorted frame.
+     Sizes are exact by construction; contiguity is then improved by size-preserving
+     swaps. Sizes win when the two conflict — they are seat counts.
+  3. Group cells into seats (--cells-per-seat: 1 hexagon, or 2 conjoined) and give each
+     seat one elected member, dealt in F5_ORDER west→east so a district reads as a
+     left-to-right ideological gradient.
   4. Merge every remaining cell that touches the state into its nearest seat. The
      renderer clips each state's cells to that state's outline, so the silhouette stays
      the real state shape instead of a castellated hex edge — this step guarantees there
@@ -45,8 +50,9 @@ Reproducibility: no randomness. Ties break on explicit sort keys (cell id, distr
 so repeated runs are byte-identical.
 
 Usage
-  python pipeline/build_hex_seat_cartogram.py            # 873-seat standard map
-  python pipeline/build_hex_seat_cartogram.py --triple   # 1,726-seat map
+  python pipeline/build_hex_seat_cartogram.py                    # 873 seats, 1 hex each
+  python pipeline/build_hex_seat_cartogram.py --cells-per-seat 2 # conjoined dominoes
+  python pipeline/build_hex_seat_cartogram.py --triple           # 1,726-seat map
 """
 
 import argparse
@@ -185,27 +191,88 @@ def load_districts(triple):
     return districts, per_state
 
 
+SPLIT_OVERRIDES = Path(__file__).parent / "county_split_overrides.csv"
+
+
+def load_split_overrides():
+    """(county, district) → share of that county, from the cd119 split overrides.
+
+    A county listed here is divided between districts by real 119th-Congress district,
+    so it seeds every district it feeds rather than only the one the whole-county file
+    names. Maricopa is the case this exists for: it alone backs both AZ 04-01 and 04-03,
+    and without it 04-03 has no geography at all and falls back to the state centre.
+    """
+    if not SPLIT_OVERRIDES.exists():
+        return {}
+    per_county = defaultdict(list)
+    with open(SPLIT_OVERRIDES) as f:
+        for row in csv.DictReader(f):
+            per_county[row["county_fips5"]].append(row["district_id"])
+    shares = {}
+    for fips, dids in per_county.items():
+        for did in set(dids):
+            shares[(fips, did)] = dids.count(did) / len(dids)
+    return shares
+
+
 def district_real_centroids(triple, districts):
-    """Mean county centroid per district, in real lon/lat."""
+    """Population-free centroid per district in real lon/lat, weighted by county share.
+
+    Whole counties count once; a county split across districts by cd119 contributes to
+    each in proportion to how many of its cd119 pieces that district takes.
+    """
     suffix = "_triple" if triple else ""
     path = OUT_DIR / f"county_to_district{suffix}.csv"
     cents = county_centroids(TOPO_PATH)
-    acc = defaultdict(list)
+    overrides = load_split_overrides()
+    split_counties = {fips for fips, _ in overrides}
+
+    acc = defaultdict(list)          # district -> [(lon, lat, weight)]
     missing = 0
     with open(path) as f:
         for row in csv.DictReader(f):
-            c = cents.get(row["county_fips5"])
+            fips = row["county_fips5"]
+            c = cents.get(fips)
             if c is None:
                 missing += 1
                 continue
-            acc[row["district_id"]].append(c)
+            if fips in split_counties:
+                continue             # handled from the override table below
+            acc[row["district_id"]].append((c[0], c[1], 1.0))
+    for (fips, did), share in sorted(overrides.items()):
+        c = cents.get(fips)
+        if c is not None:
+            acc[did].append((c[0], c[1], share))
+
     out = {}
     for did in districts:
         pts = acc.get(did)
         if pts:
-            out[did] = (sum(p[0] for p in pts) / len(pts),
-                        sum(p[1] for p in pts) / len(pts))
+            wsum = sum(p[2] for p in pts)
+            out[did] = (sum(p[0] * p[2] for p in pts) / wsum,
+                        sum(p[1] * p[2] for p in pts) / wsum)
     return out, missing, {d: len(acc.get(d, [])) for d in districts}
+
+
+def spread_coincident(seeds, R):
+    """Nudge apart districts that share a seed point.
+
+    Two districts carved out of the same county (AZ 04-01 and 04-03 both come from
+    Maricopa) land on the identical centroid, which leaves the growth with nothing to
+    tell them apart. Spacing them on a small ring keeps both in the right place while
+    giving each its own side to grow from.
+    """
+    groups = defaultdict(list)
+    for did, (x, y) in seeds.items():
+        groups[(round(x, 4), round(y, 4))].append(did)
+    out = dict(seeds)
+    for (x, y), dids in sorted(groups.items()):
+        if len(dids) < 2:
+            continue
+        for i, did in enumerate(sorted(dids)):
+            ang = 2 * math.pi * i / len(dids)
+            out[did] = (x + 0.7 * R * math.cos(ang), y + 0.7 * R * math.sin(ang))
+    return out
 
 
 def real_state_bboxes(triple):
@@ -268,22 +335,73 @@ def connect_selection(chosen, pool, want):
     return chosen
 
 
-def build_lattice(states, targets, verbose=True):
+def lattice_R(states, total_cells):
+    """Hex circumradius that fits exactly total_cells cells across the state outlines."""
+    total_area = sum(s.area for s in states.values())
+    return math.sqrt(total_area / total_cells / HEX_AREA_PER_R2)
+
+
+def assign_districts_to_rings(st, dists, seeds, R):
+    """Split a state's districts across its separate rings, then size each ring to fit.
+
+    A ring's cell count has to equal the sum of the district sizes assigned to it, not
+    its area share, or the districts stranded on it can never reach their target: only
+    districts in the same ring can trade cells, since growth follows adjacency and rings
+    do not touch. Michigan is the case that forces this — an area-proportional split gave
+    the Upper Peninsula 16 cells, but its district sizes are 14/14/14/12 and no subset
+    sums to 16, so its lone district could never balance.
+
+    Returns (ring_of_district, ring_targets).
+    """
+    hex_area = HEX_AREA_PER_R2 * R * R
+    areas = {i: ring_area(st.rings[i]) for i in range(len(st.rings))}
+    eligible = {i: a for i, a in areas.items() if a >= 0.35 * hex_area}
+    if not eligible:
+        eligible = {max(areas, key=lambda i: (areas[i], -i)): 1.0}
+
+    total_cells = sum(d["size"] for d in dists.values())
+    quota = largest_remainder(total_cells, eligible)
+    centroids = {i: rings_centroid([st.rings[i]]) for i in eligible}
+
+    remaining = dict(quota)
+    ring_of = {}
+    # Largest districts first: they are the hardest to place once quotas fill up.
+    for did in sorted(dists, key=lambda d: (-dists[d]["size"], d)):
+        size = dists[did]["size"]
+        sx, sy = seeds[did]
+
+        def dist_to(i):
+            cx, cy = centroids[i]
+            return (cx - sx) ** 2 + (cy - sy) ** 2, i
+
+        room = [i for i in eligible if remaining[i] >= size]
+        pick = (min(room, key=dist_to) if room
+                else max(sorted(eligible), key=lambda i: (remaining[i], -i)))
+        ring_of[did] = pick
+        remaining[pick] -= size
+
+    ring_targets = defaultdict(int)
+    for did, i in ring_of.items():
+        ring_targets[i] += dists[did]["size"]
+    return ring_of, dict(ring_targets)
+
+
+def build_lattice(states, targets, ring_targets=None, verbose=True):
     """Choose R so in-state cell count == seat total, then pick the best cells.
 
     Cells are claimed by whichever state covers them most, so no cell is double-used.
-    Within a state, seats are apportioned across the state's separate rings by area
-    (Michigan's peninsulas, Hawaii's islands) and each ring picks its own best cells,
-    which keeps islands from stealing seats from the mainland or vice versa.
+    Within a state, cells are apportioned across the state's separate rings (Michigan's
+    peninsulas, Hawaii's islands) so islands cannot steal seats from the mainland. When
+    ring_targets is given — {(state, ring_index): cells} from assign_districts_to_rings —
+    it overrides the area-proportional split so each ring holds exactly the districts
+    assigned to it.
 
-    Returns (cores, pools, R, x0, y0): `cores` maps (col, row) -> state abbreviation,
-    one core cell per seat; `pools` maps a state to every cell touching it, including
-    the boundary cells that get merged into a neighbouring seat so that clipping the
-    result to the state outline leaves the silhouette intact.
+    Returns (cores, pools, picked_by_ring, R, x0, y0): `cores` maps (col, row) -> state
+    abbreviation; `pools` maps a state to every cell touching it, including the boundary
+    cells merged into a neighbouring seat so clipping leaves the silhouette intact.
     """
     total_seats = sum(targets.values())
-    total_area = sum(s.area for s in states.values())
-    R = math.sqrt(total_area / total_seats / HEX_AREA_PER_R2)
+    R = lattice_R(states, total_seats)
 
     xmin = min(s.bbox[0] for s in states.values())
     ymin = min(s.bbox[1] for s in states.values())
@@ -333,34 +451,44 @@ def build_lattice(states, targets, verbose=True):
                 pools[ab].add(nearest_cell(x, y, R, x0, y0))
 
     cells = {}
+    picked_by_ring = {}
     shortfalls = []
     for ab, st in sorted(states.items()):
         target = targets[ab]
-        ring_area = {i: ring_area_of(st.rings[i]) for i in range(len(st.rings))}
-        # A ring too small to hold a whole cell should not be handed a seat.
-        hex_area = HEX_AREA_PER_R2 * R * R
-        eligible = {i: a for i, a in ring_area.items()
-                    if a >= 0.35 * hex_area and cover.get((ab, i))}
-        if not eligible:
-            eligible = {max(ring_area, key=lambda i: (ring_area[i], -i)): 1.0}
-        alloc = largest_remainder(target, eligible)
+        areas = {i: ring_area_of(st.rings[i]) for i in range(len(st.rings))}
+        if ring_targets is not None:
+            alloc = {i: n for i, n in
+                     ((j, ring_targets.get((ab, j), 0)) for j in areas) if n}
+            eligible = dict(alloc)
+        else:
+            # A ring too small to hold a whole cell should not be handed a seat.
+            hex_area = HEX_AREA_PER_R2 * R * R
+            eligible = {i: a for i, a in areas.items()
+                        if a >= 0.35 * hex_area and cover.get((ab, i))}
+            if not eligible:
+                eligible = {max(areas, key=lambda i: (areas[i], -i)): 1.0}
+            alloc = largest_remainder(target, eligible)
 
         picked = set()
         for i in sorted(eligible):
             want = alloc[i]
             if want <= 0:
                 continue
-            pool = {c: s for c, s in cover[(ab, i)].items()
+            pool = {c: s for c, s in cover.get((ab, i), {}).items()
                     if owner.get(c) == ab and c not in picked}
             ranked = sorted(pool, key=lambda c: (-pool[c], c))[:want]
-            picked |= connect_selection(ranked, pool, want)
+            chosen = connect_selection(ranked, pool, want)
+            picked_by_ring[(ab, i)] = chosen
+            picked |= chosen
         # Any shortfall (ring quota larger than the cells available) falls back to the
         # state's remaining unclaimed cells.
         if len(picked) < target:
             rest = {c: s for (a, i), d in cover.items() if a == ab
                     for c, s in d.items() if owner.get(c) == ab and c not in picked}
+            biggest = max(alloc, key=lambda i: (alloc[i], -i)) if alloc else 0
             for c in sorted(rest, key=lambda c: (-rest[c], c))[:target - len(picked)]:
                 picked.add(c)
+                picked_by_ring.setdefault((ab, biggest), set()).add(c)
         if len(picked) != target:
             shortfalls.append((ab, target, len(picked)))
         for c in picked:
@@ -372,7 +500,7 @@ def build_lattice(states, targets, verbose=True):
 
     if shortfalls:
         print("   WARNING shortfalls:", shortfalls)
-    return cells, pools, R, x0, y0
+    return cells, pools, picked_by_ring, R, x0, y0
 
 
 def ring_area_of(pts):
@@ -443,154 +571,108 @@ def largest_component(cell_set):
 
 # ── step 2: districts ────────────────────────────────────────────────────────
 
-def grow_districts(state_cells, dists, seeds, R, x0, y0, max_moves=20000):
-    """Partition a state's cells into district blobs of exactly seatCount cells.
+def grow_districts(state_cells, dists, seeds, R, x0, y0, max_swaps=4000):
+    """Partition a ring's cells into district blobs of exactly the right size.
 
-    Capacity-limited growth strands cells (a cell ringed by districts that are already
-    full has nowhere to go), so instead: assign every cell to its nearest seed, then
-    repair the sizes by moving boundary cells. Each repair walks a path through the
-    district-adjacency graph from an over-full district to an under-full one and shifts
-    one cell across every edge on the path, which changes only the endpoints' counts.
-    A move is rejected if it would disconnect the donor, so blobs stay contiguous, and
-    total imbalance strictly decreases, so the loop terminates.
+    Capacity-respecting growth: at each step the proportionally most under-filled
+    district claims its nearest unclaimed neighbour, so no district can be starved and
+    every one lands on its exact target. If a district's frontier is walled in before it
+    is full it jumps to the nearest unclaimed cell instead — sizes are the hard
+    constraint (they are seat counts) and contiguity is cosmetic.
+
+    Those jumps are then unpicked by swapping cells between districts, which keeps every
+    size fixed while reducing the number of disconnected pieces.
     """
     centers = {c: hex_center(c[0], c[1], R, x0, y0) for c in state_cells}
-    order = sorted(dists, key=lambda d: (-dists[d]["seats"], d))
-    target = {d: dists[d]["seats"] for d in dists}
+    order = sorted(dists, key=lambda d: (-dists[d]["size"], d))
+    target = {d: dists[d]["size"] for d in dists}
 
     def d2(cell, did):
         sx, sy = seeds[did]
         return (centers[cell][0] - sx) ** 2 + (centers[cell][1] - sy) ** 2
 
-    # Reserve one distinct cell per district so none starts empty, largest first.
+    # Capacity-constrained assignment: walk every (cell, district) pair in order of
+    # distance to the district's seed and take it if the cell is free and the district
+    # still has room. Sizes come out exact by construction — a district cannot be starved
+    # the way a plain nearest-seed split starves one whose seed sits beside another's —
+    # and each district still collects the cells closest to where it belongs.
+    members = {d: set() for d in dists}
     assign = {}
-    taken = set()
-    for did in order:
-        best = min((c for c in state_cells if c not in taken), key=lambda c: (d2(c, did), c))
-        assign[best] = did
-        taken.add(best)
-    # Everything else goes to its nearest seed.
-    for c in sorted(state_cells):
-        if c not in assign:
-            assign[c] = min(order, key=lambda d: (d2(c, d), d))
+    pairs = sorted(((d2(c, d), d, c) for c in state_cells for d in order),
+                   key=lambda t: (t[0], t[1], t[2]))
+    for _, did, cell in pairs:
+        if cell in assign or len(members[did]) >= target[did]:
+            continue
+        members[did].add(cell)
+        assign[cell] = did
+    # Any cell left over (every district that wanted it was full) goes to whichever
+    # district still has room and sits nearest.
+    for cell in sorted(set(state_cells) - set(assign)):
+        did = min((d for d in order if len(members[d]) < target[d]),
+                  key=lambda d: (d2(cell, d), d))
+        members[did].add(cell)
+        assign[cell] = did
 
-    members = defaultdict(set)
-    for c, d in assign.items():
-        members[d].add(c)
-
-    # Nearest-seed assignment can leave a district holding a detached lobe. Hand each
-    # stray piece to an adjacent district before fixing sizes, since the size repair
-    # below preserves component counts but never reduces them. A piece with no
-    # neighbouring district stays put — that is a genuinely islanded state (Hawaii).
-    for _ in range(len(state_cells)):
-        moved = False
+    # Contiguity cleanup: swap a whole stray piece for an equal number of cells that
+    # touch the district's main blob. Equal counts both ways, so no seat count moves.
+    give_up = set()
+    for _ in range(max_swaps):
+        stray = None
         for did in order:
             comps = components(members[did])
             if len(comps) < 2:
                 continue
-            home = min(comps, key=lambda cp: (min(d2(c, did) for c in cp),
-                                              sorted(cp)[0]))
+            home = max(comps, key=lambda cp: (len(cp), -min(d2(c, did) for c in cp)))
             for comp in comps:
-                if comp is home:
-                    continue
-                touching = {assign[nb] for c in comp for nb in neighbors(*c)
-                            if nb in assign and assign[nb] != did}
-                if not touching:
-                    continue
-                cx = sum(centers[c][0] for c in comp) / len(comp)
-                cy = sum(centers[c][1] for c in comp) / len(comp)
-
-                def seed_dist(d, cx=cx, cy=cy):
-                    sx, sy = seeds[d]
-                    return (sx - cx) ** 2 + (sy - cy) ** 2, d
-
-                new = min(sorted(touching), key=seed_dist)
-                for c in comp:
-                    members[did].discard(c)
-                    members[new].add(c)
-                    assign[c] = new
-                moved = True
-        if not moved:
+                key = (did, min(comp))
+                if comp is not home and key not in give_up:
+                    stray = (did, frozenset(comp), key)
+                    break
+            if stray:
+                break
+        if stray is None:
             break
+        did, piece, key = stray
 
-    def shift(donor, recip):
-        """Move the most recipient-leaning boundary cell from donor to recip.
-
-        Rejected if it would break the donor into more pieces than it already has —
-        'more pieces than before' rather than 'more than one', because a state whose
-        lattice cells are themselves disconnected (Hawaii's islands, thin states that
-        pick up a detached cell) can hand a district a legitimately split blob.
-        """
-        before = n_components(members[donor])
-        cands = sorted((c for c in members[donor]
-                        if any(assign.get(nb) == recip for nb in neighbors(*c))),
-                       key=lambda c: (d2(c, recip) - d2(c, donor), c))
-        for cell in cands:
-            rest = members[donor] - {cell}
-            if rest and n_components(rest) > before:
-                continue
-            members[donor].discard(cell)
-            members[recip].add(cell)
-            assign[cell] = recip
-            return cell
-        return None
-
-    moves = 0
-    blocked = set()
-    while moves < max_moves:
-        over = sorted(d for d in order if len(members[d]) > target[d])
-        under = {d for d in order if len(members[d]) < target[d]}
-        if not over or not under:
-            break
-
-        # District adjacency, rebuilt each pass since blobs move.
-        adj = defaultdict(set)
-        for c, d in assign.items():
+        # Which neighbouring district surrounds this piece?
+        touching = defaultdict(int)
+        for c in piece:
             for nb in neighbors(*c):
-                nd = assign.get(nb)
-                if nd is not None and nd != d and (d, nd) not in blocked:
-                    adj[d].add(nd)
-
-        # Shortest path from any over-full district to any under-full one.
-        path = None
-        for src in over:
-            prev, queue, seen = {src: None}, [src], {src}
-            while queue and path is None:
-                nxt = []
-                for d in queue:
-                    if d in under and d != src:
-                        node, chain = d, []
-                        while node is not None:
-                            chain.append(node)
-                            node = prev[node]
-                        path = chain[::-1]
-                        break
-                    for nd in sorted(adj[d]):
-                        if nd not in seen:
-                            seen.add(nd)
-                            prev[nd] = d
-                            nxt.append(nd)
-                queue = nxt
-            if path:
-                break
-        if not path or len(path) < 2:
-            break
-
-        # Apply the whole path or none of it, so imbalance always drops by one.
-        applied = []
-        for donor, recip in zip(path, path[1:]):
-            cell = shift(donor, recip)
-            if cell is None:
-                for c, dn, rc in reversed(applied):   # roll back
-                    members[rc].discard(c)
-                    members[dn].add(c)
-                    assign[c] = dn
-                blocked.add((donor, recip))
-                break
-            applied.append((cell, donor, recip))
-        else:
-            moves += len(applied)
-            blocked.clear()   # geometry changed; previously blocked edges may work now
+                od = assign.get(nb)
+                if od is not None and od != did:
+                    touching[od] += 1
+        best = None
+        for other in sorted(touching, key=lambda o: (-touching[o], o)):
+            # Cells of `other` that touch our home blob, to hand back in exchange.
+            home_cells = members[did] - piece
+            cands = [c for c in sorted(members[other])
+                     if any(nb in home_cells for nb in neighbors(*c))]
+            if len(cands) < len(piece):
+                continue
+            # Prefer give-back cells whose loss does not break `other` apart.
+            base = n_components(members[other])
+            cands.sort(key=lambda c: (
+                n_components(members[other] - {c}) > base, d2(c, did), c))
+            take = set(cands[:len(piece)])
+            new_did = home_cells | take
+            new_other = (members[other] - take) | set(piece)
+            before = n_components(members[did]) + n_components(members[other])
+            after = n_components(new_did) + n_components(new_other)
+            # Accept a break-even trade too, so long as this district actually sheds a
+            # piece — otherwise strays that merely move around never get absorbed.
+            if (after <= before and n_components(new_did) < n_components(members[did])
+                    and (best is None or after < best[0])):
+                best = (after, other, take, new_did, new_other)
+        if best is None:
+            give_up.add(key)
+            continue
+        _, other, take, new_did, new_other = best
+        members[did] = new_did
+        members[other] = new_other
+        for c in new_did:
+            assign[c] = did
+        for c in new_other:
+            assign[c] = other
 
     counts = {d: len(members[d]) for d in dists}
     return assign, counts
@@ -620,14 +702,114 @@ def left_right_order():
     return order or LEFT_RIGHT_FALLBACK
 
 
-def assign_parties(cells_of_district, elected, R, x0, y0, order):
-    """Give each hexagon one elected member, laid out left→right by ideology.
+def group_into_seats(cellset, size, R, x0, y0):
+    """Partition a district's cells into connected groups of `size` — one per seat.
 
-    Seats are dealt in F5_ORDER across the blob sorted west→east, so every district
-    reads as a left-to-right ideological gradient and same-party seats sit together.
+    size=1 is the plain one-hexagon-per-seat map. size=2 makes each seat a domino of two
+    conjoined hexagons. A greedy pass leaves stragglers that cannot be paired, and a
+    short group would invent a seat with no member to put in it, so this searches
+    exhaustively: always extend from the most constrained free cell (fewest free
+    neighbours) and backtrack when a branch dead-ends. District blobs top out around
+    twenty cells, so the search is cheap and always finds a partition when one exists.
+
+    Returns {cell: seat_id}, seat_id being the smallest cell in the group.
     """
-    centers = {c: hex_center(c[0], c[1], R, x0, y0) for c in cells_of_district}
-    ordered = sorted(cells_of_district, key=lambda c: (centers[c][0], centers[c][1], c))
+    if size == 1:
+        return {c: c for c in cellset}
+
+    free = set(cellset)
+    groups = []
+
+    def free_degree(c):
+        return sum(1 for nb in neighbors(*c) if nb in free)
+
+    def extend(group):
+        """All ways to grow `group` by one adjacent free cell, most constrained first."""
+        opts = {nb for c in group for nb in neighbors(*c) if nb in free}
+        return sorted(opts, key=lambda c: (free_degree(c), c))
+
+    def solve():
+        if not free:
+            return True
+        start = min(free, key=lambda c: (free_degree(c), c))
+
+        def build(group):
+            if len(group) == size:
+                groups.append(list(group))
+                if solve():
+                    return True
+                groups.pop()
+                return False
+            for nxt in extend(group):
+                free.discard(nxt)
+                if build(group + [nxt]):
+                    return True
+                free.add(nxt)
+            return False
+
+        free.discard(start)
+        if build([start]):
+            return True
+        free.add(start)
+        return False
+
+    if not solve():
+        # No exact partition exists for this blob (an odd or pinched shape). Fall back to
+        # greedy so the map still renders, and let the caller warn about the seat count.
+        free = set(cellset)
+        groups = []
+        while free:
+            start = min(free, key=lambda c: (free_degree(c), c))
+            group = [start]
+            free.discard(start)
+            while len(group) < size and (opts := extend(group)):
+                nxt = opts[0]
+                group.append(nxt)
+                free.discard(nxt)
+            groups.append(group)
+
+    # The fallback can leave more groups than the district has seats (a stray cell with
+    # no neighbour becomes a group of one), which would invent a seat with no member to
+    # fill it. Merge the smallest groups until the count matches, nearest pair first: a
+    # seat drawn as two hexagons that do not touch is a much smaller wrong than a seat
+    # that does not exist.
+    n_seats = len(cellset) // size
+    while len(groups) > n_seats and len(groups) > 1:
+        def centroid(g):
+            pts = [hex_center(c[0], c[1], R, x0, y0) for c in g]
+            return (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
+
+        groups.sort(key=lambda g: (len(g), min(g)))
+        g = groups[0]
+        gx, gy = centroid(g)
+        other = min(groups[1:], key=lambda h: (len(h),
+                                               (centroid(h)[0] - gx) ** 2
+                                               + (centroid(h)[1] - gy) ** 2,
+                                               min(h)))
+        other.extend(g)
+        groups.remove(g)
+
+    out = {}
+    for g in groups:
+        seat_id = min(g)
+        for c in g:
+            out[c] = seat_id
+    return out
+
+
+def assign_parties(seat_cells, elected, R, x0, y0, order):
+    """Give each seat one elected member, laid out left→right by ideology.
+
+    Seats are dealt in F5_ORDER across the district sorted west→east by seat centroid,
+    so every district reads as a left-to-right ideological gradient and same-party seats
+    sit together. Returns {seat_id: party}.
+    """
+    pos = {}
+    for seat, cells in seat_cells.items():
+        pts = [hex_center(c[0], c[1], R, x0, y0) for c in cells]
+        pos[seat] = (sum(p[0] for p in pts) / len(pts),
+                     sum(p[1] for p in pts) / len(pts))
+    ordered = sorted(seat_cells, key=lambda s: (pos[s][0], pos[s][1], s))
     by_party = defaultdict(int)
     for p in elected:
         by_party[p] += 1
@@ -644,10 +826,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--triple", action="store_true", help="1,726-seat map")
     ap.add_argument("--out", default=None, help="output JSON path")
+    ap.add_argument("--cells-per-seat", type=int, default=1, choices=[1, 2, 3],
+                    help="hexagons per seat: 1 = single hex, 2 = conjoined domino")
     args = ap.parse_args()
 
+    cpp = args.cells_per_seat
     districts, per_state = load_districts(args.triple)
-    print(f"districts={len(districts)} seats={sum(per_state.values())}")
+    for v in districts.values():
+        v["size"] = v["seats"] * cpp          # district size in cells, not seats
+    per_state = {k: v * cpp for k, v in per_state.items()}
+    print(f"districts={len(districts)} seats={sum(v['seats'] for v in districts.values())}"
+          f" cells-per-seat={cpp} lattice cells={sum(per_state.values())}")
 
     st_layer = load_layer("HexStv30", "HexSTv30")
     ab_by_fips = {a["GEOID"][:2]: a["STATEAB"] for a, _ in load_layer("HexCDv32")}
@@ -657,8 +846,42 @@ def main():
     dc_seats = per_state.get("11", 0)
     targets = {ab: per_state[fips_by_ab[ab]] for ab in states if fips_by_ab[ab] in per_state}
 
+    # Seeds first: the ring split below needs to know where each district wants to sit,
+    # and seeding off the state polygon rather than the chosen cells makes it independent
+    # of the lattice.
+    real_bboxes = real_state_bboxes(args.triple)
+    real_cents, missing, county_counts = district_real_centroids(args.triple, districts)
+    print(f"counties without a centroid: {missing}")
+    no_cent = [d for d in districts if d not in real_cents]
+    if no_cent:
+        print(f"WARNING districts with no county centroid: {no_cent}")
+
+    R_est = lattice_R(states, sum(targets.values()))
+
+    def seeds_for(st, dists, fips, R_ref):
+        rbbox = real_bboxes.get(fips, st.bbox)
+        out = {}
+        for d in dists:
+            rp = real_cents.get(d)
+            out[d] = map_seed(rp, rbbox, st.bbox) if rp else (
+                (st.bbox[0] + st.bbox[2]) / 2, (st.bbox[1] + st.bbox[3]) / 2)
+        return spread_coincident(out, R_ref)
+
+    seeds_by_state, ring_targets, ring_of = {}, {}, {}
+    for ab, st in sorted(states.items()):
+        fips = fips_by_ab.get(ab)
+        dists = {d: v for d, v in districts.items() if v["state"] == fips}
+        if not dists:
+            continue
+        seeds = seeds_for(st, dists, fips, R_est)
+        seeds_by_state[ab] = seeds
+        r_of, r_targets = assign_districts_to_rings(st, dists, seeds, R_est)
+        ring_of.update(r_of)
+        for i, n in r_targets.items():
+            ring_targets[(ab, i)] = n
+
     print("\nstep 1 — hex lattice")
-    cells, pools, R, x0, y0 = build_lattice(states, targets)
+    cells, pools, picked_by_ring, R, x0, y0 = build_lattice(states, targets, ring_targets)
     print(f"   R={R:.4f} deg  cells={len(cells)}  (target {sum(targets.values())})")
 
     # DC: no population-scaled outline in the states file, so borrow the delegate
@@ -699,35 +922,35 @@ def main():
     print(f"   states with detached cells: {frag if frag else 'none'}")
 
     print("\nstep 2 — district blobs")
-    real_bboxes = real_state_bboxes(args.triple)
-    real_cents, missing, county_counts = district_real_centroids(args.triple, districts)
-    print(f"   counties without a centroid: {missing}")
-    no_cent = [d for d in districts if d not in real_cents]
-    if no_cent:
-        print(f"   WARNING districts with no county centroid: {no_cent}")
-
+    # Grow per ring, not per state: only districts sharing a ring can trade cells, since
+    # growth follows adjacency and a state's rings do not touch.
     assignment = {}
-    for ab, cellset in sorted(by_state.items()):
+    for ab in sorted(by_state):
         fips = fips_by_ab[ab]
-        dists = {d: v for d, v in districts.items() if v["state"] == fips}
-        if not dists:
+        all_dists = {d: v for d, v in districts.items() if v["state"] == fips}
+        if not all_dists:
             continue
-        hbbox = (min(hex_center(*c, R, x0, y0)[0] for c in cellset),
-                 min(hex_center(*c, R, x0, y0)[1] for c in cellset),
-                 max(hex_center(*c, R, x0, y0)[0] for c in cellset),
-                 max(hex_center(*c, R, x0, y0)[1] for c in cellset))
-        rbbox = real_bboxes.get(fips, hbbox)
-        seeds = {}
-        for d in dists:
-            rp = real_cents.get(d)
-            seeds[d] = map_seed(rp, rbbox, hbbox) if rp else (
-                (hbbox[0] + hbbox[2]) / 2, (hbbox[1] + hbbox[3]) / 2)
-        got, counts = grow_districts(cellset, dists, seeds, R, x0, y0)
-        bad = {d: (counts[d], dists[d]["seats"]) for d in dists
-               if counts[d] != dists[d]["seats"]}
-        if bad:
-            print(f"   {ab}: SIZE MISMATCH {bad}")
-        assignment.update(got)
+        # DC joins `states` after the seed pass above, so seed it here.
+        seeds = seeds_by_state.get(ab) or seeds_for(states[ab], all_dists, fips, R)
+        if ab == "DC":            # DC's cells are placed by hand, not by ring
+            groups = [(by_state[ab], all_dists)]
+        else:
+            groups = []
+            for i in sorted({ring_of[d] for d in all_dists}):
+                grp = {d: v for d, v in all_dists.items() if ring_of[d] == i}
+                cellset = picked_by_ring.get((ab, i), set()) & by_state[ab]
+                groups.append((cellset, grp))
+        for cellset, dists in groups:
+            if not cellset or not dists:
+                if dists:
+                    print(f"   {ab}: WARNING no cells for {sorted(dists)}")
+                continue
+            got, counts = grow_districts(cellset, dists, seeds, R, x0, y0)
+            bad = {d: (counts[d], dists[d]["size"]) for d in dists
+                   if counts[d] != dists[d]["size"]}
+            if bad:
+                print(f"   {ab}: SIZE MISMATCH {bad}")
+            assignment.update(got)
 
     # contiguity of each district blob
     cells_by_dist = defaultdict(set)
@@ -738,20 +961,31 @@ def main():
     print(f"   non-contiguous district blobs: {len(broken)}"
           + (f" {dict(list(broken.items())[:8])}" if broken else ""))
 
-    print("\nstep 3 — parties")
+    print("\nstep 3 — seats and parties")
     order = left_right_order()
-    party_of = {}
+    seat_of_cell, party_of_seat = {}, {}
+    short = 0
     for d, cellset in cells_by_dist.items():
-        party_of.update(assign_parties(cellset, districts[d]["elected"], R, x0, y0, order))
-    print(f"   hexagons coloured: {len(party_of)}  (left\u2192right order: {' '.join(order)})")
+        grouped = group_into_seats(cellset, cpp, R, x0, y0)
+        seat_cells = defaultdict(list)
+        for c, seat in grouped.items():
+            seat_cells[seat].append(c)
+        short += sum(1 for g in seat_cells.values() if len(g) != cpp)
+        seat_of_cell.update(grouped)
+        party_of_seat.update(
+            assign_parties(seat_cells, districts[d]["elected"], R, x0, y0, order))
+    print(f"   seats: {len(party_of_seat)} from {len(seat_of_cell)} cells"
+          f"  (left\u2192right order: {' '.join(order)})")
+    if short:
+        print(f"   WARNING seats not made of exactly {cpp} cells: {short}")
 
     print("\nstep 4 — fill to the state outline")
-    filled = {}          # ab -> {cell: core cell it belongs to}
+    filled = {}          # ab -> {cell: seat it belongs to}
     for ab, pool in sorted(pools.items()):
         cores = {c for c in pool if cells.get(c) == ab}
         if not cores:
             continue
-        seat_of = {c: c for c in cores}
+        seat_of = {c: seat_of_cell.get(c, c) for c in cores}
         queue = deque(sorted(cores))
         while queue:
             c = queue.popleft()
@@ -762,9 +996,10 @@ def main():
         # Anything adjacency can't reach goes to the nearest core.
         for c in sorted(pool - set(seat_of)):
             cx, cy = hex_center(c[0], c[1], R, x0, y0)
-            seat_of[c] = min(sorted(cores), key=lambda k: (
+            near = min(sorted(cores), key=lambda k: (
                 (hex_center(k[0], k[1], R, x0, y0)[0] - cx) ** 2
                 + (hex_center(k[0], k[1], R, x0, y0)[1] - cy) ** 2))
+            seat_of[c] = seat_of[near]
         filled[ab] = seat_of
     extra = sum(len(v) for v in filled.values()) - len(cells)
     print(f"   boundary cells merged into a neighbouring seat: {extra}")
@@ -772,7 +1007,8 @@ def main():
     out = {
         "meta": {
             "R": R, "x0": x0, "y0": y0, "orientation": "pointy-top",
-            "seats": sum(targets.values()), "triple": args.triple,
+            "seats": sum(targets.values()) // cpp, "cellsPerSeat": cpp,
+            "triple": args.triple,
             "source": "Congressional District Hexmap v3.2 by Daniel Donner for "
                       "The Downballot (https://the-db.co/maps), CC BY 4.0",
         },
@@ -785,11 +1021,14 @@ def main():
                           for ring in states[ab].rings],
                 "cells": [
                     {"col": c[0], "row": c[1],
-                     "core": f"{core[0]},{core[1]}",
-                     "district": assignment.get(core),
-                     "party": party_of.get(core),
-                     "isCore": c == core}
-                    for c, core in sorted(seat_of.items())
+                     "core": f"{seat[0]},{seat[1]}",
+                     "district": assignment.get(seat),
+                     "party": party_of_seat.get(seat),
+                     # `cells` records which state owns a core cell; a cell can also
+                     # show up as another state's boundary fill, and testing the global
+                     # seat table there would invent a seat for that state.
+                     "isCore": cells.get(c) == ab}
+                    for c, seat in sorted(seat_of.items())
                 ],
             }
             for ab, seat_of in sorted(filled.items())
