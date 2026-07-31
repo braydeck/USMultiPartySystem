@@ -35,38 +35,26 @@ affordances that reach them. Two ways back in:
 
 Regenerating the field is unchanged — see the crossover block under [Running the Pipeline](#running-the-pipeline).
 
-### District map: deferred resync
+### District map
 
 `data/processed/county_to_district.csv` assigns each of the 3,142 counties to a multi-member
-district. It is an *input* to the House simulation — STV pools voters district by district — and the
-script that draws it, `draw_geographic_districts.py`, used to produce a different map on every run
-(tie-breaks resolved through set iteration order, which varies with `PYTHONHASHSEED`). That is fixed;
-the map is now byte-identical across runs.
+district, and it is an *input* to the House simulation — STV pools voters district by district.
+`draw_geographic_districts.py` used to draw a different map on every run, because tie-breaks
+resolved through set iteration order, which varies with `PYTHONHASHSEED`. That is fixed: the map is
+byte-identical across runs, verified at seeds 0, 1 and 7.
 
-The committed map predates the fix, so it cannot be reproduced by the current code. The two disagree
-on 65 of 3,142 counties, and adopting the new one moves **three seats of 873**:
+The committed map predated the fix, so it could not be reproduced from the code. **Resynced on
+2026-07-31**: the deterministic map is now the committed one, and everything downstream was rebuilt
+against it. 65 counties changed district — all within their own state and their own density tier,
+so no state's seat count moved — reshaping 31 of the 149 districts and reassigning three seats
+(Conservative +1, Nationalist +2, Labor −1, Populist −2). Six parties and the 873-seat total were
+unaffected.
 
-| | committed | deterministic |
-|---|--:|--:|
-| Conservative | 201 | 202 |
-| Labor | 159 | 158 |
-| Populist | 106 | 104 |
-| Nationalist | 41 | 43 |
-
-Six parties unchanged, chamber still 873. Every moved county stays inside its own state and its own
-density tier, and apportionment is by state population, so no state's seat count changes — only which
-same-tier district within a state a county sits in.
-
-Deliberately deferred. Nothing is wrong today: every published figure came from the committed map and
-the site is self-consistent. Adopting the new map means rebuilding everything downstream, and it is
-all-or-nothing — `uncertainty*.json` carries the modal seat counts the headline chamber uses, so a
-partial rebuild would leave the modal chamber on the old map and the observed chamber on the new one.
-
-`pipeline/resync_district_map.py` holds the whole sequence: 90 commands across six stages, ending in
-the 1,000-draw bootstraps that dominate the runtime. It prints the plan and runs nothing without
-`--run`, and `--draws 50` gives a cheap smoke test of the chain first. Stages 1–3 are verified
-deterministic and reproduce their committed output byte for byte; stages 4–6 were scoped from the code
-rather than executed.
+`pipeline/resync_district_map.py` remains the driver for doing this again: six stages, dry-run by
+default, `--run` to execute. Verified during the resync — senate, president and primary blocks in
+`uncertainty*.json` came back byte-identical, which is the expected result since none of those
+contests are district-pooled, and it confirms the bootstrap is reproducible given its seeds.
+Measured cost: ~16 min per turnout stop, ~110 min for the seven, ~2 h end to end.
 
 ### No-Solidarity scenario (dormant)
 
@@ -132,7 +120,7 @@ Produced by **Dirichlet Process Gaussian Mixture Model (DPGMM)** clustering on 5
 | C8 | DSA | DSA | Progressive left; far left on security, high electoral skepticism | ~6% |
 | C9 | PRG | Progressive | Progressive elite; urban, far left across most dimensions | ~5% |
 
-**House seat counts (party-line, canonical, 873 total):** CON=201, LBR=159, STY=129, POP=106, LIB=93, CUP=89, NAT=41, DSA=25, OAO=15, PRG=15. Conservative is the largest party. Source: `viz/src/data/houseSeats.json` — see **[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)**. *(Do not quote `clusterProfiles.json` `seatsHouse` for seat counts — it's a population baseline, not seats won.)*
+**House seat counts (party-line, canonical, 873 total):** CON=202, LBR=158, STY=129, POP=104, LIB=93, CUP=89, NAT=43, DSA=25, OAO=15, PRG=15. Conservative is the largest party. Source: `viz/src/data/houseSeats.json` — see **[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)**. *(Do not quote `clusterProfiles.json` `seatsHouse` for seat counts — it's a population baseline, not seats won.)*
 
 ---
 
@@ -201,15 +189,16 @@ Broader modeling caveats (party cohesion, sincere voting, static factor space, t
 
 | Party | Seats | % | Urban | Suburban | Rural |
 |-------|-------|---|-------|----------|-------|
-| CON | 202 | 23.1% | 106 | 68 | 28 |
-| SD | 164 | 18.8% | 96 | 51 | 17 |
-| STY | 130 | 14.9% | 71 | 50 | 9 |
-| CUP | 103 | 11.8% | 59 | 30 | 14 |
-| POP | 99 | 11.3% | 47 | 38 | 14 |
-| LIB | 93 | 10.7% | 62 | 26 | 5 |
-| NAT | 46 | 5.3% | 16 | 18 | 12 |
-| DSA | 22 | 2.5% | 14 | 6 | 2 |
-| PRG | 14 | 1.6% | 10 | 3 | 1 |
+| CON | 202 | 23.1% | 107 | 67 | 28 |
+| LBR | 158 | 18.1% | 89 | 51 | 18 |
+| STY | 129 | 14.8% | 72 | 49 | 8 |
+| POP | 104 | 11.9% | 52 | 37 | 15 |
+| LIB | 93 | 10.7% | 63 | 24 | 6 |
+| CUP | 89 | 10.2% | 47 | 31 | 11 |
+| NAT | 43 | 4.9% | 16 | 16 | 11 |
+| DSA | 25 | 2.9% | 15 | 8 | 2 |
+| OAO | 15 | 1.7% | 9 | 4 | 2 |
+| PRG | 15 | 1.7% | 11 | 3 | 1 |
 
 This is the **party-line** field, the only one the site shows. The **crossover** field (`run_fd_house_stv.py` → `data/outputs/factor_deviation/house/`) runs the same STV over axis-shifted candidates; the House tab's Scenario toggle switches between the two fields, and appears only when the [crossover flag](#crossover-field-dormant) is on.
 
