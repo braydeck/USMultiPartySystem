@@ -14,7 +14,7 @@ import { useUrlState } from '../../hooks/useUrlState';
 import { usePartyHighlight } from '../../hooks/usePartyHighlight';
 import { F5_ORDER, getPartyColor, PARTY_NAMES } from '../../constants/parties';
 import { SeatShareBar as Bar } from './SeatShareBar';
-import { PopSeatRanges, type PopSeatRangeRow } from './PopSeatRanges';
+import { SeatShareCompare, type PopSeatRangeRow } from './SeatShareCompare';
 import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval } from '../../lib/uncertainty';
 import type { DistrictResult, HouseStateEntry, HouseSeat, ClusterProfile } from '../../types';
 
@@ -236,7 +236,7 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
           see what transferable voting changes on the same districts.
         </p>
         {rangeRows ? (
-          <PopSeatRanges rows={rangeRows} max={rangeMaxPct} seatLabel="List" compareLabel="STV" />
+          <SeatShareCompare rows={rangeRows} max={rangeMaxPct} seatLabel="List" compareLabel="STV" />
         ) : (
           <div className="space-y-3">
             {parties.map(p => {

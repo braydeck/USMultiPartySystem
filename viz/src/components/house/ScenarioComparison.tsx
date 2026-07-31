@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { HouseSeat, HouseStateEntry } from '../../types';
 import { getPartyColor, PARTY_NAMES, F5_ORDER, CLUSTER_TO_PARTY } from '../../constants/parties';
 import { SeatShareBar as Bar } from './SeatShareBar';
-import { PopSeatRanges, type PopSeatRangeRow, type Span } from './PopSeatRanges';
+import { SeatShareCompare, type PopSeatRangeRow, type Span } from './SeatShareCompare';
 import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval, type ShareInterval } from '../../lib/uncertainty';
 
 /** One party's row. Interval fields are only populated in the national view, where the
@@ -177,7 +177,7 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
         )}
       </p>
       {showRanges ? (
-        <PopSeatRanges rows={rangeRows!} max={rangeMaxPct} seatLabel={seatLabel}
+        <SeatShareCompare rows={rangeRows!} max={rangeMaxPct} seatLabel={seatLabel}
           compareLabel={hasList ? 'Party list' : undefined} />
       ) : (
         <div className="space-y-3">
