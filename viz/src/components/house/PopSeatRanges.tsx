@@ -1,48 +1,45 @@
-// Up to four range rows per party on one axis: population, votes, the other counting rule, and the
-// rule this view is about. The steps separate what a single population-to-seats gap conflates —
-// population to votes is turnout, and splitting votes-to-seats across the two rules separates the
-// district-magnitude penalty they share from what each rule adds on top.
+// Share bars for the House seat-share cards: one bar per quantity per party, all from a
+// common zero, with the 95% sampling span drawn on the tip of the bar where one exists.
 //
-// Serves both House views: the STV view makes STV primary and party list the comparison, the
-// party-list view swaps them. Votes and the primary rule are always on; the other two are opt-in,
-// because ten parties times four rows is unreadable by default.
+// Bars rather than floating bands because every row then starts on the same baseline, so
+// comparing what a party earns to what it wins is judging a length, not differencing two
+// positions by eye.
+//
+// The quantity list is passed in, so one renderer serves the national card — where the
+// bootstrap supplies spans for population, votes and both counting rules — and the
+// ballot-depth, crossover and per-state cards, where it does not and the bars render bare.
 import { useState, type CSSProperties } from 'react';
 import { getPartyColor, PARTY_NAMES } from '../../constants/parties';
 import { SeatWhisker } from '../shared/SeatWhisker';
-import type { ShareInterval } from '../../lib/uncertainty';
 
 /** A sampling span in percent of whatever the row's axis measures. */
 export interface Span { lo: number; hi: number; expected: number }
 
-export interface PopSeatRangeRow {
-  code: string;
-  /** Share of the population, percent, span and point from one payload. Stop-invariant: it is
-   *  weighted by the survey weight alone, so it holds still while the other rows move. */
-  popIv: ShareInterval;
-  /** Share of the national vote at this turnout stop, percent. Tick and band come from the same
-   *  payload; sourcing a tick from one place and a band from another is what went wrong on the
-   *  population row. */
-  voteIv: ShareInterval;
-  /** The comparison rule's share of the chamber, percent, on the same denominator as the primary
-   *  row: party list when STV is primary, STV when the list is. Optional because it needs its own
-   *  bootstrap payload, which not every gate has. */
-  cmpIv?: ShareInterval;
-  /** Comparison-rule seat count, for the readout. */
-  cmpSeats?: number;
-  /** The primary rule's share of the chamber, percent, on the same denominator as `seats`. */
-  seatPct: number;
-  seats: number;
-  seatIv: Span;
+/** How a quantity's bar is filled. Fill separates the rule a card is about from its
+ *  context; it does not have to say which row is which, because the row is labelled. */
+export type Texture = 'pop' | 'context' | 'compare' | 'primary';
+
+export interface Quantity {
+  /** Stable id, used as the toggle key and to look values up. */
+  key: string;
+  /** Short label beside the bar. */
+  label: string;
+  /** Longer label, for the legend and the toggle. */
+  legend: string;
+  texture: Texture;
+  /** Optional rows get a +/− pill and start hidden. */
+  optional?: boolean;
 }
 
-/** How each quantity's bar is filled. The row is named beside it, so fill no longer has
- *  to carry identity — it only separates the rule this card is about from its context. */
-type Texture = 'pop' | 'votes' | 'cmp' | 'seats';
+export interface PartyValues {
+  code: string;
+  values: Record<string, { point: number; iv?: Span; seats?: number } | undefined>;
+}
 
 function fillStyle(texture: Texture, color: string): CSSProperties {
   if (texture === 'pop') return { background: `${color}2e`, border: `1.5px solid ${color}` };
-  if (texture === 'votes') return { background: color, opacity: 0.55 };
-  if (texture === 'cmp') return { background: color, opacity: 0.75 };
+  if (texture === 'context') return { background: color, opacity: 0.5 };
+  if (texture === 'compare') return { background: color, opacity: 0.75 };
   return { background: color };
 }
 
@@ -53,17 +50,12 @@ function ticks(max: number): number[] {
   return out;
 }
 
-/**
- * One quantity as a bar from zero, with its 95% span drawn as a whisker at the tip.
- *
- * Bars beat floating bands here for the same reason bars usually do: every row starts on
- * the same baseline, so the comparison is a length rather than two positions the reader
- * has to difference by eye. The uncertainty rides on the end of the bar, which is where
- * the reader is already looking, instead of becoming a second mark to decode.
- */
-function BarTrack({ iv, point, max, color, texture, title, pointTitle }: {
-  iv: Span; point: number; max: number; color: string; texture: Texture;
-  title: string; pointTitle: string;
+const LABEL_COL = 'w-[64px] shrink-0 text-[10px] font-medium text-muted-foreground';
+const PCT_COL = 'w-[46px] shrink-0 text-[10px] tabular-nums font-semibold text-foreground text-right';
+const GUTTER = 'w-[112px] shrink-0 text-[10px] tabular-nums text-muted-foreground';
+
+function Bar({ point, iv, max, color, texture, title }: {
+  point: number; iv?: Span; max: number; color: string; texture: Texture; title: string;
 }) {
   const w = Math.min(100, Math.max(0, (point / max) * 100));
   return (
@@ -73,36 +65,20 @@ function BarTrack({ iv, point, max, color, texture, title, pointTitle }: {
           style={{ left: `${(v / max) * 100}%` }} />
       ))}
       <div className="absolute inset-0 rounded-sm bg-muted/40" />
-      <div className="absolute inset-y-0 left-0 rounded-sm" title={pointTitle}
+      {/* Square ends. A rounded tip blurs exactly where the bar stops, and where it stops
+          is the estimate — the one place on this chart a reader has to be precise. */}
+      <div className="absolute inset-y-0 left-0" title={title}
         style={{ width: `${w}%`, ...fillStyle(texture, color) }} />
-      {/* Haloed so it holds up over a saturated fill and over the empty track alike. */}
-      <div className="absolute inset-0 [&_div]:shadow-[0_0_0_1px_rgba(255,255,255,0.9)]">
-        <SeatWhisker lo={iv.lo} hi={iv.hi} centre={iv.expected} max={max} title={title} />
-      </div>
+      {iv && (
+        // Haloed so it holds up over a saturated fill and over the empty track alike.
+        <div className="absolute inset-0 [&_div]:shadow-[0_0_0_1px_rgba(255,255,255,0.9)]">
+          <SeatWhisker lo={iv.lo} hi={iv.hi} centre={iv.expected} max={max} title={title} />
+        </div>
+      )}
     </div>
   );
 }
 
-const READOUT = 'w-[122px] shrink-0 text-[10px] tabular-nums text-muted-foreground text-right';
-const ROW_LABEL = 'w-[46px] shrink-0 text-[10px] font-medium text-muted-foreground';
-
-function Readout({ head, iv }: { head: string; iv: { lo: number; hi: number } }) {
-  return (
-    <span className={READOUT}>
-      <span className="font-semibold text-foreground">{head}</span>{' '}
-      {iv.lo.toFixed(1)}–{iv.hi.toFixed(1)}
-    </span>
-  );
-}
-
-/** Names the quantity beside its own bar. Four bands separated only by opacity meant
- *  every row had to be decoded against the legend; the label removes that step. */
-function RowLabel({ children }: { children: React.ReactNode }) {
-  return <span className={ROW_LABEL}>{children}</span>;
-}
-
-/** A swatch drawn with the same styles the rows use, in neutral grey so it reads as a key rather
- *  than as one party's row. Wrapped in a 14px box because the styles position by height. */
 function Swatch({ texture }: { texture: Texture }) {
   return (
     <span className="relative w-6 h-3 shrink-0 rounded-sm overflow-hidden">
@@ -111,128 +87,103 @@ function Swatch({ texture }: { texture: Texture }) {
   );
 }
 
-function Legend({ rows }: { rows: { texture: Texture; label: string }[] }) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] text-muted-foreground">
-      {rows.map(r => (
-        <span key={r.label} className="flex items-center gap-1.5">
-          <Swatch texture={r.texture} />{r.label}
-        </span>
-      ))}
-      <span className="flex items-center gap-1.5">
-        <span className="relative w-4 h-2.5">
-          <span className="absolute inset-y-0 left-1/2 -ml-px w-0.5 bg-foreground/70" />
-        </span>
-        estimate
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="relative w-4 h-2.5">
-          <span className="absolute top-1/2 left-1/2 -mt-[3px] -ml-[3px] w-1.5 h-1.5 rounded-full bg-foreground/85" />
-        </span>
-        expected
-      </span>
-      <span>band = 95% of resamples</span>
-    </div>
-  );
-}
-
-/** Adds or removes one range row. Votes and the primary rule have no toggle: they are the
- *  comparison the card exists to make. */
 function RowToggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={on}
       className={`rounded-full border px-2.5 py-0.5 text-[11px] transition-colors ${on
         ? 'border-foreground/25 bg-muted text-foreground'
         : 'border-border text-muted-foreground hover:text-foreground'}`}>
-      {on ? '\u2212' : '+'} {label}
+      {on ? '−' : '+'} {label}
     </button>
   );
 }
 
-export function PopSeatRanges({ rows, max, seatLabel, compareLabel }: {
-  rows: PopSeatRangeRow[]; max: number;
-  /** The rule whose row is always on, drawn as the widest band: 'STV' or 'List'. */
-  seatLabel: string;
-  /** The opt-in comparison rule. Absent when no comparison payload is available. */
-  compareLabel?: string;
+export function PopSeatRanges({ quantities, parties, max }: {
+  quantities: Quantity[];
+  parties: PartyValues[];
+  max: number;
 }) {
-  // Votes against the primary rule is the card's claim; population and the other counting rule are
-  // context the reader opts into, because four rows across ten parties is too dense to read cold.
-  const [showPop, setShowPop] = useState(false);
-  const [showCmp, setShowCmp] = useState(false);
-  const hasCmp = !!compareLabel && rows.every(r => !!r.cmpIv);
-  const showCompare = showCmp && hasCmp;
-
-  const legend: { texture: Texture; label: string }[] = [
-    ...(showPop ? [{ texture: 'pop' as Texture, label: 'Population' }] : []),
-    { texture: 'votes', label: 'Votes' },
-    ...(showCompare ? [{ texture: 'cmp' as Texture, label: compareLabel! }] : []),
-    { texture: 'seats', label: `${seatLabel} seats` },
-  ];
+  const [hidden, setHidden] = useState<Set<string>>(
+    () => new Set(quantities.filter(q => q.optional).map(q => q.key)),
+  );
+  const shown = quantities.filter(q => !q.optional || !hidden.has(q.key));
+  const anyRange = parties.some(p => shown.some(q => !!p.values[q.key]?.iv));
 
   return (
-    <div className="space-y-2.5">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <RowToggle on={showPop} onClick={() => setShowPop(v => !v)} label="Population" />
-        {hasCmp && <RowToggle on={showCmp} onClick={() => setShowCmp(v => !v)} label={compareLabel!} />}
-      </div>
-      {/* Above the rows: the key has to be read before the rows mean anything. */}
+    <div className="space-y-1">
+      {quantities.some(q => q.optional) && (
+        <div className="flex flex-wrap items-center gap-1.5 pb-1">
+          {quantities.filter(q => q.optional).map(q => (
+            <RowToggle key={q.key} label={q.legend} on={!hidden.has(q.key)}
+              onClick={() => setHidden(prev => {
+                const next = new Set(prev);
+                if (!next.delete(q.key)) next.add(q.key);
+                return next;
+              })} />
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-[110px_1fr] gap-2 pb-1">
         <span />
         <div className="flex items-center gap-2">
-          <span className={ROW_LABEL} />
-          <Legend rows={legend} />
+          <span className={LABEL_COL} /><span className={PCT_COL} />
+          <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-muted-foreground">
+            {shown.map(q => (
+              <span key={q.key} className="flex items-center gap-1.5">
+                <Swatch texture={q.texture} />{q.legend}
+              </span>
+            ))}
+            {anyRange && (
+              <span className="flex items-center gap-1.5">
+                <span className="relative w-5 h-2.5">
+                  <span className="absolute top-1/2 inset-x-0 h-px -translate-y-1/2 bg-foreground/70" />
+                  <span className="absolute top-1/2 left-1/2 -mt-[3px] -ml-[3px] w-1.5 h-1.5 rounded-full bg-foreground/85" />
+                </span>
+                95% of resamples, with their average
+              </span>
+            )}
+          </div>
+          <span className={GUTTER} />
         </div>
       </div>
-      {rows.map(r => {
-        const c = getPartyColor(r.code);
-        const name = PARTY_NAMES[r.code] ?? r.code;
-        const cmp = r.cmpIv;
+
+      {parties.map(p => {
+        const c = getPartyColor(p.code);
+        const name = PARTY_NAMES[p.code] ?? p.code;
         return (
-          <div key={r.code}
+          <div key={p.code}
             className="grid grid-cols-[110px_1fr] items-center gap-2 py-1.5 border-t border-slate-100 first:border-t-0">
             <span className="text-xs font-medium text-foreground truncate">{name}</span>
             <div className="space-y-px">
-              {showPop && (
-                <div className="flex items-center gap-2">
-                  <RowLabel>Pop</RowLabel>
-                  <BarTrack iv={r.popIv} point={r.popIv.point} max={max} color={c} texture="pop"
-                    title={`${name} population: ${r.popIv.lo.toFixed(1)}–${r.popIv.hi.toFixed(1)}% across resamples, ${r.popIv.expected.toFixed(1)}% expected`}
-                    pointTitle={`population share: ${r.popIv.point.toFixed(1)}%`} />
-                  <Readout head={`${r.popIv.point.toFixed(1)}%`} iv={r.popIv} />
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                <RowLabel>Votes</RowLabel>
-                <BarTrack iv={r.voteIv} point={r.voteIv.point} max={max} color={c} texture="votes"
-                  title={`${name} votes: ${r.voteIv.lo.toFixed(1)}–${r.voteIv.hi.toFixed(1)}% of the national vote across resamples, ${r.voteIv.expected.toFixed(1)}% expected`}
-                  pointTitle={`vote share: ${r.voteIv.point.toFixed(1)}%`} />
-                <Readout head={`${r.voteIv.point.toFixed(1)}%`} iv={r.voteIv} />
-              </div>
-              {showCompare && cmp && (
-                <div className="flex items-center gap-2">
-                  <RowLabel>{compareLabel}</RowLabel>
-                  <BarTrack iv={cmp} point={cmp.point} max={max} color={c} texture="cmp"
-                    title={`${name} under ${compareLabel}: ${cmp.lo.toFixed(1)}–${cmp.hi.toFixed(1)}% of the chamber across resamples, ${cmp.expected.toFixed(1)}% expected`}
-                    pointTitle={`${compareLabel} seat share: ${cmp.point.toFixed(1)}%${r.cmpSeats === undefined ? '' : ` (${r.cmpSeats})`}`} />
-                  <Readout head={`${cmp.point.toFixed(1)}%${r.cmpSeats === undefined ? '' : ` (${r.cmpSeats})`}`} iv={cmp} />
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                <RowLabel>{seatLabel}</RowLabel>
-                <BarTrack iv={r.seatIv} point={r.seatPct} max={max} color={c} texture="seats"
-                  title={`${name} seats: ${r.seatIv.lo.toFixed(1)}–${r.seatIv.hi.toFixed(1)}% of the chamber across resamples, ${r.seatIv.expected.toFixed(1)}% expected`}
-                  pointTitle={`${seatLabel} seat share: ${r.seatPct.toFixed(1)}% (${r.seats})`} />
-                <Readout head={`${r.seatPct.toFixed(1)}% (${r.seats})`} iv={r.seatIv} />
-              </div>
+              {shown.map(q => {
+                const v = p.values[q.key];
+                if (!v) return null;
+                const title = `${name} ${q.legend.toLowerCase()}: ${v.point.toFixed(1)}%`
+                  + (v.seats === undefined ? '' : ` (${v.seats} seats)`)
+                  + (v.iv ? `, ${v.iv.lo.toFixed(1)}–${v.iv.hi.toFixed(1)}% across resamples` : '');
+                return (
+                  <div key={q.key} className="flex items-center gap-2">
+                    <span className={LABEL_COL}>{q.label}</span>
+                    <span className={PCT_COL}>{v.point.toFixed(1)}%</span>
+                    <Bar point={v.point} iv={v.iv} max={max} color={c} texture={q.texture} title={title} />
+                    <span className={GUTTER}>
+                      {v.seats !== undefined && <span className="text-foreground">{v.seats} seats</span>}
+                      {v.seats !== undefined && v.iv ? ' · ' : ''}
+                      {v.iv && `${v.iv.lo.toFixed(1)}–${v.iv.hi.toFixed(1)}`}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         );
       })}
+
       <div className="grid grid-cols-[110px_1fr] gap-2">
         <span />
         <div className="flex items-center gap-2">
-          <span className={ROW_LABEL} />
+          <span className={LABEL_COL} /><span className={PCT_COL} />
           <div className="relative flex-1 h-3">
             {ticks(max).map(v => (
               <span key={v} className="absolute text-[9px] text-muted-foreground -translate-x-1/2"
@@ -241,9 +192,17 @@ export function PopSeatRanges({ rows, max, seatLabel, compareLabel }: {
               </span>
             ))}
           </div>
-          <span className={READOUT} />
+          <span className={GUTTER} />
         </div>
       </div>
+
+      {anyRange && (
+        <p className="text-[10px] text-muted-foreground pt-1.5">
+          The bar is the simulated result. The dot is the average across resamples of the
+          survey, and the two can differ because seats are won district by district —
+          averaging many runs is not the same as running the average once.
+        </p>
+      )}
     </div>
   );
 }

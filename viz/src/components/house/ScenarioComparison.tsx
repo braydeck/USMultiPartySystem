@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import type { HouseSeat, HouseStateEntry } from '../../types';
-import { getPartyColor, PARTY_NAMES, F5_ORDER, CLUSTER_TO_PARTY } from '../../constants/parties';
-import { SeatShareBar as Bar } from './SeatShareBar';
-import { PopSeatRanges, type PopSeatRangeRow, type Span } from './PopSeatRanges';
+import { F5_ORDER, CLUSTER_TO_PARTY } from '../../constants/parties';
+import { PopSeatRanges, type Quantity, type PartyValues, type Span } from './PopSeatRanges';
 import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval, type ShareInterval } from '../../lib/uncertainty';
 
 /** One party's row. Interval fields are only populated in the national view, where the
@@ -136,25 +135,48 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
   }, [selectedState, isNational, rawMultiSeats, fdSeats, scenario, wyoming, doubleSeats, doubleFdSeats, stateMap, doubleStateMap, houseU, gi]);
 
   const seatLabel = wyoming === 'triple' ? 'Triple' : 'STV';
-  // Range rows carry population, votes and seats only, so they need the two optional bars to be
-  // absent. The houseU gate already implies that (rawMulti hides Crossover, double-Wyoming hides
-  // Double); asserting it here keeps the range view from silently dropping a bar if that changes.
-  const rangeRows: PopSeatRangeRow[] | null = !showFD && !showDouble
-    ? rows.filter((r): r is Row & { popIv: ShareInterval; voteIv: ShareInterval; seatIv: Span } =>
-      !!r.popIv && !!r.voteIv && !!r.seatIv)
-      .map(r => ({
-        code: r.code, popIv: r.popIv, voteIv: r.voteIv, cmpIv: r.cmpIv, cmpSeats: r.cmpSeats,
-        seatPct: r.seatPct, seats: r.seats, seatIv: r.seatIv,
-      }))
-    : null;
-  const showRanges = !!rangeRows && rangeRows.length === rows.length && rows.length > 0;
-  const hasList = !!rangeRows?.every(r => !!r.cmpIv);
+  // Spans only exist for the national bootstrap, and only when neither optional bar is on
+  // (Crossover and double-Wyoming have no resampled counterpart). Everywhere else the
+  // same bars render without whiskers rather than falling back to a different chart.
+  const hasRanges = !showFD && !showDouble
+    && rows.length > 0 && rows.every(r => r.popIv && r.voteIv && r.seatIv);
+  const hasList = hasRanges && rows.every(r => !!r.cmpIv);
+
+  const quantities: Quantity[] = hasRanges
+    ? [
+      { key: 'pop', label: 'Pop', legend: 'Population', texture: 'pop', optional: true },
+      { key: 'votes', label: 'Votes', legend: 'Votes', texture: 'context' },
+      ...(hasList
+        ? [{ key: 'list', label: 'Party list', legend: 'Party list', texture: 'compare' as const, optional: true }]
+        : []),
+      { key: 'seats', label: seatLabel, legend: `${seatLabel} seats`, texture: 'primary' },
+    ]
+    : [
+      { key: 'pop', label: 'Pop', legend: 'Population', texture: 'pop' },
+      { key: 'seats', label: seatLabel, legend: `${seatLabel} seats`, texture: 'primary' },
+      ...(showDouble ? [{ key: 'dbl', label: 'Double', legend: 'Double Wyoming', texture: 'context' as const }] : []),
+      ...(showFD ? [{ key: 'fd', label: 'Crossover', legend: 'Crossover', texture: 'compare' as const }] : []),
+    ];
+
+  const parties: PartyValues[] = rows.map(r => ({
+    code: r.code,
+    values: {
+      pop: hasRanges && r.popIv
+        ? { point: r.popIv.point, iv: r.popIv }
+        : { point: r.popPct },
+      votes: r.voteIv ? { point: r.voteIv.point, iv: r.voteIv } : undefined,
+      list: r.cmpIv ? { point: r.cmpIv.point, iv: r.cmpIv, seats: r.cmpSeats } : undefined,
+      seats: { point: r.seatPct, seats: r.seats, iv: hasRanges ? r.seatIv : undefined },
+      dbl: showDouble ? { point: r.dblPct, seats: r.dblSeats } : undefined,
+      fd: showFD ? { point: r.fdPct, seats: r.fdSeats } : undefined,
+    },
+  }));
 
   return (
     <div>
       <div className="flex items-center justify-between gap-2 mb-1">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-          {showRanges ? 'Votes vs seat share' : 'Population vs seat share'}
+          {hasRanges ? 'Votes vs seat share' : 'Population vs seat share'}
         </h3>
         <select value={isNational ? 'national' : selectedState}
           onChange={e => onStateChange(e.target.value === 'national' ? 'national' : e.target.value)}
@@ -164,39 +186,24 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
       </div>
       <p className="text-xs text-muted-foreground mb-3">
         {isNational ? '' : `${selectedState}. `}
-        {showRanges ? (
+        {hasRanges ? (
           <>
-            What each party earns against what it wins, out of 873 seats. Add population to see the
-            turnout step{hasList && ', or party list to split the counting rule into the district-magnitude penalty and what transferable voting adds'}.
+            The share of the vote each party wins, against the share of the seats it ends up
+            with. Add population to see how much of the difference is turnout
+            {hasList && `, or party list — it uses the same districts as ${seatLabel}, so what
+              separates the two is only what transferring votes changes`}.
           </>
         ) : (
           <>
-            Outline: population share. Solid: {seatLabel} seat share.
-            {showDouble && ' Faded: double-Wyoming (873).'}{showFD && ' Dashed: Crossover.'} Percent is seat share, parentheses are seats.
+            The share of the population each party speaks for, against the share of the seats it
+            wins.{showDouble && ' Double Wyoming is the 873-seat chamber.'}
+            {showFD && ' Crossover lets voters back candidates from other parties.'}
+            {' '}No sampling ranges at this setting — the resampling only covers the standard run.
           </>
         )}
       </p>
-      {showRanges ? (
-        <PopSeatRanges rows={rangeRows!} max={rangeMaxPct} seatLabel={seatLabel}
-          compareLabel={hasList ? 'Party list' : undefined} />
-      ) : (
-        <div className="space-y-3">
-          {rows.map(r => {
-            const c = getPartyColor(r.code);
-            return (
-              <div key={r.code} className="grid grid-cols-[110px_1fr] items-center gap-2">
-                <span className="text-xs font-medium text-foreground truncate">{PARTY_NAMES[r.code]}</span>
-                <div className="space-y-0.5">
-                  <Bar pct={r.popPct} max={maxPct} color={c} outline label={`Population ${r.popPct.toFixed(1)}%`} />
-                  <Bar pct={r.seatPct} max={maxPct} color={c} label={`${seatLabel} ${r.seatPct.toFixed(1)}% (${r.seats})`} />
-                  {showDouble && <Bar pct={r.dblPct} max={maxPct} color={c} faded label={`Double ${r.dblPct.toFixed(1)}% (${r.dblSeats})`} />}
-                  {showFD && <Bar pct={r.fdPct} max={maxPct} color={c} dashed label={`Crossover ${r.fdPct.toFixed(1)}% (${r.fdSeats})`} />}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <PopSeatRanges quantities={quantities} parties={parties}
+        max={hasRanges ? rangeMaxPct : maxPct} />
     </div>
   );
 }

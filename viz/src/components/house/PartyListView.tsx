@@ -14,7 +14,7 @@ import { useUrlState } from '../../hooks/useUrlState';
 import { usePartyHighlight } from '../../hooks/usePartyHighlight';
 import { F5_ORDER, getPartyColor, PARTY_NAMES } from '../../constants/parties';
 import { SeatShareBar as Bar } from './SeatShareBar';
-import { PopSeatRanges, type PopSeatRangeRow } from './PopSeatRanges';
+import { PopSeatRanges, type Quantity, type PartyValues, type Span } from './PopSeatRanges';
 import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval } from '../../lib/uncertainty';
 import type { DistrictResult, HouseStateEntry, HouseSeat, ClusterProfile } from '../../types';
 
@@ -72,6 +72,14 @@ interface Props {
   /** FPTP-by-state card, which now carries a party-list bar alongside the STV one. */
   fptpDispro?: ReactNode;
 }
+
+/** Mirrors the STV card's row set, with the two counting rules swapped. */
+const LIST_QUANTITIES: Quantity[] = [
+  { key: 'pop', label: 'Pop', legend: 'Population', texture: 'pop', optional: true },
+  { key: 'votes', label: 'Votes', legend: 'Votes', texture: 'context' },
+  { key: 'stv', label: 'STV', legend: 'STV', texture: 'compare', optional: true },
+  { key: 'seats', label: 'List', legend: 'List seats', texture: 'primary' },
+];
 
 const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
 
@@ -163,39 +171,41 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
   // Range rows: list is primary here, STV the opt-in comparison — the mirror image of the STV
   // view, which shares this component. National only, because the bootstrap has no per-state
   // seat spans; a selected state falls back to bars.
-  const { rangeRows, rangeMaxPct } = useMemo(() => {
-    if (!houseU || stateSel) return { rangeRows: null, rangeMaxPct: 5 };
+  const { rangeParties, rangeMaxPct } = useMemo(() => {
+    if (!houseU || stateSel) return { rangeParties: null, rangeMaxPct: 5 };
     const pop = populationShares();
     const votes = voteSharesAt(gi);
     const listIvs = partyListSharesAt(gi);
     const listPts = partyListSeatsAt(gi);
-    if (!votes || !listIvs || !listPts) return { rangeRows: null, rangeMaxPct: 5 };
+    if (!votes || !listIvs || !listPts) return { rangeParties: null, rangeMaxPct: 5 };
     // STV bounds are seat counts, so they convert on the STV chamber's own total — the same
     // denominator `stvPct` uses — rather than on the list total.
     const stvTotal = Object.values(nat.stvSeats).reduce((a, b) => a + b, 0) || 1;
 
-    const rows: PopSeatRangeRow[] = [];
+    const rows: PartyValues[] = [];
+    const his: number[] = [];
     for (const code of F5_ORDER) {
       const pv = pop[code], vv = votes[code], lv = listIvs[code], u = houseU[code];
       if (!pv || !vv || !lv) continue;
+      const stvIv: Span | undefined = u
+        ? { expected: u.expected / stvTotal * 100, lo: u.lo / stvTotal * 100, hi: u.hi / stvTotal * 100 }
+        : undefined;
       rows.push({
-        code, popIv: pv, voteIv: vv,
-        cmpIv: u
-          ? { point: (nat.stvSeats[code] ?? 0) / stvTotal * 100, expected: u.expected / stvTotal * 100,
-              lo: u.lo / stvTotal * 100, hi: u.hi / stvTotal * 100 }
-          : undefined,
-        cmpSeats: u ? (nat.stvSeats[code] ?? 0) : undefined,
-        seatPct: (nat.listSeats[code] ?? 0) / (nat.totalSeats || 1) * 100,
-        seats: nat.listSeats[code] ?? 0,
-        seatIv: lv,
+        code,
+        values: {
+          pop: { point: pv.point, iv: pv },
+          votes: { point: vv.point, iv: vv },
+          stv: u ? { point: (nat.stvSeats[code] ?? 0) / stvTotal * 100, iv: stvIv, seats: nat.stvSeats[code] ?? 0 } : undefined,
+          seats: { point: (nat.listSeats[code] ?? 0) / (nat.totalSeats || 1) * 100,
+            seats: nat.listSeats[code] ?? 0, iv: lv },
+        },
       });
+      his.push(pv.hi, vv.hi, lv.hi, stvIv?.hi ?? 0);
     }
-    if (!rows.length) return { rangeRows: null, rangeMaxPct: 5 };
+    if (!rows.length) return { rangeParties: null, rangeMaxPct: 5 };
     // Every quantity counts toward the ceiling whether or not its row is switched on, so toggling
     // a row does not rescale the axis under the reader.
-    const ceil = Math.max(...rows.flatMap(r =>
-      [r.popIv.hi, r.voteIv.hi, r.cmpIv?.hi ?? 0, r.seatIv.hi])) * 1.02;
-    return { rangeRows: rows, rangeMaxPct: Math.max(5, ceil) };
+    return { rangeParties: rows, rangeMaxPct: Math.max(5, Math.max(...his) * 1.02) };
   }, [houseU, gi, stateSel, nat]);
 
   return (
@@ -223,7 +233,7 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
       <Card className="p-4">
         <div className="flex items-center justify-between gap-2 mb-1">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-            {rangeRows ? 'Votes vs seat share' : 'Vote vs seat share'}
+            {rangeParties ? 'Votes vs seat share' : 'Vote vs seat share'}
           </h3>
           <select value={selState} onChange={e => setSelState(e.target.value)}
             className="rounded-md border border-border bg-card px-2 py-1 text-xs">
@@ -231,12 +241,13 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
           </select>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
-          {stateSel ? `${stateSel.abbr}. ` : ''}What each party earns against what it wins under the
-          list, out of {active.totalSeats} seats. Add population to see the turnout step, or STV to
-          see what transferable voting changes on the same districts.
+          {stateSel ? `${stateSel.abbr}. ` : ''}The share of the vote each party wins, against
+          the share of the {active.totalSeats} seats it ends up with under the list. Add
+          population to see how much of the difference is turnout, or STV — it uses the same
+          districts, so what separates the two is only what transferring votes changes.
         </p>
-        {rangeRows ? (
-          <PopSeatRanges rows={rangeRows} max={rangeMaxPct} seatLabel="List" compareLabel="STV" />
+        {rangeParties ? (
+          <PopSeatRanges max={rangeMaxPct} parties={rangeParties} quantities={LIST_QUANTITIES} />
         ) : (
           <div className="space-y-3">
             {parties.map(p => {
