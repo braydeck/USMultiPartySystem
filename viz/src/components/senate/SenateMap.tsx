@@ -36,7 +36,11 @@ export function SenateMap({ seats, states }: Props) {
 
   return (
     <div>
-      <div className="relative" aria-label="Senate election results map" role="img">
+      {/* Bound the height, as the House cartogram does: geoAlbersUsa is about 4:3, so at
+          full width on a wide card the map runs taller than a laptop viewport and the
+          reader never sees the country and the legend at once. */}
+      <div className="relative mx-auto w-full" style={{ maxWidth: '88vh' }}
+        aria-label="Senate election results map" role="img">
         {tooltip && (
           <div className="absolute top-2 left-2 bg-white border border-slate-300 rounded px-3 py-2 text-sm text-foreground z-10 pointer-events-none max-w-xs shadow-sm" role="status" aria-live="polite">
             {tooltip}

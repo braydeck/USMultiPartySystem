@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import { useUrlState } from '../hooks/useUrlState';
+import { useUrlState, resetUrlParams } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { SenateSeat, VoteModelRow, SenateScenario, ClusterProfile, ConstellationNode, FDSenateSeat, FDHouseSeat, FDCandidateProfile, SenateIrvRoundsData, SenateWinnowData } from '../types';
 import { SenateMap } from '../components/senate/SenateMap';
-import { VoteModelTable } from '../components/senate/VoteModelTable';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { ParliamentChart } from '../components/shared/ParliamentChart';
 import { PartyVariantBar } from '../components/shared/PartyVariantBar';
@@ -17,6 +16,7 @@ import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { DEFAULT_GAP_STOP } from '../lib/participationStops';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+import { CollapsibleSection } from '../components/shared/CollapsibleSection';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import senCondL5 from '../data/pureMultiSenateCondorcetTurnoutL5.json';
 import senCondL10 from '../data/pureMultiSenateCondorcetTurnoutL10.json';
@@ -46,13 +46,6 @@ import fdSenIrv20 from '../data/fdSenateIRVTurnoutL20.json';
 import fdSenIrv25 from '../data/fdSenateIRVTurnoutL25.json';
 import fdSenIrv30 from '../data/fdSenateIRVTurnoutL30.json';
 // Senate bill vote model, tracked across turnout (rank-7 winnow + depth-7 president = app default).
-import senVMTurnout from '../data/senateVoteModelTurnout.json';
-import senVML5 from '../data/senateVoteModelTurnoutL5.json';
-import senVML10 from '../data/senateVoteModelTurnoutL10.json';
-import senVML15 from '../data/senateVoteModelTurnoutL15.json';
-import senVML20 from '../data/senateVoteModelTurnoutL20.json';
-import senVML25 from '../data/senateVoteModelTurnoutL25.json';
-import senVML30 from '../data/senateVoteModelTurnoutL30.json';
 // Coalition / head-to-head / winnow, tracked across the turnout stops so every senate
 // card reports the same chamber the seat data does.
 import senIrvRounds0 from '../data/senateIrvRoundsTurnout.json';
@@ -111,9 +104,6 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   const [part, setPart] = useUrlState<string>('part', String(DEFAULT_GAP_STOP), { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const rawMultiOn = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  // Bill vote model at the current turnout stop (rank-7 winnow + depth-7 president baked in).
-  const vmStops = [senVMTurnout, senVML5, senVML10, senVML15, senVML20, senVML25, senVML30] as unknown as VoteModelRow[][];
-  const vmRows = vmStops[gi];
   // Each state elects one senator among 5 finalists via IRV/Condorcet; voters rank all 5 (full
   // ranking), so there is no ballot-depth toggle here.
   // Compression stops [0,5,10,15,20,25,30] for each pipeline; condRM/irvRM are the ACTIVE
@@ -264,6 +254,19 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       <SenateCompositionCard condSeats={condRM} irvSeats={irvRM}
         condU={unc?.senate.cond} irvU={unc?.senate.irv} />
 
+      {/* Same section, id and content as the House tab, so a reader who opened it
+          there finds it open here. */}
+      <CollapsibleSection id="profiles" title="See party profiles"
+        hint="Ten parties, their positions and who they draw from">
+        <PartyProfileGrid clusters={orderedClusters} />
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+            Ideological Constellation
+          </h3>
+          <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
+        </Card>
+      </CollapsibleSection>
+
       {/* Sampling range, split from the composition card above so the headline bars stay
           clean; party-line only, since Crossover has no bootstrap. */}
       {rawMultiOn && (
@@ -358,26 +361,17 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         </Card>
       )}
 
-      {/* Ideological Constellation */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-          Ideological Constellation
-        </h3>
-        <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
-      </Card>
-
-      {/* Nine-Party Profiles */}
-      <PartyProfileGrid clusters={orderedClusters} />
-
-      {/* Senate Vote Model */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">
-          Senate Vote Model — 37 Bills
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">
-          Highlighted rows show bills the senate passes but the president vetoes.
-        </p>
-        <VoteModelTable rows={vmRows} scenario={scenario} />
+      <Card className="p-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            How this senate votes on bills
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            The bill-by-bill model lives on the Legislation tab, with the whipping rules and
+            the full bill set.
+          </p>
+        </div>
+        <Button onClick={() => resetUrlParams({ tab: 'legislation' })}>Open Legislation</Button>
       </Card>
 
       {/* FD Analysis section */}
