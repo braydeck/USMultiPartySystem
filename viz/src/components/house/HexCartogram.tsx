@@ -46,6 +46,13 @@ const DISTRICT_EMPHASIS = 1.6;
 const C_SEAT = '#c2ccd8', C_CASING = '#ffffff', C_DISTRICT = '#111827', C_STATE = '#0b1220';
 const C_EMPTY = '#e2e8f0';
 
+/**
+ * Fill for a seat outside the highlighted set. Grey rather than near-transparent: the
+ * unlit seats still have to hold the shape of the country, or a party with a narrow
+ * footprint lights up a handful of hexes floating in white space.
+ */
+const C_MUTED = '#e7ecf2';
+
 /** Target on-screen size of a state label. Placement drops any that cannot clear. */
 const LABEL_PX = 11;
 
@@ -67,11 +74,13 @@ interface Props {
   /** state abbreviation, or null for the whole map */
   selected: string | null;
   onSelectState: (abbr: string) => void;
+  /** parties to keep lit; empty means every seat shows its own colour */
+  highlight?: ReadonlySet<string>;
   /** rendered under the map; the caller owns the wording */
   footnote?: React.ReactNode;
 }
 
-export function HexCartogram({ wyoming, districtResults, selected, onSelectState, footnote }: Props) {
+export function HexCartogram({ wyoming, districtResults, selected, onSelectState, highlight, footnote }: Props) {
   const [cg, setCg] = useState<Cartogram | null>(null);
   const [err, setErr] = useState(false);
   const [hover, setHover] = useState<HoverInfo | null>(null);
@@ -252,6 +261,7 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
               key={st.abbr}
               st={st}
               groups={fills[i].groups}
+              highlight={highlight}
               dim={selected !== null && selected !== st.abbr}
               wSeat={wSeat} wDistrict={wDistrict} wCasing={wCasing}
               onHover={(districtId, e) => {
@@ -312,9 +322,10 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
 }
 
 /** One state: fills, seat lines, district casing and district lines, all clipped to it. */
-function StateTiles({ st, groups, dim, wSeat, wDistrict, wCasing, onHover, onLeave, onClick }: {
+function StateTiles({ st, groups, highlight, dim, wSeat, wDistrict, wCasing, onHover, onLeave, onClick }: {
   st: StateGeometry;
   groups: { party: string; d: string }[];
+  highlight?: ReadonlySet<string>;
   dim: boolean;
   wSeat: number; wDistrict: number; wCasing: number;
   onHover: (districtId: string, e: React.MouseEvent) => void;
@@ -325,9 +336,13 @@ function StateTiles({ st, groups, dim, wSeat, wDistrict, wCasing, onHover, onLea
   return (
     <g clipPath={clip} opacity={dim ? 0.34 : 1} onClick={onClick} style={{ cursor: 'pointer' }}>
       <g>
-        {groups.map(g => (
-          <path key={g.party || 'none'} d={g.d} fill={g.party ? (PARTY_COLORS[g.party] ?? '#6b7280') : C_EMPTY} />
-        ))}
+        {groups.map(g => {
+          const lit = !highlight?.size || highlight.has(g.party);
+          return (
+            <path key={g.party || 'none'} d={g.d}
+              fill={!g.party ? C_EMPTY : lit ? (PARTY_COLORS[g.party] ?? '#6b7280') : C_MUTED} />
+          );
+        })}
       </g>
       <path d={st.seatEdges} fill="none" stroke={C_SEAT} strokeWidth={wSeat}
         strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
