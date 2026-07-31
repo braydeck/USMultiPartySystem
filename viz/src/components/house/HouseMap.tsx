@@ -397,7 +397,20 @@ export function HouseMap({ districtResults, districtCountyMap }: Props) {
                     <span className="text-xs font-bold px-1.5 py-0.5 rounded chip-text" style={{ backgroundColor: tierColor, color: getContrastText(tierColor) }}>
                       {TIER_LABELS[d.densityTier] ?? d.densityTier}
                     </span>
-                    <span className="text-xs text-muted-foreground">{d.seatCount} seats · {d.nRespondents} resp.</span>
+                    <span className="text-xs text-muted-foreground">
+                      {d.seatCount} seats · {d.nRespondents} resp.
+                      {/* A district can hold seats without holding any counties: Maricopa's
+                          population justifies ~11.6 seats but the whole-county draw gives all of it
+                          to 04-01, so 04-03 has no footprint and is counted on the statewide pool.
+                          Say so rather than letting the respondent count imply a local electorate. */}
+                      {(districtCountyMap[d.districtId] ?? []).length === 0 && (
+                        <span className="ml-1 italic" title={
+                          'This district holds no counties of its own — the whole-county draw assigned '
+                          + 'them all to its neighbours. Its members are elected from the statewide pool, '
+                          + 'so the respondent count above is the state total, not this district.'
+                        }>· statewide pool</span>
+                      )}
+                    </span>
                   </div>
                   {/* Seat bar */}
                   <div className="flex rounded-sm overflow-hidden h-4">

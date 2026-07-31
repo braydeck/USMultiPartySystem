@@ -43,6 +43,7 @@ TYPOLOGY_PATH    = BASE_DIR / "data" / "processed" / "typology_cluster_assignmen
 OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / _TREE / "house"
 VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
+SPLIT_OVERRIDE_PATH     = BASE_DIR / "pipeline" / "county_split_overrides.csv"
 
 # Triple Wyoming variants
 CHECKPOINT_PATH_TRIPLE  = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "ballots_checkpoint.parquet"
@@ -343,12 +344,39 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
             if sfips not in state_fallback:
                 state_fallback[sfips] = row["district_id"]
 
+        # Sub-county override. The draw assigns whole counties, which cannot express a county whose
+        # population exceeds one district: Maricopa (04013) justifies ~11.6 seats at 380k/seat but
+        # lands entirely in 04-01 (7 seats), leaving 04-03 (5 seats) with no counties and no
+        # respondents — it then falls back to counting Arizona statewide. This splits such counties
+        # on the respondent's real 119th-Congress district. Counties absent from the file keep their
+        # whole-county assignment, so this is inert for the other 3,141.
+        split_override: dict = {}
+        if SPLIT_OVERRIDE_PATH.exists():
+            _so = pd.read_csv(SPLIT_OVERRIDE_PATH)
+            for _, row in _so.iterrows():
+                key = (str(row["county_fips5"]).zfill(5), int(row["cd119"]))
+                split_override[key] = row["district_id"]
+        voter_cds = (pd.to_numeric(voter_fips_df["cd119"], errors="coerce")
+                     if "cd119" in voter_fips_df.columns else pd.Series(index=voter_fips_df.index, dtype=float))
+        voter_cds = voter_cds.values
+
         district_ids = np.empty(len(voter_counties), dtype=object)
+        n_split = 0
         for i, county in enumerate(voter_counties):
-            did = county_to_dist.get(county)
+            did = None
+            if split_override:
+                cd = voter_cds[i]
+                if cd == cd:  # not NaN
+                    did = split_override.get((county, int(cd)))
+                    if did is not None:
+                        n_split += 1
+            if did is None:
+                did = county_to_dist.get(county)
             if did is None:
                 did = state_fallback.get(county[:2], "")
             district_ids[i] = did
+        if n_split:
+            print(f"  sub-county override applied to {n_split:,} respondents")
         n_unique = len({d for d in district_ids if d})
         print(f"  {len(efa):,} respondents assigned to {n_unique} districts")
     else:
