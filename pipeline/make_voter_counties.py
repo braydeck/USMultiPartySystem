@@ -22,7 +22,7 @@ from stv_config import DTA_PATH, ITEMS_24
 EXPECTED_N    = 45_707
 OUTPUT_PATH   = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 DELETION_COLS = ITEMS_24 + ["commonpostweight"]
-READ_COLS     = ["caseid", "countyfips"] + DELETION_COLS
+READ_COLS     = ["caseid", "countyfips", "cdid119"] + DELETION_COLS
 
 
 def main():
@@ -37,7 +37,7 @@ def main():
     print(f"  Raw rows: {len(df):,}")
 
     mask = df[DELETION_COLS].notna().all(axis=1)
-    out  = df.loc[mask, ["caseid", "countyfips"]].reset_index(drop=True)
+    out  = df.loc[mask, ["caseid", "countyfips", "cdid119"]].reset_index(drop=True)
     print(f"  After listwise deletion: {len(out):,} rows")
     assert len(out) == EXPECTED_N, \
         f"Expected {EXPECTED_N} rows after deletion, got {len(out)}"
@@ -50,6 +50,11 @@ def main():
         .astype(str)
         .str.zfill(5)
     )
+
+    # cd119: the respondent's real 119th-Congress district. Carried so a county that spans more
+    # districts than the whole-county draw can express — Maricopa is the only one — can be split on
+    # actual congressional geography instead of arbitrarily. See county_split_overrides.csv.
+    out["cd119"] = pd.to_numeric(out.pop("cdid119"), errors="coerce").astype("Int64")
 
     null_count = (out["countyfips"] == "00000").sum()
     if null_count:

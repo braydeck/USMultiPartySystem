@@ -13,6 +13,15 @@ Nothing is wrong today: every published figure was computed from the committed m
 the site is self-consistent. The cost of leaving it is that the map in the repo is not
 reproducible; the cost of fixing it is this whole script.
 
+PENDING ON THE NEXT RUN
+-----------------------
+pipeline/county_split_overrides.csv splits Maricopa (04013) across 04-01 and 04-03 on the
+respondent's real 119th-Congress district. It is wired into both house runners but INERT until
+they re-run, so the committed outputs still have 04-03 empty and falling back to the Arizona
+statewide pool. Stage 2 picks it up automatically. After a rebuild, expect 04-01/04-02/04-03 to
+hold roughly 360/546/253 respondents instead of 613/546/0, no district anywhere with an empty
+pool, and a few Arizona seats to move.
+
 WHAT ADOPTING IT COSTS  (measured 2026-07-30, full depth / double Wyoming)
 --------------------------------------------------------------------------
   Conservative 201 -> 202   Labor 159 -> 158   Populist 106 -> 104   Nationalist 41 -> 43
