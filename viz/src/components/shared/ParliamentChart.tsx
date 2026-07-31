@@ -14,8 +14,27 @@ interface Props {
 }
 
 const CAT_LABELS = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
-const DIV_FRACS  = [0.20, 0.40, 0.60, 0.80];
-const MID_FRACS  = [0.10, 0.30, 0.50, 0.70, 0.90];
+
+/**
+ * Band edges on the factor score itself.
+ *
+ * These used to be fixed angular fractions — 20/40/60/80% of the way round the arc — so
+ * they cut the chamber into five equal *seat* quintiles no matter what. That made the
+ * labels lie: a party sat in "Very High" because it held the rightmost fifth of the
+ * seats, not because its score was high, and the dividers never moved when the reader
+ * changed factor. Cutting on the score instead means band widths carry the finding:
+ * how much of the chamber actually sits in each band, which is the question the chart
+ * looks like it is answering. Factor scores are standardised, and party means run about
+ * -1.3 to +1.5, so ±0.25 / ±0.75 splits that range rather than leaving the tails empty.
+ */
+const BAND_EDGES = [-0.75, -0.25, 0.25, 0.75];
+
+/** Band index (0-4) for a factor score. */
+function bandOf(v: number): number {
+  let i = 0;
+  while (i < BAND_EDGES.length && v >= BAND_EDGES[i]) i++;
+  return i;
+}
 
 export function ParliamentChart({ segments, factor, globalRange }: Props) {
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
@@ -28,12 +47,31 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
   const outerR = INNER_R + RING_GAP * (nRings - 1);
   const labelR = outerR + 18;
 
-  const VB_W = (outerR + 44) * 2;
+  // Wide enough for a band label sitting flat against the arc end: "Very Low" is set
+  // end-anchored there and ran off the edge at the old 44.
+  const VB_W = (outerR + 78) * 2;
   const oy = outerR + 52;
   const VB_H = oy + 22;
   const ox = VB_W / 2;
 
   const factorLabel = FACTOR_LABELS[factor] ?? factor;
+
+  // Where each band starts and ends as a fraction of the arc. Seats are laid out in
+  // fVal order, so a band is a contiguous run and its edges fall on party boundaries.
+  const bands = (() => {
+    const spans: { band: number; from: number; to: number }[] = [];
+    let seen = 0;
+    for (const seg of segments) {
+      const b = bandOf(seg.fVal);
+      const from = seen / totalSeats;
+      seen += seg.seats;
+      const to = seen / totalSeats;
+      const last = spans[spans.length - 1];
+      if (last && last.band === b) last.to = to;
+      else spans.push({ band: b, from, to });
+    }
+    return spans;
+  })();
   const minVal = segments[0]?.fVal ?? 0;
   const maxVal = segments[segments.length - 1]?.fVal ?? 1;
   const arcMinLabel = globalRange ? globalRange[0].toFixed(2) : minVal.toFixed(2);
@@ -43,7 +81,9 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
     <div>
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
-        style={{ width: '100%', height: 'auto' }}
+        // Capped: the hemicycle is about 2:1, so at full width on a wide monitor it runs
+        // taller than the viewport for no gain in legibility.
+        style={{ width: '100%', height: 'auto', maxWidth: 760, display: 'block', margin: '0 auto' }}
         aria-label={`Parliament chart ordered by ${factorLabel}`}
       >
         <g transform={`translate(${ox},${oy})`}>
@@ -68,9 +108,9 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
             </g>
           ))}
 
-          {/* Category divider lines */}
-          {DIV_FRACS.map((df, i) => {
-            const angle = Math.PI - df * Math.PI;
+          {/* Band dividers, at the seat where the factor score crosses an edge */}
+          {bands.slice(1).map((b, i) => {
+            const angle = Math.PI - b.from * Math.PI;
             const x1 = (INNER_R - 8) * Math.cos(angle);
             const y1 = -(INNER_R - 8) * Math.sin(angle);
             const x2 = (outerR + 6) * Math.cos(angle);
@@ -78,15 +118,16 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
             return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#cbd5e1" strokeWidth={0.8} />;
           })}
 
-          {/* Zone labels */}
-          {MID_FRACS.map((mf, i) => {
-            const angle = Math.PI - mf * Math.PI;
+          {/* Band labels, centred on the band. Only bands that hold seats get one. */}
+          {bands.map((b, i) => {
+            const mid = (b.from + b.to) / 2;
+            const angle = Math.PI - mid * Math.PI;
             const lx = labelR * Math.cos(angle);
             const ly = -labelR * Math.sin(angle);
-            const anchor = i === 0 ? 'end' : i === 4 ? 'start' : 'middle';
+            const anchor = mid < 0.12 ? 'end' : mid > 0.88 ? 'start' : 'middle';
             return (
               <text key={i} x={lx} y={ly} textAnchor={anchor} fontSize={7} fill="#94a3b8">
-                {CAT_LABELS[i]}
+                {CAT_LABELS[b.band]}
               </text>
             );
           })}
