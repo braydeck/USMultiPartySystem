@@ -97,6 +97,8 @@ def main():
     ap.add_argument("--no-clip", action="store_true",
                     help="let hexagons extend past the state border instead of being "
                          "clipped to it")
+    ap.add_argument("--label-size", type=float, default=17.0,
+                    help="state label point size at the reference scale")
     ap.add_argument("--explode", type=float, default=1.0,
                     help="push states apart from the map centre by this factor "
                          "(1.0 = touching as drawn, 1.08 = a visible gap)")
@@ -248,48 +250,68 @@ def main():
                         solid_capstyle="round", solid_joinstyle="round")
 
     if not args.no_labels:
-        # Labels outside the state, as the published hexmap does: a label sitting on top
-        # of the tiles competes with ten party fills, and a state only two hexes wide has
-        # nowhere legible to put it. Each label is pushed out along the direction away
-        # from the map centre, then rotated to the first angle that clears every state's
-        # hexes so labels do not land on a neighbour.
-        occupied = []
-        for ab2, st2 in data["states"].items():
-            for c in st2["cells"]:
-                occupied.append(shift(ab2, hex_center(c["col"], c["row"], R, x0, y0)))
+        # Labels outside the state, as the published hexmap does: a label on top of the
+        # tiles competes with ten party fills, and a two-hex state has nowhere legible to
+        # put one. Placement is by fixed preference — bottom-right for every state that
+        # can take it, so the eye learns where to look — falling back through the other
+        # corners only where a neighbour is in the way.
+        DIRECTIONS = [(0.71, -0.71), (-0.71, -0.71), (0.71, 0.71), (-0.71, 0.71),
+                      (0.0, -1.0), (1.0, 0.0), (0.0, 1.0), (-1.0, 0.0)]
+        occupied = np.array([shift(ab2, hex_center(c["col"], c["row"], R, x0, y0))
+                             for ab2, st2 in data["states"].items()
+                             for c in st2["cells"]])
 
-        def clear_of_states(pt, need):
-            return all((pt[0] - ox) ** 2 + (pt[1] - oy) ** 2 > need * need
-                       for ox, oy in occupied)
-
-        for ab, st in sorted(data["states"].items()):
+        # Point size → degrees, so the clearance test knows how big the text really is.
+        deg_per_pt = 100.0 / (72.0 * args.px_per_deg)
+        fs = args.label_size * lw
+        lab_h = fs * deg_per_pt
+        # Big states first, so they get the preferred bottom-right slot and the small
+        # ones adapt around them.
+        by_size = sorted(data["states"].items(),
+                         key=lambda kv: (-len({c["core"] for c in kv[1]["cells"]
+                                               if c["isCore"]}), kv[0]))
+        placements, taken_boxes = {}, []
+        for ab, st in by_size:
             cx, cy = shift(ab, centroids[ab])
             pts = [shift(ab, p) for p in core_centres(st)]
-            base = math.atan2(cy - map_cy, cx - map_cx)
-            if math.hypot(cx - map_cx, cy - map_cy) < R:
-                base = -math.pi / 2                       # dead centre: drop it below
-            placed = None
-            for step in [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6]:
-                ang = base + step * math.pi / 6
-                dx, dy = math.cos(ang), math.sin(ang)
-                # How far the state reaches in this direction, then a little beyond.
+            lab_w = 0.68 * lab_h * len(ab)
+            chosen = None
+            for dx, dy in DIRECTIONS:
                 reach = max((p[0] - cx) * dx + (p[1] - cy) * dy for p in pts)
-                for extra in (1.5, 2.2, 3.0):
-                    anchor = (cx + dx * (reach + extra * R), cy + dy * (reach + extra * R))
-                    if clear_of_states(anchor, 1.35 * R):
-                        placed = (anchor, dx, dy)
-                        break
-                if placed:
+                for extra in (0.9, 1.6, 2.4):
+                    ax_, ay_ = (cx + dx * (reach + extra * R), cy + dy * (reach + extra * R))
+                    ha = "left" if dx > 0.3 else "right" if dx < -0.3 else "center"
+                    va = "bottom" if dy > 0.3 else "top" if dy < -0.3 else "center"
+                    lx0 = ax_ if ha == "left" else ax_ - lab_w if ha == "right" else ax_ - lab_w / 2
+                    ly0 = ay_ if va == "bottom" else ay_ - lab_h if va == "top" else ay_ - lab_h / 2
+                    # Clear if no hexagon centre falls inside the text box, grown by a
+                    # hexagon's reach plus a little breathing room.
+                    m = 0.95 * R
+                    hit = ((occupied[:, 0] > lx0 - m) & (occupied[:, 0] < lx0 + lab_w + m)
+                           & (occupied[:, 1] > ly0 - m) & (occupied[:, 1] < ly0 + lab_h + m))
+                    if hit.any():
+                        continue
+                    box = (lx0 - m / 2, ly0 - m / 2,
+                           lx0 + lab_w + m / 2, ly0 + lab_h + m / 2)
+                    # Labels must clear each other too, not just the tiles.
+                    if any(box[0] < b[2] and b[0] < box[2]
+                           and box[1] < b[3] and b[1] < box[3] for b in taken_boxes):
+                        continue
+                    chosen = (ax_, ay_, ha, va, box)
                     break
-            if placed is None:
-                placed = ((cx, cy), 0.0, 0.0)              # nowhere clear: fall back
-            (lx, ly), dx, dy = placed
-            ha = "left" if dx > 0.35 else "right" if dx < -0.35 else "center"
-            va = "bottom" if dy > 0.35 else "top" if dy < -0.35 else "center"
+                if chosen:
+                    break
+            if chosen is None:
+                chosen = (cx, cy, "center", "center", None)
+            if chosen[4]:
+                taken_boxes.append(chosen[4])
+            placements[ab] = chosen[:4]
+
+        for ab, (lx, ly, ha, va) in placements.items():
             ax.text(lx, ly, ab, ha=ha, va=va, zorder=6,
-                    fontsize=7.2 * lw, fontweight="bold", color="#0b1220",
+                    fontsize=fs, fontweight="bold", color="#0b1220",
                     path_effects=[matplotlib.patheffects.withStroke(
-                        linewidth=2.0 * lw, foreground="white")])
+                        linewidth=0.30 * fs, foreground="white")])
 
     # Legend: one swatch per party, left→right ideological order, with seat totals.
     total = sum(tally.values())
