@@ -23,12 +23,19 @@ Method
   1. Size a pointy-top hex lattice so the cell count over the state outlines equals the
      seat total, then keep the N cells per state with the greatest overlap with that
      state. State area is population-proportional, so this lands within ~1 cell/state.
+     Seats are apportioned across a state's separate rings by area, so Michigan's
+     peninsulas and Hawaii's islands each get their own share.
   2. Grow each state's cells into district blobs of exactly seatCount cells, seeded at
      each district's real county centroid mapped into the state's distorted frame.
      Growth is adjacency-only, so blobs stay contiguous.
   3. Give each hexagon one elected member's party.
-  4. Draw three line weights: hairline between seats, heavy between districts, heaviest
-     between states. Party colour is the fill, so separation has to be line weight.
+  4. Merge every remaining cell that touches the state into its nearest seat. The
+     renderer clips each state's cells to that state's outline, so the silhouette stays
+     the real state shape instead of a castellated hex edge — this step guarantees there
+     is no uncovered sliver left inside the outline for the clip to expose.
+
+The seat hexagons in a state's interior are therefore whole hexagons, while the ones on
+its border are trimmed to the state's edge. That is the same trade Donner's map makes.
 
 District placement inside a state is approximate by construction — the state shape is
 distorted, so a blob can only sit in roughly the right corner. That matches Donner's
@@ -47,7 +54,7 @@ import csv
 import json
 import math
 import sys
-from collections import defaultdict
+from collections import defaultdict, deque
 from pathlib import Path
 
 import numpy as np
@@ -106,6 +113,25 @@ def hex_center(col, row, R, x0, y0):
     """Centre of odd-r offset cell (col, row). Odd rows shift right by half a width."""
     w = SQRT3 * R
     return (x0 + w * (col + 0.5 * (row & 1)), y0 + 1.5 * R * row)
+
+
+def nearest_cell(x, y, R, x0, y0):
+    """The lattice cell whose hexagon contains (x, y).
+
+    Searches the neighbourhood of the approximate row/col and takes the nearest centre,
+    which is exact: the Voronoi diagram of a triangular lattice is its hexagonal tiling.
+    """
+    row_f = (y - y0) / (1.5 * R)
+    best, best_d = None, None
+    for row in (int(math.floor(row_f)) - 1, int(math.floor(row_f)),
+                int(math.floor(row_f)) + 1, int(math.floor(row_f)) + 2):
+        col_f = (x - x0) / (SQRT3 * R) - 0.5 * (row & 1)
+        for col in (int(math.floor(col_f)), int(math.floor(col_f)) + 1):
+            cx, cy = hex_center(col, row, R, x0, y0)
+            d = (cx - x) ** 2 + (cy - y) ** 2
+            if best_d is None or d < best_d:
+                best, best_d = (col, row), d
+    return best
 
 
 def sample_offsets(R, rings_of_circles=2):
@@ -249,7 +275,10 @@ def build_lattice(states, targets, verbose=True):
     (Michigan's peninsulas, Hawaii's islands) and each ring picks its own best cells,
     which keeps islands from stealing seats from the mainland or vice versa.
 
-    Returns (cells, R, x0, y0) with cells mapping (col, row) -> state abbreviation.
+    Returns (cores, pools, R, x0, y0): `cores` maps (col, row) -> state abbreviation,
+    one core cell per seat; `pools` maps a state to every cell touching it, including
+    the boundary cells that get merged into a neighbouring seat so that clipping the
+    result to the state outline leaves the silhouette intact.
     """
     total_seats = sum(targets.values())
     total_area = sum(s.area for s in states.values())
@@ -288,6 +317,19 @@ def build_lattice(states, targets, verbose=True):
                         best_state[(col, row)] = (tot, ab)
 
     owner = {c: v[1] for c, v in best_state.items()}
+
+    # Every cell that touches a state, so the union of cells covers the state
+    # completely and clipping to the outline leaves no uncovered sliver. Sampling
+    # alone misses cells the border only grazes, so also take the cell nearest each
+    # outline vertex — the Voronoi cell of a triangular lattice IS its hexagon, so
+    # the nearest centre is the containing hexagon.
+    pools = defaultdict(set)
+    for (ab, _i), d in cover.items():
+        pools[ab] |= set(d)
+    for ab, st in states.items():
+        for ring in st.rings:
+            for x, y in ring:
+                pools[ab].add(nearest_cell(x, y, R, x0, y0))
 
     cells = {}
     shortfalls = []
@@ -329,7 +371,7 @@ def build_lattice(states, targets, verbose=True):
 
     if shortfalls:
         print("   WARNING shortfalls:", shortfalls)
-    return cells, R, x0, y0
+    return cells, pools, R, x0, y0
 
 
 def ring_area_of(pts):
@@ -598,7 +640,7 @@ def main():
     targets = {ab: per_state[fips_by_ab[ab]] for ab in states if fips_by_ab[ab] in per_state}
 
     print("\nstep 1 — hex lattice")
-    cells, R, x0, y0 = build_lattice(states, targets)
+    cells, pools, R, x0, y0 = build_lattice(states, targets)
     print(f"   R={R:.4f} deg  cells={len(cells)}  (target {sum(targets.values())})")
 
     # DC: no population-scaled outline in the states file, so borrow the delegate
@@ -619,9 +661,15 @@ def main():
         free.sort()
         for _, col, row in free[:dc_seats]:
             cells[(col, row)] = "DC"
+            pools["DC"].add((col, row))
         states["DC"] = StateShape("DC", dd["DC"])
         targets["DC"] = dc_seats
         fips_by_ab["DC"] = "11"
+        # DC's outline is a delegate hexagon, far smaller than its share of seats, so
+        # its cells sit on the lattice instead of being clipped to that outline.
+        for ring in dd["DC"]:
+            for x, y in ring:
+                pools["DC"].add(nearest_cell(x, y, R, x0, y0))
         print(f"   DC: placed {dc_seats} cells near ({dcx:.2f}, {dcy:.2f})")
 
     # connectivity check
@@ -678,6 +726,30 @@ def main():
         party_of.update(assign_parties(cellset, districts[d]["elected"], R, x0, y0))
     print(f"   hexagons coloured: {len(party_of)}")
 
+    print("\nstep 4 — fill to the state outline")
+    filled = {}          # ab -> {cell: core cell it belongs to}
+    for ab, pool in sorted(pools.items()):
+        cores = {c for c in pool if cells.get(c) == ab}
+        if not cores:
+            continue
+        seat_of = {c: c for c in cores}
+        queue = deque(sorted(cores))
+        while queue:
+            c = queue.popleft()
+            for nb in neighbors(*c):
+                if nb in pool and nb not in seat_of:
+                    seat_of[nb] = seat_of[c]
+                    queue.append(nb)
+        # Anything adjacency can't reach goes to the nearest core.
+        for c in sorted(pool - set(seat_of)):
+            cx, cy = hex_center(c[0], c[1], R, x0, y0)
+            seat_of[c] = min(sorted(cores), key=lambda k: (
+                (hex_center(k[0], k[1], R, x0, y0)[0] - cx) ** 2
+                + (hex_center(k[0], k[1], R, x0, y0)[1] - cy) ** 2))
+        filled[ab] = seat_of
+    extra = sum(len(v) for v in filled.values()) - len(cells)
+    print(f"   boundary cells merged into a neighbouring seat: {extra}")
+
     out = {
         "meta": {
             "R": R, "x0": x0, "y0": y0, "orientation": "pointy-top",
@@ -685,16 +757,30 @@ def main():
             "source": "Congressional District Hexmap v3.2 by Daniel Donner for "
                       "The Downballot (https://the-db.co/maps), CC BY 4.0",
         },
-        "cells": [
-            {"col": c[0], "row": c[1], "state": cells[c],
-             "district": assignment.get(c), "party": party_of.get(c)}
-            for c in sorted(cells)
-        ],
+        "states": {
+            ab: {
+                # DC's outline is a delegate hexagon, not a population-scaled shape, so
+                # its cells are drawn as raw hexagons rather than clipped to it.
+                "clip": ab != "DC",
+                "rings": [[[round(x, 5), round(y, 5)] for x, y in ring]
+                          for ring in states[ab].rings],
+                "cells": [
+                    {"col": c[0], "row": c[1],
+                     "core": f"{core[0]},{core[1]}",
+                     "district": assignment.get(core),
+                     "party": party_of.get(core),
+                     "isCore": c == core}
+                    for c, core in sorted(seat_of.items())
+                ],
+            }
+            for ab, seat_of in sorted(filled.items())
+        },
     }
     suffix = "_triple" if args.triple else ""
     path = Path(args.out) if args.out else OUT_DIR / f"hex_seat_cartogram{suffix}.json"
     path.write_text(json.dumps(out))
-    print(f"\nwrote {path} ({len(out['cells'])} cells)")
+    n_cells = sum(len(s["cells"]) for s in out["states"].values())
+    print(f"\nwrote {path} ({n_cells} cells across {len(out['states'])} states)")
 
 
 if __name__ == "__main__":
