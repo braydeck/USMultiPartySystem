@@ -9,7 +9,6 @@
 import { useState, type CSSProperties } from 'react';
 import { getPartyColor, PARTY_NAMES } from '../../constants/parties';
 import { SeatWhisker } from '../shared/SeatWhisker';
-import { whiskerGeometry } from '../../lib/whisker';
 import type { ShareInterval } from '../../lib/uncertainty';
 
 /** A sampling span in percent of whatever the row's axis measures. */
@@ -36,16 +35,15 @@ export interface PopSeatRangeRow {
   seatIv: Span;
 }
 
-/** One band style per quantity. Encoded by height and weight rather than by fill pattern: the vote
- *  bands are under a percentage point wide, and a hatch or a dash inside a 4px sliver is noise. */
+/** How each quantity's bar is filled. The row is named beside it, so fill no longer has
+ *  to carry identity — it only separates the rule this card is about from its context. */
 type Texture = 'pop' | 'votes' | 'cmp' | 'seats';
 
-function bandStyle(texture: Texture, color: string): CSSProperties {
-  if (texture === 'pop') return { background: `${color}1f`, border: `1.5px solid ${color}`, top: 2, bottom: 2 };
-  if (texture === 'cmp') return { background: `${color}66`, top: 4, bottom: 4 };
-  // Not fully opaque: the expected dot sits inside this band and has to stay visible through it.
-  if (texture === 'votes') return { backgroundColor: color, opacity: 0.7, top: 5, bottom: 5 };
-  return { backgroundColor: color, opacity: 0.3, top: 1, bottom: 1 };
+function fillStyle(texture: Texture, color: string): CSSProperties {
+  if (texture === 'pop') return { background: `${color}2e`, border: `1.5px solid ${color}` };
+  if (texture === 'votes') return { background: color, opacity: 0.55 };
+  if (texture === 'cmp') return { background: color, opacity: 0.75 };
+  return { background: color };
 }
 
 /** Gridline positions, every 5 points of share. */
@@ -55,29 +53,32 @@ function ticks(max: number): number[] {
   return out;
 }
 
-function RangeTrack({ iv, point, max, color, texture, title, pointTitle }: {
+/**
+ * One quantity as a bar from zero, with its 95% span drawn as a whisker at the tip.
+ *
+ * Bars beat floating bands here for the same reason bars usually do: every row starts on
+ * the same baseline, so the comparison is a length rather than two positions the reader
+ * has to difference by eye. The uncertainty rides on the end of the bar, which is where
+ * the reader is already looking, instead of becoming a second mark to decode.
+ */
+function BarTrack({ iv, point, max, color, texture, title, pointTitle }: {
   iv: Span; point: number; max: number; color: string; texture: Texture;
   title: string; pointTitle: string;
 }) {
-  const g = whiskerGeometry(iv.lo, iv.hi, iv.expected, max);
+  const w = Math.min(100, Math.max(0, (point / max) * 100));
   return (
-    // Gridlines rather than a filled track: forty solid grey bars read as stripes before
-    // they read as data, and there was nothing to measure a band's position against.
-    <div className="relative h-3.5 flex-1">
+    <div className="relative h-4 flex-1">
       {ticks(max).map(v => (
         <span key={v} className="absolute inset-y-0 border-l border-slate-200/80"
           style={{ left: `${(v / max) * 100}%` }} />
       ))}
-      {g && (
-        <div className="absolute rounded-sm"
-          style={{ left: `${g.leftPct}%`, width: `${g.widthPct}%`, ...bandStyle(texture, color) }} />
-      )}
-      <SeatWhisker lo={iv.lo} hi={iv.hi} centre={iv.expected} max={max} title={title} />
-      {/* Clamp the tick's position only. A point estimate can sit outside its own bounds — the
-          chamber is an argmax per district, not a draw from this interval — and the readout on
-          the right must keep reporting the real number. */}
-      <div className="absolute inset-y-0 w-0.5" title={pointTitle}
-        style={{ left: `${Math.min(100, Math.max(0, (point / max) * 100))}%`, backgroundColor: color }} />
+      <div className="absolute inset-0 rounded-sm bg-muted/40" />
+      <div className="absolute inset-y-0 left-0 rounded-sm" title={pointTitle}
+        style={{ width: `${w}%`, ...fillStyle(texture, color) }} />
+      {/* Haloed so it holds up over a saturated fill and over the empty track alike. */}
+      <div className="absolute inset-0 [&_div]:shadow-[0_0_0_1px_rgba(255,255,255,0.9)]">
+        <SeatWhisker lo={iv.lo} hi={iv.hi} centre={iv.expected} max={max} title={title} />
+      </div>
     </div>
   );
 }
@@ -104,8 +105,8 @@ function RowLabel({ children }: { children: React.ReactNode }) {
  *  than as one party's row. Wrapped in a 14px box because the styles position by height. */
 function Swatch({ texture }: { texture: Texture }) {
   return (
-    <span className="relative w-6 h-3.5 shrink-0">
-      <span className="absolute inset-x-0 rounded-sm" style={bandStyle(texture, '#64748b')} />
+    <span className="relative w-6 h-3 shrink-0 rounded-sm overflow-hidden">
+      <span className="absolute inset-0 rounded-sm" style={fillStyle(texture, '#64748b')} />
     </span>
   );
 }
@@ -195,7 +196,7 @@ export function PopSeatRanges({ rows, max, seatLabel, compareLabel }: {
               {showPop && (
                 <div className="flex items-center gap-2">
                   <RowLabel>Pop</RowLabel>
-                  <RangeTrack iv={r.popIv} point={r.popIv.point} max={max} color={c} texture="pop"
+                  <BarTrack iv={r.popIv} point={r.popIv.point} max={max} color={c} texture="pop"
                     title={`${name} population: ${r.popIv.lo.toFixed(1)}–${r.popIv.hi.toFixed(1)}% across resamples, ${r.popIv.expected.toFixed(1)}% expected`}
                     pointTitle={`population share: ${r.popIv.point.toFixed(1)}%`} />
                   <Readout head={`${r.popIv.point.toFixed(1)}%`} iv={r.popIv} />
@@ -203,7 +204,7 @@ export function PopSeatRanges({ rows, max, seatLabel, compareLabel }: {
               )}
               <div className="flex items-center gap-2">
                 <RowLabel>Votes</RowLabel>
-                <RangeTrack iv={r.voteIv} point={r.voteIv.point} max={max} color={c} texture="votes"
+                <BarTrack iv={r.voteIv} point={r.voteIv.point} max={max} color={c} texture="votes"
                   title={`${name} votes: ${r.voteIv.lo.toFixed(1)}–${r.voteIv.hi.toFixed(1)}% of the national vote across resamples, ${r.voteIv.expected.toFixed(1)}% expected`}
                   pointTitle={`vote share: ${r.voteIv.point.toFixed(1)}%`} />
                 <Readout head={`${r.voteIv.point.toFixed(1)}%`} iv={r.voteIv} />
@@ -211,7 +212,7 @@ export function PopSeatRanges({ rows, max, seatLabel, compareLabel }: {
               {showCompare && cmp && (
                 <div className="flex items-center gap-2">
                   <RowLabel>{compareLabel}</RowLabel>
-                  <RangeTrack iv={cmp} point={cmp.point} max={max} color={c} texture="cmp"
+                  <BarTrack iv={cmp} point={cmp.point} max={max} color={c} texture="cmp"
                     title={`${name} under ${compareLabel}: ${cmp.lo.toFixed(1)}–${cmp.hi.toFixed(1)}% of the chamber across resamples, ${cmp.expected.toFixed(1)}% expected`}
                     pointTitle={`${compareLabel} seat share: ${cmp.point.toFixed(1)}%${r.cmpSeats === undefined ? '' : ` (${r.cmpSeats})`}`} />
                   <Readout head={`${cmp.point.toFixed(1)}%${r.cmpSeats === undefined ? '' : ` (${r.cmpSeats})`}`} iv={cmp} />
@@ -219,7 +220,7 @@ export function PopSeatRanges({ rows, max, seatLabel, compareLabel }: {
               )}
               <div className="flex items-center gap-2">
                 <RowLabel>{seatLabel}</RowLabel>
-                <RangeTrack iv={r.seatIv} point={r.seatPct} max={max} color={c} texture="seats"
+                <BarTrack iv={r.seatIv} point={r.seatPct} max={max} color={c} texture="seats"
                   title={`${name} seats: ${r.seatIv.lo.toFixed(1)}–${r.seatIv.hi.toFixed(1)}% of the chamber across resamples, ${r.seatIv.expected.toFixed(1)}% expected`}
                   pointTitle={`${seatLabel} seat share: ${r.seatPct.toFixed(1)}% (${r.seats})`} />
                 <Readout head={`${r.seatPct.toFixed(1)}% (${r.seats})`} iv={r.seatIv} />
