@@ -65,10 +65,14 @@ export function HouseMap({ districtResults, districtCountyMap, wyoming, selected
     <div className="space-y-4">
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* F5_ORDER, not the colour table: that also carries DEM/IND/REP for the
+            current-party comparisons, which have no seats on this map, and it holds OAO
+            out of ideological sequence. Walking the order puts the legend in the same
+            left-to-right run the hexes are dealt in. */}
         <div className="flex flex-wrap gap-3 items-center">
-          {Object.entries(PARTY_COLORS).map(([party, color]) => (
-            <div key={party} className="flex items-center gap-1 text-xs font-semibold" style={{ color }}>
-              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: color }} />
+          {F5_ORDER.map(party => (
+            <div key={party} className="flex items-center gap-1 text-xs font-semibold" style={{ color: PARTY_COLORS[party] }}>
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] }} />
               {PARTY_NAMES[party]}
             </div>
           ))}
