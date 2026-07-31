@@ -22,11 +22,11 @@ Reproducibility: the tie-breaks below name the county FIPS explicitly and the ou
 the same inputs now draw the same map byte for byte. They did not before — ties fell through to set
 iteration order, which varies with PYTHONHASHSEED, moving 65 of 3,142 counties per run.
 
-The committed data/processed/county_to_district.csv predates that fix, so running this script WILL
-replace it with a different (thereafter stable) map, and the district assignment is an input to every
-published House figure. Do not run it on its own. pipeline/resync_district_map.py holds the full
-ordered rebuild — 90 commands across six stages, ending in the 1,000-draw bootstraps — and prints the
-plan without executing unless given --run.
+The committed data/processed/county_to_district.csv now IS this script's output (resynced
+2026-07-31), so re-running it should be a no-op. If it ever is not, the inputs changed, and the
+district assignment feeds every published House figure — so do not run it on its own.
+pipeline/resync_district_map.py holds the full ordered rebuild across six stages, ending in the
+1,000-draw bootstraps, and prints the plan without executing unless given --run.
 """
 
 import csv

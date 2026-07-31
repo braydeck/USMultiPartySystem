@@ -3324,8 +3324,33 @@ def build_party_population():
         "party": code,
         "popShare": round(pops[k], 2),
         "voteShare": round(votes[k] / vtot * 100, 2),
-        "turnout": round(turns[k] * 100, 1),
+        # No plain `turnout` field: nothing reads it, and emitting it would put the corrected
+        # per-cluster 2024 figure (STY 32.5) next to the stale turnoutPresidential (38.0) —
+        # two 2024 turnout numbers side by side inviting someone to grab the wrong one. The
+        # corrected figure lives in turnout_propensity.csv and turnoutVerification.json.
     } for k, code in enumerate(CODES)]
+    # turnoutPresidential / turnoutMidterm come from the cross-wave analysis
+    # (analysis/efa/previous_years/compare/turnout_by_wave.py): 2024 canonical labels and 2022
+    # imposed through the supervised 2024 Gaussian, both on the validated voter file. Read from its
+    # CSV so this file is reproducible; fall back to carrying the existing values forward if the
+    # analysis has not been run, since the Single Race cycle model needs both fields present.
+    tbw = OUTPUTS.parent.parent / "analysis" / "efa" / "previous_years" / "outputs" / "turnout_by_wave.csv"
+    cycles = {}
+    if tbw.exists():
+        for r in read_csv(tbw):
+            cycles[r["party"]] = {k: round(float(r[k]), 1)
+                                  for k in ("turnoutPresidential", "turnoutMidterm")}
+    prior_path = DATA_OUT / "partyPopulation.json"
+    prior = {}
+    if prior_path.exists():
+        with open(prior_path, encoding="utf-8") as f:
+            prior = {r["party"]: r for r in json.load(f)}
+    for r in rows:
+        src = cycles.get(r["party"]) or prior.get(r["party"], {})
+        for key in ("turnoutPresidential", "turnoutMidterm"):
+            if key in src:
+                r[key] = src[key]
+    print(f"  partyPopulation: cycle turnout from {'turnout_by_wave.csv' if cycles else 'the existing payload'}")
     write_json(rows, "partyPopulation.json")
 
 
