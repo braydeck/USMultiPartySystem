@@ -1,18 +1,22 @@
-import { useMemo, useState } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { HouseMap } from './HouseMap';
 import { HouseGridChart } from './HouseGridChart';
 import { PartyHighlightFilter } from './PartyHighlightFilter';
+import { CollapsibleSection } from '../shared/CollapsibleSection';
+import { PartyProfileGrid } from '../shared/PartyProfileGrid';
+import { UrbSubRurChart } from './UrbSubRurChart';
 import { seatTotals } from '../../lib/seatTotals';
 import { StateSeatsTable } from './StateSeatsTable';
 import { FPTPvsSTV } from './FPTPvsSTV';
 import { useUrlState } from '../../hooks/useUrlState';
+import { usePartyHighlight } from '../../hooks/usePartyHighlight';
 import { F5_ORDER, getPartyColor, PARTY_NAMES } from '../../constants/parties';
 import { SeatShareBar as Bar } from './SeatShareBar';
 import { PopSeatRanges, type PopSeatRangeRow } from './PopSeatRanges';
 import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval } from '../../lib/uncertainty';
-import type { DistrictResult, HouseStateEntry, HouseSeat } from '../../types';
+import type { DistrictResult, HouseStateEntry, HouseSeat, ClusterProfile } from '../../types';
 
 type SeatMap = Record<string, number>;
 interface Metrics { list: number; stv: number; fptp: number }
@@ -59,6 +63,12 @@ interface Props {
   houseU?: Record<string, SeatInterval>;
   /** Turnout stop, index 0-6. */
   gi: number;
+  /** Party profiles, shown in the same collapsed section the STV view uses. */
+  clusters: ClusterProfile[];
+  /** Ideological constellation, built by the tab which owns its inputs. */
+  profilesExtra?: ReactNode;
+  /** Chamber composition card, built by the tab which owns the factor selector. */
+  chamber?: ReactNode;
 }
 
 const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
@@ -70,12 +80,11 @@ export function seatMapToHouseSeats(seatMap: SeatMap): HouseSeat[] {
   })).filter(s => s.national > 0) as unknown as HouseSeat[];
 }
 
-export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig, houseU, gi }: Props) {
+export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig, houseU, gi, clusters, profilesExtra, chamber }: Props) {
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [selState, setSelState] = useUrlState<string>('plstate', 'national');
   const [mapState, setMapState] = useUrlState<string>('mapstate', 'national');
-  // Shared by the map and the grid, so switching views keeps the coalition you built.
-  const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
+  const [highlight, setHighlight] = usePartyHighlight();
   const nat = config.national;
 
   const stateOpts = useMemo(() => [
@@ -100,6 +109,26 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
   }, [config]);
 
   const mapTotals = useMemo(() => seatTotals(districtResults), [districtResults]);
+
+  // Seats by density tier. The list config carries densityTier per district, so the
+  // same chart the STV view shows can be built here rather than left out.
+  const tierSeats = useMemo(() => {
+    const per: Record<string, { urban: number; suburban: number; rural: number; national: number }> = {};
+    for (const rows of Object.values(config.districts)) {
+      for (const d of rows) {
+        const key = d.densityTier === 'URBAN' ? 'urban' : d.densityTier === 'SUBURBAN' ? 'suburban' : 'rural';
+        for (const p of d.listElected) {
+          per[p] ??= { urban: 0, suburban: 0, rural: 0, national: 0 };
+          per[p][key]++; per[p].national++;
+        }
+      }
+    }
+    return F5_ORDER.filter(p => per[p]).map(p => ({
+      party: CLUSTER_OF[p], partyName: PARTY_NAMES[p], national: per[p].national,
+      urban: per[p].urban, suburban: per[p].suburban, rural: per[p].rural,
+      pctNational: 0, pctPopulation: 0,
+    })) as unknown as HouseSeat[];
+  }, [config]);
 
   const stateMap = useMemo(() => {
     const out: Record<string, HouseStateEntry> = {};
@@ -181,6 +210,13 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
         />
       </Card>
 
+      {/* Same slot, id and content as the STV view, so switching system does not
+          reshuffle the page or slam an open section shut. */}
+      <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
+        <PartyProfileGrid clusters={clusters} />
+        {profilesExtra}
+      </CollapsibleSection>
+
       {/* Seat share vs population share, party list vs STV */}
       <Card className="p-5 border-2 border-indigo-200">
         <div className="flex items-center justify-between gap-2 mb-1">
@@ -221,38 +257,10 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
         </p>
       </Card>
 
-      {/* Headline: voters left unrepresented */}
-      <Card className="p-5 border-2 border-indigo-200">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Voters left unrepresented
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
-        <div className="grid grid-cols-3 gap-2">
-          <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
-          <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
-          <Stat label="STV" value={nat.unrepresented.stv} tone="best" />
-        </div>
-      </Card>
-
-      {/* Over-quota surplus */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Over-quota surplus
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">
-          Votes above what a winner needed.
-        </p>
-        <div className="grid grid-cols-3 gap-2">
-          <Stat label="Today's House" value={CURRENT_SURPLUS} tone="worst" note="2024" />
-          <Stat label="Party list" value={nat.excess.list} tone="mid" note="stranded" />
-          <Stat label="STV" value={nat.excess.stv} tone="best" note="transferred" />
-        </div>
-      </Card>
-
       {/* State composition — reuse STV components with list results */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition — party list</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
           <div className="flex gap-1">
             {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
               <Button key={v} onClick={() => setMapView(v)} variant={mapView === v ? 'default' : 'secondary'} size="sm">{label}</Button>
@@ -267,6 +275,51 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
               wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />
           : <HouseGridChart stateMap={stateMap} districtResults={districtResults} highlight={highlight} />}
       </Card>
+
+      {/* Seats by District Type */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Seats by District Type
+        </h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
+        </p>
+        <UrbSubRurChart seats={tierSeats} />
+      </Card>
+
+      <CollapsibleSection id="dispro" title="See disproportionality" hint="Unrepresented voters and over-quota surplus">
+        <div className="grid gap-4 lg:grid-cols-3 items-start">
+        {/* Headline: voters left unrepresented */}
+        <Card className="p-5 border-2 border-indigo-200">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Voters left unrepresented
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+          <div className="grid grid-cols-3 gap-2">
+            <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
+            <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
+            <Stat label="STV" value={nat.unrepresented.stv} tone="best" />
+          </div>
+        </Card>
+
+        {/* Over-quota surplus */}
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Over-quota surplus
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Votes above what a winner needed.
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <Stat label="Today's House" value={CURRENT_SURPLUS} tone="worst" note="2024" />
+            <Stat label="Party list" value={nat.excess.list} tone="mid" note="stranded" />
+            <Stat label="STV" value={nat.excess.stv} tone="best" note="transferred" />
+          </div>
+        </Card>
+        </div>
+      </CollapsibleSection>
+
+      {chamber}
 
       <Card className="p-4">
         <StateSeatsTable stateMap={stateMap} wyoming={wyoming} />

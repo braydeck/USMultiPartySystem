@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
+import { useUrlState } from '../../hooks/useUrlState';
 
 /**
  * A section the reader opens on demand.
@@ -6,18 +7,26 @@ import { useState, type ReactNode } from 'react';
  * Collapsed by default: these hold supporting detail on a page whose spine is the
  * headline comparison, the seat-share chart and the map. Content is unmounted while
  * closed, not hidden, so the charts inside cost nothing until they are asked for.
+ *
+ * Open/closed lives in the URL under `id`, which does two things: the STV and
+ * party-list views mount separate instances of the same section, so without it the page
+ * would slam shut every time the reader switched system; and a link carries what the
+ * sender had open. Closed is the default, so a shut section adds nothing to the URL.
  */
 interface Props {
+  /** URL key, shared by every view that renders this same section. */
+  id: string;
   /** Shown on the closed button, e.g. "See party profiles". */
   title: string;
   /** Optional one-line hint beside the title. */
   hint?: string;
   children: ReactNode;
-  defaultOpen?: boolean;
 }
 
-export function CollapsibleSection({ title, hint, children, defaultOpen = false }: Props) {
-  const [open, setOpen] = useState(defaultOpen);
+export function CollapsibleSection({ id, title, hint, children }: Props) {
+  const [raw, setRaw] = useUrlState<string>(id, '', { allowed: ['', '1'] });
+  const open = raw === '1';
+  const setOpen = (fn: (o: boolean) => boolean) => setRaw(fn(open) ? '1' : '');
   return (
     <div className="rounded-lg border border-border bg-card">
       <button

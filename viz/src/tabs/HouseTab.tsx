@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useUrlState } from '../hooks/useUrlState';
+import { usePartyHighlight } from '../hooks/usePartyHighlight';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { HouseSeat, TransferMatrix, VoteModelRow, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
@@ -206,8 +207,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
   const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
   const [mapState, setMapState] = useUrlState<string>('mapstate', 'national');
-  // Shared by the map and the grid, so switching views keeps the coalition you built.
-  const [highlight, setHighlight] = useState<ReadonlySet<string>>(new Set());
+  const [highlight, setHighlight] = usePartyHighlight();
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: [...DISPLAY_FACTORS] });
   const [seatShareState, setSeatShareState] = useUrlState<string>('state', 'national');
 
@@ -366,7 +366,8 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
     return map;
   }, [activeFdHouseSeats]);
 
-  const parliamentSegments: ParliamentSegment[] = activeSeats
+  const parliamentSeats = (system === 'list' ? partyListSeatsForChart : activeSeats) ?? [];
+  const parliamentSegments: ParliamentSegment[] = parliamentSeats
     .filter(s => s.national > 0)
     .map(s => {
       const code = s.party === 7 ? 'OAO' : (CLUSTER_TO_PARTY[String(s.party)] ?? '');
@@ -375,6 +376,52 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
     })
     .filter(s => s.code)
     .sort((a, b) => a.fVal - b.fVal);
+
+  // Built once and handed to whichever view is on screen, so the reader meets the same
+  // card in the same slot under STV and party list.
+  const chamberNode = (
+  <Card className="p-4">
+    <div className="flex flex-wrap items-center gap-2 mb-3">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Chamber Composition</h3>
+      <span className="text-xs text-muted-foreground">— order by:</span>
+      {DISPLAY_FACTORS.map(f => (
+        <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
+          variant={parliamentFactor === f ? 'default' : 'secondary'}
+          size="sm">
+          {FACTOR_LABELS[f]}
+        </Button>
+      ))}
+    </div>
+    <ParliamentChart segments={parliamentSegments} factor={parliamentFactor} />
+  </Card>
+  );
+  const constellationNode = (
+  <Card className="p-4">
+    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+      Ideological Constellation
+    </h3>
+    <IdeologicalConstellation
+      nodes={(() => {
+        if (scenario === 'factorDev') {
+          const fdNodes = fdCandidatePositions
+            .filter(c => (activeFdSeatsByCode[c.code] ?? 0) > 0)
+            .map(c => ({
+              id: c.code,
+              label: c.axis === 'base' ? c.party : c.code,
+              seats: activeFdSeatsByCode[c.code] ?? 1,
+              F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
+            }));
+          return fdNodes.length > 0 ? fdNodes : [];
+        }
+        return clusters
+          .filter(c => (c as any).seatsHouse > 0)
+          .map(c => clusterToNode(c));
+      })()}
+      transfers={scenario === 'rawMulti' ? transfers : undefined}
+      clusterSpreads={clusterSpreads}
+    />
+  </Card>
+  );
 
   return (
     <div className="space-y-8">
@@ -407,7 +454,8 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
       {system === 'list' && (plConfig
         ? <PartyListView config={plConfig} wyoming={wyoming} doubleConfig={plConfigDouble}
             districtCountyMap={wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap}
-            houseU={houseUList} gi={gi} />
+            houseU={houseUList} gi={gi} clusters={orderedClusters}
+            profilesExtra={constellationNode} chamber={chamberNode} />
         : <div className="py-24 text-center text-sm text-muted-foreground">Loading party-list results…</div>)}
 
       {system === 'stv' && (<>
@@ -429,34 +477,10 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
 
       {/* Party profiles — supporting detail, opened on demand. The ideological
           constellation closes it out: same subject, heaviest chart. */}
-      <CollapsibleSection title="See party profiles" hint="Ten parties, their positions and who they draw from">
+      <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
         {/* Nine-Party Profiles — above the map */}
         <PartyProfileGrid clusters={orderedClusters} />
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-            Ideological Constellation
-          </h3>
-          <IdeologicalConstellation
-            nodes={(() => {
-              if (scenario === 'factorDev') {
-                const fdNodes = fdCandidatePositions
-                  .filter(c => (activeFdSeatsByCode[c.code] ?? 0) > 0)
-                  .map(c => ({
-                    id: c.code,
-                    label: c.axis === 'base' ? c.party : c.code,
-                    seats: activeFdSeatsByCode[c.code] ?? 1,
-                    F1: c.F1, F2: c.F2, F3: c.F3, F4: c.F4, F5: c.F5,
-                  }));
-                return fdNodes.length > 0 ? fdNodes : [];
-              }
-              return clusters
-                .filter(c => (c as any).seatsHouse > 0)
-                .map(c => clusterToNode(c));
-            })()}
-            transfers={scenario === 'rawMulti' ? transfers : undefined}
-            clusterSpreads={clusterSpreads}
-          />
-        </Card>
+        {constellationNode}
       </CollapsibleSection>
 
       {/* Population vs Seat Share */}
@@ -512,7 +536,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
 
       {/* Proportionality detail. Three cards across on a wide screen — they were one
           per row, each holding a couple of numbers against a screen of white space. */}
-      <CollapsibleSection title="See disproportionality" hint="Below-quota wins, unrepresented voters and over-quota surplus">
+      <CollapsibleSection id="dispro" title="See disproportionality" hint="Below-quota wins, unrepresented voters and over-quota surplus">
         <div className="grid gap-4 lg:grid-cols-3 items-start">
           {/* Seats won below quota — the exhaustion cost of shorter ballots */}
           {scenario === 'rawMulti' && belowQuota && (
@@ -581,7 +605,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
         </div>
       </CollapsibleSection>
 
-      <CollapsibleSection title="See where votes transfer" hint="Where an eliminated party's ballots go">
+      <CollapsibleSection id="transfers" title="See where votes transfer" hint="Where an eliminated party's ballots go">
         {/* Vote Transfer Destinations — filtered by state/national */}
         {scenario === 'rawMulti' && houseTransfers.length > 0 && (
           <Card className="p-4">
@@ -605,21 +629,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
         )}
       </CollapsibleSection>
 
-      {/* Chamber Composition */}
-      <Card className="p-4">
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Chamber Composition</h3>
-          <span className="text-xs text-muted-foreground">— order by:</span>
-          {DISPLAY_FACTORS.map(f => (
-            <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
-              variant={parliamentFactor === f ? 'default' : 'secondary'}
-              size="sm">
-              {f} · {FACTOR_LABELS[f]}
-            </Button>
-          ))}
-        </div>
-        <ParliamentChart segments={parliamentSegments} factor={parliamentFactor} />
-      </Card>
+      {chamberNode}
 
       {/* FD: Variant bar right after seat share */}
       {scenario === 'factorDev' && (

@@ -254,7 +254,10 @@ export const FACTOR_SHORT: Record<string, string> = {
 // Factors shown in party-facing displays. F3 (Government Distrust) is a non-interpretable
 // residual whose party scores run OPPOSITE to real distrust (see docs/EFA_FACTORS.md); it is
 // excluded here and surfaced only in the About factor reference, flagged as a residual.
-export const DISPLAY_FACTORS = ['F1', 'F2', 'F4', 'F5'] as const;
+// Strength order: how much each factor separates the parties. Everything that lists
+// factors — chamber composition, party cards, quiz results — reads this, so the reader
+// meets them in the same order and the strongest one first.
+export const DISPLAY_FACTORS = ['F1', 'F5', 'F2', 'F4'] as const;
 
 /** Single-hue purple ramp for discriminatory strength (η², ~0–0.8): light = weak, dark = strong. */
 export function etaPurple(eta: number): string {

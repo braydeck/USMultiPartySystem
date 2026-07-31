@@ -27,15 +27,17 @@ import type { DistrictResult } from '../../types';
  * poster it was tuned on and a sub-pixel line just disappears.
  */
 const W_SEAT_R = 0.0284, W_DISTRICT_R = 0.265, W_CASING_R = 0.425, W_STATE_R = 0.193;
-const MIN_SEAT = 0.55, MIN_DISTRICT = 1.9, MIN_STATE = 1.1;
+const MIN_SEAT = 0.55, MIN_DISTRICT = 1.9, MIN_STATE = 1.45;
 const CASING_RATIO = W_CASING_R / W_DISTRICT_R;
 
 /**
- * District borders run heavier than the print calibration. The poster's hexes are about
- * five times bigger, so 0.265R reads as a firm border there; at app scale the same ratio
- * leaves the district competing with the seat lines rather than overriding them.
+ * District borders sat at 1.6x the print calibration, which the floors then compounded:
+ * at the sizes this actually renders the district line came out around 3px against a
+ * state outline of 1.1px or less, so the internal divisions shouted over the container
+ * and over the party colours, which are the point of the map. Halved, and the state
+ * floor raised, so the hierarchy runs state > district > seat again.
  */
-const DISTRICT_EMPHASIS = 1.6;
+const DISTRICT_EMPHASIS = 0.8;
 
 /**
  * Seat boundaries are grey, not white, so the two line colours carry the hierarchy on

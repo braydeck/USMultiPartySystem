@@ -36,6 +36,21 @@ function bandOf(v: number): number {
   return i;
 }
 
+/**
+ * One seat, as a pointy-top hexagon of circumradius r.
+ *
+ * Matches the seat cartogram, where a hexagon is also exactly one seat — so the same
+ * shape means the same thing on both charts.
+ */
+function hexAt(cx: number, cy: number, r: number): string {
+  let d = '';
+  for (let k = 0; k < 6; k++) {
+    const a = (k * Math.PI) / 3;
+    d += `${k ? 'L' : 'M'}${(cx + r * Math.sin(a)).toFixed(2)} ${(cy + r * Math.cos(a)).toFixed(2)}`;
+  }
+  return d + 'Z';
+}
+
 export function ParliamentChart({ segments, factor, globalRange }: Props) {
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
 
@@ -95,15 +110,7 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
               style={{ transition: 'opacity 0.15s' }}
             >
               {positions.map((pos, i) => (
-                <rect
-                  key={i}
-                  x={pos.cx - dotSize / 2}
-                  y={pos.cy - dotSize / 2}
-                  width={dotSize}
-                  height={dotSize}
-                  fill={getBlendColor(code)}
-                  rx={dotSize * 0.15}
-                />
+                <path key={i} d={hexAt(pos.cx, pos.cy, dotSize * 0.62)} fill={getBlendColor(code)} />
               ))}
             </g>
           ))}

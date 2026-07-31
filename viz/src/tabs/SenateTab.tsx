@@ -286,7 +286,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
             <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
               variant={parliamentFactor === f ? 'default' : 'secondary'}
               size="sm">
-              {f} · {FACTOR_LABELS[f]}
+              {FACTOR_LABELS[f]}
             </Button>
           ))}
         </div>
