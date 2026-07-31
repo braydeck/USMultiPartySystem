@@ -191,6 +191,8 @@ def main():
                          "clipped to it")
     ap.add_argument("--district-scale", type=float, default=1.0,
                     help="multiply the auto district line weight")
+    ap.add_argument("--fixed-weight", action="store_true",
+                    help="do not scale the district line weight with hex size")
     ap.add_argument("--sharp", action="store_true",
                     help="skip corner rounding on district borders")
     ap.add_argument("--report-labels", action="store_true",
@@ -212,7 +214,8 @@ def main():
     R, x0, y0 = meta["R"], meta["x0"], meta["y0"]
     colors, names, left_right = load_palette()
     lw = args.px_per_deg / REF_PX_PER_DEG
-    w_dist, w_casing, w_gap = district_weights(R, args.district_scale)
+    w_dist, w_casing, w_gap = district_weights(
+        R_CALIB if args.fixed_weight else R, args.district_scale)
 
     def core_centres(st):
         return [hex_center(c["col"], c["row"], R, x0, y0)
