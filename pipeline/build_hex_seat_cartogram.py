@@ -122,6 +122,11 @@ def hex_center(col, row, R, x0, y0):
     return (x0 + w * (col + 0.5 * (row & 1)), y0 + 1.5 * R * row)
 
 
+def axial(col, row):
+    """Odd-r offset coords -> axial (q, r), where lattice arithmetic is linear."""
+    return col - (row - (row & 1)) // 2, row
+
+
 def nearest_cell(x, y, R, x0, y0):
     """The lattice cell whose hexagon contains (x, y).
 
@@ -759,7 +764,7 @@ def left_right_order():
     return order or LEFT_RIGHT_FALLBACK
 
 
-def group_into_seats(cellset, size, R, x0, y0):
+def group_into_seats(cellset, size, R, x0, y0, strict=False):
     """Partition a district's cells into connected groups of `size` — one per seat.
 
     size=1 is the plain one-hexagon-per-seat map. size=2 makes each seat a domino of two
@@ -795,7 +800,30 @@ def group_into_seats(cellset, size, R, x0, y0):
         def touching(c):
             return sum(1 for nb in neighbors(*c) if nb in gset)
 
-        return sorted(opts, key=lambda c: (-touching(c), free_degree(c), c))
+        if strict:
+            # Only shapes where the new cell touches every cell already in the group.
+            # For size 3 that admits the triangle and nothing else — no strings, no Ls.
+            opts = {c for c in opts if touching(c) == len(gset)}
+
+        def straightens(c):
+            """True if adding c to a 2-cell group makes three cells in a row.
+
+            A bent trio still reads as a clump; a straight one reads as a bar and is the
+            shape that makes a seat hard to tell from its neighbour. Prefer the bend
+            whenever a full triangle is not available.
+            """
+            if len(group) != 2:
+                return False
+            a, b = group
+            if c in neighbors(*a) and c in neighbors(*b):
+                return False                     # triangle, not a line
+            mid, end = (b, a) if c in neighbors(*b) else (a, b)
+            qm, rm = axial(*mid)
+            return (axial(*c)[0] - qm, axial(*c)[1] - rm) == (qm - axial(*end)[0],
+                                                              rm - axial(*end)[1])
+
+        return sorted(opts, key=lambda c: (-touching(c), straightens(c),
+                                           free_degree(c), c))
 
     def solve():
         if not free:
@@ -822,7 +850,13 @@ def group_into_seats(cellset, size, R, x0, y0):
         free.add(start)
         return False
 
-    if not solve():
+    if not solve() and strict:
+        return None          # this blob admits no all-strict partition
+    if not free and not groups:
+        pass
+    if groups and sum(len(g) for g in groups) < len(cellset):
+        pass
+    if not groups or sum(len(g) for g in groups) != len(cellset):
         # No exact partition exists for this blob (an odd or pinched shape). Fall back to
         # greedy so the map still renders, and let the caller warn about the seat count.
         free = set(cellset)
@@ -866,6 +900,25 @@ def group_into_seats(cellset, size, R, x0, y0):
         gs = set(g)
         return sum(1 for c in gs for nb in neighbors(*c) if nb in gs) // 2
 
+    def is_line(g):
+        """A trio in a straight row — the one 3-cell shape that reads as a bar."""
+        if len(g) != 3:
+            return False
+        gs = set(g)
+        deg = {c: sum(1 for nb in neighbors(*c) if nb in gs) for c in gs}
+        if sorted(deg.values()) != [1, 1, 2]:
+            return False
+        mid = max(deg, key=lambda c: deg[c])
+        a, b = [c for c in gs if c != mid]
+        qm, rm = axial(*mid)
+        return (axial(*a)[0] - qm, axial(*a)[1] - rm) == (qm - axial(*b)[0],
+                                                          rm - axial(*b)[1])
+
+    def score(g):
+        # Contacts dominate; straightness breaks ties, so the polish never trades a bend
+        # for a bar of equal compactness.
+        return contacts(g) * 10 - (3 if is_line(g) else 0)
+
     owner = {}
     for gi, g in enumerate(groups):
         for c in g:
@@ -888,7 +941,7 @@ def group_into_seats(cellset, size, R, x0, y0):
                             continue
                         if len(largest_component(set(nh))) != len(nh):
                             continue
-                        if contacts(ng) + contacts(nh) > contacts(g) + contacts(h):
+                        if score(ng) + score(nh) > score(g) + score(h):
                             groups[gi], groups[gj] = ng, nh
                             g, h = ng, nh
                             owner[back] = gi
@@ -1080,9 +1133,12 @@ def main():
     print("\nstep 3 — seats and parties")
     order = left_right_order()
     seat_of_cell, party_of_seat = {}, {}
-    short = 0
+    short = strict_fail = 0
     for d, cellset in cells_by_dist.items():
-        grouped = group_into_seats(cellset, cpp, R, x0, y0)
+        grouped = group_into_seats(cellset, cpp, R, x0, y0, strict=True)
+        if grouped is None:
+            grouped = group_into_seats(cellset, cpp, R, x0, y0)
+            strict_fail += 1
         seat_cells = defaultdict(list)
         for c, seat in grouped.items():
             seat_cells[seat].append(c)
@@ -1090,6 +1146,7 @@ def main():
         seat_of_cell.update(grouped)
         party_of_seat.update(
             assign_parties(seat_cells, districts[d]["elected"], R, x0, y0, order))
+    print(f"   districts needing a non-strict shape: {strict_fail} of {len(cells_by_dist)}")
     print(f"   seats: {len(party_of_seat)} from {len(seat_of_cell)} cells"
           f"  (left\u2192right order: {' '.join(order)})")
     if short:
