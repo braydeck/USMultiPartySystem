@@ -58,7 +58,7 @@ R_CALIB = 0.1886        # the 5-cells-per-seat lattice, where these weights look
 
 def district_weights(R, scale):
     """Dark line and casing widths for a lattice of circumradius R."""
-    k = min(2.2, max(1.0, (R / R_CALIB) ** 0.75)) * scale
+    k = min(1.8, max(1.0, (R / R_CALIB) ** 0.55)) * scale
     return W_DISTRICT_CASED * k, W_CASING * k, W_DISTRICT_GAP * k
 C_SEAT, C_DISTRICT, C_STATE = "#ffffff", "#111827", "#0b1220"
 
