@@ -224,6 +224,41 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
 
       {/* Same slot, id and content as the STV view, so switching system does not
           reshuffle the page or slam an open section shut. */}
+      {/* The two wasted-vote numbers are the headline cost of the current system, not a
+          drill-down: a vote that elected nobody and a vote piled on a safe winner are the
+          same waste from opposite directions. They read beside the seat comparison. */}
+      <div className="grid gap-4 lg:grid-cols-2 items-start">
+      <div className="grid gap-4 lg:grid-cols-3 items-start">
+      {/* Headline: voters left unrepresented */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Voters left unrepresented
+        </h3>
+        <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+        <div className="grid grid-cols-3 gap-2">
+          <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
+          <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
+          <Stat label="STV" value={nat.unrepresented.stv} tone="best" />
+        </div>
+      </Card>
+
+      {/* Over-quota surplus */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Over-quota surplus
+        </h3>
+        <p className="text-xs text-muted-foreground mb-4">
+          Votes above what a winner needed.
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <Stat label="Today's House" value={CURRENT_SURPLUS} tone="worst" note="2024" />
+          <Stat label="Party list" value={nat.excess.list} tone="mid" note="stranded" />
+          <Stat label="STV" value={nat.excess.stv} tone="best" note="transferred" />
+        </div>
+      </Card>
+      </div>
+      </div>
+
       <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
         <PartyProfileGrid clusters={clusters} />
         {profilesExtra}
@@ -261,8 +296,12 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
         <UrbSubRurChart seats={tierSeats} />
       </Card>
 
-      <CollapsibleSection id="seatshare" title="See votes vs seat share"
-        hint="What each party earns against what it wins">
+      <CollapsibleSection id="dispro" title="See disproportionality"
+        hint="Votes against seats, and how it varies by state">
+        <section>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Votes against seats
+          </h4>
         <div className="flex items-center justify-end gap-2 mb-1">
           <select value={selState} onChange={e => setSelState(e.target.value)}
             className="rounded-md border border-border bg-card px-2 py-1 text-xs">
@@ -294,45 +333,15 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
             })}
           </div>
         )}
+        </section>
+
+        {fptpDispro}
       </CollapsibleSection>
 
-      <CollapsibleSection id="dispro" title="See disproportionality" hint="Unrepresented voters and over-quota surplus">
-        <div className="grid gap-4 lg:grid-cols-3 items-start">
-        {/* Headline: voters left unrepresented */}
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            Voters left unrepresented
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
-          <div className="grid grid-cols-3 gap-2">
-            <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
-            <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
-            <Stat label="STV" value={nat.unrepresented.stv} tone="best" />
-          </div>
-        </Card>
-
-        {/* Over-quota surplus */}
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            Over-quota surplus
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">
-            Votes above what a winner needed.
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            <Stat label="Today's House" value={CURRENT_SURPLUS} tone="worst" note="2024" />
-            <Stat label="Party list" value={nat.excess.list} tone="mid" note="stranded" />
-            <Stat label="STV" value={nat.excess.stv} tone="best" note="transferred" />
-          </div>
-        </Card>
-        </div>
-      </CollapsibleSection>
-
-      {fptpDispro}
-
-      <Card className="p-4">
+      <CollapsibleSection id="perstate" title="See how seats change per state"
+        hint="Every state's delegation, the list against today's House">
         <StateSeatsTable stateMap={stateMap} wyoming={wyoming} />
-      </Card>
+      </CollapsibleSection>
     </div>
   );
 }

@@ -341,7 +341,6 @@ export default function App() {
             seats={houseSeatsData as HouseSeat[]}
             seatsProbBased={houseSeatsProbBasedData as HouseSeat[]}
             transfers={transferMatrixData as unknown as TransferMatrix}
-            voteModel={houseVoteModelData as VoteModelRow[]}
             stateMap={houseStateMapData as unknown as Record<string, HouseStateEntry>}
             clusters={clusterProfilesData as ClusterProfile[]}
             fdHouseSeats={fdHouseSeatsData as unknown as FDHouseSeat[]}

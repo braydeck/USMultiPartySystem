@@ -1,11 +1,10 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useUrlState } from '../hooks/useUrlState';
+import { useUrlState, resetUrlParams } from '../hooks/useUrlState';
 import { usePartyHighlight } from '../hooks/usePartyHighlight';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { HouseSeat, TransferMatrix, VoteModelRow, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
-import { BillSimulator } from '../components/house/BillSimulator';
 import { HouseMap } from '../components/house/HouseMap';
 import { HouseGridChart } from '../components/house/HouseGridChart';
 import { PartyHighlightFilter } from '../components/house/PartyHighlightFilter';
@@ -102,7 +101,6 @@ interface Props {
   seats: HouseSeat[];
   seatsProbBased: HouseSeat[];
   transfers: TransferMatrix;
-  voteModel: VoteModelRow[];
   stateMap: Record<string, HouseStateEntry>;
   clusters: ClusterProfile[];
   fdHouseSeats: FDHouseSeat[];
@@ -145,7 +143,7 @@ const DEPTH_NATIONAL = depthNational as unknown as Record<string, Record<string,
 const CLUSTER_OF: Record<string, number> = Object.fromEntries(
   Object.entries(CLUSTER_TO_PARTY).map(([k, v]) => [v, Number(k)]));
 
-export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
+export function HouseTab({ seats, transfers, clusters, fptpStates, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Voting system: STV (default) vs a Hare-quota party list on the same districts.
@@ -168,7 +166,6 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   useEffect(() => {
     if (!hvmDepth) fetch(`${import.meta.env.BASE_URL}data/houseVoteModelDepth.json`).then(r => r.json()).then(setHvmDepth).catch(() => {});
   }, [hvmDepth]);
-  const billRows = hvmDepth?.[depth]?.[part] ?? voteModel;
   const plConfig = plData?.[depth]?.[wyoming]?.[part];
   // Double-Wyoming party-list config, for the party-list view's double-vs-triple comparison rows.
   const plConfigDouble = plData?.[depth]?.['double']?.[part];
@@ -407,10 +404,16 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   </Card>
   );
   const fptpDisproNode = fptpStates.length > 0 ? (
-    <CollapsibleSection id="fptpstate" title="See disproportionality by state"
-      hint="How far each state&apos;s FPTP result diverges from proportional">
+    <section>
+      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        By state
+      </h4>
+      <p className="text-xs text-muted-foreground mb-3">
+        How far each state&apos;s FPTP result diverges from proportional, and what the same
+        state returns under each of the two proportional rules.
+      </p>
       <FPTPDisproportionality states={fptpStates} stateMap={activeStateMap} listStateMap={listStateMap} />
-    </CollapsibleSection>
+    </section>
   ) : null;
   const constellationNode = (
   <Card className="p-4">
@@ -495,6 +498,55 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
 
       {/* Party profiles — supporting detail, opened on demand. The ideological
           constellation closes it out: same subject, heaviest chart. */}
+      {/* The two wasted-vote numbers are the headline cost of the current system, not a
+          drill-down: a vote that elected nobody and a vote piled on a safe winner are the
+          same waste from opposite directions. They read beside the seat comparison. */}
+      {scenario === 'rawMulti' && plConfig && (
+        <div className="grid gap-4 lg:grid-cols-2 items-start">
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              Voters left unrepresented
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
+                <div className="text-[11px] text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
+                <div className="text-2xl font-bold tabular-nums text-rose-700">35.8%</div>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="text-[11px] text-muted-foreground">Party list</div>
+                <div className="text-2xl font-bold tabular-nums text-foreground">{plConfig.national.unrepresented.list.toFixed(1)}%</div>
+              </div>
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <div className="text-[11px] text-muted-foreground">STV</div>
+                <div className="text-2xl font-bold tabular-nums text-emerald-700">{plConfig.national.unrepresented.stv.toFixed(1)}%</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              Over-quota surplus
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">Votes above what a winner needed.</p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
+                <div className="text-[11px] text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
+                <div className="text-2xl font-bold tabular-nums text-rose-700">14.2%</div>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="text-[11px] text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
+                <div className="text-2xl font-bold tabular-nums text-foreground">{plConfig.national.excess.list.toFixed(1)}%</div>
+              </div>
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <div className="text-[11px] text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
+                <div className="text-2xl font-bold tabular-nums text-emerald-700">{plConfig.national.excess.stv.toFixed(1)}%</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
       <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
         {/* Nine-Party Profiles — above the map */}
         <PartyProfileGrid clusters={orderedClusters} />
@@ -537,6 +589,28 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
       </Card>
 
 
+      {/* Vote Transfer Destinations — filtered by state/national */}
+      {scenario === 'rawMulti' && houseTransfers.length > 0 && (
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            {seatShareState === 'national'
+              ? "When a party is eliminated in STV, where do their voters\u2019 ballots flow?"
+              : `Showing parties that won seats in ${seatShareState}. Transfer patterns are national averages.`}
+          </p>
+          <TransferFlowChart
+            data={houseTransfers}
+            filterParties={seatShareState === 'national' ? undefined : (() => {
+              const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
+              const entry = fips ? activeStateMap[fips] : undefined;
+              return entry ? Object.keys(entry.seats) : undefined;
+            })()}
+          />
+        </Card>
+      )}
+
       {/* FD: Variant bar right after seat share */}
       {scenario === 'factorDev' && (
         <Card className="p-4">
@@ -555,29 +629,34 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           ═══════════════════════════════════════════════════════════════════════ */}
 
       {/* Population vs Seat Share */}
-      <CollapsibleSection id="seatshare" title="See votes vs seat share"
-        hint="What each party earns against what it wins">
-        <ScenarioComparison
-          showHeading={false}
-          rawMultiSeats={stvDepthSeats ?? (wyoming === 'triple' ? seatsTripleGi : rmSeats)}
-          fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
-          scenario={scenario}
-          wyoming={wyoming}
-          doubleSeats={rmSeats}
-          doubleFdSeats={fdSeatsAggregated}
-          stateMap={activeStateMap}
-          doubleStateMap={rmStateMap}
-          selectedState={seatShareState}
-          onStateChange={setSeatShareState}
-          houseU={houseU}
-          gi={gi}
-        />
-      </CollapsibleSection>
+      {/* Three measures of the same thing — what a party earns against what it wins,
+          what that costs voters, and how it varies by state — so they read as one
+          section rather than three cards a reader has to connect. */}
+      <CollapsibleSection id="dispro" title="See disproportionality"
+        hint="Votes against seats, what it costs voters, and how it varies by state">
+        <section>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Votes against seats
+          </h4>
+          <ScenarioComparison
+            showHeading={false}
+            rawMultiSeats={stvDepthSeats ?? (wyoming === 'triple' ? seatsTripleGi : rmSeats)}
+            fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
+            scenario={scenario}
+            wyoming={wyoming}
+            doubleSeats={rmSeats}
+            doubleFdSeats={fdSeatsAggregated}
+            stateMap={activeStateMap}
+            doubleStateMap={rmStateMap}
+            selectedState={seatShareState}
+            onStateChange={setSeatShareState}
+            houseU={houseU}
+            gi={gi}
+          />
+        </section>
 
-      {/* Proportionality detail. Three cards across on a wide screen — they were one
-          per row, each holding a couple of numbers against a screen of white space. */}
-      <CollapsibleSection id="dispro" title="See disproportionality" hint="Below-quota wins, unrepresented voters and over-quota surplus">
-        <div className="grid gap-4 lg:grid-cols-3 items-start">
+        <section>
+          <div className="grid gap-4 lg:grid-cols-3 items-start">
           {/* Seats won below quota — the exhaustion cost of shorter ballots */}
           {scenario === 'rawMulti' && belowQuota && (
             <Card className="p-4">
@@ -596,80 +675,11 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
               </div>
             </Card>
           )}
-          {/* Voters left unrepresented + over-quota surplus (mirrored from party-list view) */}
-          {scenario === 'rawMulti' && plConfig && (
-            <>
-              <Card className="p-4">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-                  Voters left unrepresented
-                </h3>
-                <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                    <div className="text-[11px] text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
-                    <div className="text-2xl font-bold tabular-nums text-rose-700">35.8%</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/40 p-3">
-                    <div className="text-[11px] text-muted-foreground">Party list</div>
-                    <div className="text-2xl font-bold tabular-nums text-foreground">{plConfig.national.unrepresented.list.toFixed(1)}%</div>
-                  </div>
-                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                    <div className="text-[11px] text-muted-foreground">STV</div>
-                    <div className="text-2xl font-bold tabular-nums text-emerald-700">{plConfig.national.unrepresented.stv.toFixed(1)}%</div>
-                  </div>
-                </div>
-              </Card>
+          </div>
+        </section>
 
-              <Card className="p-4">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-                  Over-quota surplus
-                </h3>
-                <p className="text-xs text-muted-foreground mb-4">Votes above what a winner needed.</p>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                    <div className="text-[11px] text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
-                    <div className="text-2xl font-bold tabular-nums text-rose-700">14.2%</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/40 p-3">
-                    <div className="text-[11px] text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
-                    <div className="text-2xl font-bold tabular-nums text-foreground">{plConfig.national.excess.list.toFixed(1)}%</div>
-                  </div>
-                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                    <div className="text-[11px] text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
-                    <div className="text-2xl font-bold tabular-nums text-emerald-700">{plConfig.national.excess.stv.toFixed(1)}%</div>
-                  </div>
-                </div>
-              </Card>
-            </>
-          )}
-        </div>
+        {fptpDisproNode}
       </CollapsibleSection>
-
-      <CollapsibleSection id="transfers" title="See where votes transfer" hint="Where an eliminated party's ballots go">
-        {/* Vote Transfer Destinations — filtered by state/national */}
-        {scenario === 'rawMulti' && houseTransfers.length > 0 && (
-          <Card className="p-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-              Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4">
-              {seatShareState === 'national'
-                ? "When a party is eliminated in STV, where do their voters\u2019 ballots flow?"
-                : `Showing parties that won seats in ${seatShareState}. Transfer patterns are national averages.`}
-            </p>
-            <TransferFlowChart
-              data={houseTransfers}
-              filterParties={seatShareState === 'national' ? undefined : (() => {
-                const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
-                const entry = fips ? activeStateMap[fips] : undefined;
-                return entry ? Object.keys(entry.seats) : undefined;
-              })()}
-            />
-          </Card>
-        )}
-      </CollapsibleSection>
-
-      {fptpDisproNode}
 
       {/* Vote Transfer Destinations removed — now below Population vs Seat Share */}
 
@@ -678,23 +688,23 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           ═══════════════════════════════════════════════════════════════════════ */}
 
 
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-          Bill Simulator
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Probability of passage based on the House seat composition.
-        </p>
-        <BillSimulator rows={billRows} probField={
-          wyoming === 'triple'
-            ? (scenario === 'rawMulti' ? 'houseRawMultiTripleProbPass' : 'houseFDTripleProbPass')
-            : (scenario === 'rawMulti' ? 'houseRawMultiProbPass' : 'houseFDProbPass')
-        } />
+      <Card className="p-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            How this chamber votes on bills
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            The bill simulator lives on the Legislation tab, where the whipping rules and the
+            full bill set are.
+          </p>
+        </div>
+        <Button onClick={() => resetUrlParams({ tab: 'legislation' })}>Open Legislation</Button>
       </Card>
 
-      <Card className="p-4">
+      <CollapsibleSection id="perstate" title="See how seats change per state"
+        hint="Every state's delegation, STV against today's House">
         <StateSeatsTable stateMap={activeStateMap} wyoming={wyoming} />
-      </Card>
+      </CollapsibleSection>
 
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 4: FACTOR DEV VARIANT ANALYSIS (FD only, at bottom)
