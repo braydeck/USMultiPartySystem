@@ -3329,23 +3329,28 @@ def build_party_population():
         # two 2024 turnout numbers side by side inviting someone to grab the wrong one. The
         # corrected figure lives in turnout_propensity.csv and turnoutVerification.json.
     } for k, code in enumerate(CODES)]
-    # turnoutPresidential / turnoutMidterm are not derivable here: they come from the cross-wave
-    # imposed-2024-Gaussian analysis (2024 vs 2022 validated turnout), which no script in the repo
-    # reproduces — see the wave-turnout-partypopulation note. They were hand-written into this file,
-    # so carry them forward instead of dropping them; without this, running prepare_data.py silently
-    # strips two fields the Single Race cycle model needs and the build fails on the missing type.
+    # turnoutPresidential / turnoutMidterm come from the cross-wave analysis
+    # (analysis/efa/previous_years/compare/turnout_by_wave.py): 2024 canonical labels and 2022
+    # imposed through the supervised 2024 Gaussian, both on the validated voter file. Read from its
+    # CSV so this file is reproducible; fall back to carrying the existing values forward if the
+    # analysis has not been run, since the Single Race cycle model needs both fields present.
+    tbw = OUTPUTS.parent.parent / "analysis" / "efa" / "previous_years" / "outputs" / "turnout_by_wave.csv"
+    cycles = {}
+    if tbw.exists():
+        for r in read_csv(tbw):
+            cycles[r["party"]] = {k: round(float(r[k]), 1)
+                                  for k in ("turnoutPresidential", "turnoutMidterm")}
     prior_path = DATA_OUT / "partyPopulation.json"
+    prior = {}
     if prior_path.exists():
         with open(prior_path, encoding="utf-8") as f:
             prior = {r["party"]: r for r in json.load(f)}
-        carried = 0
-        for r in rows:
-            for key in ("turnoutPresidential", "turnoutMidterm"):
-                if key not in r and key in prior.get(r["party"], {}):
-                    r[key] = prior[r["party"]][key]
-                    carried += 1
-        if carried:
-            print(f"  partyPopulation: carried {carried} hand-authored turnout field(s) forward")
+    for r in rows:
+        src = cycles.get(r["party"]) or prior.get(r["party"], {})
+        for key in ("turnoutPresidential", "turnoutMidterm"):
+            if key in src:
+                r[key] = src[key]
+    print(f"  partyPopulation: cycle turnout from {'turnout_by_wave.csv' if cycles else 'the existing payload'}")
     write_json(rows, "partyPopulation.json")
 
 
