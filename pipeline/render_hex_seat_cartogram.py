@@ -97,6 +97,8 @@ def main():
     ap.add_argument("--no-clip", action="store_true",
                     help="let hexagons extend past the state border instead of being "
                          "clipped to it")
+    ap.add_argument("--report-labels", action="store_true",
+                    help="print which side each state label landed on")
     ap.add_argument("--label-size", type=float, default=17.0,
                     help="state label point size at the reference scale")
     ap.add_argument("--explode", type=float, default=1.0,
@@ -250,68 +252,123 @@ def main():
                         solid_capstyle="round", solid_joinstyle="round")
 
     if not args.no_labels:
-        # Labels outside the state, as the published hexmap does: a label on top of the
-        # tiles competes with ten party fills, and a two-hex state has nowhere legible to
-        # put one. Placement is by fixed preference — bottom-right for every state that
-        # can take it, so the eye learns where to look — falling back through the other
-        # corners only where a neighbour is in the way.
-        DIRECTIONS = [(0.71, -0.71), (-0.71, -0.71), (0.71, 0.71), (-0.71, 0.71),
-                      (0.0, -1.0), (1.0, 0.0), (0.0, 1.0), (-1.0, 0.0)]
+        # Labels sit outside the state, hugging its silhouette. Each candidate is a side
+        # plus a bias along that side — "below, toward the right", "right, toward the
+        # top" — rather than a diagonal ray from the centre, which on an irregular shape
+        # strands the label out in space. Preference leans bottom-then-right so the eye
+        # learns one place to look; a state only moves elsewhere when that slot is taken.
+        # Hand-set sides where the state's own geometry has an obviously better slot
+        # than the default order finds. Each is still validated for clearance and falls
+        # back to the ordered search if something else has taken the space.
+        PREFERRED = {
+            "MA": ("bottom", "right"), "NV": ("top", "right"), "MN": ("top", "right"),
+            "MI": ("right", "top"),    "CA": ("bottom", "right"),
+            "NM": ("top", "right"),    "TX": ("bottom", "right"),
+            "MS": ("bottom", "right"), "LA": ("bottom", "right"),
+            "GA": ("right", "bottom"), "VA": ("bottom", "right"),
+            "FL": ("right", "center"), "PA": ("right", "top"),
+        }
+        CANDIDATES = [("bottom", "right"), ("right", "bottom"), ("right", "center"),
+                      ("bottom", "center"), ("right", "top"), ("top", "right"),
+                      ("bottom", "left"), ("top", "center"), ("left", "bottom"),
+                      ("left", "center"), ("top", "left"), ("left", "top")]
         occupied = np.array([shift(ab2, hex_center(c["col"], c["row"], R, x0, y0))
                              for ab2, st2 in data["states"].items()
                              for c in st2["cells"]])
 
-        # Point size → degrees, so the clearance test knows how big the text really is.
+        def silhouette(ab, st):
+            """Points tracing what is actually drawn for this state."""
+            if st["clip"] and not args.no_clip:
+                return [shift(ab, p) for r in st["rings"] for p in r]
+            out = []
+            for c in st["cells"]:
+                if c["isCore"]:
+                    out += hex_vertices(*shift(ab, hex_center(c["col"], c["row"],
+                                                              R, x0, y0)), R)
+            return out
+
         deg_per_pt = 100.0 / (72.0 * args.px_per_deg)
         fs = args.label_size * lw
         lab_h = fs * deg_per_pt
-        # Big states first, so they get the preferred bottom-right slot and the small
-        # ones adapt around them.
+
+        def anchor_for(pts, side, bias, gap):
+            xs_ = [p[0] for p in pts]; ys_ = [p[1] for p in pts]
+            xlo, xhi, ylo, yhi = min(xs_), max(xs_), min(ys_), max(ys_)
+            band = 0.30
+            if side in ("bottom", "top"):
+                keep = ([p for p in pts if p[1] <= ylo + band * (yhi - ylo)]
+                        if side == "bottom" else
+                        [p for p in pts if p[1] >= yhi - band * (yhi - ylo)])
+                px = (max(p[0] for p in keep) if bias == "right" else
+                      min(p[0] for p in keep) if bias == "left" else
+                      (xlo + xhi) / 2)
+                near = [p for p in keep if abs(p[0] - px) < 1.2 * R] or keep
+                py = min(p[1] for p in near) if side == "bottom" else max(p[1] for p in near)
+                if side == "bottom":
+                    return px, py - gap, ("left" if bias == "right" else
+                                          "right" if bias == "left" else "center"), "top"
+                return px, py + gap, ("left" if bias == "right" else
+                                      "right" if bias == "left" else "center"), "bottom"
+            keep = ([p for p in pts if p[0] >= xhi - band * (xhi - xlo)]
+                    if side == "right" else
+                    [p for p in pts if p[0] <= xlo + band * (xhi - xlo)])
+            py = (min(p[1] for p in keep) if bias == "bottom" else
+                  max(p[1] for p in keep) if bias == "top" else (ylo + yhi) / 2)
+            near = [p for p in keep if abs(p[1] - py) < 1.2 * R] or keep
+            px = max(p[0] for p in near) if side == "right" else min(p[0] for p in near)
+            va = ("top" if bias == "bottom" else "bottom" if bias == "top" else "center")
+            if side == "right":
+                return px + gap, py, "left", va
+            return px - gap, py, "right", va
+
         by_size = sorted(data["states"].items(),
                          key=lambda kv: (-len({c["core"] for c in kv[1]["cells"]
                                                if c["isCore"]}), kv[0]))
-        placements, taken_boxes = {}, []
+        placements, taken = {}, []
         for ab, st in by_size:
-            cx, cy = shift(ab, centroids[ab])
-            pts = [shift(ab, p) for p in core_centres(st)]
-            lab_w = 0.68 * lab_h * len(ab)
+            pts = silhouette(ab, st)
+            lab_w = 0.70 * lab_h * len(ab)
             chosen = None
-            for dx, dy in DIRECTIONS:
-                reach = max((p[0] - cx) * dx + (p[1] - cy) * dy for p in pts)
-                for extra in (0.9, 1.6, 2.4):
-                    ax_, ay_ = (cx + dx * (reach + extra * R), cy + dy * (reach + extra * R))
-                    ha = "left" if dx > 0.3 else "right" if dx < -0.3 else "center"
-                    va = "bottom" if dy > 0.3 else "top" if dy < -0.3 else "center"
-                    lx0 = ax_ if ha == "left" else ax_ - lab_w if ha == "right" else ax_ - lab_w / 2
-                    ly0 = ay_ if va == "bottom" else ay_ - lab_h if va == "top" else ay_ - lab_h / 2
-                    # Clear if no hexagon centre falls inside the text box, grown by a
-                    # hexagon's reach plus a little breathing room.
+            order_here = CANDIDATES
+            if ab in PREFERRED:
+                order_here = [PREFERRED[ab]] + [c for c in CANDIDATES
+                                                if c != PREFERRED[ab]]
+            for side, bias in order_here:
+                for gap in (0.55 * R, 1.1 * R, 1.8 * R):
+                    ax_, ay_, ha, va = anchor_for(pts, side, bias, gap)
+                    lx0 = (ax_ if ha == "left" else ax_ - lab_w if ha == "right"
+                           else ax_ - lab_w / 2)
+                    ly0 = (ay_ if va == "bottom" else ay_ - lab_h if va == "top"
+                           else ay_ - lab_h / 2)
                     m = 0.95 * R
-                    hit = ((occupied[:, 0] > lx0 - m) & (occupied[:, 0] < lx0 + lab_w + m)
-                           & (occupied[:, 1] > ly0 - m) & (occupied[:, 1] < ly0 + lab_h + m))
-                    if hit.any():
-                        continue
-                    box = (lx0 - m / 2, ly0 - m / 2,
-                           lx0 + lab_w + m / 2, ly0 + lab_h + m / 2)
-                    # Labels must clear each other too, not just the tiles.
+                    if ((occupied[:, 0] > lx0 - m) & (occupied[:, 0] < lx0 + lab_w + m)
+                            & (occupied[:, 1] > ly0 - m)
+                            & (occupied[:, 1] < ly0 + lab_h + m)).any():
+                        continue        # would sit on some state's tiles
+                    box = (lx0 - 0.5 * lab_h, ly0 - 0.4 * lab_h,
+                           lx0 + lab_w + 0.5 * lab_h, ly0 + lab_h + 0.4 * lab_h)
                     if any(box[0] < b[2] and b[0] < box[2]
-                           and box[1] < b[3] and b[1] < box[3] for b in taken_boxes):
-                        continue
-                    chosen = (ax_, ay_, ha, va, box)
+                           and box[1] < b[3] and b[1] < box[3] for b in taken):
+                        continue        # would sit on another label
+                    chosen = (ax_, ay_, ha, va, box, side, bias)
                     break
                 if chosen:
                     break
             if chosen is None:
-                chosen = (cx, cy, "center", "center", None)
+                cx, cy = shift(ab, centroids[ab])
+                chosen = (cx, cy, "center", "center", None, "none", "none")
             if chosen[4]:
-                taken_boxes.append(chosen[4])
-            placements[ab] = chosen[:4]
+                taken.append(chosen[4])
+            placements[ab] = chosen
 
-        for ab, (lx, ly, ha, va) in placements.items():
-            ax.text(lx, ly, ab, ha=ha, va=va, zorder=6,
+        for ab, pl in placements.items():
+            ax.text(pl[0], pl[1], ab, ha=pl[2], va=pl[3], zorder=6,
                     fontsize=fs, fontweight="bold", color="#0b1220",
                     path_effects=[matplotlib.patheffects.withStroke(
                         linewidth=0.30 * fs, foreground="white")])
+        if args.report_labels:
+            for ab, pl in sorted(placements.items()):
+                print(f"   {ab}: {pl[5]}/{pl[6]}")
 
     # Legend: one swatch per party, left→right ideological order, with seat totals.
     total = sum(tally.values())

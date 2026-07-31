@@ -781,9 +781,21 @@ def group_into_seats(cellset, size, R, x0, y0):
         return sum(1 for nb in neighbors(*c) if nb in free)
 
     def extend(group):
-        """All ways to grow `group` by one adjacent free cell, most constrained first."""
+        """Ways to grow `group` by one adjacent free cell, most compact first.
+
+        Ordering by how many cells of the group a candidate already touches is what keeps
+        seats readable: a seat is a countable unit, so five hexes in a line and five in a
+        clump must not both occur, or the reader cannot tell one seat from two. Filling
+        concavities first drives every group toward the roundest available shape, with
+        the most-constrained cell as the tie-break so nothing gets stranded.
+        """
         opts = {nb for c in group for nb in neighbors(*c) if nb in free}
-        return sorted(opts, key=lambda c: (free_degree(c), c))
+        gset = set(group)
+
+        def touching(c):
+            return sum(1 for nb in neighbors(*c) if nb in gset)
+
+        return sorted(opts, key=lambda c: (-touching(c), free_degree(c), c))
 
     def solve():
         if not free:
@@ -845,6 +857,52 @@ def group_into_seats(cellset, size, R, x0, y0):
                                                min(h)))
         other.extend(g)
         groups.remove(g)
+
+    # Local polish: trade single cells between neighbouring seats when it makes both
+    # rounder. The search above takes the first valid partition it finds, which leaves
+    # some seats strung out; swapping fills their concavities without changing any seat's
+    # size. Compactness is what makes a seat countable, so it is worth the extra pass.
+    def contacts(g):
+        gs = set(g)
+        return sum(1 for c in gs for nb in neighbors(*c) if nb in gs) // 2
+
+    owner = {}
+    for gi, g in enumerate(groups):
+        for c in g:
+            owner[c] = gi
+    for _ in range(6):
+        improved = False
+        for gi, g in enumerate(groups):
+            for cell in list(g):
+                for nb in neighbors(*cell):
+                    gj = owner.get(nb)
+                    if gj is None or gj == gi:
+                        continue
+                    h = groups[gj]
+                    for back in list(h):
+                        if not any(n in g for n in neighbors(*back)) or back == nb:
+                            continue
+                        ng = [c for c in g if c != cell] + [back]
+                        nh = [c for c in h if c != back] + [cell]
+                        if len(largest_component(set(ng))) != len(ng):
+                            continue
+                        if len(largest_component(set(nh))) != len(nh):
+                            continue
+                        if contacts(ng) + contacts(nh) > contacts(g) + contacts(h):
+                            groups[gi], groups[gj] = ng, nh
+                            g, h = ng, nh
+                            owner[back] = gi
+                            owner[cell] = gj
+                            improved = True
+                            break
+                    else:
+                        continue
+                    break
+                else:
+                    continue
+                break
+        if not improved:
+            break
 
     out = {}
     for g in groups:
