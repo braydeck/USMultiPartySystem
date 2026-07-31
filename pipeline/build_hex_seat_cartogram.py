@@ -53,6 +53,7 @@ import argparse
 import csv
 import json
 import math
+import re
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
@@ -606,16 +607,33 @@ def map_seed(real_pt, real_bbox, hex_bbox):
 
 # ── step 3: parties ──────────────────────────────────────────────────────────
 
-def assign_parties(cells_of_district, elected, R, x0, y0):
-    """Give each hexagon one elected member, grouping same-party seats together."""
+PARTIES_TS = BASE_DIR / "viz" / "src" / "constants" / "parties.ts"
+
+# Fallback only; the live order is F5_ORDER in the app's constants.
+LEFT_RIGHT_FALLBACK = ["PRG", "DSA", "LIB", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
+
+
+def left_right_order():
+    """Parties left→right, read from the app's F5_ORDER so the two cannot diverge."""
+    m = re.search(r"F5_ORDER\s*=\s*\[(.*?)\]", PARTIES_TS.read_text(), re.S)
+    order = re.findall(r"'(\w+)'", m.group(1)) if m else []
+    return order or LEFT_RIGHT_FALLBACK
+
+
+def assign_parties(cells_of_district, elected, R, x0, y0, order):
+    """Give each hexagon one elected member, laid out left→right by ideology.
+
+    Seats are dealt in F5_ORDER across the blob sorted west→east, so every district
+    reads as a left-to-right ideological gradient and same-party seats sit together.
+    """
     centers = {c: hex_center(c[0], c[1], R, x0, y0) for c in cells_of_district}
-    # Sweep the blob so same-party runs land adjacent rather than scattered.
-    ordered = sorted(cells_of_district, key=lambda c: (centers[c][1], centers[c][0], c))
+    ordered = sorted(cells_of_district, key=lambda c: (centers[c][0], centers[c][1], c))
     by_party = defaultdict(int)
     for p in elected:
         by_party[p] += 1
+    rank = {p: i for i, p in enumerate(order)}
     seq = []
-    for party in sorted(by_party, key=lambda p: (-by_party[p], p)):
+    for party in sorted(by_party, key=lambda p: (rank.get(p, len(rank)), p)):
         seq.extend([party] * by_party[party])
     return dict(zip(ordered, seq))
 
@@ -721,10 +739,11 @@ def main():
           + (f" {dict(list(broken.items())[:8])}" if broken else ""))
 
     print("\nstep 3 — parties")
+    order = left_right_order()
     party_of = {}
     for d, cellset in cells_by_dist.items():
-        party_of.update(assign_parties(cellset, districts[d]["elected"], R, x0, y0))
-    print(f"   hexagons coloured: {len(party_of)}")
+        party_of.update(assign_parties(cellset, districts[d]["elected"], R, x0, y0, order))
+    print(f"   hexagons coloured: {len(party_of)}  (left\u2192right order: {' '.join(order)})")
 
     print("\nstep 4 — fill to the state outline")
     filled = {}          # ab -> {cell: core cell it belongs to}

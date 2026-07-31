@@ -46,7 +46,10 @@ PARTIES_TS = BASE_DIR / "viz" / "src" / "constants" / "parties.ts"
 # Line weights in points at the reference scale, scaled by px-per-deg so the hierarchy
 # looks the same zoomed in as it does on the full map.
 REF_PX_PER_DEG = 58.0
-W_SEAT, W_DISTRICT, W_STATE = 0.5, 1.9, 2.8
+W_SEAT, W_STATE = 0.5, 3.4
+# 'cased' leans on a heavy dark district line; 'gap' on a wide white channel.
+W_DISTRICT_CASED, W_CASING = 3.0, 4.8
+W_DISTRICT_GAP = 3.6
 C_SEAT, C_DISTRICT, C_STATE = "#ffffff", "#111827", "#0b1220"
 
 
@@ -89,6 +92,9 @@ def main():
     ap.add_argument("--no-labels", action="store_true", help="omit state abbreviations")
     ap.add_argument("--style", choices=["cased", "gap"], default="cased",
                     help="district separation: dark line cased in white, or white gap")
+    ap.add_argument("--no-clip", action="store_true",
+                    help="let hexagons extend past the state border instead of being "
+                         "clipped to it")
     ap.add_argument("--focus", default=None,
                     help="comma-separated state abbreviations to zoom to")
     args = ap.parse_args()
@@ -108,11 +114,13 @@ def main():
     for ab, st in data["states"].items():
         if ab not in keep:
             continue
-        if st["clip"]:
+        if st["clip"] and not args.no_clip:
             xs += [p[0] for r in st["rings"] for p in r]
             ys += [p[1] for r in st["rings"] for p in r]
         else:
             for c in st["cells"]:
+                if not c["isCore"]:
+                    continue
                 cx, cy = hex_center(c["col"], c["row"], R, x0, y0)
                 for vx, vy in hex_vertices(cx, cy, R):
                     xs.append(vx)
@@ -130,8 +138,13 @@ def main():
     tally = defaultdict(int)
     districts_seen = set()
     for ab, st in sorted(data["states"].items()):
-        cells = {(c["col"], c["row"]): c for c in st["cells"]}
         n_seats = sum(c["isCore"] for c in st["cells"])
+        clipped = st["clip"] and not args.no_clip
+        # Unclipped, a seat is one whole hexagon. The boundary cells exist only to fill
+        # the outline for the clip, so drawing them here would inflate every state past
+        # its real size and let neighbours collide.
+        cells = {(c["col"], c["row"]): c for c in st["cells"]
+                 if clipped or c["isCore"]}
         w_state = state_stroke(n_seats)
         for c in st["cells"]:
             districts_seen.add(c["district"])
@@ -164,33 +177,33 @@ def main():
                   LineCollection(seat_edges, colors=C_SEAT, linewidths=W_SEAT * lw,
                                  zorder=2, alpha=0.85)]
         if args.style == "gap":
-            # Districts separated by a wider white channel: white always reads against
+            # Districts separated by a wide white channel: white always reads against
             # the saturated party fills, and gap width alone carries the hierarchy.
             layers.append(LineCollection(dist_edges, colors="#ffffff",
-                                         linewidths=W_DISTRICT * 1.9 * lw, zorder=3,
+                                         linewidths=W_DISTRICT_GAP * lw, zorder=3,
                                          capstyle="round", joinstyle="round"))
         else:
             # Dark district line cased in white so it survives both the dark fills
             # (Nationalist, Progressive) and the light ones (Labor).
             layers.append(LineCollection(dist_edges, colors="#ffffff",
-                                         linewidths=(W_DISTRICT + 1.5) * lw, zorder=3,
+                                         linewidths=W_CASING * lw, zorder=3,
                                          capstyle="round", joinstyle="round"))
             layers.append(LineCollection(dist_edges, colors=C_DISTRICT,
-                                         linewidths=W_DISTRICT * lw, zorder=4,
+                                         linewidths=W_DISTRICT_CASED * lw, zorder=4,
                                          capstyle="round", joinstyle="round"))
-        if not st["clip"]:
+        if not clipped:
             layers.append(LineCollection(hex_rim, colors=C_STATE,
                                          linewidths=w_state * lw, zorder=5,
                                          capstyle="round", joinstyle="round"))
 
-        clip = compound_path(st["rings"]) if st["clip"] else None
+        clip = compound_path(st["rings"]) if clipped else None
         for layer in layers:
             ax.add_collection(layer)
             if clip is not None:
                 layer.set_clip_path(clip, transform=ax.transData)
 
         # The state's own outline, over the clipped tiles.
-        if st["clip"]:
+        if clipped:
             for ring in st["rings"]:
                 ax.plot([p[0] for p in ring] + [ring[0][0]],
                         [p[1] for p in ring] + [ring[0][1]],
