@@ -24,6 +24,7 @@ Usage
 
 import argparse
 import json
+import math
 import re
 import sys
 from collections import defaultdict
@@ -96,6 +97,9 @@ def main():
     ap.add_argument("--no-clip", action="store_true",
                     help="let hexagons extend past the state border instead of being "
                          "clipped to it")
+    ap.add_argument("--explode", type=float, default=1.0,
+                    help="push states apart from the map centre by this factor "
+                         "(1.0 = touching as drawn, 1.08 = a visible gap)")
     ap.add_argument("--focus", default=None,
                     help="comma-separated state abbreviations to zoom to")
     args = ap.parse_args()
@@ -109,6 +113,30 @@ def main():
     colors, names, left_right = load_palette()
     lw = args.px_per_deg / REF_PX_PER_DEG
 
+    def core_centres(st):
+        return [hex_center(c["col"], c["row"], R, x0, y0)
+                for c in st["cells"] if c["isCore"]]
+
+    # Exploding the map: shift each state away from the centre as a rigid body, which
+    # widens the gaps between states without disturbing the hex packing inside any of
+    # them. Unclipped, neighbouring states share a hex edge and visually merge, so this
+    # is what makes each state readable as a separate shape.
+    all_pts = [p for st in data["states"].values() for p in core_centres(st)]
+    map_cx = sum(p[0] for p in all_pts) / len(all_pts)
+    map_cy = sum(p[1] for p in all_pts) / len(all_pts)
+    offsets, centroids = {}, {}
+    for ab, st in data["states"].items():
+        pts = core_centres(st)
+        cx = sum(p[0] for p in pts) / len(pts)
+        cy = sum(p[1] for p in pts) / len(pts)
+        centroids[ab] = (cx, cy)
+        k = args.explode - 1.0
+        offsets[ab] = (k * (cx - map_cx), k * (cy - map_cy))
+
+    def shift(ab, pt):
+        ox, oy = offsets[ab]
+        return (pt[0] + ox, pt[1] + oy)
+
     # Extent: the state outline for clipped states, the hexagons for unclipped ones.
     keep = ({a.strip().upper() for a in args.focus.split(",")} if args.focus
             else set(data["states"]))
@@ -117,13 +145,16 @@ def main():
         if ab not in keep:
             continue
         if st["clip"] and not args.no_clip:
-            xs += [p[0] for r in st["rings"] for p in r]
-            ys += [p[1] for r in st["rings"] for p in r]
+            for r in st["rings"]:
+                for p in r:
+                    px, py = shift(ab, p)
+                    xs.append(px)
+                    ys.append(py)
         else:
             for c in st["cells"]:
                 if not c["isCore"]:
                     continue
-                cx, cy = hex_center(c["col"], c["row"], R, x0, y0)
+                cx, cy = shift(ab, hex_center(c["col"], c["row"], R, x0, y0))
                 for vx, vy in hex_vertices(cx, cy, R):
                     xs.append(vx)
                     ys.append(vy)
@@ -155,7 +186,8 @@ def main():
                 seen_seats.add(c["core"])
                 tally[c["party"]] += 1
 
-        verts = {k: hex_vertices(*hex_center(k[0], k[1], R, x0, y0), R) for k in cells}
+        verts = {k: hex_vertices(*shift(ab, hex_center(k[0], k[1], R, x0, y0)), R)
+                 for k in cells}
         polys = [verts[k] for k in cells]
         facecolors = [colors.get(cells[k]["party"], "#9aa3af") for k in cells]
 
@@ -163,7 +195,7 @@ def main():
         for k, c in cells.items():
             for nb in neighbors(*k):
                 ncell = cells.get(nb)
-                nx, ny = hex_center(nb[0], nb[1], R, x0, y0)
+                nx, ny = shift(ab, hex_center(nb[0], nb[1], R, x0, y0))
                 if ncell is None:
                     bucket = hex_rim                       # unclipped states only
                 elif ncell["district"] != c["district"]:
@@ -200,7 +232,8 @@ def main():
                                          linewidths=w_state * lw, zorder=5,
                                          capstyle="round", joinstyle="round"))
 
-        clip = compound_path(st["rings"]) if clipped else None
+        rings = [[shift(ab, p) for p in r] for r in st["rings"]]
+        clip = compound_path(rings) if clipped else None
         for layer in layers:
             ax.add_collection(layer)
             if clip is not None:
@@ -208,22 +241,55 @@ def main():
 
         # The state's own outline, over the clipped tiles.
         if clipped:
-            for ring in st["rings"]:
+            for ring in rings:
                 ax.plot([p[0] for p in ring] + [ring[0][0]],
                         [p[1] for p in ring] + [ring[0][1]],
                         color=C_STATE, lw=w_state * lw, zorder=5,
                         solid_capstyle="round", solid_joinstyle="round")
 
     if not args.no_labels:
-        for ab, st in data["states"].items():
-            pts = [hex_center(c["col"], c["row"], R, x0, y0)
-                   for c in st["cells"] if c["isCore"]]
-            mx = sum(p[0] for p in pts) / len(pts)
-            my = sum(p[1] for p in pts) / len(pts)
-            ax.text(mx, my, ab, ha="center", va="center", zorder=6,
-                    fontsize=7.5 * lw, fontweight="bold", color="#0b1220",
+        # Labels outside the state, as the published hexmap does: a label sitting on top
+        # of the tiles competes with ten party fills, and a state only two hexes wide has
+        # nowhere legible to put it. Each label is pushed out along the direction away
+        # from the map centre, then rotated to the first angle that clears every state's
+        # hexes so labels do not land on a neighbour.
+        occupied = []
+        for ab2, st2 in data["states"].items():
+            for c in st2["cells"]:
+                occupied.append(shift(ab2, hex_center(c["col"], c["row"], R, x0, y0)))
+
+        def clear_of_states(pt, need):
+            return all((pt[0] - ox) ** 2 + (pt[1] - oy) ** 2 > need * need
+                       for ox, oy in occupied)
+
+        for ab, st in sorted(data["states"].items()):
+            cx, cy = shift(ab, centroids[ab])
+            pts = [shift(ab, p) for p in core_centres(st)]
+            base = math.atan2(cy - map_cy, cx - map_cx)
+            if math.hypot(cx - map_cx, cy - map_cy) < R:
+                base = -math.pi / 2                       # dead centre: drop it below
+            placed = None
+            for step in [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6]:
+                ang = base + step * math.pi / 6
+                dx, dy = math.cos(ang), math.sin(ang)
+                # How far the state reaches in this direction, then a little beyond.
+                reach = max((p[0] - cx) * dx + (p[1] - cy) * dy for p in pts)
+                for extra in (1.5, 2.2, 3.0):
+                    anchor = (cx + dx * (reach + extra * R), cy + dy * (reach + extra * R))
+                    if clear_of_states(anchor, 1.35 * R):
+                        placed = (anchor, dx, dy)
+                        break
+                if placed:
+                    break
+            if placed is None:
+                placed = ((cx, cy), 0.0, 0.0)              # nowhere clear: fall back
+            (lx, ly), dx, dy = placed
+            ha = "left" if dx > 0.35 else "right" if dx < -0.35 else "center"
+            va = "bottom" if dy > 0.35 else "top" if dy < -0.35 else "center"
+            ax.text(lx, ly, ab, ha=ha, va=va, zorder=6,
+                    fontsize=7.2 * lw, fontweight="bold", color="#0b1220",
                     path_effects=[matplotlib.patheffects.withStroke(
-                        linewidth=2.4 * lw, foreground="white")])
+                        linewidth=2.0 * lw, foreground="white")])
 
     # Legend: one swatch per party, left→right ideological order, with seat totals.
     total = sum(tally.values())

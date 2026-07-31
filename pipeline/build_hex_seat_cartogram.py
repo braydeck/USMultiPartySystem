@@ -386,6 +386,39 @@ def assign_districts_to_rings(st, dists, seeds, R):
     return ring_of, dict(ring_targets)
 
 
+def fill_holes(chosen, pool):
+    """Trade interior gaps for the least-covered edge cell, keeping the count fixed.
+
+    Ranking cells purely by how much of them falls inside the state can drop an interior
+    cell in favour of a border one, which leaves a visible hole in the middle of the
+    state once the hexagons are drawn unclipped. Swapping the hole for the most-outside
+    cell we hold fixes it without changing how many cells the state has.
+    """
+    chosen = set(chosen)
+    for _ in range(len(chosen)):
+        # A gap ringed on five of six sides still reads as a hole once drawn.
+        holes = [c for c in pool if c not in chosen
+                 and sum(1 for nb in neighbors(*c) if nb in chosen) >= 5]
+        if not holes:
+            break
+        hole = min(holes, key=lambda c: (-pool.get(c, 0), c))
+        # Drop the cell we hold with the least of itself inside the state, never one
+        # whose removal would open a fresh hole next to the one being filled.
+        drop = [c for c in chosen if c not in neighbors(*hole)]
+        if not drop:
+            break
+        # Give up the cell with least of itself inside the state, and only if it is on
+        # the edge of the selection — dropping an interior cell would just move the hole.
+        edge = [c for c in drop
+                if any(nb not in chosen for nb in neighbors(*c))] or drop
+        out = min(edge, key=lambda c: (pool.get(c, 0), c))
+        if out == hole:
+            break
+        chosen.discard(out)
+        chosen.add(hole)
+    return chosen
+
+
 def build_lattice(states, targets, ring_targets=None, verbose=True):
     """Choose R so in-state cell count == seat total, then pick the best cells.
 
@@ -477,7 +510,7 @@ def build_lattice(states, targets, ring_targets=None, verbose=True):
             pool = {c: s for c, s in cover.get((ab, i), {}).items()
                     if owner.get(c) == ab and c not in picked}
             ranked = sorted(pool, key=lambda c: (-pool[c], c))[:want]
-            chosen = connect_selection(ranked, pool, want)
+            chosen = fill_holes(connect_selection(ranked, pool, want), pool)
             picked_by_ring[(ab, i)] = chosen
             picked |= chosen
         # Any shortfall (ring quota larger than the cells available) falls back to the
@@ -571,7 +604,8 @@ def largest_component(cell_set):
 
 # ── step 2: districts ────────────────────────────────────────────────────────
 
-def grow_districts(state_cells, dists, seeds, R, x0, y0, max_swaps=4000):
+def grow_districts(state_cells, dists, seeds, R, x0, y0, max_swaps=4000,
+                   lloyd_passes=6):
     """Partition a ring's cells into district blobs of exactly the right size.
 
     Capacity-respecting growth: at each step the proportionally most under-filled
@@ -591,27 +625,50 @@ def grow_districts(state_cells, dists, seeds, R, x0, y0, max_swaps=4000):
         sx, sy = seeds[did]
         return (centers[cell][0] - sx) ** 2 + (centers[cell][1] - sy) ** 2
 
-    # Capacity-constrained assignment: walk every (cell, district) pair in order of
-    # distance to the district's seed and take it if the cell is free and the district
-    # still has room. Sizes come out exact by construction — a district cannot be starved
-    # the way a plain nearest-seed split starves one whose seed sits beside another's —
-    # and each district still collects the cells closest to where it belongs.
-    members = {d: set() for d in dists}
-    assign = {}
-    pairs = sorted(((d2(c, d), d, c) for c in state_cells for d in order),
-                   key=lambda t: (t[0], t[1], t[2]))
-    for _, did, cell in pairs:
-        if cell in assign or len(members[did]) >= target[did]:
-            continue
-        members[did].add(cell)
-        assign[cell] = did
-    # Any cell left over (every district that wanted it was full) goes to whichever
-    # district still has room and sits nearest.
-    for cell in sorted(set(state_cells) - set(assign)):
-        did = min((d for d in order if len(members[d]) < target[d]),
-                  key=lambda d: (d2(cell, d), d))
-        members[did].add(cell)
-        assign[cell] = did
+    # Capacity-constrained assignment, then a few Lloyd passes. Walking every
+    # (cell, district) pair in order of distance and taking it if the cell is free and
+    # the district has room makes sizes exact by construction — a district cannot be
+    # starved the way a plain nearest-seed split starves one whose seed sits beside
+    # another's. Re-centring on the region actually won and reassigning then compacts
+    # the blobs, which is what keeps them contiguous as the lattice gets finer; without
+    # it, cells that lost every nearby district land far from home as islands.
+    def capacity_assign(refs):
+        members = {d: set() for d in dists}
+        assign = {}
+        pairs = sorted(((ref_d2(c, d, refs), d, c) for c in state_cells for d in order),
+                       key=lambda t: (t[0], t[1], t[2]))
+        for _, did, cell in pairs:
+            if cell in assign or len(members[did]) >= target[did]:
+                continue
+            members[did].add(cell)
+            assign[cell] = did
+        for cell in sorted(set(state_cells) - set(assign)):
+            did = min((d for d in order if len(members[d]) < target[d]),
+                      key=lambda d: (ref_d2(cell, d, refs), d))
+            members[did].add(cell)
+            assign[cell] = did
+        return members, assign
+
+    def ref_d2(cell, did, refs):
+        rx, ry = refs[did]
+        return (centers[cell][0] - rx) ** 2 + (centers[cell][1] - ry) ** 2
+
+    refs = dict(seeds)
+    members, assign = capacity_assign(refs)
+    for _ in range(lloyd_passes):
+        moved = {}
+        for did in order:
+            pts = [centers[c] for c in members[did]]
+            if pts:
+                moved[did] = (sum(p[0] for p in pts) / len(pts),
+                              sum(p[1] for p in pts) / len(pts))
+            else:
+                moved[did] = refs[did]
+        if all(abs(moved[d][0] - refs[d][0]) < 1e-9 and abs(moved[d][1] - refs[d][1]) < 1e-9
+               for d in order):
+            break
+        refs = moved
+        members, assign = capacity_assign(refs)
 
     # Contiguity cleanup: swap a whole stray piece for an equal number of cells that
     # touch the district's main blob. Equal counts both ways, so no seat count moves.
@@ -826,8 +883,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--triple", action="store_true", help="1,726-seat map")
     ap.add_argument("--out", default=None, help="output JSON path")
-    ap.add_argument("--cells-per-seat", type=int, default=1, choices=[1, 2, 3],
-                    help="hexagons per seat: 1 = single hex, 2 = conjoined domino")
+    ap.add_argument("--cells-per-seat", type=int, default=1,
+                    choices=[1, 2, 3, 4, 5, 6],
+                    help="hexagons per seat: 1 = single hex, 2+ = conjoined cluster")
     args = ap.parse_args()
 
     cpp = args.cells_per_seat
