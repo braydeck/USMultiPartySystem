@@ -48,9 +48,18 @@ PARTIES_TS = BASE_DIR / "viz" / "src" / "constants" / "parties.ts"
 # looks the same zoomed in as it does on the full map.
 REF_PX_PER_DEG = 58.0
 W_SEAT, W_STATE = 0.5, 3.4
-# 'cased' leans on a heavy dark district line; 'gap' on a wide white channel.
+# 'cased' leans on a heavy dark district line; 'gap' on a wide white channel. The base
+# weights are calibrated at R_CALIB; a coarser lattice needs a heavier line because the
+# border staircases along hex edges, and a stroke thinner than a step reads as sawteeth.
 W_DISTRICT_CASED, W_CASING = 3.0, 4.8
 W_DISTRICT_GAP = 3.6
+R_CALIB = 0.1886        # the 5-cells-per-seat lattice, where these weights look right
+
+
+def district_weights(R, scale):
+    """Dark line and casing widths for a lattice of circumradius R."""
+    k = min(2.2, max(1.0, (R / R_CALIB) ** 0.75)) * scale
+    return W_DISTRICT_CASED * k, W_CASING * k, W_DISTRICT_GAP * k
 C_SEAT, C_DISTRICT, C_STATE = "#ffffff", "#111827", "#0b1220"
 
 
@@ -77,6 +86,89 @@ def load_palette():
     return colors, names, left_right
 
 
+def chain_edges(edges, tol=6):
+    """Join loose boundary segments into continuous polylines.
+
+    Emitting each hex edge as its own two-point segment means matplotlib has no path to
+    join or smooth, so every corner of a district border stays a hard angle however heavy
+    the stroke — which is what makes the border read as sawteeth at a coarse lattice.
+    Walking the segments into chains gives one stroke per border, and something to round.
+
+    At a junction where three districts meet, the continuation that turns least is taken,
+    which keeps a border from doubling back on itself.
+    """
+    def key(pt):
+        return (round(pt[0], tol), round(pt[1], tol))
+
+    at = defaultdict(list)
+    for i, (a, b) in enumerate(edges):
+        at[key(a)].append(i)
+        at[key(b)].append(i)
+    used = [False] * len(edges)
+    chains = []
+    for start in range(len(edges)):
+        if used[start]:
+            continue
+        used[start] = True
+        a, b = edges[start]
+        chain = [a, b]
+        # Extend from the tail, then from the head.
+        for _ in range(2):
+            while True:
+                tail, prev = chain[-1], chain[-2]
+                vx, vy = tail[0] - prev[0], tail[1] - prev[1]
+                best, best_turn = None, None
+                for j in at[key(tail)]:
+                    if used[j]:
+                        continue
+                    c, d = edges[j]
+                    nxt = d if key(c) == key(tail) else c
+                    wx, wy = nxt[0] - tail[0], nxt[1] - tail[1]
+                    dot = (vx * wx + vy * wy) / (math.hypot(vx, vy) * math.hypot(wx, wy)
+                                                 or 1)
+                    if best_turn is None or dot > best_turn:
+                        best, best_turn = (j, nxt), dot
+                if best is None:
+                    break
+                j, nxt = best
+                used[j] = True
+                chain.append(nxt)
+                if key(nxt) == key(chain[0]):
+                    break
+            chain.reverse()
+        chains.append(chain)
+    return chains
+
+
+def round_corners(pts, frac=0.28, iters=2):
+    """Cut each corner back along its two edges, twice — a fillet, not a re-spline.
+
+    Deliberately local: the line stays on the lattice along straight runs and only
+    softens at the turns, so it does not drift away from the hexagon fills underneath.
+    """
+    closed = abs(pts[0][0] - pts[-1][0]) < 1e-9 and abs(pts[0][1] - pts[-1][1]) < 1e-9
+    out = [tuple(p) for p in pts]
+    for _ in range(iters):
+        if len(out) < 3:
+            break
+        new = [] if closed else [out[0]]
+        rng = range(len(out) - 1) if closed else range(1, len(out) - 1)
+        seq = out[:-1] if closed else out
+        n = len(seq)
+        for i in (range(n) if closed else range(1, n - 1)):
+            prv, cur, nxt = seq[(i - 1) % n], seq[i], seq[(i + 1) % n]
+            new.append((cur[0] + frac * (prv[0] - cur[0]),
+                        cur[1] + frac * (prv[1] - cur[1])))
+            new.append((cur[0] + frac * (nxt[0] - cur[0]),
+                        cur[1] + frac * (nxt[1] - cur[1])))
+        if closed:
+            new.append(new[0])
+        else:
+            new.append(out[-1])
+        out = new
+    return out
+
+
 def compound_path(rings):
     """One closed matplotlib Path covering every ring of a state."""
     return MplPath.make_compound_path(*[
@@ -97,6 +189,10 @@ def main():
     ap.add_argument("--no-clip", action="store_true",
                     help="let hexagons extend past the state border instead of being "
                          "clipped to it")
+    ap.add_argument("--district-scale", type=float, default=1.0,
+                    help="multiply the auto district line weight")
+    ap.add_argument("--sharp", action="store_true",
+                    help="skip corner rounding on district borders")
     ap.add_argument("--report-labels", action="store_true",
                     help="print which side each state label landed on")
     ap.add_argument("--label-size", type=float, default=17.0,
@@ -116,6 +212,7 @@ def main():
     R, x0, y0 = meta["R"], meta["x0"], meta["y0"]
     colors, names, left_right = load_palette()
     lw = args.px_per_deg / REF_PX_PER_DEG
+    w_dist, w_casing, w_gap = district_weights(R, args.district_scale)
 
     def core_centres(st):
         return [hex_center(c["col"], c["row"], R, x0, y0)
@@ -216,23 +313,28 @@ def main():
                                  zorder=1),
                   LineCollection(seat_edges, colors=C_SEAT, linewidths=W_SEAT * lw,
                                  zorder=2, alpha=0.85)]
+        # One continuous stroke per border, corners filleted, so the staircase reads as
+        # a line rather than a row of notches.
+        dist_paths = [c if args.sharp else round_corners(c)
+                      for c in chain_edges(dist_edges)]
         if args.style == "gap":
             # Districts separated by a wide white channel: white always reads against
             # the saturated party fills, and gap width alone carries the hierarchy.
-            layers.append(LineCollection(dist_edges, colors="#ffffff",
-                                         linewidths=W_DISTRICT_GAP * lw, zorder=3,
+            layers.append(LineCollection(dist_paths, colors="#ffffff",
+                                         linewidths=w_gap * lw, zorder=3,
                                          capstyle="round", joinstyle="round"))
         else:
             # Dark district line cased in white so it survives both the dark fills
             # (Nationalist, Progressive) and the light ones (Labor).
-            layers.append(LineCollection(dist_edges, colors="#ffffff",
-                                         linewidths=W_CASING * lw, zorder=3,
+            layers.append(LineCollection(dist_paths, colors="#ffffff",
+                                         linewidths=w_casing * lw, zorder=3,
                                          capstyle="round", joinstyle="round"))
-            layers.append(LineCollection(dist_edges, colors=C_DISTRICT,
-                                         linewidths=W_DISTRICT_CASED * lw, zorder=4,
+            layers.append(LineCollection(dist_paths, colors=C_DISTRICT,
+                                         linewidths=w_dist * lw, zorder=4,
                                          capstyle="round", joinstyle="round"))
         if not clipped:
-            layers.append(LineCollection(hex_rim, colors=C_STATE,
+            rim = [c if args.sharp else round_corners(c) for c in chain_edges(hex_rim)]
+            layers.append(LineCollection(rim, colors=C_STATE,
                                          linewidths=w_state * lw, zorder=5,
                                          capstyle="round", joinstyle="round"))
 
@@ -275,6 +377,18 @@ def main():
         occupied = np.array([shift(ab2, hex_center(c["col"], c["row"], R, x0, y0))
                              for ab2, st2 in data["states"].items()
                              for c in st2["cells"]])
+        by_state_pts = {ab2: np.array([shift(ab2, hex_center(c["col"], c["row"],
+                                                            R, x0, y0))
+                                       for c in st2["cells"]])
+                        for ab2, st2 in data["states"].items()}
+
+        def nearest_state(pt):
+            best, bd = None, None
+            for ab2, arr in by_state_pts.items():
+                dd = float(np.min((arr[:, 0] - pt[0]) ** 2 + (arr[:, 1] - pt[1]) ** 2))
+                if bd is None or dd < bd:
+                    best, bd = ab2, dd
+            return best
 
         def silhouette(ab, st):
             """Points tracing what is actually drawn for this state."""
@@ -333,9 +447,11 @@ def main():
             if ab in PREFERRED:
                 order_here = [PREFERRED[ab]] + [c for c in CANDIDATES
                                                 if c != PREFERRED[ab]]
-            for side, bias in order_here:
-                for gap in (0.55 * R, 1.1 * R, 1.8 * R, 2.8 * R, 4.2 * R,
-                            6.0 * R, 8.5 * R):
+            # Gap outermost: exhaust every side at the tightest offset before moving the
+            # label further out, so a label only drifts (and earns a leader line) when
+            # the state is genuinely boxed in on all sides.
+            for gap in (0.55 * R, 1.1 * R, 1.8 * R, 2.8 * R, 4.2 * R, 6.0 * R, 8.5 * R):
+                for side, bias in order_here:
                     ax_, ay_, ha, va = anchor_for(pts, side, bias, gap)
                     lx0 = (ax_ if ha == "left" else ax_ - lab_w if ha == "right"
                            else ax_ - lab_w / 2)
@@ -351,6 +467,13 @@ def main():
                     if any(box[0] < b[2] and b[0] < box[2]
                            and box[1] < b[3] and b[1] < box[3] for b in taken):
                         continue        # would sit on another label
+                    # A label nearer some other state than its own is worse than no
+                    # label — that is what made the IL/IN/OH/KY/WV cluster unreadable.
+                    # Only enforced for labels sitting against their state; once a label
+                    # is far enough out to earn a leader line, the line says which state
+                    # it belongs to.
+                    if gap <= 2.0 * R and nearest_state((ax_, ay_)) != ab:
+                        continue
                     chosen = (ax_, ay_, ha, va, box, side, bias, gap, pts)
                     break
                 if chosen:
