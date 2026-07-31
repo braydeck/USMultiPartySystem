@@ -30,7 +30,20 @@ const W_SEAT_R = 0.0284, W_DISTRICT_R = 0.265, W_CASING_R = 0.425, W_STATE_R = 0
 const MIN_SEAT = 0.55, MIN_DISTRICT = 1.9, MIN_STATE = 1.1;
 const CASING_RATIO = W_CASING_R / W_DISTRICT_R;
 
-const C_SEAT = '#ffffff', C_DISTRICT = '#111827', C_STATE = '#0b1220';
+/**
+ * District borders run heavier than the print calibration. The poster's hexes are about
+ * five times bigger, so 0.265R reads as a firm border there; at app scale the same ratio
+ * leaves the district competing with the seat lines rather than overriding them.
+ */
+const DISTRICT_EMPHASIS = 1.6;
+
+/**
+ * Seat boundaries are grey, not white, so the two line colours carry the hierarchy on
+ * their own: white means district, grey means seat. Drawing both in white was the real
+ * reason districts were hard to pick out — a district border read as nothing more than a
+ * slightly fatter seat line, and no amount of extra weight fixes a colour collision.
+ */
+const C_SEAT = '#c2ccd8', C_CASING = '#ffffff', C_DISTRICT = '#111827', C_STATE = '#0b1220';
 const C_EMPTY = '#e2e8f0';
 
 /** Target on-screen size of a state label. Placement drops any that cannot clear. */
@@ -174,7 +187,7 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
   // the zoom outright would have a district line swallow the seats it separates.
   const boost = Math.min(2.6, Math.sqrt(zt.k));
   const wSeat = Math.max(MIN_SEAT, W_SEAT_R * rPx) * boost;
-  const wDistrict = Math.max(MIN_DISTRICT, W_DISTRICT_R * rPx) * boost;
+  const wDistrict = Math.max(MIN_DISTRICT, W_DISTRICT_R * rPx) * boost * DISTRICT_EMPHASIS;
   const wCasing = wDistrict * CASING_RATIO;
   const wStateBase = Math.max(MIN_STATE, W_STATE_R * rPx) * boost;
   // Labels live inside the zoom transform, so undo it to hold their on-screen size.
@@ -312,7 +325,7 @@ function StateTiles({ st, groups, dim, wSeat, wDistrict, wCasing, onHover, onLea
       </g>
       <path d={st.seatEdges} fill="none" stroke={C_SEAT} strokeWidth={wSeat}
         strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-      <path d={st.districtEdges} fill="none" stroke={C_SEAT} strokeWidth={wCasing}
+      <path d={st.districtEdges} fill="none" stroke={C_CASING} strokeWidth={wCasing}
         strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       <path d={st.districtEdges} fill="none" stroke={C_DISTRICT} strokeWidth={wDistrict}
         strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />

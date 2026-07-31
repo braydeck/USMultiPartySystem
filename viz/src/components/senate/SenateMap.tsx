@@ -126,7 +126,7 @@ export function SenateMap({ seats, states }: Props) {
       </div>
 
       <p className="text-xs text-muted-foreground mt-2 text-center">
-        Blended senators shown as interpolated colors · hover for details
+        Each state represented with a single party winner due to inability to model multiple Senate races
       </p>
 
       {states && (

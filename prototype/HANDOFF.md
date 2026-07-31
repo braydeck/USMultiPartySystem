@@ -181,6 +181,14 @@ The spec above describes the print prototype. Five things had to differ in the b
   `vector-effect: non-scaling-stroke`. Zooming multiplies them by `min(2.6, sqrt(k))`:
   the hexes grow, so the lines have to, but matching the zoom outright has a district
   line swallow the seats it separates.
+- **Seat lines are grey and the district line runs 1.6× the print weight.** Districts
+  were hard to pick out at app scale, and the cause was colour, not weight: seat
+  boundaries and the district casing were both white, so a district border read as
+  nothing more than a slightly fatter seat line. Splitting the colours — white means
+  district, grey (`#c2ccd8`) means seat — does most of the work; the extra weight
+  finishes it. Five variants rendered at map scale in `prototype/border_*.png`:
+  baseline, heavier line, wider casing, grey seat lines, and both (shipped). Wider
+  casing alone barely moves.
 - **Labels are pinned to 11 screen px** and the frame is widened afterwards to whatever
   they need — Massachusetts places past Cape Cod and was being cut off. They sit inside
   the zoom group with `fontSize / k` so they hold their size. At app scale a label is
