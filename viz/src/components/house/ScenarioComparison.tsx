@@ -45,11 +45,13 @@ interface Props {
   selectedState: string;
   onStateChange: (state: string) => void;
   houseU?: Record<string, SeatInterval>;
+  /** False when a collapsible section already titles this card. */
+  showHeading?: boolean;
   /** Turnout stop, index 0-6. Only the vote spans need it; population is stop-invariant. */
   gi: number;
 }
 
-export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSeats, doubleFdSeats, wyoming = 'double', stateMap, doubleStateMap, selectedState, onStateChange, houseU, gi }: Props) {
+export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSeats, doubleFdSeats, wyoming = 'double', stateMap, doubleStateMap, selectedState, onStateChange, houseU, gi, showHeading = true }: Props) {
   const isNational = selectedState === 'national';
 
   const stateOpts = useMemo(() => [
@@ -175,9 +177,11 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
   return (
     <div>
       <div className="flex items-center justify-between gap-2 mb-1">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-          {hasRanges ? 'Votes vs seat share' : 'Population vs seat share'}
-        </h3>
+        {showHeading ? (
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+            {hasRanges ? 'Votes vs seat share' : 'Population vs seat share'}
+          </h3>
+        ) : <span />}
         <select value={isNational ? 'national' : selectedState}
           onChange={e => onStateChange(e.target.value === 'national' ? 'national' : e.target.value)}
           className="rounded-md border border-border bg-card px-2 py-1 text-xs">

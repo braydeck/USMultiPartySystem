@@ -407,15 +407,10 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
   </Card>
   );
   const fptpDisproNode = fptpStates.length > 0 ? (
-    <Card className="p-4">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-        FPTP Disproportionality by State
-      </h3>
-      <p className="text-xs text-muted-foreground mb-4">
-        How far each state&apos;s FPTP outcome diverges from proportional representation.
-      </p>
+    <CollapsibleSection id="fptpstate" title="See disproportionality by state"
+      hint="How far each state&apos;s FPTP result diverges from proportional">
       <FPTPDisproportionality states={fptpStates} stateMap={activeStateMap} listStateMap={listStateMap} />
-    </Card>
+    </CollapsibleSection>
   ) : null;
   const constellationNode = (
   <Card className="p-4">
@@ -506,9 +501,64 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
         {constellationNode}
       </CollapsibleSection>
 
-      {/* Population vs Seat Share */}
+      {chamberNode}
+
+      {/* State Composition — both views */}
       <Card className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
+          <div className="flex gap-1">
+            {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
+              <Button key={v} onClick={() => setMapView(v)}
+                variant={mapView === v ? 'default' : 'secondary'}
+                size="sm">
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <div className="mb-3">
+          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
+        </div>
+        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap}
+          wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />}
+        {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} highlight={highlight} />}
+      </Card>
+
+      {/* Seats by District Type */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Seats by District Type
+        </h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
+        </p>
+        <UrbSubRurChart seats={activeSeats} />
+      </Card>
+
+
+      {/* FD: Variant bar right after seat share */}
+      {scenario === 'factorDev' && (
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Seats by Variant
+          </h3>
+          <p className="text-xs text-muted-foreground mb-3">
+            {activeTotalSeats} seats stacked by axis variant. Full color = base; lighter = hi axis; darker = lo axis.
+          </p>
+          <PartyVariantBar seats={activeFdHouseSeats} totalLabel={`${activeTotalSeats} house seats`} />
+        </Card>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 2: PARTIES & GEOGRAPHY
+          ═══════════════════════════════════════════════════════════════════════ */}
+
+      {/* Population vs Seat Share */}
+      <CollapsibleSection id="seatshare" title="See votes vs seat share"
+        hint="What each party earns against what it wins">
         <ScenarioComparison
+          showHeading={false}
           rawMultiSeats={stvDepthSeats ?? (wyoming === 'triple' ? seatsTripleGi : rmSeats)}
           fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
           scenario={scenario}
@@ -522,7 +572,7 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           houseU={houseU}
           gi={gi}
         />
-      </Card>
+      </CollapsibleSection>
 
       {/* Proportionality detail. Three cards across on a wide screen — they were one
           per row, each holding a couple of numbers against a screen of white space. */}
@@ -618,58 +668,6 @@ export function HouseTab({ seats, transfers, voteModel, clusters, fptpStates, di
           </Card>
         )}
       </CollapsibleSection>
-
-      {/* State Composition — both views */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
-          <div className="flex gap-1">
-            {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
-              <Button key={v} onClick={() => setMapView(v)}
-                variant={mapView === v ? 'default' : 'secondary'}
-                size="sm">
-                {label}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <div className="mb-3">
-          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
-        </div>
-        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap}
-          wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />}
-        {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} highlight={highlight} />}
-      </Card>
-
-      {/* Seats by District Type */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Seats by District Type
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
-        </p>
-        <UrbSubRurChart seats={activeSeats} />
-      </Card>
-
-      {chamberNode}
-
-      {/* FD: Variant bar right after seat share */}
-      {scenario === 'factorDev' && (
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-            Seats by Variant
-          </h3>
-          <p className="text-xs text-muted-foreground mb-3">
-            {activeTotalSeats} seats stacked by axis variant. Full color = base; lighter = hi axis; darker = lo axis.
-          </p>
-          <PartyVariantBar seats={activeFdHouseSeats} totalLabel={`${activeTotalSeats} house seats`} />
-        </Card>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 2: PARTIES & GEOGRAPHY
-          ═══════════════════════════════════════════════════════════════════════ */}
 
       {fptpDisproNode}
 

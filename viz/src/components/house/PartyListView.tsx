@@ -229,12 +229,41 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
         {profilesExtra}
       </CollapsibleSection>
 
-      {/* Seat share vs population share, party list vs STV */}
+      {chamber}
+
+      {/* State composition — reuse STV components with list results */}
       <Card className="p-4">
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-            {rangeParties ? 'Votes vs seat share' : 'Vote vs seat share'}
-          </h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
+          <div className="flex gap-1">
+            {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
+              <Button key={v} onClick={() => setMapView(v)} variant={mapView === v ? 'default' : 'secondary'} size="sm">{label}</Button>
+            ))}
+          </div>
+        </div>
+        <div className="mb-3">
+          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
+        </div>
+        {mapView === 'map'
+          ? <HouseMap districtResults={districtResults} districtCountyMap={districtCountyMap}
+              wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />
+          : <HouseGridChart stateMap={stateMap} districtResults={districtResults} highlight={highlight} />}
+      </Card>
+
+      {/* Seats by District Type */}
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Seats by District Type
+        </h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
+        </p>
+        <UrbSubRurChart seats={tierSeats} />
+      </Card>
+
+      <CollapsibleSection id="seatshare" title="See votes vs seat share"
+        hint="What each party earns against what it wins">
+        <div className="flex items-center justify-end gap-2 mb-1">
           <select value={selState} onChange={e => setSelState(e.target.value)}
             className="rounded-md border border-border bg-card px-2 py-1 text-xs">
             {stateOpts.map(o => <option key={o.v} value={o.v}>{o.label}</option>)}
@@ -265,7 +294,7 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
             })}
           </div>
         )}
-      </Card>
+      </CollapsibleSection>
 
       <CollapsibleSection id="dispro" title="See disproportionality" hint="Unrepresented voters and over-quota surplus">
         <div className="grid gap-4 lg:grid-cols-3 items-start">
@@ -298,38 +327,6 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
         </Card>
         </div>
       </CollapsibleSection>
-
-      {/* State composition — reuse STV components with list results */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
-          <div className="flex gap-1">
-            {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
-              <Button key={v} onClick={() => setMapView(v)} variant={mapView === v ? 'default' : 'secondary'} size="sm">{label}</Button>
-            ))}
-          </div>
-        </div>
-        <div className="mb-3">
-          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
-        </div>
-        {mapView === 'map'
-          ? <HouseMap districtResults={districtResults} districtCountyMap={districtCountyMap}
-              wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />
-          : <HouseGridChart stateMap={stateMap} districtResults={districtResults} highlight={highlight} />}
-      </Card>
-
-      {/* Seats by District Type */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Seats by District Type
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
-        </p>
-        <UrbSubRurChart seats={tierSeats} />
-      </Card>
-
-      {chamber}
 
       {fptpDispro}
 
