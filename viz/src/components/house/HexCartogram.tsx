@@ -52,6 +52,12 @@ const LABEL_PX = 11;
 /** A fixed heavy stroke is wider than Alaska's panhandle, so taper the outline by size. */
 const stateTaper = (seats: number) => Math.min(1, Math.max(0.4, Math.sqrt(seats / 10)));
 
+/**
+ * District ids carry the state FIPS ("06-02"), which is how the pipeline keys them and
+ * means nothing to a reader — the state is already named alongside. Show just its half.
+ */
+const districtNumber = (id: string) => id.split('-')[1] ?? id;
+
 interface HoverInfo { districtId: string; abbr: string; x: number; y: number }
 
 interface Props {
@@ -205,7 +211,7 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
             role="status"
             aria-live="polite"
           >
-            <span className="font-semibold">{hover.abbr} · District {hover.districtId}</span>
+            <span className="font-semibold">{hover.abbr} · District {districtNumber(hover.districtId)}</span>
             {' — '}{hoverDistrict.seatCount} seat{hoverDistrict.seatCount === 1 ? '' : 's'}
             <div className="flex flex-wrap gap-1 mt-1">
               {F5_ORDER.filter(p => hoverDistrict.elected.includes(p)).map(p => (
