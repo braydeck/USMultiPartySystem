@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import type {
-  PresidentialElection, FDSenateSeat, HouseSeat, VoteModelRow, ClusterProfile, FDCandidateProfile,
+  PresidentialElection, FDSenateSeat, HouseSeat, ClusterProfile, FDCandidateProfile,
   FPTPState, HouseStateEntry,
 } from '../types';
 import { F5_ORDER } from '../constants/parties';
@@ -10,10 +10,7 @@ import { FPTPDisproportionality } from '../components/house/FPTPDisproportionali
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PartyProfileCard } from '../components/shared/PartyProfileCard';
-import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
-import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
-import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
 import { SenateCompositionCard } from '../components/senate/SenateCompositionCard';
 import { ConceptStrip } from '../components/shared/ConceptStrip';
 import { seatMapToHouseSeats } from '../components/house/PartyListView';
@@ -28,8 +25,6 @@ interface Props {
   fdSenateCond: FDSenateSeat[];
   fdSenateIRV: FDSenateSeat[];
   houseSeats: HouseSeat[];
-  senateVotes: VoteModelRow[];
-  houseVotes: VoteModelRow[];
   clusters: ClusterProfile[];
   fdProfiles: Record<string, FDCandidateProfile>;
   fptpStates: FPTPState[];
@@ -59,14 +54,17 @@ function DiveCard({ label, onClick }: { label: string; onClick: () => void }) {
 export function OverviewTab({
   rawMultiElection,
   rawMultiSenateCond, rawMultiSenateIRV,
-  houseSeats, senateVotes, houseVotes,
+  houseSeats,
   clusters, fptpStates, stateMap, clusterSpreads,
   onNavigate,
 }: Props) {
   // The Overview is the headline snapshot at the app's DEFAULT settings: ballots ranked 7, 5% of the
   // turnout gap closed. House STV seats + the presidency general at that depth live in the lazy
   // bundles (party-list STV seats are depth-invariant only for list; STV changes), so derive them here.
-  const [hpl, setHpl] = useState<Record<string, Record<string, Record<string, { national: { stvSeats: Record<string, number>; listSeats: Record<string, number> } }>>> | null>(null);
+  type Wasted = { list: number; stv: number };
+  const [hpl, setHpl] = useState<Record<string, Record<string, Record<string, {
+    national: { stvSeats: Record<string, number>; listSeats: Record<string, number>;
+      unrepresented: Wasted; excess: Wasted } }>>> | null>(null);
   const [gd, setGd] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setHpl).catch(() => {});
@@ -81,6 +79,7 @@ export function OverviewTab({
     const list = hpl?.top7?.double?.['5']?.national?.listSeats;
     return list ? seatMapToHouseSeats(list) : null;
   }, [hpl]);
+  const wasted = hpl?.top7?.double?.['5']?.national;
   const election = gd?.top7?.['5'] ?? rawMultiElection;
   const seats = houseSeats7 ?? houseSeats;
 
@@ -158,6 +157,54 @@ export function OverviewTab({
         </div>
       </Card>
 
+      {/* What the current system costs, in the two directions a vote is wasted: one that
+          elected nobody and one piled on a winner who had already won. */}
+      {wasted && (
+        <div className="grid gap-4 lg:grid-cols-2 items-start">
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              Voters left unrepresented
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
+                <div className="text-[11px] text-muted-foreground">Today&apos;s House <span className="opacity-70">· 2024</span></div>
+                <div className="text-2xl font-bold tabular-nums text-rose-700">35.8%</div>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="text-[11px] text-muted-foreground">Party list</div>
+                <div className="text-2xl font-bold tabular-nums text-foreground">{wasted.unrepresented.list.toFixed(1)}%</div>
+              </div>
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <div className="text-[11px] text-muted-foreground">STV</div>
+                <div className="text-2xl font-bold tabular-nums text-emerald-700">{wasted.unrepresented.stv.toFixed(1)}%</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              Over-quota surplus
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">Votes above what a winner needed.</p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
+                <div className="text-[11px] text-muted-foreground">Today&apos;s House <span className="opacity-70">· 2024</span></div>
+                <div className="text-2xl font-bold tabular-nums text-rose-700">14.2%</div>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="text-[11px] text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
+                <div className="text-2xl font-bold tabular-nums text-foreground">{wasted.excess.list.toFixed(1)}%</div>
+              </div>
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <div className="text-[11px] text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
+                <div className="text-2xl font-bold tabular-nums text-emerald-700">{wasted.excess.stv.toFixed(1)}%</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
       {/* Section 2 — Senate (shared card, identical to the Senate tab) */}
       <div className="space-y-3">
         <SenateCompositionCard condSeats={rawMultiSenateCond} irvSeats={rawMultiSenateIRV}
@@ -187,27 +234,7 @@ export function OverviewTab({
       {/* Party profiles — blurbs + factor bars */}
       <PartyProfileGrid clusters={orderedClusters} />
 
-      {/* Section 4 — State disproportionality callouts */}
-      <div>
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">FPTP Disproportionality — State Examples</h3>
-        <p className="text-xs text-muted-foreground mb-3">
-          Winner-take-all districts systematically over-represent the dominant party. Compare FPTP, 2-party proportional, and multi-party STV.
-        </p>
-        <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />
-      </div>
-
-      {/* Method divergences */}
-      <div className="space-y-4">
-        <LegislationDivergences
-          houseVotes={houseVotes}
-          senateVotes={senateVotes}
-          election={election}
-          pipeline="rawMulti"
-          wyoming="double"
-        />
-      </div>
-
-      {/* Section 5 — Ideological Constellation */}
+      {/* Ideological Constellation */}
       <Card className="p-5">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
         <p className="text-xs text-muted-foreground mb-4">
@@ -228,9 +255,15 @@ export function OverviewTab({
         />
       </Card>
 
-      {/* Turnout robustness + voter-file verification (grouped at the bottom) */}
-      <TurnoutRobustnessCard />
-      <TurnoutVerificationCard />
+      {/* Section 4 — State disproportionality callouts */}
+      <div>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">FPTP Disproportionality — State Examples</h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          Winner-take-all districts systematically over-represent the dominant party. Compare FPTP, 2-party proportional, and multi-party STV.
+        </p>
+        <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />
+      </div>
+
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { popShare } from '../lib/population';
 import { SHOW_CROSSOVER } from '../constants/features';
 import factorLoadingsData from '../data/factorLoadings.json';
 import { CaveatsSection } from '../components/about/CaveatsSection';
+import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
+import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
 
 interface FactorDef {
   short: string; label: string; color: string; eta: number; bw: number;
@@ -714,6 +716,12 @@ export function AboutTab() {
               compression slider sweeps upward.
             </p>
           </Card>
+
+          {/* Moved off the Overview: these are the evidence that the turnout treatment holds
+              up, which belongs with the explanation of the slider rather than in a headline
+              summary of the chambers. */}
+          <TurnoutRobustnessCard />
+          <TurnoutVerificationCard />
         </div>
       )}
 

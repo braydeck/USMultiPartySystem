@@ -41,8 +41,6 @@ import districtStvResultsTurnoutData from './data/districtStvResultsTurnout.json
 import houseVoteModelTurnoutData from './data/houseVoteModelTurnout.json';
 import senateVoteModelTurnoutData from './data/senateVoteModelTurnout.json';
 // Overview divergences snapshot: rank-7 chambers at 5% turnout (matches the app defaults).
-import houseVoteModelL5Data from './data/houseVoteModelTurnoutL5.json';
-import senateVoteModelL5Data from './data/senateVoteModelTurnoutL5.json';
 import fdHouseSeatsData from './data/fdHouseSeats.json';
 import fdPrimaryData from './data/fdPrimary.json';
 import fdPrimaryStateWinnersData from './data/fdPrimaryStateWinners.json';
@@ -282,8 +280,6 @@ export default function App() {
             fdSenateCond={fdSenateCondorcetData as unknown as FDSenateSeat[]}
             fdSenateIRV={fdSenateIRVData as unknown as FDSenateSeat[]}
             houseSeats={houseSeatsTurnoutData as HouseSeat[]}
-            senateVotes={senateVoteModelL5Data as VoteModelRow[]}
-            houseVotes={houseVoteModelL5Data as VoteModelRow[]}
             clusters={clusterProfilesData as ClusterProfile[]}
             fdProfiles={fdProfilesData as unknown as Record<string, FDCandidateProfile>}
             fptpStates={fptpDisproportionalityData as FPTPState[]}
