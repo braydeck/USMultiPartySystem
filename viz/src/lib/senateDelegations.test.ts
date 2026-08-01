@@ -26,9 +26,15 @@ describe('senate delegations', () => {
 
   it('is inclusive at the threshold, despite float error', () => {
     const gap = SPLIT_THRESHOLD_PP / 100;
-    // 0.428 - 0.328 is Wyoming, and it comes out as 9.999999999999998 points.
-    expect(delegations({ '01': st({ A: 0.428, B: 0.328 }) })[0].split).toBe(true);
+    expect(delegations({ '01': st({ A: 0.5, B: 0.5 - gap }) })[0].split).toBe(true);
     expect(delegations({ '01': st({ A: 0.5, B: 0.5 - gap - 0.001 }) })[0].split).toBe(false);
+  });
+
+  it('measures the gap, not the leader\u2019s own share', () => {
+    // Montana: a clear lead on under half the resamples. Virginia: a photo finish on over
+    // half. A rule on the leader's level gets both of these the wrong way round.
+    expect(delegations({ '30': st({ CON: 0.464, STY: 0.242, LBR: 0.16 }) })[0].split).toBe(false);
+    expect(delegations({ '51': st({ STY: 0.503, LBR: 0.474, POP: 0.019 }) })[0].split).toBe(true);
   });
 
   it('handles a state only one party ever wins', () => {
@@ -50,7 +56,7 @@ describe('senate delegations', () => {
     const states = u5.senate.cond.states as unknown as Record<string, StateUncertainty>;
     const FIPS_TO_ABBR: Record<string, string> = {
       '05': 'AR', '18': 'IN', '20': 'KS', '31': 'NE', '32': 'NV', '37': 'NC',
-      '38': 'ND', '45': 'SC', '51': 'VA', '54': 'WV', '56': 'WY',
+      '38': 'ND', '45': 'SC', '46': 'SD', '51': 'VA', '54': 'WV', '56': 'WY',
     };
     const split = delegations(states).filter(d => d.split).map(d => FIPS_TO_ABBR[d.fips] ?? d.fips);
     expect(split.sort()).toEqual(Object.values(FIPS_TO_ABBR).sort());

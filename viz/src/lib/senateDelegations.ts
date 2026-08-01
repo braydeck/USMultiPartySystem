@@ -18,14 +18,24 @@ import type { StateUncertainty } from './uncertainty';
  */
 
 /**
- * How close the runner-up has to be, in points of resample win share, for a state to
- * split. Ten is a judgement call, not a derived quantity: it is wide enough to catch the
- * genuinely marginal states and narrow enough to leave safe ones alone.
+ * How close the runner-up has to be, in points of resample win share, for a state to split.
+ *
+ * The measure is the gap between the top two, not the leader's own share. With ten parties
+ * a leader can hold a clear lead on well under half the resamples — Montana's Conservative
+ * takes 46% against Solidarity's 24% — while a leader over half can be in a photo finish:
+ * Virginia is 50.3 to 47.4. A rule on the leader's level splits Montana and not Virginia,
+ * which is backwards.
+ *
+ * Twelve is a judgement, but not a free one. Sorted, the Condorcet gaps run 0.8 up to 10.6
+ * and then jump to 15.5; the IRV gaps run to 9.6 and then jump to 12.7. Twelve sits in the
+ * empty space in both, so the split set is the same for any cutoff from 11 to 12 and does
+ * not turn on where exactly the line falls. Ten sat on top of a state — Wyoming's gap is
+ * exactly 10.0 — which made one delegation depend on a rounding convention.
  */
-export const SPLIT_THRESHOLD_PP = 10;
+export const SPLIT_THRESHOLD_PP = 12;
 
-/** Inclusive at the threshold, with slack for float error: Wyoming's gap is exactly ten
- *  points and subtracting the two shares gives 9.999999999999998. */
+/** Inclusive, with slack for float error: gaps come from subtracting two shares, so a
+ *  state exactly on the line lands at 9.999999999999998 rather than 10. */
 const EPS = 1e-9;
 
 export interface Delegation {
