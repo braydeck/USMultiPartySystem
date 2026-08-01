@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import type { FDSenateSeat } from '../../types';
 import { F5_ORDER } from '../../constants/parties';
 import { SeatRangeStrip, RangeKey } from '../shared/SeatRangeStrip';
+import { delegationSeats } from '../../lib/senateDelegations';
 import { UncertaintyDetail } from '../shared/UncertaintyDetail';
 import type { MethodUncertainty } from '../../lib/uncertainty';
 
@@ -48,15 +49,21 @@ export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
           seats can still have a real sampling range, and the strip is where that range shows up. */}
       {/* One key above the pair: the marks are identical in both strips. */}
       <RangeKey />
-      <SeatRangeStrip seats={condU.seats} order={[...F5_ORDER]} max={rangeStripMax}
+      <SeatRangeStrip seats={condU.seats} chamber={delegationSeats(condU.states)}
+        order={[...F5_ORDER]} max={rangeStripMax}
         label="Condorcet" />
-      <SeatRangeStrip seats={irvU.seats} order={[...F5_ORDER]} max={rangeStripMax}
+      <SeatRangeStrip seats={irvU.seats} chamber={delegationSeats(irvU.states)}
+        order={[...F5_ORDER]} max={rangeStripMax}
         label="IRV" />
 
       {/* Both methods, named: the card draws both strips and Condorcet is the Senate tab's
           default, so quoting one method's close-race count unlabelled reads as the other's. */}
       <p className="text-[11px] text-muted-foreground/80">
-        Races close enough to flip on sampling alone: {condU.nBelow50} of{' '}
+        Bars are the reported chamber, which splits the seats of a state whose winner changes
+        from sample to sample. The span behind each bar is how far that party&apos;s seats move
+        across resamples if instead one winner took both of every state&apos;s seats, so it
+        measures the underlying races rather than the split rule.
+        {' '}Races close enough to flip on sampling alone: {condU.nBelow50} of{' '}
         {Object.keys(condU.states).length} under Condorcet, {irvU.nBelow50} of{' '}
         {Object.keys(irvU.states).length} under IRV.
       </p>

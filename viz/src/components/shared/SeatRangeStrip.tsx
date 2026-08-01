@@ -21,7 +21,7 @@ export function RangeKey() {
         <span className="relative w-5 h-2.5">
           <span className="absolute inset-y-0 left-1/2 -ml-px w-0.5 bg-foreground/70" />
         </span>
-        most likely
+        reported
       </span>
       <span className="flex items-center gap-1.5">
         <span className="relative w-5 h-2.5">
@@ -33,10 +33,14 @@ export function RangeKey() {
   );
 }
 
-export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
+export function SeatRangeStrip({ seats, order, label, max: maxOverride, chamber }: {
   seats: Record<string, SeatInterval>;
   order: string[];
   label: string;
+  /** The chamber actually reported, when it is not the per-draw modal count — the senate
+   *  splits contested states, which is a function of the whole distribution rather than of
+   *  any one draw. The span still describes how far the underlying races move. */
+  chamber?: Record<string, number>;
   /** Shared axis ceiling across sibling strips, e.g. when a Condorcet and an IRV strip sit
    *  stacked and must read on the same scale for their bar positions to be comparable. Falls
    *  back to this strip's own largest `hi` when omitted. */
@@ -44,10 +48,10 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
 }) {
   const rows = useMemo(
     () => order
-      .map(p => ({ party: p, iv: seats[p] }))
-      .filter((r): r is { party: string; iv: SeatInterval } =>
-        !!r.iv && (r.iv.modal > 0 || r.iv.hi > 0)),
-    [seats, order],
+      .map(p => ({ party: p, iv: seats[p], point: chamber ? (chamber[p] ?? 0) : (seats[p]?.modal ?? 0) }))
+      .filter((r): r is { party: string; iv: SeatInterval; point: number } =>
+        !!r.iv && (r.point > 0 || r.iv.hi > 0)),
+    [seats, order, chamber],
   );
   const max = useMemo(() => rangeAxisMax(rows.map(r => r.iv.hi), maxOverride), [rows, maxOverride]);
 
@@ -56,7 +60,7 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
   return (
     <div className="space-y-1 pt-1">
       <div className="text-[10px] text-muted-foreground">{label}</div>
-      {rows.map(({ party, iv }) => {
+      {rows.map(({ party, iv, point }) => {
         const color = PARTY_COLORS[party] ?? '#6b7280';
         return (
           <div key={party} className="flex items-center gap-2">
@@ -72,13 +76,13 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride }: {
               }} />
               <SeatWhisker lo={iv.lo} hi={iv.hi} centre={iv.expected} max={max}
                 title={`${PARTY_NAMES[party] ?? party}: ${iv.lo}–${iv.hi} seats across resamples, ${iv.expected.toFixed(1)} expected`} />
-              {/* The modal chamber is 51 independent per-state argmaxes, so `modal` is not bounded
-                  by `hi`; clamp only the tick's position, never the value it reports. */}
-              <div className="absolute inset-y-0 w-0.5" title={`most likely: ${iv.modal}`}
-                style={{ left: `${Math.min(100, (iv.modal / max) * 100)}%`, backgroundColor: color }} />
+              {/* The reported chamber is built per state, so it is not bounded by `hi`;
+                  clamp only the tick's position, never the value it reports. */}
+              <div className="absolute inset-y-0 w-0.5" title={`reported: ${point}`}
+                style={{ left: `${Math.min(100, (point / max) * 100)}%`, backgroundColor: color }} />
             </div>
             <span className="w-24 shrink-0 text-[10px] tabular-nums text-muted-foreground">
-              <span className="font-semibold text-foreground">{iv.modal}</span> · {iv.lo}–{iv.hi}
+              <span className="font-semibold text-foreground">{point}</span> · {iv.lo}–{iv.hi}
             </span>
           </div>
         );
