@@ -40,3 +40,8 @@ UNTRACKED/
 # Cross-wave analysis: large regenerable fit intermediates (CSV/md outputs tracked)
 analysis/efa/previous_years/outputs/*/fit_results.pkl
 analysis/efa/previous_years/outputs/*/independent_fit.pkl
+
+# Claude Code local tooling. settings.json is shared; skills are personal and
+# worktrees/ holds whole repo checkouts, which must never be committed.
+.claude/skills/
+.claude/worktrees/
