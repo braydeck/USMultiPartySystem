@@ -605,20 +605,32 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   const saved = useMemo(loadSavedCompare, []);
   const [cmp, setCmp] = useUrlState<string>('cmp', '', { push: false });
   const selected = useMemo(() => (cmp ? cmp.split(',').filter(Boolean) : []), [cmp]);
+  // What the page actually draws. An empty filter means every party, not none: the tab
+  // opens showing the whole field and narrows as the reader picks. `selected` stays the
+  // literal chip state, so the selector and the constellation can still tell the
+  // difference between "chose all ten" and "chose nothing".
+  const filteredClusters = useMemo(
+    () => (selected.length
+      ? orderedClusters.filter(c => selected.includes(c.party))
+      : orderedClusters),
+    [selected, orderedClusters]);
+  const effective = useMemo(
+    () => (selected.length ? selected : orderedClusters.map(c => c.party)),
+    [selected, orderedClusters]);
   const currentParties = currentPartyProfilesData as unknown as ClusterProfile[];
   // Party rows/columns always render in PC order (PRG→NAT), regardless of pick order.
   // Current parties (DEM/IND/REP) sort first (DEM→IND→REP), then formulated parties in F5_ORDER.
   // FD variants sort by their base party. Selection-management still uses `selected`.
   const orderedSelected = useMemo(() => {
     const curIdx = (c: string) => (CURRENT_PARTIES as readonly string[]).indexOf(getPrimaryParty(c));
-    return [...selected].sort((a, b) => {
+    return [...effective].sort((a, b) => {
       const ca = isCurrentParty(getPrimaryParty(a)), cb = isCurrentParty(getPrimaryParty(b));
       if (ca !== cb) return ca ? -1 : 1;                 // current parties first
       if (ca && cb) return curIdx(a) - curIdx(b);        // DEM -> IND -> REP
       return (F5_ORDER as readonly string[]).indexOf(getPrimaryParty(a)) -
              (F5_ORDER as readonly string[]).indexOf(getPrimaryParty(b));
     });
-  }, [selected]);
+  }, [effective]);
   const [minGap, setMinGap] = useState(saved.minGap ?? 15);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
@@ -636,12 +648,12 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   // Per-row signature annotations (left cohesion dot + right D/M mark), always computed from
   // the thresholds, for scalar items and distribution items alike.
   const scalarMarks = (v: VarEntry): Record<string, RowMark> => Object.fromEntries(
-    selected.filter(c => v.pcts[c] !== undefined).map(c => {
+    effective.filter(c => v.pcts[c] !== undefined).map(c => {
       const { cohesive, distance } = itemSignature(v.key, c, v.pcts[c]!, v.overall ?? v.pcts[c]!, v.maxVal, sigFilter);
       return [c, { dot: cohesive, mark: centralityMark(distance, sigFilter) }];
     }));
   const distMarks = (k: string): Record<string, RowMark> => Object.fromEntries(
-    selected.filter(c => DIST.parties[c]?.[k]).map(c => {
+    effective.filter(c => DIST.parties[c]?.[k]).map(c => {
       const { cohesive, distance } = distSigParts(DIST.meta[k], DIST.parties[c][k] as never, DIST.national[k] as never, sigFilter, ORDERED_DIST.has(k));
       return [c, { dot: cohesive, mark: centralityMark(distance, sigFilter) }];
     }));
@@ -716,13 +728,13 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
   // Build vars grouped by category or factor
   const sectionVarMap = useMemo((): Record<string, VarEntry[]> => {
-    if (selected.length < 1) return {};
+    if (effective.length < 1) return {};
 
     const varMap = new Map<string, {
       question: string; domain: string; pcts: Record<string, number>;
       overall: number | null; maxVal: number; unit: string;
     }>();
-    for (const code of selected) {
+    for (const code of effective) {
       const vars = getVariables(code, clusters, fdProfiles);
       for (const [key, v] of Object.entries(vars)) {
         if (!varMap.has(key)) varMap.set(key, {
@@ -737,7 +749,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
     const grouped: Record<string, VarEntry[]> = {};
     for (const [key, entry] of varMap) {
-      const pcts = selected.map(c => entry.pcts[c]).filter((v): v is number => v !== undefined);
+      const pcts = effective.map(c => entry.pcts[c]).filter((v): v is number => v !== undefined);
       if (pcts.length < 1) continue;
       const maxGap = Math.max(...pcts) - Math.min(...pcts);
       const factor = VAR_FACTOR[key] ?? null;
@@ -778,7 +790,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     }
 
     return grouped;
-  }, [selected, clusters, fdProfiles, minGap]);
+  }, [effective, clusters, fdProfiles, minGap]);
 
   const selectedFormulated = useMemo(
     () => orderedSelected.filter(c => !isCurrentParty(getPrimaryParty(c))),
@@ -880,9 +892,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
       {/* Population distribution — share of adults vs share of voters, its own row. */}
       <PopulationBreakdown />
 
-      {/* Party profile cards — blurb + factor bars for each party */}
-      <PartyProfileGrid clusters={orderedClusters} />
-
       {/* Party selector + signature filter — sticky so both can be adjusted while scrolling
           the (long, annotated) list. On mobile it condenses to a summary strip once scrolled;
           tap to expand. Desktop (md+) always shows the full bar. */}
@@ -946,18 +955,19 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
           )}
         </div>
       </div>
+      {/* Party profile cards — blurb + factor bars, filtered to the chips above */}
+      <PartyProfileGrid clusters={filteredClusters} />
+
       {selected.length === 0 && (
-        <>
-          <p className="text-xs text-muted-foreground">
-            Select a party for its platform, or several to compare. Try: PRG + NAT (maximum divergence) ·
-            LBR + CON (presidential rivals){SHOW_CROSSOVER && ' · LBR_hi_so + LBR (crossover vs base)'}.
-          </p>
-          {constellationCard}
-        </>
+        <p className="text-xs text-muted-foreground">
+          Showing all ten parties. Filter above to narrow the comparison — try PRG + NAT
+          (maximum divergence) or LBR + CON (presidential rivals)
+          {SHOW_CROSSOVER && ', or LBR_hi_so + LBR for crossover against its base'}.
+        </p>
       )}
 
 
-      {selected.length >= 1 && (
+      {(
         <>
           {/* Factor scores */}
           <Card className="overflow-hidden">
@@ -1051,7 +1061,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                 const vars = allVars.filter(v => (!divergeOnly || v.highlighted)
                   && passSigFilters(scalarMarks(v)));
                 const distKeys = (distBySection[sectionKey] ?? []).filter(k =>
-                  selected.some(c => DIST.parties[c]?.[k]) && passSigFilters(distMarks(k)));
+                  effective.some(c => DIST.parties[c]?.[k]) && passSigFilters(distMarks(k)));
                 if (vars.length === 0 && distKeys.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
                 // Count only diverging rows that survive the active filters (not the hidden ones).
@@ -1080,7 +1090,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                       <div className="border-t border-border/50">
                         {(() => {
                           const byCodeFor = (k: string) => Object.fromEntries(
-                            selected.filter(c => DIST.parties[c]?.[k]).map(c => [c, DIST.parties[c][k]])) as Record<string, never>;
+                            effective.filter(c => DIST.parties[c]?.[k]).map(c => [c, DIST.parties[c][k]])) as Record<string, never>;
                           // All distribution items go two-per-row for density and legibility —
                           // heatmaps included (they read better compact than sprawled full width).
                           return (
@@ -1175,14 +1185,6 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         </>
       )}
 
-      {selected.length === 0 && (
-        <Card className="p-12 text-center">
-          <div className="text-muted-foreground text-sm">Select a party above to explore their positions</div>
-          <div className="text-slate-300 text-xs mt-2">
-            Add a second party to compare. A ◆ marks rows where they diverge by ≥{minGap}pp.
-          </div>
-        </Card>
-      )}
     </div>
   );
 }
