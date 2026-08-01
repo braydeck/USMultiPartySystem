@@ -153,8 +153,7 @@ export function SenateMap({ seats, states }: Props) {
       </div>
 
       <p className="text-xs text-muted-foreground mt-2 text-center">
-        One race is modelled per state; a state whose winner changes across resamples is
-        read as splitting its two seats between its closest parties.
+        Each state returns two senators; a contested state splits them.
       </p>
 
       {states && (
@@ -164,7 +163,7 @@ export function SenateMap({ seats, states }: Props) {
               <rect width="14" height="14" fill="#e2e8f0" />
               <rect width="14" height="14" fill={`url(#${HATCH_ID})`} />
             </svg>
-            Hatched: no party wins the state in half of resamples
+            Hatched: no party wins half of resamples
           </span>
           {splitCount > 0 && (
             <span className="flex items-center gap-1.5">
@@ -172,7 +171,7 @@ export function SenateMap({ seats, states }: Props) {
                 <rect width="7" height="14" fill="#cbd5e1" />
                 <rect x="7" width="7" height="14" fill="#94a3b8" />
               </svg>
-              Two-tone: {splitCount} states split, runner-up within {SPLIT_THRESHOLD_PP} points
+              Two-tone: {splitCount} split, top two within {SPLIT_THRESHOLD_PP} points
             </span>
           )}
         </div>

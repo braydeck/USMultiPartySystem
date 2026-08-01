@@ -287,9 +287,9 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         </h3>
         <p className="text-xs text-muted-foreground mb-3">
           {modalCounts
-            ? 'Two seats per state: both to the party that wins it across most resamples, or one each to its two closest parties where the winner changes from sample to sample.'
+            ? 'Two seats per state, split between the top two where the state is contested.'
             : 'One winner per state, filling both of that state\'s seats.'}
-          {' '}Matches the composition bars above.
+          {' '}Matches the bars above.
         </p>
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="text-xs text-muted-foreground uppercase tracking-widest">Order by</span>

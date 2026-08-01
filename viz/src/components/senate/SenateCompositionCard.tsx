@@ -94,6 +94,7 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
       condTotal: condDeleg ? Object.values(condDeleg).reduce((a, b) => a + b, 0) : condSeats.length * 2,
       irvTotal: irvDeleg ? Object.values(irvDeleg).reduce((a, b) => a + b, 0) : irvSeats.length * 2,
       condSplit: condU ? delegations(condU.states).filter(d => d.split).length : 0,
+      irvSplit: irvU ? delegations(irvU.states).filter(d => d.split).length : 0,
     };
   }, [condSeats, irvSeats, condU, irvU]);
 
@@ -149,12 +150,9 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
       )}
 
       <p className="text-[11px] text-muted-foreground/80">
-        One winner is modelled per state (50 states + DC), because two staggered races six
-        years apart cannot be simulated separately. A state that returns the same party in
-        most resamples fills both its seats with that party; one whose winner changes from
-        sample to sample splits, sending a senator from each of its two closest parties —
-        {stats.condSplit > 0 && ` ${stats.condSplit} states under Condorcet, `}
-        the runner-up within {SPLIT_THRESHOLD_PP} points of the winner. {stats.condTotal} seats either way.
+        Two seats per state, {stats.condTotal} in all. A state splits its delegation when its
+        top two parties finish within {SPLIT_THRESHOLD_PP} points across resamples
+        {stats.condSplit > 0 && `: ${stats.condSplit} under Condorcet, ${stats.irvSplit} under IRV`}.
       </p>
     </Card>
   );

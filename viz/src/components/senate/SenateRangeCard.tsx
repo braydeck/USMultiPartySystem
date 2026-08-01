@@ -59,13 +59,10 @@ export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
       {/* Both methods, named: the card draws both strips and Condorcet is the Senate tab's
           default, so quoting one method's close-race count unlabelled reads as the other's. */}
       <p className="text-[11px] text-muted-foreground/80">
-        Bars are the reported chamber, which splits the seats of a state whose winner changes
-        from sample to sample. The span behind each bar is how far that party&apos;s seats move
-        across resamples if instead one winner took both of every state&apos;s seats, so it
-        measures the underlying races rather than the split rule.
-        {' '}Races close enough to flip on sampling alone: {condU.nBelow50} of{' '}
-        {Object.keys(condU.states).length} under Condorcet, {irvU.nBelow50} of{' '}
-        {Object.keys(irvU.states).length} under IRV.
+        Bars are the reported chamber; the span is how far each party moves across resamples
+        before the split rule, so it tracks the races rather than the rule. Races close enough
+        to flip on sampling: {condU.nBelow50} of {Object.keys(condU.states).length} under
+        Condorcet, {irvU.nBelow50} of {Object.keys(irvU.states).length} under IRV.
       </p>
       <UncertaintyDetail seats={condU.seats} states={condU.states} nDraws={nDraws}
         label="Condorcet" stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
