@@ -937,8 +937,10 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
               : undefined}
             currentParties={CURRENT_PARTIES.map(code => ({ code, label: PARTY_NAMES[code] ?? code }))}
           />
-          {selected.length >= 1 && (
-            <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
+          {/* Always on. These filter the rows, not the parties, so they apply to the
+              default all-ten view just as much as to a narrowed one — hiding them until a
+              party was picked made them look like a consequence of picking one. */}
+          <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
               <SignatureFilters s={sig} accent="#6366f1" />
               <div className="flex items-center gap-1.5 text-[11px] shrink-0 border-l border-border/50 pl-4">
                 <span className="font-semibold text-foreground whitespace-nowrap"><span className="text-amber-500">◆</span> Divergence</span>
@@ -951,8 +953,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                   filter
                 </label>
               </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
       {/* Party profile cards — blurb + factor bars, filtered to the chips above */}
