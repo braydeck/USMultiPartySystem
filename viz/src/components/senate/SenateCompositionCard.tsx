@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
+import { delegations, delegationSeats, SPLIT_THRESHOLD_PP } from '../../lib/senateDelegations';
 import { Card } from '@/components/ui/card';
 import type { FDSenateSeat } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../../constants/parties';
 import { BAR_HEIGHT, LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
-import { chamberTotal, type MethodUncertainty } from '../../lib/uncertainty';
+import type { MethodUncertainty } from '../../lib/uncertainty';
 
 // Shared "FPTP Today vs Preferential Senate" composition card, used by both the Senate tab
 // and the Overview summary so the two charts are identical. Condorcet/IRV model one winner
@@ -72,13 +73,17 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
       }
       return c;
     };
-    // Headline is the modal chamber where we have it — it is the most likely winner in
-    // each state and still one winner per state, so it sums to the chamber size.
-    const cond: Record<string, number> = condU
-      ? Object.fromEntries(Object.entries(condU.seats).map(([p, v]) => [p, v.modal / 2]))
+    // Where the resampling exists, seats come from it via the split rule: a state whose
+    // winner changes from sample to sample sends one senator of each party, because its
+    // two seats are decided by two electorates six years apart. Elsewhere fall back to
+    // the single modelled winner, doubled.
+    const condDeleg = condU ? delegationSeats(condU.states) : undefined;
+    const irvDeleg = irvU ? delegationSeats(irvU.states) : undefined;
+    const cond: Record<string, number> = condDeleg
+      ? Object.fromEntries(Object.entries(condDeleg).map(([p, n]) => [p, n / 2]))
       : tally(condSeats);
-    const irv: Record<string, number> = irvU
-      ? Object.fromEntries(Object.entries(irvU.seats).map(([p, v]) => [p, v.modal / 2]))
+    const irv: Record<string, number> = irvDeleg
+      ? Object.fromEntries(Object.entries(irvDeleg).map(([p, n]) => [p, n / 2]))
       : tally(irvSeats);
     const parties = F5_ORDER.filter(p => (cond[p] ?? 0) > 0 || (irv[p] ?? 0) > 0);
     // Each bar's total comes from the same data as its segments, so the label can never
@@ -86,8 +91,9 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
     return {
       // ×2: model gives one winner per state; each fills both of the state's seats.
       rows: parties.map(p => ({ party: p, cond: (cond[p] ?? 0) * 2, irv: (irv[p] ?? 0) * 2 })),
-      condTotal: condU ? chamberTotal(condU.seats, 'modal') : condSeats.length * 2,
-      irvTotal: irvU ? chamberTotal(irvU.seats, 'modal') : irvSeats.length * 2,
+      condTotal: condDeleg ? Object.values(condDeleg).reduce((a, b) => a + b, 0) : condSeats.length * 2,
+      irvTotal: irvDeleg ? Object.values(irvDeleg).reduce((a, b) => a + b, 0) : irvSeats.length * 2,
+      condSplit: condU ? delegations(condU.states).filter(d => d.split).length : 0,
     };
   }, [condSeats, irvSeats, condU, irvU]);
 
@@ -143,8 +149,12 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
       )}
 
       <p className="text-[11px] text-muted-foreground/80">
-        Condorcet and IRV model one winner per state (50 states + DC); each is doubled (&times;2) to fill both of a state&apos;s
-        seats for a full-chamber view ({stats.condTotal} seats), which assumes matched delegations and so drops today&apos;s split D/R states.
+        One winner is modelled per state (50 states + DC), because two staggered races six
+        years apart cannot be simulated separately. A state that returns the same party in
+        most resamples fills both its seats with that party; one whose winner changes from
+        sample to sample splits, sending a senator from each of its two closest parties —
+        {stats.condSplit > 0 && ` ${stats.condSplit} states under Condorcet, `}
+        the runner-up within {SPLIT_THRESHOLD_PP} points of the winner. {stats.condTotal} seats either way.
       </p>
     </Card>
   );

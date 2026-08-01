@@ -189,7 +189,7 @@ export function AboutTab() {
                 { n: '~60,000', label: 'Survey respondents' },
                 { n: '10',      label: 'Active parties' },
                 { n: '873',     label: 'House seats' },
-                { n: '51',      label: 'Senate seats' },
+                { n: '102',     label: 'Senate seats' },
               ].map(s => (
                 <div key={s.label}>
                   <div className="text-2xl font-bold text-foreground">{s.n}</div>
@@ -208,7 +208,7 @@ export function AboutTab() {
                 { tab: 'Overview', desc: 'A proportional government at a glance: how each chamber\'s composition shifts from winner-take-all to STV, a population-vs-voters breakdown, and a turnout-robustness check across the whole model.', group: '' },
                 { tab: 'Parties', desc: `The ten parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties${SHOW_CROSSOVER ? ' or crossover candidates' : ''}.`, group: '' },
                 { tab: 'Presidency', desc: 'A 4-round STV primary that consolidates a 9+ party field into finalists, then a head-to-head general where IRV and Condorcet often pick different winners.', group: 'Scenarios' },
-                { tab: 'Senate',   desc: 'Per-state elections for 51 seats (one per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.', group: 'Scenarios' },
+                { tab: 'Senate',   desc: 'Per-state elections for 102 seats (two per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.', group: 'Scenarios' },
                 { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type, with a representation-gap analysis.', group: 'Scenarios' },
                 { tab: 'Legislation', desc: 'Given the simulated chambers, which bills pass? A Normal approximation of chamber vote counts produces passage probabilities.', group: 'Scenarios' },
                 { tab: 'IRV Case Studies', desc: 'Alaska and Maine, the only states using ranked-choice voting for federal elections, comparing IRV with the Condorcet winner and a multi-seat STV what-if.', group: 'Scenarios' },
@@ -835,8 +835,8 @@ export function AboutTab() {
                   body: 'The 40/35/25 within-party split is a modeling assumption, not empirical data. It prevents the top candidate from sweeping all same-party ballots, but the specific values are illustrative.',
                 },
                 {
-                  label: 'Senate is 51 seats, not 102',
-                  body: 'The Senate normally has 100 seats with staggered six-year terms, so any single election fills only about a third of them. This simulation instead elects one senator per state plus DC (51 seats) in a single snapshot, because it is modeling what kind of senator each state\'s 2024 electorate would choose, not reconstructing the real class-by-class election calendar.',
+                  label: 'Both Senate seats are filled at once',
+                  body: 'The Senate has staggered six-year terms, so a real election fills only about a third of it. This simulation fills every seat in one snapshot, because it is modeling what kind of senator each state\'s 2024 electorate would choose rather than reconstructing the class-by-class calendar. One race is modelled per state, since two contests six years apart cannot be simulated separately: a state that returns the same party in most resamples fills both seats with it, and a state whose winner changes from sample to sample splits, sending one senator from each of its two closest parties. That is a modelling choice, not a result — the ten-point cutoff is a judgement about which states are genuinely contested.',
                 },
                 {
                   label: 'House districts are idealized',

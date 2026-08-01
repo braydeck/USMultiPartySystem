@@ -37,6 +37,7 @@ import fdSenateCondorcet from '../data/fdSenateCondorcet.json';
 import fdSenateIRV from '../data/fdSenateIRV.json';
 import { senateSeatMap } from '../components/legislation/voteBloc';
 import { uncertaintyAt, type SeatInterval } from '../lib/uncertainty';
+import { delegationSeats } from '../lib/senateDelegations';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
@@ -79,11 +80,15 @@ const CLUSTER_TO_PARTY: Record<number, string> = {
 };
 const toSeatMap = (arr: { party: number; national: number }[]): Record<string, number> =>
   Object.fromEntries(arr.map((r) => [CLUSTER_TO_PARTY[r.party], r.national]));
-/** Modal seats per party. `divisor` converts the senate's 102 basis to the 51 basis these maps use. */
-const modalMap = (seats: Record<string, SeatInterval>, divisor: 1 | 2): Record<string, number> =>
+/** Modal seats per party. */
+const modalMap = (seats: Record<string, SeatInterval>): Record<string, number> =>
   Object.fromEntries(Object.entries(seats)
     .filter(([, v]) => v.modal > 0)
-    .map(([p, v]) => [p, v.modal / divisor]));
+    .map(([p, v]) => [p, v.modal]));
+/** Both of a state's seats to its single modelled winner, for the pipelines that have no
+ *  resampling to split on. Keeps every senate map on the 102-seat basis. */
+const doubled = (m: Record<string, number>): Record<string, number> =>
+  Object.fromEntries(Object.entries(m).map(([p, n]) => [p, n * 2]));
 const rmSeatStops = [houseSeatsTurnout, houseSeatsTurnoutL5, houseSeatsTurnoutL10, houseSeatsTurnoutL15,
   houseSeatsTurnoutL20, houseSeatsTurnoutL25, houseSeatsTurnoutL30] as unknown as { party: number; national: number }[][];
 /** National seat totals under both House counting rules, per (depth × Wyoming rule × turnout stop).
@@ -146,18 +151,21 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const houseSeats = system === 'list'
     ? (houseNat?.listSeats ?? {})
     : unc && wyoming === 'double'
-      ? modalMap(unc.house.seats, 1)
+      ? modalMap(unc.house.seats)
       : isRawMulti
         ? (houseNat?.stvSeats ?? toSeatMap(rmSeatStops[gi]))
         : toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[]);
 
-  // Senate composition by (pipeline × method). Senate uncertainty seats are on the 102 basis;
-  // these maps are on the 51 basis the bloc majority (26) assumes, hence /2. Crossover falls
-  // back to the rank-7 winnow / its own senate. Method drives which map the passage view uses.
+  // Senate composition by (pipeline × method), on the 102-seat basis — every state returns
+  // two senators, so a bloc majority is 52. Crossover falls back to the rank-7 winnow /
+  // its own senate. Method drives which map the passage view uses.
   const senCondSrc = (pipeline === 'factorDev' ? fdSenateCondorcet : senCondStops[gi]) as unknown as { senatorParty: string }[];
   const senIRVSrc  = (pipeline === 'factorDev' ? fdSenateIRV : senIrvStops[gi]) as unknown as { senatorParty: string }[];
-  const senateSeatsCond = unc ? modalMap(unc.senate.cond.seats, 2) : senateSeatMap(senCondSrc);
-  const senateSeatsIRV  = unc ? modalMap(unc.senate.irv.seats, 2)  : senateSeatMap(senIRVSrc);
+  // The senate that votes here has to be the senate the Senate tab shows: contested
+  // states send one senator from each of their two closest parties, so the chamber is no
+  // longer one winner doubled and cannot be recovered by halving a party total.
+  const senateSeatsCond = unc ? delegationSeats(unc.senate.cond.states) : doubled(senateSeatMap(senCondSrc));
+  const senateSeatsIRV  = unc ? delegationSeats(unc.senate.irv.states)  : doubled(senateSeatMap(senIRVSrc));
   const senateSeats     = method === 'condorcet' ? senateSeatsCond : senateSeatsIRV;
 
   return (

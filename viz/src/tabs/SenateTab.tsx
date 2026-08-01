@@ -77,7 +77,8 @@ import { SenateRangeCard } from '../components/senate/SenateRangeCard';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
-import { uncertaintyAt, chamberTotal } from '../lib/uncertainty';
+import { uncertaintyAt } from '../lib/uncertainty';
+import { delegationSeats } from '../lib/senateDelegations';
 
 interface Props {
   condorcetFD:       FDSenateSeat[];
@@ -154,10 +155,13 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   // basis `seatCounts` uses. Undefined for Crossover, which has no bootstrap and keeps the
   // observed run everywhere. Do not revert these two consumers to `seatCounts`.
   const methodU = method === 'condorcet' ? unc?.senate.cond : unc?.senate.irv;
+  // Seats under the split rule, so the chamber matches the headline card: a state whose
+  // winner changes across resamples returns one senator from each of its two closest
+  // parties rather than two from the modal winner.
   const modalCounts = useMemo(() => methodU
-    ? Object.fromEntries(Object.entries(methodU.seats)
-        .filter(([, v]) => v.modal > 0)
-        .map(([p, v]) => [p, v.modal / 2]))
+    ? Object.fromEntries(Object.entries(delegationSeats(methodU.states))
+        .filter(([, n]) => n > 0)
+        .map(([p, n]) => [p, n / 2]))
     : undefined, [methodU]);
 
   const clusterByParty = useMemo(
@@ -186,9 +190,11 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
     return vals.length > 0 ? [Math.min(...vals), Math.max(...vals)] : [-2, 2];
   }, [clusters, fdProfiles, parliamentFactor]);
 
-  // ×2: the model elects one winner per state, who fills both of that state's seats —
-  // same convention as SenateCompositionCard, so the two charts read on one scale.
-  const chamberSeats = methodU ? chamberTotal(methodU.seats, 'modal') : activeSeats.length * 2;
+  // Same convention as SenateCompositionCard, so the two charts read on one scale. The
+  // split rule moves seats between parties but never changes the chamber size.
+  const chamberSeats = modalCounts
+    ? Object.values(modalCounts).reduce((a, b) => a + b, 0) * 2
+    : activeSeats.length * 2;
   // On the modal path the counts are already collapsed to parties, so the _1/_2 ordinal
   // jitter the observed path needs to separate CON_1 from CON_2 has nothing to separate.
   const parliamentSegments: ParliamentSegment[] = (modalCounts
@@ -280,8 +286,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
           Senate Chamber — {METHOD_LABELS[method]} · {chamberSeats} seats
         </h3>
         <p className="text-xs text-muted-foreground mb-3">
-          {modalCounts ? 'The most likely winner in each state' : 'One winner per state'}, doubled
-          (&times;2) to fill both of the state&apos;s seats, matching the composition bars above.
+          {modalCounts
+            ? 'Two seats per state: both to the party that wins it across most resamples, or one each to its two closest parties where the winner changes from sample to sample.'
+            : 'One winner per state, filling both of that state\'s seats.'}
+          {' '}Matches the composition bars above.
         </p>
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="text-xs text-muted-foreground uppercase tracking-widest">Order by</span>
