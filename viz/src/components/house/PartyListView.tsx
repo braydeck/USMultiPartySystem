@@ -228,7 +228,6 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
           drill-down: a vote that elected nobody and a vote piled on a safe winner are the
           same waste from opposite directions. They read beside the seat comparison. */}
       <div className="grid gap-4 lg:grid-cols-2 items-start">
-      <div className="grid gap-4 lg:grid-cols-3 items-start">
       {/* Headline: voters left unrepresented */}
       <Card className="p-4">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
@@ -256,7 +255,6 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
           <Stat label="STV" value={nat.excess.stv} tone="best" note="transferred" />
         </div>
       </Card>
-      </div>
       </div>
 
       <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
