@@ -27,14 +27,14 @@ export function NationalFPTPProjection({ shares, label }: {
         National FPTP Projection
       </h4>
       <p className="text-xs text-muted-foreground mb-3">
-        Who would win under current first-past-the-post rules with these candidates.
+        Who would win under current first-past-the-post rules.
       </p>
 
       <div className="text-sm mb-2">
         <span className="font-bold" style={{ color: getBlendColor(leader.code) }}>
           {label(leader.code)}
         </span>
-        <span className="text-foreground"> leads with </span>
+        <span className="text-foreground"> wins with </span>
         <span className="font-bold">{(leader.pct * 100).toFixed(1)}%</span>
         <span className="text-muted-foreground"> of the first-choice vote</span>
       </div>

@@ -135,7 +135,7 @@ export function PrimaryTab({
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">2028 Presidential Primary</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-1">Presidential Primary</h2>
         <p className="text-muted-foreground text-sm">
           A 4-round STV simulation across regional pods. A crowded field collapses into a final set of survivors
           through elimination rounds.

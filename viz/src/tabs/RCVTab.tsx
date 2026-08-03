@@ -505,7 +505,7 @@ export function RCVTab({ data, houseStateMap }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">RCV in Practice — Alaska & Maine</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-1">RCV in Practice: Alaska & Maine</h2>
         <p className="text-muted-foreground text-sm max-w-3xl">
           Alaska and Maine are the only US states that use ranked-choice voting for federal elections.
           Comparing IRV results with the Condorcet winner, and showing what multi-seat STV proportional

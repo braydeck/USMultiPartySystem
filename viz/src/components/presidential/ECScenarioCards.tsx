@@ -129,9 +129,7 @@ export function ContingentVoteCard({ contingent }: { contingent: ContingentVote 
         Projected 12th Amendment Vote
       </h3>
       <p className="text-xs text-muted-foreground mb-3">
-        When the college produces no majority, each state delegation casts one vote. Here each
-        state votes for the party its own voters prefer head-to-head, the closest stand-in for
-        the bargaining a contingent election would actually involve.
+        Each state delegation casts one vote. Simulated negotiation by applying Condorcet selection per state.
       </p>
       <div className="mb-3">
         {contingent.winner ? (

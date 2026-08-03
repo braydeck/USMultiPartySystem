@@ -198,8 +198,8 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
             Head-to-Head Matrix
           </h4>
           <p className="text-[11px] text-muted-foreground mb-3">
-            Every possible pairing. Green = row candidate wins; red = row candidate loses. The
-            winner&apos;s row is all green, which is why they win.
+            Every possible pairing: green = row candidate wins; red = row candidate loses. The
+            winner beats all other candidates (all-green row).
           </p>
           <div className="overflow-x-auto">
             <CondorcetMatrix matchups={data.condorcetMatchups} condorcetWinner={data.condorcetWinner} />
@@ -214,7 +214,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
             Vote Flow
           </h4>
           <p className="text-[11px] text-muted-foreground mb-3">
-            Each column is one elimination round. Eliminated candidates&apos; votes fan out to the
+            Each column is one elimination round. Eliminated candidates&apos; votes redistribute to the
             remaining field.
           </p>
           <IRVSankey rounds={data.irvRounds} irvWinner={data.irvWinner} />
@@ -227,7 +227,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">2028 Presidential General Election</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-1">Presidential General Election</h2>
         <p className="text-muted-foreground text-sm">
           Single-winner race. The question is which method picks the most acceptable president.
           Condorcet finds who beats everyone head-to-head; IRV rewards the candidate with the strongest base.
@@ -248,9 +248,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
       {/* Presidential Outcomes — scenario-dependent */}
       {scenario === 'rawMulti' ? (
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">National Override</h3>
+          <h3 className="text-base font-bold text-foreground uppercase tracking-wider">National Override</h3>
           <p className="text-xs text-muted-foreground">
-            One national ballot, counted once. {nationalGroups.length === 1
+            One nationwide vote. {nationalGroups.length === 1
               ? 'All three counting rules elect the same president.'
               : `The three counting rules elect ${nationalGroups.length} different presidents from the same ballots.`}
           </p>
@@ -308,7 +308,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
       ) : (
         /* Factor Dev — every rule elects the same president, so one column holds all three charts. */
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Presidential Outcome</h3>
+          <h3 className="text-base font-bold text-foreground uppercase tracking-wider">Presidential Outcome</h3>
           <p className="text-xs text-muted-foreground">
             Both Condorcet and IRV elect the same president under Factor Dev.
           </p>
@@ -330,12 +330,12 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
           only be winner-take-all. */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h3 className="text-base font-bold text-foreground uppercase tracking-wider mb-1">
             Election Results Without National Override
           </h3>
           <p className="text-xs text-muted-foreground">
             Keep the electoral college and its {ecTallies.prop.total} electors, one per House seat
-            plus two per state, and the counting rule decides the presidency before the voters do.
+            plus two per state.
           </p>
         </div>
         <ECScenarioCards tallies={ecTallies} contingent={houseVote} clusterByParty={clusterByParty} />

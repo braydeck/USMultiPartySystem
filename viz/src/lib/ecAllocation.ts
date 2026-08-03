@@ -25,8 +25,8 @@ export type ECMethod = 'prop' | 'fptp' | 'irv' | 'condorcet';
 export const EC_METHODS: readonly ECMethod[] = ['prop', 'fptp', 'irv', 'condorcet'];
 
 export const EC_METHOD_LABELS: Record<ECMethod, string> = {
-  prop: 'Proportional',
-  fptp: 'Winner-take-all',
+  prop: 'Proportional per state',
+  fptp: 'WTA per state',
   irv: 'IRV per state',
   condorcet: 'Condorcet per state',
 };
