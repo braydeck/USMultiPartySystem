@@ -10,9 +10,8 @@ import { GAP_STOPS } from '../shared/ParticipationSlider';
 import { UNCERTAINTY_STOPS } from '../../lib/uncertainty';
 
 const SLOTS = 5;
-/** Above this a party is in the slate at every setting worth calling settled; below it, out. */
+/** At or above this in every resample at every setting, a slot counts as locked. */
 const LOCKED = 0.95;
-const OUT = 0.05;
 
 const party = (code: string) => code.split('_')[0];
 const name = (code: string) => PARTY_NAMES[party(code)] ?? party(code);
@@ -29,24 +28,13 @@ function contenders(): string[] {
   return [...peak.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c);
 }
 
-/** Two derived sentences: which slots never move, and what is actually contested here. Derived
- *  rather than written so they cannot drift from the payload. */
-function summarise(gi: number, codes: string[]): string[] {
+/** Which slots never move, derived rather than written so it cannot drift from the payload. The
+ *  grid below already shows every party's odds at every setting, so it is not restated here. */
+function summarise(codes: string[]): string[] {
   const locked = codes.filter(c => UNCERTAINTY_STOPS.every(u => (u.primary.slate[c] ?? 0) >= LOCKED));
-  const here = UNCERTAINTY_STOPS[gi]?.primary.slate ?? {};
-  const contested = codes
-    .filter(c => (here[c] ?? 0) > OUT && (here[c] ?? 0) < LOCKED)
-    .sort((a, b) => (here[b] ?? 0) - (here[a] ?? 0));
-
-  const out: string[] = [];
-  if (locked.length) {
-    out.push(`${locked.length} of the ${SLOTS} slots hold at every turnout setting: `
-      + `${locked.map(name).join(', ')}.`);
-  }
-  out.push(contested.length
-    ? `At this setting the contest for is between ${contested.map(c => `${name(c)} ${pct(here[c] ?? 0)}%`).join(', ')}.`
-    : 'At this setting no contender sits between 5% and 95% — the slate is settled.');
-  return out;
+  if (!locked.length) return [];
+  return [`${locked.length} of the ${SLOTS} slots hold at every turnout setting: `
+    + `${locked.map(name).join(', ')}.`];
 }
 
 /** Party colour at an opacity carrying `p`, as an 8-digit hex. Floored well above zero so a 1%
@@ -119,7 +107,7 @@ export function SlateRangeCard({ gi, nDraws }: { gi: number; nDraws: number }) {
       <div className="grid grid-cols-[110px_1fr] gap-2 mt-3">
         <span />
         <div className="text-[11px] text-muted-foreground space-y-0.5">
-          {summarise(gi, codes).map(line => <p key={line}>{line}</p>)}
+          {summarise(codes).map(line => <p key={line}>{line}</p>)}
           <p className="text-muted-foreground/80">Columns are % of the gap between forces&apos; turnout rates closed.</p>
         </div>
       </div>
