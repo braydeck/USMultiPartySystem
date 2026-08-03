@@ -1,6 +1,6 @@
 state_fips,state_abbr,pod,bench,retail_2028
 1,AL,D,True,False
-2,AK,B,True,False
+2,AK,Retail,True,True
 4,AZ,C,False,False
 5,AR,B,True,False
 6,CA,D,False,False

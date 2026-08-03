@@ -486,8 +486,26 @@ function closestSilhouettePoint(pts: [number, number][], x: number, y: number): 
 
 const cache = new Map<string, Promise<Cartogram>>();
 
-export function loadCartogram(wyoming: 'double' | 'triple'): Promise<Cartogram> {
-  const url = `/hexmap/hex_seat_cartogram${wyoming === 'triple' ? '_triple' : ''}.json`;
+/**
+ * `double` / `triple` are the House seat maps, one hexagon per seat, districts inside each
+ * state. The other two come from `build_hex_ec_cartogram.py` and have one district per
+ * state, so their tiles sort west→east across the whole state:
+ *
+ * - `ec`: one hexagon per elector (975), state area scaled to electoral weight.
+ * - `pop`: one hexagon per 1/4365 of the population, state area unscaled, so the smallest
+ *   state holds ten tiles and a five-way vote share is legible everywhere.
+ */
+export type CartogramBasis = 'double' | 'triple' | 'ec' | 'pop';
+
+const BASIS_URL: Record<CartogramBasis, string> = {
+  double: '/hexmap/hex_seat_cartogram.json',
+  triple: '/hexmap/hex_seat_cartogram_triple.json',
+  ec: '/hexmap/hex_ec_cartogram.json',
+  pop: '/hexmap/hex_pop_cartogram.json',
+};
+
+export function loadCartogram(basis: CartogramBasis): Promise<Cartogram> {
+  const url = BASIS_URL[basis];
   let p = cache.get(url);
   if (!p) {
     p = fetch(url).then(r => r.json()).then((raw: RawCartogram) => buildCartogram(raw));

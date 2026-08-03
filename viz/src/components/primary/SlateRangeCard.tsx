@@ -44,7 +44,7 @@ function summarise(gi: number, codes: string[]): string[] {
       + `${locked.map(name).join(', ')}.`);
   }
   out.push(contested.length
-    ? `At this setting the contest is ${contested.map(c => `${name(c)} ${pct(here[c] ?? 0)}%`).join(', ')}.`
+    ? `At this setting the contest for is between ${contested.map(c => `${name(c)} ${pct(here[c] ?? 0)}%`).join(', ')}.`
     : 'At this setting no contender sits between 5% and 95% — the slate is settled.');
   return out;
 }

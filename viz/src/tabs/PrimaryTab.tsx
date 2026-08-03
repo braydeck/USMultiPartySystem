@@ -3,7 +3,7 @@ import { useUrlState, useUrlNumber } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { PrimaryStateWinner, PrimaryStageShares, PrimarySankeyData, FDPrimaryData, ClusterProfile } from '../types';
-import { PrimaryStateMap } from '../components/primary/PrimaryStateMap';
+import { PrimaryShareCartogram } from '../components/primary/PrimaryShareCartogram';
 import PrimaryBuckets from '../components/primary/PrimaryBuckets';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
@@ -13,6 +13,7 @@ import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+import { CollapsibleSection } from '../components/shared/CollapsibleSection';
 import { uncertaintyAt } from '../lib/uncertainty';
 import { SlateRangeCard } from '../components/primary/SlateRangeCard';
 import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
@@ -211,9 +212,12 @@ export function PrimaryTab({
           </span>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
-          States light up as their pod votes. Bars show first-choice vote proportions. Hover for breakdown.
+          States fill in as their pod votes, and the ones that voted earlier recolour: eliminating a
+          candidate transfers their ballots, so the whole field is re-counted at every stage.
+          Puerto Rico holds a retail-round primary but the CES does not sample it, so it has no
+          ballots to count and cannot be simulated. Alaska takes the sixth retail slot in its place.
         </p>
-        <PrimaryStateMap stageShares={stageShares} stage={stage} primaryData={data} />
+        <PrimaryShareCartogram stageShares={stageShares} stage={stage} primaryData={data} />
       </Card>
 
       {/* National First-Choice Share */}
@@ -259,6 +263,31 @@ export function PrimaryTab({
         </Card>
       )}
 
+      <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
+        <PartyProfileGrid clusters={orderedClusters} />
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            Ideological Constellation
+          </h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Drag axes to explore ideological dimensions. Bubble size = house seats. Links = transfer affinity.
+          </p>
+          <IdeologicalConstellation
+            nodes={clusters.filter(c => c.party).map(c => ({
+              id: c.party,
+              label: c.party,
+              seats: c.seatsHouse,
+              F1: ((c as any).z_F1 ?? 0),
+              F2: ((c as any).z_F2 ?? 0),
+              F3: ((c as any).z_F3 ?? 0),
+              F4: ((c as any).z_F4 ?? 0),
+              F5: ((c as any).z_F5 ?? 0),
+            }))}
+            clusterSpreads={clusterSpreads}
+          />
+        </Card>
+      </CollapsibleSection>
+
       {/* Replaces a one-line "holds its place / breaks in" note, which reported the current stop
           only and so could not show that the last slot is decided by the turnout assumption. */}
       {su && (
@@ -266,31 +295,6 @@ export function PrimaryTab({
           <SlateRangeCard gi={gi} nDraws={nDraws} />
         </Card>
       )}
-
-      {/* Ideological Constellation + Party Profiles */}
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-          Ideological Constellation
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">
-          Drag axes to explore ideological dimensions. Bubble size = house seats. Links = transfer affinity.
-        </p>
-        <IdeologicalConstellation
-          nodes={clusters.filter(c => c.party).map(c => ({
-            id: c.party,
-            label: c.party,
-            seats: c.seatsHouse,
-            F1: ((c as any).z_F1 ?? 0),
-            F2: ((c as any).z_F2 ?? 0),
-            F3: ((c as any).z_F3 ?? 0),
-            F4: ((c as any).z_F4 ?? 0),
-            F5: ((c as any).z_F5 ?? 0),
-          }))}
-          clusterSpreads={clusterSpreads}
-        />
-      </Card>
-
-      <PartyProfileGrid clusters={orderedClusters} />
 
     </div>
   );

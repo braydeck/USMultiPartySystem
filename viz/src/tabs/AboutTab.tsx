@@ -690,7 +690,7 @@ export function AboutTab() {
             <div className="font-semibold text-foreground mb-3">How to read it: each claim against its hostile end</div>
             <div className="space-y-2.5 text-sm">
               {[
-                { q: 'President: robust', a: 'Solidarity (Condorcet) and Labour (IRV) win at observed turnout and at every compression level. Nothing hinges on the assumption.' },
+                { q: 'President: robust to turnout, sensitive to ballot depth', a: 'Labour wins the instant runoff in all 35 combinations of turnout and ballot depth — nothing there hinges on the turnout assumption. The Condorcet winner is Solidarity in 26 of the 35, and Labour in the other nine: every case where voters rank only three candidates, plus full and seven-deep ranking at observed turnout. Three preferences exhaust before they reach Solidarity, so its head-to-head win depends on voters ranking deeper than three.' },
                 { q: 'House: scales, doesn’t flip', a: 'Conservative stays the plurality throughout; Solidarity’s delegation grows monotonically as the gap closes. Weakest at 0%, so it’s quoted as a range, not a point.' },
                 { q: 'Senate: conditional on mobilization', a: 'The one result observed data does not support: Labour leads at observed turnout, across the plausible band (≤15%), and through 20%; Solidarity only reaches the plurality at 25%, inside the stress band, beyond what one cycle plausibly delivers. So at observed turnout the Senate is Labour’s, and Solidarity’s Senate is contingent, reported that way.' },
               ].map(r => (

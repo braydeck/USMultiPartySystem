@@ -30,8 +30,10 @@ function contenders(): string[] {
 
 /** One sentence per method, derived rather than written, so it cannot drift from the payload. */
 function summarise(key: 'irv' | 'cond'): string {
-  const modals = UNCERTAINTY_STOPS.map(u => u.president[key].modal);
-  const shares = UNCERTAINTY_STOPS.map(u => u.president[key].dist[u.president[key].modal] ?? 0);
+  // Observed, not modal: this sentence sits under the winner cards, which report the run on
+  // the real sample. A modal-based sentence can name a president the page never elected.
+  const modals = UNCERTAINTY_STOPS.map(u => u.president[key].observed);
+  const shares = UNCERTAINTY_STOPS.map(u => u.president[key].dist[u.president[key].observed] ?? 0);
   const lo = Math.min(...shares);
 
   const flip = modals.findIndex((m, i) => i > 0 && m !== modals[i - 1]);
@@ -78,8 +80,10 @@ export function PresidentRangeCard({ gi, nDraws }: { gi: number; nDraws: number 
       </h3>
       <p className="text-xs text-muted-foreground mb-4">
         Share of {nDraws.toLocaleString()} resamples each party wins, at every setting of the
-        turnout slider. Columns run 0% to 30% of the gap closed; the outlined column is where the
-        slider sits now.
+        turnout slider. A resample redraws the survey — different respondents, the same number in
+        each state — and re-runs the whole election. Columns run 0% to 30% of the gap closed; the
+        outlined column is where the slider sits now, and the figure beside each method is the
+        president this page actually elects.
       </p>
 
       <div className="grid sm:grid-cols-2 gap-6">
@@ -91,8 +95,8 @@ export function PresidentRangeCard({ gi, nDraws }: { gi: number; nDraws: number 
                 <span className="text-xs font-semibold text-foreground">{m.label}</span>
                 {here && (
                   <span className="text-[11px] text-muted-foreground">
-                    now: <span className="font-semibold" style={{ color: PARTY_COLORS[here.modal] }}>
-                      {name(here.modal)}</span> {pct(here.dist[here.modal] ?? 0)}
+                    now: <span className="font-semibold" style={{ color: PARTY_COLORS[here.observed] }}>
+                      {name(here.observed)}</span> {pct(here.dist[here.observed] ?? 0)}
                   </span>
                 )}
               </div>
@@ -103,6 +107,13 @@ export function PresidentRangeCard({ gi, nDraws }: { gi: number; nDraws: number 
                 ))}
               </div>
               <p className="text-[11px] text-muted-foreground mt-2">{summarise(m.key)}</p>
+              {here && here.modal !== here.observed && (
+                <p className="text-[11px] text-amber-700 mt-1">
+                  This setting is close: the result on this page elects {name(here.observed)}, but
+                  {' '}{name(here.modal)} wins {pct(here.dist[here.modal] ?? 0)} of resamples against
+                  {' '}{name(here.observed)}&apos;s {pct(here.dist[here.observed] ?? 0)}.
+                </p>
+              )}
             </div>
           );
         })}

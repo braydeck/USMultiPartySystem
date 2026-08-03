@@ -25,18 +25,46 @@ type ExtLink = SankeyLink<SNode, object>;
 export function IRVSankey({ rounds, irvWinner }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [width, setWidth] = useState(0);
+
+  /**
+   * Re-measure on resize and re-run the layout, rather than measuring once on mount.
+   *
+   * Without this the viewBox keeps the width the chart was born at, and a narrower
+   * container makes the browser scale the whole drawing down to fit — shrinking the ribbon
+   * heights along with everything else. Re-laying out at the true width instead keeps the
+   * viewBox 1:1 with the element, so the columns move closer together while ribbon
+   * thickness, which encodes vote share, stays exactly where it was.
+   */
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width));
+    ro.observe(el);
+    setWidth(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
-    if (!svgRef.current || rounds.length < 2) return;
+    if (!svgRef.current || rounds.length < 2 || width <= 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    const width = svgRef.current.clientWidth || 600;
     const height = 280;
     svg.attr('viewBox', `0 0 ${width} ${height}`);
 
-    const padL = 56, padR = 80, padT = 36, padB = 16;
+    // Gutters hold the end labels, so they shrink with the chart instead of eating a phone's
+    // whole width: at 600px+ they are the sizes this was tuned at, and they ease down to
+    // roughly half that by 320px. The flow keeps at least half the width either way.
+    const narrow = Math.max(0, Math.min(1, (600 - width) / 280));
+    const padL = Math.round(56 - 24 * narrow);
+    const padR = Math.round(80 - 36 * narrow);
+    const padT = 36, padB = 16;
+    // Labels follow the same ramp; below ~360px the round headers would collide otherwise.
+    const fontEnd = 11 - 2 * narrow;
+    const fontStart = 9 - 1.5 * narrow;
+    const fontHeader = 9 - 1.5 * narrow;
 
     // Build display labels (CON_1 → CON when sole numbered variant)
     const allCodes = new Set<string>();
@@ -125,7 +153,7 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
         .attr('y', 14)
         .attr('text-anchor', 'middle')
         .attr('fill', '#64748b')
-        .attr('font-size', 9)
+        .attr('font-size', fontHeader)
         .attr('font-weight', '600')
         .attr('letter-spacing', '0.05em')
         .text(`ROUND ${r.round}`);
@@ -195,7 +223,7 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
       .attr('fill', (d: ExtNode) => getBlendColor((d as unknown as SNode).label))
       .attr('font-size', (d: ExtNode) => {
         const sn = d as unknown as SNode;
-        return sn.roundIdx === rounds.length - 1 ? 11 : 9;
+        return sn.roundIdx === rounds.length - 1 ? fontEnd : fontStart;
       })
       .attr('font-weight', (d: ExtNode) => {
         const sn = d as unknown as SNode;
@@ -203,7 +231,9 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
       })
       .text((d: ExtNode) => {
         const sn = d as unknown as SNode;
-        if (sn.roundIdx === rounds.length - 1) return `${dl(sn.label)} ${sn.pct.toFixed(1)}%`;
+        if (sn.roundIdx === rounds.length - 1) {
+          return width < 380 ? dl(sn.label) : `${dl(sn.label)} ${sn.pct.toFixed(1)}%`;
+        }
         // For eliminated candidates at round 0, show with strike indicator
         const isElimHere = rounds[sn.roundIdx]?.candidates.find(c => c.code === sn.label)?.eliminated;
         return isElimHere ? `${dl(sn.label)} ✕` : dl(sn.label);
@@ -214,7 +244,7 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
         return isElimHere ? 0.4 : 1;
       });
 
-  }, [rounds, irvWinner]);
+  }, [rounds, irvWinner, width]);
 
   return (
     <div>

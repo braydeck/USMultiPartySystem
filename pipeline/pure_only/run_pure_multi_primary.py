@@ -8,11 +8,15 @@ Uses multi-seat STV with Gregory fractional surplus transfers at each stage.
 Surplus from quota winners properly flows to same-party candidates, allowing
 _2 and _3 to survive through inherited vote weight.
 
-Stages:
-  1. Retail:    27 → 12 survivors  (quota ≈ 7.7%)
-  2. Pod A:     12 →  9 survivors  (quota ≈ 10.0%)
-  3. Pod B:      9 →  7 survivors  (quota ≈ 12.5%)
-  4. Pod C/D:    7 →  5 finalists  (quota ≈ 16.7%)
+Cumulative rolling electorate: each stage counts only the states that have voted by then,
+and their ballots stay in the pool for every later stage. A state votes once; the field
+narrows around it. Quotas below are 1/(survivors+1) of *that* pool, so the retail quota is a
+share of six states rather than of the country.
+
+  1. Retail:    27 → 12 survivors  (quota ≈ 7.7% of the retail states)
+  2. Pod A:     12 →  9 survivors  (quota ≈ 10.0% of retail + A)
+  3. Pod C:      9 →  7 survivors  (quota ≈ 12.5% of retail + A + C)
+  4. Pod B/D:    7 →  5 finalists  (quota ≈ 16.7% of the country)
 
 Outputs:
   primary_results_2028.csv         — per-stage candidate data
@@ -35,18 +39,54 @@ _BALLOT_TREE = "pure_multi_nosty" if os.environ.get("NO_STY") == "1" else "pure_
 _OUT_TREE    = output_tree(_BALLOT_TREE)  # turnout-weighted output → parallel _turnout tree
 BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _BALLOT_TREE / "presidential_ballots.csv"
 EFA_PATH     = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
+POD_PATH     = BASE_DIR / "data" / "outputs" / _BALLOT_TREE / "state_pod_assignments.csv"
 OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / _OUT_TREE
 
 PARTY_OF = {}   # filled during load
 CAND_CODES = []
 
+# (stage, survivors, pods that have voted by this stage). The pod list is cumulative: a
+# state votes once and its ballots stay in the pool for every later stage, which is what
+# makes the calendar mean anything. Retail cuts 27 to 12 on six states' ballots, not on the
+# country's — the whole point of a sequential primary is that early states winnow the field
+# before the rest have voted.
 STAGES = [
-    ("Initial_Slate",    None),   # snapshot only
-    ("After_Retail",     12),
-    ("After_Pod_A",       9),
-    ("After_Pod_C",       7),
-    ("After_Pod_BD",      5),
+    ("Initial_Slate",    None, None),                            # pre-voting snapshot
+    ("After_Retail",     12,   ("Retail",)),
+    ("After_Pod_A",       9,   ("Retail", "A")),
+    ("After_Pod_C",       7,   ("Retail", "A", "C")),
+    ("After_Pod_BD",      5,   ("Retail", "A", "C", "B", "D")),
 ]
+
+
+def load_pod_masks(n_ballots):
+    """Boolean respondent mask per stage, from the state pod assignments.
+
+    Rows of `efa_factor_scores.csv` and of the ballot file are the same respondents in the
+    same order, so a mask built from `inputstate` indexes both. Ported from
+    `run_presidential_primary_pure.py`, which had this right; the 27-candidate rebuild lost
+    it and counted the whole country at every stage.
+    """
+    efa = pd.read_csv(EFA_PATH)
+    if len(efa) != n_ballots:
+        raise SystemExit(f"efa rows ({len(efa)}) != ballots ({n_ballots}); masks would misalign")
+    inputstate = efa["inputstate"].values.astype(int)
+    pod_df = pd.read_csv(POD_PATH)
+    pod_of_fips = {int(r.state_fips): r.pod for r in pod_df.itertuples()}
+
+    unassigned = sorted({f for f in np.unique(inputstate) if f not in pod_of_fips})
+    if unassigned:
+        raise SystemExit(f"states with ballots but no pod: {unassigned}")
+    # Pod entries with no respondents are fine and expected: Puerto Rico holds a retail
+    # primary but the CES does not sample it, so it contributes no ballots.
+    empty = sorted({f for f in pod_of_fips if f not in set(inputstate.tolist())})
+
+    pod_by_row = np.array([pod_of_fips[f] for f in inputstate])
+    masks = {}
+    for stage_name, _target, pods in STAGES:
+        masks[stage_name] = (None if pods is None
+                             else np.isin(pod_by_row, np.array(pods)))
+    return masks, empty
 
 
 def load_ballots():
@@ -260,16 +300,28 @@ def main():
     n_cands = len(codes)
     print(f"  {N:,} ballots, {n_cands} candidates (depth={ballot_depth or 'full'})")
 
+    stage_masks, empty_pods = load_pod_masks(N)
+    if empty_pods:
+        print(f"  pod states with no ballots (not sampled by CES): {sorted(empty_pods)}")
+    for stage_name, _t, pods in STAGES:
+        if pods is None:
+            continue
+        m = stage_masks[stage_name]
+        print(f"  {stage_name:<14} {m.sum():>6,} ballots  "
+              f"{weights[m].sum():>12,.1f} weighted  ({100*m.sum()/N:>5.1f}% of the country)")
+
     surviving = set(range(n_cands))
     results_rows  = []
     diag_rows     = []
 
-    for stage_idx, (stage_name, target) in enumerate(STAGES):
+    for stage_idx, (stage_name, target, stage_pods) in enumerate(STAGES):
         print(f"\n{'─'*60}")
         print(f"Stage: {stage_name}  ({len(surviving)} candidates → {target or len(surviving)} survivors)")
 
         if target is None:
-            # Initial snapshot — first preference shares
+            # Initial snapshot — national first preferences before anyone has voted. This is
+            # a description of the field, not a count, so it is the only stage that looks at
+            # the whole country.
             fsc = first_surviving_choice(ballots, surviving)
             totals = defaultdict(float)
             for i in range(N):
@@ -296,31 +348,40 @@ def main():
                     print(f"  {code:<10} {PARTY_OF.get(code,''):<6} {pct:>6.1f}%")
             continue
 
+        # The electorate is every state that has voted by this stage, and only those.
+        mask = stage_masks[stage_name]
+        stage_ballots = ballots[mask]
+        stage_weights = weights[mask]
+        n_stage = len(stage_ballots)
+        print(f"  Electorate: {n_stage:,} ballots from pods {'+'.join(stage_pods)}"
+              f"  ({stage_weights.sum():,.1f} weighted)")
+
         # Filter ballots to surviving candidates
         surv_list = sorted(surviving)
         surv_map  = {old: new for new, old in enumerate(surv_list)}
         n_surv    = len(surv_list)
         surv_codes = [codes[s] for s in surv_list]
 
-        filtered = np.full((N, n_surv), -1, dtype=np.int16)
-        for i in range(N):
+        filtered = np.full((n_stage, n_surv), -1, dtype=np.int16)
+        for i in range(n_stage):
             rank = 0
-            for j in range(ballots.shape[1]):
-                c = int(ballots[i, j])
+            for j in range(stage_ballots.shape[1]):
+                c = int(stage_ballots[i, j])
                 if c in surv_map:
                     filtered[i, rank] = surv_map[c]
                     rank += 1
 
         local_active = set(range(n_surv))
         survivors_local, elected, eliminated, transfers, rounds, quota, final_totals_local = \
-            run_stv_stage(filtered, weights, local_active, target, surv_codes)
+            run_stv_stage(filtered, stage_weights, local_active, target, surv_codes)
 
         # Map back to global indices
         surviving = {surv_list[local] for local in survivors_local}
         surv_codes_final = sorted([codes[s] for s in surviving])
 
-        # Use actual pool size for percentage computation
-        total_w = float(weights.sum())
+        # Percentages are of the ballots cast by this stage — the same pool the quota came
+        # from — so a retail-round share is a share of the retail states, not of the country.
+        total_w = float(stage_weights.sum())
 
         print(f"  Quota: {quota:.1f}")
         print(f"  Elected: {len(elected)}  Eliminated: {len(eliminated)}")
@@ -376,19 +437,25 @@ def main():
 
     fin_map = {old: new for new, old in enumerate(fin_list)}
     n_fin   = len(fin_list)
-    fin_ballots = np.full((N, n_fin), -1, dtype=np.int16)
-    for i in range(N):
+    # The electorate after the last pod: every state has voted by then, so this is the whole
+    # sample — but derive it from the mask rather than assuming, in case pods change.
+    final_mask = stage_masks[STAGES[-1][0]]
+    fin_input  = ballots[final_mask]
+    fin_weights = weights[final_mask]
+    n_final = len(fin_input)
+    fin_ballots = np.full((n_final, n_fin), -1, dtype=np.int16)
+    for i in range(n_final):
         rank = 0
-        for j in range(ballots.shape[1]):
-            c = int(ballots[i, j])
+        for j in range(fin_input.shape[1]):
+            c = int(fin_input[i, j])
             if c in fin_map:
                 fin_ballots[i, rank] = fin_map[c]
                 rank += 1
 
     # Pairwise
     pairwise = np.zeros((n_fin, n_fin))
-    for i in range(N):
-        w = weights[i]
+    for i in range(n_final):
+        w = fin_weights[i]
         ranks = {}
         for r in range(n_fin):
             p = int(fin_ballots[i, r])

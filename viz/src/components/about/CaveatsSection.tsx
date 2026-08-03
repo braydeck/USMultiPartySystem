@@ -7,8 +7,7 @@ import type { StateUncertainty } from '../../lib/uncertainty';
 import { DEFAULT_GAP_STOP, DEFAULT_STOP_INDEX } from '../../lib/participationStops';
 import { SHOW_CROSSOVER } from '../../constants/features';
 
-// Local like the other two in the app (PresidentialMap, HouseGridChart): used here only to
-// label bootstrap cells on hover.
+// Local like HouseGridChart's copy: used here only to label bootstrap cells on hover.
 const FIPS_TO_ABBR: Record<string, string> = {
   '01':'AL','02':'AK','04':'AZ','05':'AR','06':'CA','08':'CO','09':'CT','10':'DE','11':'DC',
   '12':'FL','13':'GA','15':'HI','16':'ID','17':'IL','18':'IN','19':'IA','20':'KS','21':'KY',
