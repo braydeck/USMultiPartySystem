@@ -157,7 +157,7 @@ export function PrimaryShareCartogram({ stageShares, stage, primaryData }: Props
           ))}
           {notYet && <div className="text-xs text-muted-foreground">No votes cast yet.</div>}
         </div>
-        <div className="mt-3 pt-2 border-t border-border text-[10px] text-muted-foreground leading-snug">
+        <div className="mt-3 pt-2 border-t border-border text-3xs text-muted-foreground leading-snug">
           {surviving.length} candidate{surviving.length === 1 ? '' : 's'} still standing.
           {national[0] && ` ${labelFor(national[0].code)} leads the states that have voted with ${pct(national[0].pct)}.`}
         </div>
@@ -174,7 +174,7 @@ export function PrimaryShareCartogram({ stageShares, stage, primaryData }: Props
         {codes.length === 0 && <span className="text-muted-foreground"> — pod {state?.pod}, votes later</span>}
         <div className="flex flex-wrap gap-1 mt-1">
           {codes.map(c => (
-            <span key={c} className="px-1 rounded text-[10px] font-bold text-white"
+            <span key={c} className="px-1 rounded text-3xs font-bold text-white"
               style={{ backgroundColor: colorFor(c) }} title={labelFor(c)}>
               {c === EXHAUSTED ? EXHAUSTED : partyOf(c)} {valueFor(c, abbr)}
             </span>

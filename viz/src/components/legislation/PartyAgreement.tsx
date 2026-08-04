@@ -45,19 +45,19 @@ export function PartyAgreement({ candidateVotes, voteModel }: { candidateVotes: 
           <div className="grid gap-px items-end mb-px" style={{ gridTemplateColumns: COLS }}>
             <span />
             {parties.map((p) => (
-              <span key={p} className="text-[10px] font-bold text-center truncate px-0.5" style={{ color: getPartyColor(p) }} title={PARTY_NAMES[p] ?? p}>{p}</span>
+              <span key={p} className="text-3xs font-bold text-center truncate px-0.5" style={{ color: getPartyColor(p) }} title={PARTY_NAMES[p] ?? p}>{p}</span>
             ))}
           </div>
           {parties.map((row) => (
             <div key={row} className="grid gap-px items-center mb-px" style={{ gridTemplateColumns: COLS }}>
-              <span className="text-[10px] font-bold text-right pr-1.5 truncate" style={{ color: getPartyColor(row) }} title={PARTY_NAMES[row] ?? row}>{row}</span>
+              <span className="text-3xs font-bold text-right pr-1.5 truncate" style={{ color: getPartyColor(row) }} title={PARTY_NAMES[row] ?? row}>{row}</span>
               {parties.map((col) => {
                 const v = M[row]?.[col];
                 if (v == null || Number.isNaN(v)) return <div key={col} className="h-8 rounded-[2px] bg-muted/30" />;
                 if (row === col) return <div key={col} className="h-8 rounded-[2px]" style={{ backgroundColor: getPartyColor(row) + '55' }} />;
                 const bg = cividisForFrac(v / 100);
                 return (
-                  <div key={col} className="h-8 rounded-[2px] flex items-center justify-center text-[10px] font-semibold tabular-nums"
+                  <div key={col} className="h-8 rounded-[2px] flex items-center justify-center text-3xs font-semibold tabular-nums"
                     style={{ backgroundColor: bg, color: cividisText(bg) }}
                     title={`${PARTY_NAMES[row] ?? row} & ${PARTY_NAMES[col] ?? col}: ${view === 'position' ? `${Math.round(v)} similarity` : `agree ${Math.round(v)}% of the time`}`}>
                     {Math.round(v)}
@@ -66,7 +66,7 @@ export function PartyAgreement({ candidateVotes, voteModel }: { candidateVotes: 
               })}
             </div>
           ))}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-muted-foreground mt-2 pt-1.5 border-t border-border/40">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-3xs text-muted-foreground mt-2 pt-1.5 border-t border-border/40">
             <span className="flex items-center gap-1">
               {[0, .33, .66, 1].map((t) => <span key={t} className="w-3 h-2.5" style={{ backgroundColor: cividisForFrac(t) }} />)}
               0 (opposite) → 100 (identical)

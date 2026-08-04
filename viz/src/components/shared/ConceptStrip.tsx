@@ -1,4 +1,5 @@
 import { resetUrlParams } from '../../hooks/useUrlState';
+import { SECTION_HEADING, GROUP_LABEL, CARD_HINT } from '../../constants/typography';
 
 interface Concept {
   code: string;
@@ -69,7 +70,7 @@ export function ConceptStrip() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b border-border pb-2">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+        <h3 className={SECTION_HEADING}>
           Voting Systems at a Glance
         </h3>
         <a
@@ -87,7 +88,7 @@ export function ConceptStrip() {
       <div className="space-y-4">
         {groups.map((group) => (
           <div key={group.title} className="space-y-2">
-            <h4 className="text-xs font-semibold text-muted-foreground/80">
+            <h4 className={GROUP_LABEL}>
               {group.title}
             </h4>
             <div
@@ -103,7 +104,7 @@ export function ConceptStrip() {
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
                       <span
-                        className="text-[11px] font-bold font-mono px-1.5 py-0.5 rounded shrink-0"
+                        className="text-2xs font-bold font-mono px-1.5 py-0.5 rounded shrink-0"
                         style={{ backgroundColor: c.color + '18', color: c.color }}
                       >
                         {c.code}
@@ -112,11 +113,11 @@ export function ConceptStrip() {
                         {c.name}
                       </div>
                     </div>
-                    <p className="text-[11px] text-muted-foreground leading-snug mb-2">
+                    <p className={`${CARD_HINT} leading-snug mb-2`}>
                       {c.what}
                     </p>
                   </div>
-                  <p className="text-[11px] text-foreground/80 leading-snug pt-1 border-t border-border/50">
+                  <p className="text-2xs text-foreground/80 leading-snug pt-1 border-t border-border/50">
                     {c.here}
                   </p>
                 </div>

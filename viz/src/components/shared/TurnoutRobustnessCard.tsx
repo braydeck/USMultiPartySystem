@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
 import { uncertaintyAt } from '../../lib/uncertainty';
+import { CARD_HEADING, BODY_PROSE, FOOTNOTE } from '../../constants/typography';
 
 type Pres = { condorcetWinner: string; irvWinner: string };
 // President + House use the rank-7 model (the app default), read from the lazy depth bundles;
@@ -76,8 +77,8 @@ export function TurnoutRobustnessCard() {
   if (!series) {
     return (
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Turnout Robustness</h3>
-        <p className="text-[13px] text-muted-foreground">Loading…</p>
+        <h4 className={`${CARD_HEADING} mb-1`}>Turnout Robustness</h4>
+        <p className="text-sm text-muted-foreground">Loading…</p>
       </Card>
     );
   }
@@ -101,10 +102,10 @@ export function TurnoutRobustnessCard() {
 
   return (
     <Card className="p-5">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         Turnout Robustness
-      </h3>
-      <p className="text-[13px] text-muted-foreground mb-4 leading-relaxed">
+      </h4>
+      <p className={`${BODY_PROSE} mb-4`}>
         <span className="font-semibold text-foreground">Most outcomes hold across the plausible turnout band.</span> The
         slider closes the turnout gap between forces (the suppressed voting more, PR&apos;s documented contraction
         effect) and marks where each office&apos;s winner flips. The app opens at 5% gap closed; 0% is pure observed
@@ -120,12 +121,12 @@ export function TurnoutRobustnessCard() {
         <div className="relative h-1.5 rounded bg-amber-200/70 mt-1">
           <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70" style={{ width: '58.33%' }} />
         </div>
-        <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
+        <div className="flex justify-between text-2xs text-muted-foreground mt-1">
           <span>Observed (2024)</span>
           <span className="font-semibold text-foreground">{STOPS[i]}% gap closed{STOPS[i] >= 20 ? ' · stress' : STOPS[i] > 0 ? ' · plausible' : ' · observed'}</span>
           <span>Stress (30%)</span>
         </div>
-        <p className="text-[10px] text-muted-foreground mt-1">
+        <p className={`${FOOTNOTE} mt-1`}>
           <span className="text-emerald-700">▉ plausible (≤15%)</span> · <span className="text-amber-700">▉ stress (20–30%)</span>. The quasi-experimental PR turnout effect is small (1–4pts aggregate); &gt;30% is beyond one-cycle evidence.
         </p>
       </div>
@@ -138,7 +139,7 @@ export function TurnoutRobustnessCard() {
           <div key={r.office} className="contents">
             <div className="py-2 border-t border-border/50">
               <div className="text-foreground font-medium leading-tight">{r.office}</div>
-              <div className="text-[11px] text-muted-foreground">{r.note}</div>
+              <div className="text-2xs text-muted-foreground">{r.note}</div>
             </div>
             <div className="py-2 border-t border-border/50">{pill(r.cur)}</div>
             <div className="py-2 border-t border-border/50 text-right">
@@ -152,7 +153,7 @@ export function TurnoutRobustnessCard() {
         <div className="contents">
           <div className="py-2 border-t border-border/50">
             <div className="text-foreground font-medium leading-tight">House · Solidarity delegation</div>
-            <div className="text-[11px] text-muted-foreground">of 873 seats · plurality (CON) stable, composition is the story</div>
+            <div className="text-2xs text-muted-foreground">of 873 seats · plurality (CON) stable, composition is the story</div>
           </div>
           <div className="py-2 border-t border-border/50">
             <span className="font-semibold" style={{ color: PARTY_COLORS.STY }}>{series.houseSTY[i]} seats</span>
@@ -163,7 +164,7 @@ export function TurnoutRobustnessCard() {
         </div>
       </div>
 
-      <div className="mt-4 space-y-2.5 text-[13px] leading-relaxed">
+      <div className="mt-4 space-y-2.5 text-sm leading-relaxed">
         <p>
           <span className="font-semibold text-amber-700">President: the Condorcet winner turns on turnout.</span>{' '}
           <span className="text-foreground/90">At the 5% default it is Solidarity; at pure observed 2024 turnout (0%) it flips to Labor, which already wins IRV at every level. A Solidarity presidency needs even a small mobilization of suppressed voters; the Labor (IRV) result is robust.</span>
@@ -177,7 +178,7 @@ export function TurnoutRobustnessCard() {
           <span className="text-foreground/90">Labor leads at observed turnout and at every stop through the 30% stress ceiling, {senLbrLo} seats falling to {senLbrHi} as the gap closes. Solidarity takes most of what Labor and Conservative give up, {senStyLo}&rarr;{senStyHi} seats, and closes to within {senLbrHi - senStyHi} seat{senLbrHi - senStyHi === 1 ? '' : 's'} at the stress ceiling without ever taking the plurality. Turnout changes how large Labor&apos;s Senate plurality is, not who holds it. Two calibrations: no party&apos;s most likely delegation reaches the 26 needed for a majority, though Labor&apos;s resample range touches a bare one at the lower stops; and at the stress ceiling the lead is a single seat, where the observed sample hands the plurality to Solidarity instead.</span>
         </p>
       </div>
-      <p className="mt-3 text-[11px] text-muted-foreground">
+      <p className="mt-3 text-2xs text-muted-foreground">
         Chambers use the rank-7 ballot model (the app default). Contraction is modeled as upward mobilization of the
         suppressed forces, holding high-turnout forces fixed: conservative for containment, since it never deflates the poles.
       </p>

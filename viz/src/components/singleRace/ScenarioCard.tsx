@@ -8,6 +8,7 @@ import { aggregateFaceoff, type ElectionCycle } from './faceoff';
 import type { SRCandidate, H2HResult, ECResult, MicrotargetGroup } from '../../lib/singleRace';
 import { styleLabel } from '../../lib/singleRace';
 import { PARTY_NAMES, getContrastText } from '../../constants/parties';
+import { CARD_HEADING, MINOR_HEADING, CARD_HINT, FOOTNOTE } from '../../constants/typography';
 
 type Office = 'house' | 'senate' | 'presidency';
 
@@ -53,7 +54,7 @@ export function ScenarioCard(props: Props) {
   return (
     <Card className="p-4 space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Scenario {index + 1}</h3>
+        <h4 className={CARD_HEADING}>Scenario {index + 1}</h4>
         {canRemove && (
           <button type="button" onClick={onRemove}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -74,7 +75,7 @@ export function ScenarioCard(props: Props) {
           <span className="font-medium" style={{ color: bColor }}>{candName(bCand)}</span>
         </div>
         <EffectiveVoteBar aPct={agg.aLikelyPct} aColor={aColor} bColor={bColor} />
-        <div className="flex items-baseline justify-between text-[11px]">
+        <div className="flex items-baseline justify-between text-2xs">
           {office !== 'presidency' && h2h ? (
             <>
               <span className="text-muted-foreground">{raceLabel}</span>
@@ -99,8 +100,8 @@ export function ScenarioCard(props: Props) {
       {/* Mobilization — turnout scenario modeling */}
       <div className="space-y-2 pt-2 border-t border-border/40">
         <div>
-          <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Turnout mobilization</div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <div className="text-3xs font-semibold text-muted-foreground uppercase tracking-widest">Turnout mobilization</div>
+          <p className={`${FOOTNOTE} mt-0.5`}>
             Each slider converts unlikely voters into active ones, shifting the projected result above.
           </p>
         </div>
@@ -116,15 +117,15 @@ export function ScenarioCard(props: Props) {
 
       {/* Where the votes come from — numeric table, heatmapped per column in each party's color. */}
       <div className="pt-2 border-t border-border/50 space-y-1.5">
-        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Where the votes come from</div>
-        <p className="text-[11px] text-muted-foreground -mt-0.5">
+        <div className={MINOR_HEADING}>Where the votes come from</div>
+        <p className={`${CARD_HINT} -mt-0.5`}>
           Each cluster's electorate splits into three pools.{' '}
           <span className="font-medium text-foreground">Likely</span>: reliable turnout.{' '}
           <span className="font-medium text-foreground">Mobilize</span>: aligned but dormant—the gap between support and showing up.{' '}
           <span className="font-medium text-foreground">Persuade</span>: near the ideological boundary between candidates.
         </p>
         <div className="space-y-1">
-          <div className="flex items-baseline justify-between text-[11px]">
+          <div className="flex items-baseline justify-between text-2xs">
             <span className="text-muted-foreground">Full population: <span style={{ color: aColor }} className="font-semibold">{agg.aPct.toFixed(0)}% {aCand.party}</span></span>
             <span style={{ color: bColor }} className="font-semibold">{bCand.party} {agg.bPct.toFixed(0)}%</span>
           </div>
@@ -158,7 +159,7 @@ function MobSlider({ label, color, value, onChange }: {
 }) {
   return (
     <div className="flex-1 flex items-center gap-2">
-      <label className="text-[10px] font-semibold uppercase tracking-wider shrink-0" style={{ color }}>
+      <label className="text-3xs font-semibold uppercase tracking-wider shrink-0" style={{ color }}>
         {label} mobilize
       </label>
       <input
@@ -167,7 +168,7 @@ function MobSlider({ label, color, value, onChange }: {
         className="flex-1 h-1.5 accent-current cursor-pointer"
         style={{ color }}
       />
-      <span className="text-[10px] tabular-nums text-muted-foreground w-7 text-right">
+      <span className="text-3xs tabular-nums text-muted-foreground w-7 text-right">
         {(value * 100).toFixed(0)}%
       </span>
     </div>

@@ -43,6 +43,19 @@ export default {
         sans: ['Geist Sans', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['Geist Mono', 'ui-monospace', 'monospace'],
       },
+      // Steps below Tailwind's 12px floor. This app is data-dense — chart labels, legend
+      // chips, cartogram tooltips, table cells — and genuinely needs them. Naming them
+      // here is what keeps `text-[10px]` out of the source. Descending, so 2xs > 3xs > 4xs.
+      //
+      // Size only, no paired line-height, unlike the stock steps. These replaced ~250
+      // `text-[Npx]` utilities, which set font-size alone and left line-height inherited;
+      // pairing a line-height here would silently retighten 206 dense rows that never had
+      // one. Pair them deliberately, checking the layouts, not as a side effect of naming.
+      fontSize: {
+        '2xs': '0.6875rem', // 11px
+        '3xs': '0.625rem',  // 10px
+        '4xs': '0.5625rem', //  9px
+      },
     },
   },
   plugins: [],

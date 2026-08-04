@@ -4,6 +4,7 @@ import { PARTY_COLORS, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, getContrastText } 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { MINOR_HEADING, CARD_HINT, CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface Props {
   states: FPTPState[];
@@ -164,7 +165,7 @@ function SpotlightCard({
       {stvEntry && <PartyBar entry={stvEntry} label="Multi-party STV" />}
       {listEntry && <PartyBar entry={listEntry} label="Multi-party list" />}
 
-      <p className="text-xs text-muted-foreground leading-snug">
+      <p className={`${CARD_HINT} leading-snug`}>
         {isGopOver ? 'Republican' : 'Democrat'}s hold{' '}
         <span className="font-semibold" style={{ color: overColor }}>
           {overSeats}/{data.totalSeats} seats ({overSeatPct}%)
@@ -231,7 +232,7 @@ export function FPTPDisproportionality({ states, stateMap, listStateMap }: Props
     <div className="space-y-5">
       {/* Spotlight cards */}
       <div>
-        <p className="text-xs text-muted-foreground mb-3">
+        <p className={`${CARD_HINT} mb-3`}>
           Use the dropdowns to compare any states, sorted by gerrymander score (seat share − vote share gap).
           {stateMap && <span> The lower bars show what the same state returns under the
             ten-party simulation, by STV and by party list.</span>}
@@ -258,7 +259,7 @@ export function FPTPDisproportionality({ states, stateMap, listStateMap }: Props
           onClick={() => setShowDetail(v => !v)}
           aria-expanded={showDetail}
         >
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+          <span className={MINOR_HEADING}>
             Bubble chart &amp; full table
           </span>
           <span className="text-muted-foreground text-sm">{showDetail ? '▲' : '▼'}</span>
@@ -282,8 +283,8 @@ export function FPTPDisproportionality({ states, stateMap, listStateMap }: Props
                       <g key={v}>
                         <line x1={x} y1={0} x2={x} y2={PLOT_H} stroke="#f1f5f9" strokeWidth={1} />
                         <line x1={0} y1={y} x2={PLOT_W} y2={y} stroke="#f1f5f9" strokeWidth={1} />
-                        <text x={x} y={PLOT_H + 12} textAnchor="middle" fontSize={8} fill="#94a3b8">{v}%</text>
-                        <text x={-8} y={y} textAnchor="end" dominantBaseline="middle" fontSize={8} fill="#94a3b8">{v}%</text>
+                        <text x={x} y={PLOT_H + 12} textAnchor="middle" fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick}>{v}%</text>
+                        <text x={-8} y={y} textAnchor="end" dominantBaseline="middle" fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick}>{v}%</text>
                       </g>
                     );
                   })}
@@ -300,17 +301,17 @@ export function FPTPDisproportionality({ states, stateMap, listStateMap }: Props
                           <title>{s.state}: Vote {s.gopVotePct.toFixed(1)}% GOP, Seat {gopSeatPct.toFixed(0)}% GOP ({s.gopFptpSeats}/{s.totalSeats})</title>
                         </circle>
                         {s.totalSeats >= 10 && (
-                          <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize={6} fill="white" fontWeight={700}>
+                          <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize={CHART_TYPE.inMarkTight} fill="white" fontWeight={700}>
                             {s.state.substring(0, 2)}
                           </text>
                         )}
                       </g>
                     );
                   })}
-                  <text x={PLOT_W / 2} y={PLOT_H + 24} textAnchor="middle" fontSize={9} fill="#64748b">GOP Vote Share →</text>
+                  <text x={PLOT_W / 2} y={PLOT_H + 24} textAnchor="middle" fontSize={CHART_TYPE.smallTick} fill={CHART_FILL.label}>GOP Vote Share →</text>
                   <text
                     x={-24} y={PLOT_H / 2}
-                    textAnchor="middle" fontSize={9} fill="#64748b"
+                    textAnchor="middle" fontSize={CHART_TYPE.smallTick} fill={CHART_FILL.label}
                     transform={`rotate(-90,${-24},${PLOT_H / 2})`}
                   >GOP Seat Share →</text>
                 </g>

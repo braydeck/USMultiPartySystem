@@ -1,5 +1,6 @@
 import type { FDPrimaryCandidate } from '../../types';
 import { getBlendColor, lightenHex } from '../../constants/parties';
+import { MINOR_HEADING } from '../../constants/typography';
 
 interface Props {
   candidates: FDPrimaryCandidate[];
@@ -38,7 +39,7 @@ export function TransferGauges({ candidates, stage, prevStage }: Props) {
       {/* Eliminated candidates this round */}
       {eliminated.length > 0 && (
         <div>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+          <div className={`${MINOR_HEADING} mb-2`}>
             Eliminated This Round
           </div>
           <div className="space-y-1.5">
@@ -71,7 +72,7 @@ export function TransferGauges({ candidates, stage, prevStage }: Props) {
 
       {/* Surviving candidates — carry-over + absorbed */}
       <div>
-        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+        <div className={`${MINOR_HEADING} mb-2`}>
           {prevStage ? 'After Transfer' : 'Vote Share'}
         </div>
         <div className="space-y-1.5">

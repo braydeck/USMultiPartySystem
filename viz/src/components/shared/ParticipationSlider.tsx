@@ -1,3 +1,4 @@
+import { FIELD_LABEL } from '../../constants/typography';
 export const GAP_STOPS = [0, 5, 10, 15, 20, 25, 30] as const;
 // Zone by stop: 0 = observed data, 5–15 = plausible (15 = ceiling), 20–30 = stress (beyond one-cycle evidence).
 const ZONE: Record<number, string> = { 0: 'observed', 5: 'plausible', 10: 'plausible', 15: 'plausible', 20: 'stress', 25: 'stress', 30: 'stress' };
@@ -15,7 +16,7 @@ export function ParticipationSlider({ value, onChange }: Props) {
   const idx = Math.max(0, GAP_STOPS.indexOf(value as typeof GAP_STOPS[number]));
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-muted-foreground uppercase tracking-widest">Turnout gap closed</span>
+      <span className={FIELD_LABEL}>Turnout gap closed</span>
       <div className="flex flex-col gap-0.5 w-[168px]"
         title="Share of the inter-force turnout gap closed (contraction effect). 0% = observed 2024; ≤15% plausible for one cycle; 20–30% = stress test.">
         <input
@@ -28,7 +29,7 @@ export function ParticipationSlider({ value, onChange }: Props) {
         <div className="relative h-1 rounded bg-amber-200/70">
           <div className="absolute inset-y-0 left-0 rounded bg-emerald-400/70" style={{ width: '58.33%' }} />
         </div>
-        <div className="flex justify-between text-[9px] text-muted-foreground leading-none">
+        <div className="flex justify-between text-4xs text-muted-foreground leading-none">
           <span>Observed</span>
           <span className="font-semibold text-foreground">{value}% · {ZONE[value]}</span>
           <span>Stress</span>

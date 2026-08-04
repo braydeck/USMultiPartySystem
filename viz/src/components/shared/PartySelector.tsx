@@ -37,7 +37,7 @@ export function PartySelector({ selected, onToggle, baseParties, crossover, curr
       {crossover && crossover.length > 0 && (
         <div className="relative">
           <button onClick={() => setOpen(o => !o)}
-            className="text-[11px] font-medium text-muted-foreground hover:text-foreground border border-dashed border-border rounded-full px-2 py-1">
+            className="text-2xs font-medium text-muted-foreground hover:text-foreground border border-dashed border-border rounded-full px-2 py-1">
             {open ? '▾' : '＋'} Crossover{selectedCrossover.length ? ` · ${selectedCrossover.length}` : ` (${crossover.length})`}
           </button>
           {open && (
@@ -55,7 +55,7 @@ export function PartySelector({ selected, onToggle, baseParties, crossover, curr
       {currentParties && currentParties.length > 0 && (
         <div className="relative">
           <button onClick={() => setOpenCur(o => !o)}
-            className="text-[11px] font-medium text-muted-foreground hover:text-foreground border border-dashed border-border rounded-full px-2 py-1">
+            className="text-2xs font-medium text-muted-foreground hover:text-foreground border border-dashed border-border rounded-full px-2 py-1">
             {openCur ? '▾' : '＋'} Current parties
             {(() => { const n = currentParties.filter(o => selected.includes(o.code)).length; return n ? ` · ${n}` : ` (${currentParties.length})`; })()}
           </button>

@@ -4,6 +4,7 @@ import {
 } from 'recharts';
 import type { PrimaryCandidate } from '../../types';
 import { getPartyColor } from '../../constants/parties';
+import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface Props {
   candidates: PrimaryCandidate[];
@@ -36,14 +37,14 @@ export function EliminationWaterfall({ candidates, stage, quota }: Props) {
           type="number"
           domain={[0, 'auto']}
           tickFormatter={v => `${v.toFixed(1)}%`}
-          tick={{ fill: '#94a3b8', fontSize: 11 }}
+          tick={{ fill: CHART_FILL.tick, fontSize: CHART_TYPE.seriesLabel }}
           axisLine={{ stroke: '#e2e8f0' }}
         />
         <YAxis
           type="category"
           dataKey="name"
           width={88}
-          tick={{ fill: '#cbd5e1', fontSize: 12 }}
+          tick={{ fill: CHART_FILL.faint, fontSize: CHART_TYPE.cellValue }}
           axisLine={false}
           tickLine={false}
         />
@@ -56,7 +57,7 @@ export function EliminationWaterfall({ candidates, stage, quota }: Props) {
           x={quota}
           stroke="#fbbf24"
           strokeDasharray="4 4"
-          label={{ value: 'Quota', fill: '#fbbf24', fontSize: 11, position: 'right' }}
+          label={{ value: 'Quota', fill: '#fbbf24', fontSize: CHART_TYPE.seriesLabel, position: 'right' }}
         />
         <Bar dataKey="votePct" radius={[0, 3, 3, 0]} isAnimationActive animationDuration={400}>
           {data.map((entry) => {

@@ -6,6 +6,7 @@ import { SHOW_CROSSOVER } from '../../constants/features';
 import { blocOutcome, houseProbField, presSigns, type SeatMap } from './voteBloc';
 import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, WhippedBadge, type VerdictLabel } from './UnifiedBillTable';
 import { Card } from '@/components/ui/card';
+import { FIELD_LABEL } from '../../constants/typography';
 
 // Crossover only; the party-line side resolves by the party of the president in `election`,
 // which is the one this panel displays.
@@ -161,21 +162,24 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
   return (
     <Card className="border-amber-300 overflow-hidden">
       <div className="px-4 py-3 bg-amber-50 border-b border-amber-200">
-        <h3 className="text-sm font-semibold text-amber-900">
+        {/* CARD_HEADING's size, weight and case; amber instead of muted, since the colour is
+            what marks this card as the warning. Not composed, so the colour can't lose a
+            specificity race with text-muted-foreground. */}
+        <h4 className="text-sm font-semibold text-amber-900 uppercase tracking-widest">
           Method Divergences{label} — {divergentBills.length} bill{divergentBills.length !== 1 ? 's' : ''} where IRV ≠ Condorcet
-        </h3>
+        </h4>
         <p className="text-xs text-amber-700 mt-0.5">
           Bills where the election method (Condorcet vs IRV) changes the Senate outcome, the president&apos;s veto decision, or creates a House–Senate split.
         </p>
       </div>
 
       {/* Two-tier header: House, then a Condorcet group (Senate + President) and an IRV group */}
-      <div className={`hidden md:grid ${COLS} gap-x-1 px-4 pt-2 text-[10px] font-bold uppercase tracking-widest`}>
+      <div className={`hidden md:grid ${COLS} gap-x-1 px-4 pt-2 text-3xs font-bold uppercase tracking-widest`}>
         <div /><div />
         <div className="col-span-2 text-center border-l border-border/40" style={{ color: condColor }}>Condorcet</div>
         <div className="col-span-2 text-center border-l border-border/40" style={{ color: irvColor }}>IRV</div>
       </div>
-      <div className={`hidden md:grid ${COLS} gap-x-1 px-4 pb-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest`}>
+      <div className={`hidden md:grid ${COLS} gap-x-1 px-4 pb-2 border-b border-border/50 ${FIELD_LABEL}`}>
         <div>Bill</div>
         <div className="text-center">House</div>
         <div className="text-center border-l border-border/40">Senate</div>

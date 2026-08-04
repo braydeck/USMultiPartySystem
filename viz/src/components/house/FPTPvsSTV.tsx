@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { HouseSeat } from '../../types';
 import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER, getContrastText } from '../../constants/parties';
 import { useElementWidth } from '../../hooks/useElementWidth';
+import { CARD_HEADING } from '../../constants/typography';
 
 // 2024 House composition (approximate)
 const FPTP_HOUSE = { GOP: 220, DEM: 215 };
@@ -196,9 +197,11 @@ export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLab
 
   return (
     <div ref={rootRef} className="space-y-3">
-      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
-        {title} — House of Representatives
-      </div>
+      {/* No "— House of Representatives" suffix: every caller is already in a House context
+          (the House tab, or the Overview's House group), so it only repeated the label above. */}
+      <h4 className={`${CARD_HEADING} mb-1`}>
+        {title}
+      </h4>
 
       <FixedPartyBar label="FPTP Today" total={FPTP_TOTAL} dem={FPTP_HOUSE.DEM} gop={FPTP_HOUSE.GOP} />
       <FixedPartyBar label="PR (2-party)" total={PR2_TOTAL} dem={PR2_HOUSE.DEM} gop={PR2_HOUSE.GOP} />

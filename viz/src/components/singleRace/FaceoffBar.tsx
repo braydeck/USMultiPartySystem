@@ -49,7 +49,7 @@ export function FaceoffBar({ f, aColor, bColor, height = 34, labels = false }: {
       {labels && (
         <div className="relative h-3.5 mt-0.5">
           {labs.map(l => (
-            <span key={l.key} className="absolute top-0 text-[10px] font-semibold tabular-nums whitespace-nowrap"
+            <span key={l.key} className="absolute top-0 text-3xs font-semibold tabular-nums whitespace-nowrap"
               style={l.anchor === 'r'
                 ? { left: `${l.at}%`, transform: 'translateX(-100%)', paddingRight: '3px', color: l.color }
                 : l.anchor === 'l'
@@ -68,7 +68,7 @@ export function FaceoffBar({ f, aColor, bColor, height = 34, labels = false }: {
 export function ToneLegend({ color }: { color: string }) {
   const sw = 'w-3.5 h-3 rounded-sm inline-block shrink-0';
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-3xs text-muted-foreground">
       <span className="flex items-center gap-1"><span className={sw} style={{ backgroundColor: color }} /> likely to vote</span>
       <span className="flex items-center gap-1"><span className={sw} style={{ backgroundColor: color, backgroundImage: MOB_HATCH }} /> mobilize (unlikely voter)</span>
       <span className="flex items-center gap-1"><span className={sw} style={{ backgroundColor: lightenHex(color, 0.5) }} /> persuadable</span>

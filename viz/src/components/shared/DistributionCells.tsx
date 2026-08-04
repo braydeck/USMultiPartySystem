@@ -17,7 +17,7 @@ export interface CompMeta { question: string; segLabels: string[]; colors?: stri
 export function FactorTags({ shorts }: { shorts?: string[] }) {
   if (!shorts || shorts.length === 0) return null;
   return <>{shorts.map(s => (
-    <span key={s} className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">{s}</span>
+    <span key={s} className="inline-block text-4xs font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">{s}</span>
   ))}</>;
 }
 
@@ -51,17 +51,17 @@ export function RangeBarCell({ meta, national, byCode, codes, marks, factors, lo
       <div className="text-xs text-foreground leading-snug font-medium mb-2">
         {diverges && <span className="text-amber-500 mr-1 align-middle" title="Selected parties diverge here">◆</span>}
         {loadingWeight !== undefined && (
-          <span className="text-[9px] font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
+          <span className="text-4xs font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
             {loadingWeight >= 0 ? '+' : ''}{loadingWeight.toFixed(2)}
           </span>
         )}
-        <FactorTags shorts={factors} />{meta.question} <span className="text-[10px] text-muted-foreground font-normal">
+        <FactorTags shorts={factors} />{meta.question} <span className="text-3xs text-muted-foreground font-normal">
           ({meta.unit === 'wks' ? 'weeks' : meta.unit === '$k' ? '$ thousands' : 'years'})</span>
       </div>
       {/* axis */}
       <div className="flex items-end gap-2 mb-1">
         <span className="w-11 shrink-0" />
-        <div className="flex-1 relative h-3 text-[9px] text-muted-foreground">
+        <div className="flex-1 relative h-3 text-4xs text-muted-foreground">
           {ticks.map(t => (
             <span key={t} className="absolute -translate-x-1/2 tabular-nums" style={{ left: `${pos(t)}%` }}>{u(t)}</span>
           ))}
@@ -74,7 +74,7 @@ export function RangeBarCell({ meta, national, byCode, codes, marks, factors, lo
           const v = isNat ? national : byCode[code];
           const color = isNat ? NAT : getBlendColor(code);
           return (
-            <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+            <div key={code} className="flex items-center gap-2 text-3xs tabular-nums">
               <PartyRowLabel code={code} signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
               <div className="flex-1 relative h-4">
                 {/* faint gridlines at ticks */}
@@ -93,13 +93,13 @@ export function RangeBarCell({ meta, national, byCode, codes, marks, factors, lo
               </div>
               <span className="w-16 shrink-0 text-right leading-tight">
                 <span className="font-semibold text-foreground">{u(v.median)}</span>
-                <span className="block text-[9px] text-muted-foreground">{u(v.q25)}–{u(v.q75)}</span>
+                <span className="block text-4xs text-muted-foreground">{u(v.q25)}–{u(v.q75)}</span>
               </span>
             </div>
           );
         })}
       </div>
-      <div className="text-[9px] text-muted-foreground mt-1.5 pl-[52px]">
+      <div className="text-4xs text-muted-foreground mt-1.5 pl-[52px]">
         box = middle 50% (25th–75th pct) · tick = median · whisker = 10th–90th pct
       </div>
     </div>
@@ -134,7 +134,7 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks, fac
       </div>
       <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 mb-1.5">
         {meta.segLabels.map((l, i) => (
-          <span key={l} className="inline-flex items-center gap-1 text-[9px] text-muted-foreground">
+          <span key={l} className="inline-flex items-center gap-1 text-4xs text-muted-foreground">
             <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: colors[i] }} />{l}
           </span>
         ))}
@@ -142,7 +142,7 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks, fac
       {/* Diverging: the middle category is pulled into its own column (like the "neither" agree
           layout) so the two poles diverge from a clean center and stay easy to compare. */}
       {diverging && (
-        <div className="flex items-center gap-2 text-[9px] text-muted-foreground uppercase tracking-wide mb-0.5">
+        <div className="flex items-center gap-2 text-4xs text-muted-foreground uppercase tracking-wide mb-0.5">
           <span className="w-11 shrink-0" />
           <span className="w-24 shrink-0 text-center">{meta.segLabels[pivot]}</span>
           <span className="w-7 shrink-0" />
@@ -162,7 +162,7 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks, fac
             let rx = 50;
             for (let i = pivot + 1; i < p.length; i++) { const w = p[i] * 0.5; segs.push({ left: rx, width: w, color: colors[i], title: `${meta.segLabels[i]}: ${Math.round(raw[i])}%` }); rx += w; }
             return (
-              <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+              <div key={code} className="flex items-center gap-2 text-3xs tabular-nums">
                 <PartyRowLabel code={code} signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
                 <div className="w-24 shrink-0 flex items-center gap-1" title={`${meta.segLabels[pivot]}: ${Math.round(neutral)}%`}>
                   <div className="relative h-3 flex-1 rounded-sm bg-muted overflow-hidden">
@@ -184,7 +184,7 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks, fac
           }
           let cum = 0;
           return (
-            <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+            <div key={code} className="flex items-center gap-2 text-3xs tabular-nums">
               <PartyRowLabel code={code} signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
               <div className="flex-1 relative h-3.5 rounded-sm overflow-hidden bg-muted">
                 {p.map((seg, i) => {
@@ -200,7 +200,7 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks, fac
           );
         })}
       </div>
-      {hasVal && <div className="text-[9px] text-muted-foreground mt-1 pl-[52px]">value column = median</div>}
+      {hasVal && <div className="text-4xs text-muted-foreground mt-1 pl-[52px]">value column = median</div>}
     </div>
   );
 }
@@ -223,18 +223,18 @@ export function HeatmapCell({ meta, national, byCode, codes, marks, factors }: {
       <div className="grid gap-px" style={{ gridTemplateColumns: `56px repeat(${cols}, minmax(0, 1fr))` }}>
         <span />
         {meta.segLabels.map(l => (
-          <span key={l} className="text-[8.5px] text-muted-foreground text-center leading-tight px-0.5 pb-0.5" title={l}>{l}</span>
+          <span key={l} className="text-4xs text-muted-foreground text-center leading-tight px-0.5 pb-0.5" title={l}>{l}</span>
         ))}
         {rows.map(({ code, pcts }) => (
           <div key={code} className="contents">
-            <PartyRowLabel code={code} className="self-center text-[10px] w-[76px] pr-1" signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
+            <PartyRowLabel code={code} className="self-center text-3xs w-[76px] pr-1" signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
             {pcts.map((v, i) => {
               // Cividis by within-grid share: dark navy = low → yellow = high. Perceptually
               // uniform and colorblind-safe; exact % is printed in the cell either way.
               const a = Math.min(1, v / scaleMax);
               const bg = cividisForFrac(a);
               return (
-                <div key={i} className="h-6 flex items-center justify-center text-[9px] tabular-nums rounded-[2px]"
+                <div key={i} className="h-6 flex items-center justify-center text-4xs tabular-nums rounded-[2px]"
                   title={`${meta.segLabels[i]}: ${v.toFixed(1)}%`}
                   style={{ backgroundColor: bg, color: cividisText(bg) }}>
                   {v >= 0.5 ? Math.round(v) : ''}
@@ -244,7 +244,7 @@ export function HeatmapCell({ meta, national, byCode, codes, marks, factors }: {
           </div>
         ))}
       </div>
-      <div className="text-[9px] text-muted-foreground mt-1.5">% of each party (row) in each category · darker = higher share</div>
+      <div className="text-4xs text-muted-foreground mt-1.5">% of each party (row) in each category · darker = higher share</div>
     </div>
   );
 }

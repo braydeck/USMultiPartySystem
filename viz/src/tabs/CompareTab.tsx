@@ -24,6 +24,7 @@ import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CurrentPartyDistance } from '../components/parties/CurrentPartyDistance';
+import { PAGE_TITLE, CARD_HEADING, MINOR_HEADING, TABLE_HEADER, CARD_HINT } from '../constants/typography';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -301,10 +302,10 @@ function FactorBarRow({
     <div className="px-4 py-3">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm font-semibold text-foreground">{FACTOR_LABELS[factor]}</span>
-        <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1 rounded">{FACTOR_SHORT[factor]}</span>
+        <span className="text-3xs text-muted-foreground font-mono bg-muted px-1 rounded">{FACTOR_SHORT[factor]}</span>
         {FACTOR_ETA[factor] !== undefined && (
           <span className="ml-auto flex items-center gap-1.5" title={`Discriminatory value: η² = ${FACTOR_ETA[factor].toFixed(3)} — how strongly this factor sorts voters into parties`}>
-            <span className="text-[10px] text-muted-foreground font-mono">η² {FACTOR_ETA[factor].toFixed(2)}</span>
+            <span className="text-3xs text-muted-foreground font-mono">η² {FACTOR_ETA[factor].toFixed(2)}</span>
             <span className="block w-16 h-1.5 bg-muted rounded-full overflow-hidden">
               <span className="block h-full rounded-full" style={{ width: `${FACTOR_ETA[factor] * 100}%`, backgroundColor: etaPurple(FACTOR_ETA[factor]) }} />
             </span>
@@ -318,7 +319,7 @@ function FactorBarRow({
           const color = bamForZ(z);
           const val = isPct ? `${Math.round(pctile)}%` : `${z >= 0 ? '+' : ''}${z.toFixed(1)}σ`;
           return (
-            <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+            <div key={code} className="flex items-center gap-2 text-3xs tabular-nums">
               <span className="w-11 shrink-0 font-bold text-right"><PartyCode code={code} /></span>
               <div className="flex-1 relative h-3 rounded-sm bg-muted overflow-hidden">
                 <div className="absolute inset-y-0 rounded-sm" style={{ left: isHigh ? '50%' : `${50 - w}%`, width: `${w}%`, backgroundColor: color }} />
@@ -329,7 +330,7 @@ function FactorBarRow({
           );
         })}
       </div>
-      <div className="flex justify-between text-[9px] mt-1.5">
+      <div className="flex justify-between text-4xs mt-1.5">
         <span style={{ color: '#2563eb' }}>← {poles?.low ?? ''}</span>
         <span className="text-muted-foreground">{isPct ? '50% = median' : '0 = U.S. mean'}</span>
         <span style={{ color: '#dc2626' }}>{poles?.high ?? ''} →</span>
@@ -421,7 +422,7 @@ function FactorItemsPanel({
   return (
     <div className="border-t border-border/30 bg-slate-50/50">
       <div className="px-4 py-2">
-        <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+        <span className={TABLE_HEADER}>
           Underlying EFA items ({shown.length})
         </span>
       </div>
@@ -486,16 +487,16 @@ function StackedBarCell({ item, codes, marks, label }: { item: BarItem; codes: s
       <div className="text-xs text-foreground leading-snug font-medium mb-2">
         {item.highlighted && <span className="text-amber-500 mr-1 align-middle" title="Selected parties diverge here">◆</span>}
         {item.loadingWeight !== undefined && (
-          <span className="text-[9px] font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
+          <span className="text-4xs font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
             {item.loadingWeight >= 0 ? '+' : ''}{item.loadingWeight.toFixed(2)}
           </span>
         )}
         {item.factors && item.factors.length > 0
           ? item.factors.map(f => (
-              <span key={f.factor} className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[f.factor]}</span>
+              <span key={f.factor} className="inline-block text-4xs font-bold px-1 py-0.5 rounded mr-1 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[f.factor]}</span>
             ))
           : item.factor
-            ? <span className="inline-block text-[9px] font-bold px-1 py-0.5 rounded mr-1.5 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[item.factor]}</span>
+            ? <span className="inline-block text-4xs font-bold px-1 py-0.5 rounded mr-1.5 bg-muted text-muted-foreground align-middle">{FACTOR_SHORT[item.factor]}</span>
             : null}
         {label}
       </div>
@@ -507,7 +508,7 @@ function StackedBarCell({ item, codes, marks, label }: { item: BarItem; codes: s
           const color = isNat ? '#64748b' : getBlendColor(code);
           const pos = Math.min((val / maxVal) * 100, 100);
           return (
-            <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+            <div key={code} className="flex items-center gap-2 text-3xs tabular-nums">
               <PartyRowLabel code={code} signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
               <div className="flex-1 relative h-3 rounded-sm bg-muted overflow-hidden">
                 <div className="absolute inset-y-0 left-0 rounded-sm"
@@ -532,7 +533,7 @@ function IntensityCell({ item, codes, question, marks, loadingWeight, diverges }
       <div className="text-xs text-foreground leading-snug font-medium mb-1">
         {diverges && <span className="text-amber-500 mr-1 align-middle" title="Selected parties diverge here">◆</span>}
         {loadingWeight !== undefined && (
-          <span className="text-[9px] font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
+          <span className="text-4xs font-mono font-semibold text-indigo-600 mr-1.5 align-middle">
             {loadingWeight >= 0 ? '+' : ''}{loadingWeight.toFixed(2)}
           </span>
         )}
@@ -540,7 +541,7 @@ function IntensityCell({ item, codes, question, marks, loadingWeight, diverges }
       </div>
       <IntensityLegend item={item} />
       {/* column header */}
-      <div className="flex items-center gap-2 text-[9px] text-muted-foreground uppercase tracking-wide mt-1.5 mb-0.5">
+      <div className="flex items-center gap-2 text-4xs text-muted-foreground uppercase tracking-wide mt-1.5 mb-0.5">
         <span className="w-11 shrink-0" />
         <span className="w-24 shrink-0 text-center">neither</span>
         <span className="w-7 shrink-0" />
@@ -553,7 +554,7 @@ function IntensityCell({ item, codes, question, marks, loadingWeight, diverges }
           if (!shares) return null;
           const sp = splitShares(item, shares);
           return (
-            <div key={code} className="flex items-center gap-2 text-[10px] tabular-nums">
+            <div key={code} className="flex items-center gap-2 text-3xs tabular-nums">
               <PartyRowLabel code={code} signature={marks?.[code]?.dot} mark={marks?.[code]?.mark} />
               {sp && (sp.neutral != null ? (
                 <div className="w-24 shrink-0 flex items-center gap-1">
@@ -866,8 +867,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   // parties stay on the map, the selected ones are emphasized. Rendered below the factor scores.
   const constellationCard = (
     <Card className="p-4">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
-      <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+      <h4 className={`${CARD_HEADING} mb-1`}>Ideological Constellation</h4>
+      <p className={`${CARD_HINT} mb-3 leading-relaxed`}>
         Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
         <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
         {selected.length > 0 && ' Selected parties are highlighted; the rest stay for context.'}
@@ -879,12 +880,10 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Parties</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>Parties</h2>
         <p className="text-muted-foreground text-sm leading-relaxed">
-          Select one party to see its platform, or several to compare. Single-number positions render as a
-          heatmap shaded by support, with a US baseline column; richer items keep their distribution bars and
-          box plots. Signature tags read the same everywhere: <SigTag kind="C" /> when a party holds a position
-          cohesively, plus <SigTag kind="M" /> mainstream or <SigTag kind="D" /> deviant from the US average.
+          Select one party to see its platform or several to compare. <br /><br /><SigTag kind="C" /> = a party holds a position
+          cohesively; <SigTag kind="M" /> = party positions are close to the US Average; <SigTag kind="D" /> deviant from the US average.
           A <span className="text-amber-500 font-bold">◆</span> marks rows where the selected parties diverge (≥{minGap}pp apart).
         </p>
       </div>
@@ -942,7 +941,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
               party was picked made them look like a consequence of picking one. */}
           <div className="pt-1.5 border-t border-border/40 flex flex-wrap items-center gap-x-5 gap-y-1.5">
               <SignatureFilters s={sig} accent="#6366f1" />
-              <div className="flex items-center gap-1.5 text-[11px] shrink-0 border-l border-border/50 pl-4">
+              <div className="flex items-center gap-1.5 text-2xs shrink-0 border-l border-border/50 pl-4">
                 <span className="font-semibold text-foreground whitespace-nowrap"><span className="text-amber-500">◆</span> Divergence</span>
                 <input type="range" min={0} max={50} step={5} value={minGap}
                   onChange={e => setMinGap(Number(e.target.value))} className="w-16" style={{ accentColor: '#6366f1' }} />
@@ -960,7 +959,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
       <PartyProfileGrid clusters={filteredClusters} />
 
       {selected.length === 0 && (
-        <p className="text-xs text-muted-foreground">
+        <p className={CARD_HINT}>
           Showing all ten parties. Filter above to narrow the comparison — try PRG + NAT
           (maximum divergence) or LBR + CON (presidential rivals)
           {SHOW_CROSSOVER && ', or LBR_hi_so + LBR for crossover against its base'}.
@@ -974,11 +973,11 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
           <Card className="overflow-hidden">
             <div className="px-4 py-3 border-b border-border/50 bg-muted flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Factor Scores</span>
+                <span className={MINOR_HEADING}>Factor Scores</span>
                 <span className="text-xs text-muted-foreground ml-3">
                   {factorScale === 'strength' ? 'Strongly >1.5σ · Moderately 1.0σ · Leans 0.5σ · Mixed <0.5σ' : '0% = lowest · 50% = median · 100% = highest'}
                 </span>
-                <span className="text-[10px] text-muted-foreground ml-3">ordered by discriminatory value (η²)</span>
+                <span className="text-3xs text-muted-foreground ml-3">ordered by discriminatory value (η²)</span>
               </div>
               <div className="flex gap-1">
                 <Button onClick={() => setFactorScale('strength')}
@@ -1006,8 +1005,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                     >
                       <FactorBarRow factor={f} codes={orderedSelected} clusters={clusters} fdProfiles={fdProfiles} scaleMode={factorScale} />
                       <div className="flex items-center justify-center pb-2 gap-1">
-                        <span className="text-muted-foreground text-[10px]">{isExpanded ? '▲' : '▼'}</span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-muted-foreground text-3xs">{isExpanded ? '▲' : '▼'}</span>
+                        <span className="text-3xs text-muted-foreground">
                           {isExpanded ? 'collapse items' : `expand items (${(FACTOR_ITEMS[f] ?? []).length})`}
                         </span>
                       </div>
@@ -1124,7 +1123,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                               <div className="px-4 pt-3 pb-1.5 bg-slate-50 border-t border-border/50">
                                 <div className="text-xs font-semibold text-foreground">{grp.label}</div>
                                 {grp.multi && (
-                                  <div className="text-[11px] text-muted-foreground">Select all that apply: share of each party choosing this option (can exceed 100%)</div>
+                                  <div className="text-2xs text-muted-foreground">Select all that apply: share of each party choosing this option (can exceed 100%)</div>
                                 )}
                               </div>
                             )}

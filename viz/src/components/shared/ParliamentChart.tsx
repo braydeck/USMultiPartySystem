@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { getBlendColor, FACTOR_LABELS } from '../../constants/parties';
 import { layoutSeatDots, INNER_R, RING_GAP } from '../../lib/parliamentLayout';
 import type { ParliamentSegment } from '../../lib/parliamentLayout';
+import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 // Re-exported so existing `import type { ParliamentSegment } from '.../ParliamentChart'`
 // call sites keep working; the layout itself lives in lib/parliamentLayout.
@@ -133,19 +134,19 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
             const ly = -labelR * Math.sin(angle);
             const anchor = mid < 0.12 ? 'end' : mid > 0.88 ? 'start' : 'middle';
             return (
-              <text key={i} x={lx} y={ly} textAnchor={anchor} fontSize={7} fill="#94a3b8">
+              <text key={i} x={lx} y={ly} textAnchor={anchor} fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick}>
                 {CAT_LABELS[b.band]}
               </text>
             );
           })}
 
           {/* Min/max value at arc ends */}
-          <text x={-outerR - 6} y={4} textAnchor="end" fontSize={7} fill="#94a3b8">{arcMinLabel}</text>
-          <text x={outerR + 6} y={4} textAnchor="start" fontSize={7} fill="#94a3b8">{arcMaxLabel}</text>
+          <text x={-outerR - 6} y={4} textAnchor="end" fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick}>{arcMinLabel}</text>
+          <text x={outerR + 6} y={4} textAnchor="start" fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick}>{arcMaxLabel}</text>
         </g>
 
         {/* Bottom axis label */}
-        <text x={VB_W / 2} y={VB_H - 2} fontSize={8} fill="#94a3b8" textAnchor="middle">
+        <text x={VB_W / 2} y={VB_H - 2} fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick} textAnchor="middle">
           ← Low {factorLabel}  ·  High →
         </text>
       </svg>

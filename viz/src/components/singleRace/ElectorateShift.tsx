@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { SHIFT_AXES } from '../../lib/singleRace';
 import { FACTOR_POLES, FACTOR_LABELS } from '../../constants/parties';
+import { CARD_HEADING, GROUP_LABEL, CARD_HINT } from '../../constants/typography';
 
 const RANGE = 0.75; // ± population SD
 const STEP = 0.05;
@@ -24,7 +25,7 @@ function AxisSlider({ factor, value, onChange }: {
   const poles = FACTOR_POLES[factor];
   return (
     <div className="space-y-0.5">
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="flex items-center justify-between text-2xs text-muted-foreground">
         <span>{poles.low}</span>
         <span className="font-medium text-foreground tabular-nums">{value === 0 ? '—' : fmt(value)}</span>
         <span>{poles.high}</span>
@@ -56,12 +57,12 @@ function Group({ title, blurb, sigma, setSigma, footer }: {
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-2">
         <div>
-          <h4 className="text-sm font-semibold">{title}</h4>
-          <p className="text-[11px] text-muted-foreground">{blurb}</p>
+          <h4 className={GROUP_LABEL}>{title}</h4>
+          <p className={CARD_HINT}>{blurb}</p>
         </div>
         {active && (
           <button type="button" onClick={() => setSigma([0, 0, 0, 0, 0])}
-            className="text-[11px] text-muted-foreground hover:text-foreground shrink-0">Reset</button>
+            className="text-2xs text-muted-foreground hover:text-foreground shrink-0">Reset</button>
         )}
       </div>
       <div className="space-y-2.5">
@@ -83,10 +84,10 @@ export function ElectorateShift({ opinionSigma, turnoutSigma, setOpinionSigma, s
       <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open}
         className="w-full flex items-center justify-between gap-2">
         <div className="text-left">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+          <h4 className={CARD_HEADING}>
             Shift the electorate {anyActive && <span className="text-foreground normal-case tracking-normal font-normal">· active</span>}
-          </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          </h4>
+          <p className={`${CARD_HINT} mt-0.5`}>
             Model a different electorate. Zero = today's electorate.
           </p>
         </div>
@@ -106,7 +107,7 @@ export function ElectorateShift({ opinionSigma, turnoutSigma, setOpinionSigma, s
             sigma={turnoutSigma}
             setSigma={setTurnoutSigma}
             footer={
-              <p className="text-[11px] text-muted-foreground pt-1">
+              <p className={`${CARD_HINT} pt-1`}>
                 Effective electorate: {(essFraction * 100).toFixed(0)}% of today's
                 {essFraction < 0.5 && ' — leaning on a thin slice'}
               </p>

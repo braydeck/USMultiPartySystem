@@ -20,7 +20,7 @@ export function SignatureFilters({ s, accent }: { s: SignatureFilterState; accen
     </div>
   );
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px]">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-2xs">
       {axis('C Cohesion', '≥', s.consPct, 50, 100, s.setConsPct, s.filterCohesion, s.setFilterCohesion)}
       {axis('D Deviance', '≥', s.deviantPp, 0, 50, s.setDeviantPp, s.filterDeviant, s.setFilterDeviant)}
       {axis('M Mainstream', '≤', s.mainstreamPp, 0, 50, s.setMainstreamPp, s.filterMainstream, s.setFilterMainstream)}

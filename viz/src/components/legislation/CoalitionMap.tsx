@@ -4,6 +4,7 @@ import { F5_ORDER, PARTY_NAMES, getPartyColor } from '../../constants/parties';
 import type { VoteMode } from '../../constants/labels';
 import { ToggleGroup } from '../shared/ToggleGroup';
 import type { SeatMap } from './voteBloc';
+import { TABLE_HEADER, FOOTNOTE } from '../../constants/typography';
 
 // Who combines to pass each bill. Every bill is a row; parties are stacked left→right, each
 // segment sized by its seats. The solid vertical rule at 50% is the majority. Parties left of it
@@ -60,7 +61,7 @@ function CoalitionRow({ bill, seats, mode }: { bill: CandidateVoteRow; seats: Se
 
   return (
     <div className="grid grid-cols-[minmax(140px,1.3fr)_2fr] gap-3 items-center py-1.5 border-t border-border/40">
-      <div className="text-[11px] leading-tight flex items-start gap-1.5">
+      <div className="text-2xs leading-tight flex items-start gap-1.5">
         <span className={`shrink-0 font-bold ${pass ? 'text-emerald-600' : 'text-rose-500'}`}
           title={pass ? 'Supporters hold a majority — passes' : 'Supporters fall short of a majority — fails'}>
           {pass ? '✓' : '✗'}
@@ -86,7 +87,7 @@ function CoalitionRow({ bill, seats, mode }: { bill: CandidateVoteRow; seats: Se
                 boxShadow: isPivotal ? 'inset 0 0 0 1.5px #fff, inset 0 0 0 3px rgba(15,23,42,0.85)' : 'none',
               }}
               title={title}>
-              {w >= 9 && <span className="text-[9px] font-bold text-white leading-none">{seg.party}</span>}
+              {w >= 9 && <span className="text-4xs font-bold text-white leading-none">{seg.party}</span>}
             </div>
           );
         })}
@@ -127,14 +128,14 @@ export function CoalitionMap({ candidateVotes, houseSeats, senateSeats, voteMode
         {/* party color key */}
         <div className="flex flex-wrap gap-x-2.5 gap-y-1">
           {F5_ORDER.map((p) => (
-            <span key={p} className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: getPartyColor(p) }}>
+            <span key={p} className="flex items-center gap-1 text-3xs font-semibold" style={{ color: getPartyColor(p) }}>
               <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: getPartyColor(p) }} />{p}
             </span>
           ))}
         </div>
       </div>
 
-      <div className="hidden md:grid grid-cols-[minmax(140px,1.3fr)_2fr] gap-3 px-0 pb-1 text-[10px] text-muted-foreground uppercase tracking-widest">
+      <div className={`hidden md:grid grid-cols-[minmax(140px,1.3fr)_2fr] gap-3 px-0 pb-1 ${TABLE_HEADER}`}>
         <div>Bill</div>
         {/* Swatches rather than words: the two marks are a ring and a line, and naming them was
             how the header came to claim a diamond and a dashed rule that were never drawn. */}
@@ -158,14 +159,14 @@ export function CoalitionMap({ candidateVotes, houseSeats, senateSeats, voteMode
 
       {groups.map((g) => (
         <div key={g.domain}>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 mt-3 mb-0.5">{g.domain}</div>
+          <div className="text-3xs font-bold uppercase tracking-widest text-muted-foreground/80 mt-3 mb-0.5">{g.domain}</div>
           {g.rows.map((bill) => (
             <CoalitionRow key={bill.variable} bill={bill} seats={seats} mode={voteModel} />
           ))}
         </div>
       ))}
 
-      <p className="text-[11px] text-muted-foreground mt-3">
+      <p className={`${FOOTNOTE} mt-3`}>
         <span className="text-emerald-600 font-bold">✓</span>/<span className="text-rose-500 font-bold">✗</span> marks
         whether the bill's supporters hold a seat majority. On a pass, the pivotal party (white/dark ring) is the one
         whose seats tip the coalition over the line; a defeat has no pivotal party.{' '}

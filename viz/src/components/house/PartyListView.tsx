@@ -17,6 +17,7 @@ import { SeatShareBar as Bar } from './SeatShareBar';
 import { PopSeatRanges, type Quantity, type PartyValues, type Span } from './PopSeatRanges';
 import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval } from '../../lib/uncertainty';
 import type { DistrictResult, HouseStateEntry, HouseSeat, ClusterProfile } from '../../types';
+import { CARD_HEADING, MINOR_HEADING, METRIC_VALUE, CARD_HINT } from '../../constants/typography';
 
 type SeatMap = Record<string, number>;
 interface Metrics { list: number; stv: number; fptp: number }
@@ -230,10 +231,10 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
       <div className="grid gap-4 lg:grid-cols-2 items-start">
       {/* Headline: voters left unrepresented */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        <h4 className={`${CARD_HEADING} mb-1`}>
           Voters left unrepresented
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+        </h4>
+        <p className={`${CARD_HINT} mb-4`}>Nobody they voted for won a seat.</p>
         <div className="grid grid-cols-3 gap-2">
           <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
           <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
@@ -243,10 +244,10 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
 
       {/* Over-quota surplus */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        <h4 className={`${CARD_HEADING} mb-1`}>
           Over-quota surplus
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">
+        </h4>
+        <p className={`${CARD_HINT} mb-4`}>
           Votes above what a winner needed.
         </p>
         <div className="grid grid-cols-3 gap-2">
@@ -267,7 +268,7 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
       {/* State composition — reuse STV components with list results */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
+          <h4 className={CARD_HEADING}>State Composition</h4>
           <div className="flex gap-1">
             {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
               <Button key={v} onClick={() => setMapView(v)} variant={mapView === v ? 'default' : 'secondary'} size="sm">{label}</Button>
@@ -285,10 +286,10 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
 
       {/* Seats by District Type */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        <h4 className={`${CARD_HEADING} mb-1`}>
           Seats by District Type
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
+        </h4>
+        <p className={`${CARD_HINT} mb-3`}>
           Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
         </p>
         <UrbSubRurChart seats={tierSeats} />
@@ -297,16 +298,16 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
       <CollapsibleSection id="dispro" title="See disproportionality"
         hint="Votes against seats, and how it varies by state">
         <section>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h5 className={`${MINOR_HEADING} mb-1`}>
             Votes against seats
-          </h4>
+          </h5>
         <div className="flex items-center justify-end gap-2 mb-1">
           <select value={selState} onChange={e => setSelState(e.target.value)}
             className="rounded-md border border-border bg-card px-2 py-1 text-xs">
             {stateOpts.map(o => <option key={o.v} value={o.v}>{o.label}</option>)}
           </select>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
+        <p className={`${CARD_HINT} mb-3`}>
           {stateSel ? `${stateSel.abbr}. ` : ''}The share of the vote each party wins, against
           the share of the {active.totalSeats} seats it ends up with under the list. Add
           population to see how much of the difference is turnout, or STV — it uses the same
@@ -352,8 +353,8 @@ function Stat({ label, value, tone, note, isCount }: {
     : 'border-border bg-muted/40 text-foreground';
   return (
     <div className={`rounded-lg border p-3 ${cls}`}>
-      <div className="text-[11px] text-muted-foreground">{label}{note && <span className="ml-1 opacity-70">· {note}</span>}</div>
-      <div className="text-2xl font-bold tabular-nums">
+      <div className="text-2xs text-muted-foreground">{label}{note && <span className="ml-1 opacity-70">· {note}</span>}</div>
+      <div className={METRIC_VALUE}>
         {isCount ? value.toFixed(0) : `${value.toFixed(value >= 10 ? 1 : 2)}%`}
       </div>
     </div>

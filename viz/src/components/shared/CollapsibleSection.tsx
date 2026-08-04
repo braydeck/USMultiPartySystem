@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { useUrlState } from '../../hooks/useUrlState';
+import { CARD_HEADING } from '../../constants/typography';
 
 /**
  * A section the reader opens on demand.
@@ -38,7 +39,7 @@ export function CollapsibleSection({ id, title, hint, children }: Props) {
           style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>
           <path d="M2 0 L8 5 L2 10 Z" fill="currentColor" className="text-muted-foreground" />
         </svg>
-        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+        <span className={CARD_HEADING}>
           {title}
         </span>
         {hint && <span className="text-xs text-muted-foreground normal-case tracking-normal">{hint}</span>}

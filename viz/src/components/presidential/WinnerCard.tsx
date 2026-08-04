@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { PresidentialElection, ClusterProfile, FDCandidateProfile } from '../../types';
 import { getBlendColor, PARTY_NAMES } from '../../constants/parties';
 import { Card } from '@/components/ui/card';
+import { MINOR_HEADING } from '../../constants/typography';
 
 interface Props {
   data: PresidentialElection;
@@ -117,7 +118,7 @@ function CandidateCard({
     <Card className="border-2 overflow-hidden flex flex-col" style={{ borderColor: info.color }}>
       {/* Header */}
       <div className="px-5 py-3" style={{ backgroundColor: info.color + '12' }}>
-        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">
+        <div className={`${MINOR_HEADING} mb-0.5`}>
           {methodLabel} Winner
         </div>
         <div className="flex items-end gap-2">
@@ -157,7 +158,7 @@ function CandidateCard({
       {/* Where they differ — show positions where this candidate is higher */}
       {sharedDiffs.length > 0 && (
         <div className="px-5 py-3 flex-1">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Where They Differ</div>
+          <div className={`${MINOR_HEADING} mb-2`}>Where They Differ</div>
           <ul className="space-y-2">
             {sharedDiffs.map((d, i) => {
               const myPct = isIRV ? d.pctA : d.pctB;
@@ -211,7 +212,7 @@ export function WinnerCard({ data, clusters, fdProfiles }: Props) {
       {sameWinner ? (
         <Card className="border-2 overflow-hidden" style={{ borderColor: irvInfo.color }}>
           <div className="px-5 py-3" style={{ backgroundColor: irvInfo.color + '12' }}>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">
+            <div className={`${MINOR_HEADING} mb-0.5`}>
               IRV & Condorcet Winner
             </div>
             <div className="flex items-end gap-2">
@@ -253,7 +254,7 @@ export function WinnerCard({ data, clusters, fdProfiles }: Props) {
 
           {/* Head-to-head callout */}
           <Card className="bg-slate-50 px-4 py-3">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+            <div className={`${MINOR_HEADING} mb-2`}>
               How They Differ
             </div>
             <div className="grid sm:grid-cols-2 gap-3 text-xs text-muted-foreground">

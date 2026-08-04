@@ -38,6 +38,7 @@ import {
   ecWeights, allocateEC, contingentVote, nationalFirstChoice,
   EC_METHODS, MAP_VIEWS, type ECMethod, type ECTally, type MapView,
 } from '../lib/ecAllocation';
+import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, GROUP_LABEL, FIELD_LABEL, CARD_HINT } from '../constants/typography';
 
 interface Props {
   factorDev: PresidentialElection;
@@ -194,10 +195,10 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
     if (m === 'Condorcet') {
       return (
         <Card className="p-4">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             Head-to-Head Matrix
           </h4>
-          <p className="text-[11px] text-muted-foreground mb-3">
+          <p className={`${CARD_HINT} mb-3`}>
             Every possible pairing: green = row candidate wins; red = row candidate loses. The
             winner beats all other candidates (all-green row).
           </p>
@@ -210,10 +211,10 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
     if (m === 'IRV') {
       return (
         <Card className="p-4">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             Vote Flow
           </h4>
-          <p className="text-[11px] text-muted-foreground mb-3">
+          <p className={`${CARD_HINT} mb-3`}>
             Each column is one elimination round. Eliminated candidates&apos; votes redistribute to the
             remaining field.
           </p>
@@ -227,7 +228,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Presidential General Election</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>Presidential General Election</h2>
         <p className="text-muted-foreground text-sm">
           Single-winner race. The question is which method picks the most acceptable president.
           Condorcet finds who beats everyone head-to-head; IRV rewards the candidate with the strongest base.
@@ -248,8 +249,8 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
       {/* Presidential Outcomes — scenario-dependent */}
       {scenario === 'rawMulti' ? (
         <div className="space-y-4">
-          <h3 className="text-base font-bold text-foreground uppercase tracking-wider">National Override</h3>
-          <p className="text-xs text-muted-foreground">
+          <h3 className={SECTION_HEADING}>National Override</h3>
+          <p className={CARD_HINT}>
             One nationwide vote. {nationalGroups.length === 1
               ? 'All three counting rules elect the same president.'
               : `The three counting rules elect ${nationalGroups.length} different presidents from the same ballots.`}
@@ -257,9 +258,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
           <div className={`grid gap-4 items-start ${GROUP_COLS[nationalGroups.length] ?? ''}`}>
             {nationalGroups.map(g => (
               <div key={g.winner} className="space-y-3">
-                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                <h4 className={GROUP_LABEL}>
                   {g.methods.join(' · ')} — {rmLabel(g.winner)}
-                </div>
+                </h4>
                 {clusterByParty[g.winner.split('_')[0]] && (
                   <PartyProfileCard cluster={clusterByParty[g.winner.split('_')[0]]} />
                 )}
@@ -276,7 +277,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
               hint={`Where ${rmCondParty} (Condorcet) and ${rmIrvParty} (IRV) act differently`}
             >
               <Card className="overflow-hidden border-amber-300">
-                <div className="hidden md:grid grid-cols-[1fr_80px_80px] gap-x-2 px-4 py-2 text-xs text-muted-foreground border-b border-border/50 uppercase tracking-widest">
+                <div className={`hidden md:grid grid-cols-[1fr_80px_80px] gap-x-2 px-4 py-2 border-b border-border/50 ${FIELD_LABEL}`}>
                   <div>Bill</div>
                   <div className="text-center font-bold" style={{ color: PARTY_COLORS[rmCondParty] ?? '#6b7280' }}>{rmCondParty}</div>
                   <div className="text-center font-bold" style={{ color: PARTY_COLORS[rmIrvParty] ?? '#6b7280' }}>{rmIrvParty}</div>
@@ -308,14 +309,14 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
       ) : (
         /* Factor Dev — every rule elects the same president, so one column holds all three charts. */
         <div className="space-y-4">
-          <h3 className="text-base font-bold text-foreground uppercase tracking-wider">Presidential Outcome</h3>
-          <p className="text-xs text-muted-foreground">
+          <h3 className={SECTION_HEADING}>Presidential Outcome</h3>
+          <p className={CARD_HINT}>
             Both Condorcet and IRV elect the same president under Factor Dev.
           </p>
           <div className="space-y-3">
-            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+            <h4 className={GROUP_LABEL}>
               Winner — {fdWinner}
-            </div>
+            </h4>
             {clusterByParty[fdWinnerParty] && (
               <div className="max-w-sm"><PartyProfileCard cluster={clusterByParty[fdWinnerParty]} /></div>
             )}
@@ -330,10 +331,10 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
           only be winner-take-all. */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-base font-bold text-foreground uppercase tracking-wider mb-1">
+          <h3 className={`${SECTION_HEADING} mb-1`}>
             Election Results Without National Override
           </h3>
-          <p className="text-xs text-muted-foreground">
+          <p className={CARD_HINT}>
             Keep the electoral college and its {ecTallies.prop.total} electors, one per House seat
             plus two per state.
           </p>
@@ -349,10 +350,10 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
       {/* Presidential Policy Comparison — Factor Dev only */}
       {scenario === 'factorDev' && (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             Presidential Policy Comparison — Factor Dev · Raw Multi
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">
+          </h4>
+          <p className={`${CARD_HINT} mb-4`}>
             How likely each potential president would sign or veto major legislation.
             Amber rows highlight where the presidents disagree. % = fraction of the president&apos;s
             voter coalition that supports the bill.

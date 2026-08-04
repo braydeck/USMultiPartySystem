@@ -79,6 +79,7 @@ import { VariantAttractionChart } from '../components/house/VariantAttractionCha
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 import { uncertaintyAt } from '../lib/uncertainty';
 import { delegationSeats } from '../lib/senateDelegations';
+import { PAGE_TITLE, CARD_HEADING, FIELD_LABEL, CARD_HINT } from '../constants/typography';
 
 interface Props {
   condorcetFD:       FDSenateSeat[];
@@ -239,7 +240,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Senate</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>Senate</h2>
         <p className="text-muted-foreground text-sm">
           Each state elects one senator via either Condorcet or IRV. The method choice matters:
           Condorcet finds the most broadly acceptable candidate; IRV amplifies strong-base parties.
@@ -266,9 +267,9 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         hint="Ten parties, their positions and who they draw from">
         <PartyProfileGrid clusters={orderedClusters} />
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+          <h4 className={`${CARD_HEADING} mb-3`}>
             Ideological Constellation
-          </h3>
+          </h4>
           <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={clusterSpreads} />
         </Card>
       </CollapsibleSection>
@@ -282,17 +283,17 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
       {/* Parliament fan chart */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        <h4 className={`${CARD_HEADING} mb-1`}>
           Senate Chamber — {METHOD_LABELS[method]} · {chamberSeats} seats
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
+        </h4>
+        <p className={`${CARD_HINT} mb-3`}>
           {modalCounts
             ? 'Two seats per state, split between the top two where the state is contested.'
             : 'One winner per state, filling both of that state\'s seats.'}
           {' '}Matches the bars above.
         </p>
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="text-xs text-muted-foreground uppercase tracking-widest">Order by</span>
+          <span className={FIELD_LABEL}>Order by</span>
           {DISPLAY_FACTORS.map(f => (
             <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
               variant={parliamentFactor === f ? 'default' : 'secondary'}
@@ -307,10 +308,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       {/* FD: Variant bar below fan chart */}
       {isFD && fdVariantSeats.length > 0 && (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             Senate Seats by Variant
-          </h3>
-          <p className="text-xs text-muted-foreground mb-3">
+          </h4>
+          <p className={`${CARD_HINT} mb-3`}>
             Full color = base; lighter = hi axis deviation; darker = lo axis deviation.
           </p>
           <PartyVariantBar seats={fdVariantSeats} totalLabel="51 senate seats" />
@@ -327,10 +328,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
           pair directly, so it gets the matrix. */}
       {rawMultiOn && (method === 'irv' ? (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             How Senators Build Their Coalition (IRV)
-          </h3>
-          <p className="text-xs text-muted-foreground mb-3">
+          </h4>
+          <p className={`${CARD_HINT} mb-3`}>
             No party starts near a majority, so every winner assembles one from transfers.
             Each bar runs from that party&apos;s own first-choice block through the transfers it
             picked up as rivals were eliminated, ending at the tally that won.
@@ -340,10 +341,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         </Card>
       ) : (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             Head-to-Head Matrix (Condorcet)
-          </h3>
-          <p className="text-xs text-muted-foreground mb-3">
+          </h4>
+          <p className={`${CARD_HINT} mb-3`}>
             Condorcet picks the candidate who beats every rival one-on-one, so what matters is
             the full grid of pairings rather than a transfer sequence. The national view counts
             how often each party wins its matchups across the {activeSeats.length} state races.
@@ -356,10 +357,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       {/* The winnow runs before either method, so it shows under both. */}
       {rawMultiOn && (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             How the Field Narrows to Five Finalists
-          </h3>
-          <p className="text-xs text-muted-foreground mb-3">
+          </h4>
+          <p className={`${CARD_HINT} mb-3`}>
             Before either method picks a senator, a five-seat STV round cuts the state&apos;s full
             candidate field to five. Its Droop quota is {winnowStops[gi].quotaPct.toFixed(1)}%, not a
             majority, so these tallies sit on a much lower scale than the winning coalitions above
@@ -371,10 +372,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
       <Card className="p-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             How this senate votes on bills
-          </h3>
-          <p className="text-xs text-muted-foreground">
+          </h4>
+          <p className={CARD_HINT}>
             The bill-by-bill model lives on the Legislation tab, with the whipping rules and
             the full bill set.
           </p>
@@ -387,16 +388,16 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
         <>
           <div className="border-t-2 border-violet-200 pt-6">
             <h3 className="text-lg font-bold text-violet-800 mb-1">Crossover Analysis — Senate</h3>
-            <p className="text-xs text-muted-foreground mb-6">
+            <p className={`${CARD_HINT} mb-6`}>
               How do ideological deviations affect senate composition under {method === 'condorcet' ? 'Condorcet' : 'IRV'}?
             </p>
           </div>
 
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            <h4 className={`${CARD_HEADING} mb-1`}>
               Variant Impact by Party
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4">
+            </h4>
+            <p className={`${CARD_HINT} mb-4`}>
               Which ideological deviations win senate seats?
             </p>
             <VariantImpactChart seats={fdVariantSeats} />
@@ -404,10 +405,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
           {fdVariantAttraction.length > 0 && (
             <Card className="p-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              <h4 className={`${CARD_HEADING} mb-1`}>
                 Variant Voter Attraction Sources
-              </h3>
-              <p className="text-xs text-muted-foreground mb-4">
+              </h4>
+              <p className={`${CARD_HINT} mb-4`}>
                 Incremental cross-party attraction for each deviation relative to the party base.
               </p>
               <VariantAttractionChart data={fdVariantAttraction} />
@@ -416,10 +417,10 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
           {fdAttractionDrivers.length > 0 && (
             <Card className="p-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              <h4 className={`${CARD_HEADING} mb-1`}>
                 Cross-Party Attraction Drivers
-              </h3>
-              <p className="text-xs text-muted-foreground mb-3">
+              </h4>
+              <p className={`${CARD_HINT} mb-3`}>
                 Which factors explain each variant&apos;s cross-party pull?
               </p>
               <AttractionDriverChart data={fdAttractionDrivers} />

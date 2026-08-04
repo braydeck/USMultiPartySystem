@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { FIELD_LABEL } from '../../constants/typography';
 
 interface Option { value: number; label: string }
 
@@ -24,7 +25,7 @@ export function QuizQuestion({ question, domain, section, instruction, selected,
   const OPTIONS = options ?? DEFAULT_OPTIONS;
   return (
     <div aria-live="polite">
-      <div className="text-xs text-muted-foreground uppercase tracking-widest mb-1">
+      <div className={`${FIELD_LABEL} mb-1`}>
         {section ?? domain}{section && domain ? ` · ${domain}` : ''}
       </div>
       {instruction && <div className="text-sm text-muted-foreground mb-3">{instruction}</div>}

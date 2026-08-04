@@ -9,6 +9,7 @@ import {
   type ECMethod, type ECTally, type MapView,
 } from '../../lib/ecAllocation';
 import type { PresidentialStateWinner } from '../../types';
+import { FIELD_LABEL, CARD_HINT } from '../../constants/typography';
 
 /**
  * Five views of one election.
@@ -124,7 +125,7 @@ export function ECCartogram({ tallies, stateWinners, nationalShares, mapView, on
             </div>
           ))}
         </div>
-        <div className="mt-3 pt-2 border-t border-border text-[10px] text-muted-foreground leading-snug">
+        <div className="mt-3 pt-2 border-t border-border text-3xs text-muted-foreground leading-snug">
           {share
             ? `${nameOf(nationalShares[0]?.code ?? '')} leads on first preferences with `
               + `${pct(nationalShares[0]?.pct ?? 0)}, a plurality and not a majority.`
@@ -141,7 +142,7 @@ export function ECCartogram({ tallies, stateWinners, nationalShares, mapView, on
       {!share && ` — ${evByAbbr[abbr] ?? 0} elector${evByAbbr[abbr] === 1 ? '' : 's'}`}
       <div className="flex flex-wrap gap-1 mt-1">
         {splitFor(abbr).map(c => (
-          <span key={c} className="px-1 rounded text-[10px] font-bold text-white"
+          <span key={c} className="px-1 rounded text-3xs font-bold text-white"
             style={{ backgroundColor: tileColor(c) }} title={nameOf(c)}>
             {partyOf(c)} {valueFor(c, abbr)}
           </span>
@@ -153,7 +154,7 @@ export function ECCartogram({ tallies, stateWinners, nationalShares, mapView, on
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted-foreground uppercase tracking-widest">View</span>
+        <span className={FIELD_LABEL}>View</span>
         <div className="flex flex-wrap gap-1">
           {MAP_VIEWS.map(v => (
             <Button key={v} onClick={() => onMapView(v)} size="sm"
@@ -163,7 +164,7 @@ export function ECCartogram({ tallies, stateWinners, nationalShares, mapView, on
           ))}
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">{MAP_VIEW_BLURB[mapView]}</p>
+      <p className={CARD_HINT}>{MAP_VIEW_BLURB[mapView]}</p>
 
       <HexStateCartogram
         basis={share ? 'pop' : 'ec'}

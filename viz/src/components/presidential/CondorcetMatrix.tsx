@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { CondorcetMatchup } from '../../types';
 import { getBlendColor, buildDisplayLabels } from '../../constants/parties';
+import { CHART_TYPE } from '../../constants/typography';
 
 interface Props {
   matchups: CondorcetMatchup[];
@@ -41,8 +42,8 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
   const baseCellSize = Math.min(52, Math.floor(480 / (sorted.length + 1)));
   const cellSize = Math.round(baseCellSize * scale);
   const labelW = Math.round(56 * scale);
-  const labelFontSize = Math.round(10 * scale);
-  const cellFontSize = Math.round(8 * scale);
+  const labelFontSize = Math.round(CHART_TYPE.axisTick * scale);
+  const cellFontSize = Math.round(CHART_TYPE.inMark * scale);
   const totalW = labelW + sorted.length * cellSize;
 
   return (

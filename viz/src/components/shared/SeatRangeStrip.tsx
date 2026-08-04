@@ -12,7 +12,7 @@ import type { SeatInterval } from '../../lib/uncertainty';
  *  of strips needs one key above the group, not one per strip. */
 export function RangeKey() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] text-muted-foreground">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-4xs text-muted-foreground">
       <span className="flex items-center gap-1.5">
         <span className="w-5 h-2.5 rounded-sm bg-foreground/25" />
         95% of resamples
@@ -59,12 +59,12 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride, chamber 
 
   return (
     <div className="space-y-1 pt-1">
-      <div className="text-[10px] text-muted-foreground">{label}</div>
+      <div className="text-3xs text-muted-foreground">{label}</div>
       {rows.map(({ party, iv, point }) => {
         const color = PARTY_COLORS[party] ?? '#6b7280';
         return (
           <div key={party} className="flex items-center gap-2">
-            <span className="w-10 shrink-0 text-[10px] font-bold text-right" style={{ color }}>
+            <span className="w-10 shrink-0 text-3xs font-bold text-right" style={{ color }}>
               {party}
             </span>
             <div className="relative flex-1 h-4 rounded bg-muted/50">
@@ -81,7 +81,7 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride, chamber 
               <div className="absolute inset-y-0 w-0.5" title={`reported: ${point}`}
                 style={{ left: `${Math.min(100, (point / max) * 100)}%`, backgroundColor: color }} />
             </div>
-            <span className="w-24 shrink-0 text-[10px] tabular-nums text-muted-foreground">
+            <span className="w-24 shrink-0 text-3xs tabular-nums text-muted-foreground">
               <span className="font-semibold text-foreground">{point}</span> · {iv.lo}–{iv.hi}
             </span>
           </div>
@@ -89,7 +89,7 @@ export function SeatRangeStrip({ seats, order, label, max: maxOverride, chamber 
       })}
       <div className="flex items-center gap-2">
         <span className="w-10 shrink-0" />
-        <div className="flex-1 flex justify-between text-[9px] text-muted-foreground">
+        <div className="flex-1 flex justify-between text-4xs text-muted-foreground">
           <span>0</span><span>{max} seats</span>
         </div>
         <span className="w-24 shrink-0" />

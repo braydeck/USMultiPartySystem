@@ -6,6 +6,7 @@ import type { DistrictResult } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { MINOR_HEADING, CARD_HINT } from '../../constants/typography';
 
 const W = 900;
 const H = 560;
@@ -329,9 +330,9 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
       {/* District STV result cards for selected state */}
       {districts.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+          <h5 className={`${MINOR_HEADING} mb-2`}>
             STV Districts — {stateEntry.name}
-          </h4>
+          </h5>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {districts.map(d => {
               const tierColor = TIER_COLORS[d.densityTier] ?? '#6b7280';
@@ -371,10 +372,10 @@ export function CountyTierMap({ countyTiers, districtResults, districtCountyMap 
         </div>
       )}
       {districts.length === 0 && (
-        <p className="text-xs text-muted-foreground italic">No district data for {stateEntry.name}.</p>
+        <p className={`${CARD_HINT} italic`}>No district data for {stateEntry.name}.</p>
       )}
 
-      <p className="text-xs text-muted-foreground">
+      <p className={CARD_HINT}>
         County tiers from CDC NCHS Urban-Rural Classification (2013): Large metro core → Urban;
         medium/small metro → Suburban; micropolitan/noncore → Rural.
         District outlines show geographically contiguous multi-member districts drawn by county adjacency.

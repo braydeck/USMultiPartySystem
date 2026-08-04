@@ -81,7 +81,7 @@ function PartyDropdown({ partyOrder, value, onChange }: {
               return (
                 <div key={p}>
                   {divider && (
-                    <div className="px-3 pt-2 pb-1 mt-1 border-t border-border text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <div className="px-3 pt-2 pb-1 mt-1 border-t border-border text-3xs font-semibold uppercase tracking-widest text-muted-foreground">
                       Today's parties
                     </div>
                   )}

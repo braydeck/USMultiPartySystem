@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell, Tooltip, ResponsiveCo
 import { getBlendColor } from '../../constants/parties';
 import type { IRVRound } from '../../types';
 import { Button } from '@/components/ui/button';
+import { CARD_HINT, CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface Props {
   rounds: IRVRound[];
@@ -42,12 +43,12 @@ export function IRVRoundsChart({ rounds, irvWinner }: Props) {
 
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data} layout="vertical" margin={{ left: 8, right: 40, top: 4, bottom: 4 }}>
-          <XAxis type="number" domain={[0, 55]} tickFormatter={v => `${v}%`} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-          <YAxis type="category" dataKey="code" width={72} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-          <ReferenceLine x={50} stroke="#f59e0b" strokeDasharray="4 2" strokeWidth={1.5} label={{ value: '50%', position: 'right', fill: '#f59e0b', fontSize: 10 }} />
+          <XAxis type="number" domain={[0, 55]} tickFormatter={v => `${v}%`} tick={{ fontSize: CHART_TYPE.axisTick, fill: CHART_FILL.tick }} />
+          <YAxis type="category" dataKey="code" width={72} tick={{ fontSize: CHART_TYPE.axisTick, fill: CHART_FILL.tick }} />
+          <ReferenceLine x={50} stroke="#f59e0b" strokeDasharray="4 2" strokeWidth={1.5} label={{ value: '50%', position: 'right', fill: '#f59e0b', fontSize: CHART_TYPE.axisTick }} />
           <Tooltip
             formatter={(value) => [`${Number(value).toFixed(2)}%`, 'Vote share']}
-            contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12 }}
+            contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: CHART_TYPE.cellValue }}
             labelStyle={{ color: '#0f172a' }}
           />
           <Bar dataKey="pct" radius={[0, 3, 3, 0]}>
@@ -62,7 +63,7 @@ export function IRVRoundsChart({ rounds, irvWinner }: Props) {
         </BarChart>
       </ResponsiveContainer>
 
-      <p className="text-xs text-muted-foreground mt-2 text-center">
+      <p className={`${CARD_HINT} mt-2 text-center`}>
         Yellow line = 50% threshold. Gray bars = eliminated candidates.
       </p>
     </div>

@@ -56,12 +56,12 @@ export function TransferFlowChart({ data, filterParties }: Props) {
                     title={`→ ${d.party}: ${d.pct}%`}
                   >
                     {d.pct >= 12 && (
-                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold drop-shadow-sm chip-text" style={{ color: getContrastText(dColor) }}>
+                      <span className="absolute inset-0 flex items-center justify-center text-3xs font-bold drop-shadow-sm chip-text" style={{ color: getContrastText(dColor) }}>
                         {d.party} {d.pct}%
                       </span>
                     )}
                     {d.pct >= 6 && d.pct < 12 && (
-                      <span className="absolute inset-0 flex items-center justify-center text-[9px] font-semibold chip-text" style={{ color: getContrastText(dColor) }}>
+                      <span className="absolute inset-0 flex items-center justify-center text-4xs font-semibold chip-text" style={{ color: getContrastText(dColor) }}>
                         {d.pct}%
                       </span>
                     )}

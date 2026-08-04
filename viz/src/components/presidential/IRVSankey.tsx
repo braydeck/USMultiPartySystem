@@ -4,6 +4,7 @@ import { sankey, sankeyLinkHorizontal, sankeyLeft } from 'd3-sankey';
 import type { SankeyNode, SankeyLink } from 'd3-sankey';
 import { getBlendColor, buildDisplayLabels } from '../../constants/parties';
 import type { IRVFlowRound } from '../../types';
+import { CARD_HINT } from '../../constants/typography';
 
 interface Props {
   // Widened to the fields this chart actually reads, so the senate's round data
@@ -261,7 +262,7 @@ export function IRVSankey({ rounds, irvWinner }: Props) {
         )}
         <svg ref={svgRef} className="w-full" style={{ height: 280 }} aria-label="IRV vote transfer Sankey diagram" />
       </div>
-      <p className="text-xs text-muted-foreground mt-1 text-center">
+      <p className={`${CARD_HINT} mt-1 text-center`}>
         Carry-forward votes flow straight across. Eliminated candidates&apos; votes fan out to remaining candidates.
       </p>
     </div>

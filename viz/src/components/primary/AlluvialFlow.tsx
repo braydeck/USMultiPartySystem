@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { getBlendColor } from '../../constants/parties';
+import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface AlluvialNode {
   id: string;
@@ -244,8 +245,8 @@ export default function AlluvialFlow({ data, height = 540, highlightStage }: All
             x={layout.colX(i) + BLOCK_W / 2}
             y={MARGIN_TOP - 10}
             textAnchor="middle"
-            fontSize={10}
-            fill="#64748b"
+            fontSize={CHART_TYPE.axisTick}
+            fill={CHART_FILL.label}
             fontWeight={600}
           >
             {label}
@@ -300,7 +301,7 @@ export default function AlluvialFlow({ data, height = 540, highlightStage }: All
                   <text
                     x={pos.x + BLOCK_W + 4}
                     y={pos.y + pos.h / 2 + 4}
-                    fontSize={isFinal ? 11 : 9}
+                    fontSize={isFinal ? CHART_TYPE.seriesLabel : CHART_TYPE.smallTick}
                     fontWeight={isFinal ? 600 : 400}
                     fill="#1e293b"
                   >
@@ -313,7 +314,7 @@ export default function AlluvialFlow({ data, height = 540, highlightStage }: All
                   <text
                     x={pos.x - 4}
                     y={pos.y + pos.h / 2 + 4}
-                    fontSize={9}
+                    fontSize={CHART_TYPE.smallTick}
                     textAnchor="end"
                     fill="#1e293b"
                   >

@@ -5,6 +5,7 @@ import { PARTY_COLORS, F5_ORDER, getContrastText } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
+import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, MINOR_HEADING, BODY_PROSE, CARD_HINT, CHART_TYPE, CHART_FILL } from '../constants/typography';
 
 // Real candidate → closest simulation-party mapping for coloring
 const CANDIDATE_PARTY: Record<string, string> = {
@@ -75,7 +76,7 @@ function IrvRoundsChart({ race }: { race: RCVRace }) {
           return (
             <g key={cand} transform={`translate(${lx}, ${ly + 2})`}>
               <rect x={0} y={0} width={10} height={10} fill={candidateColor(cand)} opacity={0.85} rx={2} />
-              <text x={14} y={9} fontSize={9} fill={cand === irvWinner ? '#1e293b' : '#64748b'}
+              <text x={14} y={9} fontSize={CHART_TYPE.smallTick} fill={cand === irvWinner ? '#1e293b' : '#64748b'}
                 fontWeight={cand === irvWinner ? 'bold' : 'normal'}>
                 {cand}{cand === irvWinner ? ' ✓' : ''}
               </text>
@@ -99,7 +100,7 @@ function IrvRoundsChart({ race }: { race: RCVRace }) {
           }
           return (
             <g key={ri}>
-              <text x={0} y={y + BAR_H / 2 + 4} fontSize={9} fill="#94a3b8" textAnchor="start">
+              <text x={0} y={y + BAR_H / 2 + 4} fontSize={CHART_TYPE.smallTick} fill={CHART_FILL.tick} textAnchor="start">
                 Rd {round.round}{eliminated ? ` (−${eliminated.split(' ').pop()})` : ''}
               </text>
               {segments.map(({ cand, x, w }) => {
@@ -129,7 +130,7 @@ function IrvRoundsChart({ race }: { race: RCVRace }) {
                 strokeWidth={1}
                 strokeDasharray="3 2"
               />
-              <text x={LABEL_W + BAR_W / 2 + 2} y={y + 9} fontSize={8} fill="#94a3b8">50%</text>
+              <text x={LABEL_W + BAR_W / 2 + 2} y={y + 9} fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick}>50%</text>
             </g>
           );
         })}
@@ -162,7 +163,7 @@ function CondorcetGrid({ race }: { race: RCVRace }) {
             x={LABEL_W + ci * CELL + CELL / 2}
             y={LABEL_W - 4}
             textAnchor="middle"
-            fontSize={9}
+            fontSize={CHART_TYPE.smallTick}
             fill={cand === condorcetWinner ? '#1e293b' : '#64748b'}
             fontWeight={cand === condorcetWinner ? 'bold' : 'normal'}
           >
@@ -176,7 +177,7 @@ function CondorcetGrid({ race }: { race: RCVRace }) {
               x={LABEL_W - 4}
               y={LABEL_W + ri * CELL + CELL / 2 + 4}
               textAnchor="end"
-              fontSize={9}
+              fontSize={CHART_TYPE.smallTick}
               fill={rowCand === condorcetWinner ? '#1e293b' : '#64748b'}
               fontWeight={rowCand === condorcetWinner ? 'bold' : 'normal'}
             >
@@ -216,7 +217,7 @@ function CondorcetGrid({ race }: { race: RCVRace }) {
                     x={LABEL_W + ci * CELL + CELL / 2}
                     y={LABEL_W + ri * CELL + CELL / 2 + 4}
                     textAnchor="middle"
-                    fontSize={10}
+                    fontSize={CHART_TYPE.axisTick}
                     fontWeight="bold"
                     fill={wins ? '#065f46' : '#991b1b'}
                   >
@@ -228,7 +229,7 @@ function CondorcetGrid({ race }: { race: RCVRace }) {
           </g>
         ))}
       </svg>
-      <p className="text-xs text-muted-foreground mt-1">
+      <p className={`${CARD_HINT} mt-1`}>
         Each cell = % of ballots preferring row candidate over column candidate. Green = row wins head-to-head.
       </p>
     </div>
@@ -246,7 +247,7 @@ function CesSimPanel({ stateAbbr, houseStateMap }: { stateAbbr: 'AK' | 'ME'; hou
   return (
     <Card className="p-4 space-y-2">
       <div className="flex items-baseline gap-2">
-        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+        <h4 className={CARD_HEADING}>
           CES Simulation — {stateLabel}
         </h4>
         <span className="text-xs text-muted-foreground">
@@ -274,7 +275,7 @@ function CesSimPanel({ stateAbbr, houseStateMap }: { stateAbbr: 'AK' | 'ME'; hou
             );
           })}
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className={CARD_HINT}>
         Simulated result from CES 2024 survey data with a full 9-party slate: what a multi-party STV system could elect.
         Compare with the real-ballot results below, which are limited to 2–4 candidates per race.
       </p>
@@ -354,18 +355,18 @@ function RaceCard({ race, defaultOpen = true }: { race: RCVRace; defaultOpen?: b
           </div>
 
           <div>
-            <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">IRV Rounds</h5>
+            <h5 className={`${MINOR_HEADING} mb-2`}>IRV Rounds</h5>
             <IrvRoundsChart race={race} />
           </div>
 
           <div>
-            <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Condorcet Pairwise Matrix</h5>
+            <h5 className={`${MINOR_HEADING} mb-2`}>Condorcet Pairwise Matrix</h5>
             <CondorcetGrid race={race} />
           </div>
 
           {race.stvSeats !== undefined && race.stvElected && race.stvElected.length > 0 && (
             <div>
-              <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+              <h5 className={`${MINOR_HEADING} mb-2`}>
                 STV at {race.stvSeats} Seats (doubled district size)
               </h5>
               <div className="flex flex-wrap gap-2 mb-2">
@@ -379,7 +380,7 @@ function RaceCard({ race, defaultOpen = true }: { race: RCVRace; defaultOpen?: b
                   </span>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className={CARD_HINT}>
                 Real-ballot STV limited to actual ballot candidates ({race.candidates.length} total).
                 With {race.stvSeats} seats, all or nearly all candidates are elected.
               </p>
@@ -476,7 +477,7 @@ export function RCVTab({ data, houseStateMap }: Props) {
     const isFirst = year === meHouseYears[0];
     return (
       <div key={year} className="space-y-3">
-        <h3 className="text-base font-semibold text-foreground border-b border-border/50 pb-1">
+        <h3 className={`${SECTION_HEADING} border-b border-border/50 pb-1`}>
           {year}{year === 2018 ? ' — Historical Reference' : ''}
         </h3>
         {cd1 && cd2 ? (
@@ -505,7 +506,7 @@ export function RCVTab({ data, houseStateMap }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">RCV in Practice: Alaska & Maine</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>RCV in Practice: Alaska & Maine</h2>
         <p className="text-muted-foreground text-sm max-w-3xl">
           Alaska and Maine are the only US states that use ranked-choice voting for federal elections.
           Comparing IRV results with the Condorcet winner, and showing what multi-seat STV proportional
@@ -520,7 +521,7 @@ export function RCVTab({ data, houseStateMap }: Props) {
       </StickyControlBar>
 
       {/* State context blurb */}
-      <Card className="p-4 bg-muted text-sm text-muted-foreground space-y-1">
+      <Card className={`p-4 bg-muted space-y-1 ${BODY_PROSE}`}>
         {stateTab === 'AK' ? (
           <>
             <p><strong>Alaska</strong> adopted RCV in 2020 (Ballot Measure 2), first used in 2022.</p>

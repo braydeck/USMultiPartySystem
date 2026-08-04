@@ -7,6 +7,7 @@ import {
   type Cartogram, type StateGeometry,
 } from '../../lib/hexCartogram';
 import type { DistrictResult } from '../../types';
+import { CARD_HINT, FOOTNOTE } from '../../constants/typography';
 
 /**
  * One hexagon = one seat, laid out on a population-scaled cartogram of the states.
@@ -204,7 +205,7 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
     zoomTo(selected ? (cg.byAbbr[selected]?.bbox ?? null) : null);
   }, [selected, cg, zoomTo]);
 
-  if (err) return <p className="text-xs text-muted-foreground italic py-8 text-center">Could not load the seat cartogram.</p>;
+  if (err) return <p className={`${CARD_HINT} italic py-8 text-center`}>Could not load the seat cartogram.</p>;
   if (!cg || !view) return <div className="py-24 text-center text-sm text-muted-foreground">Loading the seat map…</div>;
 
   const pxPerUnit = width / view.w;
@@ -248,7 +249,7 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
             {' — '}{hoverDistrict.seatCount} seat{hoverDistrict.seatCount === 1 ? '' : 's'}
             <div className="flex flex-wrap gap-1 mt-1">
               {F5_ORDER.filter(p => hoverDistrict.elected.includes(p)).map(p => (
-                <span key={p} className="px-1 rounded text-[10px] font-bold text-white"
+                <span key={p} className="px-1 rounded text-3xs font-bold text-white"
                   style={{ backgroundColor: PARTY_COLORS[p] ?? '#6b7280' }}
                   title={PARTY_NAMES[p]}>
                   {p} {hoverDistrict.elected.filter(x => x === p).length}
@@ -333,7 +334,7 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
           </g>
         </svg>
       </div>
-      <p className="text-[11px] text-muted-foreground">
+      <p className={FOOTNOTE}>
         {footnote}
         {footnote ? ' ' : ''}
         Cartogram concept and state outlines:{' '}

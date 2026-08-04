@@ -11,6 +11,7 @@ import { createEngine, SHIFT_AXES } from '../lib/singleRace';
 import type { SRMeta, SRVoters, ECRule, SingleRaceEngine, SRCandidate, Shift } from '../lib/singleRace';
 import { getFDColor, darkenHex, lightenHex, CURRENT_PARTIES } from '../constants/parties';
 import currentPartyProfiles from '../data/currentPartyProfiles.json';
+import { PAGE_TITLE, CARD_HEADING, FIELD_LABEL, CARD_HINT } from '../constants/typography';
 
 // Generic real-party candidates (Democratic / Independent / Republican) placed at their CES pid3
 // factor-space centroid, so a race can pit "generic Dem" vs "generic Rep" against the typology field.
@@ -190,7 +191,7 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Single Race Simulator</h2>
+        <h2 className={PAGE_TITLE}>Single Race Simulator</h2>
         <p className="mt-1 text-sm text-muted-foreground max-w-3xl">
           Pick two candidates and run them head-to-head under current first-past-the-post rules.
           A voter's ballot goes to whichever candidate ranks higher in the same 5-factor ideology
@@ -208,7 +209,7 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
         )}
         {office !== 'presidency' && (
           <div className="flex items-center gap-2">
-            <label className="text-xs text-muted-foreground uppercase tracking-widest">Race</label>
+            <label className={FIELD_LABEL}>Race</label>
             <select
               value={fips}
               onChange={e => { setFips(e.target.value); setCd(''); }}
@@ -230,7 +231,7 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
       </div>
 
       {office === 'presidency' && (
-        <p className="text-xs text-muted-foreground max-w-3xl">
+        <p className={`${CARD_HINT} max-w-3xl`}>
           Each state's electors go to the statewide winner ({EC_LABELS.currentLaw}), with Maine and
           Nebraska splitting by congressional district; or split in proportion to the two-way vote
           ({EC_LABELS.proportional}). 270 electoral votes win.
@@ -246,10 +247,10 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
       />
 
       <Card className="p-4 space-y-2">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+        <h4 className={CARD_HEADING}>
           Party makeup · {coalitionLabel}
-        </h3>
-        <p className="text-xs text-muted-foreground -mt-1">
+        </h4>
+        <p className={`${CARD_HINT} -mt-1`}>
           First-choice party of this electorate — the pool each candidate draws from.
         </p>
         <PartyStackBar shares={breakdown} height={30} />
@@ -300,10 +301,10 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
 
       {office !== 'presidency' && (
         <Card className="p-4 space-y-2">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+          <h4 className={CARD_HEADING}>
             Race map
-          </h3>
-          <p className="text-xs text-muted-foreground -mt-1">
+          </h4>
+          <p className={`${CARD_HINT} -mt-1`}>
             Shaded by the leading scenario's winner. Click to change the race.
           </p>
           <RaceMap

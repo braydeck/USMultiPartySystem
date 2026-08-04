@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { PARTY_COLORS, F5_ORDER, FACTOR_LABELS } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
+import { CARD_HINT, CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface Candidate {
   code: string;
@@ -141,10 +142,10 @@ export function VariantConstellationChart({ candidates, fdSeats, clusterSpreads 
         <line x1={sx(0)} x2={sx(0)} y1={PAD} y2={H - PAD} stroke="#e2e8f0" strokeWidth={1} />
 
         {/* Axis labels */}
-        <text x={W / 2} y={H - 8} textAnchor="middle" fontSize={11} fill="#64748b">
+        <text x={W / 2} y={H - 8} textAnchor="middle" fontSize={CHART_TYPE.seriesLabel} fill={CHART_FILL.label}>
           {xAxis} · {FACTOR_LABELS[xAxis]}
         </text>
-        <text x={12} y={H / 2} textAnchor="middle" fontSize={11} fill="#64748b"
+        <text x={12} y={H / 2} textAnchor="middle" fontSize={CHART_TYPE.seriesLabel} fill={CHART_FILL.label}
           transform={`rotate(-90, 12, ${H / 2})`}>
           {yAxis} · {FACTOR_LABELS[yAxis]}
         </text>
@@ -222,14 +223,14 @@ export function VariantConstellationChart({ candidates, fdSeats, clusterSpreads 
               {/* Label for base */}
               {isBase && (
                 <text x={sx(cx)} y={sy(cy) - r - 4} textAnchor="middle"
-                  fontSize={10} fontWeight={700} fill={color}>
+                  fontSize={CHART_TYPE.axisTick} fontWeight={700} fill={color}>
                   {c.party}
                 </text>
               )}
               {/* Always-visible label for variants */}
               {!isBase && (
                 <text x={sx(cx) + r + 3} y={sy(cy) + 3} textAnchor="start"
-                  fontSize={8} fontWeight={isHovered ? 700 : 500}
+                  fontSize={CHART_TYPE.inMark} fontWeight={isHovered ? 700 : 500}
                   fill={isHovered ? color : '#64748b'}
                   opacity={isHovered ? 1 : 0.7}>
                   {c.direction === 'hi' ? 'hi' : 'lo'} {AXIS_LABEL[c.axis]}{seats > 0 ? ` ${seats}s` : ''}
@@ -240,7 +241,7 @@ export function VariantConstellationChart({ candidates, fdSeats, clusterSpreads 
         })}
       </svg>
 
-      <p className="text-xs text-muted-foreground mt-1 text-center">
+      <p className={`${CARD_HINT} mt-1 text-center`}>
         Large circles = base party positions. Small circles = axis deviations (size ∝ seats won).
         Lines connect variants to their party base. Toggle parties and variants to explore overlap.
       </p>

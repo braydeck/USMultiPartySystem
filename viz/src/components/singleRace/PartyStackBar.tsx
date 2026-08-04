@@ -20,7 +20,7 @@ export function PartyStackBar({ shares, height = 26, legend = true }: Props) {
             <div
               key={p}
               title={`${PARTY_NAMES[p]} — ${(s * 100).toFixed(1)}%`}
-              className="flex items-center justify-center text-[10px] font-bold overflow-hidden"
+              className="flex items-center justify-center text-3xs font-bold overflow-hidden"
               style={{ width: `${s * 100}%`, background: c, color: getContrastText(c) }}
             >
               {s >= 0.08 ? p : ''}
@@ -31,7 +31,7 @@ export function PartyStackBar({ shares, height = 26, legend = true }: Props) {
       {legend && (
         <div className="flex flex-wrap gap-x-3 gap-y-1">
           {byShare.map(p => (
-            <span key={p} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+            <span key={p} className="inline-flex items-center gap-1 text-2xs text-muted-foreground">
               <span className="w-2 h-2 rounded-sm" style={{ background: getPartyColor(p) }} />
               {p} {(shares[p] * 100).toFixed(0)}%
             </span>

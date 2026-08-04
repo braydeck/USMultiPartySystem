@@ -4,6 +4,7 @@ import { PARTY_COLORS, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, getContrastText } 
 import { LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import partyPopData from '../../data/partyPopulation.json';
+import { MINOR_HEADING, CARD_HINT } from '../../constants/typography';
 
 type Row = { party: string; popShare: number; voteShare: number; turnoutPresidential: number; turnoutMidterm: number };
 const DATA = partyPopData as unknown as Row[];
@@ -58,7 +59,7 @@ export function PopulationBreakdown() {
 
   return (
     <Card ref={rootRef} className="p-5">
-      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+      <div className={`${MINOR_HEADING} mb-3`}>
         Population Breakdown
       </div>
 
@@ -88,7 +89,7 @@ export function PopulationBreakdown() {
         </div>
       </div>
 
-      <p className="text-xs text-muted-foreground mt-2">
+      <p className={`${CARD_HINT} mt-2`}>
         Share of adults (top) vs share of people who actually voted in 2024 (bottom).
       </p>
     </Card>

@@ -5,6 +5,7 @@ import { getBlendColor, isCurrentParty, FACTOR_LABELS, FACTOR_POLES, PARTY_COLOR
 import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../shared/ToggleGroup';
 import { bamForZ, bamForPctile } from '../../lib/bam';
+import { CARD_HINT, CHART_TYPE } from '../../constants/typography';
 
 interface ClusterSpread {
   party: string;
@@ -451,7 +452,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       const y = labelY[d.id];
       const safeClass = `hover-label-${d.id.replace(/[^a-zA-Z0-9]/g, '_')}`;
       const alwaysShow = !manyNodes;
-      const fontSize = manyNodes ? '9px' : '10px';
+      const fontSize = `${manyNodes ? CHART_TYPE.smallTick : CHART_TYPE.axisTick}px`;
 
       // White outline
       labelG.append('text')
@@ -510,7 +511,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
               const color = PARTY_COLORS[p];
               return (
                 <button key={p} onClick={() => toggleParty(p)}
-                  className="text-[10px] px-1.5 py-0.5 rounded border transition-all"
+                  className="text-3xs px-1.5 py-0.5 rounded border transition-all"
                   style={{
                     borderColor: color,
                     color: on ? 'white' : color,
@@ -533,7 +534,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         <div className="min-w-0 flex-1">
           <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto', maxWidth: 620, display: 'block', margin: '0 auto' }} aria-label="Ideological factor constellation chart" />
           {transfers && (
-            <p className="text-xs text-muted-foreground mt-1 text-center">
+            <p className={`${CARD_HINT} mt-1 text-center`}>
               Lines = voter transfer affinity &gt; {THRESHOLD}. Hover to highlight.
             </p>
           )}
@@ -572,10 +573,10 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
               {/* Legend for the diverging factor colour (teal = low pole → magenta = high pole). */}
               {colorMode !== 'party' && (
                 <div className="flex items-center gap-1 ml-1">
-                  <span className="text-[9px] text-muted-foreground">low</span>
+                  <span className="text-4xs text-muted-foreground">low</span>
                   <div className="h-1.5 w-16 rounded-full"
                     style={{ background: `linear-gradient(to right, ${bamForZ(-2.5)}, ${bamForZ(0)}, ${bamForZ(2.5)})` }} />
-                  <span className="text-[9px] text-muted-foreground">high</span>
+                  <span className="text-4xs text-muted-foreground">high</span>
                 </div>
               )}
             </div>

@@ -1,6 +1,7 @@
 import { getBlendColor } from '../../constants/parties';
 import type { CondorcetMatchup } from '../../types';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { FIELD_LABEL } from '../../constants/typography';
 
 interface Props {
   matchups: CondorcetMatchup[];
@@ -21,7 +22,7 @@ export function CondorcetTable({ matchups, condorcetWinner }: Props) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-3">
-        <div className="text-xs text-muted-foreground uppercase tracking-widest">Condorcet Winner</div>
+        <div className={FIELD_LABEL}>Condorcet Winner</div>
         <div
           className="text-sm font-bold px-3 py-1 rounded"
           style={{

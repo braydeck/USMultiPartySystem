@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { PARTY_COLORS, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import type { HouseStateEntry, DistrictResult } from '../../types';
+import { CARD_HINT, CHART_TYPE } from '../../constants/typography';
 
 interface Props {
   stateMap: Record<string, HouseStateEntry>;
@@ -194,7 +195,7 @@ export function HouseGridChart({ stateMap, districtResults, highlight }: Props) 
                   x={cx + cw / 2}
                   y={cy + ch - 2}
                   textAnchor="middle"
-                  fontSize={8}
+                  fontSize={CHART_TYPE.inMark}
                   fontWeight={600}
                   fill={labelColor}
                 >
@@ -205,7 +206,7 @@ export function HouseGridChart({ stateMap, districtResults, highlight }: Props) 
           })}
         </svg>
       </div>
-      <p className="text-xs text-muted-foreground mt-2 text-center">
+      <p className={`${CARD_HINT} mt-2 text-center`}>
         Each square = one STV seat · rows = districts (urban → suburban → rural) · cell size ∝ state representation · highlight parties above to see their geographic reach
       </p>
     </div>

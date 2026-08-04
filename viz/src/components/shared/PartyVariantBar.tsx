@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import type { FDHouseSeat } from '../../types';
 import { F5_ORDER_WFP as F5_ORDER, getFDColor } from '../../constants/parties';
+import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface Props {
   seats: FDHouseSeat[];
@@ -139,7 +140,7 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
                 <text
                   x={LABEL_W - 7} y={y + BAR_H / 2}
                   textAnchor="end" dominantBaseline="central"
-                  fontSize={12} fontWeight={700} fill="#475569"
+                  fontSize={CHART_TYPE.cellValue} fontWeight={700} fill="#475569"
                 >
                   {row.party}
                 </text>
@@ -185,7 +186,7 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
                           <text
                             x={segX + w / 2} y={y + BAR_H / 2}
                             textAnchor="middle" dominantBaseline="central"
-                            fontSize={9} fontWeight={700}
+                            fontSize={CHART_TYPE.smallTick} fontWeight={700}
                             fill="rgba(255,255,255,0.93)"
                             style={{ pointerEvents: 'none', userSelect: 'none' }}
                           >
@@ -201,7 +202,7 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
                 <text
                   x={LABEL_W + barW + 6} y={y + BAR_H / 2}
                   dominantBaseline="central"
-                  fontSize={11} fill="#94a3b8"
+                  fontSize={CHART_TYPE.seriesLabel} fill={CHART_FILL.tick}
                 >
                   {row.total}
                 </text>

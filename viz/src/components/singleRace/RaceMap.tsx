@@ -4,6 +4,7 @@ import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import { Button } from '@/components/ui/button';
 import type { SRState } from '../../lib/singleRace';
+import { CARD_HINT } from '../../constants/typography';
 
 const W = 900;
 const H = 560;
@@ -162,7 +163,7 @@ export function RaceMap({ office, states, selectedFips, selectedCd, onSelectStat
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">
+        <p className={CARD_HINT}>
           {office === 'house'
             ? 'Click a district to run the race there. Boundaries are the current 119th-Congress districts; each result uses the CES respondents living in that district (small districts are noisier).'
             : 'Click a state to run its statewide race.'}

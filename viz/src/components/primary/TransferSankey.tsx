@@ -4,6 +4,7 @@ import { sankey, sankeyLinkHorizontal, sankeyLeft } from 'd3-sankey';
 import type { SankeyNode, SankeyLink } from 'd3-sankey';
 import { getBlendColor } from '../../constants/parties';
 import type { PrimaryTransfer } from '../../types';
+import { CARD_HINT } from '../../constants/typography';
 
 interface Props {
   transfers: PrimaryTransfer[];
@@ -193,7 +194,7 @@ export function TransferSankey({ transfers }: Props) {
         <svg ref={svgRef} className="w-full" style={{ height: 380 }} />
       </div>
 
-      <p className="text-xs text-muted-foreground mt-2 text-center">
+      <p className={`${CARD_HINT} mt-2 text-center`}>
         Width = vote volume. Bidirectional flows collapsed to net direction. Hover for transfer %.
       </p>
     </div>

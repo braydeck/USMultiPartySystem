@@ -81,11 +81,11 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
               <span className="text-xs font-semibold text-foreground uppercase tracking-widest">
                 {row.label}
               </span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-3xs text-muted-foreground">
                 {row.surviving.length} advance{row.eliminated.length > 0 ? ` · ${row.eliminated.length} eliminated` : ''}
               </span>
               {row.quotaPct > 0 && (
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-3xs text-muted-foreground">
                   · quota {row.quotaPct.toFixed(1)}%
                 </span>
               )}
@@ -103,7 +103,7 @@ export default function PrimaryStageBars({ data, highlightStage }: Props) {
                     title={`${c.code}: ${c.pct.toFixed(1)}%`}
                   >
                     <span>{c.code}</span>
-                    <span className="font-mono text-[10px] opacity-75">{c.pct.toFixed(1)}%</span>
+                    <span className="font-mono text-3xs opacity-75">{c.pct.toFixed(1)}%</span>
                   </div>
                 );
               })}

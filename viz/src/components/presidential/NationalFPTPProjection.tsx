@@ -1,5 +1,6 @@
 import { getBlendColor, getContrastText } from '../../constants/parties';
 import { Card } from '@/components/ui/card';
+import { CARD_HEADING, CARD_HINT } from '../../constants/typography';
 
 /**
  * What first-past-the-post does with this field, counted nationally: one stacked bar of
@@ -23,10 +24,10 @@ export function NationalFPTPProjection({ shares, label }: {
 
   return (
     <Card className="p-4">
-      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         National FPTP Projection
       </h4>
-      <p className="text-xs text-muted-foreground mb-3">
+      <p className={`${CARD_HINT} mb-3`}>
         Who would win under current first-past-the-post rules.
       </p>
 

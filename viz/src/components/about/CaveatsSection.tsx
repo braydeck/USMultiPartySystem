@@ -6,6 +6,7 @@ import { UNCERTAINTY_STOPS, uncertaintyAt } from '../../lib/uncertainty';
 import type { StateUncertainty } from '../../lib/uncertainty';
 import { DEFAULT_GAP_STOP, DEFAULT_STOP_INDEX } from '../../lib/participationStops';
 import { SHOW_CROSSOVER } from '../../constants/features';
+import { MINOR_HEADING, TABLE_HEADER, BODY_PROSE, CARD_HINT } from '../../constants/typography';
 
 // Local like HouseGridChart's copy: used here only to label bootstrap cells on hover.
 const FIPS_TO_ABBR: Record<string, string> = {
@@ -41,7 +42,7 @@ function BandWidths({ rows, max }: { rows: { party: string; rel: number }[]; max
     <div className="rounded-lg border border-border divide-y divide-border/60">
       {rows.map(r => (
         <div key={r.party} className="flex items-center gap-3 px-3 py-1.5">
-          <span className="w-24 shrink-0 text-[12px] font-medium leading-tight" style={{ color: PARTY_COLORS[r.party] }}>
+          <span className="w-24 shrink-0 text-xs font-medium leading-tight" style={{ color: PARTY_COLORS[r.party] }}>
             {PARTY_NAMES[r.party] ?? r.party}
           </span>
           <span className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
@@ -50,12 +51,12 @@ function BandWidths({ rows, max }: { rows: { party: string; rel: number }[]; max
               style={{ width: `${(r.rel / max) * 100}%`, backgroundColor: PARTY_COLORS[r.party] }}
             />
           </span>
-          <span className="text-[11px] tabular-nums text-foreground w-12 text-right">
+          <span className="text-2xs tabular-nums text-foreground w-12 text-right">
             ±{Math.round(r.rel * 100)}%
           </span>
         </div>
       ))}
-      <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+      <div className={`px-3 py-1.5 ${TABLE_HEADER}`}>
         Half the 95% band, as a share of the delegation
       </div>
     </div>
@@ -76,7 +77,7 @@ function ConfidenceStrip({ name, races }: { name: string; races: Race[] }) {
     <div>
       <div className="flex items-baseline justify-between mb-1.5">
         <span className="text-sm font-semibold text-foreground">{name}</span>
-        <span className="text-[11px] text-muted-foreground tabular-nums">
+        <span className="text-2xs text-muted-foreground tabular-nums">
           mean {pct(mean)}% · {races.length} races
         </span>
       </div>
@@ -92,7 +93,7 @@ function ConfidenceStrip({ name, races }: { name: string; races: Race[] }) {
       </div>
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {BANDS.map((b, i) => (
-          <span key={b.label} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground tabular-nums">
+          <span key={b.label} className="inline-flex items-center gap-1 text-2xs text-muted-foreground tabular-nums">
             <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: b.color }} />
             {counts[i]} <span className="text-muted-foreground/70">at {b.label}</span>
           </span>
@@ -108,7 +109,7 @@ function Bar({ v, color, w = 'w-24' }: { v: number; color: string; w?: string })
       <span className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
         <span className="block h-full rounded-full" style={{ width: `${pct(v)}%`, backgroundColor: color }} />
       </span>
-      <span className="text-[11px] tabular-nums text-foreground w-8 text-right">{pct(v)}%</span>
+      <span className="text-2xs tabular-nums text-foreground w-8 text-right">{pct(v)}%</span>
     </span>
   );
 }
@@ -121,7 +122,7 @@ function WinnerBar({ dist }: { dist: Record<string, number> }) {
       {parts.map(([p, v]) => (
         <div
           key={p}
-          className="flex items-center justify-center text-[11px] font-semibold text-white overflow-hidden whitespace-nowrap"
+          className="flex items-center justify-center text-2xs font-semibold text-white overflow-hidden whitespace-nowrap"
           style={{ width: `${v * 100}%`, backgroundColor: partyColor(p) }}
           title={`${partyName(p)}: ${pct(v)}% of draws`}
         >
@@ -284,7 +285,7 @@ export function CaveatsSection() {
             <div className="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-2">Answers</div>
             <ul className="space-y-1.5">
               {SCOPE.can.map(l => (
-                <li key={l} className="flex gap-2 text-[13px] text-foreground/90 leading-snug">
+                <li key={l} className="flex gap-2 text-sm text-foreground/90 leading-snug">
                   <span className="text-emerald-600 shrink-0">✓</span>{l}
                 </li>
               ))}
@@ -294,7 +295,7 @@ export function CaveatsSection() {
             <div className="text-xs font-semibold text-red-700 uppercase tracking-widest mb-2">Cannot answer</div>
             <ul className="space-y-1.5">
               {SCOPE.cannot.map(l => (
-                <li key={l} className="flex gap-2 text-[13px] text-muted-foreground leading-snug">
+                <li key={l} className="flex gap-2 text-sm text-muted-foreground leading-snug">
                   <span className="text-red-400 shrink-0">✗</span>{l}
                 </li>
               ))}
@@ -315,7 +316,7 @@ export function CaveatsSection() {
               <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-900">
                 <span className="text-emerald-600">✓</span>{r.label}
               </div>
-              <p className="text-[11px] text-emerald-800/90 leading-snug mt-0.5">{r.body}</p>
+              <p className="text-2xs text-emerald-800/90 leading-snug mt-0.5">{r.body}</p>
             </div>
           ))}
         </div>
@@ -338,7 +339,7 @@ export function CaveatsSection() {
           <div className="font-semibold text-foreground mb-1">
             Resampling moves the small delegations and the close races, not the headlines
           </div>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+          <p className={`${BODY_PROSE} mb-4`}>
             Each state&apos;s respondents are resampled {nDraws.toLocaleString()} times, with replacement
             and within state, and every chamber re-runs on every draw at all seven participation stops.
             Headlines report the most likely result across those draws. Figures here describe the
@@ -353,7 +354,7 @@ export function CaveatsSection() {
             ].map(s => (
               <div key={s.l} className="rounded-lg bg-muted/50 border border-border p-3 text-center">
                 <div className="text-xl font-bold tabular-nums text-foreground">{s.n}</div>
-                <div className="text-[11px] text-muted-foreground leading-snug mt-0.5">{s.l}</div>
+                <div className="text-2xs text-muted-foreground leading-snug mt-0.5">{s.l}</div>
               </div>
             ))}
           </div>
@@ -363,7 +364,7 @@ export function CaveatsSection() {
               <div className="text-sm font-semibold text-foreground mb-1">
                 The House barely moves, because 873 seats average their own noise away
               </div>
-              <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
+              <p className={`${BODY_PROSE} mb-3`}>
                 Every delegation lands inside a band a few seats wide. {partyName(house.first.party)}&apos;s
                 floor across resamples sits {house.pluralityGap} seats above{' '}
                 {partyName(house.second.party)}&apos;s ceiling, so the plurality is not what sampling puts
@@ -378,7 +379,7 @@ export function CaveatsSection() {
               <div className="text-sm font-semibold text-foreground mb-1">
                 What sampling does put at risk is the small delegations
               </div>
-              <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
+              <p className={`${BODY_PROSE} mb-3`}>
                 The same few-seat band is a rounding error against{' '}
                 {partyName(house.tightest.party)}&apos;s {Math.round(house.tightest.iv.expected)} seats and
                 close to a third of {partyName(house.widest.party)}&apos;s{' '}
@@ -394,7 +395,7 @@ export function CaveatsSection() {
           <div className="text-sm font-semibold text-foreground mb-1">
             A senate seat is one winner, so nothing averages out
           </div>
-          <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
+          <p className={`${BODY_PROSE} mb-3`}>
             Each cell is one of the 51 races, sorted by how often its winner repeats. The two methods are
             equally reliable on average and differently shaped. Condorcet is more decisive where it is
             decisive and closer to a coin flip where it is not, because it asks whether one party beats
@@ -407,7 +408,7 @@ export function CaveatsSection() {
           </div>
 
           <div className="text-sm font-semibold text-foreground mb-1">Sample size is not what makes a race shaky</div>
-          <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
+          <p className={`${BODY_PROSE} mb-3`}>
             Log sample size correlates with confidence in the winner at just +0.30 under Condorcet and
             +0.34 under IRV. The median sample across the 13 least stable Condorcet races is 385
             respondents against 661 across all 51, so size does some work, and some of the least stable
@@ -417,19 +418,19 @@ export function CaveatsSection() {
             {SAMPLE_CASES.map(c => (
               <div key={c.state} className="grid grid-cols-[7.5rem_1fr_1fr] items-center gap-3 px-3 py-2">
                 <div>
-                  <div className="text-[13px] font-medium text-foreground leading-tight">{c.state}</div>
-                  <div className="text-[10px] text-muted-foreground">{c.rank}</div>
+                  <div className="text-sm font-medium text-foreground leading-tight">{c.state}</div>
+                  <div className="text-3xs text-muted-foreground">{c.rank}</div>
                 </div>
                 <span className="inline-flex items-center gap-1.5">
                   <span className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
                     <span className="block h-full rounded-full bg-slate-400" style={{ width: `${(c.n / SAMPLE_MAX) * 100}%` }} />
                   </span>
-                  <span className="text-[11px] tabular-nums text-muted-foreground w-10 text-right">{c.n.toLocaleString()}</span>
+                  <span className="text-2xs tabular-nums text-muted-foreground w-10 text-right">{c.n.toLocaleString()}</span>
                 </span>
                 <Bar v={c.conf} color="#6366f1" w="w-full" />
               </div>
             ))}
-            <div className="grid grid-cols-[7.5rem_1fr_1fr] gap-3 px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <div className={`grid grid-cols-[7.5rem_1fr_1fr] gap-3 px-3 py-1.5 ${TABLE_HEADER}`}>
               <span />
               <span>CES respondents</span>
               <span>Winner repeats</span>
@@ -441,7 +442,7 @@ export function CaveatsSection() {
               <div className="text-sm font-semibold text-foreground mb-1">
                 A race can be unstable without either party being weak
               </div>
-              <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
+              <p className={`${BODY_PROSE} mb-3`}>
                 Wyoming under IRV. Conservative and Populist win almost the same share of the draws in
                 which they reach the final round. What separates them is getting there, and Populist won
                 the observed sample by surviving that far.
@@ -453,10 +454,10 @@ export function CaveatsSection() {
                   { k: 'win' as const, l: 'Wins the seat' },
                 ].map(row => (
                   <div key={row.k} className="grid grid-cols-[9.5rem_1fr_1fr] items-center gap-3 py-1">
-                    <span className="text-[12px] text-muted-foreground leading-snug">{row.l}</span>
+                    <span className="text-xs text-muted-foreground leading-snug">{row.l}</span>
                     {['CON', 'POP'].map(p => (
                       <span key={p} className="inline-flex items-center gap-2">
-                        <span className="text-[11px] font-semibold w-16 shrink-0" style={{ color: partyColor(p) }}>
+                        <span className="text-2xs font-semibold w-16 shrink-0" style={{ color: partyColor(p) }}>
                           {PARTY_NAMES[p]}
                         </span>
                         <Bar v={wy[p]?.[row.k] ?? 0} color={partyColor(p)} w="flex-1" />
@@ -473,14 +474,14 @@ export function CaveatsSection() {
               <div className="text-sm font-semibold text-foreground mb-1">
                 IRV&apos;s presidency is settled. Condorcet&apos;s is close to a coin flip
               </div>
-              <p className="text-[13px] text-muted-foreground leading-relaxed mb-3">
+              <p className={`${BODY_PROSE} mb-3`}>
                 Share of the {nDraws.toLocaleString()} draws each party wins the presidency. No draw of
                 the {nElections.toLocaleString()} produced a Condorcet cycle, so every one resolved to a winner.
               </p>
               <div className="space-y-2 mb-4">
                 {([['IRV', u.president.irv.dist], ['Condorcet', u.president.cond.dist]] as const).map(([label, dist]) => (
                   <div key={label} className="flex items-center gap-3">
-                    <span className="text-[11px] font-semibold text-muted-foreground w-16 shrink-0">{label}</span>
+                    <span className="text-2xs font-semibold text-muted-foreground w-16 shrink-0">{label}</span>
                     <div className="flex-1"><WinnerBar dist={dist} /></div>
                   </div>
                 ))}
@@ -489,10 +490,10 @@ export function CaveatsSection() {
           )}
 
           <details className="border-t border-border/60 pt-3">
-            <summary className="text-[11px] font-semibold text-muted-foreground hover:text-foreground cursor-pointer select-none">
+            <summary className="text-2xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer select-none">
               How to read the intervals, and where the observed sample disagrees
             </summary>
-            <div className="space-y-2 mt-2.5 text-[11px] text-muted-foreground leading-relaxed">
+            <div className="space-y-2 mt-2.5 text-2xs text-muted-foreground leading-relaxed">
               <p>
                 These are <strong className="text-foreground">bootstrap percentile intervals</strong>, not
                 credible intervals. An election outcome is a complex, discontinuous function of the
@@ -538,7 +539,7 @@ export function CaveatsSection() {
           <div className="font-semibold text-foreground">
             {ASSUMPTIONS.length} assumptions, and which way each one bends the result
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] text-muted-foreground">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-2xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5"><span className="text-amber-600">▲▼</span>Known direction of bias</span>
             <span className="inline-flex items-center gap-1.5"><span className="text-slate-400">◆●</span>Scope or modeling choice, no direction</span>
           </div>
@@ -550,16 +551,16 @@ export function CaveatsSection() {
               <div key={a.label} className="px-5 py-3.5">
                 <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 mb-1">
                   <span className="font-medium text-foreground text-sm">{a.label}</span>
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border ${s.chip}`}>
+                  <span className={`inline-flex items-center gap-1 text-3xs font-semibold px-1.5 py-0.5 rounded border ${s.chip}`}>
                     <span aria-hidden="true">{s.dot}</span>{a.tag}
                   </span>
                 </div>
-                <p className="text-[13px] text-muted-foreground leading-snug">{a.lede}</p>
+                <p className="text-sm text-muted-foreground leading-snug">{a.lede}</p>
                 <details className="mt-1">
-                  <summary className="text-[11px] font-medium text-muted-foreground/80 hover:text-foreground cursor-pointer select-none">
+                  <summary className="text-2xs font-medium text-muted-foreground/80 hover:text-foreground cursor-pointer select-none">
                     Detail
                   </summary>
-                  <p className="text-[12px] text-muted-foreground leading-relaxed mt-1.5">{a.body}</p>
+                  <p className={`${CARD_HINT} leading-relaxed mt-1.5`}>{a.body}</p>
                 </details>
               </div>
             );
@@ -569,7 +570,7 @@ export function CaveatsSection() {
 
       {/* Data & Methods */}
       <Card className="p-5 bg-muted">
-        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Data &amp; Methods</div>
+        <div className={`${MINOR_HEADING} mb-2`}>Data &amp; Methods</div>
         <div className="space-y-1 text-xs text-muted-foreground">
           <div><span className="font-medium text-muted-foreground">Survey:</span> Cooperative Election Study (CES) 2024, Harvard/YouGov</div>
           <div><span className="font-medium text-muted-foreground">Factor analysis:</span> Polychoric EFA, 24 items → 5 factors, oblique (oblimin) rotation</div>

@@ -5,6 +5,7 @@
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
 import { GAP_STOPS } from '../shared/ParticipationSlider';
 import { UNCERTAINTY_STOPS } from '../../lib/uncertainty';
+import { CARD_HEADING, CARD_HINT } from '../../constants/typography';
 
 const METHODS = [
   { key: 'irv' as const, label: 'IRV' },
@@ -61,7 +62,7 @@ function StopColumn({ dist, order, stop, active }: {
             title={`${name(c)} wins ${pct(dist[c] ?? 0)} of resamples at ${stop}% gap closed`} />
         ))}
       </div>
-      <span className={`text-[9px] tabular-nums ${active
+      <span className={`text-4xs tabular-nums ${active
         ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>{stop}</span>
     </div>
   );
@@ -75,10 +76,10 @@ export function PresidentRangeCard({ gi, nDraws }: { gi: number; nDraws: number 
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         How Certain Is the Presidency?
-      </h3>
-      <p className="text-xs text-muted-foreground mb-4">
+      </h4>
+      <p className={`${CARD_HINT} mb-4`}>
         Share of {nDraws.toLocaleString()} resamples each party wins, at every setting of the
         turnout slider. A resample redraws the survey — different respondents, the same number in
         each state — and re-runs the whole election. Columns run 0% to 30% of the gap closed; the
@@ -94,7 +95,7 @@ export function PresidentRangeCard({ gi, nDraws }: { gi: number; nDraws: number 
               <div className="flex items-baseline justify-between gap-2 mb-2">
                 <span className="text-xs font-semibold text-foreground">{m.label}</span>
                 {here && (
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-2xs text-muted-foreground">
                     now: <span className="font-semibold" style={{ color: PARTY_COLORS[here.observed] }}>
                       {name(here.observed)}</span> {pct(here.dist[here.observed] ?? 0)}
                   </span>
@@ -106,9 +107,9 @@ export function PresidentRangeCard({ gi, nDraws }: { gi: number; nDraws: number 
                     stop={GAP_STOPS[i]} active={i === gi} />
                 ))}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-2">{summarise(m.key)}</p>
+              <p className={`${CARD_HINT} mt-2`}>{summarise(m.key)}</p>
               {here && here.modal !== here.observed && (
-                <p className="text-[11px] text-amber-700 mt-1">
+                <p className="text-2xs text-amber-700 mt-1">
                   This setting is close: the result on this page elects {name(here.observed)}, but
                   {' '}{name(here.modal)} wins {pct(here.dist[here.modal] ?? 0)} of resamples against
                   {' '}{name(here.observed)}&apos;s {pct(here.dist[here.observed] ?? 0)}.
@@ -119,7 +120,7 @@ export function PresidentRangeCard({ gi, nDraws }: { gi: number; nDraws: number 
         })}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-[10px] text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-3xs text-muted-foreground">
         {order.map(c => (
           <span key={c} className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[c] ?? '#94a3b8' }} />

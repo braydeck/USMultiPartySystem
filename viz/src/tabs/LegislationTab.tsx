@@ -63,6 +63,7 @@ import presL15 from '../data/rawMultiPresidentialElectionTurnoutL15.json';
 import presL20 from '../data/rawMultiPresidentialElectionTurnoutL20.json';
 import presL25 from '../data/rawMultiPresidentialElectionTurnoutL25.json';
 import presL30 from '../data/rawMultiPresidentialElectionTurnoutL30.json';
+import { PAGE_TITLE, CARD_HEADING, CARD_HINT } from '../constants/typography';
 
 interface Props {
   candidateVotes: CandidateVoteRow[];
@@ -171,7 +172,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Legislation</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>Legislation</h2>
         <p className="text-muted-foreground text-sm">
           Probability of passage across House, Senate, and presidency. The divergences panel highlights
           where the election method (Condorcet vs IRV) changes outcomes.
@@ -213,13 +214,13 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
       />
 
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        <h4 className={`${CARD_HEADING} mb-1`}>
           Bill Passage Likelihood — {[
             WYOMING_LABELS[wyoming], HOUSE_SYSTEM_LABELS[system],
             ...(SHOW_CROSSOVER ? [PIPELINE_LABELS[pipeline]] : []), METHOD_LABELS[method],
           ].join(' · ')}
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4">
+        </h4>
+        <p className={`${CARD_HINT} mb-4`}>
           {voteModel === 'whipped'
             ? 'Whipped: each party votes as a bloc, so verdicts are a deterministic Passes / Fails.'
             : 'Bayesian verdicts: 45–55% = Tossup · 55–65% = Possibly · 65–80% = Likely · 80%+ = Clearly'}
@@ -240,10 +241,10 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
       </Card>
 
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        <h4 className={`${CARD_HEADING} mb-1`}>
           How Often Parties Vote Together
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4 max-w-3xl">
+        </h4>
+        <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
           {voteModel === 'whipped'
             ? 'Share of bills where both parties whip the same yes/no vote. Reflects party positions, so it does not change with the seat controls above.'
             : 'Closeness of each pair of parties across all bills: 100 − their average gap in support. Reflects party positions, so it does not change with the seat controls above.'}
@@ -252,10 +253,10 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
       </Card>
 
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        <h4 className={`${CARD_HEADING} mb-1`}>
           Who Passes Each Bill
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4 max-w-3xl">
+        </h4>
+        <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
           For every bill, parties are stacked and sized by their seats; the coalition to the left of the
           majority line is what carries it. Toggle House / Senate; seat weighting follows the controls above.
         </p>

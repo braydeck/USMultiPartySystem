@@ -3,6 +3,7 @@ import { getBlendColor, FACTOR_POLES, DISPLAY_FACTORS } from '../../constants/pa
 import { bamForZ, bamForPctile, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../../lib/bam';
 import { popShareLabel } from '../../lib/population';
 import { Card } from '@/components/ui/card';
+import { CARD_HINT } from '../../constants/typography';
 
 const FACTOR_SHORT_LABEL: Record<string, string> = {
   F1: 'Security',
@@ -125,7 +126,7 @@ export function PartyProfileCard({ cluster, mode = 'strength' }: Props) {
       </div>
       {PARTY_BLURBS[cluster.party] && (
         <div className="px-4 pb-3 pt-1 border-t border-border/40">
-          <p className="text-[11px] leading-relaxed text-muted-foreground">{PARTY_BLURBS[cluster.party]}</p>
+          <p className={`${CARD_HINT} leading-relaxed`}>{PARTY_BLURBS[cluster.party]}</p>
         </div>
       )}
     </Card>

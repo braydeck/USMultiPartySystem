@@ -4,6 +4,7 @@ import { getBlendColor } from '../../constants/parties';
 import type { SenateSeat } from '../../types';
 import type { StateUncertainty } from '../../lib/uncertainty';
 import { delegations, SPLIT_THRESHOLD_PP } from '../../lib/senateDelegations';
+import { CARD_HINT } from '../../constants/typography';
 
 const GEO_URL = './topojson/states-10m.json';
 
@@ -132,7 +133,7 @@ export function SenateMap({ seats, states }: Props) {
               onMouseEnter={() => setTooltip(tooltipFor('DC', dc, u))}
               onMouseLeave={() => setTooltip(null)}
             >
-              <div className="text-center text-[9px] font-bold text-muted-foreground mb-0.5 leading-none">DC</div>
+              <div className="text-center text-4xs font-bold text-muted-foreground mb-0.5 leading-none">DC</div>
               <div
                 className="rounded border border-slate-300 w-12 h-7"
                 style={{
@@ -152,12 +153,12 @@ export function SenateMap({ seats, states }: Props) {
         })()}
       </div>
 
-      <p className="text-xs text-muted-foreground mt-2 text-center">
+      <p className={`${CARD_HINT} mt-2 text-center`}>
         Each state returns two senators; a contested state splits them.
       </p>
 
       {states && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-[10px] text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-3xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <svg width="14" height="14" aria-hidden="true">
               <rect width="14" height="14" fill="#e2e8f0" />

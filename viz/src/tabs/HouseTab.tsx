@@ -96,6 +96,7 @@ import fdDistTri15 from '../data/fdDistrictStvResultsTripleTurnoutL15.json';
 import fdDistTri20 from '../data/fdDistrictStvResultsTripleTurnoutL20.json';
 import fdDistTri25 from '../data/fdDistrictStvResultsTripleTurnoutL25.json';
 import fdDistTri30 from '../data/fdDistrictStvResultsTripleTurnoutL30.json';
+import { PAGE_TITLE, CARD_HEADING, MINOR_HEADING, METRIC_VALUE, CARD_HINT } from '../constants/typography';
 
 interface Props {
   seats: HouseSeat[];
@@ -390,7 +391,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   const chamberNode = (
   <Card className="p-4">
     <div className="flex flex-wrap items-center gap-2 mb-3">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Chamber Composition</h3>
+      <h4 className={CARD_HEADING}>Chamber Composition</h4>
       <span className="text-xs text-muted-foreground">— order by:</span>
       {DISPLAY_FACTORS.map(f => (
         <Button key={f} onClick={() => setParliamentFactor(f)} title={FACTOR_LABELS[f]}
@@ -405,10 +406,10 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   );
   const fptpDisproNode = fptpStates.length > 0 ? (
     <section>
-      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h5 className={`${MINOR_HEADING} mb-1`}>
         By state
-      </h4>
-      <p className="text-xs text-muted-foreground mb-3">
+      </h5>
+      <p className={`${CARD_HINT} mb-3`}>
         How far each state&apos;s FPTP result diverges from proportional, and what the same
         state returns under each of the two proportional rules.
       </p>
@@ -417,9 +418,9 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   ) : null;
   const constellationNode = (
   <Card className="p-4">
-    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+    <h4 className={`${CARD_HEADING} mb-3`}>
       Ideological Constellation
-    </h3>
+    </h4>
     <IdeologicalConstellation
       nodes={(() => {
         if (scenario === 'factorDev') {
@@ -446,7 +447,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">House of Representatives</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>House of Representatives</h2>
         <p className="text-muted-foreground text-sm">
           {system === 'list'
             ? `${plConfig?.national.totalSeats ?? activeTotalSeats} seats by Hare-quota party list, on the same districts as STV.`
@@ -504,43 +505,43 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       {scenario === 'rawMulti' && plConfig && (
         <div className="grid gap-4 lg:grid-cols-2 items-start">
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            <h4 className={`${CARD_HEADING} mb-1`}>
               Voters left unrepresented
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+            </h4>
+            <p className={`${CARD_HINT} mb-4`}>Nobody they voted for won a seat.</p>
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                <div className="text-[11px] text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
-                <div className="text-2xl font-bold tabular-nums text-rose-700">35.8%</div>
+                <div className="text-2xs text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
+                <div className={`${METRIC_VALUE} text-rose-700`}>35.8%</div>
               </div>
               <div className="rounded-lg border border-border bg-muted/40 p-3">
-                <div className="text-[11px] text-muted-foreground">Party list</div>
-                <div className="text-2xl font-bold tabular-nums text-foreground">{plConfig.national.unrepresented.list.toFixed(1)}%</div>
+                <div className="text-2xs text-muted-foreground">Party list</div>
+                <div className={`${METRIC_VALUE} text-foreground`}>{plConfig.national.unrepresented.list.toFixed(1)}%</div>
               </div>
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                <div className="text-[11px] text-muted-foreground">STV</div>
-                <div className="text-2xl font-bold tabular-nums text-emerald-700">{plConfig.national.unrepresented.stv.toFixed(1)}%</div>
+                <div className="text-2xs text-muted-foreground">STV</div>
+                <div className={`${METRIC_VALUE} text-emerald-700`}>{plConfig.national.unrepresented.stv.toFixed(1)}%</div>
               </div>
             </div>
           </Card>
 
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            <h4 className={`${CARD_HEADING} mb-1`}>
               Over-quota surplus
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4">Votes above what a winner needed.</p>
+            </h4>
+            <p className={`${CARD_HINT} mb-4`}>Votes above what a winner needed.</p>
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                <div className="text-[11px] text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
-                <div className="text-2xl font-bold tabular-nums text-rose-700">14.2%</div>
+                <div className="text-2xs text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
+                <div className={`${METRIC_VALUE} text-rose-700`}>14.2%</div>
               </div>
               <div className="rounded-lg border border-border bg-muted/40 p-3">
-                <div className="text-[11px] text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
-                <div className="text-2xl font-bold tabular-nums text-foreground">{plConfig.national.excess.list.toFixed(1)}%</div>
+                <div className="text-2xs text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
+                <div className={`${METRIC_VALUE} text-foreground`}>{plConfig.national.excess.list.toFixed(1)}%</div>
               </div>
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                <div className="text-[11px] text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
-                <div className="text-2xl font-bold tabular-nums text-emerald-700">{plConfig.national.excess.stv.toFixed(1)}%</div>
+                <div className="text-2xs text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
+                <div className={`${METRIC_VALUE} text-emerald-700`}>{plConfig.national.excess.stv.toFixed(1)}%</div>
               </div>
             </div>
           </Card>
@@ -558,7 +559,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       {/* State Composition — both views */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">State Composition</h3>
+          <h4 className={CARD_HEADING}>State Composition</h4>
           <div className="flex gap-1">
             {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
               <Button key={v} onClick={() => setMapView(v)}
@@ -579,10 +580,10 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
 
       {/* Seats by District Type */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+        <h4 className={`${CARD_HEADING} mb-1`}>
           Seats by District Type
-        </h3>
-        <p className="text-xs text-muted-foreground mb-3">
+        </h4>
+        <p className={`${CARD_HINT} mb-3`}>
           Progressive parties dominate urban seats, conservatives dominate rural, suburbs are contested.
         </p>
         <UrbSubRurChart seats={activeSeats} />
@@ -592,10 +593,10 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       {/* Vote Transfer Destinations — filtered by state/national */}
       {scenario === 'rawMulti' && houseTransfers.length > 0 && (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">
+          </h4>
+          <p className={`${CARD_HINT} mb-4`}>
             {seatShareState === 'national'
               ? "When a party is eliminated in STV, where do their voters\u2019 ballots flow?"
               : `Showing parties that won seats in ${seatShareState}. Transfer patterns are national averages.`}
@@ -614,10 +615,10 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       {/* FD: Variant bar right after seat share */}
       {scenario === 'factorDev' && (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             Seats by Variant
-          </h3>
-          <p className="text-xs text-muted-foreground mb-3">
+          </h4>
+          <p className={`${CARD_HINT} mb-3`}>
             {activeTotalSeats} seats stacked by axis variant. Full color = base; lighter = hi axis; darker = lo axis.
           </p>
           <PartyVariantBar seats={activeFdHouseSeats} totalLabel={`${activeTotalSeats} house seats`} />
@@ -635,9 +636,9 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       <CollapsibleSection id="dispro" title="See disproportionality"
         hint="Votes against seats, what it costs voters, and how it varies by state">
         <section>
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h5 className={`${MINOR_HEADING} mb-1`}>
             Votes against seats
-          </h4>
+          </h5>
           <ScenarioComparison
             showHeading={false}
             rawMultiSeats={stvDepthSeats ?? (wyoming === 'triple' ? seatsTripleGi : rmSeats)}
@@ -660,17 +661,17 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           {/* Seats won below quota — the exhaustion cost of shorter ballots */}
           {scenario === 'rawMulti' && belowQuota && (
             <Card className="p-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              <h4 className={`${CARD_HEADING} mb-1`}>
                 Seats won below quota{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
-              </h3>
+              </h4>
               <div className="grid grid-cols-2 gap-2 max-w-md">
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-                  <div className="text-[11px] text-muted-foreground">Ballots ranked {DEPTH_LABELS[depth].toLowerCase()}</div>
-                  <div className="text-2xl font-bold tabular-nums text-amber-700">{belowQuota.current.toFixed(1)}%</div>
+                  <div className="text-2xs text-muted-foreground">Ballots ranked {DEPTH_LABELS[depth].toLowerCase()}</div>
+                  <div className={`${METRIC_VALUE} text-amber-700`}>{belowQuota.current.toFixed(1)}%</div>
                 </div>
                 <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                  <div className="text-[11px] text-muted-foreground">Rank all · floor</div>
-                  <div className="text-2xl font-bold tabular-nums text-emerald-700">{belowQuota.floor.toFixed(1)}%</div>
+                  <div className="text-2xs text-muted-foreground">Rank all · floor</div>
+                  <div className={`${METRIC_VALUE} text-emerald-700`}>{belowQuota.floor.toFixed(1)}%</div>
                 </div>
               </div>
             </Card>
@@ -690,10 +691,10 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
 
       <Card className="p-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             How this chamber votes on bills
-          </h3>
-          <p className="text-xs text-muted-foreground">
+          </h4>
+          <p className={CARD_HINT}>
             The bill simulator lives on the Legislation tab, where the whipping rules and the
             full bill set are.
           </p>
@@ -714,17 +715,17 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
         <>
           <div className="border-t-2 border-violet-200 pt-6">
             <h3 className="text-lg font-bold text-violet-800 mb-1">Crossover Analysis</h3>
-            <p className="text-xs text-muted-foreground mb-6">
+            <p className={`${CARD_HINT} mb-6`}>
               How do ideological deviations from party baselines affect seat composition and cross-party attraction?
             </p>
           </div>
 
           {/* Variant Impact */}
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            <h4 className={`${CARD_HEADING} mb-1`}>
               Variant Impact by Party
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4">
+            </h4>
+            <p className={`${CARD_HINT} mb-4`}>
               Which ideological deviations win seats? Stacked bars show base vs axis variant contributions.
             </p>
             <VariantImpactChart seats={activeFdHouseSeats} />
@@ -733,10 +734,10 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           {/* Variant Voter Attraction Sources */}
           {fdVariantAttraction.length > 0 && (
             <Card className="p-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              <h4 className={`${CARD_HEADING} mb-1`}>
                 Variant Voter Attraction Sources
-              </h3>
-              <p className="text-xs text-muted-foreground mb-4">
+              </h4>
+              <p className={`${CARD_HINT} mb-4`}>
                 Incremental cross-party attraction for each deviation relative to the party base.
               </p>
               <VariantAttractionChart data={fdVariantAttraction} />
@@ -746,10 +747,10 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           {/* Cross-Party Attraction Drivers */}
           {fdAttractionDrivers.length > 0 && (
             <Card className="p-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              <h4 className={`${CARD_HEADING} mb-1`}>
                 Cross-Party Attraction Drivers
-              </h3>
-              <p className="text-xs text-muted-foreground mb-3">
+              </h4>
+              <p className={`${CARD_HINT} mb-3`}>
                 Which factors explain each variant&apos;s cross-party pull? Bars show per-factor contribution
                 to closing the distance between the variant and the attracted party.
               </p>

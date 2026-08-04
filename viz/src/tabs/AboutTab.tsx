@@ -7,6 +7,7 @@ import factorLoadingsData from '../data/factorLoadings.json';
 import { CaveatsSection } from '../components/about/CaveatsSection';
 import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
 import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
+import { PAGE_TITLE, MINOR_HEADING, BODY_PROSE, CARD_HINT, FOOTNOTE } from '../constants/typography';
 
 interface FactorDef {
   short: string; label: string; color: string; eta: number; bw: number;
@@ -130,7 +131,7 @@ export function AboutTab() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">What Is This?</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>What Is This?</h2>
         <p className="text-muted-foreground text-sm">
           A data-driven simulation of American elections under proportional representation, built from 60,000 real survey responses.
         </p>
@@ -179,14 +180,14 @@ export function AboutTab() {
               <Card key={p.title} className="p-5">
                 <div className="text-2xl mb-2" style={{ color: p.accent }}>{p.icon}</div>
                 <div className="font-semibold text-foreground mb-1.5">{p.title}</div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{p.body}</p>
+                <p className={BODY_PROSE}>{p.body}</p>
               </Card>
             ))}
           </div>
 
           {/* Quick stats */}
           <Card className="p-5">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">By the numbers</div>
+            <div className={`${MINOR_HEADING} mb-4`}>By the numbers</div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
               {[
                 { n: '~60,000', label: 'Survey respondents' },
@@ -195,7 +196,7 @@ export function AboutTab() {
                 { n: '102',     label: 'Senate seats' },
               ].map(s => (
                 <div key={s.label}>
-                  <div className="text-2xl font-bold text-foreground">{s.n}</div>
+                  <div className={PAGE_TITLE}>{s.n}</div>
                   <div className="text-xs text-muted-foreground mt-0.5">{s.label}</div>
                 </div>
               ))}
@@ -204,7 +205,7 @@ export function AboutTab() {
 
           {/* Tab guide */}
           <Card className="p-5">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">What each tab shows</div>
+            <div className={`${MINOR_HEADING} mb-4`}>What each tab shows</div>
             <div className="space-y-2.5">
               {[
                 { tab: 'Party Quiz', desc: 'Answer the actual CES survey questions and see which of the ten parties your factor scores land closest to.', group: '' },
@@ -218,7 +219,7 @@ export function AboutTab() {
               ].map((r, i, arr) => (
                 <div key={r.tab}>
                   {r.group && arr[i - 1]?.group !== r.group && (
-                    <div className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest mt-3 mb-1.5">Under the {r.group} menu</div>
+                    <div className="text-3xs font-semibold text-muted-foreground/70 uppercase tracking-widest mt-3 mb-1.5">Under the {r.group} menu</div>
                   )}
                   <div className="flex gap-3 text-sm">
                     <span className="font-semibold text-foreground w-44 shrink-0">{r.tab}</span>
@@ -237,7 +238,7 @@ export function AboutTab() {
           <Card className="overflow-hidden">
             <div className="px-5 py-4 border-b border-border/50 bg-muted">
               <div className="font-semibold text-foreground">From Survey Responses to Election Results</div>
-              <p className="text-xs text-muted-foreground mt-0.5">A five-step pipeline, each grounded in published methods</p>
+              <p className={`${CARD_HINT} mt-0.5`}>A five-step pipeline, each grounded in published methods</p>
             </div>
             <div className="divide-y divide-slate-100">
               {STEPS.map((step, i) => (
@@ -250,7 +251,7 @@ export function AboutTab() {
                   </div>
                   <div>
                     <div className="font-semibold text-foreground text-sm mb-1">{step.title}</div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
+                    <p className={BODY_PROSE}>{step.body}</p>
                   </div>
                 </div>
               ))}
@@ -261,7 +262,7 @@ export function AboutTab() {
           <Card className="overflow-hidden">
             <div className="px-5 py-4 border-b border-border/50 bg-muted">
               <div className="font-semibold text-foreground">The 5 Ideological Dimensions</div>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className={`${CARD_HINT} mt-0.5`}>
                 Latent factors that emerge from how survey responses correlate, ordered by how strongly each one sorts people into parties (η²). Expand a factor to see the survey items that define it and how heavily each one weighs (its loading).
               </p>
             </div>
@@ -279,12 +280,12 @@ export function AboutTab() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <div className="font-semibold text-foreground text-sm">{f.label}</div>
-                        <div className="text-[11px] text-muted-foreground font-mono shrink-0">η² = {f.eta.toFixed(2)}</div>
+                        <div className="text-2xs text-muted-foreground font-mono shrink-0">η² = {f.eta.toFixed(2)}</div>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-2" title={`η² = ${f.eta.toFixed(3)} (B/W ${f.bw})`}>
                         <div className="h-full rounded-full" style={{ width: `${etaPct}%`, backgroundColor: etaPurple(f.eta) }} />
                       </div>
-                      <p className="text-xs text-muted-foreground mb-2">{f.strength}</p>
+                      <p className={`${CARD_HINT} mb-2`}>{f.strength}</p>
                       <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground mb-2">
                         <span><span className="font-medium text-muted-foreground">High:</span> {f.hi}</span>
                         <span><span className="font-medium text-muted-foreground">Low:</span> {f.lo}</span>
@@ -293,7 +294,7 @@ export function AboutTab() {
                         <summary className="text-xs font-medium cursor-pointer text-muted-foreground hover:text-foreground select-none">
                           {f.items.length} survey items that define it
                         </summary>
-                        {f.note && <p className="text-[11px] text-muted-foreground mt-2 italic leading-relaxed">{f.note}</p>}
+                        {f.note && <p className={`${FOOTNOTE} mt-2 italic leading-relaxed`}>{f.note}</p>}
                         <ul className="mt-2 space-y-1">
                           {f.items.map((it, i) => (
                             <li key={i} className="flex items-start gap-2 text-xs">
@@ -318,7 +319,7 @@ export function AboutTab() {
           {/* What the factors reveal */}
           <Card className="p-5 bg-slate-50 border-slate-200">
             <div className="font-semibold text-foreground mb-1">What the factors reveal</div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className={BODY_PROSE}>
               The cleavages people assume are missing turn out not to be separate axes. Support for climate policy and for the culture-war issues both track left-right almost perfectly: neither pulls voters off the main spectrum. The dimension that genuinely cuts across the parties is institutional trust: in elections and in government (the Institutional Distrust factor). That is why the cross-pressured parties (Solidarity, Order &amp; Opportunity, Civic Union) exist rather than collapsing onto the usual left-right line.
             </p>
           </Card>
@@ -326,7 +327,7 @@ export function AboutTab() {
           {/* Ballot generation detail */}
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-1">How a voter becomes a ranked ballot</div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            <p className={`${BODY_PROSE} mb-4`}>
               Proximity does the ranking. Every voter sits in the same five-factor space as the candidates, and the
               ballot orders those candidates from nearest to farthest. Nothing is hand-assigned.
             </p>
@@ -339,31 +340,31 @@ export function AboutTab() {
               ].map(s => (
                 <div key={s.n} className="bg-muted rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white text-[11px] font-bold">{s.n}</span>
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white text-2xs font-bold">{s.n}</span>
                     <span className="text-xs font-semibold text-foreground uppercase tracking-widest">{s.h}</span>
                   </div>
-                  <p className="text-[13px] text-muted-foreground leading-relaxed">{s.b}</p>
+                  <p className={BODY_PROSE}>{s.b}</p>
                 </div>
               ))}
             </div>
 
             {/* Worked example: one voter's ballot as ranked party pills, with the depth cutoff */}
             <div className="rounded-lg border border-border p-4 mb-4">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2.5">Example: one ballot, nearest candidate first</div>
+              <div className={`${MINOR_HEADING} mb-2.5`}>Example: one ballot, nearest candidate first</div>
               <div className="flex flex-wrap items-center gap-1.5">
                 {['STY', 'LBR', 'LIB', 'PRG', 'DSA', 'CUP', 'OAO'].map((c, idx) => (
-                  <span key={c} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold text-white" style={{ background: PARTY_COLORS[c] }}>
+                  <span key={c} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-semibold text-white" style={{ background: PARTY_COLORS[c] }}>
                     <span className="opacity-70">{idx + 1}</span>{PARTY_NAMES[c]}
                   </span>
                 ))}
-                <span className="mx-1 text-[11px] font-medium text-indigo-600">│ stops here at 7</span>
+                <span className="mx-1 text-2xs font-medium text-indigo-600">│ stops here at 7</span>
                 {['CON', 'POP', 'NAT'].map(c => (
-                  <span key={c} className="inline-flex items-center rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] text-muted-foreground line-through">
+                  <span key={c} className="inline-flex items-center rounded-full border border-dashed border-border px-2 py-0.5 text-2xs text-muted-foreground line-through">
                     {PARTY_NAMES[c]}
                   </span>
                 ))}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-2.5">
+              <p className={`${CARD_HINT} mt-2.5`}>
                 Ballots run seven deep by default. Past the cutoff the ballot exhausts and stops transferring, which is why seven is the default.
               </p>
             </div>
@@ -373,12 +374,12 @@ export function AboutTab() {
                 <div className="text-xs font-semibold text-foreground mb-1">
                   {SHOW_CROSSOVER ? 'Party-line field' : 'How ballots are ordered'}
                 </div>
-                <p className="text-[12px] text-muted-foreground leading-relaxed">Ranks parties by each voter's cluster-membership probability, the DPGMM posterior that defined the typology.</p>
+                <p className={`${CARD_HINT} leading-relaxed`}>Ranks parties by each voter's cluster-membership probability, the DPGMM posterior that defined the typology.</p>
               </div>
               {SHOW_CROSSOVER && (
                 <div className="bg-muted rounded-lg p-3">
                   <div className="text-xs font-semibold text-foreground mb-1">Crossover field</div>
-                  <p className="text-[12px] text-muted-foreground leading-relaxed">Adds the shifted variant candidates, each placed by factor-space proximity.</p>
+                  <p className={`${CARD_HINT} leading-relaxed`}>Adds the shifted variant candidates, each placed by factor-space proximity.</p>
                 </div>
               )}
             </div>
@@ -387,7 +388,7 @@ export function AboutTab() {
           {/* Why the default asks for seven ranks */}
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-2">Why ballots ask for at least seven</div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+            <p className={`${BODY_PROSE} mb-3`}>
               Short ballots break proportional representation. When all of a voter&apos;s ranked choices are
               eliminated, the ballot exhausts and stops transferring, so late seats fill below the quota that is
               supposed to earn them. Ballot length is the fix, and the returns diminish fast. Share of House seats
@@ -396,12 +397,12 @@ export function AboutTab() {
             <div className="grid grid-cols-5 gap-2 text-center mb-3">
               {([['3', '34%'], ['5', '18%'], ['7', '13%'], ['10', '9%'], ['All', '8%']] as const).map(([r, v]) => (
                 <div key={r} className={`rounded-lg border p-2 ${r === '7' ? 'border-indigo-300 bg-indigo-50' : 'border-border bg-muted/40'}`}>
-                  <div className="text-[11px] text-muted-foreground">Rank {r}</div>
+                  <div className="text-2xs text-muted-foreground">Rank {r}</div>
                   <div className="text-lg font-bold tabular-nums text-foreground">{v}</div>
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
+            <p className={`${CARD_HINT} leading-relaxed`}>
               Seven captures most of the gain toward the full-ranking floor without asking voters to rank a whole
               field. It also matches the standard rule that a voter should rank at least as many candidates as the
               district has seats: the largest districts here elect seven.
@@ -420,7 +421,7 @@ export function AboutTab() {
               primary axis (F5, Populist Conservatism, low to high), and the figure on each card is that
               cluster&apos;s share of the adult population.
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className={`${CARD_HINT} leading-relaxed`}>
               Party formation is complex, so treat these less as firm predictions of what parties would form and
               more as <strong>10 electoral forces</strong> that would shape a multiparty system. They show how, even
               inside a two-party system, voter preferences are diverse and cross-cutting, and they are the clusters
@@ -452,7 +453,7 @@ export function AboutTab() {
                       </div>
                       <span className="text-xs font-semibold font-mono shrink-0 tabular-nums" style={{ color }} title="share of the adult population">{Math.round(popShare(code))}%</span>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-snug">{tag}</p>
+                    <p className={`${CARD_HINT} leading-snug`}>{tag}</p>
                   </div>
                 </Card>
               );
@@ -465,13 +466,13 @@ export function AboutTab() {
       {/* ── Voting Systems ───────────────────────────────────── */}
       {active === 'voting' && (
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className={BODY_PROSE}>
             <span className="font-medium text-foreground">Five counting methods, and why the choice matters.</span> The
             same ballots (or the same district votes) can elect different winners, or different seat splits, depending
             on the counting rule, and that disagreement is itself a finding.
           </p>
 
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pt-1">Single-Seat Systems</h4>
+          <h5 className={`${MINOR_HEADING} pt-1`}>Single-Seat Systems</h5>
           {SINGLE_SEAT_SYSTEMS.map(vs => (
             <Card key={vs.name} className="overflow-hidden">
               <div
@@ -493,18 +494,18 @@ export function AboutTab() {
               </div>
               <div className="px-5 py-4 grid sm:grid-cols-2 gap-4">
                 <div>
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">How it works</div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{vs.how}</p>
+                  <div className={`${MINOR_HEADING} mb-1.5`}>How it works</div>
+                  <p className={BODY_PROSE}>{vs.how}</p>
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Why it matters here</div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{vs.why}</p>
+                  <div className={`${MINOR_HEADING} mb-1.5`}>Why it matters here</div>
+                  <p className={BODY_PROSE}>{vs.why}</p>
                 </div>
               </div>
             </Card>
           ))}
 
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pt-3">Proportional Systems</h4>
+          <h5 className={`${MINOR_HEADING} pt-3`}>Proportional Systems</h5>
           {PROPORTIONAL_SYSTEMS.map(vs => (
             <Card key={vs.name} className="overflow-hidden">
               <div
@@ -526,12 +527,12 @@ export function AboutTab() {
               </div>
               <div className="px-5 py-4 grid sm:grid-cols-2 gap-4">
                 <div>
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">How it works</div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{vs.how}</p>
+                  <div className={`${MINOR_HEADING} mb-1.5`}>How it works</div>
+                  <p className={BODY_PROSE}>{vs.how}</p>
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Why it matters here</div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{vs.why}</p>
+                  <div className={`${MINOR_HEADING} mb-1.5`}>Why it matters here</div>
+                  <p className={BODY_PROSE}>{vs.why}</p>
                 </div>
               </div>
             </Card>
@@ -540,7 +541,7 @@ export function AboutTab() {
           {/* IRV vs Condorcet explainer */}
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-3">IRV vs Condorcet: Why Both?</div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+            <p className={`${BODY_PROSE} mb-4`}>
               IRV and Condorcet frequently disagree on a winner, and the gap between them is politically revealing. IRV can elect a candidate with strong first-choice support who loses head-to-head. Condorcet finds the candidate most preferred <em>overall</em>, often a centrist. Showing both exposes the method-dependence of "winning."
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
@@ -560,7 +561,7 @@ export function AboutTab() {
       {/* ── Two Scenarios ────────────────────────────────────── */}
       {active === 'scenarios' && (
         <div className="space-y-5">
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className={BODY_PROSE}>
             <span className="font-medium text-foreground">Two candidate fields, run on the same electorate.</span> Party-Line
             isolates the pure effect of proportional voting; Crossover adds intra-party factions. Comparing them shows how
             much ideological variety <em>within</em> parties changes who wins.
@@ -584,13 +585,13 @@ export function AboutTab() {
                   <div className="font-bold text-foreground text-lg">{s.name}</div>
                 </div>
                 <div className="px-5 py-4 space-y-3">
-                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                  <p className={BODY_PROSE}>{s.desc}</p>
                   <div className="bg-muted rounded-lg p-3">
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">What it isolates</div>
-                    <p className="text-xs text-muted-foreground">{s.insight}</p>
+                    <div className={`${MINOR_HEADING} mb-1`}>What it isolates</div>
+                    <p className={CARD_HINT}>{s.insight}</p>
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">Example candidates</div>
+                    <div className={`${MINOR_HEADING} mb-1`}>Example candidates</div>
                     <code className="text-xs text-muted-foreground font-mono">{s.candidates}</code>
                   </div>
                 </div>
@@ -637,14 +638,14 @@ export function AboutTab() {
 
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-2">The turnout inversion</div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+            <p className={`${BODY_PROSE} mb-3`}>
               Validated 2024 turnout runs <em>backwards</em> to force size. The high-intensity ideological poles
               vote most (Progressive at 81%, Nationalist at 74%) while the large, cross-pressured center votes
               least: Solidarity at just 33%. Winner-take-all converts that intensity gap directly into power. The
               engaged extremes are over-represented and the disengaged center is under-represented, before a single
               seat is even allocated.
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className={BODY_PROSE}>
               Because a force&apos;s share of voters equals its population share times its turnout relative to the
               average, low turnout only costs you if you&apos;re <em>below</em> average: being small doesn&apos;t hurt
               you, being disengaged does. See the Population Breakdown on the Overview for the visual.
@@ -653,7 +654,7 @@ export function AboutTab() {
 
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-2">What the slider models: the contraction effect</div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+            <p className={`${BODY_PROSE} mb-3`}>
               It is <em>not</em> a uniform turnout boost. The documented effect of proportional representation
               (Cox, Fiva &amp; Smith on Norway&apos;s 1919 reform) is a <strong>contraction</strong>: mobilization
               redistributes from the over-mobilized to the under-mobilized, compressing the turnout <em>gap</em>
@@ -666,18 +667,18 @@ export function AboutTab() {
             <div className="grid sm:grid-cols-3 gap-3 mt-3">
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
                 <div className="text-xs font-semibold text-emerald-800 mb-1">0% · Observed</div>
-                <p className="text-[11px] text-emerald-700 leading-relaxed">Validated 2024 turnout, no assumed behavioral response. The only setting that rests entirely on measured data.</p>
+                <p className="text-2xs text-emerald-700 leading-relaxed">Validated 2024 turnout, no assumed behavioral response. The only setting that rests entirely on measured data.</p>
               </div>
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
                 <div className="text-xs font-semibold text-emerald-800 mb-1">≤15% · Plausible</div>
-                <p className="text-[11px] text-emerald-700 leading-relaxed">The quasi-experimental PR turnout effect is small (1–4 points aggregate, often null), so ~15% gap closure is the ceiling of what one cycle plausibly delivers.</p>
+                <p className="text-2xs text-emerald-700 leading-relaxed">The quasi-experimental PR turnout effect is small (1–4 points aggregate, often null), so ~15% gap closure is the ceiling of what one cycle plausibly delivers.</p>
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                 <div className="text-xs font-semibold text-amber-800 mb-1">20–30% · Stress</div>
-                <p className="text-[11px] text-amber-700 leading-relaxed">Beyond documented one-cycle effects; included to test what heavier mobilization would take. Above 30% is excluded entirely.</p>
+                <p className="text-2xs text-amber-700 leading-relaxed">Beyond documented one-cycle effects; included to test what heavier mobilization would take. Above 30% is excluded entirely.</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed mt-4">
+            <p className={`${BODY_PROSE} mt-4`}>
               The app opens at <strong>5% gap closed</strong>, one notch off the pure-observed floor. A proportional
               system gives currently-suppressed voters someone to vote for, so the opening view credits a small
               mobilization rather than assuming none. Five percent sits at the conservative low end of the plausible
@@ -700,7 +701,7 @@ export function AboutTab() {
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed mt-4">
+            <p className={`${CARD_HINT} leading-relaxed mt-4`}>
               Turnout is <strong>validated</strong> (matched to the TargetSmart voter file via CES <code>TS_g2024</code>),
               not self-reported, so the 32%-to-81% spread across forces is a measured gap, not survey over-reporting
               (which is small, roughly 3 points, once you compare matched respondents like with like). Two facts make

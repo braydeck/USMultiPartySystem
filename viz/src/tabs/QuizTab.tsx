@@ -9,6 +9,7 @@ import { F5_ORDER_WFP } from '../constants/parties';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { submitQuizResult, submitVibe, answersToVariableMap, track } from '../utils/analytics';
+import { PAGE_TITLE, CARD_HINT } from '../constants/typography';
 
 interface Props {
   questions: QuizQuestionType[];
@@ -76,7 +77,7 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
   }
 
   const consentNote = (
-    <p className="text-xs text-muted-foreground text-center pt-2">
+    <p className={`${CARD_HINT} text-center pt-2`}>
       Your answers are anonymous. I store the response and result to study which parties resonate, with no names, accounts, or IP addresses attached.
     </p>
   );
@@ -89,7 +90,7 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
       return (
         <div className="space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-1">
+            <h2 className={`${PAGE_TITLE} mb-1`}>
               {isShared ? 'A Political Profile' : 'Your Political Profile'}
             </h2>
             <p className="text-muted-foreground text-sm">
@@ -120,7 +121,7 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
   return (
     <div className="space-y-8 max-w-xl mx-auto">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Which Party Are You?</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>Which Party Are You?</h2>
         <p className="text-muted-foreground text-sm">
           {questions.length} questions to find which of the 10 parties best matches your political values.
         </p>

@@ -8,6 +8,7 @@
 import { PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
 import { GAP_STOPS } from '../shared/ParticipationSlider';
 import { UNCERTAINTY_STOPS } from '../../lib/uncertainty';
+import { CARD_HEADING, CARD_HINT } from '../../constants/typography';
 
 const SLOTS = 5;
 /** At or above this in every resample at every setting, a slot counts as locked. */
@@ -54,7 +55,7 @@ function Cell({ code, p, stop, inObserved, active }: {
     <div className={`relative flex-1 h-7 rounded-sm flex items-center justify-center ${active ? 'ring-2 ring-foreground/40' : ''}`}
       style={{ backgroundColor: p > 0 ? tint(code, p) : undefined }}
       title={`${name(code)} reaches the slate in ${pct(p)}% of resamples with ${stop}% of the turnout gap closed`}>
-      <span className={`text-[10px] tabular-nums ${p >= 0.5 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+      <span className={`text-3xs tabular-nums ${p >= 0.5 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
         {pct(p)}
       </span>
       {/* Marks the run shown everywhere else on the tab, so a 62% party listed as a finalist above
@@ -71,10 +72,10 @@ export function SlateRangeCard({ gi, nDraws }: { gi: number; nDraws: number }) {
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         How Certain Is the Slate?
-      </h3>
-      <p className="text-xs text-muted-foreground mb-4">
+      </h4>
+      <p className={`${CARD_HINT} mb-4`}>
         Share of {nDraws.toLocaleString()} resamples in which each party reaches the top{' '}
         {SLOTS}, at every setting of the turnout slider. Each column sums to {SLOTS} slots. The
         outlined column is where the slider sits now; a dot marks the slate shown above.
@@ -84,7 +85,7 @@ export function SlateRangeCard({ gi, nDraws }: { gi: number; nDraws: number }) {
         <span />
         <div className="flex gap-1 mb-1">
           {GAP_STOPS.map((g, i) => (
-            <span key={g} className={`flex-1 text-center text-[9px] tabular-nums ${i === gi
+            <span key={g} className={`flex-1 text-center text-4xs tabular-nums ${i === gi
               ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>{g}%</span>
           ))}
         </div>
@@ -106,7 +107,7 @@ export function SlateRangeCard({ gi, nDraws }: { gi: number; nDraws: number }) {
 
       <div className="grid grid-cols-[110px_1fr] gap-2 mt-3">
         <span />
-        <div className="text-[11px] text-muted-foreground space-y-0.5">
+        <div className="text-2xs text-muted-foreground space-y-0.5">
           {summarise(codes).map(line => <p key={line}>{line}</p>)}
           <p className="text-muted-foreground/80">Columns are % of the gap between forces&apos; turnout rates closed.</p>
         </div>

@@ -5,6 +5,7 @@ import { EC_METHODS, EC_METHOD_LONG, EC_METHOD_BLURB, type ECMethod, type ECTall
 import { PartyProfileCard } from '../shared/PartyProfileCard';
 import { Card } from '@/components/ui/card';
 import type { ClusterProfile } from '../../types';
+import { CARD_HEADING, GROUP_LABEL, CARD_HINT } from '../../constants/typography';
 
 const party = (code: string) => code.split('_')[0];
 const colorOf = (code: string) => PARTY_COLORS[party(code)] ?? '#94a3b8';
@@ -26,13 +27,13 @@ function ECBar({ tally }: { tally: ECTally }) {
           style={{ left: `${majorityPct}%` }} />
       </div>
       <div className="flex items-baseline justify-between gap-2 mt-1">
-        <span className="text-[11px] tabular-nums text-foreground">
+        <span className="text-2xs tabular-nums text-foreground">
           <span className="font-semibold" style={{ color: colorOf(tally.byParty[0]?.code ?? '') }}>
             {nameOf(tally.byParty[0]?.code ?? '')}
           </span>{' '}
           {tally.byParty[0]?.ev ?? 0} of {tally.total}
         </span>
-        <span className="text-[10px] text-muted-foreground tabular-nums">{tally.majority} to win</span>
+        <span className="text-3xs text-muted-foreground tabular-nums">{tally.majority} to win</span>
       </div>
     </div>
   );
@@ -52,13 +53,13 @@ function DelegationBar({ vote }: { vote: ContingentVote }) {
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
         {vote.byParty.map(p => (
-          <span key={p.code} className="flex items-center gap-1 text-[11px] tabular-nums">
+          <span key={p.code} className="flex items-center gap-1 text-2xs tabular-nums">
             <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: colorOf(p.code) }} />
             <span className="text-foreground">{nameOf(p.code)}</span>
             <span className="text-muted-foreground">{p.states}</span>
           </span>
         ))}
-        <span className="text-[10px] text-muted-foreground tabular-nums ml-auto">{vote.majority} of {vote.total} to win</span>
+        <span className="text-3xs text-muted-foreground tabular-nums ml-auto">{vote.majority} of {vote.total} to win</span>
       </div>
     </div>
   );
@@ -75,7 +76,7 @@ function NoMajority({ tally, contingent }: { tally: ECTally; contingent: Conting
         so the presidency goes to a vote of the state delegations.
       </p>
       <div className="mt-3 pt-3 border-t border-amber-200">
-        <div className="text-[10px] uppercase tracking-widest text-amber-800/80 mb-1">Projected House vote</div>
+        <div className="text-3xs uppercase tracking-widest text-amber-800/80 mb-1">Projected House vote</div>
         {contingent.winner ? (
           <div className="text-sm">
             <span className="font-bold" style={{ color: colorOf(contingent.winner) }}>{nameOf(contingent.winner)}</span>
@@ -104,8 +105,8 @@ export function ECScenarioCards({ tallies, contingent, clusterByParty }: Props) 
         return (
           <div key={m} className="space-y-2">
             <div>
-              <div className="text-xs font-semibold text-foreground">{EC_METHOD_LONG[m]}</div>
-              <p className="text-[11px] text-muted-foreground leading-snug">{EC_METHOD_BLURB[m]}</p>
+              <h4 className={GROUP_LABEL}>{EC_METHOD_LONG[m]}</h4>
+              <p className={`${CARD_HINT} leading-snug`}>{EC_METHOD_BLURB[m]}</p>
             </div>
             {tally.winner && cluster
               ? <PartyProfileCard cluster={cluster} />
@@ -125,10 +126,10 @@ export function ContingentVoteCard({ contingent }: { contingent: ContingentVote 
   const leader = contingent.byParty[0];
   return (
     <Card className="p-4">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         Projected 12th Amendment Vote
-      </h3>
-      <p className="text-xs text-muted-foreground mb-3">
+      </h4>
+      <p className={`${CARD_HINT} mb-3`}>
         Each state delegation casts one vote. Simulated negotiation by applying Condorcet selection per state.
       </p>
       <div className="mb-3">
@@ -139,7 +140,7 @@ export function ContingentVoteCard({ contingent }: { contingent: ContingentVote 
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded"
+            <span className="text-3xs font-bold uppercase tracking-widest px-2 py-0.5 rounded"
               style={{ backgroundColor: '#b45309', color: getContrastText('#b45309') }}>
               Deadlocked
             </span>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ClusterProfile } from '../../types';
 import { PartyProfileCard } from './PartyProfileCard';
 import { Button } from '@/components/ui/button';
+import { CARD_HEADING, CARD_HINT } from '../../constants/typography';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -14,8 +15,8 @@ export function PartyProfileGrid({ clusters }: Props) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Party Profiles</h3>
-          <p className="text-xs text-muted-foreground">
+          <h4 className={`${CARD_HEADING} mb-1`}>Party Profiles</h4>
+          <p className={CARD_HINT}>
             {mode === 'strength'
               ? 'Intensity of each ideological position (σ from zero = factor model center).'
               : 'How each party compares to all American voters surveyed (percentile rank).'}

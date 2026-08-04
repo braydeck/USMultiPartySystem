@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FDPrimaryCandidate } from '../../types';
 import { getBlendColor } from '../../constants/parties';
+import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface Props {
   candidates: FDPrimaryCandidate[];
@@ -62,7 +63,7 @@ export function CandidateTrajectory({ candidates, stagesOrder, stageLabels, quot
           return (
             <g key={v}>
               <line x1={0} y1={y} x2={PLOT_W} y2={y} stroke="#e2e8f0" strokeWidth={1} />
-              <text x={-6} y={y} textAnchor="end" dominantBaseline="middle" fontSize={8} fill="#94a3b8">
+              <text x={-6} y={y} textAnchor="end" dominantBaseline="middle" fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick}>
                 {(v * 100).toFixed(0)}%
               </text>
             </g>
@@ -76,7 +77,7 @@ export function CandidateTrajectory({ candidates, stagesOrder, stageLabels, quot
               x1={0} y1={quotaY} x2={PLOT_W} y2={quotaY}
               stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="5 4"
             />
-            <text x={PLOT_W + 4} y={quotaY} dominantBaseline="middle" fontSize={8} fill="#d97706" fontWeight={600}>
+            <text x={PLOT_W + 4} y={quotaY} dominantBaseline="middle" fontSize={CHART_TYPE.inMark} fill="#d97706" fontWeight={600}>
               quota
             </text>
           </g>
@@ -91,7 +92,7 @@ export function CandidateTrajectory({ candidates, stagesOrder, stageLabels, quot
           return (
             <g key={s}>
               <line x1={x} y1={0} x2={x} y2={PLOT_H} stroke="#f1f5f9" strokeWidth={1} />
-              <text x={x} y={PLOT_H + 18} textAnchor="middle" fontSize={9} fill="#64748b">
+              <text x={x} y={PLOT_H + 18} textAnchor="middle" fontSize={CHART_TYPE.smallTick} fill={CHART_FILL.label}>
                 {short}
               </text>
             </g>
@@ -182,7 +183,7 @@ export function CandidateTrajectory({ candidates, stagesOrder, stageLabels, quot
                   x={lastPoint.x + 6}
                   y={lastPoint.y}
                   dominantBaseline="middle"
-                  fontSize={9}
+                  fontSize={CHART_TYPE.smallTick}
                   fontWeight={600}
                   fill={color}
                 >
@@ -199,7 +200,7 @@ export function CandidateTrajectory({ candidates, stagesOrder, stageLabels, quot
       </g>
 
       {/* Chart title */}
-      <text x={PAD.left + PLOT_W / 2} y={10} textAnchor="middle" fontSize={9} fill="#94a3b8">
+      <text x={PAD.left + PLOT_W / 2} y={10} textAnchor="middle" fontSize={CHART_TYPE.smallTick} fill={CHART_FILL.tick}>
         Hover a line to identify candidate
       </text>
     </svg>

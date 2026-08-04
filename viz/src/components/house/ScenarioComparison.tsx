@@ -3,6 +3,7 @@ import type { HouseSeat, HouseStateEntry } from '../../types';
 import { F5_ORDER, CLUSTER_TO_PARTY } from '../../constants/parties';
 import { PopSeatRanges, type Quantity, type PartyValues, type Span } from './PopSeatRanges';
 import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval, type ShareInterval } from '../../lib/uncertainty';
+import { CARD_HEADING, CARD_HINT } from '../../constants/typography';
 
 /** One party's row. Interval fields are only populated in the national view, where the
  *  bootstrap's national seat counts share the row's denominator. */
@@ -178,9 +179,9 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
     <div>
       <div className="flex items-center justify-between gap-2 mb-1">
         {showHeading ? (
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+          <h4 className={CARD_HEADING}>
             {hasRanges ? 'Votes vs seat share' : 'Population vs seat share'}
-          </h3>
+          </h4>
         ) : <span />}
         <select value={isNational ? 'national' : selectedState}
           onChange={e => onStateChange(e.target.value === 'national' ? 'national' : e.target.value)}
@@ -188,7 +189,7 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
           {stateOpts.map(o => <option key={o.v} value={o.v}>{o.label}</option>)}
         </select>
       </div>
-      <p className="text-xs text-muted-foreground mb-3">
+      <p className={`${CARD_HINT} mb-3`}>
         {isNational ? '' : `${selectedState}. `}
         {hasRanges ? (
           <>

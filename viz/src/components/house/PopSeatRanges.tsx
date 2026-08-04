@@ -11,6 +11,7 @@
 import { useState, type CSSProperties } from 'react';
 import { getPartyColor, PARTY_NAMES } from '../../constants/parties';
 import { SeatWhisker } from '../shared/SeatWhisker';
+import { FOOTNOTE } from '../../constants/typography';
 
 /** A sampling span in percent of whatever the row's axis measures. */
 export interface Span { lo: number; hi: number; expected: number }
@@ -50,9 +51,9 @@ function ticks(max: number): number[] {
   return out;
 }
 
-const LABEL_COL = 'w-[64px] shrink-0 text-[10px] font-medium text-muted-foreground';
-const PCT_COL = 'w-[46px] shrink-0 text-[10px] tabular-nums font-semibold text-foreground text-right';
-const GUTTER = 'w-[112px] shrink-0 text-[10px] tabular-nums text-muted-foreground';
+const LABEL_COL = 'w-[64px] shrink-0 text-3xs font-medium text-muted-foreground';
+const PCT_COL = 'w-[46px] shrink-0 text-3xs tabular-nums font-semibold text-foreground text-right';
+const GUTTER = 'w-[112px] shrink-0 text-3xs tabular-nums text-muted-foreground';
 
 function Bar({ point, iv, max, color, texture, title }: {
   point: number; iv?: Span; max: number; color: string; texture: Texture; title: string;
@@ -90,7 +91,7 @@ function Swatch({ texture }: { texture: Texture }) {
 function RowToggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={on}
-      className={`rounded-full border px-2.5 py-0.5 text-[11px] transition-colors ${on
+      className={`rounded-full border px-2.5 py-0.5 text-2xs transition-colors ${on
         ? 'border-foreground/25 bg-muted text-foreground'
         : 'border-border text-muted-foreground hover:text-foreground'}`}>
       {on ? '−' : '+'} {label}
@@ -128,7 +129,7 @@ export function PopSeatRanges({ quantities, parties, max }: {
         <span />
         <div className="flex items-center gap-2">
           <span className={LABEL_COL} /><span className={PCT_COL} />
-          <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-muted-foreground">
+          <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-3xs text-muted-foreground">
             {shown.map(q => (
               <span key={q.key} className="flex items-center gap-1.5">
                 <Swatch texture={q.texture} />{q.legend}
@@ -186,7 +187,7 @@ export function PopSeatRanges({ quantities, parties, max }: {
           <span className={LABEL_COL} /><span className={PCT_COL} />
           <div className="relative flex-1 h-3">
             {ticks(max).map(v => (
-              <span key={v} className="absolute text-[9px] text-muted-foreground -translate-x-1/2"
+              <span key={v} className="absolute text-4xs text-muted-foreground -translate-x-1/2"
                 style={{ left: `${(v / max) * 100}%` }}>
                 {v}{v === ticks(max)[ticks(max).length - 1] ? '% share' : ''}
               </span>
@@ -197,7 +198,7 @@ export function PopSeatRanges({ quantities, parties, max }: {
       </div>
 
       {anyRange && (
-        <p className="text-[10px] text-muted-foreground pt-1.5">
+        <p className={`${FOOTNOTE} pt-1.5`}>
           The bar is the simulated result. The dot is the average across resamples of the
           survey, and the two can differ because seats are won district by district —
           averaging many runs is not the same as running the average once.

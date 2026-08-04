@@ -1,6 +1,7 @@
 import { PARTY_COLORS, getContrastText } from '../../constants/parties';
 import { perClusterFaceoff, carve, type ElectionCycle } from './faceoff';
 import type { MicrotargetGroup } from '../../lib/singleRace';
+import { DENSE_LABEL } from '../../constants/typography';
 
 function rgba(hex: string, a: number): string {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -35,18 +36,18 @@ export function MicrotargetTable({ groups, cycle = 'midterm', aMobRate = 0, bMob
     );
   };
 
-  const grpHead = 'text-[9px] font-semibold uppercase tracking-wider text-center text-muted-foreground pb-0.5';
-  const sub = 'text-[9px] font-semibold uppercase tracking-wider text-center';
+  const grpHead = 'text-4xs font-semibold uppercase tracking-wider text-center text-muted-foreground pb-0.5';
+  const sub = 'text-4xs font-semibold uppercase tracking-wider text-center';
   return (
-    <div className="grid grid-cols-[52px_26px_repeat(6,minmax(0,1fr))] gap-x-1 gap-y-0.5 text-[11px] items-center">
+    <div className="grid grid-cols-[52px_26px_repeat(6,minmax(0,1fr))] gap-x-1 gap-y-0.5 text-2xs items-center">
       {/* Row 1: action groups */}
       <div /><div />
       <div className={grpHead} style={{ gridColumn: '3 / span 2' }}>Likely</div>
       <div className={`${grpHead} border-l border-border/60`} style={{ gridColumn: '5 / span 2' }}>Mobilize</div>
       <div className={`${grpHead} border-l border-border/60`} style={{ gridColumn: '7 / span 2' }}>Persuade</div>
       {/* Row 2: party sub-columns */}
-      <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Group</div>
-      <div className="text-[9px] text-muted-foreground uppercase tracking-wider text-center">Sz</div>
+      <div className={DENSE_LABEL}>Group</div>
+      <div className={`${DENSE_LABEL} text-center`}>Sz</div>
       <div className={sub} style={{ color: aColor }}>{aParty}</div>
       <div className={sub} style={{ color: bColor }}>{bParty}</div>
       <div className={`${sub} border-l border-border/60`} style={{ color: aColor }}>{aParty}</div>

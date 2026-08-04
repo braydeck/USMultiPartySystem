@@ -1,5 +1,6 @@
 import { Button, buttonVariants } from '@/components/ui/button';
 import { StateLink } from './StateLink';
+import { FIELD_LABEL } from '../../constants/typography';
 
 interface Props<T extends string> {
   label?: string;
@@ -15,7 +16,7 @@ interface Props<T extends string> {
 export function ToggleGroup<T extends string>({ label, value, onChange, options, labels, size = 'sm', hrefFor }: Props<T>) {
   return (
     <div className="flex items-center gap-2">
-      {label && <span className="text-xs text-muted-foreground uppercase tracking-widest">{label}</span>}
+      {label && <span className={FIELD_LABEL}>{label}</span>}
       <div className="flex gap-1">
         {options.map(o => {
           const variant = value === o ? 'default' : 'secondary';

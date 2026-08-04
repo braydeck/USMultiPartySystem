@@ -4,6 +4,7 @@ import { CondorcetMatrix } from '../presidential/CondorcetMatrix';
 import type { CondorcetMatchup } from '../../types';
 import type { StateUncertainty } from '../../lib/uncertainty';
 import { Button } from '@/components/ui/button';
+import { CHART_TYPE } from '../../constants/typography';
 
 interface CellData { winRate: number; avgMargin: number; n: number }
 interface StateMatchup { candidateA: string; candidateB: string; aWinsPct: number; margin: number; winner: string }
@@ -85,7 +86,7 @@ export default function SenateCondorcetView({ data, states }: Props) {
       {/* National average matrix */}
       {!selectedState && (
         <div>
-          <div className="text-[10px] text-muted-foreground mb-3">
+          <div className="text-3xs text-muted-foreground mb-3">
             Win rate across all states where both parties appear as finalists. Green = row party wins more often.
             Broadest appeal, by average win rate across its pairings:{' '}
             <strong className="text-muted-foreground">{data.overallWinner}</strong> — a party can be the
@@ -100,7 +101,7 @@ export default function SenateCondorcetView({ data, states }: Props) {
                   <div key={col} style={{ width: cellSize, flexShrink: 0 }}
                     className="flex items-end justify-center pb-1">
                     <span className="font-bold font-mono"
-                      style={{ color: PARTY_COLORS[col], writingMode: 'vertical-rl', fontSize: 11 }}>
+                      style={{ color: PARTY_COLORS[col], writingMode: 'vertical-rl', fontSize: CHART_TYPE.seriesLabel }}>
                       {col}
                     </span>
                   </div>
@@ -116,7 +117,7 @@ export default function SenateCondorcetView({ data, states }: Props) {
                     <div style={{ width: labelW, flexShrink: 0 }}
                       className="flex items-center justify-end pr-1.5 gap-1">
                       {isWinner && <span className="text-amber-500 text-sm">★</span>}
-                      <span className="font-bold font-mono" style={{ color, fontSize: 11 }}>{row}</span>
+                      <span className="font-bold font-mono" style={{ color, fontSize: CHART_TYPE.seriesLabel }}>{row}</span>
                     </div>
                     {parties.map(col => {
                       if (row === col) {
@@ -127,7 +128,7 @@ export default function SenateCondorcetView({ data, states }: Props) {
                       if (!cell || cell.n === 0) {
                         return <div key={col} style={{ width: cellSize, height: cellSize - 2, flexShrink: 0, margin: 1 }}
                           className="bg-slate-50 rounded-sm flex items-center justify-center">
-                          <span className="text-[8px] text-slate-300">—</span>
+                          <span className="text-4xs text-slate-300">—</span>
                         </div>;
                       }
                       const wins = cell.winRate > 0.5;
@@ -155,10 +156,10 @@ export default function SenateCondorcetView({ data, states }: Props) {
                           })}
                           onMouseLeave={() => setTip(null)}
                         >
-                          <span style={{ fontSize: 13, fontWeight: 700, color: wins ? '#15803d' : '#b91c1c' }}>
+                          <span style={{ fontSize: CHART_TYPE.cellValue, fontWeight: 700, color: wins ? '#15803d' : '#b91c1c' }}>
                             {Math.round(cell.winRate * 100)}%
                           </span>
-                          <span style={{ fontSize: 8, color: wins ? '#15803d' : '#b91c1c', opacity: 0.7 }}>
+                          <span style={{ fontSize: CHART_TYPE.inMark, color: wins ? '#15803d' : '#b91c1c', opacity: 0.7 }}>
                             n={cell.n}
                           </span>
                         </div>
@@ -189,14 +190,14 @@ export default function SenateCondorcetView({ data, states }: Props) {
       {selectedData && (
         <div>
           {su?.substituted && (
-            <div className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">
+            <div className="text-3xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">
               The observed sample gives {su.observed.split('_')[0]}; the likely winner is{' '}
               {su.modal.split('_')[0]}, in {Math.round(su.pModal * 100)}% of resamples. Condorcet
               has no elimination rounds, so there is no example count to show here — the margins
               below are the observed sample&apos;s.
             </div>
           )}
-          <div className="text-[10px] text-muted-foreground mb-3">
+          <div className="text-3xs text-muted-foreground mb-3">
             {selectedData.abbr} · Condorcet winner: <strong className="text-muted-foreground">{selectedData.winner}</strong>
           </div>
           <div className="flex justify-center">

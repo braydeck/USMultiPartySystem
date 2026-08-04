@@ -146,7 +146,7 @@ export function VariantAttractionChart({ data }: Props) {
                                   className="relative"
                                 >
                                   {widthPct >= 20 && (
-                                    <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold drop-shadow-sm chip-text" style={{ color: getContrastText(sColor) }}>
+                                    <span className="absolute inset-0 flex items-center justify-center text-3xs font-bold drop-shadow-sm chip-text" style={{ color: getContrastText(sColor) }}>
                                       {s.party}
                                     </span>
                                   )}

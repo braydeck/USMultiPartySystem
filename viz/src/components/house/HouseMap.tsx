@@ -3,6 +3,7 @@ import type { DistrictResult } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, getContrastText } from '../../constants/parties';
 import { Card } from '@/components/ui/card';
 import { HexCartogram } from './HexCartogram';
+import { MINOR_HEADING, CARD_HINT } from '../../constants/typography';
 
 const TIER_LABELS: Record<string, string> = {
   URBAN:    'Urban',
@@ -91,10 +92,8 @@ export function HouseMap({ districtResults, districtCountyMap, wyoming, selected
           abbrToFips[abbr] === selectedFips ? 'national' : (abbrToFips[abbr] ?? 'national'),
         )}
         footnote={
-          <>One hexagon is one seat, filled with the party that won it. Heavy outlines
-          separate districts; states are scaled so area tracks population. Click a state
-          to zoom, click it again to zoom back out; hold ⌘ or Ctrl while scrolling to
-          zoom anywhere.</>
+          <>One hexagon is one seat, states sized by population. Heavy outlines separate districts. Click a state
+          to zoom, click it again to zoom back out.</>
         }
       />
 
@@ -111,9 +110,9 @@ export function HouseMap({ districtResults, districtCountyMap, wyoming, selected
         return (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+            <h5 className={MINOR_HEADING}>
               Districts — {stateEntry.name}
-            </h4>
+            </h5>
             <span className="text-xs text-muted-foreground">{stateTotal} seats total</span>
           </div>
 
@@ -210,7 +209,7 @@ export function HouseMap({ districtResults, districtCountyMap, wyoming, selected
         );
       })()}
       {stateEntry && districts.length === 0 && (
-        <p className="text-xs text-muted-foreground italic">No district data for {stateEntry.name}.</p>
+        <p className={`${CARD_HINT} italic`}>No district data for {stateEntry.name}.</p>
       )}
     </div>
   );

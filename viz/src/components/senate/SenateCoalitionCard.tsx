@@ -4,6 +4,7 @@ import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/part
 import { IRVSankey } from '../presidential/IRVSankey';
 import type { SenateIrvRoundsData, SenateCoalitionAverage } from '../../types';
 import type { StateUncertainty } from '../../lib/uncertainty';
+import { DENSE_LABEL } from '../../constants/typography';
 
 interface Props {
   data: SenateIrvRoundsData;
@@ -21,7 +22,7 @@ function PartyPill({ party }: { party: string }) {
   const color = PARTY_COLORS[party] ?? '#6b7280';
   return (
     <span
-      className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
+      className="inline-flex items-center text-3xs font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
       style={{ backgroundColor: color, color: getContrastText(color) }}
     >
       {party}
@@ -53,7 +54,7 @@ function CoalitionBar({ avg, onTip }: {
     <div className="flex items-center gap-2">
       <div className="w-24 shrink-0 flex items-center justify-end gap-1.5">
         <PartyPill party={avg.party} />
-        <span className="text-[10px] text-muted-foreground tabular-nums">
+        <span className="text-3xs text-muted-foreground tabular-nums">
           {avg.seats}
         </span>
       </div>
@@ -78,7 +79,7 @@ function CoalitionBar({ avg, onTip }: {
                   }}
                 >
                   {seg.pct >= MIN_LABEL_PCT && (
-                    <span className="text-[9px] font-bold truncate px-1 chip-text"
+                    <span className="text-4xs font-bold truncate px-1 chip-text"
                       style={{ color: getContrastText(segColor) }}>
                       {seg.own ? 'Own' : seg.party} {seg.pct.toFixed(1)}
                     </span>
@@ -92,7 +93,7 @@ function CoalitionBar({ avg, onTip }: {
             style={{ left: `${MAJORITY}%` }} />
           {/* Tally sits at the bar's tip rather than in a far-right column, so the
               number stays next to the thing it measures. */}
-          <div className="absolute inset-y-0 flex items-center pointer-events-none whitespace-nowrap pl-2 text-[10px] tabular-nums"
+          <div className="absolute inset-y-0 flex items-center pointer-events-none whitespace-nowrap pl-2 text-3xs tabular-nums"
             style={{ left: `${avg.avgFinal}%` }}>
             <span className="font-semibold text-foreground">{avg.avgFinal.toFixed(1)}%</span>
             {transferTotal > 0 && (
@@ -171,11 +172,11 @@ export function SenateCoalitionCard({ data, states }: Props) {
       {!selectedFips && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="w-24 shrink-0 text-right text-[9px] text-muted-foreground uppercase tracking-wider">
+            <div className={`w-24 shrink-0 text-right ${DENSE_LABEL}`}>
               Seats
             </div>
             <div className="flex-1 min-w-0 relative h-3">
-              <div className="absolute text-[9px] font-semibold text-muted-foreground -translate-x-1/2 whitespace-nowrap"
+              <div className="absolute text-4xs font-semibold text-muted-foreground -translate-x-1/2 whitespace-nowrap"
                 style={{ left: `${MAJORITY}%` }}>
                 50% majority
               </div>
@@ -192,7 +193,7 @@ export function SenateCoalitionCard({ data, states }: Props) {
               name — a justify-between row would drift with each label's own width. */}
           <div className="flex items-center gap-2">
             <div className="w-24 shrink-0" />
-            <div className="flex-1 min-w-0 relative h-4 text-[9px] text-muted-foreground">
+            <div className="flex-1 min-w-0 relative h-4 text-4xs text-muted-foreground">
               {[0, 25, 50, 75, 100].map(t => (
                 <span key={t}
                   className="absolute whitespace-nowrap"
@@ -207,7 +208,7 @@ export function SenateCoalitionCard({ data, states }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-24 shrink-0" />
-            <div className="flex-1 min-w-0 text-[9px] text-muted-foreground">
+            <div className="flex-1 min-w-0 text-4xs text-muted-foreground">
               Share of the state electorate
             </div>
           </div>
@@ -218,7 +219,7 @@ export function SenateCoalitionCard({ data, states }: Props) {
                 <span key={p} className="flex items-center gap-1.5" title={PARTY_NAMES[p] ?? p}>
                   <span className="w-3 h-3 rounded-sm"
                     style={{ backgroundColor: PARTY_COLORS[p] ?? '#6b7280', opacity: 0.55 }} />
-                  <span className="text-[10px] text-muted-foreground">{PARTY_NAMES[p] ?? p}</span>
+                  <span className="text-3xs text-muted-foreground">{PARTY_NAMES[p] ?? p}</span>
                 </span>
               ))}
             </div>
@@ -230,7 +231,7 @@ export function SenateCoalitionCard({ data, states }: Props) {
       {selected && (
         <div className="space-y-3">
           {su?.repRounds && (
-            <div className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">
+            <div className="text-3xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">
               Example count producing the likely winner ({su.modal.split('_')[0]},{' '}
               {Math.round(su.pModal * 100)}% of resamples). The observed sample gives{' '}
               {su.observed.split('_')[0]} at {Math.round(su.pObserved * 100)}%. Individual
@@ -240,17 +241,17 @@ export function SenateCoalitionCard({ data, states }: Props) {
           <IRVSankey rounds={shownRounds!} irvWinner={shownWinner!} />
 
           <div className="pt-3 border-t border-border/50">
-            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+            <div className="text-3xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
               Final round — {selected.abbr}
             </div>
             <div className="space-y-1">
               {finalStandings.map((c, i) => (
                 <div key={c.code} className="flex items-center gap-2">
                   <PartyPill party={c.party ?? c.code.split('_')[0]} />
-                  <span className="text-[11px] text-foreground tabular-nums font-semibold w-14">
+                  <span className="text-2xs text-foreground tabular-nums font-semibold w-14">
                     {c.pct.toFixed(1)}%
                   </span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-3xs text-muted-foreground">
                     {i === 0
                       ? `wins — ${(c.pct - (finalStandings[1]?.pct ?? 0)).toFixed(1)}pp ahead`
                       : i === 1 ? 'runner-up' : 'still standing'}
@@ -262,10 +263,10 @@ export function SenateCoalitionCard({ data, states }: Props) {
 
           {su?.decomp && (
             <div className="pt-3 border-t border-border/50">
-              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+              <div className="text-3xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
                 Across resamples — why this race is close
               </div>
-              <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr] gap-x-3 gap-y-1 text-[10px] items-center">
+              <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr] gap-x-3 gap-y-1 text-3xs items-center">
                 <span className="text-muted-foreground">Party</span>
                 <span className="text-muted-foreground">Makes final 5</span>
                 <span className="text-muted-foreground">Reaches last round</span>

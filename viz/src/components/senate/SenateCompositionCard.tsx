@@ -6,6 +6,7 @@ import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../../cons
 import { BAR_HEIGHT, LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import type { MethodUncertainty } from '../../lib/uncertainty';
+import { CARD_HEADING, FOOTNOTE } from '../../constants/typography';
 
 // Shared "FPTP Today vs Preferential Senate" composition card, used by both the Senate tab
 // and the Overview summary so the two charts are identical. Condorcet/IRV model one winner
@@ -116,9 +117,9 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
 
   return (
     <Card ref={rootRef} className="p-5 border-2 border-indigo-200 space-y-3">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         FPTP Today vs Preferential Senate
-      </h3>
+      </h4>
       {/* FPTP Today */}
       <SenateCompBar label="FPTP Today" segments={[
         { party: 'DEM', n: 47, color: '#1d4ed8' },
@@ -149,7 +150,7 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
         </div>
       )}
 
-      <p className="text-[11px] text-muted-foreground/80">
+      <p className={FOOTNOTE}>
         Two seats per state, {stats.condTotal} in all. A state splits its delegation when its
         top two parties finish within {SPLIT_THRESHOLD_PP} points across resamples
         {stats.condSplit > 0 && `: ${stats.condSplit} under Condorcet, ${stats.irvSplit} under IRV`}.

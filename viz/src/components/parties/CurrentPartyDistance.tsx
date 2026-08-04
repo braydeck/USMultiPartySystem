@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { factorDistance, policyDivergence } from '../../lib/partyDistance';
 import { getBlendColor, PARTY_NAMES, CURRENT_PARTIES } from '../../constants/parties';
+import { MINOR_HEADING } from '../../constants/typography';
 
 export interface DistanceInputs {
   /** z-score vectors keyed z_F1..z_F5, per party code (formulated + current). */
@@ -21,7 +22,7 @@ export function CurrentPartyDistance({ zByCode, policyItems, eta, formulated }: 
   return (
     <Card className="overflow-hidden">
       <div className="px-4 py-3 border-b border-border/50 bg-muted">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Distance from today's parties</span>
+        <span className={MINOR_HEADING}>Distance from today's parties</span>
         <span className="text-xs text-muted-foreground ml-3">factor σ (η²-weighted) · avg policy gap (pp)</span>
       </div>
       <div className="divide-y divide-border/50">
@@ -40,7 +41,7 @@ export function CurrentPartyDistance({ zByCode, policyItems, eta, formulated }: 
               <div className="flex flex-wrap gap-x-4 gap-y-1">
                 {rows.map(r => (
                   <span key={r.cur}
-                    className={`text-[11px] tabular-nums ${r.cur === nearest.cur ? 'font-semibold' : 'text-muted-foreground'}`}>
+                    className={`text-2xs tabular-nums ${r.cur === nearest.cur ? 'font-semibold' : 'text-muted-foreground'}`}>
                     <span style={{ color: getBlendColor(r.cur) }}>{PARTY_NAMES[r.cur] ?? r.cur}</span>{' '}
                     {r.fac.toFixed(1)}σ / {Math.round(r.pol)}pp
                     {r.cur === nearest.cur && <span className="ml-1 text-amber-500">◀ nearest</span>}

@@ -84,7 +84,7 @@ export function VariantImpactChart({ seats }: Props) {
                     title={`${AXIS_LABELS[a]}: ${n} seats`}
                   >
                     {pct > 6 && (
-                      <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-white">
+                      <span className="absolute inset-0 flex items-center justify-center text-4xs font-bold text-white">
                         {n}
                       </span>
                     )}
@@ -94,7 +94,7 @@ export function VariantImpactChart({ seats }: Props) {
             </div>
 
             {/* Summary */}
-            <div className="text-[10px] text-muted-foreground">
+            <div className="text-3xs text-muted-foreground">
               <span className="font-semibold">{total}</span> seats
               {variantSeats > 0 && bestAxis && (
                 <span className="ml-1">

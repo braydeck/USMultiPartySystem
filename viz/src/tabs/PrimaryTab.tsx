@@ -39,6 +39,7 @@ import pmShL15 from '../data/pureMultiPrimaryStageSharesTurnoutL15.json';
 import pmShL20 from '../data/pureMultiPrimaryStageSharesTurnoutL20.json';
 import pmShL25 from '../data/pureMultiPrimaryStageSharesTurnoutL25.json';
 import pmShL30 from '../data/pureMultiPrimaryStageSharesTurnoutL30.json';
+import { PAGE_TITLE, CARD_HEADING, FIELD_LABEL, CARD_HINT } from '../constants/typography';
 // Truncated-ballot variants (depths 3/5/7/10 × 7 stops) live in a lazy-loaded bundle;
 // 'full' ranking uses the static imports above.
 
@@ -135,7 +136,7 @@ export function PrimaryTab({
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Presidential Primary</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>Presidential Primary</h2>
         <p className="text-muted-foreground text-sm">
           A 4-round STV simulation across regional pods. A crowded field collapses into a final set of survivors
           through elimination rounds.
@@ -161,7 +162,7 @@ export function PrimaryTab({
             options={[...DEPTH_KEYS]} labels={DEPTH_LABELS} />
         )}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground uppercase tracking-widest">Stage</span>
+          <span className={FIELD_LABEL}>Stage</span>
           <div className="flex gap-1">
             {data.stagesOrder.map((s, i) => (
               <Button key={s} onClick={() => setStageIdx(i)}
@@ -172,12 +173,12 @@ export function PrimaryTab({
           </div>
         </div>
       </StickyControlBar>
-      <p className="text-xs text-muted-foreground">{PIPELINE_DESC[pipeline]}</p>
+      <p className={CARD_HINT}>{PIPELINE_DESC[pipeline]}</p>
       <div className="flex flex-wrap gap-1.5">
         {F5_ORDER.map(p => (
           <span
             key={p}
-            className="px-1.5 py-0.5 rounded text-[10px] font-semibold leading-none chip-text"
+            className="px-1.5 py-0.5 rounded text-3xs font-semibold leading-none chip-text"
             style={{ backgroundColor: PARTY_COLORS[p], color: getContrastText(PARTY_COLORS[p]) }}
           >
             {PARTY_NAMES[p] ?? p}
@@ -189,10 +190,10 @@ export function PrimaryTab({
         const buckets = pipeline === 'rawMulti' ? rmBuckets : factorDevBuckets;
         return buckets?.stages?.[stageIdx] ? (
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            <h4 className={`${CARD_HEADING} mb-1`}>
               Primary Winnowing
-            </h3>
-            <p className="text-xs text-muted-foreground mb-3">
+            </h4>
+            <p className={`${CARD_HINT} mb-3`}>
               Each bar shows where a survivor&apos;s votes came from. Darkest = own first-choice supporters.
               Other colors = transfers from surplus or eliminated candidates.
             </p>
@@ -204,18 +205,16 @@ export function PrimaryTab({
       {/* State Vote Shares */}
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+          <h4 className={CARD_HEADING}>
             State Vote Shares
-          </h3>
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground bg-muted rounded px-1.5 py-0.5">
+          </h4>
+          <span className="text-3xs font-semibold uppercase tracking-widest text-foreground bg-muted rounded px-1.5 py-0.5">
             {data.stageLabels[stage] ?? stage}
           </span>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">
+        <p className={`${CARD_HINT} mb-3`}>
           States fill in as their pod votes, and the ones that voted earlier recolour: eliminating a
-          candidate transfers their ballots, so the whole field is re-counted at every stage.
-          Puerto Rico holds a retail-round primary but the CES does not sample it, so it has no
-          ballots to count and cannot be simulated. Alaska takes the sixth retail slot in its place.
+          candidate transfers their ballots.
         </p>
         <PrimaryShareCartogram stageShares={stageShares} stage={stage} primaryData={data} />
       </Card>
@@ -223,10 +222,10 @@ export function PrimaryTab({
       {/* National First-Choice Share */}
       {nationalShares.length > 0 && (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             National First-Choice Share
-          </h3>
-          <p className="text-xs text-muted-foreground mb-3">
+          </h4>
+          <p className={`${CARD_HINT} mb-3`}>
             Aggregate first-choice vote across states that have voted at this stage.
           </p>
           <div>
@@ -266,10 +265,10 @@ export function PrimaryTab({
       <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
         <PartyProfileGrid clusters={orderedClusters} />
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          <h4 className={`${CARD_HEADING} mb-1`}>
             Ideological Constellation
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4">
+          </h4>
+          <p className={`${CARD_HINT} mb-4`}>
             Drag axes to explore ideological dimensions. Bubble size = house seats. Links = transfer affinity.
           </p>
           <IdeologicalConstellation

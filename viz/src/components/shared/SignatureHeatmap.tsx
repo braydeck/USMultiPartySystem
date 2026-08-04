@@ -38,7 +38,7 @@ function Cell({ row, code }: { row: HeatRow; code: string }) {
       style={{ backgroundColor: bg, color: fg }}
       title={`${PARTY_NAMES[code] ?? code}: ${disp}${row.unit === '%' ? '%' : ' ' + row.unit}${tags ? ` · ${tags}` : ''}`}
     >
-      <span className="text-[10px] font-semibold tabular-nums">{disp}</span>
+      <span className="text-3xs font-semibold tabular-nums">{disp}</span>
       {/* C lower-left, M/D lower-right — boxed tags, matching the distribution-row labels */}
       {cohesive && <span className="absolute left-0.5 bottom-0.5"><SigTag kind="C" /></span>}
       {mark && <span className="absolute right-0.5 bottom-0.5"><SigTag kind={mark} /></span>}
@@ -55,10 +55,10 @@ export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected
       <div className="min-w-fit">
         {/* header */}
         <div className="grid gap-px items-end pb-1 sticky top-0 z-10 bg-slate-50/95" style={{ gridTemplateColumns: COLS }}>
-          <span className="text-[9px] uppercase tracking-widest text-muted-foreground">Position</span>
-          <span className="text-[9px] font-bold text-center text-slate-500">US</span>
+          <span className="text-4xs uppercase tracking-widest text-muted-foreground">Position</span>
+          <span className="text-4xs font-bold text-center text-slate-500">US</span>
           {selected.map((p) => (
-            <span key={p} className="text-[9px] font-bold px-0.5 flex justify-center" title={PARTY_NAMES[p] ?? p}>
+            <span key={p} className="text-4xs font-bold px-0.5 flex justify-center" title={PARTY_NAMES[p] ?? p}>
               <PartyCode code={p} />
             </span>
           ))}
@@ -66,7 +66,7 @@ export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected
 
         {rows.map((r) => (
           <div key={r.key} className="grid gap-px items-center py-1 border-t border-border/30" style={{ gridTemplateColumns: COLS }}>
-            <div className={`text-[10px] leading-snug pr-2 ${r.highlighted ? 'font-medium' : ''}`}>
+            <div className={`text-3xs leading-snug pr-2 ${r.highlighted ? 'font-medium' : ''}`}>
               {r.highlighted && <span className="text-amber-500 mr-1" title="Parties diverge on this item">◆</span>}
               {r.factorShorts && r.factorShorts.length > 0 && <FactorTags shorts={r.factorShorts} />}
               <span className="break-words">{r.question}</span>
@@ -76,7 +76,7 @@ export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected
             {r.overall != null ? (() => {
               const bg = cividisForFrac(r.maxVal ? r.overall / r.maxVal : 0);
               return (
-                <div className="h-9 rounded-[2px] flex items-center justify-center text-[10px] font-semibold tabular-nums ring-1 ring-inset ring-slate-500/50"
+                <div className="h-9 rounded-[2px] flex items-center justify-center text-3xs font-semibold tabular-nums ring-1 ring-inset ring-slate-500/50"
                   style={{ backgroundColor: bg, color: cividisText(bg) }}
                   title={`U.S. average: ${Math.round(r.overall)}${r.unit === '%' ? '%' : ' ' + r.unit}`}>
                   {r.unit === '%' ? Math.round(r.overall) : r.overall}
@@ -88,7 +88,7 @@ export function SignatureHeatmap({ rows, selected }: { rows: HeatRow[]; selected
         ))}
 
         {/* legend */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] text-muted-foreground mt-2 pt-1.5 border-t border-border/40">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-3xs text-muted-foreground mt-2 pt-1.5 border-t border-border/40">
           <span className="flex items-center gap-1">
             {[0, .33, .66, 1].map((t) => <span key={t} className="w-3 h-2.5" style={{ backgroundColor: cividisForFrac(t) }} />)}
             shade = % support

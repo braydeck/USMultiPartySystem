@@ -1,5 +1,6 @@
 import type { HouseStateEntry } from '../../types';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { CARD_HEADING, CARD_HINT } from '../../constants/typography';
 
 // 2024 congressional apportionment (post-2020 census, 435 total)
 const FPTP_SEATS: Record<string, number> = {
@@ -57,10 +58,10 @@ export function StateSeatsTable({ stateMap, wyoming = 'double' }: Props) {
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         Seats per State: STV vs Current
-      </h3>
-      <p className="text-xs text-muted-foreground mb-3">
+      </h4>
+      <p className={`${CARD_HINT} mb-3`}>
         Now = 2024 FPTP apportionment ({fptpTotal} total). STV = simulated proportional districts ({stvTotal} total).
         Every state gains seats because multi-member STV targets one seat per ~{wyoming === 'triple' ? '192k' : '380k'} residents.
       </p>

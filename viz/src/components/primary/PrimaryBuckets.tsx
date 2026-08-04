@@ -30,7 +30,7 @@ function CandidatePill({ code, party, dimmed }: { code: string; party: string; d
   const color = PARTY_COLORS[party] ?? '#6b7280';
   return (
     <span
-      className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
+      className="inline-flex items-center text-3xs font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
       style={{ backgroundColor: color, color: getContrastText(color), opacity: dimmed ? 0.4 : 1 }}
     >
       {code}
@@ -60,14 +60,14 @@ export default function PrimaryBuckets({ data, stageIdx }: Props) {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="text-[10px] text-muted-foreground">
+      <div className="text-3xs text-muted-foreground">
         {stage.nEntering} enter → <strong className="text-muted-foreground">{stage.nWinners} survive</strong>
         {' · '}quota = {stage.quota.toFixed(1)}%
       </div>
 
       {/* Survivors */}
       <div className="space-y-1.5">
-        <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Survivors</div>
+        <div className="text-3xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Survivors</div>
         {sortedWinners.map(w => (
           <WinnerBar key={w.code} w={w} onTip={setTip} />
         ))}
@@ -79,10 +79,10 @@ export default function PrimaryBuckets({ data, stageIdx }: Props) {
         const noVotes = sortedEliminated.filter(e => e.total <= 0.05);
         return (
           <div className="space-y-2">
-            <div className="text-[10px] font-bold text-red-400 uppercase tracking-widest">Eliminated</div>
+            <div className="text-3xs font-bold text-red-400 uppercase tracking-widest">Eliminated</div>
             {withVotes.length > 0 && (
               <>
-                <div className="text-[10px] text-muted-foreground -mt-1 mb-1">Bars show where each eliminated candidate&apos;s votes transferred to</div>
+                <div className="text-3xs text-muted-foreground -mt-1 mb-1">Bars show where each eliminated candidate&apos;s votes transferred to</div>
                 {withVotes.map(e => (
                   <EliminatedRow key={e.code} e={e} onTip={setTip} />
                 ))}
@@ -90,7 +90,7 @@ export default function PrimaryBuckets({ data, stageIdx }: Props) {
             )}
             {noVotes.length > 0 && (
               <div>
-                <div className="text-[10px] text-muted-foreground mb-1">
+                <div className="text-3xs text-muted-foreground mb-1">
                   Eliminated with no votes ({noVotes.length}):
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -176,7 +176,7 @@ function WinnerBar({ w, onTip }: {
                 }}
               >
                 {widthPct > 12 && (
-                  <span className="text-[8px] font-bold truncate px-0.5 chip-text"
+                  <span className="text-4xs font-bold truncate px-0.5 chip-text"
                     style={{ color: getContrastText(seg.color), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                     {seg.label} {seg.pct.toFixed(1)}%
                   </span>
@@ -186,7 +186,7 @@ function WinnerBar({ w, onTip }: {
           })}
         </div>
       </div>
-      <span className="text-[9px] font-bold text-muted-foreground shrink-0 w-10 text-right">
+      <span className="text-4xs font-bold text-muted-foreground shrink-0 w-10 text-right">
         {w.retained.toFixed(1)}%
       </span>
     </div>
@@ -219,7 +219,7 @@ function EliminatedRow({ e, onTip }: { e: BucketEliminated; onTip: (t: TooltipIn
     <div>
       <div className="flex items-center gap-2 mb-0.5">
         <CandidatePill code={e.code} party={e.party} dimmed />
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-3xs text-muted-foreground">
           {label} → transferred to:
         </span>
       </div>
@@ -246,7 +246,7 @@ function EliminatedRow({ e, onTip }: { e: BucketEliminated; onTip: (t: TooltipIn
                   }}
                 >
                   {d.pct > 12 && (
-                    <span className="text-[8px] font-bold truncate px-0.5 chip-text"
+                    <span className="text-4xs font-bold truncate px-0.5 chip-text"
                       style={{ color: getContrastText(destColor), textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                       {d.code} {d.pct.toFixed(0)}%
                     </span>
@@ -260,7 +260,7 @@ function EliminatedRow({ e, onTip }: { e: BucketEliminated; onTip: (t: TooltipIn
                 style={{ width: `${remainder}%`, backgroundColor: '#94a3b8', opacity: 0.3 }}
               >
                 {remainder > 8 && (
-                  <span className="text-[8px] text-muted-foreground">exh {remainder.toFixed(0)}%</span>
+                  <span className="text-4xs text-muted-foreground">exh {remainder.toFixed(0)}%</span>
                 )}
               </div>
             )}

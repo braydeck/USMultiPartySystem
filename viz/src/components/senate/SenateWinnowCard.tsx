@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { PARTY_COLORS, PARTY_NAMES, getContrastText, buildDisplayLabels } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
 import type { SenateWinnowData, SenateWinnowFinalist } from '../../types';
+import { DENSE_LABEL } from '../../constants/typography';
 
 interface Props {
   data: SenateWinnowData;
@@ -18,7 +19,7 @@ function PartyPill({ party, label }: { party: string; label?: string }) {
   const color = PARTY_COLORS[party] ?? '#6b7280';
   return (
     <span
-      className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
+      className="inline-flex items-center text-3xs font-bold px-1.5 py-0.5 rounded leading-none shrink-0 chip-text"
       style={{ backgroundColor: color, color: getContrastText(color) }}
     >
       {label ?? party}
@@ -55,7 +56,7 @@ function WinnowBar({ party, label, sublabel, firstChoice, sources, total, quotaP
     <div className="flex items-center gap-2">
       <div className="w-24 shrink-0 flex items-center justify-end gap-1.5">
         <PartyPill party={party} label={label} />
-        {sublabel && <span className="text-[10px] text-muted-foreground tabular-nums">{sublabel}</span>}
+        {sublabel && <span className="text-3xs text-muted-foreground tabular-nums">{sublabel}</span>}
       </div>
       <div className="flex-1 min-w-0">
         <div
@@ -77,7 +78,7 @@ function WinnowBar({ party, label, sublabel, firstChoice, sources, total, quotaP
                     borderLeft: seg.own ? undefined : '1px solid rgba(255,255,255,0.6)',
                   }}>
                   {seg.pct >= MIN_LABEL_PCT && (
-                    <span className="text-[9px] font-bold truncate px-1 chip-text"
+                    <span className="text-4xs font-bold truncate px-1 chip-text"
                       style={{ color: getContrastText(segColor) }}>
                       {seg.own ? 'Own' : seg.party} {seg.pct.toFixed(1)}
                     </span>
@@ -89,7 +90,7 @@ function WinnowBar({ party, label, sublabel, firstChoice, sources, total, quotaP
           <div className="absolute inset-y-0 border-l-2 border-dashed border-foreground/45 pointer-events-none"
             style={{ left: `${(quotaPct / AXIS_MAX) * 100}%` }} />
           {/* Total sits at the bar's tip, matching the coalition card. */}
-          <div className="absolute inset-y-0 flex items-center pointer-events-none whitespace-nowrap pl-2 text-[10px] font-semibold text-foreground tabular-nums"
+          <div className="absolute inset-y-0 flex items-center pointer-events-none whitespace-nowrap pl-2 text-3xs font-semibold text-foreground tabular-nums"
             style={{ left: `${(total / AXIS_MAX) * 100}%` }}>
             {total.toFixed(1)}%
           </div>
@@ -168,16 +169,16 @@ export function SenateWinnowCard({ data }: Props) {
       {/* National: finalist slots per party, with the average tally of those slots */}
       {!selectedFips && (
         <div className="space-y-3">
-          <div className="text-[10px] text-muted-foreground">
+          <div className="text-3xs text-muted-foreground">
             Finalist slots held out of {data.totalSlots} ({stateList.length} states &times; 5 finalists),
             with the average tally of those slots.
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-24 shrink-0 text-right text-[9px] text-muted-foreground uppercase tracking-wider">
+            <div className={`w-24 shrink-0 text-right ${DENSE_LABEL}`}>
               Slots
             </div>
             <div className="flex-1 min-w-0 relative h-3">
-              <div className="absolute text-[9px] font-semibold text-muted-foreground -translate-x-1/2 whitespace-nowrap"
+              <div className="absolute text-4xs font-semibold text-muted-foreground -translate-x-1/2 whitespace-nowrap"
                 style={{ left: `${(quota / AXIS_MAX) * 100}%` }}>
                 quota
               </div>
@@ -199,7 +200,7 @@ export function SenateWinnowCard({ data }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-24 shrink-0" />
-            <div className="flex-1 min-w-0 relative text-[9px] text-muted-foreground h-4">
+            <div className="flex-1 min-w-0 relative text-4xs text-muted-foreground h-4">
               {axisTicks.map(t => {
                 const frac = (t / AXIS_MAX) * 100;
                 return (
@@ -221,7 +222,7 @@ export function SenateWinnowCard({ data }: Props) {
       {selected && (
         <div className="space-y-4">
           <div>
-            <div className="text-[10px] font-semibold text-emerald-600 uppercase tracking-widest mb-1">
+            <div className="text-3xs font-semibold text-emerald-600 uppercase tracking-widest mb-1">
               Reached quota — {selected.abbr}
             </div>
             {split.above.length > 0 ? (
@@ -240,7 +241,7 @@ export function SenateWinnowCard({ data }: Props) {
                 ))}
               </div>
             ) : (
-              <div className="text-[10px] text-muted-foreground">
+              <div className="text-3xs text-muted-foreground">
                 No candidate cleared the quota outright in this state.
               </div>
             )}
@@ -248,10 +249,10 @@ export function SenateWinnowCard({ data }: Props) {
 
           {split.below.length > 0 && (
             <div>
-              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+              <div className="text-3xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
                 Advanced below quota
               </div>
-              <div className="text-[10px] text-muted-foreground mb-2">
+              <div className="text-3xs text-muted-foreground mb-2">
                 The winnow fills all five slots, so these advance on remaining strength
                 once the field runs out rather than by clearing the quota.
               </div>
@@ -276,12 +277,12 @@ export function SenateWinnowCard({ data }: Props) {
 
       {legendParties.length > 0 && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 border-t border-border/50">
-          <span className="text-[9px] text-muted-foreground uppercase tracking-wider">Transfers from</span>
+          <span className={DENSE_LABEL}>Transfers from</span>
           {legendParties.map(p => (
             <span key={p} className="flex items-center gap-1.5" title={PARTY_NAMES[p] ?? p}>
               <span className="w-3 h-3 rounded-sm"
                 style={{ backgroundColor: PARTY_COLORS[p] ?? '#6b7280', opacity: 0.55 }} />
-              <span className="text-[10px] text-muted-foreground">{PARTY_NAMES[p] ?? p}</span>
+              <span className="text-3xs text-muted-foreground">{PARTY_NAMES[p] ?? p}</span>
             </span>
           ))}
         </div>

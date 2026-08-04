@@ -4,6 +4,7 @@ import { sankey, sankeyLinkHorizontal, sankeyLeft } from 'd3-sankey';
 import type { SankeyNode, SankeyLink } from 'd3-sankey';
 import { getBlendColor } from '../../constants/parties';
 import type { PrimarySankeyData } from '../../types';
+import { CARD_HINT } from '../../constants/typography';
 
 interface Props {
   data: PrimarySankeyData;
@@ -170,7 +171,7 @@ export function StagedSankey({ data }: Props) {
         )}
         <svg ref={svgRef} className="w-full" style={{ height: 520 }} />
       </div>
-      <p className="text-xs text-muted-foreground mt-1 text-center">
+      <p className={`${CARD_HINT} mt-1 text-center`}>
         Width = vote share. Hover links for transfer breakdown. Final five labeled on right.
       </p>
     </div>

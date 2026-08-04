@@ -18,7 +18,7 @@ export function SeatShareBar({ pct, max, color, label, faded, outline, dashed }:
   return (
     <div className="relative h-5 rounded bg-muted/60 overflow-hidden">
       <div className="h-full rounded" style={style} />
-      <span className={`absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold whitespace-nowrap ${textClass}`}
+      <span className={`absolute left-1.5 top-1/2 -translate-y-1/2 text-3xs font-semibold whitespace-nowrap ${textClass}`}
         style={{ color: textColor }}>{label}</span>
     </div>
   );

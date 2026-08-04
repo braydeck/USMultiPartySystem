@@ -6,6 +6,7 @@ import { SeatRangeStrip, RangeKey } from '../shared/SeatRangeStrip';
 import { delegationSeats } from '../../lib/senateDelegations';
 import { UncertaintyDetail } from '../shared/UncertaintyDetail';
 import type { MethodUncertainty } from '../../lib/uncertainty';
+import { CARD_HEADING, CARD_HINT, FOOTNOTE } from '../../constants/typography';
 
 // Built from the seat array so it always matches whatever states the model covers.
 function fipsToAbbr(seats: FDSenateSeat[]): Record<string, string> {
@@ -39,10 +40,10 @@ export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
 
   return (
     <Card className="p-5 border-2 border-indigo-200 space-y-3">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         How Much Could These Results Move?
-      </h3>
-      <p className="text-xs text-muted-foreground">
+      </h4>
+      <p className={CARD_HINT}>
         Resampling turnout and preference noise many times over shows how far each party&apos;s seat count could swing.
       </p>
       {/* Full party order, not just the parties in the headline bars: a party with no modal
@@ -58,7 +59,7 @@ export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
 
       {/* Both methods, named: the card draws both strips and Condorcet is the Senate tab's
           default, so quoting one method's close-race count unlabelled reads as the other's. */}
-      <p className="text-[11px] text-muted-foreground/80">
+      <p className={FOOTNOTE}>
         Bars are the reported chamber; the span is how far each party moves across resamples
         before the split rule, so it tracks the races rather than the rule. Races close enough
         to flip on sampling: {condU.nBelow50} of {Object.keys(condU.states).length} under

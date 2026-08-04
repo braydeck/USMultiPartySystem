@@ -190,7 +190,7 @@ export default function FinalistJourneys({ data, sankeyData }: Props) {
             {row.stages.map((snap, si) => (
               <div key={si} className="flex items-center gap-2 h-5">
                 {/* Stage label */}
-                <span className="text-[10px] text-muted-foreground w-12 text-right shrink-0">
+                <span className="text-3xs text-muted-foreground w-12 text-right shrink-0">
                   {snap.label}
                 </span>
 
@@ -206,7 +206,7 @@ export default function FinalistJourneys({ data, sankeyData }: Props) {
                   />
                   {/* Pct label inside or outside bar */}
                   <span
-                    className="absolute top-0 h-full flex items-center text-[9px] font-semibold"
+                    className="absolute top-0 h-full flex items-center text-4xs font-semibold"
                     style={{
                       left: `${Math.min((snap.pct / globalMax) * 100 + 1, 95)}%`,
                       color: '#475569',
@@ -217,7 +217,7 @@ export default function FinalistJourneys({ data, sankeyData }: Props) {
                 </div>
 
                 {/* Annotation */}
-                <div className="text-[9px] text-muted-foreground w-44 shrink-0 truncate">
+                <div className="text-4xs text-muted-foreground w-44 shrink-0 truncate">
                   {snap.delta < -1 && snap.surplusTo.length > 0 && (
                     <span>
                       <span className="text-amber-500">↗</span> surplus → {snap.surplusTo.join(', ')}

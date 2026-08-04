@@ -233,7 +233,7 @@ export default function App() {
                     {t.label}
                   </StateLink>
                 ))}
-                <div className="px-3 pt-2 pb-1 mt-1 border-t border-border/50 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                <div className="px-3 pt-2 pb-1 mt-1 border-t border-border/50 text-3xs font-semibold uppercase tracking-widest text-muted-foreground">
                   Scenarios
                 </div>
                 {SCENARIO_TABS.map(t => (

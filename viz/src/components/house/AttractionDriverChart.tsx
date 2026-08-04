@@ -118,7 +118,7 @@ export function AttractionDriverChart({ data }: Props) {
                                   <span className="text-xs font-bold" style={{ color: attColor }}>
                                     {r.attracted}
                                   </span>
-                                  <span className="text-[10px] text-muted-foreground ml-1">{r.attractedPct}%</span>
+                                  <span className="text-3xs text-muted-foreground ml-1">{r.attractedPct}%</span>
                                 </div>
 
                                 <div className="flex-1 flex h-5 rounded overflow-hidden border border-border">
@@ -132,7 +132,7 @@ export function AttractionDriverChart({ data }: Props) {
                                       title={`${FACTOR_LABELS[f.factor]}: ${f.pct.toFixed(0)}%`}
                                       className="relative">
                                       {f.pct >= 20 && (
-                                        <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-white">
+                                        <span className="absolute inset-0 flex items-center justify-center text-4xs font-bold text-white">
                                           {FACTOR_LABELS[f.factor]?.split(' ')[0]} {f.pct.toFixed(0)}%
                                         </span>
                                       )}

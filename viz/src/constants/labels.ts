@@ -25,7 +25,7 @@ export const PIPELINE_LABELS_LONG: Record<Pipeline, string> = {
 
 export const PIPELINE_DESC: Record<Pipeline, string> = {
   factorDev: '10 base parties + 28 crossover variants. Each variant shifts one ideological axis by ±25% — producing candidates like LBR_hi_so (a Labor candidate who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
-  rawMulti:  'All 10 parties field 3 intra-party candidates each (40/35/25 first-choice split). Same-party candidates share an identical position; only prominence differs.',
+  rawMulti:  'All 10 parties field 3 intra-party candidates each (40/35/25 first-choice split). Same-party candidates share an identical position; only "popularity" differs.',
 };
 
 export const METHOD_LABELS: Record<Method, string> = {

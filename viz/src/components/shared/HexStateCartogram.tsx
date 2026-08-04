@@ -5,6 +5,7 @@ import {
   loadCartogram, placeLabels,
   type Cartogram, type CartogramBasis, type StateGeometry,
 } from '../../lib/hexCartogram';
+import { CARD_HINT, FOOTNOTE } from '../../constants/typography';
 
 /**
  * The shell every state-level hex cartogram shares: loading, zoom, label placement, state
@@ -136,7 +137,7 @@ export function HexStateCartogram({ basis, fills, sidebar, tooltip, footnote, ar
       .call(zoomRef.current.transform, d3.zoomIdentity);
   }, []);
 
-  if (err) return <p className="text-xs text-muted-foreground italic py-8 text-center">Could not load the {subject}.</p>;
+  if (err) return <p className={`${CARD_HINT} italic py-8 text-center`}>Could not load the {subject}.</p>;
   if (!cg || !view) return <div className="py-24 text-center text-sm text-muted-foreground">Loading the {subject}…</div>;
 
   const pxPerUnit = width / view.w;
@@ -229,7 +230,7 @@ export function HexStateCartogram({ basis, fills, sidebar, tooltip, footnote, ar
               </g>
             </svg>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-2">
+          <p className={`${FOOTNOTE} mt-2`}>
             {footnote}{' '}
             Cartogram concept and state outlines:{' '}
             <a href="https://the-db.co/maps" target="_blank" rel="noreferrer" className="underline">

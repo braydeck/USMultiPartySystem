@@ -140,7 +140,7 @@ export function IntensityLegend({ item }: { item: IntensityItem }) {
   if (item.kind === 'diverging') {
     const last = item.labels.length - 1;
     return (
-      <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+      <div className="flex items-center gap-2 text-3xs text-muted-foreground">
         <span className="inline-flex items-center gap-1">
           <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: colors[0] }} />◀ {item.labels[0]}
         </span>
@@ -151,7 +151,7 @@ export function IntensityLegend({ item }: { item: IntensityItem }) {
     );
   }
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-3xs text-muted-foreground">
       {item.labels.map((l, i) => (
         <span key={i} className="inline-flex items-center gap-1">
           <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: colors[i] }} />{l}

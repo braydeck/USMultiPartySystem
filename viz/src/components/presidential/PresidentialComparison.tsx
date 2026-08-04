@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { VoteModelRow, PresidentialElection } from '../../types';
 import { getBlendColor } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
+import { MINOR_HEADING } from '../../constants/typography';
 
 interface Props {
   rows: VoteModelRow[];
@@ -128,7 +129,7 @@ export function PresidentialComparison({ rows, factorDev, rawMulti }: Props) {
 
       {/* Header */}
       <div className="hidden md:grid grid-cols-[1fr_repeat(2,130px)] gap-2 px-3 py-2 border-b border-border mb-1">
-        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Bill</div>
+        <div className={MINOR_HEADING}>Bill</div>
         {presidents.map(p => (
           <div key={p.key} className="text-center">
             <div

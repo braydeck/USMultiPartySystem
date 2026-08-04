@@ -1,5 +1,6 @@
 import type { HouseSeat } from '../../types';
 import { CLUSTER_TO_PARTY, PARTY_COLORS, PARTY_NAMES } from '../../constants/parties';
+import { CARD_HEADING, CARD_HINT } from '../../constants/typography';
 
 const F5_CLUSTER_ORDER = [9, 4, 8, 1, 2, 6, 0, 5, 3];
 
@@ -32,10 +33,10 @@ export function RepresentationGap({ seats }: Props) {
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+      <h4 className={`${CARD_HEADING} mb-1`}>
         Population Share vs. Seat Share
-      </h3>
-      <p className="text-xs text-muted-foreground mb-4">
+      </h4>
+      <p className={`${CARD_HINT} mb-4`}>
         Does each party win seats in proportion to its share of the electorate?
       </p>
 

@@ -29,7 +29,7 @@ export function SigTag({ kind }: { kind: SigKind }) {
   const s = SIG_STYLE[kind];
   return (
     <span
-      className="inline-flex items-center justify-center text-[8px] font-bold leading-none rounded-[3px] border px-[3px] py-[1.5px]"
+      className="inline-flex items-center justify-center text-4xs font-bold leading-none rounded-[3px] border px-[3px] py-[1.5px]"
       style={{ backgroundColor: 'rgba(255,255,255,0.92)', color: s.fg, borderColor: s.bd }}
     >
       {kind}

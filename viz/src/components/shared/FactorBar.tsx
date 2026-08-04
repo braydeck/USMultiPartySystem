@@ -1,5 +1,6 @@
 import { FACTOR_LABELS, FACTOR_POLES } from '../../constants/parties';
 import { bamForZ, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../../lib/bam';
+import { CHART_TYPE } from '../../constants/typography';
 
 interface Props {
   factor: string;
@@ -46,7 +47,7 @@ export function FactorBar({ factor, value, marker }: Props) {
         )}
       </div>
       {poles && (
-        <div className="flex justify-between text-muted-foreground mt-0.5" style={{ fontSize: 9 }}>
+        <div className="flex justify-between text-muted-foreground mt-0.5" style={{ fontSize: CHART_TYPE.smallTick }}>
           <span>{poles.low}</span>
           <span>{poles.high}</span>
         </div>

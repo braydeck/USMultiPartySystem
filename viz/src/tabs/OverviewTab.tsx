@@ -16,6 +16,7 @@ import { ConceptStrip } from '../components/shared/ConceptStrip';
 import { seatMapToHouseSeats } from '../components/house/PartyListView';
 import { uncertaintyAt } from '../lib/uncertainty';
 import { DEFAULT_STOP_INDEX } from '../lib/participationStops';
+import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, MINOR_HEADING, GROUP_LABEL, METRIC_VALUE, CARD_HINT, FOOTNOTE } from '../constants/typography';
 
 interface Props {
   fdElection: PresidentialElection;
@@ -102,7 +103,7 @@ export function OverviewTab({
   return (
     <div className="space-y-10">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">A Proportional Government</h2>
+        <h2 className={`${PAGE_TITLE} mb-1`}>A Proportional Government</h2>
         <p className="text-muted-foreground text-sm">
           What would the US look like with proportional representation? Here&apos;s a summary across all chambers.
         </p>
@@ -113,7 +114,7 @@ export function OverviewTab({
 
       {/* Read the argument — links to the Substack series */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Read the argument</h3>
+        <h3 className={SECTION_HEADING}>Read the argument</h3>
         <div className="grid sm:grid-cols-3 gap-3">
           <a href="https://braydendecker.substack.com/p/the-problem-an-electoral-system-engineered"
             target="_blank" rel="noopener noreferrer"
@@ -122,7 +123,7 @@ export function OverviewTab({
               <span className="text-sm font-semibold text-foreground">The Problem</span>
               <span className="text-xs text-muted-foreground group-hover:text-indigo-500 transition-colors">Read ↗</span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">Mutual contempt and polarization are downstream of a Winner-Take-All electoral system.</p>
+            <p className={`${FOOTNOTE} mt-1 leading-relaxed`}>Mutual contempt and polarization are downstream of a Winner-Take-All electoral system.</p>
           </a>
           <a href="https://braydendecker.substack.com/p/the-solution-give-everyone-a-voice"
             target="_blank" rel="noopener noreferrer"
@@ -131,7 +132,7 @@ export function OverviewTab({
               <span className="text-sm font-semibold text-foreground">The Solution</span>
               <span className="text-xs text-muted-foreground group-hover:text-indigo-500 transition-colors">Read ↗</span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">A proportional House, consensus single-winner elections, an open national primary, and public financing.</p>
+            <p className={`${FOOTNOTE} mt-1 leading-relaxed`}>A proportional House, consensus single-winner elections, an open national primary, and public financing.</p>
           </a>
           <a href="https://braydendecker.substack.com/p/the-simulation-a-multiparty-america"
             target="_blank" rel="noopener noreferrer"
@@ -140,7 +141,7 @@ export function OverviewTab({
               <span className="text-sm font-semibold text-foreground">The Simulation</span>
               <span className="text-xs text-muted-foreground group-hover:text-indigo-500 transition-colors">Read ↗</span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">A description of this multiparty democracy simulation.</p>
+            <p className={`${FOOTNOTE} mt-1 leading-relaxed`}>A description of this multiparty democracy simulation.</p>
           </a>
         </div>
       </div>
@@ -148,9 +149,15 @@ export function OverviewTab({
       {/* Concept strip — FPTP / Condorcet / IRV / STV / Party List, so the results below don't assume prior knowledge */}
       <ConceptStrip />
 
-      {/* Section 1 — House FPTP vs STV */}
+      {/* Electoral Outcomes — one sub-group per chamber, in the order the argument builds
+          them. Each chamber's label sits OUTSIDE its cards so all three read as peers. */}
+      <div className="space-y-6">
+        <h3 className={SECTION_HEADING}>Electoral Outcomes</h3>
+
+      {/* The House — the composition comparison, then what today's system wastes. */}
+      <div className="space-y-4">
+      <h4 className={GROUP_LABEL}>The House of Representatives</h4>
       <Card className="p-5 border-2 border-indigo-200">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">House of Representatives</h3>
         <FPTPvsSTV seats={seats} systemLabel="STV" otherSystemSeats={houseListSeats7 ?? undefined} otherSystemLabel="Party List" />
         <div className="mt-4">
           <DiveCard label="Dive into the House →" onClick={() => onNavigate('house')} />
@@ -162,73 +169,81 @@ export function OverviewTab({
       {wasted && (
         <div className="grid gap-4 lg:grid-cols-2 items-start">
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            <h4 className={`${CARD_HEADING} mb-1`}>
               Voters left unrepresented
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4">Nobody they voted for won a seat.</p>
+            </h4>
+            <p className={`${CARD_HINT} mb-4`}>Nobody they voted for won a seat.</p>
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                <div className="text-[11px] text-muted-foreground">Today&apos;s House <span className="opacity-70">· 2024</span></div>
-                <div className="text-2xl font-bold tabular-nums text-rose-700">35.8%</div>
+                <div className="text-2xs text-muted-foreground">Today&apos;s House <span className="opacity-70">· 2024</span></div>
+                <div className={`${METRIC_VALUE} text-rose-700`}>35.8%</div>
               </div>
               <div className="rounded-lg border border-border bg-muted/40 p-3">
-                <div className="text-[11px] text-muted-foreground">Party list</div>
-                <div className="text-2xl font-bold tabular-nums text-foreground">{wasted.unrepresented.list.toFixed(1)}%</div>
+                <div className="text-2xs text-muted-foreground">Party list</div>
+                <div className={`${METRIC_VALUE} text-foreground`}>{wasted.unrepresented.list.toFixed(1)}%</div>
               </div>
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                <div className="text-[11px] text-muted-foreground">STV</div>
-                <div className="text-2xl font-bold tabular-nums text-emerald-700">{wasted.unrepresented.stv.toFixed(1)}%</div>
+                <div className="text-2xs text-muted-foreground">STV</div>
+                <div className={`${METRIC_VALUE} text-emerald-700`}>{wasted.unrepresented.stv.toFixed(1)}%</div>
               </div>
             </div>
           </Card>
 
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+            <h4 className={`${CARD_HEADING} mb-1`}>
               Over-quota surplus
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4">Votes above what a winner needed.</p>
+            </h4>
+            <p className={`${CARD_HINT} mb-4`}>Votes above what a winner needed.</p>
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                <div className="text-[11px] text-muted-foreground">Today&apos;s House <span className="opacity-70">· 2024</span></div>
-                <div className="text-2xl font-bold tabular-nums text-rose-700">14.2%</div>
+                <div className="text-2xs text-muted-foreground">Today&apos;s House <span className="opacity-70">· 2024</span></div>
+                <div className={`${METRIC_VALUE} text-rose-700`}>14.2%</div>
               </div>
               <div className="rounded-lg border border-border bg-muted/40 p-3">
-                <div className="text-[11px] text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
-                <div className="text-2xl font-bold tabular-nums text-foreground">{wasted.excess.list.toFixed(1)}%</div>
+                <div className="text-2xs text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
+                <div className={`${METRIC_VALUE} text-foreground`}>{wasted.excess.list.toFixed(1)}%</div>
               </div>
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                <div className="text-[11px] text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
-                <div className="text-2xl font-bold tabular-nums text-emerald-700">{wasted.excess.stv.toFixed(1)}%</div>
+                <div className="text-2xs text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
+                <div className={`${METRIC_VALUE} text-emerald-700`}>{wasted.excess.stv.toFixed(1)}%</div>
               </div>
             </div>
           </Card>
         </div>
       )}
+      </div>
 
-      {/* Section 2 — Senate (shared card, identical to the Senate tab) */}
+      {/* The Senate — shared card, identical to the Senate tab. */}
       <div className="space-y-3">
+        <h4 className={GROUP_LABEL}>The Senate</h4>
         <SenateCompositionCard condSeats={rawMultiSenateCond} irvSeats={rawMultiSenateIRV}
           condU={senateUnc?.senate.cond} irvU={senateUnc?.senate.irv} />
         <DiveCard label="Dive into the Senate →" onClick={() => onNavigate('senate')} />
       </div>
 
-      {/* Section 3 — Presidential winners */}
+      {/* The Presidency — the two methods' winners side by side. */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Presidential Outcomes</h3>
-        <p className="text-xs text-muted-foreground">
+        <h4 className={GROUP_LABEL}>The Presidency</h4>
+        <p className={CARD_HINT}>
           Condorcet and IRV often elect different presidents. The winner shapes which bills become law.
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">Condorcet Winner</div>
+            <h5 className={`${MINOR_HEADING} mb-2`}>Condorcet Winner</h5>
             {clusterByParty[condParty] && <PartyProfileCard cluster={clusterByParty[condParty]} />}
           </div>
           <div>
-            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">IRV Winner</div>
+            <h5 className={`${MINOR_HEADING} mb-2`}>IRV Winner</h5>
             {clusterByParty[irvParty] && <PartyProfileCard cluster={clusterByParty[irvParty]} />}
           </div>
         </div>
         <DiveCard label="Dive into the Presidency →" onClick={() => onNavigate('presidency')} />
+      </div>
+      </div>
+
+      {/* Section 4 — Parties */}
+      <div className="space-y-4">
+        <h3 className={SECTION_HEADING}>Parties</h3>
       </div>
 
       {/* Party profiles — blurbs + factor bars */}
@@ -236,8 +251,8 @@ export function OverviewTab({
 
       {/* Ideological Constellation */}
       <Card className="p-5">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">Ideological Constellation</h3>
-        <p className="text-xs text-muted-foreground mb-4">
+        <h4 className={`${CARD_HEADING} mb-1`}>Ideological Constellation</h4>
+        <p className={`${CARD_HINT} mb-4`}>
           Drag axes to explore ideological dimensions. Default: Security &amp; Order (X) vs Populist Conservatism (Y).
         </p>
         <IdeologicalConstellation
@@ -257,8 +272,8 @@ export function OverviewTab({
 
       {/* Section 4 — State disproportionality callouts */}
       <div>
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-1">FPTP Disproportionality — State Examples</h3>
-        <p className="text-xs text-muted-foreground mb-3">
+        <h3 className={`${SECTION_HEADING} mb-1`}>FPTP Disproportionality — State Examples</h3>
+        <p className={`${CARD_HINT} mb-3`}>
           Winner-take-all districts systematically over-represent the dominant party. Compare FPTP, 2-party proportional, and multi-party STV.
         </p>
         <FPTPDisproportionality states={fptpStates} stateMap={stateMap} />

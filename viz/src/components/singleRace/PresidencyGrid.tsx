@@ -1,5 +1,6 @@
 import type { ECResult, ECStateResult } from '../../lib/singleRace';
 import { getContrastText, lightenHex } from '../../constants/parties';
+import { CHART_TYPE } from '../../constants/typography';
 
 // Grid [row, col] cartogram — matches the presidency simulator layout.
 const STATE_GRID: Record<string, [number, number]> = {
@@ -43,8 +44,8 @@ export function PresidencyGrid({ ec, aColor, bColor }: Props) {
         return (
           <g key={abbr}>
             <rect x={x} y={y} width={CELL} height={CELL} rx={4} fill={fill} stroke="#fff" strokeWidth={1.5} />
-            <text x={x + CELL / 2} y={y + CELL / 2 - 4} textAnchor="middle" fontSize={16} fontWeight={700} fill={txt}>{abbr}</text>
-            <text x={x + CELL / 2} y={y + CELL / 2 + 13} textAnchor="middle" fontSize={12} fill={txt} opacity={0.9}>{label}</text>
+            <text x={x + CELL / 2} y={y + CELL / 2 - 4} textAnchor="middle" fontSize={CHART_TYPE.stateLabel} fontWeight={700} fill={txt}>{abbr}</text>
+            <text x={x + CELL / 2} y={y + CELL / 2 + 13} textAnchor="middle" fontSize={CHART_TYPE.cellValue} fill={txt} opacity={0.9}>{label}</text>
           </g>
         );
       })}

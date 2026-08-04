@@ -6,6 +6,7 @@ import { resetUrlParams } from '../../hooks/useUrlState';
 import { track } from '../../utils/analytics';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { BODY_PROSE } from '../../constants/typography';
 
 export interface RankEntry { party: string; partyName: string; prob: number }
 
@@ -65,7 +66,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissi
           </div>
           <div className="text-2xl font-bold" style={{ color }}>{cluster.partyName}</div>
           {tagline && <div className="text-sm font-medium text-foreground/80 mt-1">{tagline}</div>}
-          {blurb && <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{blurb}</p>}
+          {blurb && <p className={`${BODY_PROSE} mt-2`}>{blurb}</p>}
           <div className="text-xs text-muted-foreground mt-3">{seats} of 873 House seats under proportional rules</div>
           {isBlend && (
             <div className="text-xs text-muted-foreground mt-1">

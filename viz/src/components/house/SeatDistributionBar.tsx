@@ -4,6 +4,7 @@ import {
 } from 'recharts';
 import type { HouseSeat } from '../../types';
 import { PARTY_COLORS, CLUSTER_TO_PARTY } from '../../constants/parties';
+import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface Props {
   seats: HouseSeat[];
@@ -49,14 +50,14 @@ export function SeatDistributionBar({ seats: rawSeats }: Props) {
       >
         <XAxis
           type="number"
-          tick={{ fill: '#94a3b8', fontSize: 11 }}
+          tick={{ fill: CHART_FILL.tick, fontSize: CHART_TYPE.seriesLabel }}
           axisLine={{ stroke: '#e2e8f0' }}
         />
         <YAxis
           type="category"
           dataKey="name"
           width={108}
-          tick={{ fill: '#cbd5e1', fontSize: 12 }}
+          tick={{ fill: CHART_FILL.faint, fontSize: CHART_TYPE.cellValue }}
           axisLine={false}
           tickLine={false}
         />
@@ -74,7 +75,7 @@ export function SeatDistributionBar({ seats: rawSeats }: Props) {
               <LabelList
                 dataKey="total"
                 position="right"
-                style={{ fill: '#94a3b8', fontSize: 11 }}
+                style={{ fill: CHART_FILL.tick, fontSize: CHART_TYPE.seriesLabel }}
               />
             )}
           </Bar>
