@@ -542,16 +542,16 @@ export function AboutTab() {
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-3">IRV vs Condorcet: Why Both?</div>
             <p className={`${BODY_PROSE} mb-4`}>
-              IRV and Condorcet frequently disagree on a winner, and the gap between them is politically revealing. IRV can elect a candidate with strong first-choice support who loses head-to-head. Condorcet finds the candidate most preferred <em>overall</em>, often a centrist. Showing both exposes the method-dependence of "winning."
+              IRV and Condorcet frequently disagree on a winner. IRV can elect a candidate with strong first-choice support who loses head-to-head. Condorcet finds the candidate most preferred <em>overall</em>.
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
               <Card className="p-3 bg-green-50 border-green-200">
                 <div className="text-xs font-semibold text-green-800 mb-1">IRV tends to elect...</div>
-                <p className="text-xs text-green-700">Candidates with strong first-choice bases, often from larger parties. Can miss broadly acceptable centrists if they lack top-of-ballot support.</p>
+                <p className="text-xs text-green-700">Candidates with strong first-choice bases, often from larger parties. Can miss broadly acceptable choices if they lack top-of-ballot support.</p>
               </Card>
               <Card className="p-3 bg-amber-50 border-amber-200">
                 <div className="text-xs font-semibold text-amber-800 mb-1">Condorcet tends to elect...</div>
-                <p className="text-xs text-amber-700">The "least-bad" option: the candidate who beats everyone else one-on-one. Often a centrist who nobody loves but most can live with.</p>
+                <p className="text-xs text-amber-700">The "least-bad" option: the candidate who beats everyone else one-on-one. This can lead to a compromise choice without strong top-of-ballot support.</p>
               </Card>
             </div>
           </Card>
