@@ -56,8 +56,17 @@ interface Props {
 
 const PRES_LABELS = PIPELINE_LABELS;
 
-// The three counting rules as a primer. Consequence lines state what the cards below then show.
+// The ballot first, then the three counting rules it carries. Consequence lines state what the
+// cards below then show.
+//
+// The ballot card is deliberately left uncoloured while the three rules take their system
+// colours: it is the frame the rules operate inside, not a fourth option competing with them.
 const PRESIDENCY_RULES: Mechanism[] = [
+  {
+    term: 'Instructive Ballot',
+    what: 'Ballots instruct electors: count my vote for whichever top 2 finalist I ranked higher. Apportion electors in proportion.',
+    consequence: 'A near-national result. The Electoral College is intact, and the election is not thrown to the House. Each state keeps two extra electors.',
+  },
   {
     term: 'Condorcet',
     color: SYSTEM_COLORS.Condorcet,
@@ -273,7 +282,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
         <div className="space-y-4">
           <h3 className={SECTION_HEADING}>National Override</h3>
           <p className={CARD_HINT}>
-            One nationwide vote. {nationalGroups.length === 1
+            One nationwide vote, apportioned to electors by the instructive ballot in Condorcet and IRV. {nationalGroups.length === 1
               ? 'All three counting rules elect the same president.'
               : `The three counting rules elect ${nationalGroups.length} different presidents from the same ballots.`}
           </p>

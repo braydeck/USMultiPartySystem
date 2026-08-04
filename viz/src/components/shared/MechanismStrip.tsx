@@ -25,9 +25,20 @@ export interface Mechanism {
   color?: string;
 }
 
+/**
+ * Tailwind needs the class as a literal, so each count is spelled out. Four steps 1 → 2 → 4
+ * rather than straight to four: at tablet width four cards leave each column too narrow for a
+ * two-line mechanism, so they pair up first.
+ */
+const COLS: Record<number, string> = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+};
+
 export function MechanismStrip({ items }: { items: Mechanism[] }) {
   return (
-    <div className={`grid gap-3 ${items.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
+    <div className={`grid gap-3 ${COLS[items.length] ?? 'sm:grid-cols-2'}`}>
       {items.map(m => (
         <div key={m.term}
           className="rounded-lg border border-border bg-card p-3 flex flex-col justify-between">
