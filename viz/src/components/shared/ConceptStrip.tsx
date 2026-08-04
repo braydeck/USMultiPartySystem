@@ -1,4 +1,5 @@
 import { resetUrlParams } from '../../hooks/useUrlState';
+import { SYSTEM_COLORS } from '../../constants/parties';
 import { SECTION_HEADING, GROUP_LABEL, CARD_HINT } from '../../constants/typography';
 
 interface Concept {
@@ -22,21 +23,21 @@ function buildConceptGroups(): ConceptGroup[] {
         {
           code: 'FPTP',
           name: 'First Past the Post',
-          color: '#64748b',
+          color: SYSTEM_COLORS.FPTP,
           what: 'Plurality wins a single-member district.',
           here: "Today's system; baseline for all charts. Greatest disproportionality.",
         },
         {
           code: 'Condorcet',
           name: 'Round-Robin',
-          color: '#a16207',
+          color: SYSTEM_COLORS.Condorcet,
           what: 'Candidate who wins every head-to-head matchup.',
           here: 'Favors broadly acceptable consensus candidates.',
         },
         {
           code: 'IRV',
           name: 'Instant-Runoff',
-          color: '#16a34a',
+          color: SYSTEM_COLORS.IRV,
           what: 'Ranked ballot. Lowest drops each round; votes transfer to a majority.',
           here: 'Rewards first-choice strength; largely preserves 2-party balance.',
         },
@@ -48,14 +49,14 @@ function buildConceptGroups(): ConceptGroup[] {
         {
           code: 'STV',
           name: 'Single Transferable Vote',
-          color: '#1d4ed8',
+          color: SYSTEM_COLORS.STV,
           what: 'Ranked choices in multi-seat districts transfer via quotas.',
           here: 'If a candidate is eliminated or reaches a quota, votes transfer to subsequent choices until seats are filled.',
         },
         {
           code: 'Party List',
           name: 'Open Party List',
-          color: '#0369a1',
+          color: SYSTEM_COLORS['Party List'],
           what: 'Seats allocated to party lists matching overall vote share.',
           here: 'Translates candidate votes directly into proportional party seats. Top vote recipients are seated within parties.',
         },

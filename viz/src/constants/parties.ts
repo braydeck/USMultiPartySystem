@@ -244,6 +244,18 @@ export const FACTOR_LABELS: Record<string, string> = {
 };
 
 /**
+ * Accent colour per voting system. Shared by the Overview's ConceptStrip and the per-chamber
+ * MechanismStrip primers, so a system reads the same colour wherever it is named.
+ */
+export const SYSTEM_COLORS: Record<string, string> = {
+  FPTP: '#64748b',
+  Condorcet: '#a16207',
+  IRV: '#16a34a',
+  STV: '#1d4ed8',
+  'Party List': '#0369a1',
+};
+
+/**
  * What each factor is actually made of, in policy terms. A factor name alone ("Populist
  * Conservatism") says how the axis was scored, not which questions loaded onto it, so the
  * reader has no way to check the label against anything they hold an opinion about.

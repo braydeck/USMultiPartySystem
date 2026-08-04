@@ -97,6 +97,29 @@ import fdDistTri20 from '../data/fdDistrictStvResultsTripleTurnoutL20.json';
 import fdDistTri25 from '../data/fdDistrictStvResultsTripleTurnoutL25.json';
 import fdDistTri30 from '../data/fdDistrictStvResultsTripleTurnoutL30.json';
 import { PAGE_TITLE, CARD_HEADING, MINOR_HEADING, METRIC_VALUE, CARD_HINT } from '../constants/typography';
+import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
+import { SYSTEM_COLORS } from '../constants/parties';
+
+// The district shape first, then the two counting rules the System toggle switches between.
+const HOUSE_RULES: Mechanism[] = [
+  {
+    term: 'Multi-member districts',
+    what: 'Several seats per district instead of one.',
+    consequence: 'A party needs a quota rather than a plurality, so one district can return several parties.',
+  },
+  {
+    term: 'STV',
+    color: SYSTEM_COLORS.STV,
+    what: 'Ranked ballots; surplus and eliminated votes transfer to later choices.',
+    consequence: 'Almost no vote is wasted, and voters rank candidates rather than parties.',
+  },
+  {
+    term: 'Party list',
+    color: SYSTEM_COLORS['Party List'],
+    what: 'Seats go to party lists by Hare quota on the same districts.',
+    consequence: 'Proportional by party, but a vote cannot transfer between them.',
+  },
+];
 
 interface Props {
   seats: HouseSeat[];
@@ -448,12 +471,9 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     <div className="space-y-8">
       <div>
         <h2 className={`${PAGE_TITLE} mb-1`}>House of Representatives</h2>
-        <p className="text-muted-foreground text-sm">
-          {system === 'list'
-            ? `${plConfig?.national.totalSeats ?? activeTotalSeats} seats by Hare-quota party list, on the same districts as STV.`
-            : `${activeTotalSeats} seats allocated via STV across geographically-drawn multi-member districts.`}
-        </p>
       </div>
+
+      <MechanismStrip items={HOUSE_RULES} />
 
       {/* Scenario toggle — sticky */}
       <StickyControlBar label="House settings">

@@ -39,6 +39,8 @@ import {
   EC_METHODS, MAP_VIEWS, type ECMethod, type ECTally, type MapView,
 } from '../lib/ecAllocation';
 import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, GROUP_LABEL, FIELD_LABEL, CARD_HINT } from '../constants/typography';
+import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
+import { SYSTEM_COLORS } from '../constants/parties';
 
 interface Props {
   factorDev: PresidentialElection;
@@ -53,6 +55,28 @@ interface Props {
 }
 
 const PRES_LABELS = PIPELINE_LABELS;
+
+// The three counting rules as a primer. Consequence lines state what the cards below then show.
+const PRESIDENCY_RULES: Mechanism[] = [
+  {
+    term: 'Condorcet',
+    color: SYSTEM_COLORS.Condorcet,
+    what: 'Elects whoever beats every rival head-to-head.',
+    consequence: 'Can elect a candidate few rank first but most can live with.',
+  },
+  {
+    term: 'IRV',
+    color: SYSTEM_COLORS.IRV,
+    what: 'Transfers votes from eliminated candidates until one holds a majority.',
+    consequence: 'Rewards the strongest first-choice base rather than the broadest appeal.',
+  },
+  {
+    term: 'FPTP',
+    color: SYSTEM_COLORS.FPTP,
+    what: 'Most first choices wins outright, with no transfers.',
+    consequence: 'In a ten-party field the winner can hold barely a third of the vote.',
+  },
+];
 
 /** The three counting rules, in the order the page presents them. */
 type Method = 'Condorcet' | 'IRV' | 'FPTP';
@@ -229,11 +253,9 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
     <div className="space-y-8">
       <div>
         <h2 className={`${PAGE_TITLE} mb-1`}>Presidential General Election</h2>
-        <p className="text-muted-foreground text-sm">
-          Single-winner race. The question is which method picks the most acceptable president.
-          Condorcet finds who beats everyone head-to-head; IRV rewards the candidate with the strongest base.
-        </p>
       </div>
+
+      <MechanismStrip items={PRESIDENCY_RULES} />
 
       <StickyControlBar label="Presidency settings">
         {controlBarExtra}

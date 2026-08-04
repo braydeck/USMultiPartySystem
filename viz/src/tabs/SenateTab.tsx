@@ -80,6 +80,30 @@ import { AttractionDriverChart } from '../components/house/AttractionDriverChart
 import { uncertaintyAt } from '../lib/uncertainty';
 import { delegationSeats } from '../lib/senateDelegations';
 import { PAGE_TITLE, CARD_HEADING, FIELD_LABEL, CARD_HINT } from '../constants/typography';
+import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
+import { SYSTEM_COLORS } from '../constants/parties';
+
+// The chamber's rules, one card each. Consequence lines state what the charts below then show.
+const SENATE_RULES: Mechanism[] = [
+  {
+    term: 'Two seats per state',
+    // Not the split rule: the composition card's footnote below states it with exact counts.
+    what: 'Every state returns two senators regardless of population.',
+    consequence: '102 seats in all, so a small state weighs the same as a large one.',
+  },
+  {
+    term: 'Condorcet',
+    color: SYSTEM_COLORS.Condorcet,
+    what: 'Elects the candidate who beats every rival one-on-one.',
+    consequence: 'Rewards broad acceptability, which lets real third parties hold seats.',
+  },
+  {
+    term: 'IRV',
+    color: SYSTEM_COLORS.IRV,
+    what: 'Eliminates the lowest candidate each round until one holds a majority.',
+    consequence: "Amplifies strong-base parties, landing near today's two-party Senate.",
+  },
+];
 
 interface Props {
   condorcetFD:       FDSenateSeat[];
@@ -241,16 +265,9 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
     <div className="space-y-8">
       <div>
         <h2 className={`${PAGE_TITLE} mb-1`}>Senate</h2>
-        <p className="text-muted-foreground text-sm">
-          Each state elects two senators via Condorcet or IRV.
-          <span className="block mt-1.5"> 
-          Condorcet finds the most broadly acceptable candidate and permits real third-party presence. 
-          </span>
-          <span className="block mt-1.5"> 
-          IRV amplifies strong-base parties leading to two-party dominance that reflects the current Senate.
-          </span>
-        </p>
       </div>
+
+      <MechanismStrip items={SENATE_RULES} />
 
       <StickyControlBar label="Senate settings">
         {SHOW_CROSSOVER && (
