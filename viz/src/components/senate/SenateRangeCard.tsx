@@ -1,20 +1,22 @@
 import { useMemo } from 'react';
-import { Card } from '@/components/ui/card';
+import { CollapsibleSection } from '../shared/CollapsibleSection';
 import type { FDSenateSeat } from '../../types';
 import { F5_ORDER } from '../../constants/parties';
 import { SeatRangeStrip, RangeKey } from '../shared/SeatRangeStrip';
 import { delegationSeats } from '../../lib/senateDelegations';
 import { UncertaintyDetail } from '../shared/UncertaintyDetail';
 import type { MethodUncertainty } from '../../lib/uncertainty';
-import { CARD_HEADING, CARD_HINT, FOOTNOTE } from '../../constants/typography';
+import { CARD_HINT, FOOTNOTE } from '../../constants/typography';
 
 // Built from the seat array so it always matches whatever states the model covers.
 function fipsToAbbr(seats: FDSenateSeat[]): Record<string, string> {
   return Object.fromEntries(seats.map(s => [s.stateFips, s.stateAbbr]));
 }
 
-// Sampling-uncertainty companion to SenateCompositionCard, split into its own card so the
-// headline modal bars stay uncluttered while the range material is still one scroll away.
+// Sampling-uncertainty companion to SenateCompositionCard. Collapsed by default and kept in
+// place directly below it: the ranges answer "how firm is that?", which is a question the
+// reader asks after the headline chamber, not before it. Content unmounts while closed, so the
+// two range strips and both uncertainty tables cost nothing until asked for.
 // Party-line only: the Crossover pipeline has no bootstrap, so callers should gate this out
 // there rather than relying on the undefined-props fallback (there is none — it renders nothing).
 export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
@@ -39,10 +41,11 @@ export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
   if (!condU || !irvU || !nDraws) return null;
 
   return (
-    <Card className="p-5 border-2 border-indigo-200 space-y-3">
-      <h4 className={`${CARD_HEADING} mb-1`}>
-        How Much Could These Results Move?
-      </h4>
+    <CollapsibleSection
+      id="senate-range"
+      title="How Much Could These Results Move?"
+      hint={`Seat ranges across ${nDraws.toLocaleString()} resamples`}
+    >
       <p className={CARD_HINT}>
         Resampling turnout and preference noise many times over shows how far each party&apos;s seat count could swing.
       </p>
@@ -69,6 +72,6 @@ export function SenateRangeCard({ condSeats, condU, irvU, nDraws }: {
         label="Condorcet" stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
       <UncertaintyDetail seats={irvU.seats} states={irvU.states} nDraws={nDraws}
         label="IRV" stateLabel={f => FIPS_TO_ABBR[f] ?? f} />
-    </Card>
+    </CollapsibleSection>
   );
 }
