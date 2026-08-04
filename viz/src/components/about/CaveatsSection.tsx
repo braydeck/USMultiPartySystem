@@ -138,12 +138,12 @@ const SCOPE = {
     'Which ideological coalitions exist in the American electorate',
     'How different counting rules produce different outcomes from the same ballots',
     'Which policy positions hold majority support across a chamber',
-    'Where IRV and Condorcet disagree, and why',
+    'Where different electoral systems disagree and why',
     'How intra-party factionalism moves seats',
   ],
   cannot: [
-    'Who would actually win in 2028',
-    'Which parties would form, or who would run',
+    'Which party type would win in 2028',
+    'Which parties would definitely form or who would run',
     'How strategic voting would change outcomes',
     'How new parties would shift voter alignments over time',
     'Whether these parties could govern together',
@@ -274,7 +274,7 @@ export function CaveatsSection() {
         <p className="text-slate-300 text-sm leading-relaxed">
           It measures what electoral rules do to a real distribution of American opinion. Party
           formation, candidate emergence, strategic voting and campaign dynamics are all outside the
-          model, so nothing here forecasts 2028.
+          model. Nothing here forecasts 2028.
         </p>
       </Card>
 
@@ -306,7 +306,7 @@ export function CaveatsSection() {
 
       {/* Robustness */}
       <Card className="p-5 bg-emerald-50 border-emerald-200">
-        <div className="font-semibold text-emerald-900 mb-1">The parties survive their own robustness checks</div>
+        <div className="font-semibold text-emerald-900 mb-1">The parties survive robustness checks</div>
         <p className="text-sm text-emerald-800 leading-relaxed mb-3">
           Three parts of the recipe were re-run against alternatives. The core parties reappear every time.
         </p>
@@ -321,8 +321,8 @@ export function CaveatsSection() {
           ))}
         </div>
         <p className="text-sm text-emerald-800 leading-relaxed">
-          One limit is not resolved by any of that: the parties are stable ideological types, but which
-          individual voter lands in which is a statistical estimate. What that costs in seats is below.{' '}
+          Parties are stable ideological types, but which
+          individual voter lands in which is a statistical estimate.{' '}
           <a
             href="https://github.com/braydeck/USMultiPartySystem/blob/main/docs/EFA_ITEM_SELECTION_ROBUSTNESS.md"
             target="_blank" rel="noopener noreferrer"
@@ -337,7 +337,7 @@ export function CaveatsSection() {
       {senate && (
         <Card className="p-5">
           <div className="font-semibold text-foreground mb-1">
-            Resampling moves the small delegations and the close races, not the headlines
+            Resampling moves the small delegations and the close races, but relative size is steady.
           </div>
           <p className={`${BODY_PROSE} mb-4`}>
             Each state&apos;s respondents are resampled {nDraws.toLocaleString()} times, with replacement
@@ -362,14 +362,13 @@ export function CaveatsSection() {
           {house && (
             <>
               <div className="text-sm font-semibold text-foreground mb-1">
-                The House barely moves, because 873 seats average their own noise away
+                The House barely moves. 873 seats average out the noise
               </div>
               <p className={`${BODY_PROSE} mb-3`}>
                 Every delegation lands inside a band a few seats wide. {partyName(house.first.party)}&apos;s
                 floor across resamples sits {house.pluralityGap} seats above{' '}
-                {partyName(house.second.party)}&apos;s ceiling, so the plurality is not what sampling puts
-                at risk here. Each seat is one of hundreds of district counts, and the draws that cost a
-                party a seat in one district hand it one in another.
+                {partyName(house.second.party)}&apos;s ceiling. Each seat is one of hundreds of district counts, and the draws that cost a
+                party a seat in one district often hand it one in another.
               </p>
               <div className="mb-2">
                 <SeatRangeStrip seats={u!.house.seats} order={[...F5_ORDER]} label="Seats across resamples" />
@@ -377,7 +376,7 @@ export function CaveatsSection() {
               <div className="mb-5"><RangeKey /></div>
 
               <div className="text-sm font-semibold text-foreground mb-1">
-                What sampling does put at risk is the small delegations
+                Sampling puts smaller delegations relative size at risk 
               </div>
               <p className={`${BODY_PROSE} mb-3`}>
                 The same few-seat band is a rounding error against{' '}
@@ -396,18 +395,17 @@ export function CaveatsSection() {
             A senate seat is one winner, so nothing averages out
           </div>
           <p className={`${BODY_PROSE} mb-3`}>
-            Each cell is one of the 51 races, sorted by how often its winner repeats. The two methods are
-            equally reliable on average and differently shaped. Condorcet is more decisive where it is
-            decisive and closer to a coin flip where it is not, because it asks whether one party beats
-            every rival head to head. IRV&apos;s answer rides on an elimination order that reshuffles every
-            round, which keeps most races off both extremes.
+            Each cell is one of the 51 state races, sorted by how often its winner repeats. The two methods are
+            equally reliable on average but differently shaped. Condorcet is more decisive where it is
+            decisive and closer to a coin flip where it is not. IRV&apos;s answer rides on an elimination order that reshuffles every
+            round, but keeps extremes from winning in most races.
           </p>
           <div className="space-y-4 mb-5">
             <ConfidenceStrip name="Condorcet" races={senate.cond} />
             <ConfidenceStrip name="IRV" races={senate.irv} />
           </div>
 
-          <div className="text-sm font-semibold text-foreground mb-1">Sample size is not what makes a race shaky</div>
+          <div className="text-sm font-semibold text-foreground mb-1">Sample size has small effects on shakiness</div>
           <p className={`${BODY_PROSE} mb-3`}>
             Log sample size correlates with confidence in the winner at just +0.30 under Condorcet and
             +0.34 under IRV. The median sample across the 13 least stable Condorcet races is 385

@@ -547,11 +547,11 @@ export function AboutTab() {
             <div className="grid sm:grid-cols-2 gap-3">
               <Card className="p-3 bg-green-50 border-green-200">
                 <div className="text-xs font-semibold text-green-800 mb-1">IRV tends to elect...</div>
-                <p className="text-xs text-green-700">Candidates with strong first-choice bases, often from larger parties. Can miss broadly acceptable choices if they lack top-of-ballot support.</p>
+                <p className="text-xs text-green-700">Candidates with strong first-choice bases, often from larger parties. Can miss broadly acceptable choices if they lack strong top-of-ballot support.</p>
               </Card>
               <Card className="p-3 bg-amber-50 border-amber-200">
                 <div className="text-xs font-semibold text-amber-800 mb-1">Condorcet tends to elect...</div>
-                <p className="text-xs text-amber-700">The "least-bad" option: the candidate who beats everyone else one-on-one. This can lead to a compromise choice without strong top-of-ballot support.</p>
+                <p className="text-xs text-amber-700">The most acceptable option, the candidate who beats everyone else one-on-one. This can lead to a compromise choice without strong top-of-ballot support.</p>
               </Card>
             </div>
           </Card>

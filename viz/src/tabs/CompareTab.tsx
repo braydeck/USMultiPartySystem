@@ -886,8 +886,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         <h2 className={`${PAGE_TITLE} mb-1`}>Parties</h2>
         <p className="text-muted-foreground text-sm leading-relaxed">
           Select one party to see its platform or several to compare. <br /><br /><SigTag kind="C" /> = a party holds a position
-          cohesively; <SigTag kind="M" /> = party positions are close to the US Average; <SigTag kind="D" /> deviant from the US average.
-          A <span className="text-amber-500 font-bold">◆</span> marks rows where the selected parties diverge (≥{minGap}pp apart).
+          cohesively; <SigTag kind="M" /> = party positions are close to the US Average; <SigTag kind="D" /> deviant from the US average; <span className="text-amber-500 font-bold">◆</span> marks rows where the selected parties diverge (≥{minGap}pp apart).
         </p>
       </div>
 
