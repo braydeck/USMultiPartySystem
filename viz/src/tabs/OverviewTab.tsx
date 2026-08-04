@@ -157,7 +157,7 @@ export function OverviewTab({
       {/* The House — the composition comparison, then what today's system wastes. */}
       <div className="space-y-4">
       <h4 className={GROUP_LABEL}>The House of Representatives</h4>
-      <Card className="p-5 border-2 border-indigo-200">
+      <Card className="p-5">
         <FPTPvsSTV seats={seats} systemLabel="STV" otherSystemSeats={houseListSeats7 ?? undefined} otherSystemLabel="Party List" />
         <div className="mt-4">
           <DiveCard label="Dive into the House →" onClick={() => onNavigate('house')} />

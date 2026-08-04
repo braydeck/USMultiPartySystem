@@ -212,7 +212,7 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
   return (
     <div className="space-y-8">
       {/* FPTP vs STV vs Party list — the hero comparison, mirroring the STV view */}
-      <Card className="p-5 border-2 border-indigo-200">
+      <Card className="p-5">
         <FPTPvsSTV
           seats={partyListSeats}
           systemLabel="Party List"

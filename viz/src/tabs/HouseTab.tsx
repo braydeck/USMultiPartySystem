@@ -506,7 +506,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           ═══════════════════════════════════════════════════════════════════════ */}
 
       {/* Hero: FPTP vs STV vs Party List */}
-      <Card className="p-5 border-2 border-indigo-200">
+      <Card className="p-5">
         <FPTPvsSTV
           seats={activeSeats}
           systemLabel="STV"

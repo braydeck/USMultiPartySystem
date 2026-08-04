@@ -116,7 +116,7 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
   const shownRows = stats.rows.filter(r => smallParties.has(r.party));
 
   return (
-    <Card ref={rootRef} className="p-5 border-2 border-indigo-200 space-y-3">
+    <Card ref={rootRef} className="p-5 space-y-3">
       <h4 className={`${CARD_HEADING} mb-1`}>
         FPTP Today vs Preferential Senate
       </h4>
