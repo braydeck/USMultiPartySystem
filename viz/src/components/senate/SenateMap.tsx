@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
-import { getBlendColor } from '../../constants/parties';
+import { getBlendColor, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import type { SenateSeat } from '../../types';
 import type { StateUncertainty } from '../../lib/uncertainty';
 import { delegations, SPLIT_THRESHOLD_PP } from '../../lib/senateDelegations';
-import { CARD_HINT } from '../../constants/typography';
+import { CARD_HEADING, CARD_HINT } from '../../constants/typography';
 
 const GEO_URL = './topojson/states-10m.json';
 
@@ -45,8 +45,24 @@ export function SenateMap({ seats, states }: Props) {
     : {};
   const splitCount = Object.keys(splitByFips).length;
 
+  // Legend seats come from the same values the map colours by — modal winner where the
+  // resampling exists, the single observed run where it doesn't, and one seat to each party
+  // in a split state — so the legend can never claim a party the map isn't showing.
+  const legend = (() => {
+    const tally: Record<string, number> = {};
+    for (const [fips, seat] of Object.entries(seatByFips)) {
+      const split = splitByFips[fips];
+      if (split) { for (const p of split) tally[p] = (tally[p] ?? 0) + 1; continue; }
+      const u = states?.[fips];
+      const p = u ? partyOf(u.modal) : partyOf(seat.senatorCode);
+      tally[p] = (tally[p] ?? 0) + 2;
+    }
+    return F5_ORDER.filter(p => tally[p] > 0).map(p => ({ party: p, seats: tally[p] }));
+  })();
+
   return (
     <div>
+      <h4 className={`${CARD_HEADING} mb-1`}>Results by State</h4>
       {/* Bound the height, as the House cartogram does: geoAlbersUsa is about 4:3, so at
           full width on a wide card the map runs taller than a laptop viewport and the
           reader never sees the country and the legend at once. */}
@@ -156,6 +172,21 @@ export function SenateMap({ seats, states }: Props) {
       <p className={`${CARD_HINT} mt-2 text-center`}>
         Each state returns two senators; a contested state splits them.
       </p>
+
+      {/* Which parties hold seats, and how many. The map's fills are the only other place
+          this is stated, and a colour alone doesn't name a party. */}
+      {legend.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-3 pt-3 border-t border-border/50">
+          {legend.map(({ party, seats: n }) => (
+            <span key={party} className="flex items-center gap-1.5"
+              title={`${PARTY_NAMES[party] ?? party}: ${n} seat${n !== 1 ? 's' : ''}`}>
+              <span className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: getBlendColor(party) }} />
+              <span className="text-xs font-semibold text-foreground">{party}</span>
+              <span className="text-xs tabular-nums text-muted-foreground">{n}</span>
+            </span>
+          ))}
+        </div>
+      )}
 
       {states && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-3xs text-muted-foreground">

@@ -242,8 +242,13 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       <div>
         <h2 className={`${PAGE_TITLE} mb-1`}>Senate</h2>
         <p className="text-muted-foreground text-sm">
-          Each state elects one senator via either Condorcet or IRV. The method choice matters:
-          Condorcet finds the most broadly acceptable candidate; IRV amplifies strong-base parties.
+          Each state elects two senators via Condorcet or IRV.
+          <span className="block mt-1.5"> 
+          Condorcet finds the most broadly acceptable candidate and permits real third-party presence. 
+          </span>
+          <span className="block mt-1.5"> 
+          IRV amplifies strong-base parties leading to two-party dominance that reflects the current Senate.
+          </span>
         </p>
       </div>
 

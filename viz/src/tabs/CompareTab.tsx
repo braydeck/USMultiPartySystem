@@ -15,7 +15,7 @@ import { PartyRowLabel, SigTag, PartyCode, type RowMark } from '../components/sh
 import distributionsData from '../data/distributions.json';
 import { buildSubgroups, stripPrefix } from '../lib/subgroups';
 import { IntensityBar, IntensityLegend, intensityFor, splitShares, itemSignature, BAM_LEFT, BAM_RIGHT, type IntensityItem } from '../components/shared/IntensityBar';
-import { getBlendColor, getPrimaryParty, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_POLES, etaPurple, CURRENT_PARTIES, isCurrentParty } from '../constants/parties';
+import { getBlendColor, getPrimaryParty, PARTY_NAMES, F5_ORDER_WFP as F5_ORDER, VAR_FACTOR, VAR_ALL_FACTORS, FACTOR_ITEMS, FACTOR_SHORT, FACTOR_LABELS, FACTOR_DOMAINS, FACTOR_POLES, etaPurple, CURRENT_PARTIES, isCurrentParty } from '../constants/parties';
 import currentPartyProfilesData from '../data/currentPartyProfiles.json';
 import currentPartySpreadsData from '../data/currentPartySpreads.json';
 import { SHOW_CROSSOVER } from '../constants/features';
@@ -24,7 +24,7 @@ import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CurrentPartyDistance } from '../components/parties/CurrentPartyDistance';
-import { PAGE_TITLE, CARD_HEADING, MINOR_HEADING, TABLE_HEADER, CARD_HINT } from '../constants/typography';
+import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, MINOR_HEADING, TABLE_HEADER, CARD_HINT } from '../constants/typography';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -303,6 +303,9 @@ function FactorBarRow({
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm font-semibold text-foreground">{FACTOR_LABELS[factor]}</span>
         <span className="text-3xs text-muted-foreground font-mono bg-muted px-1 rounded">{FACTOR_SHORT[factor]}</span>
+        {FACTOR_DOMAINS[factor] && (
+          <span className={`${CARD_HINT} truncate`}>{FACTOR_DOMAINS[factor]}</span>
+        )}
         {FACTOR_ETA[factor] !== undefined && (
           <span className="ml-auto flex items-center gap-1.5" title={`Discriminatory value: η² = ${FACTOR_ETA[factor].toFixed(3)} — how strongly this factor sorts voters into parties`}>
             <span className="text-3xs text-muted-foreground font-mono">η² {FACTOR_ETA[factor].toFixed(2)}</span>
@@ -969,7 +972,14 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
       {(
         <>
-          {/* Factor scores */}
+          {/* Electoral Factors — the scored axes, then the map of where parties sit in them.
+              One section, because the constellation plots the two strongest of these factors. */}
+          <div className="space-y-4">
+          <div>
+            <h3 className={SECTION_HEADING}>Electoral Factors</h3>
+            <p className={`${CARD_HINT} mt-1`}>Where parties land on defining ideological factors.</p>
+          </div>
+
           <Card className="overflow-hidden">
             <div className="px-4 py-3 border-b border-border/50 bg-muted flex items-center justify-between">
               <div>
@@ -1032,6 +1042,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
           </Card>
 
           {constellationCard}
+          </div>
 
           {/* Sections */}
           {sectionKeys.length === 0 ? (
@@ -1048,7 +1059,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                   <div key={group.name}>
                     <button onClick={() => toggleGroup(group.name)}
                       className="w-full flex items-center gap-2 mb-2 text-left">
-                      <h3 className="text-lg font-bold text-foreground">{group.name}</h3>
+                      <h3 className={SECTION_HEADING}>{group.name}</h3>
                       <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5">{groupSections.length}</span>
                       <span className="text-muted-foreground text-xs ml-auto">{gCollapsed ? '▶ show' : '▼ hide'}</span>
                     </button>

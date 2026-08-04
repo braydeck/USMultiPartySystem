@@ -243,6 +243,18 @@ export const FACTOR_LABELS: Record<string, string> = {
   F5: 'Populist Conservatism',
 };
 
+/**
+ * What each factor is actually made of, in policy terms. A factor name alone ("Populist
+ * Conservatism") says how the axis was scored, not which questions loaded onto it, so the
+ * reader has no way to check the label against anything they hold an opinion about.
+ */
+export const FACTOR_DOMAINS: Record<string, string> = {
+  F1: 'Policing and Border Security',
+  F2: 'Trust in Elections and Government',
+  F4: 'Abortion and Marriage Equality',
+  F5: 'Race, Immigration, and Economic Policy',
+};
+
 export const FACTOR_SHORT: Record<string, string> = {
   F1: 'SO',
   F2: 'ID',
