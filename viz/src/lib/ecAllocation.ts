@@ -46,24 +46,12 @@ export const EC_METHOD_BLURB: Record<ECMethod, string> = {
   condorcet: 'Each state finds its own head-to-head winner, then gives every elector to them.',
 };
 
-/**
- * The vote itself, with no allocation rule on top: states sized by population and tiles
- * split by first-choice share. It sits alongside the four elector rules because it is what
- * they are all rules *about* — the thing every one of them distorts.
+/*
+ * First-choice share used to be a fifth view alongside the four elector rules here. It moved to
+ * the top-two map (TopTwoCartogram), where the unallocated vote is the baseline the two
+ * allocations get read against; the four rules below are all allocations, so the view list is
+ * just EC_METHODS and the MapView union it needed is gone.
  */
-export type MapView = ECMethod | 'share';
-
-export const MAP_VIEWS: readonly MapView[] = ['share', ...EC_METHODS];
-
-export const MAP_VIEW_LABELS: Record<MapView, string> = {
-  share: 'First-choice share',
-  ...EC_METHOD_LABELS,
-};
-
-export const MAP_VIEW_BLURB: Record<MapView, string> = {
-  share: 'States sized by population. Hexes apportioned by first vote share.',
-  ...EC_METHOD_BLURB,
-};
 
 /** Senatorial electors, the two per state that break proportionality by design. */
 export const SENATORIAL_ELECTORS = 2;

@@ -11,8 +11,9 @@ const party = (code: string) => code.split('_')[0];
 const colorOf = (code: string) => PARTY_COLORS[party(code)] ?? '#94a3b8';
 const nameOf = (code: string) => PARTY_NAMES[party(code)] ?? party(code);
 
-/** Electors as a 100% stacked bar with the majority line marked on it. */
-function ECBar({ tally }: { tally: ECTally }) {
+/** Electors as a 100% stacked bar with the majority line marked on it.
+ *  Exported so the top-two cards read in the same grammar rather than a second bar style. */
+export function ECBar({ tally }: { tally: ECTally }) {
   const majorityPct = (tally.majority / tally.total) * 100;
   return (
     <div>

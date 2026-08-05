@@ -260,6 +260,46 @@ export interface PresidentialStateWinner {
   shares: Record<string, number>;
 }
 
+/**
+ * The Instructive Ballot's top-two reduction, per state. Built by
+ * pipeline/build_top_two_bundle.py because whether a voter ranked one finalist above another is
+ * not recoverable from the first-choice share vector the rest of the payload carries.
+ */
+export interface TopTwoState {
+  ev: number;
+  /** Weighted share of the state's two-way vote going to the route's `a`. */
+  shareA: number;
+  propA: number;
+  propB: number;
+  /** Which of the two carries the state outright, for the winner-take-all view. */
+  wtaTo: string;
+}
+
+export interface TopTwoRoute {
+  /** `a` leads nationally; `b` is the other finalist. */
+  a: string;
+  b: string;
+  /** `a`'s share of the national two-way vote, in percent. */
+  popA: number;
+  prop: Record<string, number>;
+  wta: Record<string, number>;
+  /** null where neither clears a majority, i.e. the House decides. */
+  propWinner: string | null;
+  wtaWinner: string | null;
+  totalEv: number;
+  majority: number;
+  states: Record<string, TopTwoState>;
+}
+
+export interface TopTwoCell {
+  finalists: string[];
+  condorcet: TopTwoRoute;
+  irv: TopTwoRoute;
+}
+
+/** {depthKey: {partKey: cell}}, matching generalDepth.json's keying. */
+export type TopTwoBundle = Record<string, Record<string, TopTwoCell>>;
+
 export interface PresidentialElection {
   irvRounds: IRVRound[];
   irvWinner: string;

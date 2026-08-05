@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, type ReactNode } from 'react';
 import { useUrlState } from '../hooks/useUrlState';
 import { DEPTH_KEYS, type DepthKey } from '../constants/depth';
-import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry } from '../types';
+import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry, TopTwoBundle } from '../types';
 import { Card } from '@/components/ui/card';
 import { PARTY_COLORS, buildDisplayLabels } from '../constants/parties';
 import { PIPELINE_LABELS } from '../constants/labels';
@@ -34,9 +34,11 @@ import { PresidentRangeCard } from '../components/presidential/PresidentRangeCar
 import { CollapsibleSection } from '../components/shared/CollapsibleSection';
 import { ECScenarioCards, ContingentVoteCard } from '../components/presidential/ECScenarioCards';
 import { ECCartogram } from '../components/presidential/ECCartogram';
+import { TopTwoScenarioCards } from '../components/presidential/TopTwoScenarioCards';
+import { TopTwoCartogram, type TopTwoAlloc, type TopTwoMethod } from '../components/presidential/TopTwoCartogram';
 import {
   ecWeights, allocateEC, contingentVote, nationalFirstChoice,
-  EC_METHODS, MAP_VIEWS, type ECMethod, type ECTally, type MapView,
+  EC_METHODS, type ECMethod, type ECTally,
 } from '../lib/ecAllocation';
 import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, GROUP_LABEL, FIELD_LABEL, CARD_HINT } from '../constants/typography';
 import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
@@ -64,8 +66,8 @@ const PRES_LABELS = PIPELINE_LABELS;
 const PRESIDENCY_RULES: Mechanism[] = [
   {
     term: 'Instructive Ballot',
-    what: 'Ballots instruct electors: count my vote for whichever top 2 finalist I ranked higher. Apportion electors in proportion.',
-    consequence: 'A near-national result. The Electoral College is intact, and the election is not thrown to the House. Each state keeps two extra electors.',
+    what: 'Ballots instruct electors: count my vote for whichever top 2 finalist I ranked higher. Apportion electors proportionally.',
+    consequence: 'A near-national result. The Electoral College is intact, and the election is not thrown to the House.',
   },
   {
     term: 'Condorcet',
@@ -138,6 +140,14 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   // top7 depth, so at any other depth the distribution describes a different finalist field and
   // a different president than the one on screen. Same gate HouseTab uses for its whiskers.
   const ud = scenario === 'rawMulti' && depth === 'top7' ? uncertaintyAt(gi) : undefined;
+  // Top-two per-state splits, lazily loaded like generalDepth: a state's payload carries only
+  // first-choice shares, so whether a voter ranked one finalist above another comes from here.
+  const [topTwo, setTopTwo] = useState<TopTwoBundle | null>(null);
+  useEffect(() => {
+    if (!topTwo) {
+      fetch(`${import.meta.env.BASE_URL}data/topTwo.json`).then(r => r.json()).then(setTopTwo).catch(() => {});
+    }
+  }, [topTwo]);
   const [depthBundle, setDepthBundle] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
   useEffect(() => {
     if (depth !== 'full' && !depthBundle) {
@@ -166,6 +176,13 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
     return buildDisplayLabels(codes);
   }, [rm]);
   const rmLabel = (code: string) => rmLabels[code] ?? code;
+
+  // Top-two splits exist for the party-line pipeline at the four ranked depths only: Crossover
+  // fields a different candidate set, and 'full' ranking has no matching primary tree. Same
+  // shape of gate as the uncertainty payload above.
+  const t2Cell = scenario === 'rawMulti' && depth !== 'full'
+    ? topTwo?.[depth]?.[part]
+    : undefined;
 
   // Factor Dev winner (same for both methods)
   const fdWinner     = factorDev.condorcetWinner;
@@ -198,7 +215,11 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   const houseVote = useMemo(() => contingentVote(data.irvStateWinners), [data]);
   // Condorcet by default: it is the rule the rest of the site treats as the honest one, so
   // the map opens on the case where the college still fails to elect its winner.
-  const [ecView, setEcView] = useUrlState<MapView>('ec', 'condorcet', { allowed: [...MAP_VIEWS] });
+  const [ecView, setEcView] = useUrlState<ECMethod>('ec', 'condorcet', { allowed: [...EC_METHODS] });
+  // Top-two map: allocation x method, with first-choice share as an overriding baseline.
+  const [t2Share, setT2Share] = useUrlState<string>('t2s', '', { allowed: ['', '1'] });
+  const [t2Alloc, setT2Alloc] = useUrlState<TopTwoAlloc>('t2a', 'prop', { allowed: ['prop', 'wta'] });
+  const [t2Method, setT2Method] = useUrlState<TopTwoMethod>('t2m', 'condorcet', { allowed: ['condorcet', 'irv'] });
 
   // Senate bill vote model at the current turnout stop (rank-7 winnow + depth-7 president).
   const senVMStops = [senVMTurnout, senVML5, senVML10, senVML15, senVML20, senVML25, senVML30] as unknown as VoteModelRow[][];
@@ -280,7 +301,7 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
       {/* Presidential Outcomes — scenario-dependent */}
       {scenario === 'rawMulti' ? (
         <div className="space-y-4">
-          <h3 className={SECTION_HEADING}>National Override</h3>
+          <h3 className={SECTION_HEADING}>Election Results w/ Instructive Ballot (National Override)</h3>
           <p className={CARD_HINT}>
             One nationwide vote, apportioned to electors by the instructive ballot in Condorcet and IRV. {nationalGroups.length === 1
               ? 'All three counting rules elect the same president.'
@@ -356,27 +377,72 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
         </div>
       )}
 
+      {/* State Results — the national result laid out state by state, and the one place the
+          unallocated vote sits beside the two allocations of it. Not collapsed: this is the
+          interactive view of the result above, not supporting detail behind it. */}
+      {t2Cell && (
+        <div className="space-y-4">
+          <div>
+            <h3 className={`${SECTION_HEADING} mb-1`}>State Results</h3>
+            <p className={CARD_HINT}>
+              How the top-two reduction lands across the states, against the raw first-choice vote
+              it is drawn from.
+            </p>
+          </div>
+          <Card className="p-4">
+            <TopTwoCartogram
+              cell={t2Cell}
+              stateWinners={data.irvStateWinners}
+              nationalShares={nationalFirstChoice(data.irvRounds)}
+              share={t2Share === '1'}
+              alloc={t2Alloc}
+              method={t2Method}
+              onShare={v => setT2Share(v ? '1' : '')}
+              onAlloc={setT2Alloc}
+              onMethod={setT2Method}
+              label={rmLabel}
+            />
+          </Card>
+        </div>
+      )}
+
       {/* Election Results Without National Override — the same ballots run through the college.
           Four rules, not six: a state's payload carries one first-choice share vector and two
           single winners, so proportional allocation can only be FPTP, and IRV and Condorcet can
           only be winner-take-all. */}
-      <div className="space-y-4">
-        <div>
-          <h3 className={`${SECTION_HEADING} mb-1`}>
-            Election Results Without National Override
-          </h3>
+      {/* Which of the ballot's two clauses is load-bearing. Top two only, states free to go
+          winner-take-all: the narrowing still delivers the national winner, so proportionality
+          is insurance for a close race rather than the mechanism. */}
+      {t2Cell && (
+        <CollapsibleSection
+          id="top2"
+          title="Election Results w/ Partial Instructive Ballot (top 2)"
+          hint="States must count the top two, but may go winner-take-all"
+        >
           <p className={CARD_HINT}>
-            Keep the electoral college and its {ecTallies.prop.total} electors, one per House seat
-            plus two per state.
+            Only the ballot&apos;s first clause binds: every vote counts for whichever of the two
+            national finalists the voter ranked higher, and each state then allocates its electors
+            however it likes. The narrowing alone is what keeps the result out of the House.
           </p>
-        </div>
+          <TopTwoScenarioCards cell={t2Cell} clusterByParty={clusterByParty} label={rmLabel} />
+        </CollapsibleSection>
+      )}
+
+      <CollapsibleSection
+        id="noballot"
+        title="Election Results w/o Instructive Ballot"
+        hint="States apportion electors with no regard to the top two"
+      >
+        <p className={CARD_HINT}>
+          Drop the narrowing as well and each state counts the whole field on its own. Three of the
+          four rules then fail to seat anyone, and the presidency falls to the House.
+        </p>
         <ECScenarioCards tallies={ecTallies} contingent={houseVote} clusterByParty={clusterByParty} />
         <Card className="p-4">
-          <ECCartogram tallies={ecTallies} stateWinners={data.irvStateWinners}
-            nationalShares={nationalFirstChoice(data.irvRounds)} mapView={ecView} onMapView={setEcView} />
+          <ECCartogram tallies={ecTallies} mapView={ecView} onMapView={setEcView} />
         </Card>
         <ContingentVoteCard contingent={houseVote} />
-      </div>
+      </CollapsibleSection>
 
       {/* Presidential Policy Comparison — Factor Dev only */}
       {scenario === 'factorDev' && (
