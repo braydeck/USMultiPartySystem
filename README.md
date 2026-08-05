@@ -339,9 +339,23 @@ python3 pipeline/compute_intensity.py              # full multi-point distributi
 
 # ── Visualization ──────────────────────────────────────────────────────────
 cd viz && python3 scripts/prepare_data.py          # Regenerate all JSON from outputs
-npm run dev                                        # Dev server
+cd .. && python3 pipeline/build_viz_bundles.py     # REQUIRED after prepare_data — see below
+cd viz && npm run dev                              # Dev server
 npm run build                                      # Production build → dist/
 ```
+
+> **`build_viz_bundles.py` is not optional.** Nine derived artifacts sit downstream of
+> `prepare_data.py`: the depth bundles the presidency, primary and house tabs lazy-load, the
+> rank-7 senate and legislation families that *overwrite* what `prepare_data.py` just wrote, the
+> single-race voter file, the top-two instructive-ballot splits, and the current-party profiles.
+> Skip it and the app renders numbers from the previous run, or 404s a bundle and silently drops
+> a whole section — nothing warns you. Run `--list` to see the order, `--dry-run` to see the
+> commands. Every step is idempotent, so rerunning the whole thing is always safe.
+>
+> The two hex-tiling builders (`build_hex_ec_cartogram.py`, `build_hex_seat_cartogram.py`) are
+> deliberately *not* in it: the tilings key off apportionment rather than the per-run turnout and
+> depth data, and the EC one needs one invocation per basis (`--basis electoral`,
+> `--basis population`). Rebuild those by hand when seat counts change.
 
 > **Legacy senate vote-model chain** (`senate_chamber_profile.py` → `chamber_vote_model.py`
 > → `generate_results.py`, plus `cross_chamber_coalitions.py`) produces analysis CSVs and
