@@ -16,6 +16,11 @@ interface Props {
 
 const CAT_LABELS = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
 
+/** Band divider line color — kept local rather than CHART_FILL.faint so it can be tuned
+ *  without affecting SeatDistributionBar/EliminationWaterfall's axis ticks. */
+/**const DIVIDER_STROKE = CHART_FILL.faint;
+ */
+const DIVIDER_STROKE = "#979dac"
 /**
  * Band edges on the factor score itself.
  *
@@ -55,7 +60,7 @@ function hexAt(cx: number, cy: number, r: number): string {
 export function ParliamentChart({ segments, factor, globalRange }: Props) {
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
 
-  const { groupedDots, nRings, dotSize } = useMemo(() => layoutSeatDots(segments), [segments]);
+  const { groupedDots, nRings, dotSize, slotFracs } = useMemo(() => layoutSeatDots(segments), [segments]);
 
   const totalSeats = segments.reduce((s, seg) => s + seg.seats, 0);
   if (totalSeats === 0) return null;
@@ -72,16 +77,19 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
 
   const factorLabel = FACTOR_LABELS[factor] ?? factor;
 
-  // Where each band starts and ends as a fraction of the arc. Seats are laid out in
-  // fVal order, so a band is a contiguous run and its edges fall on party boundaries.
+  // Where each band starts and ends, as the actual frac each dot was placed at (not
+  // seen/totalSeats — rings hold uneven dot counts, so a uniform fraction drifts off the
+  // true seat gap and the divider line ends up slicing through hexes instead of between
+  // them). Seats are laid out in fVal order, so a band is a contiguous run of slots and
+  // its edges fall on party boundaries.
   const bands = (() => {
     const spans: { band: number; from: number; to: number }[] = [];
     let seen = 0;
     for (const seg of segments) {
       const b = bandOf(seg.fVal);
-      const from = seen / totalSeats;
+      const from = slotFracs[seen] ?? 0;
       seen += seg.seats;
-      const to = seen / totalSeats;
+      const to = slotFracs[seen] ?? 1;
       const last = spans[spans.length - 1];
       if (last && last.band === b) last.to = to;
       else spans.push({ band: b, from, to });
@@ -123,7 +131,7 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
             const y1 = -(INNER_R - 8) * Math.sin(angle);
             const x2 = (outerR + 6) * Math.cos(angle);
             const y2 = -(outerR + 6) * Math.sin(angle);
-            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#cbd5e1" strokeWidth={0.8} />;
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={DIVIDER_STROKE} strokeWidth={2} />;
           })}
 
           {/* Band labels, centred on the band. Only bands that hold seats get one. */}
@@ -134,7 +142,7 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
             const ly = -labelR * Math.sin(angle);
             const anchor = mid < 0.12 ? 'end' : mid > 0.88 ? 'start' : 'middle';
             return (
-              <text key={i} x={lx} y={ly} textAnchor={anchor} fontSize={CHART_TYPE.inMark} fill={CHART_FILL.tick}>
+              <text key={i} x={lx} y={ly} textAnchor={anchor} fontSize={'10'} fill={'#6c757d'}>
                 {CAT_LABELS[b.band]}
               </text>
             );

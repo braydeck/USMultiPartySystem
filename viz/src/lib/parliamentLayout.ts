@@ -40,9 +40,10 @@ export function layoutSeatDots(segments: ParliamentSegment[]): {
   groupedDots: Record<string, SeatDot[]>;
   nRings: number;
   dotSize: number;
+  slotFracs: number[];
 } {
   const totalSeats = segments.reduce((s, seg) => s + seg.seats, 0);
-  if (totalSeats === 0) return { groupedDots: {}, nRings: 3, dotSize: 4 };
+  if (totalSeats === 0) return { groupedDots: {}, nRings: 3, dotSize: 4, slotFracs: [] };
 
   const rings = computeRings(totalSeats, INNER_R, RING_GAP);
   const nRings = rings.length;
@@ -75,5 +76,5 @@ export function layoutSeatDots(segments: ParliamentSegment[]): {
     }
   }
 
-  return { groupedDots, nRings, dotSize };
+  return { groupedDots, nRings, dotSize, slotFracs: slots.map(s => s.frac) };
 }
