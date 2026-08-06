@@ -89,7 +89,7 @@ const SENATE_RULES: Mechanism[] = [
     term: 'Two seats per state',
     // Not the split rule: the composition card's footnote below states it with exact counts.
     what: 'Every state returns two senators regardless of population.',
-    consequence: '102 seats in all, so a small state weighs the same as a large one.',
+    consequence: '102 seats in all, DC providing a set of senators.',
   },
   {
     term: 'Condorcet',
