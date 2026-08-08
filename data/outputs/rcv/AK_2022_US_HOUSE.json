@@ -1,0 +1,224 @@
+{
+  "state": "AK",
+  "year": 2022,
+  "office": "US_HOUSE",
+  "contestType": "GENERAL",
+  "raceName": "U.S. House, at-large",
+  "district": null,
+  "candidates": [
+    "Mary Peltola",
+    "Sarah Palin",
+    "Nick Begich III",
+    "Chris Bye",
+    "Write-in"
+  ],
+  "totalBallots": 266797,
+  "activeBallots": 265016,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Mary Peltola": 128655,
+        "Sarah Palin": 68203,
+        "Nick Begich III": 62194,
+        "Chris Bye": 4856,
+        "Write-in": 1108
+      },
+      "pcts": {
+        "Mary Peltola": 48.55,
+        "Sarah Palin": 25.74,
+        "Nick Begich III": 23.47,
+        "Chris Bye": 1.83,
+        "Write-in": 0.42
+      },
+      "eliminated": [
+        "Write-in"
+      ],
+      "continuingBallots": 265016
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Mary Peltola": 128755,
+        "Sarah Palin": 68330,
+        "Nick Begich III": 62505,
+        "Chris Bye": 4999
+      },
+      "pcts": {
+        "Mary Peltola": 48.66,
+        "Sarah Palin": 25.82,
+        "Nick Begich III": 23.62,
+        "Chris Bye": 1.89
+      },
+      "eliminated": [
+        "Chris Bye"
+      ],
+      "continuingBallots": 264589
+    },
+    {
+      "round": 3,
+      "totals": {
+        "Mary Peltola": 129787,
+        "Sarah Palin": 69399,
+        "Nick Begich III": 64499
+      },
+      "pcts": {
+        "Mary Peltola": 49.22,
+        "Sarah Palin": 26.32,
+        "Nick Begich III": 24.46
+      },
+      "eliminated": [
+        "Nick Begich III"
+      ],
+      "continuingBallots": 263685
+    },
+    {
+      "round": 4,
+      "totals": {
+        "Mary Peltola": 137267,
+        "Sarah Palin": 112480
+      },
+      "pcts": {
+        "Mary Peltola": 54.96,
+        "Sarah Palin": 45.04
+      },
+      "eliminated": [],
+      "continuingBallots": 249747
+    }
+  ],
+  "irvWinner": "Mary Peltola",
+  "condorcetMatrix": {
+    "Mary Peltola": {
+      "Sarah Palin": 0.5496,
+      "Nick Begich III": 0.554,
+      "Chris Bye": 0.8154,
+      "Write-in": 0.9758
+    },
+    "Sarah Palin": {
+      "Mary Peltola": 0.4504,
+      "Nick Begich III": 0.3944,
+      "Chris Bye": 0.6606,
+      "Write-in": 0.9664
+    },
+    "Nick Begich III": {
+      "Mary Peltola": 0.446,
+      "Sarah Palin": 0.6056,
+      "Chris Bye": 0.7678,
+      "Write-in": 0.9761
+    },
+    "Chris Bye": {
+      "Mary Peltola": 0.1846,
+      "Sarah Palin": 0.3394,
+      "Nick Begich III": 0.2322,
+      "Write-in": 0.9494
+    },
+    "Write-in": {
+      "Mary Peltola": 0.0242,
+      "Sarah Palin": 0.0336,
+      "Nick Begich III": 0.0239,
+      "Chris Bye": 0.0506
+    }
+  },
+  "condorcetCounts": {
+    "Mary Peltola": {
+      "Sarah Palin": 137267,
+      "Nick Begich III": 133496,
+      "Chris Bye": 143119,
+      "Write-in": 155659
+    },
+    "Sarah Palin": {
+      "Mary Peltola": 112480,
+      "Nick Begich III": 77833,
+      "Chris Bye": 117962,
+      "Write-in": 149127
+    },
+    "Nick Begich III": {
+      "Mary Peltola": 107458,
+      "Sarah Palin": 119522,
+      "Chris Bye": 142831,
+      "Write-in": 168973
+    },
+    "Chris Bye": {
+      "Mary Peltola": 32405,
+      "Sarah Palin": 60614,
+      "Nick Begich III": 43198,
+      "Write-in": 92968
+    },
+    "Write-in": {
+      "Mary Peltola": 3864,
+      "Sarah Palin": 5181,
+      "Nick Begich III": 4137,
+      "Chris Bye": 4950
+    }
+  },
+  "condorcetWinner": "Mary Peltola",
+  "rankedPairsWinner": "Mary Peltola",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Mary Peltola",
+  "irvMatchesPlurality": true,
+  "provenance": "https://elections.alaska.gov/results/22GENR/rcv/CVR_Export.zip",
+  "stvSeats": 2,
+  "stvElected": [
+    "Mary Peltola",
+    "Nick Begich III"
+  ],
+  "stvRounds": [
+    {
+      "elected": "Mary Peltola",
+      "votes": 128655.0,
+      "quota": 88338.7,
+      "counts": {
+        "Mary Peltola": 128655.0,
+        "Sarah Palin": 68203.0,
+        "Nick Begich III": 62194.0,
+        "Chris Bye": 4856.0,
+        "Write-in": 1108.0
+      }
+    },
+    {
+      "eliminated": "Write-in",
+      "votes": 1634.1,
+      "quota": 88338.7,
+      "counts": {
+        "Nick Begich III": 73416.3,
+        "Sarah Palin": 69929.7,
+        "Chris Bye": 14819.2,
+        "Write-in": 1634.1
+      }
+    },
+    {
+      "eliminated": "Chris Bye",
+      "votes": 15152.9,
+      "quota": 88338.7,
+      "counts": {
+        "Nick Begich III": 73877.4,
+        "Sarah Palin": 70081.6,
+        "Chris Bye": 15152.9
+      }
+    },
+    {
+      "eliminated": "Sarah Palin",
+      "votes": 72170.3,
+      "quota": 88338.7,
+      "counts": {
+        "Nick Begich III": 82139.7,
+        "Sarah Palin": 72170.3
+      }
+    },
+    {
+      "elected": "Nick Begich III",
+      "votes": 129441.9,
+      "quota": 88338.7,
+      "counts": {
+        "Nick Begich III": 129441.9
+      }
+    }
+  ],
+  "parties": {
+    "Mary Peltola": "D",
+    "Sarah Palin": "R",
+    "Nick Begich III": "R",
+    "Chris Bye": "L",
+    "Write-in": null
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "state": "ME",
+  "year": 2018,
+  "office": "US_HOUSE",
+  "contestType": "GENERAL",
+  "raceName": "U.S. House, CD2",
+  "district": "CD2",
+  "candidates": [
+    "Bruce Poliquin",
+    "Jared Golden",
+    "Tiffany Bond",
+    "Will Hoar"
+  ],
+  "totalBallots": 296077,
+  "activeBallots": 289624,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Bruce Poliquin": 134184,
+        "Jared Golden": 132013,
+        "Tiffany Bond": 16552,
+        "Will Hoar": 6875
+      },
+      "pcts": {
+        "Bruce Poliquin": 46.33,
+        "Jared Golden": 45.58,
+        "Tiffany Bond": 5.71,
+        "Will Hoar": 2.37
+      },
+      "eliminated": [
+        "Tiffany Bond",
+        "Will Hoar"
+      ],
+      "continuingBallots": 289624,
+      "inactiveBallots": 6453
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Jared Golden": 142440,
+        "Bruce Poliquin": 138931
+      },
+      "pcts": {
+        "Jared Golden": 50.62,
+        "Bruce Poliquin": 49.38
+      },
+      "eliminated": [],
+      "continuingBallots": 281371,
+      "inactiveBallots": 14706
+    }
+  ],
+  "irvWinner": "Jared Golden",
+  "condorcetMatrix": {
+    "Bruce Poliquin": {
+      "Jared Golden": 0.4938,
+      "Tiffany Bond": 0.6243,
+      "Will Hoar": 0.6625
+    },
+    "Jared Golden": {
+      "Bruce Poliquin": 0.5062,
+      "Tiffany Bond": 0.7471,
+      "Will Hoar": 0.7767
+    },
+    "Tiffany Bond": {
+      "Bruce Poliquin": 0.3757,
+      "Jared Golden": 0.2529,
+      "Will Hoar": 0.653
+    },
+    "Will Hoar": {
+      "Bruce Poliquin": 0.3375,
+      "Jared Golden": 0.2233,
+      "Tiffany Bond": 0.347
+    }
+  },
+  "condorcetCounts": {
+    "Bruce Poliquin": {
+      "Jared Golden": 138931,
+      "Tiffany Bond": 144516,
+      "Will Hoar": 146412
+    },
+    "Jared Golden": {
+      "Bruce Poliquin": 142440,
+      "Tiffany Bond": 145067,
+      "Will Hoar": 148900
+    },
+    "Tiffany Bond": {
+      "Bruce Poliquin": 86958,
+      "Jared Golden": 49099,
+      "Will Hoar": 92200
+    },
+    "Will Hoar": {
+      "Bruce Poliquin": 74576,
+      "Jared Golden": 42812,
+      "Tiffany Bond": 48991
+    }
+  },
+  "condorcetWinner": "Jared Golden",
+  "rankedPairsWinner": "Jared Golden",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Bruce Poliquin",
+  "irvMatchesPlurality": false,
+  "provenance": "https://ranked.vote/report/us/me/2018/11/cd02",
+  "parties": {
+    "Bruce Poliquin": "R",
+    "Jared Golden": "D",
+    "Tiffany Bond": "I",
+    "Will Hoar": "I"
+  }
+}

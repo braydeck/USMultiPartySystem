@@ -45,3 +45,6 @@ analysis/efa/previous_years/outputs/*/independent_fit.pkl
 # worktrees/ holds whole repo checkouts, which must never be committed.
 .claude/skills/
 .claude/worktrees/
+
+# Alaska Dominion CVR exports (~1.5 GB each; download URLs in pipeline/rcv/README.md)
+data/raw/rcv/

@@ -1,0 +1,116 @@
+{
+  "state": "AK",
+  "year": 2022,
+  "office": "GOVERNOR",
+  "contestType": "GENERAL",
+  "raceName": "Governor",
+  "district": null,
+  "candidates": [
+    "Mike Dunleavy",
+    "Les Gara",
+    "Bill Walker",
+    "Charlie Pierce",
+    "Write-in"
+  ],
+  "totalBallots": 266693,
+  "activeBallots": 264321,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Mike Dunleavy": 132662,
+        "Les Gara": 63991,
+        "Bill Walker": 54852,
+        "Charlie Pierce": 12033,
+        "Write-in": 783
+      },
+      "pcts": {
+        "Mike Dunleavy": 50.19,
+        "Les Gara": 24.21,
+        "Bill Walker": 20.75,
+        "Charlie Pierce": 4.55,
+        "Write-in": 0.3
+      },
+      "eliminated": [],
+      "continuingBallots": 264321
+    }
+  ],
+  "irvWinner": "Mike Dunleavy",
+  "condorcetMatrix": {
+    "Mike Dunleavy": {
+      "Les Gara": 0.5973,
+      "Bill Walker": 0.5891,
+      "Charlie Pierce": 0.8247,
+      "Write-in": 0.9852
+    },
+    "Les Gara": {
+      "Mike Dunleavy": 0.4027,
+      "Bill Walker": 0.4935,
+      "Charlie Pierce": 0.5832,
+      "Write-in": 0.9758
+    },
+    "Bill Walker": {
+      "Mike Dunleavy": 0.4109,
+      "Les Gara": 0.5065,
+      "Charlie Pierce": 0.5992,
+      "Write-in": 0.9771
+    },
+    "Charlie Pierce": {
+      "Mike Dunleavy": 0.1753,
+      "Les Gara": 0.4168,
+      "Bill Walker": 0.4008,
+      "Write-in": 0.9732
+    },
+    "Write-in": {
+      "Mike Dunleavy": 0.0148,
+      "Les Gara": 0.0242,
+      "Bill Walker": 0.0229,
+      "Charlie Pierce": 0.0268
+    }
+  },
+  "condorcetCounts": {
+    "Mike Dunleavy": {
+      "Les Gara": 148010,
+      "Bill Walker": 144826,
+      "Charlie Pierce": 154121,
+      "Write-in": 176312
+    },
+    "Les Gara": {
+      "Mike Dunleavy": 99799,
+      "Bill Walker": 77174,
+      "Charlie Pierce": 109073,
+      "Write-in": 128814
+    },
+    "Bill Walker": {
+      "Mike Dunleavy": 101032,
+      "Les Gara": 79209,
+      "Charlie Pierce": 112896,
+      "Write-in": 135654
+    },
+    "Charlie Pierce": {
+      "Mike Dunleavy": 32771,
+      "Les Gara": 77955,
+      "Bill Walker": 75522,
+      "Write-in": 111388
+    },
+    "Write-in": {
+      "Mike Dunleavy": 2641,
+      "Les Gara": 3193,
+      "Bill Walker": 3186,
+      "Charlie Pierce": 3064
+    }
+  },
+  "condorcetWinner": "Mike Dunleavy",
+  "rankedPairsWinner": "Mike Dunleavy",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Mike Dunleavy",
+  "irvMatchesPlurality": true,
+  "provenance": "https://elections.alaska.gov/results/22GENR/rcv/CVR_Export.zip",
+  "parties": {
+    "Mike Dunleavy": "R",
+    "Les Gara": "D",
+    "Bill Walker": "I",
+    "Charlie Pierce": "R",
+    "Write-in": null
+  }
+}

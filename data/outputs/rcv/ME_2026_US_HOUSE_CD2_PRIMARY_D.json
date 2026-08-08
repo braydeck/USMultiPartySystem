@@ -1,0 +1,127 @@
+{
+  "state": "ME",
+  "year": 2026,
+  "office": "US_HOUSE",
+  "contestType": "PRIMARY_D",
+  "raceName": "U.S. House CD2, Democratic primary",
+  "district": "CD2",
+  "candidates": [
+    "Joseph Baldacci",
+    "Matt Dunlap",
+    "Jordan Wood",
+    "Paige Loud"
+  ],
+  "totalBallots": 83480,
+  "activeBallots": 78821,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Joseph Baldacci": 24977,
+        "Matt Dunlap": 22945,
+        "Jordan Wood": 22705,
+        "Paige Loud": 8194
+      },
+      "pcts": {
+        "Joseph Baldacci": 31.69,
+        "Matt Dunlap": 29.11,
+        "Jordan Wood": 28.81,
+        "Paige Loud": 10.4
+      },
+      "eliminated": [
+        "Paige Loud"
+      ],
+      "continuingBallots": 78821,
+      "inactiveBallots": 4659
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Joseph Baldacci": 25933,
+        "Matt Dunlap": 25696,
+        "Jordan Wood": 25371
+      },
+      "pcts": {
+        "Joseph Baldacci": 33.68,
+        "Matt Dunlap": 33.37,
+        "Jordan Wood": 32.95
+      },
+      "eliminated": [
+        "Jordan Wood"
+      ],
+      "continuingBallots": 77000,
+      "inactiveBallots": 6480
+    },
+    {
+      "round": 3,
+      "totals": {
+        "Matt Dunlap": 35940,
+        "Joseph Baldacci": 32560
+      },
+      "pcts": {
+        "Matt Dunlap": 52.47,
+        "Joseph Baldacci": 47.53
+      },
+      "eliminated": [],
+      "continuingBallots": 68500,
+      "inactiveBallots": 14980
+    }
+  ],
+  "irvWinner": "Matt Dunlap",
+  "condorcetMatrix": {
+    "Matt Dunlap": {
+      "Joseph Baldacci": 0.5247,
+      "Jordan Wood": 0.5427,
+      "Paige Loud": 0.7384
+    },
+    "Joseph Baldacci": {
+      "Matt Dunlap": 0.4753,
+      "Jordan Wood": 0.5048,
+      "Paige Loud": 0.6977
+    },
+    "Jordan Wood": {
+      "Matt Dunlap": 0.4573,
+      "Joseph Baldacci": 0.4952,
+      "Paige Loud": 0.6913
+    },
+    "Paige Loud": {
+      "Matt Dunlap": 0.2616,
+      "Joseph Baldacci": 0.3023,
+      "Jordan Wood": 0.3087
+    }
+  },
+  "condorcetCounts": {
+    "Matt Dunlap": {
+      "Joseph Baldacci": 35940,
+      "Jordan Wood": 36881,
+      "Paige Loud": 44197
+    },
+    "Joseph Baldacci": {
+      "Matt Dunlap": 32560,
+      "Jordan Wood": 35041,
+      "Paige Loud": 43245
+    },
+    "Jordan Wood": {
+      "Matt Dunlap": 31075,
+      "Joseph Baldacci": 34378,
+      "Paige Loud": 40282
+    },
+    "Paige Loud": {
+      "Matt Dunlap": 15657,
+      "Joseph Baldacci": 18735,
+      "Jordan Wood": 17992
+    }
+  },
+  "condorcetWinner": "Matt Dunlap",
+  "rankedPairsWinner": "Matt Dunlap",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Joseph Baldacci",
+  "irvMatchesPlurality": false,
+  "provenance": "https://ranked.vote/report/us/me/2026/06/cd02-primary-dem",
+  "parties": {
+    "Joseph Baldacci": "D",
+    "Matt Dunlap": "D",
+    "Jordan Wood": "D",
+    "Paige Loud": "D"
+  }
+}

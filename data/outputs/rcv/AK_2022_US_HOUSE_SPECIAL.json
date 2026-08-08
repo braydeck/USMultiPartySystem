@@ -1,0 +1,169 @@
+{
+  "state": "AK",
+  "year": 2022,
+  "office": "US_HOUSE",
+  "contestType": "GENERAL",
+  "raceName": "U.S. House, at-large (special)",
+  "district": null,
+  "candidates": [
+    "Mary Peltola",
+    "Sarah Palin",
+    "Nick Begich III",
+    "Write-in"
+  ],
+  "totalBallots": 192289,
+  "activeBallots": 189114,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Mary Peltola": 74820,
+        "Sarah Palin": 58546,
+        "Nick Begich III": 52774,
+        "Write-in": 2974
+      },
+      "pcts": {
+        "Mary Peltola": 39.56,
+        "Sarah Palin": 30.96,
+        "Nick Begich III": 27.91,
+        "Write-in": 1.57
+      },
+      "eliminated": [
+        "Write-in"
+      ],
+      "continuingBallots": 189114
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Mary Peltola": 75799,
+        "Sarah Palin": 58974,
+        "Nick Begich III": 53810
+      },
+      "pcts": {
+        "Mary Peltola": 40.19,
+        "Sarah Palin": 31.27,
+        "Nick Begich III": 28.53
+      },
+      "eliminated": [
+        "Nick Begich III"
+      ],
+      "continuingBallots": 188583
+    },
+    {
+      "round": 3,
+      "totals": {
+        "Mary Peltola": 91277,
+        "Sarah Palin": 86044
+      },
+      "pcts": {
+        "Mary Peltola": 51.48,
+        "Sarah Palin": 48.52
+      },
+      "eliminated": [],
+      "continuingBallots": 177321
+    }
+  ],
+  "irvWinner": "Mary Peltola",
+  "condorcetMatrix": {
+    "Mary Peltola": {
+      "Sarah Palin": 0.5148,
+      "Nick Begich III": 0.4748,
+      "Write-in": 0.9209
+    },
+    "Sarah Palin": {
+      "Mary Peltola": 0.4852,
+      "Nick Begich III": 0.3859,
+      "Write-in": 0.8613
+    },
+    "Nick Begich III": {
+      "Mary Peltola": 0.5252,
+      "Sarah Palin": 0.6141,
+      "Write-in": 0.9112
+    },
+    "Write-in": {
+      "Mary Peltola": 0.0791,
+      "Sarah Palin": 0.1387,
+      "Nick Begich III": 0.0888
+    }
+  },
+  "condorcetCounts": {
+    "Mary Peltola": {
+      "Sarah Palin": 91277,
+      "Nick Begich III": 79458,
+      "Write-in": 109858
+    },
+    "Sarah Palin": {
+      "Mary Peltola": 86044,
+      "Nick Begich III": 63621,
+      "Write-in": 112563
+    },
+    "Nick Begich III": {
+      "Mary Peltola": 87888,
+      "Sarah Palin": 101229,
+      "Write-in": 133599
+    },
+    "Write-in": {
+      "Mary Peltola": 9430,
+      "Sarah Palin": 18121,
+      "Nick Begich III": 13022
+    }
+  },
+  "condorcetWinner": "Nick Begich III",
+  "rankedPairsWinner": "Nick Begich III",
+  "irvMatchesCondorcet": false,
+  "pluralityWinner": "Mary Peltola",
+  "irvMatchesPlurality": true,
+  "provenance": "https://www.elections.alaska.gov/results/22SSPG/CVR_Export_20220908084311.zip",
+  "stvSeats": 2,
+  "stvElected": [
+    "Mary Peltola",
+    "Nick Begich III"
+  ],
+  "stvRounds": [
+    {
+      "elected": "Mary Peltola",
+      "votes": 74820.0,
+      "quota": 63038.0,
+      "counts": {
+        "Mary Peltola": 74820.0,
+        "Sarah Palin": 58546.0,
+        "Nick Begich III": 52774.0,
+        "Write-in": 2974.0
+      }
+    },
+    {
+      "eliminated": "Write-in",
+      "votes": 4315.3,
+      "quota": 63038.0,
+      "counts": {
+        "Nick Begich III": 59423.2,
+        "Sarah Palin": 59138.6,
+        "Write-in": 4315.3
+      }
+    },
+    {
+      "eliminated": "Sarah Palin",
+      "votes": 59808.6,
+      "quota": 63038.0,
+      "counts": {
+        "Nick Begich III": 61807.9,
+        "Sarah Palin": 59808.6
+      }
+    },
+    {
+      "elected": "Nick Begich III",
+      "votes": 99458.9,
+      "quota": 63038.0,
+      "counts": {
+        "Nick Begich III": 99458.9
+      }
+    }
+  ],
+  "parties": {
+    "Mary Peltola": "D",
+    "Sarah Palin": "R",
+    "Nick Begich III": "R",
+    "Write-in": null
+  }
+}

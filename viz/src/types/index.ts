@@ -454,25 +454,52 @@ export interface RCVRound {
   round: number;
   totals: Record<string, number>;
   pcts: Record<string, number>;
-  eliminated: string | null;
+  /** Candidates dropped at the end of this round; empty on the deciding round. */
+  eliminated: string[];
+  continuingBallots: number;
+  inactiveBallots?: number;
 }
+
+export interface RCVStvRound {
+  elected?: string;
+  eliminated?: string;
+  votes: number;
+  quota: number;
+  counts: Record<string, number>;
+}
+
+export type RCVContestType = 'GENERAL' | 'PRIMARY_D' | 'PRIMARY_R';
 
 export interface RCVRace {
   state: 'AK' | 'ME';
   year: number;
-  office: 'US_HOUSE' | 'US_SENATE' | 'GOVERNOR';
-  raceName?: string;
-  district?: string;
+  office: 'US_HOUSE' | 'US_SENATE' | 'GOVERNOR' | 'PRESIDENT';
+  contestType: RCVContestType;
+  raceName: string;
+  district?: string | null;
   candidates: string[];
+  /** Candidate → ballot-line party code (D, R, L, I, G, AIP); null for write-ins. */
+  parties: Record<string, string | null>;
   totalBallots: number;
+  activeBallots: number;
   irvRounds: RCVRound[];
   irvWinner: string;
   condorcetMatrix: Record<string, Record<string, number>>;
+  condorcetCounts?: Record<string, Record<string, number>>;
   condorcetWinner: string | null;
   rankedPairsWinner?: string | null;
-  irvMatchesCondorcet: boolean;
+  /** False for contests whose state published rounds but no cast vote record. */
+  condorcetAvailable?: boolean;
+  /** Null when no cast vote record exists to compute pairwise results from. */
+  irvMatchesCondorcet: boolean | null;
+  /** First-choice leader; differs from irvWinner exactly when transfers changed the result. */
+  pluralityWinner: string;
+  irvMatchesPlurality: boolean;
+  /** URL of the cast vote record or report the numbers were computed from. */
+  provenance: string;
   stvSeats?: number;
   stvElected?: string[];
+  stvRounds?: RCVStvRound[];
 }
 
 export interface RCVData {

@@ -1,111 +1,87 @@
-# RCV Pipeline — Alaska & Maine Cast Vote Records
+# RCV Pipeline — Alaska & Maine
 
-## Data Sources
+Every number on the IRV Case Studies tab is computed from ballot-level cast vote
+records, not transcribed from published round summaries. That matters because the
+interesting quantities — the pairwise (Condorcet) matrix and the multi-seat STV
+result — do not exist in any official report; only ballots produce them.
 
-### Alaska Division of Elections
-Election records: https://www.elections.alaska.gov/results/
-
-Download CVR files (CSV format) for:
-
-| Race | File to download | `--race` prefix |
-|------|-----------------|-----------------|
-| 2022 US House Special (Aug) | RCV results from August 2022 special election | `"US Representative"` |
-| 2022 US House General (Nov) | RCV results from November 2022 general | `"US Representative"` |
-| 2022 US Senate | November 2022 general election | `"United States Senator"` |
-| 2022 Governor | November 2022 general election | `"Governor"` |
-| 2024 US House | November 2024 general election | `"US Representative"` |
-
-Save files to `data/raw/rcv/` with names like:
-- `AK_2022_house_special.csv`
-- `AK_2022_house_general.csv`
-- `AK_2022_senate.csv`
-- `AK_2022_governor.csv`
-- `AK_2024_house.csv`
-
-### Maine Secretary of State
-Election records: https://www.maine.gov/sos/cec/elec/results/
-
-Download CVR files for:
-
-| Race | File | `--race` prefix |
-|------|------|-----------------|
-| 2018 US House CD2 | 2018 general election | `"Representative to Congress"` |
-| 2022 US House CD2 | 2022 general election | `"Representative to Congress"` |
-| 2024 US House CD2 | 2024 general election | `"Representative to Congress"` |
-
-Save files to `data/raw/rcv/` with names like:
-- `ME_2018_house_cd2.csv`
-- `ME_2022_house_cd2.csv`
-- `ME_2024_house_cd2.csv`
-
-## Running the Pipeline
-
-Run once per race file. From the project root:
+## Build
 
 ```bash
-# Alaska 2022 House General
-python pipeline/rcv/process_rcv.py \
-  --cvr data/raw/rcv/AK_2022_house_general.csv \
-  --race "US Representative" \
-  --state AK --year 2022 --office US_HOUSE --seats 2
-
-# Alaska 2022 Senate
-python pipeline/rcv/process_rcv.py \
-  --cvr data/raw/rcv/AK_2022_senate.csv \
-  --race "United States Senator" \
-  --state AK --year 2022 --office US_SENATE
-
-# Alaska 2022 Governor
-python pipeline/rcv/process_rcv.py \
-  --cvr data/raw/rcv/AK_2022_governor.csv \
-  --race "Governor" \
-  --state AK --year 2022 --office GOVERNOR
-
-# Alaska 2024 House
-python pipeline/rcv/process_rcv.py \
-  --cvr data/raw/rcv/AK_2024_house.csv \
-  --race "US Representative" \
-  --state AK --year 2024 --office US_HOUSE --seats 2
-
-# Maine 2018 CD2
-python pipeline/rcv/process_rcv.py \
-  --cvr data/raw/rcv/ME_2018_house_cd2.csv \
-  --race "Representative to Congress" \
-  --state ME --year 2018 --office US_HOUSE --seats 4
-
-# Maine 2022 CD2
-python pipeline/rcv/process_rcv.py \
-  --cvr data/raw/rcv/ME_2022_house_cd2.csv \
-  --race "Representative to Congress" \
-  --state ME --year 2022 --office US_HOUSE --seats 4
-
-# Maine 2024 CD2
-python pipeline/rcv/process_rcv.py \
-  --cvr data/raw/rcv/ME_2024_house_cd2.csv \
-  --race "Representative to Congress" \
-  --state ME --year 2024 --office US_HOUSE --seats 4
-```
-
-After running all races, regenerate the viz JSON:
-
-```bash
+bash   pipeline/rcv/download_cvrs.sh   # ~130 MB down, ~4 GB unpacked, gitignored
+python pipeline/rcv/build_all.py       # writes data/outputs/rcv/*.json
 cd viz && python3 scripts/prepare_data.py
 ```
 
-## CVR Format Notes
+`build_all.py` runs the three builders below and is the only entry point you need.
 
-- AK CVRs use rank columns like `"US Representative 1st Choice"`, `"US Representative 2nd Choice"`, etc.
-- ME CVRs use rank columns like `"Representative to Congress - District 2 1st Choice"`, etc.
-- Blank ranks, "overvote", and "undervote" are treated as exhausted preferences.
+## Sources
 
-## USDA RUCC Codes (for County Tier Map)
+| Builder | Covers | Source |
+|---|---|---|
+| `process_dominion_cvr.py` | All 6 Alaska statewide RCV contests | Dominion CVR exports from the [Alaska Division of Elections](https://www.elections.alaska.gov/election-results/) |
+| `fetch_ranked_vote.py` | Maine's 2018 CD2 general and 6 ranked primaries | [ranked.vote](https://ranked.vote/) report JSON (CVR-derived, CC-BY) |
+| `official_reports.py` | Maine 2022 CD2 general | [Maine SoS RCV summary report](https://www.maine.gov/sos/cec/elec/results/) — rounds only; no CVR released |
 
-Download `rucc2013.xlsx` from USDA ERS:
-https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/
+Maine's 2022 CD2 is the one contest without ballot-level data, so it carries
+`condorcetAvailable: false` and the viz says so rather than guessing.
 
-Save as `data/raw/rucc2013.csv` (export from Excel). Columns needed: `FIPS`, `RUCC_2013`.
+`candidates.py` holds display names and ballot-line parties; both builders route
+candidate lists through it, and it raises on an unknown general-election candidate
+rather than silently emitting a blank party.
 
-Tier mapping:
-- RUCC 1–3 → URBAN (metropolitan counties)
-- RUCC 4–5 → SUBURBAN (micropolitan + adjacent nonmetro)
-- RUCC 6–9 → RURAL (small town + open country)
+## Which contests are included
+
+Only contests RCV actually governed. Alaska's 2022 Governor and 2024 President
+races are built even though a first-choice majority ended them in one round —
+that fact is reported on the tab. Contests where ranked ballots do not apply
+(Maine's state general elections) appear only in the coverage grid.
+
+Alaska adopted RCV in 2020 (Ballot Measure 2, first used 2022) for all state and
+federal general elections. Maine adopted it in 2016 (Question 5, first used 2018)
+for federal general elections and all primaries, but not for state general
+elections.
+
+## Validation
+
+The Dominion processor was checked against two independent references:
+
+- **Official round tallies.** Final-round results match the Division of Elections
+  to within 9 votes out of ~250,000 (0.004%) on every Alaska contest, and every
+  round's ordering and eliminations match.
+- **ranked.vote's independent CVR processing.** On the 2022 special election, all
+  twelve pairwise cells agree to within 0.03 percentage points, and the ballot
+  count matches exactly (192,289).
+
+First-round shares differ from the Division's *summary report* by up to ~0.5pp
+because a ballot whose first ranking is blank is counted here for its next ranked
+candidate, as the RCV tabulation itself does, while the summary report's
+"first choice" column counts literal rank-1 marks. The `provenance` field on every
+race records the exact file the numbers came from.
+
+## Tabulation rules
+
+Following Alaska statute as implemented by the Division of Elections: an overvote
+exhausts the ballot at that rank, a single skipped rank is passed over, two
+consecutive skipped ranks exhaust the ballot, and a repeated candidate is ignored
+after the first ranking. Alaska eliminates one candidate per round; Maine
+batch-eliminates trailing candidates who cannot mathematically catch the next one
+up (`--batch-eliminate`).
+
+STV uses a Droop quota with Weighted Inclusive Gregory surplus transfers, run at
+double the state's current seat count — Alaska's one at-large seat becomes two.
+Maine is not run per-district: the proposal pools both districts into a single
+4-seat delegation, and no statewide ranked ballots exist to tabulate that from, so
+the tab shows the CES simulation's delegation instead.
+
+## Legacy
+
+`process_rcv.py` is the earlier CSV-based script. It was never run against real
+data, its STV routine counts eliminated candidates as elected, and nothing in the
+build uses it. Superseded by `process_dominion_cvr.py`.
+
+## USDA RUCC codes (County Tier Map — unrelated to RCV)
+
+Download `rucc2013.xlsx` from [USDA ERS](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/)
+and save as `data/raw/rucc2013.csv` with columns `FIPS`, `RUCC_2013`.
+RUCC 1–3 → URBAN, 4–5 → SUBURBAN, 6–9 → RURAL.

@@ -1,0 +1,197 @@
+{
+  "state": "AK",
+  "year": 2024,
+  "office": "US_HOUSE",
+  "contestType": "GENERAL",
+  "raceName": "U.S. House, at-large",
+  "district": null,
+  "candidates": [
+    "Nick Begich III",
+    "Mary Peltola",
+    "John Wayne Howe",
+    "Eric Hafner",
+    "Write-in"
+  ],
+  "totalBallots": 340778,
+  "activeBallots": 333946,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Nick Begich III": 161842,
+        "Mary Peltola": 154178,
+        "John Wayne Howe": 13502,
+        "Eric Hafner": 3652,
+        "Write-in": 772
+      },
+      "pcts": {
+        "Nick Begich III": 48.46,
+        "Mary Peltola": 46.17,
+        "John Wayne Howe": 4.04,
+        "Eric Hafner": 1.09,
+        "Write-in": 0.23
+      },
+      "eliminated": [
+        "Write-in"
+      ],
+      "continuingBallots": 333946
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Nick Begich III": 161966,
+        "Mary Peltola": 154292,
+        "John Wayne Howe": 13583,
+        "Eric Hafner": 3687
+      },
+      "pcts": {
+        "Nick Begich III": 48.56,
+        "Mary Peltola": 46.26,
+        "John Wayne Howe": 4.07,
+        "Eric Hafner": 1.11
+      },
+      "eliminated": [
+        "Eric Hafner"
+      ],
+      "continuingBallots": 333528
+    },
+    {
+      "round": 3,
+      "totals": {
+        "Nick Begich III": 162250,
+        "Mary Peltola": 155660,
+        "John Wayne Howe": 14264
+      },
+      "pcts": {
+        "Nick Begich III": 48.84,
+        "Mary Peltola": 46.86,
+        "John Wayne Howe": 4.29
+      },
+      "eliminated": [
+        "John Wayne Howe"
+      ],
+      "continuingBallots": 332174
+    },
+    {
+      "round": 4,
+      "totals": {
+        "Nick Begich III": 167226,
+        "Mary Peltola": 158474
+      },
+      "pcts": {
+        "Nick Begich III": 51.34,
+        "Mary Peltola": 48.66
+      },
+      "eliminated": [],
+      "continuingBallots": 325700
+    }
+  ],
+  "irvWinner": "Nick Begich III",
+  "condorcetMatrix": {
+    "Nick Begich III": {
+      "Mary Peltola": 0.5134,
+      "John Wayne Howe": 0.7822,
+      "Eric Hafner": 0.7684,
+      "Write-in": 0.9816
+    },
+    "Mary Peltola": {
+      "Nick Begich III": 0.4866,
+      "John Wayne Howe": 0.7947,
+      "Eric Hafner": 0.8992,
+      "Write-in": 0.9814
+    },
+    "John Wayne Howe": {
+      "Nick Begich III": 0.2178,
+      "Mary Peltola": 0.2053,
+      "Eric Hafner": 0.5318,
+      "Write-in": 0.9628
+    },
+    "Eric Hafner": {
+      "Nick Begich III": 0.2316,
+      "Mary Peltola": 0.1008,
+      "John Wayne Howe": 0.4682,
+      "Write-in": 0.9497
+    },
+    "Write-in": {
+      "Nick Begich III": 0.0184,
+      "Mary Peltola": 0.0186,
+      "John Wayne Howe": 0.0372,
+      "Eric Hafner": 0.0503
+    }
+  },
+  "condorcetCounts": {
+    "Nick Begich III": {
+      "Mary Peltola": 167226,
+      "John Wayne Howe": 175649,
+      "Eric Hafner": 179777,
+      "Write-in": 201137
+    },
+    "Mary Peltola": {
+      "Nick Begich III": 158474,
+      "John Wayne Howe": 162735,
+      "Eric Hafner": 166805,
+      "Write-in": 178733
+    },
+    "John Wayne Howe": {
+      "Nick Begich III": 48900,
+      "Mary Peltola": 42035,
+      "Eric Hafner": 58219,
+      "Write-in": 85469
+    },
+    "Eric Hafner": {
+      "Nick Begich III": 54188,
+      "Mary Peltola": 18696,
+      "John Wayne Howe": 51260,
+      "Write-in": 78421
+    },
+    "Write-in": {
+      "Nick Begich III": 3763,
+      "Mary Peltola": 3391,
+      "John Wayne Howe": 3303,
+      "Eric Hafner": 4156
+    }
+  },
+  "condorcetWinner": "Nick Begich III",
+  "rankedPairsWinner": "Nick Begich III",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Nick Begich III",
+  "irvMatchesPlurality": true,
+  "provenance": "https://www.elections.alaska.gov/results/24GENR/CVR_Export_20241130154411.zip",
+  "stvSeats": 2,
+  "stvElected": [
+    "Nick Begich III",
+    "Mary Peltola"
+  ],
+  "stvRounds": [
+    {
+      "elected": "Nick Begich III",
+      "votes": 161842.0,
+      "quota": 111315.3,
+      "counts": {
+        "Nick Begich III": 161842.0,
+        "Mary Peltola": 154178.0,
+        "John Wayne Howe": 13502.0,
+        "Eric Hafner": 3652.0,
+        "Write-in": 772.0
+      }
+    },
+    {
+      "elected": "Mary Peltola",
+      "votes": 156222.3,
+      "quota": 111315.3,
+      "counts": {
+        "Mary Peltola": 156222.3,
+        "John Wayne Howe": 21250.4,
+        "Eric Hafner": 4736.9,
+        "Write-in": 1071.4
+      }
+    }
+  ],
+  "parties": {
+    "Nick Begich III": "R",
+    "Mary Peltola": "D",
+    "John Wayne Howe": "AIP",
+    "Eric Hafner": "D",
+    "Write-in": null
+  }
+}

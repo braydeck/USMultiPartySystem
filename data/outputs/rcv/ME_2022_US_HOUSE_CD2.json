@@ -1,0 +1,67 @@
+{
+  "state": "ME",
+  "year": 2022,
+  "office": "US_HOUSE",
+  "contestType": "GENERAL",
+  "raceName": "U.S. House, CD2",
+  "district": "CD2",
+  "candidates": [
+    "Jared Golden",
+    "Bruce Poliquin",
+    "Tiffany Bond",
+    "Write-in"
+  ],
+  "totalBallots": 322778,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Jared Golden": 153074,
+        "Bruce Poliquin": 141260,
+        "Tiffany Bond": 21655,
+        "Write-in": 393
+      },
+      "continuingBallots": 316382,
+      "inactiveBallots": 6396,
+      "eliminated": [
+        "Tiffany Bond",
+        "Write-in"
+      ],
+      "pcts": {
+        "Jared Golden": 48.38,
+        "Bruce Poliquin": 44.65,
+        "Tiffany Bond": 6.84,
+        "Write-in": 0.12
+      }
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Jared Golden": 165136,
+        "Bruce Poliquin": 146142
+      },
+      "continuingBallots": 311278,
+      "inactiveBallots": 11500,
+      "eliminated": [],
+      "pcts": {
+        "Jared Golden": 53.05,
+        "Bruce Poliquin": 46.95
+      }
+    }
+  ],
+  "irvWinner": "Jared Golden",
+  "provenance": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/Rep%20to%20Congress%20Dist%202%20RCV%20results.pdf",
+  "activeBallots": 316382,
+  "condorcetMatrix": {},
+  "condorcetWinner": null,
+  "condorcetAvailable": false,
+  "irvMatchesCondorcet": null,
+  "pluralityWinner": "Jared Golden",
+  "irvMatchesPlurality": true,
+  "parties": {
+    "Jared Golden": "D",
+    "Bruce Poliquin": "R",
+    "Tiffany Bond": "I",
+    "Write-in": null
+  }
+}

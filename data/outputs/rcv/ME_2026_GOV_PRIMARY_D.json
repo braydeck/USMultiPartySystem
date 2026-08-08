@@ -1,0 +1,171 @@
+{
+  "state": "ME",
+  "year": 2026,
+  "office": "GOVERNOR",
+  "contestType": "PRIMARY_D",
+  "raceName": "Governor, Democratic primary",
+  "district": null,
+  "candidates": [
+    "Nirav Shah",
+    "Hannah Pingree",
+    "Troy Jackson",
+    "Shenna Bellows",
+    "Angus King III"
+  ],
+  "totalBallots": 222405,
+  "activeBallots": 217752,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Nirav Shah": 58615,
+        "Hannah Pingree": 50537,
+        "Troy Jackson": 45964,
+        "Shenna Bellows": 44778,
+        "Angus King III": 17858
+      },
+      "pcts": {
+        "Nirav Shah": 26.92,
+        "Hannah Pingree": 23.21,
+        "Troy Jackson": 21.11,
+        "Shenna Bellows": 20.56,
+        "Angus King III": 8.2
+      },
+      "eliminated": [
+        "Angus King III"
+      ],
+      "continuingBallots": 217752,
+      "inactiveBallots": 4653
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Nirav Shah": 62869,
+        "Hannah Pingree": 55343,
+        "Troy Jackson": 47603,
+        "Shenna Bellows": 47056
+      },
+      "pcts": {
+        "Nirav Shah": 29.53,
+        "Hannah Pingree": 26.0,
+        "Troy Jackson": 22.36,
+        "Shenna Bellows": 22.11
+      },
+      "eliminated": [
+        "Shenna Bellows"
+      ],
+      "continuingBallots": 212871,
+      "inactiveBallots": 9534
+    },
+    {
+      "round": 3,
+      "totals": {
+        "Hannah Pingree": 75658,
+        "Nirav Shah": 72690,
+        "Troy Jackson": 60020
+      },
+      "pcts": {
+        "Hannah Pingree": 36.31,
+        "Nirav Shah": 34.89,
+        "Troy Jackson": 28.8
+      },
+      "eliminated": [
+        "Troy Jackson"
+      ],
+      "continuingBallots": 208368,
+      "inactiveBallots": 14037
+    },
+    {
+      "round": 4,
+      "totals": {
+        "Hannah Pingree": 111749,
+        "Nirav Shah": 86958
+      },
+      "pcts": {
+        "Hannah Pingree": 56.24,
+        "Nirav Shah": 43.76
+      },
+      "eliminated": [],
+      "continuingBallots": 198707,
+      "inactiveBallots": 23698
+    }
+  ],
+  "irvWinner": "Hannah Pingree",
+  "condorcetMatrix": {
+    "Shenna Bellows": {
+      "Troy Jackson": 0.5947,
+      "Nirav Shah": 0.515,
+      "Hannah Pingree": 0.4813,
+      "Angus King III": 0.7211
+    },
+    "Troy Jackson": {
+      "Shenna Bellows": 0.4053,
+      "Nirav Shah": 0.429,
+      "Hannah Pingree": 0.3881,
+      "Angus King III": 0.6069
+    },
+    "Nirav Shah": {
+      "Shenna Bellows": 0.485,
+      "Troy Jackson": 0.571,
+      "Hannah Pingree": 0.4376,
+      "Angus King III": 0.7386
+    },
+    "Hannah Pingree": {
+      "Shenna Bellows": 0.5187,
+      "Troy Jackson": 0.6119,
+      "Nirav Shah": 0.5624,
+      "Angus King III": 0.7764
+    },
+    "Angus King III": {
+      "Shenna Bellows": 0.2789,
+      "Troy Jackson": 0.3931,
+      "Nirav Shah": 0.2614,
+      "Hannah Pingree": 0.2236
+    }
+  },
+  "condorcetCounts": {
+    "Shenna Bellows": {
+      "Troy Jackson": 106819,
+      "Nirav Shah": 100532,
+      "Hannah Pingree": 91374,
+      "Angus King III": 132506
+    },
+    "Troy Jackson": {
+      "Shenna Bellows": 72790,
+      "Nirav Shah": 82571,
+      "Hannah Pingree": 73640,
+      "Angus King III": 103510
+    },
+    "Nirav Shah": {
+      "Shenna Bellows": 94662,
+      "Troy Jackson": 109921,
+      "Hannah Pingree": 86958,
+      "Angus King III": 127886
+    },
+    "Hannah Pingree": {
+      "Shenna Bellows": 98478,
+      "Troy Jackson": 116122,
+      "Nirav Shah": 111749,
+      "Angus King III": 144647
+    },
+    "Angus King III": {
+      "Shenna Bellows": 51249,
+      "Troy Jackson": 67035,
+      "Nirav Shah": 45252,
+      "Hannah Pingree": 41664
+    }
+  },
+  "condorcetWinner": "Hannah Pingree",
+  "rankedPairsWinner": "Hannah Pingree",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Nirav Shah",
+  "irvMatchesPlurality": false,
+  "provenance": "https://ranked.vote/report/us/me/2026/06/gov-primary-dem",
+  "parties": {
+    "Nirav Shah": "D",
+    "Hannah Pingree": "D",
+    "Troy Jackson": "D",
+    "Shenna Bellows": "D",
+    "Angus King III": "D"
+  }
+}

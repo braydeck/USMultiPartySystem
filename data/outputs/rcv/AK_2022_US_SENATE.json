@@ -1,0 +1,167 @@
+{
+  "state": "AK",
+  "year": 2022,
+  "office": "US_SENATE",
+  "contestType": "GENERAL",
+  "raceName": "U.S. Senate",
+  "district": null,
+  "candidates": [
+    "Lisa Murkowski",
+    "Kelly Tshibaka",
+    "Pat Chesbro",
+    "Buzz Kelley",
+    "Write-in"
+  ],
+  "totalBallots": 266797,
+  "activeBallots": 263745,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Lisa Murkowski": 113813,
+        "Kelly Tshibaka": 111846,
+        "Pat Chesbro": 27785,
+        "Buzz Kelley": 8275,
+        "Write-in": 2026
+      },
+      "pcts": {
+        "Lisa Murkowski": 43.15,
+        "Kelly Tshibaka": 42.41,
+        "Pat Chesbro": 10.53,
+        "Buzz Kelley": 3.14,
+        "Write-in": 0.77
+      },
+      "eliminated": [
+        "Write-in"
+      ],
+      "continuingBallots": 263745
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Lisa Murkowski": 114118,
+        "Kelly Tshibaka": 112101,
+        "Pat Chesbro": 28233,
+        "Buzz Kelley": 8576
+      },
+      "pcts": {
+        "Lisa Murkowski": 43.39,
+        "Kelly Tshibaka": 42.62,
+        "Pat Chesbro": 10.73,
+        "Buzz Kelley": 3.26
+      },
+      "eliminated": [
+        "Buzz Kelley"
+      ],
+      "continuingBallots": 263028
+    },
+    {
+      "round": 3,
+      "totals": {
+        "Lisa Murkowski": 115760,
+        "Kelly Tshibaka": 115311,
+        "Pat Chesbro": 29134
+      },
+      "pcts": {
+        "Lisa Murkowski": 44.49,
+        "Kelly Tshibaka": 44.32,
+        "Pat Chesbro": 11.2
+      },
+      "eliminated": [
+        "Pat Chesbro"
+      ],
+      "continuingBallots": 260205
+    },
+    {
+      "round": 4,
+      "totals": {
+        "Lisa Murkowski": 136333,
+        "Kelly Tshibaka": 117536
+      },
+      "pcts": {
+        "Lisa Murkowski": 53.7,
+        "Kelly Tshibaka": 46.3
+      },
+      "eliminated": [],
+      "continuingBallots": 253869
+    }
+  ],
+  "irvWinner": "Lisa Murkowski",
+  "condorcetMatrix": {
+    "Lisa Murkowski": {
+      "Kelly Tshibaka": 0.537,
+      "Pat Chesbro": 0.7879,
+      "Buzz Kelley": 0.7201,
+      "Write-in": 0.9686
+    },
+    "Kelly Tshibaka": {
+      "Lisa Murkowski": 0.463,
+      "Pat Chesbro": 0.5818,
+      "Buzz Kelley": 0.7383,
+      "Write-in": 0.9624
+    },
+    "Pat Chesbro": {
+      "Lisa Murkowski": 0.2121,
+      "Kelly Tshibaka": 0.4182,
+      "Buzz Kelley": 0.5528,
+      "Write-in": 0.9471
+    },
+    "Buzz Kelley": {
+      "Lisa Murkowski": 0.2799,
+      "Kelly Tshibaka": 0.2617,
+      "Pat Chesbro": 0.4472,
+      "Write-in": 0.945
+    },
+    "Write-in": {
+      "Lisa Murkowski": 0.0314,
+      "Kelly Tshibaka": 0.0376,
+      "Pat Chesbro": 0.0529,
+      "Buzz Kelley": 0.055
+    }
+  },
+  "condorcetCounts": {
+    "Lisa Murkowski": {
+      "Kelly Tshibaka": 136333,
+      "Pat Chesbro": 143787,
+      "Buzz Kelley": 148477,
+      "Write-in": 170857
+    },
+    "Kelly Tshibaka": {
+      "Lisa Murkowski": 117536,
+      "Pat Chesbro": 128741,
+      "Buzz Kelley": 127478,
+      "Write-in": 155175
+    },
+    "Pat Chesbro": {
+      "Lisa Murkowski": 38698,
+      "Kelly Tshibaka": 92534,
+      "Buzz Kelley": 91831,
+      "Write-in": 115295
+    },
+    "Buzz Kelley": {
+      "Lisa Murkowski": 57706,
+      "Kelly Tshibaka": 45175,
+      "Pat Chesbro": 74290,
+      "Write-in": 106800
+    },
+    "Write-in": {
+      "Lisa Murkowski": 5542,
+      "Kelly Tshibaka": 6065,
+      "Pat Chesbro": 6434,
+      "Buzz Kelley": 6217
+    }
+  },
+  "condorcetWinner": "Lisa Murkowski",
+  "rankedPairsWinner": "Lisa Murkowski",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Lisa Murkowski",
+  "irvMatchesPlurality": true,
+  "provenance": "https://elections.alaska.gov/results/22GENR/rcv/CVR_Export.zip",
+  "parties": {
+    "Lisa Murkowski": "R",
+    "Kelly Tshibaka": "R",
+    "Pat Chesbro": "D",
+    "Buzz Kelley": "R",
+    "Write-in": null
+  }
+}

@@ -1,0 +1,270 @@
+{
+  "state": "ME",
+  "year": 2018,
+  "office": "GOVERNOR",
+  "contestType": "PRIMARY_D",
+  "raceName": "Governor, Democratic primary",
+  "district": null,
+  "candidates": [
+    "Janet Mills",
+    "Adam Cote",
+    "Betsy Sweet",
+    "Mark Eves",
+    "Mark Dion",
+    "Diane Russell",
+    "Donna Dion",
+    "Write-in"
+  ],
+  "totalBallots": 132250,
+  "activeBallots": 126139,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Janet Mills": 41735,
+        "Adam Cote": 35478,
+        "Betsy Sweet": 20767,
+        "Mark Eves": 17887,
+        "Mark Dion": 5200,
+        "Diane Russell": 2728,
+        "Donna Dion": 1596,
+        "Write-in": 748
+      },
+      "pcts": {
+        "Janet Mills": 33.09,
+        "Adam Cote": 28.13,
+        "Betsy Sweet": 16.46,
+        "Mark Eves": 14.18,
+        "Mark Dion": 4.12,
+        "Diane Russell": 2.16,
+        "Donna Dion": 1.27,
+        "Write-in": 0.59
+      },
+      "eliminated": [
+        "Mark Dion",
+        "Diane Russell",
+        "Donna Dion",
+        "Write-in"
+      ],
+      "continuingBallots": 126139,
+      "inactiveBallots": 6111
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Janet Mills": 44042,
+        "Adam Cote": 37543,
+        "Betsy Sweet": 22987,
+        "Mark Eves": 19521
+      },
+      "pcts": {
+        "Janet Mills": 35.49,
+        "Adam Cote": 30.25,
+        "Betsy Sweet": 18.52,
+        "Mark Eves": 15.73
+      },
+      "eliminated": [
+        "Mark Eves"
+      ],
+      "continuingBallots": 124093,
+      "inactiveBallots": 8157
+    },
+    {
+      "round": 3,
+      "totals": {
+        "Janet Mills": 49944,
+        "Adam Cote": 42623,
+        "Betsy Sweet": 29944
+      },
+      "pcts": {
+        "Janet Mills": 40.77,
+        "Adam Cote": 34.79,
+        "Betsy Sweet": 24.44
+      },
+      "eliminated": [
+        "Betsy Sweet"
+      ],
+      "continuingBallots": 122511,
+      "inactiveBallots": 9739
+    },
+    {
+      "round": 4,
+      "totals": {
+        "Janet Mills": 63378,
+        "Adam Cote": 53863
+      },
+      "pcts": {
+        "Janet Mills": 54.06,
+        "Adam Cote": 45.94
+      },
+      "eliminated": [],
+      "continuingBallots": 117241,
+      "inactiveBallots": 15009
+    }
+  ],
+  "irvWinner": "Janet Mills",
+  "condorcetMatrix": {
+    "Mark Dion": {
+      "Janet Mills": 0.213,
+      "Adam Cote": 0.2472,
+      "Mark Eves": 0.2877,
+      "Betsy Sweet": 0.2863,
+      "Diane Russell": 0.6195,
+      "Donna Dion": 0.667,
+      "Write-in": 0.9787
+    },
+    "Janet Mills": {
+      "Mark Dion": 0.787,
+      "Adam Cote": 0.5406,
+      "Mark Eves": 0.6043,
+      "Betsy Sweet": 0.6127,
+      "Diane Russell": 0.8395,
+      "Donna Dion": 0.8739,
+      "Write-in": 0.9866
+    },
+    "Adam Cote": {
+      "Mark Dion": 0.7528,
+      "Janet Mills": 0.4594,
+      "Mark Eves": 0.5633,
+      "Betsy Sweet": 0.5522,
+      "Diane Russell": 0.7989,
+      "Donna Dion": 0.8411,
+      "Write-in": 0.9871
+    },
+    "Mark Eves": {
+      "Mark Dion": 0.7123,
+      "Janet Mills": 0.3957,
+      "Adam Cote": 0.4367,
+      "Betsy Sweet": 0.5043,
+      "Diane Russell": 0.7994,
+      "Donna Dion": 0.8175,
+      "Write-in": 0.9863
+    },
+    "Betsy Sweet": {
+      "Mark Dion": 0.7137,
+      "Janet Mills": 0.3873,
+      "Adam Cote": 0.4478,
+      "Mark Eves": 0.4957,
+      "Diane Russell": 0.8101,
+      "Donna Dion": 0.8517,
+      "Write-in": 0.9867
+    },
+    "Diane Russell": {
+      "Mark Dion": 0.3805,
+      "Janet Mills": 0.1605,
+      "Adam Cote": 0.2011,
+      "Mark Eves": 0.2006,
+      "Betsy Sweet": 0.1899,
+      "Donna Dion": 0.5587,
+      "Write-in": 0.9738
+    },
+    "Donna Dion": {
+      "Mark Dion": 0.333,
+      "Janet Mills": 0.1261,
+      "Adam Cote": 0.1589,
+      "Mark Eves": 0.1825,
+      "Betsy Sweet": 0.1483,
+      "Diane Russell": 0.4413,
+      "Write-in": 0.9702
+    },
+    "Write-in": {
+      "Mark Dion": 0.0213,
+      "Janet Mills": 0.0134,
+      "Adam Cote": 0.0129,
+      "Mark Eves": 0.0137,
+      "Betsy Sweet": 0.0133,
+      "Diane Russell": 0.0262,
+      "Donna Dion": 0.0298
+    }
+  },
+  "condorcetCounts": {
+    "Mark Dion": {
+      "Janet Mills": 22690,
+      "Adam Cote": 24792,
+      "Mark Eves": 27593,
+      "Betsy Sweet": 27958,
+      "Diane Russell": 45111,
+      "Donna Dion": 46259,
+      "Write-in": 63068
+    },
+    "Janet Mills": {
+      "Mark Dion": 83838,
+      "Adam Cote": 63378,
+      "Mark Eves": 68458,
+      "Betsy Sweet": 69680,
+      "Diane Russell": 87781,
+      "Donna Dion": 89883,
+      "Write-in": 98187
+    },
+    "Adam Cote": {
+      "Mark Dion": 75516,
+      "Janet Mills": 53863,
+      "Mark Eves": 61060,
+      "Betsy Sweet": 61133,
+      "Diane Russell": 78964,
+      "Donna Dion": 81087,
+      "Write-in": 91651
+    },
+    "Mark Eves": {
+      "Mark Dion": 68311,
+      "Janet Mills": 44834,
+      "Adam Cote": 47330,
+      "Betsy Sweet": 52581,
+      "Diane Russell": 74009,
+      "Donna Dion": 75042,
+      "Write-in": 86341
+    },
+    "Betsy Sweet": {
+      "Mark Dion": 69700,
+      "Janet Mills": 44048,
+      "Adam Cote": 49582,
+      "Mark Eves": 51679,
+      "Diane Russell": 74016,
+      "Donna Dion": 77674,
+      "Write-in": 87289
+    },
+    "Diane Russell": {
+      "Mark Dion": 27708,
+      "Janet Mills": 16787,
+      "Adam Cote": 19873,
+      "Mark Eves": 18572,
+      "Betsy Sweet": 17355,
+      "Donna Dion": 34138,
+      "Write-in": 53741
+    },
+    "Donna Dion": {
+      "Mark Dion": 23094,
+      "Janet Mills": 12968,
+      "Adam Cote": 15318,
+      "Mark Eves": 16753,
+      "Betsy Sweet": 13522,
+      "Diane Russell": 26962,
+      "Write-in": 49648
+    },
+    "Write-in": {
+      "Mark Dion": 1375,
+      "Janet Mills": 1335,
+      "Adam Cote": 1196,
+      "Mark Eves": 1200,
+      "Betsy Sweet": 1180,
+      "Diane Russell": 1444,
+      "Donna Dion": 1523
+    }
+  },
+  "condorcetWinner": "Janet Mills",
+  "rankedPairsWinner": "Janet Mills",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Janet Mills",
+  "irvMatchesPlurality": true,
+  "provenance": "https://ranked.vote/report/us/me/2018/06/gov-primary-dem",
+  "parties": {
+    "Janet Mills": "D",
+    "Adam Cote": "D",
+    "Betsy Sweet": "D",
+    "Mark Eves": "D",
+    "Mark Dion": "D",
+    "Diane Russell": "D",
+    "Donna Dion": "D",
+    "Write-in": null
+  }
+}

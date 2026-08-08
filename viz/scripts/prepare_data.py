@@ -2769,28 +2769,38 @@ def build_county_tiers():
 
 
 def build_rcv_results():
-    """Assemble processed RCV race JSONs into a single grouped file.
+    """Assemble the per-race RCV JSONs from pipeline/rcv/build_all.py into one
+    grouped file, newest year first, generals ahead of primaries within a year.
 
-    If data/outputs/rcv/ contains processed race JSONs (from process_rcv.py),
-    merges them into the output. Otherwise preserves the existing rcvResults.json
-    (which contains hardcoded summary data) unchanged.
+    Every race is derived from ballot-level cast vote records, so this builder
+    fails loudly rather than falling back to stale data: a missing directory
+    means build_all.py has not been run.
     """
     rcv_dir = Path(__file__).parent.parent.parent / "data" / "outputs" / "rcv"
-    if not rcv_dir.exists() or not list(rcv_dir.glob("*.json")):
-        return  # Preserve existing hardcoded summary data
+    files = sorted(rcv_dir.glob("*.json")) if rcv_dir.exists() else []
+    if not files:
+        raise SystemExit(
+            f"No RCV race files in {rcv_dir}.\n"
+            "Run: bash pipeline/rcv/download_cvrs.sh && python pipeline/rcv/build_all.py"
+        )
 
+    OFFICE_ORDER = {"PRESIDENT": 0, "US_SENATE": 1, "GOVERNOR": 2, "US_HOUSE": 3}
     result: dict = {"AK": [], "ME": []}
-    for fpath in sorted(rcv_dir.glob("*.json")):
-        try:
-            with open(fpath) as f:
-                race = json.load(f)
-            state = race.get("state", "")
-            if state in result:
-                result[state].append(race)
-        except Exception:
-            pass
+    for fpath in files:
+        race = json.loads(fpath.read_text())
+        state = race.get("state", "")
+        if state not in result:
+            raise SystemExit(f"{fpath.name}: unexpected state {state!r}")
+        result[state].append(race)
+
     for state in result:
-        result[state].sort(key=lambda r: (-r.get("year", 0), r.get("office", "")))
+        result[state].sort(key=lambda r: (
+            -r["year"],
+            0 if r.get("contestType", "GENERAL") == "GENERAL" else 1,
+            OFFICE_ORDER.get(r["office"], 9),
+            r.get("district") or "",
+            r["raceName"],
+        ))
     write_json(result, "rcvResults.json")
 
 

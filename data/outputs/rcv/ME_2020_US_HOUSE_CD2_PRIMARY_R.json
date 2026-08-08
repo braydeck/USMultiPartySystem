@@ -1,0 +1,89 @@
+{
+  "state": "ME",
+  "year": 2020,
+  "office": "US_HOUSE",
+  "contestType": "PRIMARY_R",
+  "raceName": "U.S. House CD2, Republican primary",
+  "district": "CD2",
+  "candidates": [
+    "Dale Crafts",
+    "Adrienne Bennett",
+    "Eric Brakey"
+  ],
+  "totalBallots": 46805,
+  "activeBallots": 42347,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Dale Crafts": 19337,
+        "Adrienne Bennett": 13468,
+        "Eric Brakey": 9542
+      },
+      "pcts": {
+        "Dale Crafts": 45.66,
+        "Adrienne Bennett": 31.8,
+        "Eric Brakey": 22.53
+      },
+      "eliminated": [
+        "Eric Brakey"
+      ],
+      "continuingBallots": 42347,
+      "inactiveBallots": 4458
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Dale Crafts": 22888,
+        "Adrienne Bennett": 16207
+      },
+      "pcts": {
+        "Dale Crafts": 58.54,
+        "Adrienne Bennett": 41.46
+      },
+      "eliminated": [],
+      "continuingBallots": 39095,
+      "inactiveBallots": 7710
+    }
+  ],
+  "irvWinner": "Dale Crafts",
+  "condorcetMatrix": {
+    "Dale Crafts": {
+      "Eric Brakey": 0.6556,
+      "Adrienne Bennett": 0.5854
+    },
+    "Eric Brakey": {
+      "Dale Crafts": 0.3444,
+      "Adrienne Bennett": 0.4192
+    },
+    "Adrienne Bennett": {
+      "Dale Crafts": 0.4146,
+      "Eric Brakey": 0.5808
+    }
+  },
+  "condorcetCounts": {
+    "Dale Crafts": {
+      "Eric Brakey": 25141,
+      "Adrienne Bennett": 22888
+    },
+    "Eric Brakey": {
+      "Dale Crafts": 13209,
+      "Adrienne Bennett": 14615
+    },
+    "Adrienne Bennett": {
+      "Dale Crafts": 16207,
+      "Eric Brakey": 20245
+    }
+  },
+  "condorcetWinner": "Dale Crafts",
+  "rankedPairsWinner": "Dale Crafts",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Dale Crafts",
+  "irvMatchesPlurality": true,
+  "provenance": "https://ranked.vote/report/us/me/2020/07/cd02-primary-rep",
+  "parties": {
+    "Dale Crafts": "R",
+    "Adrienne Bennett": "R",
+    "Eric Brakey": "R"
+  }
+}

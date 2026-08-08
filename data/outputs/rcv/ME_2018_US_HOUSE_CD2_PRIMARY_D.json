@@ -1,0 +1,110 @@
+{
+  "state": "ME",
+  "year": 2018,
+  "office": "US_HOUSE",
+  "contestType": "PRIMARY_D",
+  "raceName": "U.S. House CD2, Democratic primary",
+  "district": "CD2",
+  "candidates": [
+    "Jared Golden",
+    "Lucas St. Clair",
+    "Craig Olson",
+    "Jonathan Fulford"
+  ],
+  "totalBallots": 50845,
+  "activeBallots": 45211,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Jared Golden": 20987,
+        "Lucas St. Clair": 17742,
+        "Craig Olson": 3993,
+        "Jonathan Fulford": 2489
+      },
+      "pcts": {
+        "Jared Golden": 46.42,
+        "Lucas St. Clair": 39.24,
+        "Craig Olson": 8.83,
+        "Jonathan Fulford": 5.51
+      },
+      "eliminated": [
+        "Craig Olson",
+        "Jonathan Fulford"
+      ],
+      "continuingBallots": 45211,
+      "inactiveBallots": 5634
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Jared Golden": 23611,
+        "Lucas St. Clair": 19853
+      },
+      "pcts": {
+        "Jared Golden": 54.32,
+        "Lucas St. Clair": 45.68
+      },
+      "eliminated": [],
+      "continuingBallots": 43464,
+      "inactiveBallots": 7381
+    }
+  ],
+  "irvWinner": "Jared Golden",
+  "condorcetMatrix": {
+    "Craig Olson": {
+      "Jared Golden": 0.2277,
+      "Lucas St. Clair": 0.2725,
+      "Jonathan Fulford": 0.7101
+    },
+    "Jared Golden": {
+      "Craig Olson": 0.7723,
+      "Lucas St. Clair": 0.5432,
+      "Jonathan Fulford": 0.8624
+    },
+    "Lucas St. Clair": {
+      "Craig Olson": 0.7275,
+      "Jared Golden": 0.4568,
+      "Jonathan Fulford": 0.8326
+    },
+    "Jonathan Fulford": {
+      "Craig Olson": 0.2899,
+      "Jared Golden": 0.1376,
+      "Lucas St. Clair": 0.1674
+    }
+  },
+  "condorcetCounts": {
+    "Craig Olson": {
+      "Jared Golden": 8991,
+      "Lucas St. Clair": 10499,
+      "Jonathan Fulford": 20144
+    },
+    "Jared Golden": {
+      "Craig Olson": 30499,
+      "Lucas St. Clair": 23611,
+      "Jonathan Fulford": 33313
+    },
+    "Lucas St. Clair": {
+      "Craig Olson": 28028,
+      "Jared Golden": 19853,
+      "Jonathan Fulford": 31254
+    },
+    "Jonathan Fulford": {
+      "Craig Olson": 8222,
+      "Jared Golden": 5316,
+      "Lucas St. Clair": 6285
+    }
+  },
+  "condorcetWinner": "Jared Golden",
+  "rankedPairsWinner": "Jared Golden",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Jared Golden",
+  "irvMatchesPlurality": true,
+  "provenance": "https://ranked.vote/report/us/me/2018/06/cd02-primary-dem",
+  "parties": {
+    "Jared Golden": "D",
+    "Lucas St. Clair": "D",
+    "Craig Olson": "D",
+    "Jonathan Fulford": "D"
+  }
+}

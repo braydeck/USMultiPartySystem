@@ -1,0 +1,270 @@
+{
+  "state": "ME",
+  "year": 2026,
+  "office": "GOVERNOR",
+  "contestType": "PRIMARY_R",
+  "raceName": "Governor, Republican primary",
+  "district": null,
+  "candidates": [
+    "Robert Charles",
+    "Benjamin Midgley",
+    "Jonathan Bush",
+    "Garrett Mason",
+    "Owen McCarthy",
+    "David Jones",
+    "Robert Wessels",
+    "James Libby"
+  ],
+  "totalBallots": 137981,
+  "activeBallots": 129410,
+  "irvRounds": [
+    {
+      "round": 1,
+      "totals": {
+        "Robert Charles": 49133,
+        "Benjamin Midgley": 25881,
+        "Jonathan Bush": 25448,
+        "Garrett Mason": 14820,
+        "Owen McCarthy": 5031,
+        "David Jones": 3740,
+        "Robert Wessels": 3526,
+        "James Libby": 1831
+      },
+      "pcts": {
+        "Robert Charles": 37.97,
+        "Benjamin Midgley": 20.0,
+        "Jonathan Bush": 19.66,
+        "Garrett Mason": 11.45,
+        "Owen McCarthy": 3.89,
+        "David Jones": 2.89,
+        "Robert Wessels": 2.72,
+        "James Libby": 1.41
+      },
+      "eliminated": [
+        "Owen McCarthy",
+        "David Jones",
+        "Robert Wessels",
+        "James Libby"
+      ],
+      "continuingBallots": 129410,
+      "inactiveBallots": 8571
+    },
+    {
+      "round": 2,
+      "totals": {
+        "Robert Charles": 50909,
+        "Benjamin Midgley": 28524,
+        "Jonathan Bush": 27759,
+        "Garrett Mason": 16432
+      },
+      "pcts": {
+        "Robert Charles": 41.18,
+        "Benjamin Midgley": 23.07,
+        "Jonathan Bush": 22.45,
+        "Garrett Mason": 13.29
+      },
+      "eliminated": [
+        "Garrett Mason"
+      ],
+      "continuingBallots": 123624,
+      "inactiveBallots": 14357
+    },
+    {
+      "round": 3,
+      "totals": {
+        "Robert Charles": 53220,
+        "Benjamin Midgley": 31523,
+        "Jonathan Bush": 31082
+      },
+      "pcts": {
+        "Robert Charles": 45.95,
+        "Benjamin Midgley": 27.22,
+        "Jonathan Bush": 26.84
+      },
+      "eliminated": [
+        "Jonathan Bush"
+      ],
+      "continuingBallots": 115825,
+      "inactiveBallots": 22156
+    },
+    {
+      "round": 4,
+      "totals": {
+        "Robert Charles": 59795,
+        "Benjamin Midgley": 39417
+      },
+      "pcts": {
+        "Robert Charles": 60.27,
+        "Benjamin Midgley": 39.73
+      },
+      "eliminated": [],
+      "continuingBallots": 99212,
+      "inactiveBallots": 38769
+    }
+  ],
+  "irvWinner": "Robert Charles",
+  "condorcetMatrix": {
+    "Robert Wessels": {
+      "Robert Charles": 0.1555,
+      "Garrett Mason": 0.2337,
+      "David Jones": 0.4084,
+      "Benjamin Midgley": 0.1674,
+      "Jonathan Bush": 0.182,
+      "Owen McCarthy": 0.3752,
+      "James Libby": 0.5455
+    },
+    "Robert Charles": {
+      "Robert Wessels": 0.8445,
+      "Garrett Mason": 0.6821,
+      "David Jones": 0.8165,
+      "Benjamin Midgley": 0.6027,
+      "Jonathan Bush": 0.5947,
+      "Owen McCarthy": 0.8009,
+      "James Libby": 0.8782
+    },
+    "Garrett Mason": {
+      "Robert Wessels": 0.7663,
+      "Robert Charles": 0.3179,
+      "David Jones": 0.6739,
+      "Benjamin Midgley": 0.4147,
+      "Jonathan Bush": 0.3867,
+      "Owen McCarthy": 0.7027,
+      "James Libby": 0.7674
+    },
+    "David Jones": {
+      "Robert Wessels": 0.5916,
+      "Robert Charles": 0.1835,
+      "Garrett Mason": 0.3261,
+      "Benjamin Midgley": 0.2417,
+      "Jonathan Bush": 0.2072,
+      "Owen McCarthy": 0.5173,
+      "James Libby": 0.6696
+    },
+    "Benjamin Midgley": {
+      "Robert Wessels": 0.8326,
+      "Robert Charles": 0.3973,
+      "Garrett Mason": 0.5853,
+      "David Jones": 0.7583,
+      "Jonathan Bush": 0.4958,
+      "Owen McCarthy": 0.7391,
+      "James Libby": 0.8174
+    },
+    "Jonathan Bush": {
+      "Robert Wessels": 0.818,
+      "Robert Charles": 0.4053,
+      "Garrett Mason": 0.6133,
+      "David Jones": 0.7928,
+      "Benjamin Midgley": 0.5042,
+      "Owen McCarthy": 0.7742,
+      "James Libby": 0.8706
+    },
+    "Owen McCarthy": {
+      "Robert Wessels": 0.6248,
+      "Robert Charles": 0.1991,
+      "Garrett Mason": 0.2973,
+      "David Jones": 0.4827,
+      "Benjamin Midgley": 0.2609,
+      "Jonathan Bush": 0.2258,
+      "James Libby": 0.6
+    },
+    "James Libby": {
+      "Robert Wessels": 0.4545,
+      "Robert Charles": 0.1218,
+      "Garrett Mason": 0.2326,
+      "David Jones": 0.3304,
+      "Benjamin Midgley": 0.1826,
+      "Jonathan Bush": 0.1294,
+      "Owen McCarthy": 0.4
+    }
+  },
+  "condorcetCounts": {
+    "Robert Wessels": {
+      "Robert Charles": 12246,
+      "Garrett Mason": 11306,
+      "David Jones": 14092,
+      "Benjamin Midgley": 9657,
+      "Jonathan Bush": 10697,
+      "Owen McCarthy": 13188,
+      "James Libby": 16194
+    },
+    "Robert Charles": {
+      "Robert Wessels": 66490,
+      "Garrett Mason": 62254,
+      "David Jones": 65407,
+      "Benjamin Midgley": 59795,
+      "Jonathan Bush": 59014,
+      "Owen McCarthy": 65542,
+      "James Libby": 67351
+    },
+    "Garrett Mason": {
+      "Robert Wessels": 37074,
+      "Robert Charles": 29014,
+      "David Jones": 33594,
+      "Benjamin Midgley": 28516,
+      "Jonathan Bush": 26474,
+      "Owen McCarthy": 35383,
+      "James Libby": 35669
+    },
+    "David Jones": {
+      "Robert Wessels": 20416,
+      "Robert Charles": 14695,
+      "Garrett Mason": 16255,
+      "Benjamin Midgley": 14205,
+      "Jonathan Bush": 12192,
+      "Owen McCarthy": 19178,
+      "James Libby": 21149
+    },
+    "Benjamin Midgley": {
+      "Robert Wessels": 48048,
+      "Robert Charles": 39417,
+      "Garrett Mason": 40243,
+      "David Jones": 44564,
+      "Jonathan Bush": 37625,
+      "Owen McCarthy": 43464,
+      "James Libby": 46349
+    },
+    "Jonathan Bush": {
+      "Robert Wessels": 48077,
+      "Robert Charles": 40217,
+      "Garrett Mason": 41980,
+      "David Jones": 46661,
+      "Benjamin Midgley": 38256,
+      "Owen McCarthy": 46190,
+      "James Libby": 48978
+    },
+    "Owen McCarthy": {
+      "Robert Wessels": 21959,
+      "Robert Charles": 16291,
+      "Garrett Mason": 14973,
+      "David Jones": 17894,
+      "Benjamin Midgley": 15344,
+      "Jonathan Bush": 13471,
+      "James Libby": 19574
+    },
+    "James Libby": {
+      "Robert Wessels": 13490,
+      "Robert Charles": 9341,
+      "Garrett Mason": 10809,
+      "David Jones": 10435,
+      "Benjamin Midgley": 10357,
+      "Jonathan Bush": 7282,
+      "Owen McCarthy": 13047
+    }
+  },
+  "condorcetWinner": "Robert Charles",
+  "rankedPairsWinner": "Robert Charles",
+  "irvMatchesCondorcet": true,
+  "pluralityWinner": "Robert Charles",
+  "irvMatchesPlurality": true,
+  "provenance": "https://ranked.vote/report/us/me/2026/06/gov-primary-rep",
+  "parties": {
+    "Robert Charles": "R",
+    "Benjamin Midgley": "R",
+    "Jonathan Bush": "R",
+    "Garrett Mason": "R",
+    "Owen McCarthy": "R",
+    "David Jones": "R",
+    "Robert Wessels": "R",
+    "James Libby": "R"
+  }
+}
