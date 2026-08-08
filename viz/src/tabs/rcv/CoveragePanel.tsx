@@ -1,16 +1,17 @@
 import type { RCVRace } from '../../types';
-import { Card } from '@/components/ui/card';
-import { CARD_HEADING, CARD_HINT, MINOR_HEADING, TABLE_HEADER, FOOTNOTE } from '../../constants/typography';
+import { CollapsibleSection } from '../../components/shared/CollapsibleSection';
+import { CARD_HINT, MINOR_HEADING, TABLE_HEADER, FOOTNOTE } from '../../constants/typography';
 import { partyColor } from './ballotParties';
 import { COVERAGE, STATUS_LABEL, type CellStatus, type CoverageCell, type CoverageRow } from './coverage';
 
 /**
  * Every contest RCV has governed in one state, as a year × office grid.
  *
- * Replaces the paragraph this panel used to be. The two facts a reader needs are
- * both shapes rather than sentences: how far RCV reaches (a row of hatched cells
- * where it stops), and how rarely transfers decide anything (a grid of mostly pale
- * cells with a few solid ones).
+ * Folded away by default. The grid answers "did we miss anything", which is a
+ * question a reader asks once; leaving it open put a dense audit table between the
+ * title and the races it is auditing. The contests that actually went to transfers
+ * are named on the summary card above instead, where they are one click from the
+ * race itself.
  */
 
 const SOLID = '#1d4ed8';
@@ -157,44 +158,42 @@ export function CoveragePanel({
   onSelect: (race: RCVRace) => void;
 }) {
   const cov = COVERAGE[stateAbbr];
-  const rankedCount = races.filter(r => r.irvRounds.length > 1).length;
   const governed = [...cov.generals, ...cov.primaries]
     .flatMap(r => Object.values(r.years))
     .filter(c => c.status === 'RANKED' || c.status === 'FIRST_ROUND').length;
 
   return (
-    <Card className="p-4 space-y-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h4 className={CARD_HEADING}>Where ranked ballots apply</h4>
-        <span className={CARD_HINT}>{cov.adopted}</span>
-      </div>
+    <CollapsibleSection
+      id="rcvCoverage"
+      title="Every contest ranked ballots have governed"
+      hint={`${governed} in ${stateAbbr === 'AK' ? 'Alaska' : 'Maine'} · ${cov.adopted}`}
+    >
+      <div className="space-y-4">
+        <p className="text-sm text-foreground/85 leading-snug">{cov.scope}.</p>
 
-      <p className="text-sm text-foreground/85 leading-snug">
-        {cov.scope}. Of {governed} contests RCV has governed, {rankedCount} needed a transfer round.
-      </p>
-
-      <div className="space-y-3">
-        <div>
-          <h5 className={`${MINOR_HEADING} mb-1.5`}>General elections</h5>
-          <Grid rows={cov.generals} years={cov.years} races={races} onSelect={onSelect} />
-        </div>
-        {cov.primaries.length > 0 && (
+        <div className="space-y-3">
           <div>
-            <h5 className={`${MINOR_HEADING} mb-1.5`}>Primaries</h5>
-            <Grid rows={cov.primaries} years={cov.years} races={races} onSelect={onSelect} />
+            <h5 className={`${MINOR_HEADING} mb-1.5`}>General elections</h5>
+            <Grid rows={cov.generals} years={cov.years} races={races} onSelect={onSelect} />
           </div>
-        )}
-      </div>
+          {cov.primaries.length > 0 && (
+            <div>
+              <h5 className={`${MINOR_HEADING} mb-1.5`}>Primaries</h5>
+              <Grid rows={cov.primaries} years={cov.years} races={races} onSelect={onSelect} />
+            </div>
+          )}
+        </div>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1 border-t border-border/50">
-        <LegendKey status="RANKED" label="Went to transfers — click to open" />
-        <LegendKey status="FIRST_ROUND" label="First-choice majority ended it" />
-        {stateAbbr === 'ME' && <LegendKey status="NOT_RCV" label="Plurality, not ranked" />}
-        <span className={FOOTNOTE}>Colour bar = winner&apos;s party</span>
-      </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1 border-t border-border/50">
+          <LegendKey status="RANKED" label="Went to transfers — click to jump to it" />
+          <LegendKey status="FIRST_ROUND" label="First-choice majority ended it" />
+          {stateAbbr === 'ME' && <LegendKey status="NOT_RCV" label="Plurality, not ranked" />}
+          <span className={FOOTNOTE}>Colour bar = winner&apos;s party</span>
+        </div>
 
-      {cov.excluded && <p className={CARD_HINT}>{cov.excluded}</p>}
-      {cov.alsoRanked && <p className={FOOTNOTE}>{cov.alsoRanked}</p>}
-    </Card>
+        {cov.excluded && <p className={CARD_HINT}>{cov.excluded}</p>}
+        {cov.alsoRanked && <p className={FOOTNOTE}>{cov.alsoRanked}</p>}
+      </div>
+    </CollapsibleSection>
   );
 }

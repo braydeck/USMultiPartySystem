@@ -74,11 +74,13 @@ function Outcome({ label, color, name, party, note }: {
 }
 
 export function RaceCard({
-  race, open, onToggle,
+  race, open, onToggle, domId,
 }: {
   race: RCVRace;
   open: boolean;
   onToggle: () => void;
+  /** Anchor for the coverage grid and summary chips to scroll to. */
+  domId?: string;
 }) {
   const decidedInRoundOne = race.irvRounds.length === 1;
   const condorcetVerdict: Verdict =
@@ -97,7 +99,7 @@ export function RaceCard({
   const firstPct = race.irvRounds[0].pcts[race.pluralityWinner];
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden scroll-mt-24" id={domId}>
       <button
         className="w-full px-3 py-2.5 hover:bg-muted/60 transition-colors text-left"
         onClick={onToggle}
