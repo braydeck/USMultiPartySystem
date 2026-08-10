@@ -1,5 +1,7 @@
 import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/parties';
 import { TABLE_HEADER } from '../../constants/typography';
+import { CIVIDIS_COLORS, cividisForFrac, cividisText } from '../../lib/cividis';
+import { PartyCode } from './PartyRowLabel';
 import type { FlowRow } from '../../lib/partyFlow';
 
 const name = (p: string) => PARTY_NAMES[p] ?? p;
@@ -60,40 +62,34 @@ export function PartyFlowBars({ rows }: { rows: FlowRow[] }) {
   );
 }
 
-/** The same matrix as a grid. Rows read across; the shared scale makes cells comparable
- *  between rows, which the stacked bars cannot do. */
-export function PartyFlowHeatmap({ rows, columns, selfLabel }: {
+/** The same matrix as a grid. Rows read across, and the shared cividis scale makes cells
+ *  comparable between rows, which stacked bars cannot do: a 14% segment looks identical in
+ *  every bar regardless of what it sits beside.
+ *
+ *  Columns follow the row order, so the self cells fall on the diagonal and leave it empty.
+ *  Any party that lends votes without holding a row of its own is appended after them. */
+export function PartyFlowHeatmap({ rows, selfLabel }: {
   rows: FlowRow[];
-  columns: readonly string[];
   /** Header for the separated own-share column. Omit when rows carry no `selfShare`. */
   selfLabel?: string;
 }) {
-  const cols = columns.filter(c => rows.some(r => r.segments.some(s => s.party === c && s.share > 0)));
+  const rowOrder = rows.map(r => r.party);
+  const extras = [...new Set(rows.flatMap(r => r.segments.filter(s => s.share > 0).map(s => s.party)))]
+    .filter(p => !rowOrder.includes(p));
+  const cols = [...rowOrder, ...extras];
   const max = Math.max(...rows.flatMap(r => r.segments.map(s => s.share)), 0.0001);
   const hasSelf = rows.some(r => r.selfShare != null);
-
-  const cell = (share: number | undefined) => {
-    if (!share) return { backgroundColor: 'var(--muted)', color: 'transparent' };
-    const t = Math.min(1, share / max);
-    return {
-      // Single-hue ramp: magnitude only, so it reads the same in both charts.
-      backgroundColor: `rgba(67, 56, 202, ${0.08 + 0.92 * t})`,
-      color: t > 0.55 ? '#fff' : 'var(--foreground)',
-    };
-  };
 
   return (
     <div className="overflow-x-auto">
       <div className="inline-block min-w-full">
         <div className="flex items-end gap-px mb-1">
           <span className={LABEL_COL} />
-          {hasSelf && (
-            <span className={`w-11 shrink-0 text-center ${TABLE_HEADER}`}>{selfLabel ?? 'Own'}</span>
-          )}
+          {hasSelf && <span className={`w-11 shrink-0 text-center ${TABLE_HEADER}`}>{selfLabel ?? 'Own'}</span>}
           {hasSelf && <span className="w-2 shrink-0" />}
           {cols.map(c => (
-            <span key={c} className={`flex-1 min-w-8 text-center ${TABLE_HEADER}`} title={name(c)}>
-              {c}
+            <span key={c} className="flex-1 min-w-8 flex justify-center text-3xs font-bold" title={name(c)}>
+              <PartyCode code={c} />
             </span>
           ))}
         </div>
@@ -116,16 +112,28 @@ export function PartyFlowHeatmap({ rows, columns, selfLabel }: {
                 </span>
               )}
               {hasSelf && <span className="w-2 shrink-0" />}
-              {cols.map(c => (
-                <span
-                  key={c}
-                  className="flex-1 min-w-8 h-7 flex items-center justify-center rounded-sm text-3xs font-semibold tabular-nums"
-                  style={cell(byParty[c])}
-                  title={`${name(row.party)} ← ${name(c)}: ${pct(byParty[c] ?? 0)}%`}
-                >
-                  {byParty[c] && byParty[c] >= 0.02 ? pct(byParty[c]) : ''}
-                </span>
-              ))}
+              {cols.map(c => {
+                if (c === row.party) {
+                  return (
+                    <span key={c} className="flex-1 min-w-8 h-7 rounded-sm bg-muted/40"
+                      title={`${name(row.party)} — own votes are in the ${selfLabel ?? 'Own'} column`} />
+                  );
+                }
+                const share = byParty[c];
+                const bg = share ? cividisForFrac(share / max) : undefined;
+                return (
+                  <span
+                    key={c}
+                    className="flex-1 min-w-8 h-7 flex items-center justify-center rounded-sm text-3xs font-semibold tabular-nums"
+                    style={bg
+                      ? { backgroundColor: bg, color: cividisText(bg) }
+                      : { backgroundColor: 'var(--muted)' }}
+                    title={`${name(row.party)} ← ${name(c)}: ${pct(share ?? 0)}%`}
+                  >
+                    {share && share >= 0.02 ? pct(share) : ''}
+                  </span>
+                );
+              })}
             </div>
           );
         })}
@@ -133,7 +141,7 @@ export function PartyFlowHeatmap({ rows, columns, selfLabel }: {
         <div className={`flex items-center gap-2 mt-2 ${TABLE_HEADER}`}>
           <span>0%</span>
           <span className="h-2 w-24 rounded-sm"
-            style={{ backgroundImage: 'linear-gradient(90deg, rgba(67,56,202,.08), rgba(67,56,202,1))' }} />
+            style={{ backgroundImage: `linear-gradient(90deg, ${CIVIDIS_COLORS.join(', ')})` }} />
           <span>{pct(max)}%</span>
           {hasSelf && <span className="normal-case tracking-normal">own share on its own scale</span>}
         </div>

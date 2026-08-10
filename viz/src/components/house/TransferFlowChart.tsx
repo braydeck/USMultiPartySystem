@@ -31,6 +31,6 @@ export function TransferFlowChart({ data, filterParties, view = 'bars' }: Props)
   if (!rows.length) return null;
 
   return view === 'heatmap'
-    ? <PartyFlowHeatmap rows={rows} columns={F5_ORDER} />
+    ? <PartyFlowHeatmap rows={rows} />
     : <PartyFlowBars rows={rows} />;
 }

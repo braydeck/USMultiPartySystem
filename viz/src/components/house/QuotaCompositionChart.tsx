@@ -1,4 +1,3 @@
-import { F5_ORDER } from '../../constants/parties';
 import { CARD_HINT } from '../../constants/typography';
 import { PartyFlowBars, PartyFlowHeatmap } from '../shared/PartyFlowMatrix';
 import type { FlowRow, FlowView } from '../../lib/partyFlow';
@@ -47,12 +46,10 @@ export function QuotaCompositionChart({ filterParties, view = 'bars' }: {
   return (
     <div className="space-y-3">
       {view === 'heatmap'
-        ? <PartyFlowHeatmap rows={rows} columns={F5_ORDER} selfLabel="Own" />
+        ? <PartyFlowHeatmap rows={rows} selfLabel="Own" />
         : <PartyFlowBars rows={rows} />}
       <p className={CARD_HINT}>
-        Self-reliance and seat efficiency are separate here: Conservative and Progressive both
-        elect near 90% of their weight from their own voters, and Conservative finishes 34 seats
-        above a proportional list while Progressive finishes 7 below. Rank-{DATA.config.ballotDepth}
+        Rank-{DATA.config.ballotDepth}
         {' '}ballots at {Math.round(DATA.config.turnoutGap * 100)}% turnout gap closed, fixed.
       </p>
     </div>
