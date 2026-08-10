@@ -50,7 +50,7 @@ const PROPORTIONAL_SYSTEMS = [
     full: 'Single Transferable Vote',
     used: 'Presidential Primary · House',
     color: '#1d4ed8',
-    how: 'Voters rank candidates. Once a candidate passes the Droop quota (the vote share needed to lock a seat), their surplus votes transfer to next choices. Losers also transfer. Continues until seats are filled.',
+    how: 'Voters rank candidates. Once a candidate passes the Droop quota (the vote share needed to lock a seat), the votes above that quota transfer to next choices at reduced value, so no ballot is ever counted twice. Losers transfer at full value. Continues until seats are filled.',
     why: 'Produces proportional outcomes in multi-seat races. Penalizes parties that run too many candidates (vote-splitting). Rewards coalition-building.',
   },
   {
@@ -110,6 +110,16 @@ const STEPS = [
     title: 'Elections',
     body: 'Ballots run through STV (House/Primary), IRV and Condorcet (Senate/Presidential). Results show which parties win seats, which candidates emerge as finalists, and whether the two electoral methods agree on a winner.',
   },
+];
+
+// One ballot's single vote, split across the candidates its surplus helped elect. Illustrative
+// keep values (0.75 / 0.15 / 0.07) with the residue that continues; the segments sum to exactly
+// 1.00, which is the property weighted inclusive Gregory guarantees.
+const BALLOT_SPLIT = [
+  { label: 'elected the 1st choice', value: 0.75, color: PARTY_COLORS.STY },
+  { label: 'elected the 2nd choice', value: 0.15, color: PARTY_COLORS.LBR },
+  { label: 'elected the 3rd choice', value: 0.07, color: PARTY_COLORS.LIB },
+  { label: 'still live for later choices', value: 0.03, color: '#94a3b8' },
 ];
 
 // Illustrative slate sizes for the worked ballot: a district where three parties clear the
@@ -494,8 +504,9 @@ export function AboutTab() {
               from 1 to 5.
               Compliance is near-total with a third going above and beyond. These findings hold across four elections. The below-quota figures above are likely ceilings. Two caveats:
               Australia has compulsory turnout and its
-              last-parcel surplus rule only transfers the "most recent parcel of voters" to fill the seat. We use the Gregory fractional method
-              in this sim which transfers all votes, so depth likely matters somewhat more in this model.{' '}
+              last-parcel surplus rule only transfers the &ldquo;most recent parcel of voters&rdquo; to fill the seat. This sim uses the
+              weighted inclusive Gregory method, which transfers every ballot the candidate holds, so depth likely
+              matters somewhat more in this model.{' '}
               <a
                 href="https://www.parliament.act.gov.au/__data/assets/pdf_file/0009/3052467/Ballot-paper-preference-analysis-impact-of-ballot-paper-instructions.pdf"
                 target="_blank" rel="noopener noreferrer"
@@ -634,6 +645,63 @@ export function AboutTab() {
               </div>
             </Card>
           ))}
+
+          {/* How a surplus transfers without any ballot counting twice */}
+          <Card className="p-5">
+            <div className="font-semibold text-foreground mb-1">One ballot never counts more than once</div>
+            <p className={`${BODY_PROSE} mb-4`}>
+              When a candidate clears the quota, the votes above it would otherwise be wasted, so STV passes
+              them on. Only the excess moves: a ballot is split between the candidate it just helped elect
+              and the next choice on it. The pieces always sum back to the one vote the voter cast.
+            </p>
+
+            <div className="mb-3">
+              <div className={`${MINOR_HEADING} mb-2`}>Where one ballot&apos;s single vote ends up</div>
+              <div className="flex h-9 w-full rounded-md overflow-hidden border border-border">
+                {BALLOT_SPLIT.map(seg => (
+                  <div
+                    key={seg.label}
+                    className="flex items-center justify-center text-2xs font-semibold text-white overflow-hidden whitespace-nowrap"
+                    style={{ width: `${seg.value * 100}%`, backgroundColor: seg.color }}
+                    title={`${seg.label}: ${seg.value.toFixed(2)} of one vote`}
+                  >
+                    {seg.value >= 0.12 && <span>{seg.value.toFixed(2)}</span>}
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                {BALLOT_SPLIT.map(seg => (
+                  <span key={seg.label} className={`${FOOTNOTE} inline-flex items-center gap-1.5`}>
+                    <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: seg.color }} />
+                    <span className="tabular-nums text-foreground font-semibold">{seg.value.toFixed(2)}</span>
+                    {seg.label}
+                  </span>
+                ))}
+                <span className={`${FOOTNOTE} font-semibold text-foreground tabular-nums`}>
+                  = 1.00 total
+                </span>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="bg-muted rounded-lg p-3">
+                <div className="text-xs font-semibold text-foreground mb-1">How the fraction is set</div>
+                <p className={`${CARD_HINT} leading-relaxed`}>
+                  A candidate holding 1,300 votes against a 1,000 quota has 300 to spare, so every ballot they
+                  hold keeps 77% of its value with them and carries 23% onward. Each transfer multiplies a
+                  ballot&apos;s <em>current</em> value, so it can only ever shrink.
+                </p>
+              </div>
+              <div className="bg-muted rounded-lg p-3">
+                <div className="text-xs font-semibold text-foreground mb-1">Weighted inclusive Gregory</div>
+                <p className={`${CARD_HINT} leading-relaxed`}>
+                  Every ballot the candidate holds transfers, not just the parcel that arrived last, and each
+                  moves at its own value rather than a flat rate. Flat-rate variants can hand a ballot back
+                  more value than it arrived with; weighting it is what keeps the total at one vote.
+                </p>
+              </div>
+            </div>
+          </Card>
 
           {/* IRV vs Condorcet explainer */}
           <Card className="p-5">
