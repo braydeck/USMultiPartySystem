@@ -54,14 +54,9 @@ export function BallotExhaustionChart() {
       </div>
 
       <p className={CARD_HINT}>
-        Ballot weight that elected nobody, charged to the party its voters ranked first. It is a
-        lever rather than a fact of geography, since ranking depth sets it, and it explains part of
-        the gap above: Nationalist and Liberal draw almost the same vote share, 10.8% and 10.7%,
-        yet Liberal finishes 1.9 points above proportional and Nationalist 1.0 below. Discounting
-        each party&apos;s votes by its exhaustion closes about a sixth of the gap, so this is a
-        contributor, not the main driver. Fixed at rank-{DATA.config.ballotDepth} ballots and{' '}
-        {Math.round(DATA.config.turnoutGap * 100)}% turnout gap closed, and ranking deeper would
-        shrink every bar.
+        Ballot weight that elected nobody, by the party its voters ranked first. Explains part of
+        the gap above, not most of it. Rank-{DATA.config.ballotDepth} ballots at{' '}
+        {Math.round(DATA.config.turnoutGap * 100)}% turnout gap closed.
       </p>
     </div>
   );
