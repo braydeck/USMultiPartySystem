@@ -562,5 +562,50 @@
    "exhaustedShare": 0.0324,
    "surplusShare": 0.7198
   }
- ]
+ ],
+ "exhaustion": {
+  "chamber": 0.0607,
+  "byParty": [
+   {
+    "party": "NAT",
+    "share": 0.1269
+   },
+   {
+    "party": "PRG",
+    "share": 0.1093
+   },
+   {
+    "party": "OAO",
+    "share": 0.1086
+   },
+   {
+    "party": "POP",
+    "share": 0.094
+   },
+   {
+    "party": "DSA",
+    "share": 0.0835
+   },
+   {
+    "party": "STY",
+    "share": 0.0623
+   },
+   {
+    "party": "CUP",
+    "share": 0.0539
+   },
+   {
+    "party": "CON",
+    "share": 0.0262
+   },
+   {
+    "party": "LIB",
+    "share": 0.0207
+   },
+   {
+    "party": "LBR",
+    "share": 0.0117
+   }
+  ]
+ }
 }

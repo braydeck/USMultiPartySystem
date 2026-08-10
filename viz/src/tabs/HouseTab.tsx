@@ -17,6 +17,7 @@ import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
 import { QuotaCompositionChart } from '../components/house/QuotaCompositionChart';
+import { BallotExhaustionChart } from '../components/house/BallotExhaustionChart';
 import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS_TRANSFERS, FLOW_SORTS_COMPOSITION, FLOW_SORT_LABELS, type FlowView, type FlowSort } from '../lib/partyFlow';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
 import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
@@ -725,6 +726,14 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
             gi={gi}
           />
         </section>
+
+        {/* One named cause of the gap above, not a restatement of it. */}
+        {scenario === 'rawMulti' && (
+          <section>
+            <h5 className={`${MINOR_HEADING} mb-1`}>Whose ballots run out</h5>
+            <BallotExhaustionChart />
+          </section>
+        )}
 
         <section>
           <div className="grid gap-4 lg:grid-cols-3 items-start">

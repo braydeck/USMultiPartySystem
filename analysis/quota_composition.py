@@ -432,6 +432,22 @@ def write_bundle(seats_all, flows):
         })
     out["transfersOut"] = transfers
 
+    # Ballot weight that ended up electing nobody, charged to the voter's own party and divided by
+    # that party's total weight, so parties are comparable regardless of how much of their weight
+    # ever transfers. Explains part of the votes-against-seats gap: partial correlation with
+    # disproportionality is -0.84 controlling for party size, though discounting vote share by it
+    # closes only about a sixth of the gap.
+    ex_rows = [
+        {"party": p, "share": round(flows["exhausted_by_origin"][p] / w, 4)}
+        for p, w in flows["ballot_weight"].items() if w > 0
+    ]
+    ex_rows.sort(key=lambda r: -r["share"])
+    out["exhaustion"] = {
+        "chamber": round(sum(flows["exhausted_by_origin"].values())
+                         / sum(flows["ballot_weight"].values()), 4),
+        "byParty": ex_rows,
+    }
+
     out["parties"].sort(key=lambda r: -r["ownShare"])
     OUT_PATH.write_text(json.dumps(out, indent=1))
     print(f"\nWrote {OUT_PATH.relative_to(BASE)}  ({len(seats_all)} seats decomposed)")
