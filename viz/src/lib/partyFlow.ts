@@ -46,12 +46,17 @@ export const RELIANCE_ORDER: readonly string[] =
 
 /**
  * Spread: 1 / Σp², the Laakso-Taagepera effective-number formula applied to a row's off-self
- * shares. Reads on an intuitive scale — 2.0 is as concentrated as an even two-way split — and
- * separates a tight partner from a diffuse one. Progressive sends its transfers to two parties
- * and scores 2.1; Civic Union spreads across seven and scores 5.7.
+ * shares.
  *
- * Preferred over Shannon entropy here because the source data is clipped at 0.5% per
- * destination, and entropy is the more tail-sensitive of the two.
+ * NOT a count of destinations reached. It is the number of EQUAL-sized destinations that would
+ * produce the same concentration, so a dominant destination pulls it down however many small
+ * ones sit behind it. Labor reaches 8 parties and scores 3.5, because 48% of its transfers go
+ * to Solidarity alone; Solidarity reaches 9, the most of any party, and scores 4.2, below Civic
+ * Union's 5.7 from 8, because its largest destination is 38% against Civic Union's 24%.
+ *
+ * That concentration reading is the one the chart wants: tight coalition partner (Progressive
+ * 2.1) against diffuse one (Civic Union 5.7). Preferred over Shannon entropy because the source
+ * data is clipped at 0.5% per destination and entropy is the more tail-sensitive of the two.
  */
 export function spread(segments: { share: number }[]): number {
   const total = segments.reduce((a, s) => a + s.share, 0);

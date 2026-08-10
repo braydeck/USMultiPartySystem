@@ -24,8 +24,10 @@ const AXES = { row: 'transfers out of', col: 'ballots go to' };
 const EXTRAS: FlowExtra[] = [
   {
     label: 'spread',
-    hint: 'How many parties a row\'s votes actually reach: 1 / sum of squared shares. 2.0 is as '
-      + 'concentrated as an even two-way split; higher means the votes go more places.',
+    hint: 'How evenly the votes divide, as a count of equal-sized destinations (1 / sum of '
+      + 'squared shares). Not the number of parties reached: one dominant destination lowers it '
+      + 'however many small ones follow. Labor reaches 8 parties but scores 3.5, because 48% of '
+      + 'its transfers go to Solidarity.',
     value: row => spread(row.segments).toFixed(1),
   },
 ];

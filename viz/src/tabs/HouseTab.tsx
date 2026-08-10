@@ -636,8 +636,9 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           </div>
           <p className={`${CARD_HINT} mb-4`}>
             Where each party&apos;s votes go when they leave it, as surplus above quota or on
-            elimination. Cross-party votes only. <em>Spread</em> is how many parties those votes
-            reach: 2 is a tight pairing.
+            elimination. Cross-party votes only. <em>Spread</em> reads the split as a count of
+            equal-sized destinations, so one dominant destination lowers it: Progressive 2.1, Civic
+            Union 5.7.
             {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
           </p>
           <TransferFlowChart
@@ -665,7 +666,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           </div>
           <p className={`${CARD_HINT} mb-4`}>
             Which parties' voters help fill each party's seats via first choice "own" voters,
-            eliminations, and transfers. <em>Self-reliance</em> is the Own column: the share cast
+            eliminations, and transfers. <em>Self-reliance</em> is the "Own" column: the share cast
             by a party's own voters.
           </p>
           <QuotaCompositionChart
