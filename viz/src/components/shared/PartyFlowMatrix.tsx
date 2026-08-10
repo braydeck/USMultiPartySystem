@@ -1,0 +1,143 @@
+import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/parties';
+import { TABLE_HEADER } from '../../constants/typography';
+import type { FlowRow } from '../../lib/partyFlow';
+
+const name = (p: string) => PARTY_NAMES[p] ?? p;
+const color = (p: string) => PARTY_COLORS[p] ?? '#6b7280';
+const pct = (x: number) => Math.round(x * 100);
+
+const LABEL_COL = 'w-28 shrink-0';
+
+/** Stacked bars, one row per party. Full party name to the left, and the wide segments
+ *  carry their own label so the bar reads without the legend. */
+export function PartyFlowBars({ rows }: { rows: FlowRow[] }) {
+  return (
+    <div className="space-y-1.5">
+      {rows.map(row => {
+        const segs = row.selfShare != null
+          ? [{ party: row.party, share: row.selfShare }, ...row.segments]
+          : row.segments;
+        return (
+          <div key={row.party} className="flex items-center gap-2">
+            <span className={`${LABEL_COL} text-xs font-medium truncate`} style={{ color: color(row.party) }}>
+              {name(row.party)}
+            </span>
+            <div className="flex h-7 flex-1 rounded overflow-hidden border border-border">
+              {segs.map(s => {
+                const c = color(s.party);
+                const isSelf = s.party === row.party;
+                return (
+                  <div
+                    key={s.party}
+                    className="relative flex items-center justify-center overflow-hidden"
+                    style={{
+                      width: `${s.share * 100}%`,
+                      backgroundColor: c,
+                      opacity: isSelf ? 1 : 0.8,
+                      minWidth: s.share > 0.03 ? undefined : 2,
+                    }}
+                    title={`${name(s.party)}: ${pct(s.share)}%`}
+                  >
+                    {s.share >= 0.12 && (
+                      <span className="text-3xs font-bold whitespace-nowrap px-1 chip-text"
+                        style={{ color: getContrastText(c) }}>
+                        {name(s.party)} {pct(s.share)}%
+                      </span>
+                    )}
+                    {s.share >= 0.06 && s.share < 0.12 && (
+                      <span className="text-4xs font-semibold chip-text" style={{ color: getContrastText(c) }}>
+                        {pct(s.share)}%
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** The same matrix as a grid. Rows read across; the shared scale makes cells comparable
+ *  between rows, which the stacked bars cannot do. */
+export function PartyFlowHeatmap({ rows, columns, selfLabel }: {
+  rows: FlowRow[];
+  columns: readonly string[];
+  /** Header for the separated own-share column. Omit when rows carry no `selfShare`. */
+  selfLabel?: string;
+}) {
+  const cols = columns.filter(c => rows.some(r => r.segments.some(s => s.party === c && s.share > 0)));
+  const max = Math.max(...rows.flatMap(r => r.segments.map(s => s.share)), 0.0001);
+  const hasSelf = rows.some(r => r.selfShare != null);
+
+  const cell = (share: number | undefined) => {
+    if (!share) return { backgroundColor: 'var(--muted)', color: 'transparent' };
+    const t = Math.min(1, share / max);
+    return {
+      // Single-hue ramp: magnitude only, so it reads the same in both charts.
+      backgroundColor: `rgba(67, 56, 202, ${0.08 + 0.92 * t})`,
+      color: t > 0.55 ? '#fff' : 'var(--foreground)',
+    };
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="inline-block min-w-full">
+        <div className="flex items-end gap-px mb-1">
+          <span className={LABEL_COL} />
+          {hasSelf && (
+            <span className={`w-11 shrink-0 text-center ${TABLE_HEADER}`}>{selfLabel ?? 'Own'}</span>
+          )}
+          {hasSelf && <span className="w-2 shrink-0" />}
+          {cols.map(c => (
+            <span key={c} className={`flex-1 min-w-8 text-center ${TABLE_HEADER}`} title={name(c)}>
+              {c}
+            </span>
+          ))}
+        </div>
+
+        {rows.map(row => {
+          const byParty: Record<string, number> = {};
+          for (const s of row.segments) byParty[s.party] = s.share;
+          return (
+            <div key={row.party} className="flex items-stretch gap-px mb-px">
+              <span className={`${LABEL_COL} text-xs font-medium truncate self-center`} style={{ color: color(row.party) }}>
+                {name(row.party)}
+              </span>
+              {hasSelf && (
+                <span
+                  className="w-11 shrink-0 h-7 flex items-center justify-center rounded-sm text-3xs font-bold tabular-nums"
+                  style={{ backgroundColor: color(row.party), color: getContrastText(color(row.party)) }}
+                  title={`${name(row.party)}: ${pct(row.selfShare ?? 0)}% own`}
+                >
+                  {pct(row.selfShare ?? 0)}%
+                </span>
+              )}
+              {hasSelf && <span className="w-2 shrink-0" />}
+              {cols.map(c => (
+                <span
+                  key={c}
+                  className="flex-1 min-w-8 h-7 flex items-center justify-center rounded-sm text-3xs font-semibold tabular-nums"
+                  style={cell(byParty[c])}
+                  title={`${name(row.party)} ← ${name(c)}: ${pct(byParty[c] ?? 0)}%`}
+                >
+                  {byParty[c] && byParty[c] >= 0.02 ? pct(byParty[c]) : ''}
+                </span>
+              ))}
+            </div>
+          );
+        })}
+
+        <div className={`flex items-center gap-2 mt-2 ${TABLE_HEADER}`}>
+          <span>0%</span>
+          <span className="h-2 w-24 rounded-sm"
+            style={{ backgroundImage: 'linear-gradient(90deg, rgba(67,56,202,.08), rgba(67,56,202,1))' }} />
+          <span>{pct(max)}%</span>
+          {hasSelf && <span className="normal-case tracking-normal">own share on its own scale</span>}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -17,6 +17,7 @@ import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
 import { QuotaCompositionChart } from '../components/house/QuotaCompositionChart';
+import { FLOW_VIEWS, FLOW_VIEW_LABELS, type FlowView } from '../lib/partyFlow';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
 import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
 import type { PLConfig } from '../components/house/PartyListView';
@@ -176,6 +177,8 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   // Ballot depth: how many preferences voters rank (drives STV exhaustion / representation).
   // Default = top 7, a realistic "typical voter" depth; 'full' is the exhaustive-ranking floor.
   const [depth, setDepth] = useUrlState<DepthKey>('depth', 'top7', { allowed: [...DEPTH_KEYS] });
+  // One control for both party-to-party matrices, so the pair always reads the same way.
+  const [flowView, setFlowView] = useUrlState<FlowView>('flow', 'bars', { allowed: [...FLOW_VIEWS] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
@@ -611,18 +614,23 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       </Card>
 
 
-      {/* Vote Transfer Destinations — filtered by state/national */}
+      {/* Two views of the same party-to-party matrix: outflow on elimination, then inflow
+          at election. Same row grammar and the same bar/heatmap pair for both. */}
       {scenario === 'rawMulti' && houseTransfers.length > 0 && (
         <Card className="p-4">
-          <h4 className={`${CARD_HEADING} mb-1`}>
-            Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
-          </h4>
+          <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
+            <h4 className={CARD_HEADING}>
+              Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
+            </h4>
+            <ToggleGroup value={flowView} onChange={setFlowView}
+              options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
+          </div>
           <p className={`${CARD_HINT} mb-4`}>
-            {seatShareState === 'national'
-              ? "When a party is eliminated in STV, where do their voters\u2019 ballots flow?"
-              : `Showing parties that won seats in ${seatShareState}. Transfer patterns are national averages.`}
+            Where an eliminated party&apos;s ballots go next.
+            {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
           </p>
           <TransferFlowChart
+            view={flowView}
             data={houseTransfers}
             filterParties={seatShareState === 'national' ? undefined : (() => {
               const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
@@ -633,19 +641,19 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
         </Card>
       )}
 
-      {/* Whose votes filled each party's seats — the inflow side of the transfers above */}
       {scenario === 'rawMulti' && (
         <Card className="p-4">
-          <h4 className={`${CARD_HEADING} mb-1`}>
-            Whose Votes Filled Each Party&apos;s Seats
-          </h4>
+          <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
+            <h4 className={CARD_HEADING}>Whose Votes Filled Each Party&apos;s Seats</h4>
+            <ToggleGroup value={flowView} onChange={setFlowView}
+              options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
+          </div>
           <p className={`${CARD_HINT} mb-4`}>
-            The chart above follows votes out of an eliminated party. This one runs the other way:
-            of the ballots sitting with each party&apos;s candidates when they reached quota, how many
-            began with that party and how many were borrowed from other parties&apos; voters. A long
-            solid bar means the party elects its seats on its own first preferences.
+            Which voters&apos; ballots sat with each party&apos;s candidates when they reached
+            quota, by the party those ballots started with.
           </p>
           <QuotaCompositionChart
+            view={flowView}
             filterParties={seatShareState === 'national' ? undefined : (() => {
               const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
               const entry = fips ? activeStateMap[fips] : undefined;
