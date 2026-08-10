@@ -7,7 +7,7 @@ import factorLoadingsData from '../data/factorLoadings.json';
 import { CaveatsSection } from '../components/about/CaveatsSection';
 import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
 import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
-import { PAGE_TITLE, MINOR_HEADING, BODY_PROSE, CARD_HINT, FOOTNOTE } from '../constants/typography';
+import { PAGE_TITLE, MINOR_HEADING, BODY_PROSE, CARD_HINT, FOOTNOTE, TABLE_HEADER } from '../constants/typography';
 
 interface FactorDef {
   short: string; label: string; color: string; eta: number; bw: number;
@@ -471,32 +471,41 @@ export function AboutTab() {
             </p>
 
             <div className={`${MINOR_HEADING} mb-2.5`}>Voters follow the instruction, and a third go past it</div>
-            <div className="grid grid-cols-3 gap-2 mb-2.5">
-              {([
-                ['98.2%', 'met the five-box minimum'],
-                ['68.4%', 'stopped at exactly five'],
-                ['~30%', 'ranked more than required'],
-              ] as const).map(([n, l]) => (
-                <div key={l} className="rounded-lg bg-muted/50 border border-border p-3 text-center">
-                  <div className="text-lg font-bold tabular-nums text-foreground">{n}</div>
-                  <div className={`${FOOTNOTE} leading-snug`}>{l}</div>
+            <div className="grid sm:grid-cols-[8rem_1fr] gap-3 mb-2.5">
+              <div className="rounded-lg bg-muted/50 border border-border p-3 text-center flex flex-col justify-center">
+                <div className="text-2xl font-bold tabular-nums text-foreground">98.2%</div>
+                <div className={`${FOOTNOTE} leading-snug`}>met the five-box minimum, 2024</div>
+              </div>
+              <div className="rounded-lg border border-border overflow-hidden">
+                <div className={`grid grid-cols-3 gap-2 px-3 py-1.5 bg-muted/40 ${TABLE_HEADER}`}>
+                  <span>Election</span><span className="text-right">Stopped at five</span><span className="text-right">Went past five</span>
                 </div>
-              ))}
+                {([['2012', '72%', '26%'], ['2016', '64%', '35%'], ['2020', '68.1%', '31%'], ['2024', '68.4%', '30%']] as const)
+                  .map(([yr, exact, more]) => (
+                    <div key={yr} className="grid grid-cols-3 gap-2 px-3 py-1 text-xs tabular-nums border-t border-border/50">
+                      <span className="text-muted-foreground">{yr}</span>
+                      <span className="text-right text-foreground">{exact}</span>
+                      <span className="text-right text-foreground">{more}</span>
+                    </div>
+                  ))}
+              </div>
             </div>
             <p className={`${CARD_HINT} leading-relaxed`}>
-              The closest real comparison available: the Australian Capital Territory fills 5-seat
-              electorates by Hare-Clark STV and tells voters to number five boxes, so both the counting
-              rule and the instruction match a district in this model. Compliance is near-total and the
-              overshoot is one-sided, so truncating every simulated ballot at the instruction understates
-              how deep a real electorate ranks. The below-quota figures above are therefore ceilings: a real
-              electorate given the same instruction exhausts less. The ACT votes under compulsory turnout,
-              so treat its compliance rate as an upper bound.{' '}
+              Shares of formal voters in the Australian Capital Territory, the closest real comparison
+              available: Hare-Clark fills 5-seat electorates there and the ballot says to number five boxes
+              from 1 to 5, so both the counting rule and the instruction match a district in this model.
+              Compliance is near-total, the overshoot is one-sided, and both hold across four elections, so
+              truncating every simulated ballot at the instruction understates how deep a real electorate
+              ranks. The below-quota figures above are therefore ceilings. Two things to hold against that:
+              the ACT votes under compulsory turnout, so its compliance rate is an upper bound, and its
+              last-parcel surplus rule reads fewer deep preferences than the Gregory fractional method used
+              here, so depth should matter somewhat more in this model than in the ACT&apos;s own data.{' '}
               <a
                 href="https://www.parliament.act.gov.au/__data/assets/pdf_file/0009/3052467/Ballot-paper-preference-analysis-impact-of-ballot-paper-instructions.pdf"
                 target="_blank" rel="noopener noreferrer"
                 className="underline hover:text-foreground"
               >
-                Ballot paper preference analysis, ACT Legislative Assembly ↗
+                Elections ACT, <em>Ballot paper instructions under Hare-Clark</em>, March 2026 ↗
               </a>
             </p>
           </Card>

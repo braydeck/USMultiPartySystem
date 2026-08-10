@@ -204,10 +204,10 @@ const ASSUMPTIONS: {
     label: 'Full compliance with the ranking instruction',
     lede: 'Every ballot ranks exactly as deep as the instruction asks, so exhaustion comes out higher than a real electorate’s.',
     bias: 'over', tag: 'Overstates exhaustion',
-    body: 'Ballots truncate at the instructed depth for every voter. In ACT Legislative Assembly elections, which fill 5-seat electorates by Hare-Clark STV and instruct voters to number five boxes, 98.2% met the minimum, 68.4% stopped at exactly five, and roughly 30% ranked more than required, so real depth sits at the instruction and above it. Truncating everyone at the instruction therefore understates ranking depth, and the below-quota and exhaustion figures reported at each depth are ceilings rather than point estimates. The ACT votes under compulsory turnout, so its compliance rate is an upper bound.',
+    body: 'Ballots truncate at the instructed depth for every voter. In the 2024 ACT election, where Hare-Clark fills 5-seat electorates and the ballot says to number five boxes, 98.2% of formal voters met that minimum, 68.4% stopped at exactly five, and roughly 30% went past it, with both rates steady across 2012, 2016, 2020 and 2024. Real depth therefore sits at the instruction and above it, so truncating everyone at the instruction understates ranking depth and the below-quota and exhaustion figures at each depth are ceilings rather than point estimates. What supports the shape of the assumption is that ACT exhaustion clusters heavily at preference five, the instructed number, even though its level is lower than modeled here. Two limits on the comparison: the ACT votes under compulsory turnout, so its compliance rate is an upper bound, and its last-parcel surplus rule activates fewer deep preferences than the Gregory fractional surplus used here, so ballot depth should carry somewhat more weight in this model than in the ACT counts.',
     source: {
       href: 'https://www.parliament.act.gov.au/__data/assets/pdf_file/0009/3052467/Ballot-paper-preference-analysis-impact-of-ballot-paper-instructions.pdf',
-      label: 'Ballot paper preference analysis, ACT Legislative Assembly ↗',
+      label: 'Elections ACT, Ballot paper instructions under Hare-Clark, March 2026 ↗',
     },
   },
   {
