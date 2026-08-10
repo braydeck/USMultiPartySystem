@@ -166,7 +166,10 @@ const BIAS_STYLE: Record<Bias, { chip: string; dot: string }> = {
   design:  { chip: 'bg-slate-100 text-slate-600 border-slate-200', dot: '●' },
 };
 
-const ASSUMPTIONS: { label: string; lede: string; bias: Bias; tag: string; body: string }[] = [
+const ASSUMPTIONS: {
+  label: string; lede: string; bias: Bias; tag: string; body: string;
+  source?: { href: string; label: string };
+}[] = [
   {
     label: 'Perfect party cohesion',
     lede: 'Members vote with their party on every bill, so passage probabilities come out sharper than a real chamber’s.',
@@ -192,10 +195,20 @@ const ASSUMPTIONS: { label: string; lede: string; bias: Bias; tag: string; body:
     body: 'The 5D factor space is fit to CES 2024 data and held fixed. In reality, the emergence of new parties would shift voter alignments, party platforms would evolve, and the factor structure itself might change.',
   },
   {
-    label: 'Prominence as name recognition',
-    lede: 'A 40/35/25 within-party split keeps the top name from sweeping. The values are illustrative.',
-    bias: 'design', tag: 'Modeling choice',
-    body: 'The 40/35/25 within-party split is a modeling assumption, not empirical data. It prevents the top candidate from sweeping all same-party ballots, but the specific values are illustrative.',
+    label: 'Slate discipline is total',
+    lede: 'Every voter ranks their party’s slate in the same order, so transfers never leak to a rival before the party is exhausted.',
+    bias: 'over', tag: 'Overstates discipline',
+    body: 'Same-party candidates share their party’s posterior score, so they occupy consecutive ranks, and within that block every voter lists the slate in one fixed order. That is the strong-discipline limit case: real parties control their transfers imperfectly and unevenly, and how well a party manages them is part of how it converts votes into seats. Slate size does respond to local strength (3 candidates above a 12% district share, 2 above 5%, 1 above 1%), so mis-nomination is possible, but cross-party slates and factional tickets are not modeled at all.',
+  },
+  {
+    label: 'Full compliance with the ranking instruction',
+    lede: 'Every ballot ranks exactly as deep as the instruction asks, so exhaustion comes out higher than a real electorate’s.',
+    bias: 'over', tag: 'Overstates exhaustion',
+    body: 'Ballots truncate at the instructed depth for every voter. In ACT Legislative Assembly elections, which fill 5-seat electorates by Hare-Clark STV and instruct voters to number five boxes, 98.2% met the minimum, 68.4% stopped at exactly five, and roughly 30% ranked more than required, so real depth sits at the instruction and above it. Truncating everyone at the instruction therefore understates ranking depth, and the below-quota and exhaustion figures reported at each depth are ceilings rather than point estimates. The ACT votes under compulsory turnout, so its compliance rate is an upper bound.',
+    source: {
+      href: 'https://www.parliament.act.gov.au/__data/assets/pdf_file/0009/3052467/Ballot-paper-preference-analysis-impact-of-ballot-paper-instructions.pdf',
+      label: 'Ballot paper preference analysis, ACT Legislative Assembly ↗',
+    },
   },
   {
     label: 'The whole Senate is elected at once',
@@ -558,7 +571,18 @@ export function CaveatsSection() {
                   <summary className="text-2xs font-medium text-muted-foreground/80 hover:text-foreground cursor-pointer select-none">
                     Detail
                   </summary>
-                  <p className={`${CARD_HINT} leading-relaxed mt-1.5`}>{a.body}</p>
+                  <p className={`${CARD_HINT} leading-relaxed mt-1.5`}>
+                    {a.body}
+                    {a.source && (
+                      <>
+                        {' '}
+                        <a href={a.source.href} target="_blank" rel="noopener noreferrer"
+                          className="underline hover:text-foreground">
+                          {a.source.label}
+                        </a>
+                      </>
+                    )}
+                  </p>
                 </details>
               </div>
             );

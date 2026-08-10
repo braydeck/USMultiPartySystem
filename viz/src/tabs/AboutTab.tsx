@@ -68,8 +68,8 @@ const SCENARIOS = [
     name: 'Party-Line',
     tag: '28 candidates',
     color: '#1d4ed8',
-    desc: 'The nine larger parties each field 3 intra-party candidates with a 40/35/25 first-choice split; the small Order & Opportunity party fields 1, for 28 in all. Same-party candidates share identical ideological positions, so only prominence (name recognition) separates them.',
-    insight: 'Isolates the structural effect of proportional voting itself. Same-party candidates compete on prominence, not ideology.',
+    desc: 'The nine larger parties each field a 3-candidate slate; the small Order & Opportunity party fields 1, for 28 in all. Same-party candidates share identical ideological positions and are ranked in a fixed slate order, so nothing but ballot position separates them.',
+    insight: 'Isolates the structural effect of proportional voting itself. Same-party candidates differ only in slate position, not ideology.',
     candidates: 'LBR_1, LBR_2, LBR_3 · CON_1, CON_2, CON_3 · … · OAO_1',
   },
   {
@@ -102,8 +102,8 @@ const STEPS = [
     n: 4, color: '#ea580c',
     title: 'Ballot Generation',
     body: SHOW_CROSSOVER
-      ? 'Each voter gets a ranked preference list. Party-Line ballots rank parties by the voter\'s cluster-membership probability (the same GMM posterior that defined the typology). Crossover ballots start from that and use factor-space proximity to place the shifted variant candidates. Within-party ordering follows candidate prominence.'
-      : 'Each voter gets a ranked preference list, ordered by the voter\'s cluster-membership probability — the same GMM posterior that defined the typology. Within-party ordering follows candidate prominence.',
+      ? 'Each voter gets a ranked preference list. Party-Line ballots rank parties by the voter\'s cluster-membership probability (the same GMM posterior that defined the typology). Crossover ballots start from that and use factor-space proximity to place the shifted variant candidates. Within a party, candidates take consecutive ranks in a fixed slate order.'
+      : 'Each voter gets a ranked preference list, ordered by the voter\'s cluster-membership probability — the same GMM posterior that defined the typology. Within a party, candidates take consecutive ranks in a fixed slate order.',
   },
   {
     n: 5, color: '#a16207',
@@ -111,6 +111,62 @@ const STEPS = [
     body: 'Ballots run through STV (House/Primary), IRV and Condorcet (Senate/Presidential). Results show which parties win seats, which candidates emerge as finalists, and whether the two electoral methods agree on a winner.',
   },
 ];
+
+// Illustrative slate sizes for the worked ballot: a district where three parties clear the
+// 12% threshold and one clears 5%, so the rank-7 cutoff falls inside the third slate.
+const EXAMPLE_SLATES = [
+  { code: 'STY', n: 3 },
+  { code: 'LBR', n: 3 },
+  { code: 'LIB', n: 3 },
+  { code: 'PRG', n: 2 },
+] as const;
+
+/** One ballot drawn as contiguous party blocks, with the ranking instruction's cutoff in place. */
+function ExampleBallot({ slates, depth }: { slates: readonly { code: string; n: number }[]; depth: number }) {
+  let rank = 0;
+  return (
+    <div className="flex flex-wrap items-stretch gap-2">
+      {slates.map(({ code, n }) => {
+        const color = PARTY_COLORS[code];
+        const seats = Array.from({ length: n }, () => ++rank);
+        return (
+          <div
+            key={code}
+            className="inline-flex items-center gap-2 rounded-lg border px-2 py-1.5"
+            style={{ borderColor: color + '55', backgroundColor: color + '0e' }}
+          >
+            <span className="text-2xs font-semibold" style={{ color }}>{PARTY_NAMES[code]}</span>
+            <span className="flex items-center gap-1">
+              {seats.map(r => (
+                <span key={r} className="flex items-center gap-1">
+                  {r <= depth ? (
+                    <span
+                      className="flex h-5 w-5 items-center justify-center rounded-full text-2xs font-bold text-white tabular-nums"
+                      style={{ backgroundColor: color }}
+                      title={`rank ${r}`}
+                    >
+                      {r}
+                    </span>
+                  ) : (
+                    <span
+                      className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-border text-2xs text-muted-foreground tabular-nums"
+                      title="unranked: past the instruction"
+                    >
+                      {r}
+                    </span>
+                  )}
+                  {r === depth && (
+                    <span className="mx-0.5 text-2xs font-medium text-indigo-600 whitespace-nowrap">│ rank {depth}</span>
+                  )}
+                </span>
+              ))}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 type Section = 'overview' | 'data' | 'parties' | 'voting' | 'scenarios' | 'turnout' | 'caveats';
 // 'Two Scenarios' is entirely a Party-Line-vs-Crossover comparison, so it goes with the flag.
@@ -328,15 +384,15 @@ export function AboutTab() {
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-1">How a voter becomes a ranked ballot</div>
             <p className={`${BODY_PROSE} mb-4`}>
-              Proximity does the ranking. Every voter sits in the same five-factor space as the candidates, and the
-              ballot orders those candidates from nearest to farthest. Nothing is hand-assigned.
+              A voter ranks parties by how strongly the model thinks they belong to each one, and ranks a
+              party&apos;s candidates as a slate. Nothing is hand-assigned.
             </p>
 
             <div className="grid sm:grid-cols-3 gap-3 mb-4">
               {[
-                { n: '1', h: 'Place the voter', b: 'Five factor scores fix each respondent in ideological space.' },
-                { n: '2', h: 'Rank by nearness', b: 'A Gaussian kernel (σ 0.35) scores every candidate; closer ranks higher. Cross-party affinities shape the lower ranks.' },
-                { n: '3', h: 'Break ties by name', b: 'Identical same-party candidates split 40 / 35 / 25 (Plackett-Luce), so the top name never sweeps.' },
+                { n: '1', h: 'Score every party', b: 'The DPGMM gives each respondent a membership probability in all ten clusters. That posterior is the ranking key.' },
+                { n: '2', h: 'Rank parties by it', b: 'Highest posterior first. Co-partisans share their party\'s score, so a party\'s candidates take consecutive ranks.' },
+                { n: '3', h: 'Keep the slate in order', b: 'Inside a party block every voter lists the slate in the same order, so transfers exhaust the party before leaving it.' },
               ].map(s => (
                 <div key={s.n} className="bg-muted rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-1.5">
@@ -348,33 +404,38 @@ export function AboutTab() {
               ))}
             </div>
 
-            {/* Worked example: one voter's ballot as ranked party pills, with the depth cutoff */}
+            {/* Worked example: a ballot as party blocks, with the depth cutoff landing mid-slate */}
             <div className="rounded-lg border border-border p-4 mb-4">
-              <div className={`${MINOR_HEADING} mb-2.5`}>Example: one ballot, nearest candidate first</div>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {['STY', 'LBR', 'LIB', 'PRG', 'DSA', 'CUP', 'OAO'].map((c, idx) => (
-                  <span key={c} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-semibold text-white" style={{ background: PARTY_COLORS[c] }}>
-                    <span className="opacity-70">{idx + 1}</span>{PARTY_NAMES[c]}
-                  </span>
-                ))}
-                <span className="mx-1 text-2xs font-medium text-indigo-600">│ stops here at 7</span>
-                {['CON', 'POP', 'NAT'].map(c => (
-                  <span key={c} className="inline-flex items-center rounded-full border border-dashed border-border px-2 py-0.5 text-2xs text-muted-foreground line-through">
-                    {PARTY_NAMES[c]}
-                  </span>
+              <div className={`${MINOR_HEADING} mb-2.5`}>Example: one ballot as party blocks</div>
+              <ExampleBallot slates={EXAMPLE_SLATES} depth={7} />
+              <p className={`${CARD_HINT} mt-2.5`}>
+                Seven ranks reach three parties, and the cutoff can land inside a slate. Past it the ballot
+                exhausts and stops transferring.
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-border p-4 mb-4">
+              <div className={`${MINOR_HEADING} mb-2.5`}>How many candidates a party runs</div>
+              <div className="grid grid-cols-3 gap-2">
+                {([['≥12%', 3], ['≥5%', 2], ['≥1%', 1]] as const).map(([share, n]) => (
+                  <div key={share} className="rounded-lg bg-muted/50 border border-border p-3 text-center">
+                    <div className="text-lg font-bold tabular-nums text-foreground">{share}</div>
+                    <div className={`${FOOTNOTE} leading-snug`}>of the district →<br />{n} candidate{n > 1 ? 's' : ''}</div>
+                  </div>
                 ))}
               </div>
               <p className={`${CARD_HINT} mt-2.5`}>
-                Ballots run seven deep by default. Past the cutoff the ballot exhausts and stops transferring, which is why seven is the default.
+                Slate size follows the party&apos;s local strength, so nominating badly is possible: too many
+                candidates splits the vote, too few leaves surplus unharvested.
               </p>
             </div>
 
             <div className={`grid gap-3 ${SHOW_CROSSOVER ? 'sm:grid-cols-2' : ''}`}>
               <div className="bg-muted rounded-lg p-3">
                 <div className="text-xs font-semibold text-foreground mb-1">
-                  {SHOW_CROSSOVER ? 'Party-line field' : 'How ballots are ordered'}
+                  {SHOW_CROSSOVER ? 'Party-line field' : 'What sets the order'}
                 </div>
-                <p className={`${CARD_HINT} leading-relaxed`}>Ranks parties by each voter's cluster-membership probability, the DPGMM posterior that defined the typology.</p>
+                <p className={`${CARD_HINT} leading-relaxed`}>The DPGMM posterior that defined the typology sets the order between parties; a fixed slate order sets it within them.</p>
               </div>
               {SHOW_CROSSOVER && (
                 <div className="bg-muted rounded-lg p-3">
@@ -387,12 +448,13 @@ export function AboutTab() {
 
           {/* Why the default asks for seven ranks */}
           <Card className="p-5">
-            <div className="font-semibold text-foreground mb-2">Why ballots ask for at least seven</div>
+            <div className="font-semibold text-foreground mb-2">Ballot depth is an instruction, not a guess</div>
             <p className={`${BODY_PROSE} mb-3`}>
-              Short ballots break proportional representation. When all of a voter&apos;s ranked choices are
-              eliminated, the ballot exhausts and stops transferring, so late seats fill below the quota that is
-              supposed to earn them. Ballot length is the fix, and the returns diminish fast. Share of House seats
-              filled below quota, by how many candidates voters rank (double-Wyoming, 5% turnout):
+              How deep people rank is set by what the ballot tells them to do, so the depth control is a
+              design choice rather than a behavioral unknown. It matters because short ballots break
+              proportional representation: once all of a voter&apos;s choices are eliminated the ballot
+              exhausts and stops transferring, so late seats fill below the quota that is supposed to earn
+              them. Share of House seats filled below quota, by instructed depth (double-Wyoming, 5% turnout):
             </p>
             <div className="grid grid-cols-5 gap-2 text-center mb-3">
               {([['3', '34%'], ['5', '18%'], ['7', '13%'], ['10', '9%'], ['All', '8%']] as const).map(([r, v]) => (
@@ -402,10 +464,40 @@ export function AboutTab() {
                 </div>
               ))}
             </div>
-            <p className={`${CARD_HINT} leading-relaxed`}>
+            <p className={`${CARD_HINT} leading-relaxed mb-4`}>
               Seven captures most of the gain toward the full-ranking floor without asking voters to rank a whole
               field. It also matches the standard rule that a voter should rank at least as many candidates as the
               district has seats: the largest districts here elect seven.
+            </p>
+
+            <div className={`${MINOR_HEADING} mb-2.5`}>Voters follow the instruction, and a third go past it</div>
+            <div className="grid grid-cols-3 gap-2 mb-2.5">
+              {([
+                ['98.2%', 'met the five-box minimum'],
+                ['68.4%', 'stopped at exactly five'],
+                ['~30%', 'ranked more than required'],
+              ] as const).map(([n, l]) => (
+                <div key={l} className="rounded-lg bg-muted/50 border border-border p-3 text-center">
+                  <div className="text-lg font-bold tabular-nums text-foreground">{n}</div>
+                  <div className={`${FOOTNOTE} leading-snug`}>{l}</div>
+                </div>
+              ))}
+            </div>
+            <p className={`${CARD_HINT} leading-relaxed`}>
+              The closest real comparison available: the Australian Capital Territory fills 5-seat
+              electorates by Hare-Clark STV and tells voters to number five boxes, so both the counting
+              rule and the instruction match a district in this model. Compliance is near-total and the
+              overshoot is one-sided, so truncating every simulated ballot at the instruction understates
+              how deep a real electorate ranks. The below-quota figures above are therefore ceilings: a real
+              electorate given the same instruction exhausts less. The ACT votes under compulsory turnout,
+              so treat its compliance rate as an upper bound.{' '}
+              <a
+                href="https://www.parliament.act.gov.au/__data/assets/pdf_file/0009/3052467/Ballot-paper-preference-analysis-impact-of-ballot-paper-instructions.pdf"
+                target="_blank" rel="noopener noreferrer"
+                className="underline hover:text-foreground"
+              >
+                Ballot paper preference analysis, ACT Legislative Assembly ↗
+              </a>
             </p>
           </Card>
         </div>
