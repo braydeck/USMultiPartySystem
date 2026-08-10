@@ -2,19 +2,31 @@ import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/part
 import { TABLE_HEADER } from '../../constants/typography';
 import { CIVIDIS_COLORS, cividisForFrac, cividisText } from '../../lib/cividis';
 import { PartyCode } from './PartyRowLabel';
-import type { FlowRow } from '../../lib/partyFlow';
+import { effectivePartners, type FlowRow } from '../../lib/partyFlow';
 
 const name = (p: string) => PARTY_NAMES[p] ?? p;
 const color = (p: string) => PARTY_COLORS[p] ?? '#6b7280';
 const pct = (x: number) => Math.round(x * 100);
 
 const LABEL_COL = 'w-28 shrink-0';
+const PARTNER_COL = 'w-10 shrink-0';
+const PARTNER_HINT =
+  'Effective number of partners (1 / sum of squared shares). 2.0 is as concentrated as an even '
+  + 'two-way split; higher means the votes spread across more parties.';
+
+/** What a row is and what a column is, rendered on the matrix itself rather than in prose. */
+export interface FlowAxes { row: string; col: string }
 
 /** Stacked bars, one row per party. Full party name to the left, and the wide segments
  *  carry their own label so the bar reads without the legend. */
-export function PartyFlowBars({ rows }: { rows: FlowRow[] }) {
+export function PartyFlowBars({ rows, axes }: { rows: FlowRow[]; axes: FlowAxes }) {
   return (
     <div className="space-y-1.5">
+      <div className="flex items-end gap-2">
+        <span className={`${LABEL_COL} ${TABLE_HEADER}`}>↓ {axes.row}</span>
+        <span className={`flex-1 ${TABLE_HEADER}`}>→ {axes.col}</span>
+        <span className={`${PARTNER_COL} text-right ${TABLE_HEADER}`} title={PARTNER_HINT}>partners</span>
+      </div>
       {rows.map(row => {
         const segs = row.selfShare != null
           ? [{ party: row.party, share: row.selfShare }, ...row.segments]
@@ -55,6 +67,10 @@ export function PartyFlowBars({ rows }: { rows: FlowRow[] }) {
                 );
               })}
             </div>
+            <span className={`${PARTNER_COL} text-right text-xs tabular-nums text-foreground`}
+              title={PARTNER_HINT}>
+              {effectivePartners(row.segments).toFixed(1)}
+            </span>
           </div>
         );
       })}
@@ -68,8 +84,9 @@ export function PartyFlowBars({ rows }: { rows: FlowRow[] }) {
  *
  *  Columns follow the row order, so the self cells fall on the diagonal and leave it empty.
  *  Any party that lends votes without holding a row of its own is appended after them. */
-export function PartyFlowHeatmap({ rows, selfLabel }: {
+export function PartyFlowHeatmap({ rows, axes, selfLabel }: {
   rows: FlowRow[];
+  axes: FlowAxes;
   /** Header for the separated own-share column. Omit when rows carry no `selfShare`. */
   selfLabel?: string;
 }) {
@@ -84,7 +101,9 @@ export function PartyFlowHeatmap({ rows, selfLabel }: {
     <div className="overflow-x-auto">
       <div className="inline-block min-w-full">
         <div className="flex items-end gap-px mb-1">
-          <span className={LABEL_COL} />
+          <span className={`${LABEL_COL} ${TABLE_HEADER} leading-tight pr-2`}>
+            ↓ {axes.row}<br />→ {axes.col}
+          </span>
           {hasSelf && <span className={`w-11 shrink-0 text-center ${TABLE_HEADER}`}>{selfLabel ?? 'Own'}</span>}
           {hasSelf && <span className="w-2 shrink-0" />}
           {cols.map(c => (
@@ -92,6 +111,7 @@ export function PartyFlowHeatmap({ rows, selfLabel }: {
               <PartyCode code={c} />
             </span>
           ))}
+          <span className={`${PARTNER_COL} text-right ${TABLE_HEADER}`} title={PARTNER_HINT}>partners</span>
         </div>
 
         {rows.map(row => {
@@ -134,6 +154,10 @@ export function PartyFlowHeatmap({ rows, selfLabel }: {
                   </span>
                 );
               })}
+              <span className={`${PARTNER_COL} h-7 flex items-center justify-end text-xs tabular-nums text-foreground`}
+                title={PARTNER_HINT}>
+                {effectivePartners(row.segments).toFixed(1)}
+              </span>
             </div>
           );
         })}

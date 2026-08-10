@@ -17,7 +17,7 @@ import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
 import { QuotaCompositionChart } from '../components/house/QuotaCompositionChart';
-import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS, FLOW_SORT_LABELS, flowOrder, type FlowView, type FlowSort } from '../lib/partyFlow';
+import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS, FLOW_SORT_LABELS, type FlowView, type FlowSort } from '../lib/partyFlow';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
 import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
 import type { PLConfig } from '../components/house/PartyListView';
@@ -178,11 +178,12 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   // Default = top 7, a realistic "typical voter" depth; 'full' is the exhaustive-ranking floor.
   const [depth, setDepth] = useUrlState<DepthKey>('depth', 'top7', { allowed: [...DEPTH_KEYS] });
   // One control for both party-to-party matrices, so the pair always reads the same way.
-  const [flowView, setFlowView] = useUrlState<FlowView>('flow', 'heatmap', { allowed: [...FLOW_VIEWS] });
-  // Sorting both matrices together is the point: the same party sequence down and across lets
-  // self-reliance and ideological adjacency be compared in one pass.
-  const [flowSort, setFlowSort] = useUrlState<FlowSort>('flowsort', 'reliance', { allowed: [...FLOW_SORTS] });
-  const flowSeq = flowOrder(flowSort);
+  // One pair of controls per matrix: the two cards answer different questions, so a shared
+  // toggle made changing one silently reshape the other.
+  const [tfView, setTfView] = useUrlState<FlowView>('tfview', 'heatmap', { allowed: [...FLOW_VIEWS] });
+  const [tfSort, setTfSort] = useUrlState<FlowSort>('tfsort', 'breadth', { allowed: [...FLOW_SORTS] });
+  const [qcView, setQcView] = useUrlState<FlowView>('qcview', 'heatmap', { allowed: [...FLOW_VIEWS] });
+  const [qcSort, setQcSort] = useUrlState<FlowSort>('qcsort', 'reliance', { allowed: [...FLOW_SORTS] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
@@ -627,19 +628,21 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
               Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
             </h4>
             <div className="flex flex-wrap items-center gap-3">
-              <ToggleGroup label="Sort" value={flowSort} onChange={setFlowSort}
+              <ToggleGroup label="Sort" value={tfSort} onChange={setTfSort}
                 options={FLOW_SORTS} labels={FLOW_SORT_LABELS} />
-              <ToggleGroup value={flowView} onChange={setFlowView}
+              <ToggleGroup value={tfView} onChange={setTfView}
                 options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
             </div>
           </div>
           <p className={`${CARD_HINT} mb-4`}>
-            Where an eliminated party&apos;s ballots go next. (Rows = source party, Columns = destination party)
+            Where an eliminated party&apos;s ballots go next. The partners column counts how many
+            parties a ballot realistically reaches: 2 is a tight pairing, 4 or more is a diffuse
+            one.
             {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
           </p>
           <TransferFlowChart
-            view={flowView}
-            order={flowSeq}
+            view={tfView}
+            sort={tfSort}
             data={houseTransfers}
             filterParties={seatShareState === 'national' ? undefined : (() => {
               const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
@@ -655,19 +658,18 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
             <h4 className={CARD_HEADING}>Whose Votes Filled Each Party&apos;s Seats</h4>
             <div className="flex flex-wrap items-center gap-3">
-              <ToggleGroup label="Sort" value={flowSort} onChange={setFlowSort}
+              <ToggleGroup label="Sort" value={qcSort} onChange={setQcSort}
                 options={FLOW_SORTS} labels={FLOW_SORT_LABELS} />
-              <ToggleGroup value={flowView} onChange={setFlowView}
+              <ToggleGroup value={qcView} onChange={setQcView}
                 options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
             </div>
           </div>
           <p className={`${CARD_HINT} mb-4`}>
-            Of the ballots that elected each party&apos;s candidates, which party those voters
-            ranked first. Rows win the seats; columns paid for them.
+            Which parties' voters help fill each party's seats via first choice "own" voters, eliminations, and transfers.
           </p>
           <QuotaCompositionChart
-            view={flowView}
-            order={flowSeq}
+            view={qcView}
+            sort={qcSort}
             filterParties={seatShareState === 'national' ? undefined : (() => {
               const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
               const entry = fips ? activeStateMap[fips] : undefined;

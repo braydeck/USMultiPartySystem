@@ -1,6 +1,6 @@
 import { CARD_HINT } from '../../constants/typography';
 import { PartyFlowBars, PartyFlowHeatmap } from '../shared/PartyFlowMatrix';
-import type { FlowRow, FlowView } from '../../lib/partyFlow';
+import { orderRows, type FlowRow, type FlowSort, type FlowView } from '../../lib/partyFlow';
 import quotaComposition from '../../data/quotaComposition.json';
 
 interface PartyRow {
@@ -27,16 +27,15 @@ const DATA = quotaComposition as unknown as Bundle;
 /** Whose ballots elected each party's seats: own first-preference voters against votes
  *  borrowed from other parties' voters. Origin rather than preference depth, because
  *  ballots are party-contiguous and depth mostly reports slate size. */
-export function QuotaCompositionChart({ filterParties, view = 'heatmap', order }: {
+const AXES = { row: 'won the seat', col: "voter's 1st choice" };
+
+export function QuotaCompositionChart({ filterParties, view = 'heatmap', sort = 'reliance' }: {
   filterParties?: string[];
   view?: FlowView;
-  /** Row and column order, shared with the transfer matrix. */
-  order?: readonly string[];
+  sort?: FlowSort;
 }) {
-  const rank = (p: string) => (order ? order.indexOf(p) : 0);
   const rows: FlowRow[] = DATA.parties
     .filter(r => !filterParties || filterParties.includes(r.party))
-    .sort((a, b) => (order ? rank(a.party) - rank(b.party) : 0))
     .map(r => ({
       party: r.party,
       selfShare: r.ownShare,
@@ -46,12 +45,13 @@ export function QuotaCompositionChart({ filterParties, view = 'heatmap', order }
         .map(([p, share]) => ({ party: p, share })),
     }));
   if (!rows.length) return null;
+  const ordered = orderRows(rows, sort);
 
   return (
     <div className="space-y-3">
       {view === 'heatmap'
-        ? <PartyFlowHeatmap rows={rows} selfLabel="Own" />
-        : <PartyFlowBars rows={rows} />}
+        ? <PartyFlowHeatmap rows={ordered} axes={AXES} selfLabel="Own" />
+        : <PartyFlowBars rows={ordered} axes={AXES} />}
       <p className={CARD_HINT}>
         Rank-{DATA.config.ballotDepth}
         {' '}ballots at {Math.round(DATA.config.turnoutGap * 100)}% turnout gap closed, fixed.
