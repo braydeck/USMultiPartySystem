@@ -636,10 +636,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           </div>
           <p className={`${CARD_HINT} mb-4`}>
             Where each party&apos;s votes go when they leave it, as surplus above quota or on
-            elimination. Percentages cover only the votes that reach a different party; hover a row
-            for the rest, which either stays with the party&apos;s own candidates or runs out of
-            rankings. Reach counts how many parties those votes spread across: 2 is a tight pairing,
-            4 or more is diffuse.
+            elimination. Cross-party votes only.
             {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
           </p>
           <TransferFlowChart

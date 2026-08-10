@@ -194,9 +194,7 @@ export function ScenarioComparison({ rawMultiSeats, fdSeats, scenario, doubleSea
         {hasRanges ? (
           <>
             The share of the vote each party wins, against the share of the seats it ends up
-            with. Add population to see how much of the difference is turnout
-            {hasList && `, or party list — it uses the same districts as ${seatLabel}, so what
-              separates the two is only what transferring votes changes`}.
+            with.
           </>
         ) : (
           <>

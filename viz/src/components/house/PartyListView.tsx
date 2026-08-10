@@ -308,10 +308,8 @@ export function PartyListView({ config, wyoming, districtCountyMap, doubleConfig
           </select>
         </div>
         <p className={`${CARD_HINT} mb-3`}>
-          {stateSel ? `${stateSel.abbr}. ` : ''}The share of the vote each party wins, against
-          the share of the {active.totalSeats} seats it ends up with under the list. Add
-          population to see how much of the difference is turnout, or STV — it uses the same
-          districts, so what separates the two is only what transferring votes changes.
+          {stateSel ? `${stateSel.abbr}. ` : ''}The share of the vote each party wins compared with
+          the share of the {active.totalSeats} seats it ends up with.
         </p>
         {rangeParties ? (
           <PopSeatRanges max={rangeMaxPct} parties={rangeParties} quantities={LIST_QUANTITIES} />

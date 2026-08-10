@@ -8,7 +8,7 @@ const name = (p: string) => PARTY_NAMES[p] ?? p;
 const color = (p: string) => PARTY_COLORS[p] ?? '#6b7280';
 const pct = (x: number) => Math.round(x * 100);
 
-const LABEL_COL = 'w-24 shrink-0';
+const LABEL_COL = 'w-32 shrink-0';
 const EXTRA_COL = 'w-9 shrink-0';
 
 /** What a row is and what a column is, rendered on the matrix itself rather than in prose. */
@@ -37,7 +37,7 @@ export function PartyFlowBars({ rows, axes, extras = [] }: {
         return (
           <div key={row.party} className="flex items-center gap-2">
             <span className={`${LABEL_COL} text-xs font-medium truncate`}
-              style={{ color: color(row.party) }} title={row.hint ?? name(row.party)}>
+              style={{ color: color(row.party) }} title={row.hint ? `${name(row.party)} — ${row.hint}` : name(row.party)}>
               {name(row.party)}
             </span>
             {extras.map(e => (
@@ -124,11 +124,6 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
               <PartyCode code={c} />
             </span>
           ))}
-          {extras.map(e => (
-            <span key={e.label} className={`${EXTRA_COL} text-right ${TABLE_HEADER}`} title={e.hint}>
-              {e.label}
-            </span>
-          ))}
         </div>
 
         {rows.map(row => {
@@ -137,7 +132,7 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
           return (
             <div key={row.party} className="flex items-stretch gap-px mb-px">
               <span className={`${LABEL_COL} text-xs font-medium truncate self-center`}
-                style={{ color: color(row.party) }} title={row.hint ?? name(row.party)}>
+                style={{ color: color(row.party) }} title={row.hint ? `${name(row.party)} — ${row.hint}` : name(row.party)}>
                 {name(row.party)}
               </span>
               {extras.map(e => (
@@ -164,7 +159,7 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
                       title={`${name(row.party)} — own votes are in the ${selfLabel ?? 'Own'} column`} />
                   );
                 }
-                const share = byParty[c];
+                const share = byParty[c] && byParty[c] >= 0.005 ? byParty[c] : undefined;
                 const bg = share ? cividisForFrac(share / max) : undefined;
                 return (
                   <span
@@ -175,7 +170,7 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
                       : { backgroundColor: 'var(--muted)' }}
                     title={`${name(row.party)} ← ${name(c)}: ${pct(share ?? 0)}%`}
                   >
-                    {share && share >= 0.02 ? pct(share) : ''}
+                    {share ? Math.max(1, pct(share)) : ''}
                   </span>
                 );
               })}
