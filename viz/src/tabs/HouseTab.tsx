@@ -619,65 +619,67 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       </Card>
 
 
-      {/* Two views of the same party-to-party matrix: outflow on elimination, then inflow
-          at election. Same row grammar and the same bar/heatmap pair for both. */}
+      {/* Two views of the same party-to-party matrix: outflow on elimination or surplus, then
+          inflow at election. Collapsed by default — the page spine is the seat comparison, and
+          CollapsibleSection unmounts these until asked for. */}
       {scenario === 'rawMulti' && (
-        <Card className="p-4">
-          <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
-            <h4 className={CARD_HEADING}>
-              Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
-            </h4>
-            <div className="flex flex-wrap items-center gap-3">
-              <ToggleGroup label="Sort" value={tfSort} onChange={setTfSort}
-                options={FLOW_SORTS_TRANSFERS} labels={FLOW_SORT_LABELS} />
-              <ToggleGroup value={tfView} onChange={setTfView}
-                options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
+        <CollapsibleSection id="transfers" title="See vote transfer deep-dive"
+          hint="Where each party's votes go, and whose votes filled its seats">
+          <Card className="p-4">
+            <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
+              <h4 className={CARD_HEADING}>
+                Vote Transfer Destinations{seatShareState !== 'national' ? ` — ${seatShareState}` : ''}
+              </h4>
+              <div className="flex flex-wrap items-center gap-3">
+                <ToggleGroup label="Sort" value={tfSort} onChange={setTfSort}
+                  options={FLOW_SORTS_TRANSFERS} labels={FLOW_SORT_LABELS} />
+                <ToggleGroup value={tfView} onChange={setTfView}
+                  options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
+              </div>
             </div>
-          </div>
-          <p className={`${CARD_HINT} mb-4`}>
-            Where each party&apos;s votes go when they leave it, as surplus above quota or on
-            elimination. Cross-party votes only. <em>Spread</em> is low when a party&apos;s votes
-            pile into one destination and high when they divide evenly across many.
-            {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
-          </p>
-          <TransferFlowChart
-            view={tfView}
-            sort={tfSort}
-            filterParties={seatShareState === 'national' ? undefined : (() => {
-              const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
-              const entry = fips ? activeStateMap[fips] : undefined;
-              return entry ? Object.keys(entry.seats) : undefined;
-            })()}
-          />
-        </Card>
-      )}
+            <p className={`${CARD_HINT} mb-4`}>
+              Where each party&apos;s votes go when they leave it, as surplus above quota or on
+              elimination. Cross-party votes only. <em>Spread</em> is low when a party&apos;s votes
+              pile into one destination and high when they divide evenly across many.
+              {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
+            </p>
+            <TransferFlowChart
+              view={tfView}
+              sort={tfSort}
+              filterParties={seatShareState === 'national' ? undefined : (() => {
+                const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
+                const entry = fips ? activeStateMap[fips] : undefined;
+                return entry ? Object.keys(entry.seats) : undefined;
+              })()}
+            />
+          </Card>
 
-      {scenario === 'rawMulti' && (
-        <Card className="p-4">
-          <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
-            <h4 className={CARD_HEADING}>Whose Votes Filled Each Party&apos;s Seats</h4>
-            <div className="flex flex-wrap items-center gap-3">
-              <ToggleGroup label="Sort" value={qcSort} onChange={setQcSort}
-                options={FLOW_SORTS_COMPOSITION} labels={FLOW_SORT_LABELS} />
-              <ToggleGroup value={qcView} onChange={setQcView}
-                options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
+          <Card className="p-4">
+            <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
+              <h4 className={CARD_HEADING}>Whose Votes Filled Each Party&apos;s Seats</h4>
+              <div className="flex flex-wrap items-center gap-3">
+                <ToggleGroup label="Sort" value={qcSort} onChange={setQcSort}
+                  options={FLOW_SORTS_COMPOSITION} labels={FLOW_SORT_LABELS} />
+                <ToggleGroup value={qcView} onChange={setQcView}
+                  options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
+              </div>
             </div>
-          </div>
-          <p className={`${CARD_HINT} mb-4`}>
-            Which parties' voters help fill each party's seats via first choice "own" voters,
-            eliminations, and transfers. <em>Self-reliance</em> is the "Own" column: the share cast
-            by a party's own voters.
-          </p>
-          <QuotaCompositionChart
-            view={qcView}
-            sort={qcSort}
-            filterParties={seatShareState === 'national' ? undefined : (() => {
-              const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
-              const entry = fips ? activeStateMap[fips] : undefined;
-              return entry ? Object.keys(entry.seats) : undefined;
-            })()}
-          />
-        </Card>
+            <p className={`${CARD_HINT} mb-4`}>
+              Which parties' voters help fill each party's seats via first choice "own" voters,
+              eliminations, and transfers. <em>Self-reliance</em> is the "Own" column: the share cast
+              by a party's own voters. High self-reliance = a party gets most seats from their own first-choice voters.
+            </p>
+            <QuotaCompositionChart
+              view={qcView}
+              sort={qcSort}
+              filterParties={seatShareState === 'national' ? undefined : (() => {
+                const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
+                const entry = fips ? activeStateMap[fips] : undefined;
+                return entry ? Object.keys(entry.seats) : undefined;
+              })()}
+            />
+          </Card>
+        </CollapsibleSection>
       )}
 
       {/* FD: Variant bar right after seat share */}

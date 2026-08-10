@@ -121,6 +121,7 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party,
             nxt, _ = active_choice(ballots_arr[i], active)
             if nxt is None:
                 flows["exhausted"][src_party] += w
+                flows["exhausted_by_origin"][first_party[i]] += w
             else:
                 dst_party = nxt.rsplit("_", 1)[0]
                 if dst_party == src_party:
@@ -221,6 +222,8 @@ def main():
         "internal": defaultdict(float),
         "exhausted": defaultdict(float),
         "moved": defaultdict(float),
+        "exhausted_by_origin": defaultdict(float),
+        "ballot_weight": defaultdict(float),
     }
     base_quotas: dict = defaultdict(float)
     seats_all: list = []
@@ -258,6 +261,9 @@ def main():
 
         elected, _, seats = run_stv_instrumented(
             bal_stv, d_count_weights, cand_codes, n_seats_eff, first_party, flows)
+
+        for i, p_first in enumerate(first_party):
+            flows["ballot_weight"][p_first] += float(d_count_weights[i])
 
         quota_d = float(d_count_weights.sum()) / (n_seats_eff + 1) + 1
         own_quotas: dict = defaultdict(float)
@@ -429,6 +435,16 @@ def write_bundle(seats_all, flows):
     out["parties"].sort(key=lambda r: -r["ownShare"])
     OUT_PATH.write_text(json.dumps(out, indent=1))
     print(f"\nWrote {OUT_PATH.relative_to(BASE)}  ({len(seats_all)} seats decomposed)")
+    print("\n  exhaustion, two denominators:")
+    print(f"    {'party':6s}{'of weight leaving it':>22s}{'of its voters weight':>22s}")
+    for t in sorted(out["transfersOut"], key=lambda r: -r["exhaustedShare"]):
+        p = t["party"]
+        own = flows["exhausted_by_origin"][p] / flows["ballot_weight"][p] if flows["ballot_weight"][p] else 0
+        print(f"    {p:6s}{t['exhaustedShare']*100:21.1f}%{own*100:21.1f}%")
+
+    tot_x = sum(flows["exhausted_by_origin"].values()); tot_w = sum(flows["ballot_weight"].values())
+    print(f"    ALL    {'':21s}{tot_x / tot_w * 100:21.1f}%  <- chamber aggregate")
+
     print("\n  transfers out (share of weight leaving each party):")
     for t in out["transfersOut"]:
         eff = 1 / sum(v * v for v in t["byDest"].values()) if t["byDest"] else 0
