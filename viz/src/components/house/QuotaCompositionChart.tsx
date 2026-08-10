@@ -50,7 +50,7 @@ export function QuotaCompositionChart({ filterParties }: { filterParties?: strin
                 <div className={FOOTNOTE}>{row.seats} seats</div>
               </div>
 
-              <div className="relative h-6 rounded overflow-hidden flex">
+              <div className="h-6 rounded overflow-hidden flex">
                 {segs.map(([origin, share]) => (
                   <div
                     key={origin}
@@ -70,29 +70,13 @@ export function QuotaCompositionChart({ filterParties }: { filterParties?: strin
                     )}
                   </div>
                 ))}
-                {row.ownShare - row.marginalOwnShare > 0.0005 && (
-                  <div
-                    className="absolute inset-y-0 border-l-2 border-foreground/80"
-                    style={{
-                      left: `${row.marginalOwnShare * 100}%`,
-                      width: `${(row.ownShare - row.marginalOwnShare) * 100}%`,
-                      backgroundImage:
-                        'repeating-linear-gradient(45deg, rgba(255,255,255,.85) 0 2px, rgba(255,255,255,0) 2px 4px)',
-                    }}
-                    title={`Own share falls from ${pct(row.ownShare)}% across all seats to ${pct(row.marginalOwnShare)}% on the last seat won in each district`}
-                  />
-                )}
               </div>
 
-              <div className="text-right">
-                <div className="text-xs font-semibold tabular-nums text-foreground">
-                  {pct(row.ownShare)}%
-                </div>
-                <div className={FOOTNOTE}>
-                  {row.ownShare - row.marginalOwnShare > 0.0005
-                    ? `−${((row.ownShare - row.marginalOwnShare) * 100).toFixed(1)}`
-                    : '—'}
-                </div>
+              <div
+                className="text-xs font-semibold tabular-nums text-right text-foreground"
+                title={`${pct(row.ownShare)}% own voters across all seats; ${pct(row.marginalOwnShare)}% on the last seat won in each district`}
+              >
+                {pct(row.ownShare)}%
               </div>
 
               {/* Seats per district won: the variable behind everything else here. Only
@@ -118,23 +102,19 @@ export function QuotaCompositionChart({ filterParties }: { filterParties?: strin
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-4 rounded-sm bg-slate-500 opacity-55" />borrowed, coloured by lender
         </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span
-            className="h-2.5 w-4 rounded-sm border-l-2 border-foreground/80 bg-slate-500"
-            style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,.85) 0 2px, rgba(255,255,255,0) 2px 4px)' }}
-          />own share it loses on its last seat
-        </span>
         <span className="ml-auto normal-case tracking-normal">
-          columns: own share and its drop at the margin · seats per district won
+          columns: own share · seats per district won
         </span>
       </div>
 
       <p className={`${CARD_HINT} mb-1`}>
-        Every party wins a median of one seat per district, so the hatched band only appears
-        where a party takes a second seat somewhere. Three never do (Progressive, Order &amp;
-        Opportunity, Civic Union), and their margin and average are the same number. Of the
-        seven that diverge, four move under half a point, Liberal 1.4, Labour 2.7, and
-        Conservative 8.3, which takes two or more seats in 41% of the districts it wins.
+        This describes how a party assembles a quota, not how well it converts votes into
+        seats. The two are independent here: Conservative and Progressive both elect close to
+        90% of their weight from their own voters, and Conservative finishes 34 seats above a
+        proportional list while Progressive finishes 7 below. Compare the Party List view for
+        conversion. Own share also slips on a party&apos;s last seat in a district, by 8.3
+        points for Conservative and 2.7 for Labour, but that mostly follows from having won an
+        earlier seat with the same voters rather than from any weakness.
       </p>
       <p className={CARD_HINT}>
         Fixed at the app default: {DATA.config.apportionment} apportionment,

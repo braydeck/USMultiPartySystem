@@ -22,6 +22,17 @@ published viz bundle before writing anything.
 Run:
     TURNOUT_WEIGHT=1 TURNOUT_LAMBDA=0.05 python analysis/quota_composition.py
 
+Not emitted, deliberately: seats won per own-base quota. Summing each party's
+first-preference weight over district-specific quotas makes the measure sensitive to
+district magnitude, and its party shares diverge from the published vote shares in
+exactly the direction that would manufacture a conversion finding (CON +1.8pp, NAT
++1.7 score low; STY -2.5, CUP -1.2 score high). `base_quotas` is still accumulated
+below for anyone who wants to reconcile it, but nothing should be published from it
+until it agrees with housePartyList's voteShare.
+
+For conversion efficiency use the published stvSeats vs listSeats comparison instead:
+same ballots, proportional baseline, no denominator of ours in the way.
+
 Output: viz/src/data/quotaComposition.json
 """
 
@@ -176,6 +187,7 @@ def main():
             pub_by_did[row["districtId"]] = row["stvElected"]
 
     rng_prob = np.random.default_rng(43)
+    base_quotas: dict = defaultdict(float)
     seats_all: list = []
     checked = mismatched = 0
 
@@ -211,6 +223,13 @@ def main():
 
         elected, _, seats = run_stv_instrumented(
             bal_stv, d_count_weights, cand_codes, n_seats_eff, first_party)
+
+        quota_d = float(d_count_weights.sum()) / (n_seats_eff + 1) + 1
+        own_quotas: dict = defaultdict(float)
+        for i, p_first in enumerate(first_party):
+            own_quotas[p_first] += float(d_count_weights[i])
+        for party, w in own_quotas.items():
+            base_quotas[party] += w / quota_d
 
         got = [c.rsplit("_", 1)[0] for c in elected]
         want = pub_by_did.get(did)
@@ -355,9 +374,8 @@ def write_bundle(seats_all):
         borrowed = 1 - r["ownShare"]
         d = r["perDistrict"]
         print(f"  {r['party']:4s} {r['seats']:4d} seats  own {r['ownShare']*100:5.1f}%  "
-              f"borrowed {borrowed*100:5.1f}%  marginal {r['marginalOwnShare']*100:5.1f}%  "
-              f"| {d['districtsWon']:3d} districts, median {d['median']}, max {d['max']}, "
-              f"{d['multiSeatShare']*100:4.1f}% multi-seat  {dict(d['hist'])}")
+              f"marginal {r['marginalOwnShare']*100:5.1f}%  gap {(r['ownShare']-r['marginalOwnShare'])*100:4.1f}pp  "
+              f"| {d['districtsWon']:3d} districts, {d['multiSeatShare']*100:4.1f}% multi-seat")
 
 
 if __name__ == "__main__":
