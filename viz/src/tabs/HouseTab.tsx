@@ -17,7 +17,7 @@ import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
 import { QuotaCompositionChart } from '../components/house/QuotaCompositionChart';
-import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS, FLOW_SORT_LABELS, type FlowView, type FlowSort } from '../lib/partyFlow';
+import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS, FLOW_SORTS_ORDERED, FLOW_SORT_LABELS, type FlowView, type FlowSort } from '../lib/partyFlow';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
 import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
 import type { PLConfig } from '../components/house/PartyListView';
@@ -183,7 +183,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   const [tfView, setTfView] = useUrlState<FlowView>('tfview', 'heatmap', { allowed: [...FLOW_VIEWS] });
   const [tfSort, setTfSort] = useUrlState<FlowSort>('tfsort', 'breadth', { allowed: [...FLOW_SORTS] });
   const [qcView, setQcView] = useUrlState<FlowView>('qcview', 'heatmap', { allowed: [...FLOW_VIEWS] });
-  const [qcSort, setQcSort] = useUrlState<FlowSort>('qcsort', 'reliance', { allowed: [...FLOW_SORTS] });
+  const [qcSort, setQcSort] = useUrlState<FlowSort>('qcsort', 'reliance', { allowed: [...FLOW_SORTS_ORDERED] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
@@ -635,9 +635,11 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
             </div>
           </div>
           <p className={`${CARD_HINT} mb-4`}>
-            Where each party&apos;s votes go when they leave it, whether as surplus above quota or
-            on elimination. Partners counts how many parties those votes realistically reach: 2 is a
-            tight pairing, 4 or more is diffuse.
+            Where each party&apos;s votes go when they leave it, as surplus above quota or on
+            elimination. Percentages cover only the votes that reach a different party; hover a row
+            for the rest, which either stays with the party&apos;s own candidates or runs out of
+            rankings. Reach counts how many parties those votes spread across: 2 is a tight pairing,
+            4 or more is diffuse.
             {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
           </p>
           <TransferFlowChart
@@ -658,7 +660,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
             <h4 className={CARD_HEADING}>Whose Votes Filled Each Party&apos;s Seats</h4>
             <div className="flex flex-wrap items-center gap-3">
               <ToggleGroup label="Sort" value={qcSort} onChange={setQcSort}
-                options={FLOW_SORTS} labels={FLOW_SORT_LABELS} />
+                options={FLOW_SORTS_ORDERED} labels={FLOW_SORT_LABELS} />
               <ToggleGroup value={qcView} onChange={setQcView}
                 options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
             </div>

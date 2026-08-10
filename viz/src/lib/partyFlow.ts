@@ -11,6 +11,8 @@ export interface FlowRow {
   /** Own-party share, held separately so the heatmap can scale its body on the off-diagonal:
    *  a 55-90% own share against 2-14% borrowed would flatten every other cell. */
   selfShare?: number;
+  /** Extra context for the row label's tooltip, e.g. where the rest of the weight went. */
+  hint?: string;
 }
 
 /** A numeric column to the right of the matrix, e.g. coalition breadth or exhausted weight.
@@ -27,6 +29,9 @@ export const FLOW_VIEW_LABELS: Record<FlowView, string> = { heatmap: 'Heatmap', 
 
 export type FlowSort = 'reliance' | 'ideology' | 'breadth';
 export const FLOW_SORTS: readonly FlowSort[] = ['reliance', 'ideology', 'breadth'];
+/** Breadth sorts by a statistic the composition matrix does not display, so that card offers
+ *  only the two orders a reader can see. */
+export const FLOW_SORTS_ORDERED: readonly FlowSort[] = ['reliance', 'ideology'];
 export const FLOW_SORT_LABELS: Record<FlowSort, string> = {
   reliance: 'Self-reliance',
   ideology: 'Ideology',

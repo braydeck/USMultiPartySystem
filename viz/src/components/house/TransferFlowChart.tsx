@@ -19,28 +19,14 @@ interface TransferRow {
 }
 
 const DATA = (quotaComposition as unknown as { transfersOut: TransferRow[] }).transfersOut;
-const META: Record<string, TransferRow> = Object.fromEntries(DATA.map(r => [r.party, r]));
-
 const AXES = { row: 'transfers out of', col: 'ballots go to' };
 
 const EXTRAS: FlowExtra[] = [
   {
-    label: 'partners',
+    label: 'reach',
     hint: 'Effective number of destination parties (1 / sum of squared shares). 2.0 is as '
       + 'concentrated as an even two-way split; higher means the votes spread more widely.',
     value: row => effectivePartners(row.segments).toFixed(1),
-  },
-  {
-    label: 'stays in',
-    hint: 'Share of the weight leaving this party that goes to another of its own candidates. '
-      + 'High for parties running multi-candidate slates.',
-    value: row => `${Math.round((META[row.party]?.internalShare ?? 0) * 100)}%`,
-  },
-  {
-    label: 'exhausts',
-    hint: 'Share of the weight leaving this party that runs out of ranked choices and stops '
-      + 'transferring altogether.',
-    value: row => `${Math.round((META[row.party]?.exhaustedShare ?? 0) * 100)}%`,
   },
 ];
 
@@ -54,6 +40,9 @@ export function TransferFlowChart({ filterParties, view = 'heatmap', sort = 'bre
     .map(r => ({
       party: r.party,
       segments: Object.entries(r.byDest).map(([party, share]) => ({ party, share })),
+      hint: `Of all the weight leaving ${r.party}: ${Math.round(r.crossShare * 100)}% to other `
+        + `parties (shown), ${Math.round(r.internalShare * 100)}% to its own other candidates, `
+        + `${Math.round(r.exhaustedShare * 100)}% exhausted with no rankings left`,
     }));
   if (!rows.length) return null;
   const ordered = orderRows(rows, sort);

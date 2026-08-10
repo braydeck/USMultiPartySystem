@@ -8,8 +8,8 @@ const name = (p: string) => PARTY_NAMES[p] ?? p;
 const color = (p: string) => PARTY_COLORS[p] ?? '#6b7280';
 const pct = (x: number) => Math.round(x * 100);
 
-const LABEL_COL = 'w-28 shrink-0';
-const EXTRA_COL = 'w-12 shrink-0';
+const LABEL_COL = 'w-24 shrink-0';
+const EXTRA_COL = 'w-9 shrink-0';
 
 /** What a row is and what a column is, rendered on the matrix itself rather than in prose. */
 export interface FlowAxes { row: string; col: string }
@@ -23,12 +23,12 @@ export function PartyFlowBars({ rows, axes, extras = [] }: {
     <div className="space-y-1.5">
       <div className="flex items-end gap-2">
         <span className={`${LABEL_COL} ${TABLE_HEADER}`}>↓ {axes.row}</span>
-        <span className={`flex-1 ${TABLE_HEADER}`}>→ {axes.col}</span>
         {extras.map(e => (
-          <span key={e.label} className={`${EXTRA_COL} text-right ${TABLE_HEADER}`} title={e.hint}>
+          <span key={e.label} className={`${EXTRA_COL} text-center ${TABLE_HEADER}`} title={e.hint}>
             {e.label}
           </span>
         ))}
+        <span className={`flex-1 ${TABLE_HEADER}`}>→ {axes.col}</span>
       </div>
       {rows.map(row => {
         const segs = row.selfShare != null
@@ -36,9 +36,16 @@ export function PartyFlowBars({ rows, axes, extras = [] }: {
           : row.segments;
         return (
           <div key={row.party} className="flex items-center gap-2">
-            <span className={`${LABEL_COL} text-xs font-medium truncate`} style={{ color: color(row.party) }}>
+            <span className={`${LABEL_COL} text-xs font-medium truncate`}
+              style={{ color: color(row.party) }} title={row.hint ?? name(row.party)}>
               {name(row.party)}
             </span>
+            {extras.map(e => (
+              <span key={e.label} className={`${EXTRA_COL} text-center text-xs tabular-nums text-foreground`}
+                title={e.hint}>
+                {e.value(row)}
+              </span>
+            ))}
             <div className="flex h-7 flex-1 rounded overflow-hidden border border-border">
               {segs.map(s => {
                 const c = color(s.party);
@@ -70,12 +77,6 @@ export function PartyFlowBars({ rows, axes, extras = [] }: {
                 );
               })}
             </div>
-            {extras.map(e => (
-              <span key={e.label} className={`${EXTRA_COL} text-right text-xs tabular-nums text-foreground`}
-                title={e.hint}>
-                {e.value(row)}
-              </span>
-            ))}
           </div>
         );
       })}
@@ -111,10 +112,15 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
           <span className={`${LABEL_COL} ${TABLE_HEADER} leading-tight pr-2`}>
             ↓ {axes.row}<br />→ {axes.col}
           </span>
+          {extras.map(e => (
+            <span key={e.label} className={`${EXTRA_COL} text-center ${TABLE_HEADER}`} title={e.hint}>
+              {e.label}
+            </span>
+          ))}
           {hasSelf && <span className={`w-11 shrink-0 text-center ${TABLE_HEADER}`}>{selfLabel ?? 'Own'}</span>}
           {hasSelf && <span className="w-2 shrink-0" />}
           {cols.map(c => (
-            <span key={c} className="flex-1 min-w-8 flex justify-center text-3xs font-bold" title={name(c)}>
+            <span key={c} className="flex-1 min-w-6 flex justify-center text-3xs font-bold" title={name(c)}>
               <PartyCode code={c} />
             </span>
           ))}
@@ -130,9 +136,17 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
           for (const s of row.segments) byParty[s.party] = s.share;
           return (
             <div key={row.party} className="flex items-stretch gap-px mb-px">
-              <span className={`${LABEL_COL} text-xs font-medium truncate self-center`} style={{ color: color(row.party) }}>
+              <span className={`${LABEL_COL} text-xs font-medium truncate self-center`}
+                style={{ color: color(row.party) }} title={row.hint ?? name(row.party)}>
                 {name(row.party)}
               </span>
+              {extras.map(e => (
+                <span key={e.label}
+                  className={`${EXTRA_COL} h-7 flex items-center justify-center text-xs tabular-nums text-foreground`}
+                  title={e.hint}>
+                  {e.value(row)}
+                </span>
+              ))}
               {hasSelf && (
                 <span
                   className="w-11 shrink-0 h-7 flex items-center justify-center rounded-sm text-3xs font-bold tabular-nums"
@@ -146,7 +160,7 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
               {cols.map(c => {
                 if (c === row.party) {
                   return (
-                    <span key={c} className="flex-1 min-w-8 h-7 rounded-sm bg-muted/40"
+                    <span key={c} className="flex-1 min-w-6 h-7 rounded-sm bg-muted/40"
                       title={`${name(row.party)} — own votes are in the ${selfLabel ?? 'Own'} column`} />
                   );
                 }
@@ -155,7 +169,7 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
                 return (
                   <span
                     key={c}
-                    className="flex-1 min-w-8 h-7 flex items-center justify-center rounded-sm text-3xs font-semibold tabular-nums"
+                    className="flex-1 min-w-6 h-7 flex items-center justify-center rounded-sm text-3xs font-semibold tabular-nums"
                     style={bg
                       ? { backgroundColor: bg, color: cividisText(bg) }
                       : { backgroundColor: 'var(--muted)' }}
@@ -165,13 +179,6 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
                   </span>
                 );
               })}
-              {extras.map(e => (
-                <span key={e.label}
-                  className={`${EXTRA_COL} h-7 flex items-center justify-end text-xs tabular-nums text-foreground`}
-                  title={e.hint}>
-                  {e.value(row)}
-                </span>
-              ))}
             </div>
           );
         })}
