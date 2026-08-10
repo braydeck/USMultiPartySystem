@@ -12,15 +12,18 @@ interface Props {
   data: TransferSource[];
   filterParties?: string[];
   view?: FlowView;
+  /** Row and column order, shared with the quota-composition matrix. */
+  order?: readonly string[];
 }
 
-export function TransferFlowChart({ data, filterParties, view = 'bars' }: Props) {
+export function TransferFlowChart({ data, filterParties, view = 'heatmap', order }: Props) {
   if (!data || data.length === 0) return null;
 
   const bySource: Record<string, TransferSource> = {};
   for (const row of data) bySource[row.source] = row;
 
-  const rows: FlowRow[] = (filterParties ?? F5_ORDER)
+  const seq = order ?? F5_ORDER;
+  const rows: FlowRow[] = (filterParties ? seq.filter(p => filterParties.includes(p)) : seq)
     .map(party => bySource[party])
     .filter((r): r is TransferSource => !!r && r.destinations.length > 0)
     .map(r => ({

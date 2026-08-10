@@ -40,13 +40,13 @@ export function PartyFlowBars({ rows }: { rows: FlowRow[] }) {
                     }}
                     title={`${name(s.party)}: ${pct(s.share)}%`}
                   >
-                    {s.share >= 0.12 && (
+                    {s.share >= 0.10 && (
                       <span className="text-3xs font-bold whitespace-nowrap px-1 chip-text"
                         style={{ color: getContrastText(c) }}>
-                        {name(s.party)} {pct(s.share)}%
+                        {s.party} {pct(s.share)}%
                       </span>
                     )}
-                    {s.share >= 0.06 && s.share < 0.12 && (
+                    {s.share >= 0.05 && s.share < 0.10 && (
                       <span className="text-4xs font-semibold chip-text" style={{ color: getContrastText(c) }}>
                         {pct(s.share)}%
                       </span>

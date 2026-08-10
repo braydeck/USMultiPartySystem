@@ -27,12 +27,16 @@ const DATA = quotaComposition as unknown as Bundle;
 /** Whose ballots elected each party's seats: own first-preference voters against votes
  *  borrowed from other parties' voters. Origin rather than preference depth, because
  *  ballots are party-contiguous and depth mostly reports slate size. */
-export function QuotaCompositionChart({ filterParties, view = 'bars' }: {
+export function QuotaCompositionChart({ filterParties, view = 'heatmap', order }: {
   filterParties?: string[];
   view?: FlowView;
+  /** Row and column order, shared with the transfer matrix. */
+  order?: readonly string[];
 }) {
+  const rank = (p: string) => (order ? order.indexOf(p) : 0);
   const rows: FlowRow[] = DATA.parties
     .filter(r => !filterParties || filterParties.includes(r.party))
+    .sort((a, b) => (order ? rank(a.party) - rank(b.party) : 0))
     .map(r => ({
       party: r.party,
       selfShare: r.ownShare,
