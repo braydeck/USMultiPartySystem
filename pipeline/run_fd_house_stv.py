@@ -6,7 +6,7 @@ House general-election STV per district using 71 factor-deviation candidates.
 
 Reuses district assignments from the canonical ballot checkpoint.
 Generates new Gaussian-proximity Plackett-Luce ballots for all 71 FD candidates.
-Runs STV (Gregory fractional surplus) to fill seat_count seats per district.
+Runs STV (Droop quota, Weighted Inclusive Gregory surplus) to fill seat_count seats per district.
 
 Outputs to data/outputs/factor_deviation/house/:
   stv_results_by_district.csv  — per-district elected candidates
@@ -94,7 +94,7 @@ def generate_ballots(scores: np.ndarray,
     return ballots
 
 
-# ── STV engine (Gregory fractional surplus) ──────────────────────────────────
+# ── STV engine (Droop quota, Weighted Inclusive Gregory) ───────────────────────────────────────────
 
 def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarray:
     N, M   = ballots_arr.shape

@@ -9,7 +9,7 @@ For each state:
   2. Build a state-specific candidate pool (variable count based on thresholds)
   3. Generate per-state Plackett-Luce ballots using the same proximity/prominence
      logic as generate_pure_multi_ballots.py
-  4. Run STV (Gregory) elimination → 5 finalists
+  4. Run STV (Weighted Inclusive Gregory) elimination → 5 finalists
   5. Run Ranked Pairs Condorcet → 1 senator  (senate_composition.csv)
   6. Run IRV → 1 senator  (senate_irv_composition.csv)
 
@@ -231,7 +231,10 @@ def droop_quota(total_votes: float, n_survivors: int) -> float:
 
 def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
                active_set: set, target: int):
-    """Gregory STV → returns (finalist_set, first_choice_totals, transfer_records).
+    """Weighted Inclusive Gregory STV → returns (finalist_set, first_choice_totals, transfer_records).
+
+    Every ballot the winner holds transfers, each scaled by its own current value, so a
+    ballot's weight only ever shrinks and no ballot exceeds the one vote it started with.
 
     transfer_records: list of (from_idx, dest_idx, votes, type) tuples
     first_choice_totals: {candidate_idx: initial_first_choice_votes}

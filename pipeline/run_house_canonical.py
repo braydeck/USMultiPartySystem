@@ -3,7 +3,7 @@
 run_house_canonical.py
 ----------------------
 Canonical house election: geographically contiguous multi-member districts,
-9 pure parties, Gaussian proximity ballots, Gregory fractional STV.
+9 pure parties, Gaussian proximity ballots, Weighted Inclusive Gregory STV.
 
 District size preference:
   Urban: 7-seat preferred
@@ -445,7 +445,7 @@ def generate_ballots(scores: np.ndarray,
     return ballots
 
 
-# ── Gregory STV ──────────────────────────────────────────────────────────────
+# ── STV engine (Droop quota, Weighted Inclusive Gregory) ───────────────────────────────────────────
 
 def first_surviving_choice(ballots: np.ndarray, active: set) -> np.ndarray:
     N, M   = ballots.shape
@@ -461,7 +461,12 @@ def first_surviving_choice(ballots: np.ndarray, active: set) -> np.ndarray:
 
 def run_stv(ballots: np.ndarray, weights: np.ndarray,
             cand_codes: list, n_seats: int) -> list:
-    """Gregory fractional STV; returns elected candidate codes in election order."""
+    """Droop-quota STV with Weighted Inclusive Gregory surplus transfers.
+
+    Every ballot the winner holds transfers, each scaled by its own current value, so a
+    ballot's weight only ever shrinks and no ballot exceeds the one vote it started with.
+
+    Returns elected candidate codes in election order."""
     active     = set(cand_codes)
     ballot_wts = weights.astype(float).copy()
     total_v    = float(weights.sum())

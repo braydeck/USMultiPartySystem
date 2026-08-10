@@ -243,10 +243,11 @@ def compute_vote_totals(fsc, weights, active_set):
 
 def winnow(ballots_arr, weights, active_set, target, label, cand_names):
     """
-    True STV primary with Gregory fractional surplus transfer.
+    True STV primary with Weighted Inclusive Gregory surplus transfers.
 
     Candidates reaching the Droop quota are elected and their surplus votes
-    transfer proportionally (Gregory method).  When no candidate reaches quota
+    transfer proportionally, each scaled by its own current value, so no ballot ever
+    exceeds one vote.  When no candidate reaches quota
     the lowest is eliminated (alphabetical tiebreak).  Continues until
     `target` candidates are elected or the field is exhausted.
     """

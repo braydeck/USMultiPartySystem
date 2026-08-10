@@ -4,7 +4,7 @@ run_pure_multi_primary.py
 --------------------------
 2028 Presidential Primary — 27 candidates (10 parties × 3).
 
-Uses multi-seat STV with Gregory fractional surplus transfers at each stage.
+Uses multi-seat STV with Weighted Inclusive Gregory surplus transfers at each stage.
 Surplus from quota winners properly flows to same-party candidates, allowing
 _2 and _3 to survive through inherited vote weight.
 
@@ -125,7 +125,10 @@ def first_surviving_choice(ballots, active):
 
 
 def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
-    """Gregory fractional STV — elect n_survivors candidates.
+    """Weighted Inclusive Gregory STV — elect n_survivors candidates.
+
+    Every ballot the winner holds transfers, each scaled by its own current value, so a
+    ballot's weight only ever shrinks and no ballot exceeds the one vote it started with.
 
     Returns: (survivors set, elected_order list, transfer_records list, round_data list)
     """
@@ -270,7 +273,7 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
                 })
 
     # Display totals: every elected candidate retains exactly quota.
-    # Surplus above quota was shed via Gregory fractional transfers.
+    # Surplus above quota was shed via weighted inclusive Gregory transfers.
     # No normalization — retained values should reflect the true Droop quota
     # as a share of the total pool (e.g., 7.69% for 12 survivors).
     final_totals = {}

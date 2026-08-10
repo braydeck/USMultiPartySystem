@@ -211,7 +211,7 @@ def generate_ballots(scores: np.ndarray, rng: np.random.Generator,
     return ballots
 
 
-# ── STV engine (Gregory fractional surplus) ───────────────────────────────────
+# ── STV engine (Droop quota, Weighted Inclusive Gregory) ───────────────────────────────────────────
 
 def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarray:
     N      = len(ballots_arr)
@@ -227,7 +227,12 @@ def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarr
 
 def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
             cand_codes: list, n_seats: int) -> tuple:
-    """Gregory fractional STV. Returns (elected codes in election order, n_below_quota),
+    """Droop-quota STV with Weighted Inclusive Gregory surplus transfers.
+
+    Every ballot the winner holds transfers, each scaled by its own current value, so a
+    ballot's weight only ever shrinks and no ballot exceeds the one vote it started with.
+
+    Returns (elected codes in election order, n_below_quota),
     where n_below_quota counts seats filled by the field-collapse branch below the Droop
     quota — the classic 'exhausted-ballots weaken late seats' failure mode."""
     active      = set(cand_codes)

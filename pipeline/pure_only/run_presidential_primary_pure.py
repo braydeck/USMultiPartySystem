@@ -149,10 +149,11 @@ def winnow(
     label: str,
 ) -> tuple[set[str], list[dict], list[dict]]:
     """
-    True STV primary with Gregory fractional surplus transfer.
+    True STV primary with Weighted Inclusive Gregory surplus transfers.
 
     Candidates reaching the Droop quota are elected; their surplus votes
-    transfer proportionally (Gregory method). When no candidate reaches
+    transfer proportionally, each scaled by its own current value, so no ballot ever
+    exceeds one vote. When no candidate reaches
     quota the lowest is eliminated (alphabetical tiebreak). Continues
     until survivors_target candidates are elected or the field exhausts.
 
@@ -202,7 +203,7 @@ def winnow(
             elected.append(winner)
             elected_via_quota.append(winner)
 
-            # Gregory: scale ballot_weights for winner's supporters;
+            # Weighted inclusive Gregory: scale each ballot by its current value;
             # the retained (scaled) weight flows to next surviving choice
             temp_active = active - {winner}
             transfer_targets: dict[str, float] = defaultdict(float)

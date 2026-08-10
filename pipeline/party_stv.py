@@ -36,7 +36,10 @@ def first_surviving_choice(ballots: np.ndarray, active: set,
 def run_multi_seat_stv(ballots: np.ndarray, weights: np.ndarray,
                        n_parties: int, n_seats: int,
                        party_codes: list = None) -> dict:
-    """Run Gregory fractional STV where parties can win multiple seats.
+    """Run Weighted Inclusive Gregory STV where parties can win multiple seats.
+
+    Every ballot the winner holds transfers, each scaled by its own current value, so a
+    ballot's weight only ever shrinks and no ballot exceeds the one vote it started with.
 
     Args:
         ballots:     (N, M) int8 array — party indices at each rank

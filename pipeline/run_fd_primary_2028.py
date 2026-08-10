@@ -92,7 +92,10 @@ def droop_quota(total_votes: float, n_survivors: int) -> float:
 
 def winnow(ballots_arr, weights, active_set, survivors_target, label, cand_names):
     """
-    True STV with Gregory fractional surplus transfer.
+    True STV with Weighted Inclusive Gregory surplus transfers.
+
+    Every ballot the winner holds transfers, each scaled by its own current value, so a
+    ballot's weight only ever shrinks and no ballot exceeds the one vote it started with.
     Returns (finalists, results_rows, transfer_rows).
     """
     active         = set(active_set)

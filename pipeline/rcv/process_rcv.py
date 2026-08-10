@@ -195,10 +195,24 @@ def ranked_pairs_winner(matrix: dict[str, dict[str, float]], candidates: list[st
     return None
 
 
-# ── STV (multi-seat Gregory) ────────────────────────────────────────────────
+# ── STV (BROKEN legacy — do not use) ────────────────────────────────────────
 
 def run_stv(ballots: list[list[Optional[str]]], weights: list[float], candidates: list[str], seats: int):
-    """Gregory STV for multi-seat elections. Returns list of elected candidates."""
+    """BROKEN. Unused legacy routine, kept only pending a decision to delete it.
+
+    Nothing imports this module; the live RCV path is process_dominion_cvr.run_stv,
+    which is a correct Droop-quota Weighted Inclusive Gregory count. Three defects
+    here, so do not resurrect it without a rewrite:
+
+      - eliminated candidates are appended to `elected`, so losers appear as winners;
+      - `active.discard(top)` runs on the elimination branch too, dropping the
+        current leader alongside the eliminated candidate;
+      - the loop runs exactly `seats` times, so every elimination consumes a seat.
+
+    The surplus arithmetic itself is the right shape (scale each contributing
+    ballot's current weight by (votes - quota) / votes), but the surrounding
+    round structure is not.
+    """
     if seats >= len(candidates):
         return candidates[:]
 
