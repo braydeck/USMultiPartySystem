@@ -450,11 +450,10 @@ export function AboutTab() {
           <Card className="p-5">
             <div className="font-semibold text-foreground mb-2">Ballot depth is an instruction, not a guess</div>
             <p className={`${BODY_PROSE} mb-3`}>
-              How deep people rank is set by what the ballot tells them to do, so the depth control is a
-              design choice rather than a behavioral unknown. It matters because short ballots break
-              proportional representation: once all of a voter&apos;s choices are eliminated the ballot
+              How deep people rank is set by ballot instruction. Short ballots break
+              proportional representation: once all of a voter&apos;s choices are eliminated, the ballot
               exhausts and stops transferring, so late seats fill below the quota that is supposed to earn
-              them. Share of House seats filled below quota, by instructed depth (double-Wyoming, 5% variable increased turnout):
+              them. Share of House seats filled below quota, by instructed depth (double-Wyoming, 5% relative increased turnout):
             </p>
             <div className="grid grid-cols-5 gap-2 text-center mb-3">
               {([['3', '34%'], ['5', '18%'], ['7', '13%'], ['10', '9%'], ['All', '8%']] as const).map(([r, v]) => (
@@ -465,12 +464,12 @@ export function AboutTab() {
               ))}
             </div>
             <p className={`${CARD_HINT} leading-relaxed mb-4`}>
-              Seven captures most of the gain toward the full-ranking floor without asking voters to rank a whole
-              field. It also matches the standard rule that a voter should rank at least as many candidates as the
-              district has seats: the largest districts here elect seven.
+             Highest gains are seen from 3→5 (34%→18%, -16%) and 5→7 (18%→13%, -5%) with a drop off in utility beyond 7. 
+             These rankings match the heuristic that a voter should rank at least as many candidates as the
+              district has seats: here, the largest districts elect 7 reps.
             </p>
 
-            <div className={`${MINOR_HEADING} mb-2.5`}>Voters follow the instruction, and a third go past it</div>
+            <div className={`${MINOR_HEADING} mb-2.5`}>Case Study of the Australian Senate: Voters follow ranking instructions</div>
             <div className="grid sm:grid-cols-[8rem_1fr] gap-3 mb-2.5">
               <div className="rounded-lg bg-muted/50 border border-border p-3 text-center flex flex-col justify-center">
                 <div className="text-2xl font-bold tabular-nums text-foreground">98.2%</div>
@@ -491,15 +490,12 @@ export function AboutTab() {
               </div>
             </div>
             <p className={`${CARD_HINT} leading-relaxed`}>
-              Shares of formal voters in the Australian Capital Territory, the closest real comparison
-              available: Hare-Clark fills 5-seat electorates there and the ballot says to number five boxes
-              from 1 to 5, so both the counting rule and the instruction match a district in this model.
-              Compliance is near-total, the overshoot is one-sided, and both hold across four elections, so
-              truncating every simulated ballot at the instruction understates how deep a real electorate
-              ranks. The below-quota figures above are therefore ceilings. Two things to hold against that:
-              the ACT votes under compulsory turnout, so its compliance rate is an upper bound, and its
-              last-parcel surplus rule reads fewer deep preferences than the Gregory fractional method used
-              here, so depth should matter somewhat more in this model than in the ACT&apos;s own data.{' '}
+              Shares of formal voters in the Australian Capital Territory: STV fills 5-seat districts. Instructions say to rank at least 5. 
+              from 1 to 5.
+              Compliance is near-total with a third going above and beyond. These findings hold across four elections. The below-quota figures above are likely ceilings. Two caveats:
+              Australia has compulsory turnout and its
+              last-parcel surplus rule only transfers the "most recent parcel of voters" to fill the seat. We use the Gregory fractional method
+              in this sim which transfers all votes, so depth likely matters somewhat more in this model.{' '}
               <a
                 href="https://www.parliament.act.gov.au/__data/assets/pdf_file/0009/3052467/Ballot-paper-preference-analysis-impact-of-ballot-paper-instructions.pdf"
                 target="_blank" rel="noopener noreferrer"
