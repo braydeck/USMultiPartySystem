@@ -42,7 +42,7 @@ export function QuotaCompositionChart({ filterParties }: { filterParties?: strin
           const segs = Object.entries(row.byOrigin)
             .sort((a, b) => (a[0] === row.party ? -1 : b[0] === row.party ? 1 : b[1] - a[1]));
           return (
-            <div key={row.party} className="grid grid-cols-[7rem_1fr_3rem_4.5rem] items-center gap-2">
+            <div key={row.party} className="grid grid-cols-[7rem_1fr_3rem_4.5rem] items-start gap-2 pt-0.5">
               <div className="min-w-0">
                 <div className="text-xs font-medium truncate" style={{ color: PARTY_COLORS[row.party] }}>
                   {name(row.party)}
@@ -50,7 +50,7 @@ export function QuotaCompositionChart({ filterParties }: { filterParties?: strin
                 <div className={FOOTNOTE}>{row.seats} seats</div>
               </div>
 
-              <div className="h-6 rounded overflow-hidden flex">
+              <div className="relative h-6 rounded overflow-hidden flex">
                 {segs.map(([origin, share]) => (
                   <div
                     key={origin}
@@ -70,10 +70,29 @@ export function QuotaCompositionChart({ filterParties }: { filterParties?: strin
                     )}
                   </div>
                 ))}
+                {row.ownShare - row.marginalOwnShare > 0.0005 && (
+                  <div
+                    className="absolute inset-y-0 border-l-2 border-foreground/80"
+                    style={{
+                      left: `${row.marginalOwnShare * 100}%`,
+                      width: `${(row.ownShare - row.marginalOwnShare) * 100}%`,
+                      backgroundImage:
+                        'repeating-linear-gradient(45deg, rgba(255,255,255,.85) 0 2px, rgba(255,255,255,0) 2px 4px)',
+                    }}
+                    title={`Own share falls from ${pct(row.ownShare)}% across all seats to ${pct(row.marginalOwnShare)}% on the last seat won in each district`}
+                  />
+                )}
               </div>
 
-              <div className="text-xs font-semibold tabular-nums text-right text-foreground">
-                {pct(row.ownShare)}%
+              <div className="text-right">
+                <div className="text-xs font-semibold tabular-nums text-foreground">
+                  {pct(row.ownShare)}%
+                </div>
+                <div className={FOOTNOTE}>
+                  {row.ownShare - row.marginalOwnShare > 0.0005
+                    ? `−${((row.ownShare - row.marginalOwnShare) * 100).toFixed(1)}`
+                    : '—'}
+                </div>
               </div>
 
               {/* Seats per district won: the variable behind everything else here. Only
@@ -99,17 +118,23 @@ export function QuotaCompositionChart({ filterParties }: { filterParties?: strin
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-4 rounded-sm bg-slate-500 opacity-55" />borrowed, coloured by lender
         </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className="h-2.5 w-4 rounded-sm border-l-2 border-foreground/80 bg-slate-500"
+            style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,.85) 0 2px, rgba(255,255,255,0) 2px 4px)' }}
+          />own share it loses on its last seat
+        </span>
         <span className="ml-auto normal-case tracking-normal">
-          columns: own share · seats per district won
+          columns: own share and its drop at the margin · seats per district won
         </span>
       </div>
 
       <p className={`${CARD_HINT} mb-1`}>
-        Every party wins a median of one seat per district, so for most of them the last seat
-        won <em>is</em> the only seat and there is no margin to separate. Conservative is the
-        exception, taking two or more seats in 41% of the districts it wins, and its marginal
-        seats lean harder on borrowed votes than its average: 78% own voters on the last seat
-        against 86% across all 207.
+        Every party wins a median of one seat per district, so the hatched band only appears
+        where a party takes a second seat somewhere. Three never do (Progressive, Order &amp;
+        Opportunity, Civic Union), and their margin and average are the same number. Of the
+        seven that diverge, four move under half a point, Liberal 1.4, Labour 2.7, and
+        Conservative 8.3, which takes two or more seats in 41% of the districts it wins.
       </p>
       <p className={CARD_HINT}>
         Fixed at the app default: {DATA.config.apportionment} apportionment,
