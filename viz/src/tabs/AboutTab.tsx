@@ -454,7 +454,7 @@ export function AboutTab() {
               design choice rather than a behavioral unknown. It matters because short ballots break
               proportional representation: once all of a voter&apos;s choices are eliminated the ballot
               exhausts and stops transferring, so late seats fill below the quota that is supposed to earn
-              them. Share of House seats filled below quota, by instructed depth (double-Wyoming, 5% turnout):
+              them. Share of House seats filled below quota, by instructed depth (double-Wyoming, 5% variable increased turnout):
             </p>
             <div className="grid grid-cols-5 gap-2 text-center mb-3">
               {([['3', '34%'], ['5', '18%'], ['7', '13%'], ['10', '9%'], ['All', '8%']] as const).map(([r, v]) => (
