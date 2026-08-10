@@ -17,7 +17,7 @@ import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
 import { QuotaCompositionChart } from '../components/house/QuotaCompositionChart';
-import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS, FLOW_SORTS_ORDERED, FLOW_SORT_LABELS, type FlowView, type FlowSort } from '../lib/partyFlow';
+import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS_TRANSFERS, FLOW_SORTS_COMPOSITION, FLOW_SORT_LABELS, type FlowView, type FlowSort } from '../lib/partyFlow';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
 import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
 import type { PLConfig } from '../components/house/PartyListView';
@@ -181,9 +181,9 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   // One pair of controls per matrix: the two cards answer different questions, so a shared
   // toggle made changing one silently reshape the other.
   const [tfView, setTfView] = useUrlState<FlowView>('tfview', 'heatmap', { allowed: [...FLOW_VIEWS] });
-  const [tfSort, setTfSort] = useUrlState<FlowSort>('tfsort', 'breadth', { allowed: [...FLOW_SORTS] });
+  const [tfSort, setTfSort] = useUrlState<FlowSort>('tfsort', 'spread', { allowed: [...FLOW_SORTS_TRANSFERS] });
   const [qcView, setQcView] = useUrlState<FlowView>('qcview', 'heatmap', { allowed: [...FLOW_VIEWS] });
-  const [qcSort, setQcSort] = useUrlState<FlowSort>('qcsort', 'reliance', { allowed: [...FLOW_SORTS_ORDERED] });
+  const [qcSort, setQcSort] = useUrlState<FlowSort>('qcsort', 'reliance', { allowed: [...FLOW_SORTS_COMPOSITION] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
@@ -629,14 +629,15 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
             </h4>
             <div className="flex flex-wrap items-center gap-3">
               <ToggleGroup label="Sort" value={tfSort} onChange={setTfSort}
-                options={FLOW_SORTS} labels={FLOW_SORT_LABELS} />
+                options={FLOW_SORTS_TRANSFERS} labels={FLOW_SORT_LABELS} />
               <ToggleGroup value={tfView} onChange={setTfView}
                 options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
             </div>
           </div>
           <p className={`${CARD_HINT} mb-4`}>
             Where each party&apos;s votes go when they leave it, as surplus above quota or on
-            elimination. Cross-party votes only.
+            elimination. Cross-party votes only. <em>Spread</em> is how many parties those votes
+            reach: 2 is a tight pairing.
             {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
           </p>
           <TransferFlowChart
@@ -657,13 +658,15 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
             <h4 className={CARD_HEADING}>Whose Votes Filled Each Party&apos;s Seats</h4>
             <div className="flex flex-wrap items-center gap-3">
               <ToggleGroup label="Sort" value={qcSort} onChange={setQcSort}
-                options={FLOW_SORTS_ORDERED} labels={FLOW_SORT_LABELS} />
+                options={FLOW_SORTS_COMPOSITION} labels={FLOW_SORT_LABELS} />
               <ToggleGroup value={qcView} onChange={setQcView}
                 options={FLOW_VIEWS} labels={FLOW_VIEW_LABELS} />
             </div>
           </div>
           <p className={`${CARD_HINT} mb-4`}>
-            Which parties' voters help fill each party's seats via first choice "own" voters, eliminations, and transfers.
+            Which parties' voters help fill each party's seats via first choice "own" voters,
+            eliminations, and transfers. <em>Self-reliance</em> is the Own column: the share cast
+            by a party's own voters.
           </p>
           <QuotaCompositionChart
             view={qcView}

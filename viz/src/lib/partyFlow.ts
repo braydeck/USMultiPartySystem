@@ -27,16 +27,17 @@ export type FlowView = 'heatmap' | 'bars';
 export const FLOW_VIEWS: readonly FlowView[] = ['heatmap', 'bars'];
 export const FLOW_VIEW_LABELS: Record<FlowView, string> = { heatmap: 'Heatmap', bars: 'Bars' };
 
-export type FlowSort = 'reliance' | 'ideology' | 'breadth';
-export const FLOW_SORTS: readonly FlowSort[] = ['reliance', 'ideology', 'breadth'];
-/** Breadth sorts by a statistic the composition matrix does not display, so that card offers
- *  only the two orders a reader can see. */
-export const FLOW_SORTS_ORDERED: readonly FlowSort[] = ['reliance', 'ideology'];
+export type FlowSort = 'spread' | 'reliance' | 'ideology';
 export const FLOW_SORT_LABELS: Record<FlowSort, string> = {
+  spread: 'Spread',
   reliance: 'Self-reliance',
   ideology: 'Ideology',
-  breadth: 'Breadth',
 };
+/** Each card offers its own metric first, then Ideology. A card never offers a sort by a
+ *  statistic it does not display: spread is only on the transfer matrix, self-reliance only on
+ *  the composition matrix. */
+export const FLOW_SORTS_TRANSFERS: readonly FlowSort[] = ['spread', 'ideology'];
+export const FLOW_SORTS_COMPOSITION: readonly FlowSort[] = ['reliance', 'ideology'];
 
 /** Parties by the share of their electing weight that came from their own first-preference
  *  voters, descending. Read off the quota-composition bundle so it cannot drift from the data. */
@@ -44,16 +45,15 @@ export const RELIANCE_ORDER: readonly string[] =
   (quotaComposition as { parties: { party: string }[] }).parties.map(p => p.party);
 
 /**
- * Effective number of partners: 1 / Σp², the Laakso-Taagepera formula applied to a party's
- * off-self shares. Reads on an intuitive scale — 2.0 is as concentrated as an even two-way
- * split — and separates a tight coalition partner from a diffuse one. Progressive sends 59%
- * of its transfers to DSA and 38% to Liberal and scores 2.0; Civic Union spreads across five
- * parties and scores 4.7.
+ * Spread: 1 / Σp², the Laakso-Taagepera effective-number formula applied to a row's off-self
+ * shares. Reads on an intuitive scale — 2.0 is as concentrated as an even two-way split — and
+ * separates a tight partner from a diffuse one. Progressive sends its transfers to two parties
+ * and scores 2.1; Civic Union spreads across seven and scores 5.7.
  *
  * Preferred over Shannon entropy here because the source data is clipped at 0.5% per
  * destination, and entropy is the more tail-sensitive of the two.
  */
-export function effectivePartners(segments: { share: number }[]): number {
+export function spread(segments: { share: number }[]): number {
   const total = segments.reduce((a, s) => a + s.share, 0);
   if (!total) return 0;
   const hhi = segments.reduce((a, s) => a + (s.share / total) ** 2, 0);
@@ -63,8 +63,8 @@ export function effectivePartners(segments: { share: number }[]): number {
 /** Row and column order for one matrix. Rows and columns always share it, which is what keeps
  *  the self cells on the diagonal. `breadth` is per-matrix, so the two cards can differ. */
 export function orderRows(rows: FlowRow[], sort: FlowSort): FlowRow[] {
-  if (sort === 'breadth') {
-    return [...rows].sort((a, b) => effectivePartners(b.segments) - effectivePartners(a.segments));
+  if (sort === 'spread') {
+    return [...rows].sort((a, b) => spread(b.segments) - spread(a.segments));
   }
   const seq = sort === 'ideology' ? F5_ORDER : RELIANCE_ORDER;
   const rank = (p: string) => {

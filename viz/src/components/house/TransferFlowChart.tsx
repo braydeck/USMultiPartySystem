@@ -1,6 +1,6 @@
 import { PartyFlowBars, PartyFlowHeatmap } from '../shared/PartyFlowMatrix';
 import {
-  effectivePartners, orderRows,
+  orderRows, spread,
   type FlowExtra, type FlowRow, type FlowSort, type FlowView,
 } from '../../lib/partyFlow';
 import quotaComposition from '../../data/quotaComposition.json';
@@ -23,14 +23,14 @@ const AXES = { row: 'transfers out of', col: 'ballots go to' };
 
 const EXTRAS: FlowExtra[] = [
   {
-    label: 'reach',
-    hint: 'Effective number of destination parties (1 / sum of squared shares). 2.0 is as '
-      + 'concentrated as an even two-way split; higher means the votes spread more widely.',
-    value: row => effectivePartners(row.segments).toFixed(1),
+    label: 'spread',
+    hint: 'How many parties a row\'s votes actually reach: 1 / sum of squared shares. 2.0 is as '
+      + 'concentrated as an even two-way split; higher means the votes go more places.',
+    value: row => spread(row.segments).toFixed(1),
   },
 ];
 
-export function TransferFlowChart({ filterParties, view = 'heatmap', sort = 'breadth' }: {
+export function TransferFlowChart({ filterParties, view = 'heatmap', sort = 'spread' }: {
   filterParties?: string[];
   view?: FlowView;
   sort?: FlowSort;
