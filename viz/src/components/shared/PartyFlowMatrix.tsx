@@ -2,30 +2,33 @@ import { PARTY_COLORS, PARTY_NAMES, getContrastText } from '../../constants/part
 import { TABLE_HEADER } from '../../constants/typography';
 import { CIVIDIS_COLORS, cividisForFrac, cividisText } from '../../lib/cividis';
 import { PartyCode } from './PartyRowLabel';
-import { effectivePartners, type FlowRow } from '../../lib/partyFlow';
+import type { FlowExtra, FlowRow } from '../../lib/partyFlow';
 
 const name = (p: string) => PARTY_NAMES[p] ?? p;
 const color = (p: string) => PARTY_COLORS[p] ?? '#6b7280';
 const pct = (x: number) => Math.round(x * 100);
 
 const LABEL_COL = 'w-28 shrink-0';
-const PARTNER_COL = 'w-10 shrink-0';
-const PARTNER_HINT =
-  'Effective number of partners (1 / sum of squared shares). 2.0 is as concentrated as an even '
-  + 'two-way split; higher means the votes spread across more parties.';
+const EXTRA_COL = 'w-12 shrink-0';
 
 /** What a row is and what a column is, rendered on the matrix itself rather than in prose. */
 export interface FlowAxes { row: string; col: string }
 
 /** Stacked bars, one row per party. Full party name to the left, and the wide segments
  *  carry their own label so the bar reads without the legend. */
-export function PartyFlowBars({ rows, axes }: { rows: FlowRow[]; axes: FlowAxes }) {
+export function PartyFlowBars({ rows, axes, extras = [] }: {
+  rows: FlowRow[]; axes: FlowAxes; extras?: FlowExtra[];
+}) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-end gap-2">
         <span className={`${LABEL_COL} ${TABLE_HEADER}`}>↓ {axes.row}</span>
         <span className={`flex-1 ${TABLE_HEADER}`}>→ {axes.col}</span>
-        <span className={`${PARTNER_COL} text-right ${TABLE_HEADER}`} title={PARTNER_HINT}>partners</span>
+        {extras.map(e => (
+          <span key={e.label} className={`${EXTRA_COL} text-right ${TABLE_HEADER}`} title={e.hint}>
+            {e.label}
+          </span>
+        ))}
       </div>
       {rows.map(row => {
         const segs = row.selfShare != null
@@ -67,10 +70,12 @@ export function PartyFlowBars({ rows, axes }: { rows: FlowRow[]; axes: FlowAxes 
                 );
               })}
             </div>
-            <span className={`${PARTNER_COL} text-right text-xs tabular-nums text-foreground`}
-              title={PARTNER_HINT}>
-              {effectivePartners(row.segments).toFixed(1)}
-            </span>
+            {extras.map(e => (
+              <span key={e.label} className={`${EXTRA_COL} text-right text-xs tabular-nums text-foreground`}
+                title={e.hint}>
+                {e.value(row)}
+              </span>
+            ))}
           </div>
         );
       })}
@@ -84,16 +89,18 @@ export function PartyFlowBars({ rows, axes }: { rows: FlowRow[]; axes: FlowAxes 
  *
  *  Columns follow the row order, so the self cells fall on the diagonal and leave it empty.
  *  Any party that lends votes without holding a row of its own is appended after them. */
-export function PartyFlowHeatmap({ rows, axes, selfLabel }: {
+export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
   rows: FlowRow[];
   axes: FlowAxes;
+  extras?: FlowExtra[];
   /** Header for the separated own-share column. Omit when rows carry no `selfShare`. */
   selfLabel?: string;
 }) {
   const rowOrder = rows.map(r => r.party);
-  const extras = [...new Set(rows.flatMap(r => r.segments.filter(s => s.share > 0).map(s => s.party)))]
+  // Parties that lend votes without holding a row of their own (possible under the state filter).
+  const lenderOnly = [...new Set(rows.flatMap(r => r.segments.filter(s => s.share > 0).map(s => s.party)))]
     .filter(p => !rowOrder.includes(p));
-  const cols = [...rowOrder, ...extras];
+  const cols = [...rowOrder, ...lenderOnly];
   const max = Math.max(...rows.flatMap(r => r.segments.map(s => s.share)), 0.0001);
   const hasSelf = rows.some(r => r.selfShare != null);
 
@@ -111,7 +118,11 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel }: {
               <PartyCode code={c} />
             </span>
           ))}
-          <span className={`${PARTNER_COL} text-right ${TABLE_HEADER}`} title={PARTNER_HINT}>partners</span>
+          {extras.map(e => (
+            <span key={e.label} className={`${EXTRA_COL} text-right ${TABLE_HEADER}`} title={e.hint}>
+              {e.label}
+            </span>
+          ))}
         </div>
 
         {rows.map(row => {
@@ -154,10 +165,13 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel }: {
                   </span>
                 );
               })}
-              <span className={`${PARTNER_COL} h-7 flex items-center justify-end text-xs tabular-nums text-foreground`}
-                title={PARTNER_HINT}>
-                {effectivePartners(row.segments).toFixed(1)}
-              </span>
+              {extras.map(e => (
+                <span key={e.label}
+                  className={`${EXTRA_COL} h-7 flex items-center justify-end text-xs tabular-nums text-foreground`}
+                  title={e.hint}>
+                  {e.value(row)}
+                </span>
+              ))}
             </div>
           );
         })}

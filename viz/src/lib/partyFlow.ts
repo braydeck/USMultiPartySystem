@@ -13,6 +13,14 @@ export interface FlowRow {
   selfShare?: number;
 }
 
+/** A numeric column to the right of the matrix, e.g. coalition breadth or exhausted weight.
+ *  Generic so a chart can add one without the matrix growing chart-specific code. */
+export interface FlowExtra {
+  label: string;
+  hint?: string;
+  value: (row: FlowRow) => string;
+}
+
 export type FlowView = 'heatmap' | 'bars';
 export const FLOW_VIEWS: readonly FlowView[] = ['heatmap', 'bars'];
 export const FLOW_VIEW_LABELS: Record<FlowView, string> = { heatmap: 'Heatmap', bars: 'Bars' };

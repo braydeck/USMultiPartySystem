@@ -169,7 +169,7 @@ const DEPTH_NATIONAL = depthNational as unknown as Record<string, Record<string,
 const CLUSTER_OF: Record<string, number> = Object.fromEntries(
   Object.entries(CLUSTER_TO_PARTY).map(([k, v]) => [v, Number(k)]));
 
-export function HouseTab({ seats, transfers, clusters, fptpStates, districtCountyMap, houseTransfers, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
+export function HouseTab({ seats, transfers, clusters, fptpStates, districtCountyMap, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Voting system: STV (default) vs a Hare-quota party list on the same districts.
@@ -621,7 +621,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
 
       {/* Two views of the same party-to-party matrix: outflow on elimination, then inflow
           at election. Same row grammar and the same bar/heatmap pair for both. */}
-      {scenario === 'rawMulti' && houseTransfers.length > 0 && (
+      {scenario === 'rawMulti' && (
         <Card className="p-4">
           <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
             <h4 className={CARD_HEADING}>
@@ -635,15 +635,14 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
             </div>
           </div>
           <p className={`${CARD_HINT} mb-4`}>
-            Where an eliminated party&apos;s ballots go next. The partners column counts how many
-            parties a ballot realistically reaches: 2 is a tight pairing, 4 or more is a diffuse
-            one.
+            Where each party&apos;s votes go when they leave it, whether as surplus above quota or
+            on elimination. Partners counts how many parties those votes realistically reach: 2 is a
+            tight pairing, 4 or more is diffuse.
             {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
           </p>
           <TransferFlowChart
             view={tfView}
             sort={tfSort}
-            data={houseTransfers}
             filterParties={seatShareState === 'national' ? undefined : (() => {
               const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
               const entry = fips ? activeStateMap[fips] : undefined;

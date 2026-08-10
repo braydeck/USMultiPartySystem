@@ -74,7 +74,7 @@ def active_choice(ballot_row, active_set):
     return None, None
 
 
-def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party):
+def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party, flows=None):
     """H.run_stv with per-seat composition recorded. Counting logic is line-for-line
     the same: Droop quota, weighted inclusive Gregory surplus, field-collapse branch.
 
@@ -83,7 +83,12 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party)
     same factor, so both have identical composition and the shares are unambiguous.
 
     Returns (elected, below_quota, seats) where each seat records:
-      {code, party, belowQuota, order, byOrigin: {party: weight}, byRank: {rank: weight}}
+      {code, party, belowQuota, order, byOrigin: {party: weight}, joint: {origin|rank: weight}}
+
+    When `flows` is passed, records actual transfer destinations as the count runs: for every
+    surplus and every elimination, the weight leaving a candidate is followed to its next
+    surviving choice. Keyed by party pair, with same-party moves and exhausted weight kept
+    apart, because under slate voting most of a surplus goes to the party's own next candidate.
     """
     active = set(cand_codes)
     ballot_wts = weights.astype(float).copy()
@@ -105,6 +110,24 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party)
         for (origin, _r), w in joint.items():
             by_origin[origin] += w
         return dict(by_origin), {f"{o}|{r}": w for (o, r), w in joint.items()}
+
+    def record_flow(source, movers, kind):
+        """movers: list of (ballot index, weight leaving). `active` must already exclude the
+        source, so the next surviving choice is the real destination."""
+        if flows is None:
+            return
+        src_party = source.rsplit("_", 1)[0]
+        for i, w in movers:
+            nxt, _ = active_choice(ballots_arr[i], active)
+            if nxt is None:
+                flows["exhausted"][src_party] += w
+            else:
+                dst_party = nxt.rsplit("_", 1)[0]
+                if dst_party == src_party:
+                    flows["internal"][src_party] += w
+                else:
+                    flows["out"][src_party][dst_party] += w
+            flows["moved"][(src_party, kind)] += w
 
     while len(elected) < n_seats and active:
         remaining = n_seats - len(elected)
@@ -144,12 +167,18 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party)
                 "code": winner, "party": winner.rsplit("_", 1)[0], "belowQuota": False,
                 "order": len(elected), "byOrigin": by_origin, "joint": joint,
             })
+            movers = [(i, ballot_wts[i] * (1 - sf)) for i in range(len(fsc)) if fsc[i] == winner]
             for i in range(len(fsc)):
                 if fsc[i] == winner:
                     ballot_wts[i] *= sf
             active.discard(winner)
+            # Surplus leaves at the transferred value, which is what (1 - sf) of the old weight is.
+            record_flow(winner, [(i, ballot_wts[i]) for i, _ in movers], "surplus")
         else:
-            active.discard(min(active, key=lambda c: (totals[c], c)))
+            loser = min(active, key=lambda c: (totals[c], c))
+            movers = [(i, ballot_wts[i]) for i in range(len(fsc)) if fsc[i] == loser]
+            active.discard(loser)
+            record_flow(loser, movers, "elimination")
 
     return elected, below_quota, seats
 
@@ -187,6 +216,12 @@ def main():
             pub_by_did[row["districtId"]] = row["stvElected"]
 
     rng_prob = np.random.default_rng(43)
+    flows = {
+        "out": defaultdict(lambda: defaultdict(float)),
+        "internal": defaultdict(float),
+        "exhausted": defaultdict(float),
+        "moved": defaultdict(float),
+    }
     base_quotas: dict = defaultdict(float)
     seats_all: list = []
     checked = mismatched = 0
@@ -222,7 +257,7 @@ def main():
         first_party = np.array([b[0].rsplit("_", 1)[0] for b in ballots], dtype=object)
 
         elected, _, seats = run_stv_instrumented(
-            bal_stv, d_count_weights, cand_codes, n_seats_eff, first_party)
+            bal_stv, d_count_weights, cand_codes, n_seats_eff, first_party, flows)
 
         quota_d = float(d_count_weights.sum()) / (n_seats_eff + 1) + 1
         own_quotas: dict = defaultdict(float)
@@ -254,7 +289,7 @@ def main():
         sys.exit(f"ABORT: {mismatched} districts disagree; the decomposition would not describe "
                  "the published chamber.")
 
-    write_bundle(seats_all)
+    write_bundle(seats_all, flows)
 
 
 def H_district_ids(efa, apportion_df):
@@ -293,7 +328,7 @@ def H_district_ids(efa, apportion_df):
     return out
 
 
-def write_bundle(seats_all):
+def write_bundle(seats_all, flows):
     """Aggregate to party level: overall composition, own-party rank depth, and the
     composition of each party's marginal (last-won) seat per district."""
     parties = sorted({s["party"] for s in seats_all})
@@ -367,9 +402,39 @@ def write_bundle(seats_all):
             for p in parties
         ],
     }
+    # Real transfer destinations, replacing the rank-2 proxy in houseTransfers.json: this
+    # follows the weight that actually left each party during the count.
+    transfers = []
+    for p in sorted(flows["out"], key=lambda k: -sum(flows["out"][k].values())):
+        cross = dict(flows["out"][p])
+        cross_tot = sum(cross.values())
+        internal = flows["internal"][p]
+        exhausted = flows["exhausted"][p]
+        moved = cross_tot + internal + exhausted
+        if moved <= 0:
+            continue
+        transfers.append({
+            "party": p,
+            # Shares of cross-party outflow, so a row sums to 100% and is comparable to the
+            # composition matrix; the three context shares below say how big that slice is.
+            "byDest": {k: round(v / cross_tot, 4) for k, v in
+                       sorted(cross.items(), key=lambda kv: -kv[1]) if v / cross_tot >= 0.002},
+            "crossShare": round(cross_tot / moved, 4),
+            "internalShare": round(internal / moved, 4),
+            "exhaustedShare": round(exhausted / moved, 4),
+            "surplusShare": round(flows["moved"][(p, "surplus")] / moved, 4),
+        })
+    out["transfersOut"] = transfers
+
     out["parties"].sort(key=lambda r: -r["ownShare"])
     OUT_PATH.write_text(json.dumps(out, indent=1))
     print(f"\nWrote {OUT_PATH.relative_to(BASE)}  ({len(seats_all)} seats decomposed)")
+    print("\n  transfers out (share of weight leaving each party):")
+    for t in out["transfersOut"]:
+        eff = 1 / sum(v * v for v in t["byDest"].values()) if t["byDest"] else 0
+        print(f"    {t['party']:4s} cross {t['crossShare']*100:5.1f}%  internal {t['internalShare']*100:5.1f}%  "
+              f"exhausted {t['exhaustedShare']*100:5.1f}%  effN {eff:4.2f}  "
+              f"{ {k: round(v*100) for k, v in list(t['byDest'].items())[:4]} }")
     for r in out["parties"]:
         borrowed = 1 - r["ownShare"]
         d = r["perDistrict"]
