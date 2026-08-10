@@ -76,9 +76,10 @@ the tab shows the CES simulation's delegation instead.
 
 ## Legacy
 
-`process_rcv.py` is the earlier CSV-based script. It was never run against real
-data, its STV routine counts eliminated candidates as elected, and nothing in the
-build uses it. Superseded by `process_dominion_cvr.py`.
+`process_rcv.py` was the earlier CSV-based script, deleted 2026-08-10. It had never
+been run against real data, nothing in the build imported it, and its STV routine
+counted eliminated candidates as elected. `process_dominion_cvr.py` supersedes it;
+recover the old file from git history if it is ever wanted.
 
 ## USDA RUCC codes (County Tier Map — unrelated to RCV)
 
