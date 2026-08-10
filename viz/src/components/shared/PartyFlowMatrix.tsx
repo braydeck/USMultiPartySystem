@@ -9,10 +9,31 @@ const color = (p: string) => PARTY_COLORS[p] ?? '#6b7280';
 const pct = (x: number) => Math.round(x * 100);
 
 const LABEL_COL = 'w-32 shrink-0';
-const EXTRA_COL = 'w-9 shrink-0';
+const EXTRA_COL = 'w-12 shrink-0';
 
 /** What a row is and what a column is, rendered on the matrix itself rather than in prose. */
 export interface FlowAxes { row: string; col: string }
+
+/** A derived statistic beside the matrix. With a meter it reads as a filled bar plus its value,
+ *  so the reader compares positions instead of decoding an abstract number. */
+function ExtraCell({ extra, row }: { extra: FlowExtra; row: FlowRow }) {
+  const title = extra.hint ? `${extra.label} ${extra.value(row)} — ${extra.hint}` : extra.label;
+  // With a meter, the bar alone carries the reading: a fixed 0-100 scale needs no number beside
+  // it, and the number was the part that made this column hard to interpret.
+  return extra.meter ? (
+    <span className={`${EXTRA_COL} h-7 flex items-center`} title={title}>
+      <span className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+        <span className="block h-full rounded-full bg-slate-500"
+          style={{ width: `${Math.round(extra.meter(row) * 100)}%` }} />
+      </span>
+    </span>
+  ) : (
+    <span className={`${EXTRA_COL} h-7 flex items-center justify-center text-xs tabular-nums text-foreground`}
+      title={title}>
+      {extra.value(row)}
+    </span>
+  );
+}
 
 /** Stacked bars, one row per party. Full party name to the left, and the wide segments
  *  carry their own label so the bar reads without the legend. */
@@ -40,12 +61,7 @@ export function PartyFlowBars({ rows, axes, extras = [] }: {
               style={{ color: color(row.party) }} title={row.hint ? `${name(row.party)} — ${row.hint}` : name(row.party)}>
               {name(row.party)}
             </span>
-            {extras.map(e => (
-              <span key={e.label} className={`${EXTRA_COL} text-center text-xs tabular-nums text-foreground`}
-                title={e.hint}>
-                {e.value(row)}
-              </span>
-            ))}
+            {extras.map(e => <ExtraCell key={e.label} extra={e} row={row} />)}
             <div className="flex h-7 flex-1 rounded overflow-hidden border border-border">
               {segs.map(s => {
                 const c = color(s.party);
@@ -135,13 +151,7 @@ export function PartyFlowHeatmap({ rows, axes, selfLabel, extras = [] }: {
                 style={{ color: color(row.party) }} title={row.hint ? `${name(row.party)} — ${row.hint}` : name(row.party)}>
                 {name(row.party)}
               </span>
-              {extras.map(e => (
-                <span key={e.label}
-                  className={`${EXTRA_COL} h-7 flex items-center justify-center text-xs tabular-nums text-foreground`}
-                  title={e.hint}>
-                  {e.value(row)}
-                </span>
-              ))}
+              {extras.map(e => <ExtraCell key={e.label} extra={e} row={row} />)}
               {hasSelf && (
                 <span
                   className="w-11 shrink-0 h-7 flex items-center justify-center rounded-sm text-3xs font-bold tabular-nums"

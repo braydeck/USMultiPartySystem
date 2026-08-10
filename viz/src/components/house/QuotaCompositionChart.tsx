@@ -27,7 +27,7 @@ const DATA = quotaComposition as unknown as Bundle;
 /** Whose ballots elected each party's seats: own first-preference voters against votes
  *  borrowed from other parties' voters. Origin rather than preference depth, because
  *  ballots are party-contiguous and depth mostly reports slate size. */
-const AXES = { row: 'won the seat', col: "voter's 1st choice" };
+const AXES = { row: 'seat won by', col: 'voters from' };
 
 export function QuotaCompositionChart({ filterParties, view = 'heatmap', sort = 'reliance' }: {
   filterParties?: string[];

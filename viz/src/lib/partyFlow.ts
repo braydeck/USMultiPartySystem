@@ -21,6 +21,8 @@ export interface FlowExtra {
   label: string;
   hint?: string;
   value: (row: FlowRow) => string;
+  /** 0-1 position on the column's scale, drawn as a small bar beside the value. */
+  meter?: (row: FlowRow) => number;
 }
 
 export type FlowView = 'heatmap' | 'bars';
@@ -77,4 +79,11 @@ export function orderRows(rows: FlowRow[], sort: FlowSort): FlowRow[] {
     return i === -1 ? seq.length : i;
   };
   return [...rows].sort((a, b) => rank(a.party) - rank(b.party));
+}
+
+/** Spread on a 0-1 scale: 0 = every vote to a single party, 1 = divided evenly across all nine
+ *  others. Fixed denominator so the number means the same thing under the state filter. */
+export function spreadIndex(segments: { share: number }[]): number {
+  const OTHER_PARTIES = 9;
+  return Math.min(1, Math.max(0, (spread(segments) - 1) / (OTHER_PARTIES - 1)));
 }

@@ -1,6 +1,6 @@
 import { PartyFlowBars, PartyFlowHeatmap } from '../shared/PartyFlowMatrix';
 import {
-  orderRows, spread,
+  orderRows, spreadIndex,
   type FlowExtra, type FlowRow, type FlowSort, type FlowView,
 } from '../../lib/partyFlow';
 import quotaComposition from '../../data/quotaComposition.json';
@@ -19,16 +19,16 @@ interface TransferRow {
 }
 
 const DATA = (quotaComposition as unknown as { transfersOut: TransferRow[] }).transfersOut;
-const AXES = { row: 'transfers out of', col: 'ballots go to' };
+const AXES = { row: 'from', col: 'to' };
 
 const EXTRAS: FlowExtra[] = [
   {
     label: 'spread',
-    hint: 'How evenly the votes divide, as a count of equal-sized destinations (1 / sum of '
-      + 'squared shares). Not the number of parties reached: one dominant destination lowers it '
-      + 'however many small ones follow. Labor reaches 8 parties but scores 3.5, because 48% of '
-      + 'its transfers go to Solidarity.',
-    value: row => spread(row.segments).toFixed(1),
+    hint: 'Low when a party\'s votes pile into one destination, high when they divide evenly '
+      + 'across many. 0 would be every vote to a single party, 100 an even split across all nine '
+      + 'others.',
+    meter: row => spreadIndex(row.segments),
+    value: row => `${Math.round(spreadIndex(row.segments) * 100)}`,
   },
 ];
 

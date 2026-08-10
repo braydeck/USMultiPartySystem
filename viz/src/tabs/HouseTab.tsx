@@ -636,9 +636,8 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           </div>
           <p className={`${CARD_HINT} mb-4`}>
             Where each party&apos;s votes go when they leave it, as surplus above quota or on
-            elimination. Cross-party votes only. <em>Spread</em> reads the split as a count of
-            equal-sized destinations, so one dominant destination lowers it: Progressive 2.1, Civic
-            Union 5.7.
+            elimination. Cross-party votes only. <em>Spread</em> is low when a party&apos;s votes
+            pile into one destination and high when they divide evenly across many.
             {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
           </p>
           <TransferFlowChart
