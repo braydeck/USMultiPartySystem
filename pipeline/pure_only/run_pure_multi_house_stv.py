@@ -5,12 +5,12 @@ run_pure_multi_house_stv.py
 House STV per district using state-proportional intra-party candidate pools.
 
 Reuses district assignments and density tiers from the canonical ballot checkpoint.
-For each state, builds a variable-length candidate pool based on that state's
-cluster shares (same thresholds as run_pure_multi_senate.py):
-  >= 12% share → 3 candidates (prominence 0.40 / 0.35 / 0.25)
-  >=  5% share → 2 candidates (prominence 0.60 / 0.40)
-  >=  1% share → 1 candidate  (prominence 1.00)
-  <   1% share → 0 candidates (party doesn't run in that state)
+For each state, builds a variable-length candidate pool from that state's cluster
+shares via n_candidates_for_district(): a party expecting to win k seats runs k+1,
+capped at floor(n_seats/2)+1, and MIN_SHARE=0.00 means every party fields at least
+one candidate in every district. Because expected seats come from the Droop quota,
+the share needed for a second candidate scales with district magnitude — 12.5% in a
+7-seat district, 25% in a 3-seat one — rather than sitting at a fixed threshold.
 
 All districts within a state share the same candidate pool; voters are
 assigned to districts by density tier (URBAN / SUBURBAN / RURAL) as stored

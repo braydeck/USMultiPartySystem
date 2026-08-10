@@ -112,6 +112,14 @@ const STEPS = [
   },
 ];
 
+// Share a party needs for a second candidate: one full Droop quota, 1/(seats+1). Mirrors
+// n_candidates_for_district() in run_pure_multi_house_stv.py, which sets slate size from
+// expected seats rather than from fixed share bands.
+const SLATE_THRESHOLDS = [7, 6, 5, 4, 3].map(seats => ({
+  seats,
+  quota: `${(100 / (seats + 1)).toFixed(1)}%`,
+}));
+
 // One ballot's single vote, split across the candidates its surplus helped elect. Illustrative
 // keep values (0.75 / 0.15 / 0.07) with the residue that continues; the segments sum to exactly
 // 1.00, which is the property weighted inclusive Gregory guarantees.
@@ -426,17 +434,27 @@ export function AboutTab() {
 
             <div className="rounded-lg border border-border p-4 mb-4">
               <div className={`${MINOR_HEADING} mb-2.5`}>How many candidates a party runs</div>
-              <div className="grid grid-cols-3 gap-2">
-                {([['≥12%', 3], ['≥5%', 2], ['≥1%', 1]] as const).map(([share, n]) => (
-                  <div key={share} className="rounded-lg bg-muted/50 border border-border p-3 text-center">
-                    <div className="text-lg font-bold tabular-nums text-foreground">{share}</div>
-                    <div className={`${FOOTNOTE} leading-snug`}>of the district →<br />{n} candidate{n > 1 ? 's' : ''}</div>
+              <p className={`${CARD_HINT} mb-2.5`}>
+                A party expecting to win a seat runs one more candidate than that, so slate size is set by
+                the Droop quota rather than by a fixed share. The bar scales with district size, and every
+                party fields at least one candidate everywhere:
+              </p>
+              <div className="grid grid-cols-5 gap-2">
+                {SLATE_THRESHOLDS.map(t => (
+                  <div key={t.seats} className="rounded-lg bg-muted/50 border border-border p-2 text-center">
+                    <div className={`${FOOTNOTE}`}>{t.seats}-seat</div>
+                    <div className="text-lg font-bold tabular-nums text-foreground">{t.quota}</div>
+                    <div className={`${FOOTNOTE} leading-snug`}>for a 2nd</div>
                   </div>
                 ))}
               </div>
               <p className={`${CARD_HINT} mt-2.5`}>
-                Slate size follows the party&apos;s local strength, so nominating badly is possible: too many
-                candidates splits the vote, too few leaves surplus unharvested.
+                Each further quota adds another candidate, capped at half the district&apos;s seats plus one.
+                So nominating badly is possible in both directions: too many candidates splits the vote, too
+                few leaves surplus unharvested. It also means a party polling under one local quota runs a
+                single candidate no matter how large the district. The Senate pool is built differently,
+                from fixed shares of the state rather than from a quota: 12% for three candidates, 5% for
+                two, 1% for one, and below that the party sits the race out.
               </p>
             </div>
 
