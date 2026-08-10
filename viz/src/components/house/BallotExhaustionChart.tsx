@@ -9,7 +9,11 @@ interface Bundle {
 const DATA = quotaComposition as unknown as Bundle;
 
 /**
- * Ballot weight that ended up electing nobody, by the party its voters ranked first.
+ * Ballot VALUE that expired, by the party its voters ranked first. Not a voter count and not
+ * the same as "voters left unrepresented" (0.5%): a ballot can elect someone with part of its
+ * value and still shed a fraction that later expires, so this counts value from represented
+ * voters too. Distinct again from "seats won below quota" (a seat count) and from `wasted` in
+ * housePartyList, which for STV is the analytic Droop floor totV/(S+1) rather than a measurement.
  *
  * Sits under votes-against-seats because it names one cause of that gap rather than restating
  * it: the partial correlation with disproportionality is -0.84 controlling for party size, and
@@ -54,9 +58,9 @@ export function BallotExhaustionChart() {
       </div>
 
       <p className={CARD_HINT}>
-        Ballot weight that elected nobody, by the party its voters ranked first. Explains part of
-        the gap above, not most of it. Rank-{DATA.config.ballotDepth} ballots at{' '}
-        {Math.round(DATA.config.turnoutGap * 100)}% turnout gap closed.
+        Share of each party&apos;s vote value that ran out of rankings and stopped counting. Value,
+        not voters: a ballot can elect someone and still have a fraction expire, which is why this
+        is far above the 0.5% left unrepresented. Rank-{DATA.config.ballotDepth} ballots.
       </p>
     </div>
   );
