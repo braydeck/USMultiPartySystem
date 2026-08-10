@@ -285,10 +285,12 @@ def write_bundle(seats_all):
     below = {p: 0 for p in parties}
 
     last_of: dict = {}
+    per_district: dict = defaultdict(lambda: defaultdict(int))
     for s in seats_all:
         key = (s["districtId"], s["party"])
         if key not in last_of or s["order"] > last_of[key]["order"]:
             last_of[key] = s
+        per_district[s["party"]][s["districtId"]] += 1
 
     for s in seats_all:
         p = s["party"]
@@ -311,6 +313,22 @@ def write_bundle(seats_all):
         tot = sum(d.values()) or 1.0
         return {k: round(v / tot, 4) for k, v in sorted(d.items(), key=lambda kv: -kv[1]) if v / tot >= 0.002}
 
+    def spread(party):
+        """Distribution of seats won per district: how often a party takes more than one
+        seat in the same district, which is what creates a margin to measure at all."""
+        counts = sorted(per_district[party].values())
+        hist: dict = defaultdict(int)
+        for c in counts:
+            hist[min(c, 4)] += 1
+        n = len(counts)
+        return {
+            "districtsWon": n,
+            "median": counts[n // 2] if n else 0,
+            "max": counts[-1] if n else 0,
+            "hist": {str(k): hist[k] for k in sorted(hist)},
+            "multiSeatShare": round(sum(1 for c in counts if c > 1) / n, 4) if n else 0.0,
+        }
+
     out = {
         "config": {"apportionment": "double", "ballotDepth": BALLOT_DEPTH, "turnoutGap": 0.05},
         "parties": [
@@ -325,6 +343,7 @@ def write_bundle(seats_all):
                 "marginalByOrigin": shares(marginal[p]),
                 "marginalOwnShare": round(sum(v for k, v in marginal[p].items() if k == p)
                                           / (sum(marginal[p].values()) or 1.0), 4),
+                "perDistrict": spread(p),
             }
             for p in parties
         ],
@@ -334,8 +353,11 @@ def write_bundle(seats_all):
     print(f"\nWrote {OUT_PATH.relative_to(BASE)}  ({len(seats_all)} seats decomposed)")
     for r in out["parties"]:
         borrowed = 1 - r["ownShare"]
+        d = r["perDistrict"]
         print(f"  {r['party']:4s} {r['seats']:4d} seats  own {r['ownShare']*100:5.1f}%  "
-              f"borrowed {borrowed*100:5.1f}%  marginal-seat own {r['marginalOwnShare']*100:5.1f}%")
+              f"borrowed {borrowed*100:5.1f}%  marginal {r['marginalOwnShare']*100:5.1f}%  "
+              f"| {d['districtsWon']:3d} districts, median {d['median']}, max {d['max']}, "
+              f"{d['multiSeatShare']*100:4.1f}% multi-seat  {dict(d['hist'])}")
 
 
 if __name__ == "__main__":

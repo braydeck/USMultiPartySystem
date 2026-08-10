@@ -25,7 +25,16 @@
     "LIB": 0.0368,
     "LBR": 0.0025
    },
-   "marginalOwnShare": 0.8993
+   "marginalOwnShare": 0.8993,
+   "perDistrict": {
+    "districtsWon": 32,
+    "median": 1,
+    "max": 1,
+    "hist": {
+     "1": 32
+    },
+    "multiSeatShare": 0.0
+   }
   },
   {
    "party": "NAT",
@@ -48,7 +57,17 @@
     "CON": 0.0393,
     "CUP": 0.0046
    },
-   "marginalOwnShare": 0.8914
+   "marginalOwnShare": 0.8914,
+   "perDistrict": {
+    "districtsWon": 81,
+    "median": 1,
+    "max": 2,
+    "hist": {
+     "1": 77,
+     "2": 4
+    },
+    "multiSeatShare": 0.0494
+   }
   },
   {
    "party": "CON",
@@ -77,7 +96,18 @@
     "STY": 0.0129,
     "LBR": 0.0028
    },
-   "marginalOwnShare": 0.7746
+   "marginalOwnShare": 0.7746,
+   "perDistrict": {
+    "districtsWon": 145,
+    "median": 1,
+    "max": 3,
+    "hist": {
+     "1": 86,
+     "2": 56,
+     "3": 3
+    },
+    "multiSeatShare": 0.4069
+   }
   },
   {
    "party": "OAO",
@@ -107,7 +137,16 @@
     "LIB": 0.0065,
     "LBR": 0.0035
    },
-   "marginalOwnShare": 0.7548
+   "marginalOwnShare": 0.7548,
+   "perDistrict": {
+    "districtsWon": 25,
+    "median": 1,
+    "max": 1,
+    "hist": {
+     "1": 25
+    },
+    "multiSeatShare": 0.0
+   }
   },
   {
    "party": "LBR",
@@ -140,7 +179,17 @@
     "CON": 0.0072,
     "POP": 0.0059
    },
-   "marginalOwnShare": 0.727
+   "marginalOwnShare": 0.727,
+   "perDistrict": {
+    "districtsWon": 140,
+    "median": 1,
+    "max": 2,
+    "hist": {
+     "1": 128,
+     "2": 12
+    },
+    "multiSeatShare": 0.0857
+   }
   },
   {
    "party": "LIB",
@@ -169,7 +218,17 @@
     "CUP": 0.01,
     "STY": 0.0082
    },
-   "marginalOwnShare": 0.7261
+   "marginalOwnShare": 0.7261,
+   "perDistrict": {
+    "districtsWon": 103,
+    "median": 1,
+    "max": 2,
+    "hist": {
+     "1": 97,
+     "2": 6
+    },
+    "multiSeatShare": 0.0583
+   }
   },
   {
    "party": "DSA",
@@ -193,7 +252,17 @@
     "STY": 0.0205,
     "LBR": 0.0172
    },
-   "marginalOwnShare": 0.726
+   "marginalOwnShare": 0.726,
+   "perDistrict": {
+    "districtsWon": 28,
+    "median": 1,
+    "max": 2,
+    "hist": {
+     "1": 27,
+     "2": 1
+    },
+    "multiSeatShare": 0.0357
+   }
   },
   {
    "party": "CUP",
@@ -227,7 +296,16 @@
     "PRG": 0.0136,
     "DSA": 0.0122
    },
-   "marginalOwnShare": 0.5695
+   "marginalOwnShare": 0.5695,
+   "perDistrict": {
+    "districtsWon": 73,
+    "median": 1,
+    "max": 1,
+    "hist": {
+     "1": 73
+    },
+    "multiSeatShare": 0.0
+   }
   },
   {
    "party": "STY",
@@ -261,7 +339,18 @@
     "PRG": 0.0144,
     "NAT": 0.0095
    },
-   "marginalOwnShare": 0.5522
+   "marginalOwnShare": 0.5522,
+   "perDistrict": {
+    "districtsWon": 76,
+    "median": 1,
+    "max": 3,
+    "hist": {
+     "1": 74,
+     "2": 1,
+     "3": 1
+    },
+    "multiSeatShare": 0.0263
+   }
   },
   {
    "party": "POP",
@@ -296,7 +385,18 @@
     "PRG": 0.0068,
     "OAO": 0.0047
    },
-   "marginalOwnShare": 0.5409
+   "marginalOwnShare": 0.5409,
+   "perDistrict": {
+    "districtsWon": 78,
+    "median": 1,
+    "max": 3,
+    "hist": {
+     "1": 75,
+     "2": 2,
+     "3": 1
+    },
+    "multiSeatShare": 0.0385
+   }
   }
  ]
 }
