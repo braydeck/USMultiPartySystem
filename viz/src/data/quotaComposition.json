@@ -1,0 +1,302 @@
+{
+ "config": {
+  "apportionment": "double",
+  "ballotDepth": 7,
+  "turnoutGap": 0.05
+ },
+ "parties": [
+  {
+   "party": "PRG",
+   "seats": 32,
+   "belowQuota": 12,
+   "ownShare": 0.8993,
+   "byOrigin": {
+    "PRG": 0.8993,
+    "DSA": 0.0614,
+    "LIB": 0.0368,
+    "LBR": 0.0025
+   },
+   "ownDepth": {
+    "1": 1.0
+   },
+   "marginalByOrigin": {
+    "PRG": 0.8993,
+    "DSA": 0.0614,
+    "LIB": 0.0368,
+    "LBR": 0.0025
+   },
+   "marginalOwnShare": 0.8993
+  },
+  {
+   "party": "NAT",
+   "seats": 85,
+   "belowQuota": 29,
+   "ownShare": 0.8952,
+   "byOrigin": {
+    "NAT": 0.8952,
+    "POP": 0.0623,
+    "CON": 0.0379,
+    "CUP": 0.0045
+   },
+   "ownDepth": {
+    "1": 0.9835,
+    "2": 0.0165
+   },
+   "marginalByOrigin": {
+    "NAT": 0.8914,
+    "POP": 0.0646,
+    "CON": 0.0393,
+    "CUP": 0.0046
+   },
+   "marginalOwnShare": 0.8914
+  },
+  {
+   "party": "CON",
+   "seats": 207,
+   "belowQuota": 8,
+   "ownShare": 0.8579,
+   "byOrigin": {
+    "CON": 0.8579,
+    "OAO": 0.0445,
+    "NAT": 0.0408,
+    "POP": 0.0306,
+    "CUP": 0.0159,
+    "STY": 0.0081
+   },
+   "ownDepth": {
+    "1": 0.8079,
+    "2": 0.1899,
+    "3": 0.0022
+   },
+   "marginalByOrigin": {
+    "CON": 0.7746,
+    "OAO": 0.071,
+    "NAT": 0.0636,
+    "POP": 0.0488,
+    "CUP": 0.0254,
+    "STY": 0.0129,
+    "LBR": 0.0028
+   },
+   "marginalOwnShare": 0.7746
+  },
+  {
+   "party": "OAO",
+   "seats": 25,
+   "belowQuota": 14,
+   "ownShare": 0.7548,
+   "byOrigin": {
+    "OAO": 0.7548,
+    "NAT": 0.0841,
+    "CUP": 0.0586,
+    "CON": 0.0552,
+    "POP": 0.023,
+    "STY": 0.0144,
+    "LIB": 0.0065,
+    "LBR": 0.0035
+   },
+   "ownDepth": {
+    "1": 1.0
+   },
+   "marginalByOrigin": {
+    "OAO": 0.7548,
+    "NAT": 0.0841,
+    "CUP": 0.0586,
+    "CON": 0.0552,
+    "POP": 0.023,
+    "STY": 0.0144,
+    "LIB": 0.0065,
+    "LBR": 0.0035
+   },
+   "marginalOwnShare": 0.7548
+  },
+  {
+   "party": "LBR",
+   "seats": 152,
+   "belowQuota": 6,
+   "ownShare": 0.7545,
+   "byOrigin": {
+    "LBR": 0.7545,
+    "DSA": 0.0876,
+    "LIB": 0.0435,
+    "STY": 0.0384,
+    "OAO": 0.0266,
+    "PRG": 0.0208,
+    "CUP": 0.0155,
+    "CON": 0.0065,
+    "POP": 0.0053
+   },
+   "ownDepth": {
+    "1": 0.9571,
+    "2": 0.0429
+   },
+   "marginalByOrigin": {
+    "LBR": 0.727,
+    "DSA": 0.0974,
+    "LIB": 0.0484,
+    "STY": 0.0428,
+    "OAO": 0.0296,
+    "PRG": 0.0231,
+    "CUP": 0.0172,
+    "CON": 0.0072,
+    "POP": 0.0059
+   },
+   "marginalOwnShare": 0.727
+  },
+  {
+   "party": "LIB",
+   "seats": 109,
+   "belowQuota": 8,
+   "ownShare": 0.7403,
+   "byOrigin": {
+    "LIB": 0.7403,
+    "PRG": 0.1451,
+    "DSA": 0.0427,
+    "OAO": 0.0403,
+    "LBR": 0.0142,
+    "CUP": 0.0094,
+    "STY": 0.0078
+   },
+   "ownDepth": {
+    "1": 0.9742,
+    "2": 0.0258
+   },
+   "marginalByOrigin": {
+    "LIB": 0.7261,
+    "PRG": 0.153,
+    "DSA": 0.045,
+    "OAO": 0.0425,
+    "LBR": 0.0149,
+    "CUP": 0.01,
+    "STY": 0.0082
+   },
+   "marginalOwnShare": 0.7261
+  },
+  {
+   "party": "DSA",
+   "seats": 29,
+   "belowQuota": 12,
+   "ownShare": 0.7266,
+   "byOrigin": {
+    "DSA": 0.7266,
+    "PRG": 0.1854,
+    "LIB": 0.0503,
+    "STY": 0.0205,
+    "LBR": 0.0172
+   },
+   "ownDepth": {
+    "1": 0.9997
+   },
+   "marginalByOrigin": {
+    "DSA": 0.726,
+    "PRG": 0.1858,
+    "LIB": 0.0504,
+    "STY": 0.0205,
+    "LBR": 0.0172
+   },
+   "marginalOwnShare": 0.726
+  },
+  {
+   "party": "CUP",
+   "seats": 73,
+   "belowQuota": 9,
+   "ownShare": 0.5695,
+   "byOrigin": {
+    "CUP": 0.5695,
+    "OAO": 0.1899,
+    "CON": 0.0567,
+    "LIB": 0.0511,
+    "POP": 0.0445,
+    "NAT": 0.0219,
+    "LBR": 0.0206,
+    "STY": 0.0199,
+    "PRG": 0.0136,
+    "DSA": 0.0122
+   },
+   "ownDepth": {
+    "1": 1.0
+   },
+   "marginalByOrigin": {
+    "CUP": 0.5695,
+    "OAO": 0.1899,
+    "CON": 0.0567,
+    "LIB": 0.0511,
+    "POP": 0.0445,
+    "NAT": 0.0219,
+    "LBR": 0.0206,
+    "STY": 0.0199,
+    "PRG": 0.0136,
+    "DSA": 0.0122
+   },
+   "marginalOwnShare": 0.5695
+  },
+  {
+   "party": "STY",
+   "seats": 79,
+   "belowQuota": 7,
+   "ownShare": 0.5531,
+   "byOrigin": {
+    "STY": 0.5531,
+    "POP": 0.1424,
+    "DSA": 0.0924,
+    "LBR": 0.0655,
+    "CON": 0.0389,
+    "CUP": 0.0349,
+    "OAO": 0.034,
+    "LIB": 0.0152,
+    "PRG": 0.0144,
+    "NAT": 0.0094
+   },
+   "ownDepth": {
+    "1": 0.9988
+   },
+   "marginalByOrigin": {
+    "STY": 0.5522,
+    "POP": 0.1426,
+    "DSA": 0.0925,
+    "LBR": 0.0656,
+    "CON": 0.0389,
+    "CUP": 0.035,
+    "OAO": 0.034,
+    "LIB": 0.0152,
+    "PRG": 0.0144,
+    "NAT": 0.0095
+   },
+   "marginalOwnShare": 0.5522
+  },
+  {
+   "party": "POP",
+   "seats": 82,
+   "belowQuota": 7,
+   "ownShare": 0.5455,
+   "byOrigin": {
+    "POP": 0.5455,
+    "NAT": 0.1455,
+    "STY": 0.1017,
+    "CON": 0.0732,
+    "CUP": 0.0495,
+    "DSA": 0.0389,
+    "LBR": 0.0264,
+    "LIB": 0.008,
+    "PRG": 0.0067,
+    "OAO": 0.0047
+   },
+   "ownDepth": {
+    "1": 0.9925,
+    "2": 0.0073
+   },
+   "marginalByOrigin": {
+    "POP": 0.5409,
+    "NAT": 0.147,
+    "STY": 0.1027,
+    "CON": 0.0739,
+    "CUP": 0.05,
+    "DSA": 0.0393,
+    "LBR": 0.0266,
+    "LIB": 0.0081,
+    "PRG": 0.0068,
+    "OAO": 0.0047
+   },
+   "marginalOwnShare": 0.5409
+  }
+ ]
+}

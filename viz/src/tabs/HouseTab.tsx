@@ -16,6 +16,7 @@ import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
 import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
+import { QuotaCompositionChart } from '../components/house/QuotaCompositionChart';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
 import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
 import type { PLConfig } from '../components/house/PartyListView';
@@ -623,6 +624,28 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           </p>
           <TransferFlowChart
             data={houseTransfers}
+            filterParties={seatShareState === 'national' ? undefined : (() => {
+              const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
+              const entry = fips ? activeStateMap[fips] : undefined;
+              return entry ? Object.keys(entry.seats) : undefined;
+            })()}
+          />
+        </Card>
+      )}
+
+      {/* Whose votes filled each party's seats — the inflow side of the transfers above */}
+      {scenario === 'rawMulti' && (
+        <Card className="p-4">
+          <h4 className={`${CARD_HEADING} mb-1`}>
+            Whose Votes Filled Each Party&apos;s Seats
+          </h4>
+          <p className={`${CARD_HINT} mb-4`}>
+            The chart above follows votes out of an eliminated party. This one runs the other way:
+            of the ballots sitting with each party&apos;s candidates when they reached quota, how many
+            began with that party and how many were borrowed from other parties&apos; voters. A long
+            solid bar means the party elects its seats on its own first preferences.
+          </p>
+          <QuotaCompositionChart
             filterParties={seatShareState === 'national' ? undefined : (() => {
               const fips = Object.entries(activeStateMap).find(([, v]) => v.stateAbbr === seatShareState)?.[0];
               const entry = fips ? activeStateMap[fips] : undefined;
