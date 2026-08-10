@@ -17,8 +17,9 @@ import { UrbSubRurChart } from '../components/house/UrbSubRurChart';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { TransferFlowChart } from '../components/house/TransferFlowChart';
 import { QuotaCompositionChart } from '../components/house/QuotaCompositionChart';
-import { BallotExhaustionChart } from '../components/house/BallotExhaustionChart';
+// import { BallotExhaustionChart } from '../components/house/BallotExhaustionChart'; // parked
 import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS_TRANSFERS, FLOW_SORTS_COMPOSITION, FLOW_SORT_LABELS, type FlowView, type FlowSort } from '../lib/partyFlow';
+import { configAt, flowKey, type QuotaFlows } from '../lib/quotaFlows';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
 import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
 import type { PLConfig } from '../components/house/PartyListView';
@@ -185,9 +186,21 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   const [tfSort, setTfSort] = useUrlState<FlowSort>('tfsort', 'spread', { allowed: [...FLOW_SORTS_TRANSFERS] });
   const [qcView, setQcView] = useUrlState<FlowView>('qcview', 'heatmap', { allowed: [...FLOW_VIEWS] });
   const [qcSort, setQcSort] = useUrlState<FlowSort>('qcsort', 'reliance', { allowed: [...FLOW_SORTS_COMPOSITION] });
+  // Flow matrices across apportionment x depth x turnout. Fetched only when the deep-dive is
+  // open, so a closed section costs nothing.
+  const [flowData, setFlowData] = useState<QuotaFlows | null>(null);
+  const flowsOpen = useUrlState<string>('transfers', '', { allowed: ['', '1'] })[0] === '1';
+  useEffect(() => {
+    if (flowsOpen && !flowData) {
+      fetch(`${import.meta.env.BASE_URL}data/quotaFlows.json`)
+        .then(r => r.json()).then(setFlowData).catch(() => {});
+    }
+  }, [flowsOpen, flowData]);
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
+  // The flow matrices follow the same three controls as the rest of the tab.
+  const flowCfgKey = flowKey(depth, wyoming, part);
   // Party-list results are lazy-fetched (public static asset) only when the list flip is on.
   const [plData, setPlData] = useState<Record<string, Record<string, Record<string, PLConfig>>> | null>(null);
   useEffect(() => {
@@ -645,6 +658,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
               {seatShareState !== 'national' && ` Parties that won seats in ${seatShareState}; patterns are national averages.`}
             </p>
             <TransferFlowChart
+            config={configAt(flowData, flowCfgKey)}
               view={tfView}
               sort={tfSort}
               filterParties={seatShareState === 'national' ? undefined : (() => {
@@ -671,6 +685,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
               by a party's own voters. High self-reliance = a party gets most seats from their own first-choice voters.
             </p>
             <QuotaCompositionChart
+            config={configAt(flowData, flowCfgKey)}
               view={qcView}
               sort={qcSort}
               filterParties={seatShareState === 'national' ? undefined : (() => {
@@ -727,13 +742,16 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           />
         </section>
 
-        {/* One named cause of the gap above, not a restatement of it. */}
+        {/* Whose ballots run out — parked. The measure is sound (expired ballot VALUE, distinct
+            from voters-unrepresented and over-quota surplus) but it did not read clearly enough
+            beside those two cards. The component and its bundle data stay in place.
         {scenario === 'rawMulti' && (
           <section>
             <h5 className={`${MINOR_HEADING} mb-1`}>Whose ballots run out</h5>
             <BallotExhaustionChart />
           </section>
         )}
+        */}
 
         <section>
           <div className="grid gap-4 lg:grid-cols-3 items-start">

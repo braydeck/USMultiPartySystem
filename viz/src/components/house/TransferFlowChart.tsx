@@ -3,22 +3,12 @@ import {
   orderRows, spreadIndex,
   type FlowExtra, type FlowRow, type FlowSort, type FlowView,
 } from '../../lib/partyFlow';
-import quotaComposition from '../../data/quotaComposition.json';
+import type { FlowConfig } from '../../lib/quotaFlows';
 
 /** Real transfer destinations, followed as the count runs: every surplus and every elimination,
  *  with the weight leaving a candidate traced to its next surviving choice. Replaces the earlier
  *  second-preference proxy, which could not see elimination order, intra-slate transfers, or
  *  exhausted ballots. */
-interface TransferRow {
-  party: string;
-  byDest: Record<string, number>;
-  crossShare: number;
-  internalShare: number;
-  exhaustedShare: number;
-  surplusShare: number;
-}
-
-const DATA = (quotaComposition as unknown as { transfersOut: TransferRow[] }).transfersOut;
 const AXES = { row: 'from', col: 'to' };
 
 const EXTRAS: FlowExtra[] = [
@@ -32,12 +22,14 @@ const EXTRAS: FlowExtra[] = [
   },
 ];
 
-export function TransferFlowChart({ filterParties, view = 'heatmap', sort = 'spread' }: {
+export function TransferFlowChart({ config, filterParties, view = 'heatmap', sort = 'spread' }: {
+  config: FlowConfig | null;
   filterParties?: string[];
   view?: FlowView;
   sort?: FlowSort;
 }) {
-  const rows: FlowRow[] = DATA
+  if (!config) return null;
+  const rows: FlowRow[] = config.transfersOut
     .filter(r => !filterParties || filterParties.includes(r.party))
     .map(r => ({
       party: r.party,

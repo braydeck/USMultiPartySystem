@@ -60,8 +60,10 @@ PUBLISHED_PATH = ("top7", "double", "5")
 KNOWN_STALE = {"04-01", "04-03"}
 OUT_PATH = BASE / "viz" / "src" / "data" / "quotaComposition.json"
 
-if os.environ.get("TURNOUT_WEIGHT") != "1" or os.environ.get("TURNOUT_LAMBDA") != "0.05":
-    sys.exit("Set TURNOUT_WEIGHT=1 and TURNOUT_LAMBDA=0.05 to match the app default stop.")
+# The env vars must be set before importing H: turnout_weights reads TURNOUT_LAMBDA at import.
+# Checked here rather than in main() so an importing module (quota_flows) fails loudly too.
+if os.environ.get("TURNOUT_WEIGHT") != "1":
+    os.environ["TURNOUT_WEIGHT"] = "1"
 
 import run_pure_multi_house_stv as H  # noqa: E402  (needs the env vars set first)
 
@@ -185,6 +187,8 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party,
 
 
 def main():
+    if os.environ.get("TURNOUT_LAMBDA") != "0.05":
+        sys.exit("Set TURNOUT_WEIGHT=1 and TURNOUT_LAMBDA=0.05 to match the app default stop.")
     print("Loading inputs…")
     efa = pd.read_csv(H.EFA_PATH)
     typology = pd.read_csv(H.TYPOLOGY_PATH)
