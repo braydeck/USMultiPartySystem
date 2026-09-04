@@ -5,19 +5,19 @@ bootstrap_partylist.py
 Sampling range for each party's House seats under party-list PR.
 
 Party list is the benchmark row on the population/votes/seats chart: what a proportional
-rule gives on THESE districts. Note it is not near-proportional — Gallagher is 3.97 for list
-against 5.58 for STV at the default stop, so list carries about half of STV's distortion, and
-both penalise small parties (DSA -2.7pp under list, -2.8pp under STV) because these are small
-multi-member districts rather than a national list. So the row isolates the counting rule's
-contribution, not pure proportionality: votes to list is the district-magnitude penalty
-common to both, and list to STV is what transferable voting adds on top.
+rule gives on THESE districts. It is not near-proportional, and both it and STV penalise
+small parties, because these are small multi-member districts rather than a national list.
+So the row isolates the counting rule's contribution, not pure proportionality: votes to list
+is the district-magnitude penalty common to both, and list to STV is what transferable voting
+adds on top. Current Gallagher figures are printed by pipeline/build_house_partylist.py rather
+than quoted here, so they cannot go stale in a comment.
 
 Cheap for the same reason population share is: the allocation is deterministic given vote
 shares, with no ballots, no transfers and no elimination. It is also depth-invariant (list
 uses first choices only), so there is no ballot-depth axis. It IS turnout-weighted, so it
 needs all seven stops.
 
-Reuses `hare_lr` from pipeline/build_house_partylist.py rather than reimplementing it, so
+Reuses `sainte_lague` from pipeline/build_house_partylist.py rather than reimplementing it, so
 the bootstrap and the committed housePartyList.json cannot drift apart.
 
 The one subtlety: a district with no assigned respondents falls back to its STATE's vote
@@ -46,7 +46,7 @@ sys.path.insert(0, str(BASE / "pipeline"))
 
 from analysis.bootstrap.contests import CLUSTER_TO_PARTY  # noqa: E402
 from analysis.bootstrap.resample import stratified_indices  # noqa: E402
-from build_house_partylist import hare_lr  # noqa: E402  reuse, do not reimplement
+from build_house_partylist import sainte_lague  # noqa: E402  reuse, do not reimplement
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 OUT = BASE / "viz" / "src" / "data" / "partyListSeatRange.json"
@@ -78,8 +78,16 @@ def load():
     state_ix = {s: i for i, s in enumerate(states)}
     dist_state = np.array([state_ix[int(state_of[d])] for d in uniq], dtype=int)
 
+    # First-choice one-hot, matching build_house_partylist.py's allocation basis. The vote basis
+    # is the one thing this script duplicates rather than imports (it imports `sainte_lague` to avoid
+    # exactly that), so it has to be changed in lockstep with the builder or the intervals detach
+    # from the point estimate they are drawn around.
+    probs = typ[PROB_COLS].values.astype(np.float64)
+    first_choice = np.zeros_like(probs)
+    first_choice[np.arange(n), probs.argmax(axis=1)] = 1.0
+
     return dict(
-        probs=typ[PROB_COLS].values.astype(np.float64),
+        probs=first_choice,
         base_w=efa["commonpostweight"].values.astype(np.float64),
         turnout=turn["turnout_cluster"].values.astype(np.float64),
         inputstate=efa["inputstate"].values.astype(int),
@@ -109,7 +117,7 @@ def allocate(d, idx, lam):
         # No respondents landed here in this draw: use the state's vote vector so the
         # district's seats are still allocated rather than silently dropped.
         v = votes[i] if votes[i].sum() > 0 else st_votes[d["dist_state"][i]]
-        out += hare_lr(v, s)
+        out += sainte_lague(v, s)
     return out
 
 

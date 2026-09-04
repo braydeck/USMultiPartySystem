@@ -485,7 +485,7 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
 
 # ---------- houseStateMap.json ----------
 def _compute_state_pop_shares(include_c7: bool = True) -> dict:
-    """Compute soft-weighted population shares per state.
+    """Compute FIRST-CHOICE population shares per state.
 
     Canonical (include_c7=False): C7 dropped and remaining 9 renormalized to 100%.
     WFP (include_c7=True): C7 kept as WFP; all 10 clusters sum to ~100% (no renorm).
@@ -515,11 +515,17 @@ def _compute_state_pop_shares(include_c7: bool = True) -> dict:
         total_w = sum(ws)
         if total_w == 0:
             continue
+        # First-choice head count: each respondent contributes their whole weight to their modal
+        # cluster. See _national_pop_shares_10 for why this is not the posterior sum any more.
+        fc_w = [0.0] * 10
+        for j, i in enumerate(idxs):
+            row = typ_rows[i]
+            probs = [float(row.get(f"prob_cluster_{k}", 0) or 0) for k in range(10)]
+            fc_w[probs.index(max(probs))] += ws[j]
         shares: dict = {}
         c7_share = 0.0
         for k in range(10):
-            col = f"prob_cluster_{k}"
-            val = sum(float(typ_rows[i].get(col, 0)) * ws[j] for j, i in enumerate(idxs)) / total_w * 100
+            val = fc_w[k] / total_w * 100
             if k == 7 and not include_c7:
                 c7_share = val
             elif k in PARTY_CODES:
@@ -2954,20 +2960,30 @@ def build_district_county_map_triple():
 
 
 def _national_pop_shares_10() -> dict:
-    """Soft-weighted national population share per cluster across all 10 clusters
-    (sums to ~100). Used for WFP houseSeats pctPopulation."""
+    """FIRST-CHOICE national population share per cluster across all 10 clusters (sums to ~100).
+    Used for WFP houseSeats pctPopulation and, via _compute_state_pop_shares, houseStateMap.
+
+    Each respondent contributes their whole weight to their modal cluster. This used to sum the
+    posterior matrix, spreading one respondent across all ten clusters in proportion to their
+    membership probabilities. That measures total partisan affinity, which includes affinity held
+    by people whose first choice is a different party, and it is not the quantity any seat count
+    is comparable to: seats come from discrete choices. The residual between the two definitions
+    is exact and signed, `soft_k - hard_k` = (affinity k receives from other parties' first-choice
+    voters) - (affinity k's own voters give away), reaching +1.9pp for STY and -1.5pp for CON. Left
+    soft, it would have loaded onto the population-versus-seats gap the House charts are read for,
+    along the consensus-versus-distinctive axis. The affinity measure is still reported, for its
+    own sake, by pipeline/build_cross_party_affinity.py.
+    """
     efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
     typo_path = Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"
     efa_rows = read_csv(str(efa_path))
     typo_rows = read_csv(str(typo_path))
     total_w = sum(float(r.get("commonpostweight", 1) or 0) for r in efa_rows)
-    shares = {}
-    for k in range(10):
-        col = f"prob_cluster_{k}"
-        num = sum(float(typo_rows[i].get(col, 0) or 0) * float(efa_rows[i].get("commonpostweight", 1) or 0)
-                  for i in range(len(typo_rows)))
-        shares[k] = round(num / total_w * 100, 2) if total_w else 0.0
-    return shares
+    num = [0.0] * 10
+    for i, row in enumerate(typo_rows):
+        probs = [float(row.get(f"prob_cluster_{k}", 0) or 0) for k in range(10)]
+        num[probs.index(max(probs))] += float(efa_rows[i].get("commonpostweight", 1) or 0)
+    return {k: (round(num[k] / total_w * 100, 2) if total_w else 0.0) for k in range(10)}
 
 
 def _cluster_by_var_support() -> dict:
@@ -3307,9 +3323,9 @@ def build_turnout_scenario():
 
 def build_party_population():
     """Each force's share of the adult population vs the as-cast 2024 electorate.
-    Uses SOFT (GMM-posterior) weighting so popShare matches the app's canonical
-    population share (_national_pop_shares_10 / House 'Population vs Seat Share');
-    voteShare re-weights the same posteriors by validated 2024 vote."""
+    Uses FIRST-CHOICE weighting so popShare matches the app's canonical population share
+    (_national_pop_shares_10 / House 'Population vs Seat Share'); voteShare re-weights the same
+    head count by validated 2024 turnout."""
     import pandas as pd
     proc = Path(__file__).parent.parent.parent / "data" / "processed"
     efa  = pd.read_csv(proc / "efa_factor_scores.csv")
@@ -3320,12 +3336,12 @@ def build_party_population():
     t_cluster = tp["turnout_cluster"].values           # per-cluster validated turnout (what the sim uses)
     CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
     Wtot = w.sum()
-    # popShare: soft posterior (canonical, matches _national_pop_shares_10 / House page).
+    # popShare: first-choice head count (canonical, matches _national_pop_shares_10 / House page).
     # turnout: hard per-cluster rate the compression sim weights by. voteShare: their product.
+    fc = typo[[f"prob_cluster_{k}" for k in range(len(CODES))]].values.astype(float).argmax(axis=1)
     pops, turns = [], []
     for k in range(len(CODES)):
-        pk = typo[f"prob_cluster_{k}"].values.astype(float)
-        pops.append(float((pk * w).sum()) / Wtot * 100)
+        pops.append(float(w[fc == k].sum()) / Wtot * 100)
         km = cluster == k
         turns.append(float(t_cluster[km][0]) if km.any() else 0.0)
     votes = [p * tr for p, tr in zip(pops, turns)]

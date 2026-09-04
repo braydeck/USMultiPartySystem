@@ -26,13 +26,15 @@ export const LABEL_MIN_WIDTH = 25;
 
 interface Props {
   seats: HouseSeat[];
-  systemLabel: 'STV' | 'Party List';
+  systemLabel: 'STV' | 'Party List' | 'MMP';
   /** The other proportional system's seats at the current Wyoming rule — a 4th row in double-Wyoming view. */
   otherSystemSeats?: HouseSeat[];
-  otherSystemLabel?: 'STV' | 'Party List';
+  otherSystemLabel?: 'STV' | 'Party List' | 'MMP';
   /** This system's seats under double-Wyoming — the comparison row in triple-Wyoming view. */
   doubleSeats?: HouseSeat[];
   wyoming?: 'double' | 'triple';
+  /** Extra system bars rendered after the primary, before the double-Wyoming comparison. */
+  extraBars?: { label: string; seats: HouseSeat[] }[];
 }
 
 function buildSegments(seats: HouseSeat[]): { party: string; seats: number }[] {
@@ -169,7 +171,7 @@ function CombinedLegend({ primaryLabel, secondaryLabel, primary, secondary, smal
   );
 }
 
-export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLabel, doubleSeats, wyoming = 'double' }: Props) {
+export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLabel, doubleSeats, wyoming = 'double', extraBars }: Props) {
   const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
 
   const total = seats.reduce((s, r) => s + r.national, 0);
@@ -181,24 +183,32 @@ export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLab
   const dblTotal = doubleSeats?.reduce((s, r) => s + r.national, 0) ?? 0;
   const dblSegments = doubleSeats && dblTotal > 0 ? buildSegments(doubleSeats) : null;
 
+  const extraBuilt = useMemo(() => (extraBars ?? []).map(b => ({
+    label: b.label,
+    total: b.seats.reduce((s, r) => s + r.national, 0),
+    segments: buildSegments(b.seats),
+  })).filter(b => b.total > 0), [extraBars]);
+
   const isTriple = wyoming === 'triple';
+
+  const allLabels = [systemLabel, ...(otherSystemLabel && !isTriple ? [otherSystemLabel] : []), ...extraBuilt.map(b => b.label)];
   const title = isTriple
     ? `${systemLabel} — Double vs Triple Wyoming`
-    : `FPTP vs ${systemLabel}${otherSegments ? ` vs ${otherSystemLabel}` : ''}`;
+    : `FPTP vs ${allLabels.join(' vs ')}`;
 
-  // Union of parties whose sliver is too narrow for its inline label in either bar being compared.
+  // Union of parties whose sliver is too narrow for its inline label in any bar.
   const smallParties = useMemo(() => {
-    const secondarySegments = isTriple ? dblSegments : otherSegments;
-    const secondaryTotal = isTriple ? dblTotal : otherTotal;
-    const a = smallPartiesIn(segments, total, rootWidth);
-    const b = secondarySegments ? smallPartiesIn(secondarySegments, secondaryTotal, rootWidth) : new Set<string>();
-    return new Set([...a, ...b]);
-  }, [segments, total, otherSegments, otherTotal, dblSegments, dblTotal, isTriple, rootWidth]);
+    const sets = [smallPartiesIn(segments, total, rootWidth)];
+    if (isTriple && dblSegments) sets.push(smallPartiesIn(dblSegments, dblTotal, rootWidth));
+    if (!isTriple && otherSegments) sets.push(smallPartiesIn(otherSegments, otherTotal, rootWidth));
+    for (const b of extraBuilt) sets.push(smallPartiesIn(b.segments, b.total, rootWidth));
+    const merged = new Set<string>();
+    for (const s of sets) for (const p of s) merged.add(p);
+    return merged;
+  }, [segments, total, otherSegments, otherTotal, dblSegments, dblTotal, extraBuilt, isTriple, rootWidth]);
 
   return (
     <div ref={rootRef} className="space-y-3">
-      {/* No "— House of Representatives" suffix: every caller is already in a House context
-          (the House tab, or the Overview's House group), so it only repeated the label above. */}
       <h4 className={`${CARD_HEADING} mb-1`}>
         {title}
       </h4>
@@ -206,21 +216,13 @@ export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLab
       <FixedPartyBar label="FPTP Today" total={FPTP_TOTAL} dem={FPTP_HOUSE.DEM} gop={FPTP_HOUSE.GOP} />
       <FixedPartyBar label="PR (2-party)" total={PR2_TOTAL} dem={PR2_HOUSE.DEM} gop={PR2_HOUSE.GOP} />
       <SeatBar label={isTriple ? `${systemLabel} (triple)` : `${systemLabel} (sim)`} total={total} segments={segments} />
-      {isTriple
-        ? dblSegments && <SeatBar label={`${systemLabel} (double)`} total={dblTotal} segments={dblSegments} faded />
-        : otherSegments && <SeatBar label={`${otherSystemLabel} (sim)`} total={otherTotal} segments={otherSegments} />}
+      {!isTriple && otherSegments && <SeatBar label={`${otherSystemLabel} (sim)`} total={otherTotal} segments={otherSegments} />}
+      {extraBuilt.map(b => <SeatBar key={b.label} label={b.label} total={b.total} segments={b.segments} />)}
+      {isTriple && dblSegments && <SeatBar label={`${systemLabel} (double)`} total={dblTotal} segments={dblSegments} faded />}
 
-      {/* Legend — a combined row per party, shown only for slivers too narrow for their inline
-          label; a plainly legible bar segment doesn't need restating below. */}
       {smallParties.size > 0 && (
         <div className="mt-3 pt-2 border-t border-border/50">
-          {isTriple
-            ? (dblSegments
-                ? <CombinedLegend primaryLabel={`${systemLabel} (triple)`} secondaryLabel={`${systemLabel} (double)`} primary={segments} secondary={dblSegments} smallParties={smallParties} />
-                : <Legend label={systemLabel} segments={segments} smallParties={smallParties} />)
-            : (otherSegments
-                ? <CombinedLegend primaryLabel={systemLabel} secondaryLabel={otherSystemLabel ?? ''} primary={segments} secondary={otherSegments} smallParties={smallParties} />
-                : <Legend label={systemLabel} segments={segments} smallParties={smallParties} />)}
+          <Legend label={systemLabel} segments={segments} smallParties={smallParties} />
         </div>
       )}
     </div>

@@ -21,15 +21,21 @@ import { QuotaCompositionChart } from '../components/house/QuotaCompositionChart
 import { FLOW_VIEWS, FLOW_VIEW_LABELS, FLOW_SORTS_TRANSFERS, FLOW_SORTS_COMPOSITION, FLOW_SORT_LABELS, type FlowView, type FlowSort } from '../lib/partyFlow';
 import { configAt, flowKey, type QuotaFlows } from '../lib/quotaFlows';
 import { StateSeatsTable } from '../components/house/StateSeatsTable';
-import { PartyListView, seatMapToHouseSeats } from '../components/house/PartyListView';
+import { PartyListView, seatMapToHouseSeats, Stat } from '../components/house/PartyListView';
 import type { PLConfig } from '../components/house/PartyListView';
-import { ScenarioComparison } from '../components/house/ScenarioComparison';
+import { MmpView } from '../components/house/MmpView';
+import type { MmpConfig, MmpNational } from '../components/house/MmpView';
+import { ReserveView } from '../components/house/ReserveView';
+import type { ReserveConfig, ReserveNational } from '../components/house/ReserveView';
+import { VotesVsSeats, type Span, type SystemEntry } from '../components/shared/VotesVsSeats';
 import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
 import { CLUSTER_TO_PARTY, F5_ORDER, PARTY_NAMES, partyOrder, FACTOR_LABELS, DISPLAY_FACTORS } from '../constants/parties';
 import depthNational from '../data/houseDepthNational.json';
+import mmpNational from '../data/houseMmpNational.json';
+import reserveNational from '../data/houseReserveNational.json';
 import { PIPELINE_LABELS, WYOMING_LABELS, HOUSE_SYSTEM_LABELS } from '../constants/labels';
 import { SHOW_CROSSOVER, PIPELINE_OPTIONS } from '../constants/features';
 import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
@@ -37,7 +43,7 @@ import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { CollapsibleSection } from '../components/shared/CollapsibleSection';
-import { uncertaintyAt, populationShares } from '../lib/uncertainty';
+import { uncertaintyAt, populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt } from '../lib/uncertainty';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import houseSeatsL5 from '../data/houseSeatsTurnoutL5.json';
 import houseSeatsL10 from '../data/houseSeatsTurnoutL10.json';
@@ -163,19 +169,34 @@ const POP_SHARES = populationShares();
  *  stop. A 71 KB projection of housePartyList.json's national blocks, emitted by the same script
  *  in the same loop, so it cannot disagree with the 4.1 MB file it is drawn from. */
 type PartyCounts = Record<string, number>;
+const MMP_NATIONAL = mmpNational as unknown as Record<'double' | 'triple', Record<string, MmpNational>>;
+
+type ReserveNationalMap = Record<string, Record<string, Record<string, ReserveNational>>>;
+const RESERVE_NATIONAL = reserveNational as unknown as ReserveNationalMap;
+
+type TierBlock = { urban: PartyCounts; suburban: PartyCounts; rural: PartyCounts };
 const DEPTH_NATIONAL = depthNational as unknown as Record<string, Record<string, Record<string, {
   national: { stvSeats: PartyCounts };
-  stvTiers: { urban: PartyCounts; suburban: PartyCounts; rural: PartyCounts };
+  stvTiers: TierBlock;
+  listTiers: TierBlock;
 }>>>;
 // Party code to the cluster index HouseSeat.party carries.
 const CLUSTER_OF: Record<string, number> = Object.fromEntries(
   Object.entries(CLUSTER_TO_PARTY).map(([k, v]) => [v, Number(k)]));
 
+function tierBlockToHouseSeats(tiers: TierBlock): HouseSeat[] {
+  return F5_ORDER.map(p => {
+    const u = tiers.urban[p] ?? 0, s = tiers.suburban[p] ?? 0, r = tiers.rural[p] ?? 0;
+    return { party: CLUSTER_OF[p], partyName: PARTY_NAMES[p], national: u + s + r,
+      urban: u, suburban: s, rural: r, pctNational: 0, pctPopulation: 0 };
+  }).filter(s => s.national > 0) as unknown as HouseSeat[];
+}
+
 export function HouseTab({ seats, transfers, clusters, fptpStates, districtCountyMap, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Voting system: STV (default) vs a Hare-quota party list on the same districts.
-  const [system, setSystem] = useUrlState<'stv' | 'list'>('system', 'stv', { allowed: ['stv', 'list'] });
+  const [system, setSystem] = useUrlState<'stv' | 'list' | 'mmp'>('system', 'stv', { allowed: ['stv', 'list', 'mmp'] });
   // Ballot depth: how many preferences voters rank (drives STV exhaustion / representation).
   // Default = top 7, a realistic "typical voter" depth; 'full' is the exhaustive-ranking floor.
   const [depth, setDepth] = useUrlState<DepthKey>('depth', 'top7', { allowed: [...DEPTH_KEYS] });
@@ -203,22 +224,54 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   const flowCfgKey = flowKey(depth, wyoming, part);
   // Party-list results are lazy-fetched (public static asset) only when the list flip is on.
   const [plData, setPlData] = useState<Record<string, Record<string, Record<string, PLConfig>>> | null>(null);
+  const [mmpData, setMmpData] = useState<Record<string, Record<string, MmpConfig>> | null>(null);
+  const [reserveData, setReserveData] = useState<Record<string, Record<string, Record<string, ReserveConfig>>> | null>(null);
+  const [reserve, setReserve] = useUrlState<'off' | 'on'>('reserve', 'off', { allowed: ['off', 'on'] });
   useEffect(() => {
+    if (system === 'mmp' && !plData) {
+      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData).catch(() => {});
+    }
+    if (system === 'mmp' && !mmpData) {
+      fetch(`${import.meta.env.BASE_URL}data/houseMmp.json`).then(r => r.json()).then(setMmpData).catch(() => {});
+    }
     if ((system === 'list' || scenario === 'rawMulti') && !plData) {
       fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData).catch(() => {});
     }
-  }, [system, scenario, plData]);
+    if (reserve === 'on' && !reserveData) {
+      fetch(`${import.meta.env.BASE_URL}data/houseReserve.json`).then(r => r.json()).then(setReserveData).catch(() => {});
+    }
+    if (reserve === 'on' && !plData) {
+      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData).catch(() => {});
+    }
+  }, [system, scenario, plData, mmpData, reserve, reserveData]);
   // Bill Simulator vote model, tracked across ballot depth × turnout (rank-7 default). Lazy bundle.
   const [hvmDepth, setHvmDepth] = useState<Record<string, Record<string, VoteModelRow[]>> | null>(null);
   useEffect(() => {
     if (!hvmDepth) fetch(`${import.meta.env.BASE_URL}data/houseVoteModelDepth.json`).then(r => r.json()).then(setHvmDepth).catch(() => {});
   }, [hvmDepth]);
+  const reserveConfig = reserveData?.[depth]?.[wyoming]?.[part];
+  const reserveNat = RESERVE_NATIONAL?.[depth]?.[wyoming]?.[part];
+  const mmpConfig = mmpData?.[wyoming]?.[part];
+  const mmpConfigDouble = mmpData?.['double']?.[part];
   const plConfig = plData?.[depth]?.[wyoming]?.[part];
   // Double-Wyoming party-list config, for the party-list view's double-vs-triple comparison rows.
   const plConfigDouble = plData?.[depth]?.['double']?.[part];
   const partyListSeatsForChart = useMemo(
     () => (scenario === 'rawMulti' && plConfig ? seatMapToHouseSeats(plConfig.national.listSeats) : undefined),
     [scenario, plConfig],
+  );
+  const mmpSeatsForChart = useMemo(
+    () => seatMapToHouseSeats(MMP_NATIONAL[wyoming]?.[part]?.mmpSeats ?? {}),
+    [wyoming, part],
+  );
+  const depthEntry = DEPTH_NATIONAL[depth]?.[wyoming]?.[part];
+  const listTierSeats = useMemo(
+    () => depthEntry?.listTiers ? tierBlockToHouseSeats(depthEntry.listTiers) : undefined,
+    [depthEntry],
+  );
+  const stvTierSeats = useMemo(
+    () => depthEntry?.stvTiers ? tierBlockToHouseSeats(depthEntry.stvTiers) : undefined,
+    [depthEntry],
   );
   // Compression stops [0,5,10,15,20,25,30] per scenario × Wyoming. Every cell now tracks the
   // slider: RawMulti/Crossover × double/triple.
@@ -397,6 +450,31 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     return scenario === 'rawMulti' ? rmSeats : fdSeatsAggregated;
   }, [stvDepthSeats, wyoming, scenario, rmSeats, seatsTripleGi, fdSeatsAggregated, fdSeatsTripleAggregated]);
   const activeTotalSeats = activeSeats.reduce((s, r) => s + r.national, 0);
+
+  // VotesVsSeats data for STV view — built from activeSeats + uncertainty bootstrap
+  const stvVssData = useMemo(() => {
+    const stvTotal = activeTotalSeats || 1;
+    const voteIvs = houseU ? voteSharesAt(gi) : undefined;
+    const listIvs = houseU ? partyListSharesAt(gi) : undefined;
+
+    const stvIvs: Record<string, Span> = {};
+    const voteSpans: Record<string, Span> = {};
+    const listSpans: Record<string, Span> = {};
+    if (houseU) {
+      for (const code of F5_ORDER) {
+        const u = houseU[code];
+        if (u) stvIvs[code] = { expected: u.expected / stvTotal * 100, lo: u.lo / stvTotal * 100, hi: u.hi / stvTotal * 100 };
+        const vv = voteIvs?.[code]; if (vv) voteSpans[code] = vv;
+        const lv = listIvs?.[code]; if (lv) listSpans[code] = lv;
+      }
+    }
+    return {
+      stvIvs: Object.keys(stvIvs).length ? stvIvs : undefined,
+      voteSpans: Object.keys(voteSpans).length ? voteSpans : undefined,
+      listSpans: Object.keys(listSpans).length ? listSpans : undefined,
+    };
+  }, [activeTotalSeats, houseU, gi]);
+
   const activeDistrictResults = stvDepthDetail ? stvDepthDetail.districts : (wyoming === 'triple'
     ? (scenario === 'factorDev' ? fdDistrictTripleGi : districtTripleGi)
     : (scenario === 'factorDev' ? fdDistrictGi : rmDistrict));
@@ -421,7 +499,15 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     return map;
   }, [activeFdHouseSeats]);
 
-  const parliamentSeats = (system === 'list' ? partyListSeatsForChart : activeSeats) ?? [];
+  const reserveParliamentSeats = useMemo(
+    () => (reserve === 'on' && reserveNat && system !== 'mmp')
+      ? seatMapToHouseSeats(reserveNat[system].seats)
+      : null,
+    [reserve, reserveNat, system]);
+  const parliamentSeats = reserveParliamentSeats
+    ?? (system === 'mmp' ? mmpSeatsForChart
+      : system === 'list' ? partyListSeatsForChart
+      : activeSeats) ?? [];
   const parliamentSegments: ParliamentSegment[] = parliamentSeats
     .filter(s => s.national > 0)
     .map(s => {
@@ -502,94 +588,74 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       <StickyControlBar label="House settings">
         <ToggleGroup label="Wyoming" value={wyoming} onChange={setWyoming}
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
+        {(system === 'stv' || system === 'list') && (
+          <ToggleGroup label="Reserve" value={reserve} onChange={setReserve}
+            options={['off', 'on'] as const} labels={{ off: 'Off', on: '~20%' }} />
+        )}
         <ToggleGroup label="System" value={system} onChange={setSystem}
-          options={['stv', 'list'] as const} labels={HOUSE_SYSTEM_LABELS} />
+          options={['stv', 'list', 'mmp'] as const} labels={HOUSE_SYSTEM_LABELS} />
         {SHOW_CROSSOVER && system === 'stv' && (
           <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
             options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />
         )}
-        {(system === 'list' || scenario === 'rawMulti') && (
+        {system !== 'mmp' && (system === 'list' || scenario === 'rawMulti') && (
           <ToggleGroup label="Ballots ranked" value={depth} onChange={setDepth}
             options={[...DEPTH_KEYS]} labels={DEPTH_LABELS} />
         )}
         <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
       </StickyControlBar>
 
-      {system === 'list' && (plConfig
-        ? <PartyListView config={plConfig} wyoming={wyoming} doubleConfig={plConfigDouble}
+      {reserve === 'on' && (system === 'list' || system === 'stv') && (reserveConfig
+        ? <ReserveView config={reserveConfig} national={reserveNat!} system={system}
+            wyoming={wyoming} onWyomingChange={setWyoming}
+            doubleConfig={reserveData?.[depth]?.['double']?.[part]} base={plConfig}
+            mmpGallagher={MMP_NATIONAL[wyoming]?.[part]?.gallagher?.mmp}
+            mmpCoverage={MMP_NATIONAL[wyoming]?.[part]?.softCoverage}
+            mmpUnrep={MMP_NATIONAL[wyoming]?.[part]?.unrepresented}
+            mmpExcess={MMP_NATIONAL[wyoming]?.[part]?.excess}
+            mmpNational={MMP_NATIONAL[wyoming]?.[part]?.mmpSeats ? {
+              seats: MMP_NATIONAL[wyoming][part].mmpSeats,
+              totalSeats: MMP_NATIONAL[wyoming][part].totalSeats,
+            } : undefined}
+            baseSeats={system === 'stv' ? (stvTierSeats ?? activeSeats) : listTierSeats}
+            clusters={orderedClusters} profilesExtra={constellationNode}
+            chamber={chamberNode} />
+        : <div className="py-24 text-center text-sm text-muted-foreground">Loading reserve results…</div>)}
+
+      {system === 'mmp' && (mmpConfig
+        ? <MmpView config={mmpConfig} national={MMP_NATIONAL[wyoming][part]} wyoming={wyoming}
+            onWyomingChange={setWyoming}
+            doubleConfig={mmpConfigDouble} pl={plConfig} clusters={orderedClusters}
+            profilesExtra={constellationNode} chamber={chamberNode} />
+        : <div className="py-24 text-center text-sm text-muted-foreground">Loading MMP results…</div>)}
+
+      {system === 'list' && reserve !== 'on' && (plConfig
+        ? <PartyListView config={plConfig} wyoming={wyoming} onWyomingChange={setWyoming}
+            doubleConfig={plConfigDouble}
             districtCountyMap={wyoming === 'triple' ? districtCountyMapTriple : districtCountyMap}
             houseU={houseUList} gi={gi} clusters={orderedClusters}
             profilesExtra={constellationNode} chamber={chamberNode}
-            fptpDispro={fptpDisproNode} />
+            fptpDispro={fptpDisproNode}
+            mmpNational={MMP_NATIONAL[wyoming]?.[part]?.mmpSeats ? {
+              seats: MMP_NATIONAL[wyoming][part].mmpSeats,
+              totalSeats: MMP_NATIONAL[wyoming][part].totalSeats,
+            } : undefined} />
         : <div className="py-24 text-center text-sm text-muted-foreground">Loading party-list results…</div>)}
 
-      {system === 'stv' && (<>
+      {system === 'stv' && reserve !== 'on' && (<>
       {/* ═══════════════════════════════════════════════════════════════════════
           SECTION 1: REPRESENTATION
           ═══════════════════════════════════════════════════════════════════════ */}
 
-      {/* Hero: FPTP vs STV vs Party List */}
+      {/* Hero: FPTP vs STV */}
       <Card className="p-5">
         <FPTPvsSTV
           seats={activeSeats}
           systemLabel="STV"
-          otherSystemSeats={partyListSeatsForChart}
-          otherSystemLabel="Party List"
           doubleSeats={rmSeats}
           wyoming={wyoming}
         />
       </Card>
-
-      {/* Party profiles — supporting detail, opened on demand. The ideological
-          constellation closes it out: same subject, heaviest chart. */}
-      {/* The two wasted-vote numbers are the headline cost of the current system, not a
-          drill-down: a vote that elected nobody and a vote piled on a safe winner are the
-          same waste from opposite directions. They read beside the seat comparison. */}
-      {scenario === 'rawMulti' && plConfig && (
-        <div className="grid gap-4 lg:grid-cols-2 items-start">
-          <Card className="p-4">
-            <h4 className={`${CARD_HEADING} mb-1`}>
-              Voters left unrepresented
-            </h4>
-            <p className={`${CARD_HINT} mb-4`}>Nobody they voted for won a seat.</p>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                <div className="text-2xs text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
-                <div className={`${METRIC_VALUE} text-rose-700`}>35.8%</div>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/40 p-3">
-                <div className="text-2xs text-muted-foreground">Party list</div>
-                <div className={`${METRIC_VALUE} text-foreground`}>{plConfig.national.unrepresented.list.toFixed(1)}%</div>
-              </div>
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                <div className="text-2xs text-muted-foreground">STV</div>
-                <div className={`${METRIC_VALUE} text-emerald-700`}>{plConfig.national.unrepresented.stv.toFixed(1)}%</div>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <h4 className={`${CARD_HEADING} mb-1`}>
-              Over-quota surplus
-            </h4>
-            <p className={`${CARD_HINT} mb-4`}>Votes above what a winner needed.</p>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-lg border border-rose-200 bg-rose-50 p-3">
-                <div className="text-2xs text-muted-foreground">Today's House <span className="opacity-70">· 2024</span></div>
-                <div className={`${METRIC_VALUE} text-rose-700`}>14.2%</div>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/40 p-3">
-                <div className="text-2xs text-muted-foreground">Party list <span className="opacity-70">· stranded</span></div>
-                <div className={`${METRIC_VALUE} text-foreground`}>{plConfig.national.excess.list.toFixed(1)}%</div>
-              </div>
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                <div className="text-2xs text-muted-foreground">STV <span className="opacity-70">· transferred</span></div>
-                <div className={`${METRIC_VALUE} text-emerald-700`}>{plConfig.national.excess.stv.toFixed(1)}%</div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
 
       <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
         {/* Nine-Party Profiles — above the map */}
@@ -719,43 +785,84 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       {/* Three measures of the same thing — what a party earns against what it wins,
           what that costs voters, and how it varies by state — so they read as one
           section rather than three cards a reader has to connect. */}
-      <CollapsibleSection id="dispro" title="See disproportionality"
-        hint="Votes against seats, what it costs voters, and how it varies by state">
-        <section>
-          <h5 className={`${MINOR_HEADING} mb-1`}>
-            Votes against seats
-          </h5>
-          <ScenarioComparison
-            showHeading={false}
-            rawMultiSeats={stvDepthSeats ?? (wyoming === 'triple' ? seatsTripleGi : rmSeats)}
-            fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
-            scenario={scenario}
-            wyoming={wyoming}
-            doubleSeats={rmSeats}
-            doubleFdSeats={fdSeatsAggregated}
-            stateMap={activeStateMap}
-            doubleStateMap={rmStateMap}
-            selectedState={seatShareState}
-            onStateChange={setSeatShareState}
-            houseU={houseU}
-            gi={gi}
-          />
-        </section>
+      <CollapsibleSection id="dispro" title="See disproportionality & method comparison"
+        hint="Coverage, Gallagher index, and votes against seats across electoral methods">
+        <section className="space-y-6">
+          {/* Metric cards — moved here from main page flow */}
+          {scenario === 'rawMulti' && plConfig && (
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card className="p-4">
+                <h5 className={`${MINOR_HEADING} mb-1`}>Representational coverage</h5>
+                <p className={`${CARD_HINT} mb-3`}>Posterior identity on a seated party.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <Stat label="Today's House" value={100 - 35.8} tone="worst" note="2024 · binary" />
+                  <Stat label="Party list" value={plConfig.national.softCoverage.listState}
+                    tone={plConfig.national.softCoverage.listState >= plConfig.national.softCoverage.stvState ? 'best' : 'mid'} />
+                  <Stat label="STV" value={plConfig.national.softCoverage.stvState}
+                    tone={plConfig.national.softCoverage.stvState >= plConfig.national.softCoverage.listState ? 'best' : 'mid'} />
+                </div>
+              </Card>
+              <Card className="p-4">
+                <h5 className={`${MINOR_HEADING} mb-1`}>Voters left unrepresented</h5>
+                <p className={`${CARD_HINT} mb-3`}>Nobody they voted for won a seat.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <Stat label="Today's House" value={35.8} tone="worst" note="2024" />
+                  <Stat label="Party list" value={plConfig.national.unrepresented.list} tone="mid" />
+                  <Stat label="STV" value={plConfig.national.unrepresented.stv} tone="best" />
+                </div>
+              </Card>
+              <Card className="p-4">
+                <h5 className={`${MINOR_HEADING} mb-1`}>Over-quota surplus</h5>
+                <p className={`${CARD_HINT} mb-3`}>Votes above what a winner needed.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <Stat label="Today's House" value={14.2} tone="worst" note="2024" />
+                  <Stat label="Party list" value={plConfig.national.excess.list} tone="mid" note="stranded" />
+                  <Stat label="STV" value={plConfig.national.excess.stv} tone="best" note="transferred" />
+                </div>
+              </Card>
+            </div>
+          )}
 
-        {/* Whose ballots run out — parked. The measure is sound (expired ballot VALUE, distinct
-            from voters-unrepresented and over-quota surplus) but it did not read clearly enough
-            beside those two cards. The component and its bundle data stay in place.
-        {scenario === 'rawMulti' && (
-          <section>
-            <h5 className={`${MINOR_HEADING} mb-1`}>Whose ballots run out</h5>
-            <BallotExhaustionChart />
-          </section>
-        )}
-        */}
+          {/* Gallagher index */}
+          {scenario === 'rawMulti' && plConfig && (
+            <div>
+              <h5 className={`${MINOR_HEADING} mb-1`}>Gallagher index</h5>
+              <p className={`${CARD_HINT} mb-3`}>Lower is closer to proportional.</p>
+              <div className="grid grid-cols-3 gap-2 max-w-md">
+                <Stat label="FPTP (drawn)" value={plConfig.national.gallagher.fptp} tone="worst" isCount />
+                <Stat label="Party list" value={plConfig.national.gallagher.list}
+                  tone={plConfig.national.gallagher.list <= plConfig.national.gallagher.stv ? 'best' : 'mid'} isCount />
+                <Stat label="STV" value={plConfig.national.gallagher.stv}
+                  tone={plConfig.national.gallagher.stv <= plConfig.national.gallagher.list ? 'best' : 'mid'} isCount />
+              </div>
+            </div>
+          )}
 
-        <section>
-          <div className="grid gap-4 lg:grid-cols-3 items-start">
-          {/* Seats won below quota — the exhaustion cost of shorter ballots */}
+          {/* Unified votes-against-seats */}
+          <div>
+            <h5 className={`${MINOR_HEADING} mb-1`}>Votes against seats</h5>
+            <p className={`${CARD_HINT} mb-3`}>
+              {seatShareState !== 'national' ? `${seatShareState}. ` : ''}The share of the vote each party wins compared
+              with the share of seats it ends up with.
+            </p>
+            <StvVotesVsSeatsChart
+              activeSeats={activeSeats}
+              fdSeats={wyoming === 'triple' ? fdSeatsTripleAggregated : fdSeatsAggregated}
+              scenario={scenario}
+              wyoming={wyoming}
+              onWyomingChange={setWyoming}
+              stateMap={activeStateMap}
+              selectedState={seatShareState}
+              onStateChange={setSeatShareState}
+              houseU={houseU}
+              gi={gi}
+              stvVssData={stvVssData}
+              plConfig={plConfig}
+              mmpNationalEntry={MMP_NATIONAL[wyoming]?.[part]}
+            />
+          </div>
+
+          {/* Seats won below quota */}
           {scenario === 'rawMulti' && belowQuota && (
             <Card className="p-4">
               <h4 className={`${CARD_HEADING} mb-1`}>
@@ -773,10 +880,9 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
               </div>
             </Card>
           )}
-          </div>
-        </section>
 
-        {fptpDisproNode}
+          {fptpDisproNode}
+        </section>
       </CollapsibleSection>
 
       {/* Vote Transfer Destinations removed — now below Population vs Seat Share */}
@@ -858,5 +964,148 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       )}
       </>)}
     </div>
+  );
+}
+
+// Builds system entries and delegates to VotesVsSeats for the STV disproportionality section.
+function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomingChange, stateMap, selectedState, onStateChange, houseU, gi, stvVssData, plConfig, mmpNationalEntry }: {
+  activeSeats: HouseSeat[];
+  fdSeats: HouseSeat[];
+  scenario: 'rawMulti' | 'factorDev';
+  wyoming: 'double' | 'triple';
+  onWyomingChange: (w: 'double' | 'triple') => void;
+  stateMap: Record<string, HouseStateEntry>;
+  selectedState: string;
+  onStateChange: (s: string) => void;
+  houseU?: Record<string, import('../lib/uncertainty').SeatInterval>;
+  gi: number;
+  stvVssData: { stvIvs?: Record<string, Span>; voteSpans?: Record<string, Span>; listSpans?: Record<string, Span> };
+  plConfig?: PLConfig;
+  mmpNationalEntry?: MmpNational;
+}) {
+  const isNational = selectedState === 'national';
+
+  const stateOpts = useMemo(() => [
+    { value: 'national', label: 'National' },
+    ...Object.values(stateMap).map(e => ({ value: e.stateAbbr, label: e.stateAbbr }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
+  ], [stateMap]);
+
+  // Resolve state-level data
+  const stateEntry = useMemo(() => {
+    if (isNational) return undefined;
+    const fips = Object.entries(stateMap).find(([, v]) => v.stateAbbr === selectedState)?.[0];
+    return fips ? stateMap[fips] : undefined;
+  }, [isNational, selectedState, stateMap]);
+
+  const stvTotal = useMemo(() => {
+    if (stateEntry) return stateEntry.totalSeats || 1;
+    return activeSeats.reduce((s, r) => s + r.national, 0) || 1;
+  }, [activeSeats, stateEntry]);
+
+  const stvSeatsMap = useMemo((): Record<string, number> => {
+    if (stateEntry) return stateEntry.seats;
+    const m: Record<string, number> = {};
+    for (const s of activeSeats) m[CLUSTER_TO_PARTY[String(s.party)]] = s.national;
+    return m;
+  }, [activeSeats, stateEntry]);
+
+  const voteShare = useMemo((): Record<string, number> => {
+    if (!isNational) {
+      // State level: use plConfig's state-level vote shares if available, else popShares
+      if (plConfig) {
+        const fips = Object.entries(stateMap).find(([, v]) => v.stateAbbr === selectedState)?.[0];
+        const plState = fips ? plConfig.byState[fips] : undefined;
+        if (plState) return plState.voteShare;
+      }
+      return stateEntry?.popShares ?? {};
+    }
+    // National: use bootstrap vote share points if available, else population as proxy
+    if (stvVssData.voteSpans) {
+      const out: Record<string, number> = {};
+      for (const code of F5_ORDER) {
+        const v = stvVssData.voteSpans[code];
+        if (v) out[code] = v.expected ?? v.lo;
+      }
+      if (Object.keys(out).length > 0) return out;
+    }
+    return Object.fromEntries(activeSeats.map(s => [CLUSTER_TO_PARTY[String(s.party)], s.pctPopulation ?? 0]).filter(([, v]) => v > 0));
+  }, [activeSeats, stateEntry, isNational, stvVssData, plConfig, stateMap, selectedState]);
+
+  // At national level with bootstrap: use pre-computed intervals.
+  // At state level or without bootstrap: no intervals.
+  const voteIntervals = isNational ? stvVssData.voteSpans : undefined;
+
+  const popShare = useMemo((): Record<string, number> | undefined => {
+    if (!isNational) return undefined;
+    const out: Record<string, number> = {};
+    for (const code of F5_ORDER) { const v = POP_SHARES[code]; if (v) out[code] = v.point ?? 0; }
+    return Object.keys(out).length > 0 ? out : undefined;
+  }, [isNational]);
+  const popIntervals = isNational && houseU ? POP_SHARES as Record<string, Span> : undefined;
+
+  const systems = useMemo((): SystemEntry[] => {
+    const entries: SystemEntry[] = [{
+      key: 'stv', label: 'STV', texture: 'primary',
+      seats: stvSeatsMap, totalSeats: stvTotal,
+      intervals: isNational ? stvVssData.stvIvs : undefined,
+      defaultOn: true,
+    }];
+
+    // Party List (from plConfig)
+    if (plConfig && scenario === 'rawMulti') {
+      if (isNational) {
+        entries.push({
+          key: 'list', label: 'Party List', texture: 'compare',
+          seats: plConfig.national.listSeats, totalSeats: plConfig.national.totalSeats,
+          intervals: stvVssData.listSpans,
+        });
+      } else {
+        const fips = Object.entries(stateMap).find(([, v]) => v.stateAbbr === selectedState)?.[0];
+        const plState = fips ? plConfig.byState[fips] : undefined;
+        if (plState) {
+          entries.push({
+            key: 'list', label: 'Party List', texture: 'compare',
+            seats: plState.listSeats, totalSeats: plState.totalSeats,
+          });
+        }
+      }
+    }
+
+    // MMP (national only, from bundled data)
+    if (isNational && mmpNationalEntry) {
+      entries.push({
+        key: 'mmp', label: 'MMP', texture: 'compare',
+        seats: mmpNationalEntry.mmpSeats, totalSeats: mmpNationalEntry.totalSeats,
+      });
+    }
+
+    // Crossover (FD)
+    if (scenario === 'factorDev' && isNational) {
+      const fdTotal = fdSeats.reduce((s, r) => s + r.national, 0) || 1;
+      const fdMap: Record<string, number> = {};
+      for (const s of fdSeats) fdMap[CLUSTER_TO_PARTY[String(s.party)]] = s.national;
+      entries.push({
+        key: 'fd', label: 'Crossover', texture: 'compare',
+        seats: fdMap, totalSeats: fdTotal,
+      });
+    }
+
+    return entries;
+  }, [stvSeatsMap, stvTotal, isNational, stvVssData, plConfig, scenario, selectedState, stateMap, mmpNationalEntry, fdSeats]);
+
+  return (
+    <VotesVsSeats
+      systems={systems}
+      voteShare={voteShare}
+      voteIntervals={voteIntervals}
+      populationShare={popShare}
+      populationIntervals={popIntervals}
+      stateOptions={stateOpts}
+      selectedState={selectedState}
+      onStateChange={onStateChange}
+      wyoming={wyoming}
+      onWyomingChange={onWyomingChange}
+    />
   );
 }

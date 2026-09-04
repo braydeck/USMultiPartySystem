@@ -8,16 +8,30 @@ Seat shares already carry bootstrap intervals, but a population-vs-seat chart is
 answerable if BOTH sides do: without a population interval you cannot tell a real
 mis-representation from one that sits inside sampling noise.
 
-Population share is a soft-weighted mean of each respondent's cluster-membership
-probabilities, so unlike the seat counts it needs no election run — one weighted mean per
-draw. That makes 1000 draws a few seconds rather than the seat harness's ~80 minutes.
+Both rows count FIRST CHOICES: each respondent contributes one unit, to the party of their
+modal cluster. Unlike the seat counts this needs no election run, just one weighted head
+count per draw, so 1000 draws take a few seconds rather than the seat harness's ~80 minutes.
+
+Both rows used to sum the posterior matrix instead, splitting each respondent across all ten
+parties in proportion to their cluster-membership probabilities. That measures a different
+quantity: total partisan affinity, including affinity held by people who prefer some other
+party. The gap is exact and signed, `soft_k - hard_k` = (mass k receives from other parties'
+first-choice voters) - (mass k's own voters give away), which reaches +1.9pp for STY and
+-1.5pp for CON. Seats are won by discrete choices, so a population or vote row measured in
+affinity mass and a seat row measured in choices are not comparable, and the residual runs
+along the consensus-versus-distinctive axis the House charts are used to read. The affinity
+measure is not discarded: it is reported for its own sake by
+pipeline/build_cross_party_affinity.py.
 
 Two quantities, and the difference between them is the whole point:
 
   population  weighted by `commonpostweight` alone. Describes the country, so it is
-              **stop-invariant** — one set of intervals, not seven.
+              **stop-invariant**, one set of intervals rather than seven.
   votes       weighted by `commonpostweight x turnout multiplier`. Describes the
               electorate, so it moves with the participation slider and needs all seven.
+
+With both rows on the same definition, population to votes is a clean turnout effect and
+votes to seats is a clean electoral-system effect.
 
 Reading a chart across all three rows: population to votes is the turnout effect, and votes
 to seats is what the electoral system does. Collapsing them into one population-vs-seats gap
@@ -51,12 +65,16 @@ STOPS = [(0, "Turnout"), (5, "TurnoutL5"), (10, "TurnoutL10"), (15, "TurnoutL15"
          (20, "TurnoutL20"), (25, "TurnoutL25"), (30, "TurnoutL30")]
 
 
-def _shares(probs: np.ndarray, weights: np.ndarray, idx: np.ndarray) -> np.ndarray:
-    """Soft-weighted share of the population in each cluster, as percentages summing to 100.
-    Mirrors prepare_data.py's _national_pop_shares_10 so the point estimate matches the
-    committed partyPopulation.json rather than being a parallel definition."""
+def _shares(first_choice: np.ndarray, weights: np.ndarray, idx: np.ndarray) -> np.ndarray:
+    """Share of people whose first choice is each party, as percentages summing to 100.
+
+    `first_choice` is the one-hot indicator of each respondent's modal cluster, so this is a
+    weighted head count: every person contributes exactly one unit, to one party. It used to
+    sum the posterior matrix itself, which spread each respondent across all ten parties in
+    proportion to their cluster-membership probabilities. See the module docstring for why
+    that changed."""
     w = weights[idx]
-    return (probs[idx] * w[:, None]).sum(axis=0) / w.sum() * 100.0
+    return (first_choice[idx] * w[:, None]).sum(axis=0) / w.sum() * 100.0
 
 
 def _intervals(probs, weights, state, n_draws):
@@ -93,17 +111,23 @@ def build(n_draws: int) -> dict:
     state = efa["inputstate"].values.astype(int)
     t = turn["turnout_cluster"].values.astype(np.float64)
 
+    # One person, one party: the modal cluster, as a one-hot indicator. Identical to the first
+    # preference every ballot in this project is built from (run_pure_multi_house_stv.py ranks
+    # candidates by `prob_cluster_k`, so its rank-1 is this argmax).
+    fc = np.zeros_like(probs)
+    fc[np.arange(len(probs)), probs.argmax(axis=1)] = 1.0
+
     payload = {
         "nDraws": n_draws,
         "seed": 42,
-        "population": {"stopInvariant": True, "shares": _intervals(probs, base_w, state, n_draws)},
+        "population": {"stopInvariant": True, "shares": _intervals(fc, base_w, state, n_draws)},
         "votes": {},
     }
     for pct, suffix in STOPS:
         lam = pct / 100.0
         # Same compression the pipelines apply: each force's turnout moves toward parity.
         w = base_w * (t + lam * (1.0 - t))
-        payload["votes"][suffix] = {"shares": _intervals(probs, w, state, n_draws)}
+        payload["votes"][suffix] = {"shares": _intervals(fc, w, state, n_draws)}
     return payload
 
 

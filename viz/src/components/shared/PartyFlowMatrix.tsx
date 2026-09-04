@@ -8,7 +8,10 @@ const name = (p: string) => PARTY_NAMES[p] ?? p;
 const color = (p: string) => PARTY_COLORS[p] ?? '#6b7280';
 const pct = (x: number) => Math.round(x * 100);
 
-const LABEL_COL = 'w-32 shrink-0';
+// Sticky so a horizontally scrolled cell keeps its row name. Without it the matrix scrolls the
+// labels off the left edge on narrow screens and a cell in the middle of the grid is unreadable.
+// Needs an opaque background: cells pass BEHIND the label, not under a translucent tint.
+const LABEL_COL = 'w-32 shrink-0 sticky left-0 z-10 bg-card';
 const EXTRA_COL = 'w-12 shrink-0';
 
 /** What a row is and what a column is, rendered on the matrix itself rather than in prose. */
