@@ -20,8 +20,8 @@ export function houseProbField(
 ): keyof VoteModelRow | undefined {
   if (system === 'mmp') return undefined;
   if (opts?.reserve === 'on') return undefined;
-  if (opts?.depth && opts.depth !== 'top7') return undefined;
   if (system === 'list') return wyoming === 'triple' ? 'houseListTripleProbPass' : 'houseListProbPass';
+  if (opts?.depth && opts.depth !== 'top7') return undefined;
   return HOUSE_PROB_FIELD[`${pipeline}+${wyoming}`] ?? 'houseRawMultiProbPass';
 }
 

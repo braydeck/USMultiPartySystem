@@ -195,7 +195,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           options={['double', 'triple'] as const} labels={WYOMING_LABELS} />
         <ToggleGroup label="House" value={system} onChange={setSystem}
           options={['stv', 'list', 'mmp'] as const} labels={HOUSE_SYSTEM_LABELS} />
-        {system !== 'mmp' && (
+        {system === 'stv' && (
           <ToggleGroup label="Ballots ranked" value={depth} onChange={setDepth}
             options={[...DEPTH_KEYS]} labels={DEPTH_LABELS} />
         )}
@@ -234,7 +234,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
         <h4 className={`${CARD_HEADING} mb-1`}>
           Bill Passage Likelihood — {[
             WYOMING_LABELS[wyoming], HOUSE_SYSTEM_LABELS[system],
-            ...(system !== 'mmp' ? [`Rank ${DEPTH_LABELS[depth]}`] : []),
+            ...(system === 'stv' ? [`Rank ${DEPTH_LABELS[depth]}`] : []),
             ...(reserve === 'on' && system !== 'mmp' ? ['+ Reserve'] : []),
             ...(SHOW_CROSSOVER ? [PIPELINE_LABELS[pipeline]] : []), METHOD_LABELS[method],
           ].join(' · ')}
