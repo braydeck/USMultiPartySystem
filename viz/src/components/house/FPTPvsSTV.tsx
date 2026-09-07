@@ -133,44 +133,6 @@ function Legend({ label, segments, smallParties }: {
   );
 }
 
-// Percentage-only, one entry per party comparing two systems side by side (e.g. "9.0% / 9.5%")
-// rather than a seat count — seat counts across two different chamber sizes read as noise. Only
-// parties whose inline bar label got hidden (a too-narrow sliver in either system) are repeated
-// here; a plainly legible segment doesn't need restating.
-function CombinedLegend({ primaryLabel, secondaryLabel, primary, secondary, smallParties }: {
-  primaryLabel: string; secondaryLabel: string;
-  primary: { party: string; seats: number }[]; secondary: { party: string; seats: number }[];
-  smallParties: Set<string>;
-}) {
-  const primaryTotal = primary.reduce((s, r) => s + r.seats, 0);
-  const secondaryTotal = secondary.reduce((s, r) => s + r.seats, 0);
-  const primaryByParty = Object.fromEntries(primary.map(s => [s.party, s.seats]));
-  const secondaryByParty = Object.fromEntries(secondary.map(s => [s.party, s.seats]));
-  const parties = [...primary.map(s => s.party)];
-  for (const s of secondary) if (!parties.includes(s.party)) parties.push(s.party);
-  const shown = parties.filter(p => smallParties.has(p));
-  if (!shown.length) return null;
-
-  return (
-    <div className="space-y-1">
-      <div className="text-xs font-semibold text-foreground">{primaryLabel} / {secondaryLabel}</div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        {shown.map(party => {
-          const pPct = primaryTotal ? (primaryByParty[party] ?? 0) / primaryTotal * 100 : 0;
-          const sPct = secondaryTotal ? (secondaryByParty[party] ?? 0) / secondaryTotal * 100 : 0;
-          return (
-            <span key={party} className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[party] ?? '#6b7280' }} />
-              <span className="text-xs text-foreground font-semibold">{party}</span>
-              <span className="text-xs text-muted-foreground">{pPct.toFixed(1)}% / {sPct.toFixed(1)}%</span>
-            </span>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 export function FPTPvsSTV({ seats, systemLabel, otherSystemSeats, otherSystemLabel, doubleSeats, wyoming = 'double', extraBars }: Props) {
   const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
 

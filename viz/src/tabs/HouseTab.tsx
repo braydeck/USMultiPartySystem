@@ -43,7 +43,7 @@ import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { CollapsibleSection } from '../components/shared/CollapsibleSection';
-import { uncertaintyAt, populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt } from '../lib/uncertainty';
+import { uncertaintyAt, populationShares, voteSharesAt, partyListSharesAt } from '../lib/uncertainty';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import houseSeatsL5 from '../data/houseSeatsTurnoutL5.json';
 import houseSeatsL10 from '../data/houseSeatsTurnoutL10.json';
@@ -855,7 +855,6 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
               selectedState={seatShareState}
               onStateChange={setSeatShareState}
               houseU={houseU}
-              gi={gi}
               stvVssData={stvVssData}
               plConfig={plConfig}
               mmpNationalEntry={MMP_NATIONAL[wyoming]?.[part]}
@@ -968,7 +967,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
 }
 
 // Builds system entries and delegates to VotesVsSeats for the STV disproportionality section.
-function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomingChange, stateMap, selectedState, onStateChange, houseU, gi, stvVssData, plConfig, mmpNationalEntry }: {
+function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomingChange, stateMap, selectedState, onStateChange, houseU, stvVssData, plConfig, mmpNationalEntry }: {
   activeSeats: HouseSeat[];
   fdSeats: HouseSeat[];
   scenario: 'rawMulti' | 'factorDev';
@@ -978,7 +977,6 @@ function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomi
   selectedState: string;
   onStateChange: (s: string) => void;
   houseU?: Record<string, import('../lib/uncertainty').SeatInterval>;
-  gi: number;
   stvVssData: { stvIvs?: Record<string, Span>; voteSpans?: Record<string, Span>; listSpans?: Record<string, Span> };
   plConfig?: PLConfig;
   mmpNationalEntry?: MmpNational;
@@ -1029,7 +1027,7 @@ function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomi
       }
       if (Object.keys(out).length > 0) return out;
     }
-    return Object.fromEntries(activeSeats.map(s => [CLUSTER_TO_PARTY[String(s.party)], s.pctPopulation ?? 0]).filter(([, v]) => v > 0));
+    return Object.fromEntries(activeSeats.map(s => [CLUSTER_TO_PARTY[String(s.party)], s.pctPopulation ?? 0]).filter((e): e is [string, number] => (e[1] as number) > 0));
   }, [activeSeats, stateEntry, isNational, stvVssData, plConfig, stateMap, selectedState]);
 
   // At national level with bootstrap: use pre-computed intervals.

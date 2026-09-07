@@ -11,7 +11,7 @@ import { useUrlState } from '../../hooks/useUrlState';
 import { getBlendColor, PARTY_NAMES, CLUSTER_TO_PARTY, F5_ORDER } from '../../constants/parties';
 import type { ClusterProfile, HouseSeat } from '../../types';
 import {
-  CARD_HEADING, MINOR_HEADING, CARD_HINT, TABLE_HEADER, BODY_PROSE,
+  CARD_HEADING, MINOR_HEADING, CARD_HINT, TABLE_HEADER,
 } from '../../constants/typography';
 
 export type SeatMap = Record<string, number>;
@@ -384,14 +384,6 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
           </div>
         </Card>
       </CollapsibleSection>
-
-      <p className={`${BODY_PROSE} px-1`}>
-        Seat allocation is Sainte-Lague seeded with district wins, rather than the Hare quota the
-        party-list view uses. With {nat.overhang} seats of overhang the quota route would have to
-        subtract district wins and then re-round the remainder to fit the pool; the divisors absorb
-        overhang in one pass, because a party already holding more seats than its votes justify
-        never posts a winning quotient again.
-      </p>
     </div>
   );
 }

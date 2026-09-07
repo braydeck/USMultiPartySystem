@@ -76,7 +76,6 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
   const [selState, setSelState] = useUrlState<string>('mmpstate', 'national');
   const nat = config?.national ?? national;
   const sys = nat[system];
-  const other = nat[system === 'list' ? 'stv' : 'list'];
   const sysLabel = system === 'list' ? 'Party list' : 'STV';
 
   const heroSeats = useMemo(() => seatMapToHouseSeats(sys.seats), [sys]);

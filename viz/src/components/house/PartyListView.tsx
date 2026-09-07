@@ -14,8 +14,9 @@ import { FPTPvsSTV } from './FPTPvsSTV';
 import { useUrlState } from '../../hooks/useUrlState';
 import { usePartyHighlight } from '../../hooks/usePartyHighlight';
 import { F5_ORDER, PARTY_NAMES } from '../../constants/parties';
-import { populationShares, voteSharesAt, partyListSharesAt, partyListSeatsAt, type SeatInterval } from '../../lib/uncertainty';
+import { populationShares, voteSharesAt, partyListSharesAt } from '../../lib/uncertainty';
 import type { DistrictResult, HouseStateEntry, HouseSeat, ClusterProfile } from '../../types';
+import type { SeatInterval } from '../../lib/uncertainty';
 import { CARD_HEADING, MINOR_HEADING, CARD_HINT } from '../../constants/typography';
 
 type SeatMap = Record<string, number>;
@@ -289,7 +290,7 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
               systems={vssSystems}
               voteShare={active.voteShare}
               voteIntervals={intervals.vote}
-              populationShare={!stateSel ? populationShares() : undefined}
+              populationShare={!stateSel ? Object.fromEntries(Object.entries(populationShares()).map(([k, v]) => [k, v.point])) : undefined}
               populationIntervals={intervals.pop}
               stateOptions={stateOpts}
               selectedState={selState}
