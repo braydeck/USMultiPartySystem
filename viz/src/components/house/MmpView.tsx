@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { FPTPvsSTV } from './FPTPvsSTV';
 import { Stat, seatMapToHouseSeats } from './PartyListView';
 import type { PLConfig } from './PartyListView';
+import type { ReserveNational } from './ReserveView';
 import { UrbSubRurChart } from './UrbSubRurChart';
 import { CollapsibleSection } from '../shared/CollapsibleSection';
 import { PartyProfileGrid } from '../shared/PartyProfileGrid';
@@ -58,6 +59,7 @@ interface Props {
   onWyomingChange?: (w: 'double' | 'triple') => void;
   doubleConfig?: MmpConfig;
   pl?: PLConfig;
+  reserveNat?: ReserveNational;
   clusters: ClusterProfile[];
   profilesExtra?: ReactNode;
   chamber?: ReactNode;
@@ -69,7 +71,7 @@ const topoffFill = (party: string) => ({ backgroundColor: getBlendColor(party), 
 const CLUSTER_OF: Record<string, number> = Object.fromEntries(
   Object.entries(CLUSTER_TO_PARTY).map(([k, v]) => [v, Number(k)]));
 
-export function MmpView({ config, national, wyoming, onWyomingChange, doubleConfig, pl, clusters, profilesExtra, chamber }: Props) {
+export function MmpView({ config, national, wyoming, onWyomingChange, doubleConfig, pl, reserveNat, clusters, profilesExtra, chamber }: Props) {
   const [sort, setSort] = useState<'size' | 'overhang'>('overhang');
   const [selState, setSelState] = useUrlState<string>('mmpstate', 'national');
   const nat = config?.national ?? national;
@@ -235,8 +237,10 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
               <p className={`${CARD_HINT} mb-3`}>Posterior identity on a seated party.</p>
               <div className={`grid gap-2 ${pl ? 'grid-cols-3' : 'grid-cols-1'}`}>
                 <Stat label="MMP" value={nat.softCoverage} tone="best" note="per state" />
-                {pl && <Stat label="Party list" value={pl.national.softCoverage.listState} tone="mid" note="per state" />}
-                {pl && <Stat label="STV" value={pl.national.softCoverage.stvState} tone="mid" note="per state" />}
+                {pl && <Stat label={reserveNat ? 'Party list + reserve' : 'Party list'}
+                  value={reserveNat ? reserveNat.list.softCoverage.state : pl.national.softCoverage.listState} tone="mid" note="per state" />}
+                {pl && <Stat label={reserveNat ? 'STV + reserve' : 'STV'}
+                  value={reserveNat ? reserveNat.stv.softCoverage.state : pl.national.softCoverage.stvState} tone="mid" note="per state" />}
               </div>
             </Card>
             <Card className="p-4">
@@ -244,12 +248,16 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
               <p className={`${CARD_HINT} mb-3`}>Nobody they voted for won a seat.</p>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 <Stat label="Today's House" value={35.8} tone="worst" note="2024" />
-                {pl && <Stat label="Party list" value={pl.national.unrepresented.list} tone="mid" note="district" />}
+                {pl && <Stat label={reserveNat ? 'Party list + reserve' : 'Party list'}
+                  value={reserveNat ? reserveNat.list.unrepresented : pl.national.unrepresented.list} tone="mid" note={reserveNat ? 'state' : 'district'} />}
                 <Stat label="MMP" value={nat.unrepresented} tone="mid" note="state" />
-                {pl && <Stat label="STV" value={pl.national.unrepresented.stv} tone="best" note="district" />}
+                {pl && <Stat label={reserveNat ? 'STV + reserve' : 'STV'}
+                  value={reserveNat ? reserveNat.stv.unrepresented : pl.national.unrepresented.stv} tone="best" note={reserveNat ? 'state' : 'district'} />}
               </div>
               <p className={`${CARD_HINT} mt-3`}>
-                MMP's list is statewide; STV and party list are counted per district.
+                {reserveNat
+                  ? 'All three systems are compared at the statewide level.'
+                  : "MMP's list is statewide; STV and party list are counted per district."}
               </p>
             </Card>
             <Card className="p-4">
@@ -282,8 +290,10 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
                   note="drawn map" isCount />
                 <Stat label="Current districts" value={nat.gallagher.districtOnly} tone="worst"
                   note="MMP tier 1 alone" isCount />
-                <Stat label="STV" value={pl.national.gallagher.stv} tone="mid" isCount />
-                <Stat label="Party list" value={pl.national.gallagher.list} tone="mid" isCount />
+                <Stat label={reserveNat ? 'STV + reserve' : 'STV'}
+                  value={reserveNat ? reserveNat.stv.gallagher : pl.national.gallagher.stv} tone="mid" isCount />
+                <Stat label={reserveNat ? 'Party list + reserve' : 'Party list'}
+                  value={reserveNat ? reserveNat.list.gallagher : pl.national.gallagher.list} tone="mid" isCount />
                 <Stat label="MMP" value={nat.gallagher.mmp} tone="best" isCount />
               </div>
             ) : (

@@ -625,7 +625,9 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       {system === 'mmp' && (mmpConfig
         ? <MmpView config={mmpConfig} national={MMP_NATIONAL[wyoming][part]} wyoming={wyoming}
             onWyomingChange={setWyoming}
-            doubleConfig={mmpConfigDouble} pl={plConfig} clusters={orderedClusters}
+            doubleConfig={mmpConfigDouble} pl={plConfig}
+            reserveNat={reserveNat}
+            clusters={orderedClusters}
             profilesExtra={constellationNode} chamber={chamberNode} />
         : <div className="py-24 text-center text-sm text-muted-foreground">Loading MMP results…</div>)}
 

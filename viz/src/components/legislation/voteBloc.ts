@@ -11,11 +11,16 @@ const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
   'factorDev+triple': 'houseFDTripleProbPass',
 };
 
-/** The precomputed pass-probability column for one House configuration. Shared so the bill table
- *  and the divergences panel can never disagree about which chamber they are describing. The list
- *  columns are party-line only — a Sainte-Laguë allocation of Crossover variants is not in the data —
- *  so the pipeline drops out of the key when the list is selected. */
-export function houseProbField(system: HouseSystem, pipeline: Pipeline, wyoming: WyomingRule): keyof VoteModelRow {
+/** The precomputed pass-probability column for one House configuration, or undefined when the
+ *  combination (MMP, reserve, non-rank-7 depth) has no pre-baked column and must be computed
+ *  on the fly via freeOutcome. */
+export function houseProbField(
+  system: HouseSystem, pipeline: Pipeline, wyoming: WyomingRule,
+  opts?: { depth?: string; reserve?: string },
+): keyof VoteModelRow | undefined {
+  if (system === 'mmp') return undefined;
+  if (opts?.reserve === 'on') return undefined;
+  if (opts?.depth && opts.depth !== 'top7') return undefined;
   if (system === 'list') return wyoming === 'triple' ? 'houseListTripleProbPass' : 'houseListProbPass';
   return HOUSE_PROB_FIELD[`${pipeline}+${wyoming}`] ?? 'houseRawMultiProbPass';
 }

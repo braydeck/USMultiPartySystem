@@ -3,7 +3,7 @@ import type { VoteModelRow, PresidentialElection, CandidateVoteRow } from '../..
 import { getBlendColor } from '../../constants/parties';
 import type { VoteMode, HouseSystem } from '../../constants/labels';
 import { SHOW_CROSSOVER } from '../../constants/features';
-import { blocOutcome, houseProbField, presSigns, type SeatMap } from './voteBloc';
+import { blocOutcome, freeOutcome, houseProbField, presSigns, type SeatMap } from './voteBloc';
 import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, WhippedBadge, type VerdictLabel } from './UnifiedBillTable';
 import { Card } from '@/components/ui/card';
 import { FIELD_LABEL } from '../../constants/typography';
@@ -26,15 +26,14 @@ interface Props {
   election: PresidentialElection;
   pipeline: 'rawMulti' | 'factorDev';
   wyoming?: 'double' | 'triple';
-  /** Which House counting rule seats the chamber: STV transfers or a Sainte-Laguë party list. */
   system?: HouseSystem;
-  // Whipped mode: deterministic party-bloc verdicts. Senate composition differs by method,
-  // so the two methods can pass/fail a bill differently even under whipping.
   voteModel?: VoteMode;
   candidateVotes?: CandidateVoteRow[];
   houseSeats?: SeatMap;
   senateSeatsCond?: SeatMap;
   senateSeatsIRV?: SeatMap;
+  depth?: string;
+  reserve?: string;
 }
 
 type Row = {
@@ -52,7 +51,8 @@ type Row = {
 
 export function LegislationDivergences({ houseVotes, senateVotes, election, pipeline, wyoming = 'double',
                                          system = 'stv', voteModel = 'free', candidateVotes = [], houseSeats = {},
-                                         senateSeatsCond = {}, senateSeatsIRV = {} }: Props) {
+                                         senateSeatsCond = {}, senateSeatsIRV = {},
+                                         depth, reserve }: Props) {
   const whipped = voteModel === 'whipped';
   const condWinner = election.condorcetWinner;
   const irvWinner  = election.irvWinner;
@@ -71,7 +71,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
   };
 
 
-  const HOUSE_PROB = houseProbField(system, pipeline, wyoming);
+  const HOUSE_PROB = houseProbField(system, pipeline, wyoming, { depth, reserve });
 
   const houseByVar = useMemo(
     () => Object.fromEntries(houseVotes.map(r => [r.variable, r])),
@@ -109,7 +109,8 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
           } as Row;
         }
 
-        const houseLabel     = getBayesianLabel([hr?.[HOUSE_PROB] as number | undefined]);
+        const houseFreeProb  = !HOUSE_PROB && candByVar[row.variable] ? freeOutcome(candByVar[row.variable], houseSeats).share : undefined;
+        const houseLabel     = getBayesianLabel([HOUSE_PROB ? hr?.[HOUSE_PROB] as number | undefined : houseFreeProb]);
         const senateCondLabel = getBayesianLabel([row[SENATE_PROB[condCombo]] as number | undefined]);
         const senateIRVLabel  = getBayesianLabel([row[SENATE_PROB[irvCombo]] as number | undefined]);
         // See VoteModelRow.presSignsByParty: the party-line side must key on the president this
