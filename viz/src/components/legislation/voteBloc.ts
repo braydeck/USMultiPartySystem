@@ -13,7 +13,7 @@ const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
 
 /** The precomputed pass-probability column for one House configuration. Shared so the bill table
  *  and the divergences panel can never disagree about which chamber they are describing. The list
- *  columns are party-line only — a Hare-quota allocation of Crossover variants is not in the data —
+ *  columns are party-line only — a Sainte-Laguë allocation of Crossover variants is not in the data —
  *  so the pipeline drops out of the key when the list is selected. */
 export function houseProbField(system: HouseSystem, pipeline: Pipeline, wyoming: WyomingRule): keyof VoteModelRow {
   if (system === 'list') return wyoming === 'triple' ? 'houseListTripleProbPass' : 'houseListProbPass';

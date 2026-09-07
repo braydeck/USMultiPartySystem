@@ -88,7 +88,7 @@ export interface VoteModelRow {
   // House Triple Wyoming Factor Dev
   houseFDTripleProbPass?: number;
   houseFDTripleVerdict?:  string;
-  /** Party-list House on the same districts (Hare quota + largest remainders) instead of STV.
+  /** Party-list House on the same districts (Sainte-Laguë) instead of STV.
    *  The observed run rather than the modal chamber — the bootstrap resamples STV only — and, like
    *  the STV columns, computed at the rank-7 ballot depth the legislation model assumes. */
   houseListProbPass?: number;

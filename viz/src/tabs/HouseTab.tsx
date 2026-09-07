@@ -126,7 +126,7 @@ const HOUSE_RULES: Mechanism[] = [
   {
     term: 'Party list',
     color: SYSTEM_COLORS['Party List'],
-    what: 'Seats go to party lists by Hare quota on the same districts.',
+    what: 'Seats go to party lists by Sainte-Laguë on the same districts.',
     consequence: 'Proportional by party, but a vote cannot transfer between them.',
   },
 ];
@@ -195,7 +195,7 @@ function tierBlockToHouseSeats(tiers: TierBlock): HouseSeat[] {
 export function HouseTab({ seats, transfers, clusters, fptpStates, districtCountyMap, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
   const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
-  // Voting system: STV (default) vs a Hare-quota party list on the same districts.
+  // Voting system: STV (default) vs a Sainte-Laguë party list on the same districts.
   const [system, setSystem] = useUrlState<'stv' | 'list' | 'mmp'>('system', 'stv', { allowed: ['stv', 'list', 'mmp'] });
   // Ballot depth: how many preferences voters rank (drives STV exhaustion / representation).
   // Default = top 7, a realistic "typical voter" depth; 'full' is the exhaustive-ranking floor.

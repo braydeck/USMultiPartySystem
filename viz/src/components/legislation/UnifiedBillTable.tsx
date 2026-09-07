@@ -13,7 +13,7 @@ interface Props {
   senateMethod: 'condorcet' | 'irv';
   presWinner: string;
   wyoming?: 'double' | 'triple';
-  /** Which House counting rule seats the chamber: STV transfers or a Hare-quota party list. */
+  /** Which House counting rule seats the chamber: STV transfers or a Sainte-Laguë party list. */
   system?: HouseSystem;
   // Whipped mode: deterministic party-bloc verdicts computed from candidate support + seats.
   voteModel?: VoteMode;

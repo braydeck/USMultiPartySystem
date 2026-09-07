@@ -58,7 +58,7 @@ const PROPORTIONAL_SYSTEMS = [
     full: 'Open Party List',
     used: 'House alternative view',
     color: '#0369a1',
-    how: "Candidate votes are pooled by party within each multi-member district. Seats go to parties by quota (Hare quota with largest remainders here), then filled by each party's top vote-getters.",
+    how: "Candidate votes are pooled by party within each multi-member district. Seats are allocated to parties by the Sainte-Laguë (Webster) divisor method, then filled by each party's top vote-getters.",
     why: "Delivers proportional seat shares directly from vote share, without STV's ranked transfers. Shown alongside STV as a second proportional method for the House.",
   },
 ];

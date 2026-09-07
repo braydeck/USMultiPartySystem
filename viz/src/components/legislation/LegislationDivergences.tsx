@@ -26,7 +26,7 @@ interface Props {
   election: PresidentialElection;
   pipeline: 'rawMulti' | 'factorDev';
   wyoming?: 'double' | 'triple';
-  /** Which House counting rule seats the chamber: STV transfers or a Hare-quota party list. */
+  /** Which House counting rule seats the chamber: STV transfers or a Sainte-Laguë party list. */
   system?: HouseSystem;
   // Whipped mode: deterministic party-bloc verdicts. Senate composition differs by method,
   // so the two methods can pass/fail a bill differently even under whipping.
