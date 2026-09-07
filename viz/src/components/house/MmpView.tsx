@@ -252,7 +252,7 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
                   value={reserveNat ? reserveNat.list.unrepresented : pl.national.unrepresented.list} tone="mid" note={reserveNat ? 'state' : 'district'} />}
                 <Stat label="MMP" value={nat.unrepresented} tone="mid" note="state" />
                 {pl && <Stat label={reserveNat ? 'STV + reserve' : 'STV'}
-                  value={reserveNat ? reserveNat.stv.unrepresented : pl.national.unrepresented.stv} tone="best" note={reserveNat ? 'state' : 'district'} />}
+                  value={reserveNat ? (reserveNat.stv.ballotPathUnrep ?? reserveNat.stv.unrepresented) : pl.national.unrepresented.stv} tone="best" note={reserveNat ? 'state' : 'district'} />}
               </div>
               <p className={`${CARD_HINT} mt-3`}>
                 {reserveNat
