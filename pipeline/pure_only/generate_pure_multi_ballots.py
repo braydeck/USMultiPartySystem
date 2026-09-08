@@ -43,6 +43,11 @@ TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignment
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 # NO_STY=1 dissolves Solidarity (cluster 2): its candidates are dropped and its voters
 # rank the remaining 10 parties by next-highest posterior. Output goes to a parallel tree.
+# DEAD SCENARIO — NO_STY=1 dissolves Solidarity (cluster 2). Nothing consumes the
+# pure_multi_nosty* trees any more: prepare_data.py's build_nosty_scenario() and the
+# 16 archive/*NoSTY*.json it wrote were removed 2026-09-07. Kept only because these
+# runners are the live path and could not be re-verified cheaply. Safe to delete
+# together with the NO_STY branches in the other pure_only runners.
 NO_STY          = os.environ.get("NO_STY") == "1"
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / ("pure_multi_nosty" if NO_STY else "pure_multi")
 

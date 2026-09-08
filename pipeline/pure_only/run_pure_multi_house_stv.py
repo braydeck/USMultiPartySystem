@@ -34,6 +34,11 @@ sys.path.insert(0, str(Path(__file__).parent))
 from turnout_weights import turnout_multiplier, output_tree, TURNOUT_WEIGHT
 
 BASE_DIR         = Path(__file__).parent.parent.parent
+# DEAD SCENARIO — NO_STY=1 dissolves Solidarity (cluster 2). Nothing consumes the
+# pure_multi_nosty* trees any more: prepare_data.py's build_nosty_scenario() and the
+# 16 archive/*NoSTY*.json it wrote were removed 2026-09-07. Kept only because these
+# runners are the live path and could not be re-verified cheaply. Safe to delete
+# together with the NO_STY branches in the other pure_only runners.
 NO_STY           = os.environ.get("NO_STY") == "1"
 _TREE            = output_tree("pure_multi_nosty" if NO_STY else "pure_multi")
 CHECKPOINT_PATH  = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
@@ -84,7 +89,7 @@ def n_candidates_for_district(share: float, n_seats: int) -> int:
     expected = int(share / droop)          # floor(share / droop)
     return min(expected + 1, n_seats // 2 + 1)
 
-# ── Party → cluster index (C7/BLB excluded unless INCLUDE_C7) ─────────────────
+# ── Party → cluster index (all 10 parties; OAO/C7 is permanently active) ──────
 PARTY_CLUSTER = {
     "CON": 0,
     "LBR":  1,

@@ -14,14 +14,9 @@ from stv_config import BILL_VARS  # noqa: E402  — the canonical bill set, shar
 OUTPUTS          = Path(__file__).parent.parent.parent / "data" / "outputs"
 FD_DIR           = OUTPUTS / "factor_deviation"
 PURE_MULTI_DIR   = OUTPUTS / "pure_multi"
-# Parallel run with Solidarity (cluster 2) dissolved — produced by NO_STY=1 pipeline.
-PURE_MULTI_NOSTY_DIR = OUTPUTS / "pure_multi_nosty"
 # 'Current participation' runs — ballots weighted by each cluster's validated 2024
 # turnout (TURNOUT_WEIGHT=1). Two coordination variants: all-parties and no-Solidarity.
 PURE_MULTI_TURNOUT_DIR       = OUTPUTS / "pure_multi_turnout"
-PURE_MULTI_NOSTY_TURNOUT_DIR = OUTPUTS / "pure_multi_nosty_turnout"
-# Parallel 10-party run (C7/WFP activated) — produced by INCLUDE_C7=1 pipeline.
-PURE_MULTI_C7_DIR = OUTPUTS / "pure_multi_c7"
 FD_TRIPLE_DIR         = OUTPUTS / "factor_deviation_triple"
 PURE_MULTI_TRIPLE_DIR = OUTPUTS / "pure_multi_triple"
 RESULTS          = Path(__file__).parent.parent.parent / "results"
@@ -197,17 +192,15 @@ def _lf_prob_pass(seat_counts: dict, cluster_by_var: dict, majority: int = 26) -
 
 # ---------- houseSeats.json ----------
 def build_house_seats(src_csv=None, out_name="houseSeats.json",
-                      include_c7=True, pop_shares=None):
+                      pop_shares=None):
     if src_csv is None:
         src_csv = OUTPUTS / "pure_multi" / "house" / "stv_seat_summary.csv"
     if pop_shares is None:
-        pop_shares = _national_pop_shares_10() if include_c7 else NATIONAL_POP_SHARES
+        pop_shares = _national_pop_shares_10()
     rows = read_csv(src_csv)
     out = []
     for r in rows:
         cluster = int(r["party"])
-        if cluster == 7 and not include_c7:  # skip Blue Dogs (C7) in canonical 9-party
-            continue
         out.append({
             "party": cluster,
             "partyName": r["party_name"],
@@ -383,7 +376,7 @@ def build_candidate_vote_model(out_name="candidateVoteModel.json"):
 
 
 def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json",
-                           include_c7=True):
+                           ):
     rows = read_csv(OUTPUTS / "house_vote_model.csv")
 
     # Load cluster stats for State STV house probability computation
@@ -400,8 +393,6 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
     rm_house_total = 0
     for r in read_csv(rm_dir / "house" / "stv_seat_summary.csv"):
         cluster = int(r["party"])
-        if cluster == 7 and not include_c7:
-            continue
         code = _cluster_to_party.get(cluster, str(cluster))
         rm_house_seats[code] = rm_house_seats.get(code, 0) + int(r["NATIONAL"])
         rm_house_total += int(r["NATIONAL"])
@@ -484,11 +475,11 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
 
 
 # ---------- houseStateMap.json ----------
-def _compute_state_pop_shares(include_c7: bool = True) -> dict:
+def _compute_state_pop_shares() -> dict:
     """Compute FIRST-CHOICE population shares per state.
 
-    Canonical (include_c7=False): C7 dropped and remaining 9 renormalized to 100%.
-    WFP (include_c7=True): C7 kept as WFP; all 10 clusters sum to ~100% (no renorm).
+    All 10 clusters are kept and sum to ~100% (no renormalization). OAO (C7) is a permanent
+    party; the old 9-party variant that dropped and renormalized it was removed 2026-09-07.
     """
     import numpy as np
     efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
@@ -496,9 +487,8 @@ def _compute_state_pop_shares(include_c7: bool = True) -> dict:
     efa_rows = read_csv(efa_path)
     typ_rows = read_csv(typ_path)
 
-    PARTY_CODES = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB", 5: "POP", 6: "CUP", 8: "DSA", 9: "PRG"}
-    if include_c7:
-        PARTY_CODES = {**PARTY_CODES, 7: "OAO"}
+    PARTY_CODES = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB", 5: "POP", 6: "CUP",
+                   7: "OAO", 8: "DSA", 9: "PRG"}
     result: dict = {}
     states = set()
     for r in efa_rows:
@@ -523,22 +513,14 @@ def _compute_state_pop_shares(include_c7: bool = True) -> dict:
             probs = [float(row.get(f"prob_cluster_{k}", 0) or 0) for k in range(10)]
             fc_w[probs.index(max(probs))] += ws[j]
         shares: dict = {}
-        c7_share = 0.0
         for k in range(10):
-            val = fc_w[k] / total_w * 100
-            if k == 7 and not include_c7:
-                c7_share = val
-            elif k in PARTY_CODES:
-                shares[PARTY_CODES[k]] = val
-        renorm = 100.0 / (100.0 - c7_share) if c7_share < 100 else 1.0
-        for code in shares:
-            shares[code] = round(shares[code] * renorm, 2)
+            shares[PARTY_CODES[k]] = round(fc_w[k] / total_w * 100, 2)
         fips2 = str(st_int).zfill(2)
         result[fips2] = shares
     return result
 
 
-def build_house_state_map(src_dir=None, out_name="houseStateMap.json", include_c7=True):
+def build_house_state_map(src_dir=None, out_name="houseStateMap.json"):
     """Aggregate house STV results by state to find plurality party per state."""
     if src_dir is None:
         src_dir = OUTPUTS / "pure_multi"
@@ -551,7 +533,7 @@ def build_house_state_map(src_dir=None, out_name="houseStateMap.json", include_c
     pod_rows = read_csv(pod_path) if pod_path.exists() else []
     abbr_by_fips = {r["state_fips"].zfill(2): r["state_abbr"] for r in pod_rows}
 
-    state_pop_shares = _compute_state_pop_shares(include_c7=include_c7)
+    state_pop_shares = _compute_state_pop_shares()
 
     state_seats = defaultdict(lambda: defaultdict(int))
     for row in rows:
@@ -589,7 +571,7 @@ def build_transfer_matrix():
 
 
 # ---------- clusterProfiles.json ----------
-def collect_cluster_variables(rows, include_c7=True):
+def collect_cluster_variables(rows):
     """Build a variable dict for each cluster covering all binary/likert policy vars + demographics.
 
     Sources:
@@ -598,7 +580,7 @@ def collect_cluster_variables(rows, include_c7=True):
       - pew_churatd: weekly+ church attendance (% More than once/week + % Once/week)
       - race / gender4 categorical: specific buckets included as demographic facts
     """
-    cluster_ids = [str(i) for i in range(10) if include_c7 or str(i) != "7"]
+    cluster_ids = [str(i) for i in range(10)]
     result = {cid: {} for cid in cluster_ids}
 
     # Phase 1: binary and binary_agree
@@ -988,13 +970,13 @@ def _compute_cluster_factor_centroids() -> dict:
                   for fk in factor_map} for cid in num}
 
 
-def build_cluster_profiles(include_c7=True, out_name="clusterProfiles.json",
+def build_cluster_profiles(out_name="clusterProfiles.json",
                            house_summary_csv=None):
     rows = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
     clusters = {str(i): {"id": str(i), "variables": {}}
-                for i in range(10) if include_c7 or str(i) != "7"}
+                for i in range(10)}
 
-    all_vars = collect_cluster_variables(rows, include_c7=include_c7)
+    all_vars = collect_cluster_variables(rows)
     # These binary rows are now rendered as distribution items (faith heatmap + vote-by-year
     # composition) by build_distributions(); drop them here so the tab doesn't show both.
     COVERED_BY_DIST = {
@@ -3256,21 +3238,6 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
     write_json(base, out_name)
 
 
-def build_nosty_scenario():
-    """Dormant 'no-Solidarity' scenario: cluster 2 is dissolved and its voters' ballots flow to the
-    remaining 10 parties. Reads the NO_STY=1 pipeline outputs (pure_multi_nosty/). The UI toggle it
-    fed was removed, so it emits under src/data/archive/ — kept as a robustness check, not shipped."""
-    d = PURE_MULTI_NOSTY_DIR
-    build_raw_multi_presidential_election(src_dir=d, out_name=f"{ARCHIVE}rawMultiPresidentialElectionNoSTY.json")
-    build_pure_multi_senate(src_dir=d, cond_name=f"{ARCHIVE}pureMultiSenateCondorcetNoSTY.json", irv_name=f"{ARCHIVE}pureMultiSenateIRVNoSTY.json")
-    build_house_seats(src_csv=d / "house" / "stv_seat_summary.csv", out_name=f"{ARCHIVE}houseSeatsNoSTY.json")
-    build_house_state_map(src_dir=d, out_name=f"{ARCHIVE}houseStateMapNoSTY.json")
-    build_district_stv_results(src_csv=d / "house" / "stv_results_by_district.csv", out_name=f"{ARCHIVE}districtStvResultsNoSTY.json")
-    # Legislation vote models — Raw-Multi chamber pass + president sign/veto recomputed from the no-STY run.
-    build_senate_vote_model_wfp(d, out_name=f"{ARCHIVE}senateVoteModelNoSTY.json")
-    build_house_vote_model_wfp(d, out_name=f"{ARCHIVE}houseVoteModelNoSTY.json")
-
-
 def _build_turnout_variant(d, suffix, prefix=""):
     """Emit the *<suffix>.json family from a turnout-weighted pipeline tree `d`. `prefix` routes a
     dormant scenario into a subdirectory of src/data without changing the file names."""
@@ -3312,13 +3279,6 @@ def build_turnout_scenario():
     build_pure_multi_primary(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryTurnout.json")
     build_pure_multi_primary_buckets(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryBucketsTurnout.json")
     build_pure_multi_primary_state_shares(PURE_MULTI_TURNOUT_DIR, "pureMultiPrimaryStageSharesTurnout.json")
-    # Dormant NoSty tree: kept for reference, not wired into the app, and not
-    # regenerated by the senate reruns — so a missing input here must not block
-    # the live path above.
-    try:
-        _build_turnout_variant(PURE_MULTI_NOSTY_TURNOUT_DIR, "NoStyTurnout", prefix=ARCHIVE)
-    except FileNotFoundError as e:
-        print(f"  SKIP NoStyTurnout variant (dormant): missing {e.filename}")
 
 
 def build_party_population():
@@ -3665,7 +3625,6 @@ if __name__ == "__main__":
         build_house_seats_triple, build_fd_house_seats_triple,
         build_house_state_map_triple, build_district_stv_results_triple,
         build_fd_district_stv_results_triple, build_district_county_map_triple,
-        build_nosty_scenario,
         build_turnout_scenario,
         build_turnout_lambda_scenario,
         build_turnout_crossover_triple,
@@ -3674,4 +3633,24 @@ if __name__ == "__main__":
         build_distributions,
     ):
         _run(fn)
-    print("Done.")
+
+    # The Legislation and Senate families written above are the PRE-rank-7 versions.
+    # build_legislation_rank7.py and build_senate_rank7.py own the deployed values and must
+    # overwrite them, or those tabs silently revert to non-rank-7 numbers. Chained here so the
+    # single command is correct; pass --no-rank7 to stop after this script.
+    if "--no-rank7" in sys.argv:
+        print("Done (--no-rank7: houseVoteModel*/senateVoteModel*/pureMultiSenate*Turnout* are "
+              "PRE-rank-7 and must not be committed as-is).")
+    else:
+        import subprocess
+        root = Path(__file__).parent.parent.parent
+        for script in ("pipeline/build_legislation_rank7.py", "pipeline/build_senate_rank7.py"):
+            print(f"  → {script}")
+            r = subprocess.run([sys.executable, str(root / script)], cwd=root,
+                               capture_output=True, text=True)
+            if r.returncode != 0:
+                print(f"  FAILED {script} (rc={r.returncode}); Legislation/Senate JSON is now "
+                      f"PRE-rank-7 — do not commit until this is resolved.")
+                print(r.stdout[-1500:] or r.stderr[-1500:])
+                sys.exit(1)
+        print("Done.")
