@@ -7,7 +7,19 @@ import factorLoadingsData from '../data/factorLoadings.json';
 import { CaveatsSection } from '../components/about/CaveatsSection';
 import { TurnoutRobustnessCard } from '../components/shared/TurnoutRobustnessCard';
 import { TurnoutVerificationCard } from '../components/shared/TurnoutVerificationCard';
+import affinityData from '../data/crossPartyAffinity.json';
 import { PAGE_TITLE, MINOR_HEADING, BODY_PROSE, CARD_HINT, FOOTNOTE, TABLE_HEADER } from '../constants/typography';
+
+// Own-party share of the membership probability, from pipeline/build_cross_party_affinity.py.
+// The remainder is what orders the ranks below rank 1, so it is what transfers.
+const OWN_PARTY_SHARE = (() => {
+  const d = affinityData as unknown as {
+    order: string[];
+    parties: Record<string, { retained: number; hardShare: number }>;
+  };
+  const pct = d.order.map(p => (d.parties[p].retained / d.parties[p].hardShare) * 100);
+  return { lo: Math.round(Math.min(...pct)), hi: Math.round(Math.max(...pct)) };
+})();
 
 interface FactorDef {
   short: string; label: string; color: string; eta: number; bw: number;
@@ -403,7 +415,9 @@ export function AboutTab() {
             <div className="font-semibold text-foreground mb-1">How a voter becomes a ranked ballot</div>
             <p className={`${BODY_PROSE} mb-4`}>
               A voter ranks parties by how strongly the model thinks they belong to each one, and ranks a
-              party&apos;s candidates as a slate. Nothing is hand-assigned.
+              party&apos;s candidates as a slate. Nothing is hand-assigned. {OWN_PARTY_SHARE.lo}% to{' '}
+              {OWN_PARTY_SHARE.hi}% of a voter&apos;s membership sits on their own party, and the remainder
+              orders every rank below the first. That order is what transfers when a candidate is eliminated.
             </p>
 
             <div className="grid sm:grid-cols-3 gap-3 mb-4">

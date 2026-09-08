@@ -2,13 +2,12 @@
 """
 build_cross_party_affinity.py
 -----------------------------
-Cross-party acceptability, from the GMM cluster posterior in
+Partial matches between parties, from the GMM cluster posterior in
 data/processed/typology_cluster_assignments.csv (prob_cluster_0..9 + commonpostweight).
 
 Each voter carries a full posterior over the ten parties. The argmax of that row is the
-voter's first choice; the rest of the row is regard the voter holds for parties other than
-the one they would rank first. Two directions of that regard, both in percentage points of
-the electorate:
+voter's best fit and so their party; the other nine entries are partial fits. Two
+directions of that partial fit, both in percentage points of the electorate:
 
   received_k = Σ_{i: fc(i) != k}  P(k|i) · w_i / W · 100
   leaked_k   = Σ_{i: fc(i) == k}  (1 − P(k|i)) · w_i / W · 100
@@ -22,14 +21,16 @@ net_k is exactly the gap between party k's soft posterior share and its first-ch
   net_k        = soft_share_k − hard_share_k
 
 The 10×10 matrix `matrix[j][k]` gives the share of the electorate's posterior mass on
-party k held by voters whose first choice is party j, so the card can name who finds each
-party acceptable. Diagonal cells are the retained mass (j == k) and are reported
+party k held by voters whose first choice is party j, so the card can name whose partial fit
+each party picks up. Diagonal cells are the retained mass (j == k) and are reported
 separately from the off-diagonal flows.
 
 Weighting is commonpostweight only: this is a property of the typology, not of any single
 turnout / ballot-depth configuration, so no turnout multiplier is applied.
 
 Output: viz/src/data/crossPartyAffinity.json  (~6 KB, bundled at build time).
+The viz reads only the own-party retention range from it, in the About tab's ballot-generation
+card; the rest of the payload is kept for analysis.
 """
 
 import json
