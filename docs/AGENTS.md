@@ -1,5 +1,10 @@
 # AGENTS.md — Full Technical Reference
 
+> **STALE — verified 2026-09-07.** This document describes a two-worktree layout under
+> `/Users/bdecker/Documents/STV/` that no longer exists, and its script inventory lists files
+> now in `pipeline/archive/`. Read `/CLAUDE.md` first. Use this only for EFA, vote-model, and
+> methodology background, and verify any path, script name, or seat count before relying on it.
+
 > This document is written for Claude Code and similar agents to maintain complete working context across conversation sessions. **Read this before touching any script.**
 >
 > Supersedes: `busy-ramanujan/docs/AGENT_CONTEXT.md` and `busy-ramanujan/docs/PROJECT_GUIDE.md` (those files are partially stale — kept as historical reference only).

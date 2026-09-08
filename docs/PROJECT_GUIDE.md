@@ -1,5 +1,10 @@
 # CES 2024 Political Typology — Project Guide
 
+> **STALE — verified 2026-09-07.** This document describes a two-worktree layout under
+> `/Users/bdecker/Documents/STV/` that no longer exists, and its script inventory lists files
+> now in `pipeline/archive/`. Read `/CLAUDE.md` first. Use this only for EFA, vote-model, and
+> methodology background, and verify any path, script name, or seat count before relying on it.
+
 ## What Is This Project?
 
 This project takes the **2024 Cooperative Election Study (CES)** — a large national survey of ~45,000 American voters — and uses it to model what an American **multi-party electoral system** might look like.

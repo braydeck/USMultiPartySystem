@@ -1,4 +1,10 @@
 # AGENT_CONTEXT.md
+
+> **STALE — verified 2026-09-07.** This document describes a two-worktree layout under
+> `/Users/bdecker/Documents/STV/` that no longer exists, and its script inventory lists files
+> now in `pipeline/archive/`. Read `/CLAUDE.md` first. Use this only for EFA, vote-model, and
+> methodology background, and verify any path, script name, or seat count before relying on it.
+
 ## Full Technical Reference for AI Agents
 
 > This document is written for Claude Code (and similar agents) to maintain complete
