@@ -33,13 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from turnout_weights import turnout_multiplier, output_tree
 
 BASE_DIR       = Path(__file__).parent.parent.parent
-# DEAD SCENARIO — NO_STY=1 dissolves Solidarity (cluster 2). Nothing consumes the
-# pure_multi_nosty* trees any more: prepare_data.py's build_nosty_scenario() and the
-# 16 archive/*NoSTY*.json it wrote were removed 2026-09-07. Kept only because these
-# runners are the live path and could not be re-verified cheaply. Safe to delete
-# together with the NO_STY branches in the other pure_only runners.
-NO_STY         = os.environ.get("NO_STY") == "1"
-_BALLOT_TREE   = "pure_multi_nosty" if NO_STY else "pure_multi"
+_BALLOT_TREE   = "pure_multi"
 _OUT_TREE      = output_tree(_BALLOT_TREE)  # turnout-weighted output → parallel _turnout tree
 TYPOLOGY_PATH  = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_PATH       = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
@@ -75,9 +69,6 @@ PARTY_CLUSTER = {
     "DSA": 8,
     "PRG": 9,
 }
-if NO_STY:
-    PARTY_CLUSTER = {k: v for k, v in PARTY_CLUSTER.items() if k != "STY"}
-
 STV_SURVIVORS   = 5
 MIN_RESPONDENTS = 10
 

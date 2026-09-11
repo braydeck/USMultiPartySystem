@@ -56,16 +56,15 @@ default, `--run` to execute. Verified during the resync — senate, president an
 contests are district-pooled, and it confirms the bootstrap is reproducible given its seeds.
 Measured cost: ~16 min per turnout stop, ~110 min for the seven, ~2 h end to end.
 
-### No-Solidarity scenario (dormant)
+### No-Solidarity scenario (removed 2026-09-11)
 
-A robustness check that dissolves Solidarity (cluster 2) and lets its voters' ballots flow to the
+A robustness check that dissolved Solidarity (cluster 2) and let its voters' ballots flow to the
 remaining parties. Its UI toggle was added, removed, restored and removed again, and nothing in the
-app imports its payloads today, so `build_nosty_scenario()` emits them to `viz/src/data/archive/`
-alongside the other retired scenarios rather than into the live payload directory.
+app ever imported its payloads.
 
-The `NO_STY=1` branches in `pipeline/pure_only/` are untouched and are how you regenerate it. The
-turnout-weighted variant is wrapped in a try/except that prints `SKIP NoStyTurnout variant
-(dormant)`, so a pruned input there cannot block the live build.
+It is gone: the `NO_STY=1` branches in `pipeline/pure_only/`, `build_nosty_scenario()`, the
+`pure_multi_nosty*` output trees and the `viz/src/data/archive/*NoSTY*.json` payloads were all
+deleted. To resurrect it, restore from history rather than re-adding an environment branch.
 
 ---
 
@@ -309,15 +308,6 @@ python3 pipeline/pure_only/run_pure_multi_presidential.py
 python3 pipeline/pure_only/run_pure_multi_house_stv.py             # → pure_multi/house/
 python3 pipeline/pure_only/run_pure_multi_house_stv.py --triple    # → pure_multi_triple/house/
 python3 pipeline/pure_only/run_pure_multi_senate.py               # → pure_multi/senate/ (Condorcet + IRV)
-
-# ── "No Solidarity" scenario (dormant — see below): cluster 2 dissolved, its ───
-# voters flow to the remaining 9. NO_STY=1 drops STY candidates and redirects
-# output to pure_multi_nosty/. Viz payloads land in viz/src/data/archive/.
-NO_STY=1 python3 pipeline/pure_only/generate_pure_multi_ballots.py
-NO_STY=1 python3 pipeline/pure_only/run_pure_multi_primary.py
-NO_STY=1 python3 pipeline/pure_only/run_pure_multi_presidential.py
-NO_STY=1 python3 pipeline/pure_only/run_pure_multi_senate.py
-NO_STY=1 python3 pipeline/pure_only/run_pure_multi_house_stv.py    # → pure_multi_nosty/house/
 
 # ── Crossover field (factor_deviation) ──────────────────────────────────────
 python3 pipeline/generate_factor_deviation_candidates.py   # OAO fields base only (small party)

@@ -89,18 +89,16 @@ def house_runs() -> list:
     """One invocation per pure_multi* tree on disk, derived from the tree name rather than
     hardcoded: the trees that exist are the definition of what has to be rebuilt.
 
-        pure_multi[_nosty][_triple][_turnout[_lNN]][_topN]
+        pure_multi[_triple][_turnout[_lNN]][_topN]
     """
     runs = []
     for d in sorted(p.name for p in TREES.glob("pure_multi*") if p.is_dir()):
-        m = re.fullmatch(r"pure_multi(_nosty)?(_triple)?(_turnout(?:_l(\d+))?)?(?:_top(\d+))?", d)
+        m = re.fullmatch(r"pure_multi(_triple)?(_turnout(?:_l(\d+))?)?(?:_top(\d+))?", d)
         if not m:
             print(f"  ! tree name not understood, skipping: {d}", file=sys.stderr)
             continue
-        nosty, triple, turnout, lam, depth = m.groups()
+        triple, turnout, lam, depth = m.groups()
         env = {}
-        if nosty:
-            env["NO_STY"] = "1"
         if turnout:
             env["TURNOUT_WEIGHT"] = "1"
             if lam:

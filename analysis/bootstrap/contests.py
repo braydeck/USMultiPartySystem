@@ -42,10 +42,6 @@ def _pipelines(lam: float):
     # full ranking). The app publishes the rank-7 model, so leaving this unset would
     # bootstrap a different contest than the one on the page.
     os.environ["BALLOT_DEPTH"] = str(DEPTH)
-    # All four modules pick pure_multi_nosty vs pure_multi from NO_STY at import, but we
-    # always resample ballots_path("pure_multi") — an ambient NO_STY=1 would read
-    # unresampled nosty ballots with no error.
-    os.environ.pop("NO_STY", None)
     sys.path.insert(0, str(BASE / "pipeline" / "pure_only"))
     import run_pure_multi_house_stv as hou
     import run_pure_multi_presidential as pres

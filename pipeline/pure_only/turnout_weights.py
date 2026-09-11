@@ -15,7 +15,7 @@ cells; only vote-counting weight and cluster shares change.
 
 Tree convention:
   ballots are unaffected by turnout, so they are read from the base tree
-  (pure_multi / pure_multi_nosty). Turnout-weighted OUTPUT goes to a parallel
+  (pure_multi). Turnout-weighted OUTPUT goes to a parallel
   '<base>_turnout' tree via output_tree().
 """
 

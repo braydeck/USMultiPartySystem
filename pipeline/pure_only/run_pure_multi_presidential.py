@@ -25,12 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from turnout_weights import turnout_multiplier, output_tree
 
 BASE_DIR     = Path(__file__).parent.parent.parent
-# DEAD SCENARIO — NO_STY=1 dissolves Solidarity (cluster 2). Nothing consumes the
-# pure_multi_nosty* trees any more: prepare_data.py's build_nosty_scenario() and the
-# 16 archive/*NoSTY*.json it wrote were removed 2026-09-07. Kept only because these
-# runners are the live path and could not be re-verified cheaply. Safe to delete
-# together with the NO_STY branches in the other pure_only runners.
-_BALLOT_TREE = "pure_multi_nosty" if os.environ.get("NO_STY") == "1" else "pure_multi"
+_BALLOT_TREE = "pure_multi"
 _OUT_TREE    = output_tree(_BALLOT_TREE)
 BALLOTS_PATH = BASE_DIR / "data" / "outputs" / _BALLOT_TREE / "presidential_ballots.csv"
 PRIMARY_PATH = BASE_DIR / "data" / "outputs" / _OUT_TREE / "primary_results_2028.csv"
