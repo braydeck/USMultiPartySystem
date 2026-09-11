@@ -132,9 +132,10 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    because the map colors by `u.modal`. Note `sen.main(ballot_depth=N)` reassigns its global
    `OUTPUT_DIR` to `<parent>_topN/senate`, so read back where it wrote, not where you pointed it.
 
-9. **`NO_STY=1` / `pure_multi_nosty*` is a DEAD scenario** (Solidarity dissolved), as was
-   `INCLUDE_C7` / `pure_multi_c7`. The consumers were removed 2026-09-07. Five `pure_only`
-   runners still carry a labeled `NO_STY` branch; delete them rather than reasoning from them.
+9. **The `pure_only` runners are not idempotent against their own committed output.** Re-running
+   them rewrites several `data/outputs/pure_multi/` CSVs even with no code change, so never
+   verify a pipeline edit by diffing against HEAD. Run the unedited code, snapshot, apply the
+   edit, re-run, and diff those two.
 
 ## Voice for app copy
 
