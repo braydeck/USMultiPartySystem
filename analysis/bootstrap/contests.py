@@ -90,14 +90,21 @@ def run_draw(seed: int, lam: float, depth: int = DEPTH, observed: bool = False) 
             sen_dir = tmp / "senate"
             real_sen_out, sen.OUTPUT_DIR = sen.OUTPUT_DIR, sen_dir
             try:
-                _quiet(sen.main, ballot_depth=0)
+                # Rank-7, matching build_senate_rank7.py and the deployed senate JSONs. This
+                # truncates only the STV winnow that picks the 5 finalists; the final
+                # IRV/Condorcet among those 5 is full-ranked either way. Was hardcoded to 0
+                # (full ranking), which bootstrapped a different contest than the page shows.
+                _quiet(sen.main, ballot_depth=depth)
+                # main() reassigns its global OUTPUT_DIR to <parent>_top{depth}/senate for any
+                # nonzero depth, so read back where it actually wrote rather than sen_dir.
+                sen_out = sen.OUTPUT_DIR
             finally:
                 sen.OUTPUT_DIR = real_sen_out
             cond = {f'{int(k):02d}': v for k, v in
-                    pd.read_csv(sen_dir / "senate_composition.csv")[["state_fips", "senator_code"]].values}
+                    pd.read_csv(sen_out / "senate_composition.csv")[["state_fips", "senator_code"]].values}
             irv = {f'{int(k):02d}': v for k, v in
-                   pd.read_csv(sen_dir / "senate_irv_composition.csv")[["state_fips", "senator_code"]].values}
-            rounds = json.loads((sen_dir / "senate_irv_rounds.json").read_text())
+                   pd.read_csv(sen_out / "senate_irv_composition.csv")[["state_fips", "senator_code"]].values}
+            rounds = json.loads((sen_out / "senate_irv_rounds.json").read_text())
             paths = {}
             for fips, st in rounds.items():
                 rs = st["rounds"]

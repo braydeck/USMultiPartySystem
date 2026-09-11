@@ -124,7 +124,15 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    python3 pipeline/build_senate_rank7.py
    ```
 
-8. **`NO_STY=1` / `pure_multi_nosty*` is a DEAD scenario** (Solidarity dissolved), as was
+8. **The senate bootstrap and `build_senate_rank7.py` must run at the same depth.**
+   `analysis/bootstrap/contests.py` resamples the senate, and `viz/src/data/uncertainty*.json`
+   is what the Senate map, the modal winner, and the two-winner split actually render.
+   `pureMultiSenate*.json` only supplies the fallback fill. If the two are built at different
+   depths the page shows one model and the observed files hold another, which is invisible
+   because the map colors by `u.modal`. Note `sen.main(ballot_depth=N)` reassigns its global
+   `OUTPUT_DIR` to `<parent>_topN/senate`, so read back where it wrote, not where you pointed it.
+
+9. **`NO_STY=1` / `pure_multi_nosty*` is a DEAD scenario** (Solidarity dissolved), as was
    `INCLUDE_C7` / `pure_multi_c7`. The consumers were removed 2026-09-07. Five `pure_only`
    runners still carry a labeled `NO_STY` branch; delete them rather than reasoning from them.
 
