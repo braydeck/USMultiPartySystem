@@ -48,3 +48,4 @@ analysis/efa/previous_years/outputs/*/independent_fit.pkl
 
 # Alaska Dominion CVR exports (~1.5 GB each; download URLs in pipeline/rcv/README.md)
 data/raw/rcv/
+data/outputs/*reserve*/house/transfer_matrix_*.csv
