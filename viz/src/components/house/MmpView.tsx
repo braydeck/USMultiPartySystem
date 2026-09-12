@@ -79,13 +79,15 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
   const stateSel = selState !== 'national' ? config?.byState?.[selState] : undefined;
   const plSel = stateSel && pl ? pl.byState[selState] : undefined;
 
-  const active = stateSel
+  // Memoised on its own inputs: as a bare object literal this was a new reference every render,
+  // so the useMemo keyed on it below recomputed every time and memoised nothing.
+  const active = useMemo(() => (stateSel
     ? { voteShare: stateSel.voteShare, mmpSeats: stateSel.mmpSeats, districtSeats: stateSel.districtSeats,
         totalSeats: stateSel.totalSeats, listSeats: plSel?.listSeats, stvSeats: plSel?.stvSeats,
         otherTotal: plSel?.totalSeats }
     : { voteShare: nat.voteShare, mmpSeats: nat.mmpSeats, districtSeats: nat.districtSeats,
         totalSeats: nat.totalSeats, listSeats: pl?.national.listSeats, stvSeats: pl?.national.stvSeats,
-        otherTotal: pl?.national.totalSeats };
+        otherTotal: pl?.national.totalSeats }), [stateSel, plSel, nat, pl]);
 
   const mmpSeats = useMemo(() => seatMapToHouseSeats(nat.mmpSeats), [nat]);
   const doubleMmpSeats = useMemo(

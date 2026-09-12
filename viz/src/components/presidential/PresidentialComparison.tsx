@@ -42,14 +42,16 @@ export function PresidentialComparison({ rows, factorDev, rawMulti }: Props) {
   const [showOnly, setShowOnly] = useState<'all' | 'differs'>('differs');
   const [method, setMethod] = useState<'irv' | 'condorcet'>('irv');
 
-  const IRV_PRESIDENTS: PresidentEntry[] = [
+  // Both close over the factorDev/rawMulti props, so they cannot be hoisted; memoising on those
+  // props keeps them stable between renders instead of rebuilding the arrays every time.
+  const IRV_PRESIDENTS: PresidentEntry[] = useMemo(() => [
     { key: 'fd',       code: factorDev.irvWinner,  signField: 'presFDIRVSigns',       pctField: 'presFDIRVPct',       label: 'Crossover' },
     { key: 'rawMulti', code: rawMulti.irvWinner,   signField: 'presRawMultiIRVSigns', pctField: 'presRawMultiIRVPct', label: 'Party-Line'  },
-  ];
-  const COND_PRESIDENTS: PresidentEntry[] = [
+  ], [factorDev, rawMulti]);
+  const COND_PRESIDENTS: PresidentEntry[] = useMemo(() => [
     { key: 'fd',       code: factorDev.condorcetWinner,  signField: 'presFDCondSigns',       pctField: 'presFDCondPct',       label: 'Crossover' },
     { key: 'rawMulti', code: rawMulti.condorcetWinner,   signField: 'presRawMultiCondSigns', pctField: 'presRawMultiCondPct', label: 'Party-Line'  },
-  ];
+  ], [factorDev, rawMulti]);
 
   const presidents = method === 'irv' ? IRV_PRESIDENTS : COND_PRESIDENTS;
 
@@ -78,7 +80,7 @@ export function PresidentialComparison({ rows, factorDev, rawMulti }: Props) {
         : 0;
       return { row: r, disagreeCount, spread };
     });
-  }, [rows, method]);
+  }, [rows, method, COND_PRESIDENTS, IRV_PRESIDENTS]);
 
   const filtered = scored
     .filter(x => domain === 'All' || x.row.domain === domain)

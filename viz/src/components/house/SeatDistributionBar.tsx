@@ -11,6 +11,22 @@ interface Props {
   seats: HouseSeat[];
 }
 
+const CustomTooltip = ({ active, payload, label }: DefaultTooltipContentProps<number, string>
+  & Pick<TooltipProps<number, string>, 'active'>) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white border border-border rounded px-3 py-2 text-sm text-foreground">
+      <div className="font-semibold mb-1">{label}</div>
+      {payload.map(p => (
+        <div key={p.name} className="flex justify-between gap-4">
+          <span className="text-muted-foreground">{p.name}:</span>
+          <span style={{ color: p.fill }}>{p.value} seats</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export function SeatDistributionBar({ seats: rawSeats }: Props) {
   const seats = [...rawSeats].filter(s => s.national > 0).sort((a, b) => b.national - a.national);
 
@@ -26,21 +42,6 @@ export function SeatDistributionBar({ seats: rawSeats }: Props) {
     total: s.national,
   }));
 
-  const CustomTooltip = ({ active, payload, label }: DefaultTooltipContentProps<number, string>
-    & Pick<TooltipProps<number, string>, 'active'>) => {
-    if (!active || !payload?.length) return null;
-    return (
-      <div className="bg-white border border-border rounded px-3 py-2 text-sm text-foreground">
-        <div className="font-semibold mb-1">{label}</div>
-        {payload.map(p => (
-          <div key={p.name} className="flex justify-between gap-4">
-            <span className="text-muted-foreground">{p.name}:</span>
-            <span style={{ color: p.fill }}>{p.value} seats</span>
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   return (
     <ResponsiveContainer width="100%" height={350}>

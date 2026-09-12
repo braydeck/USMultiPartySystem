@@ -92,11 +92,13 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
 
   const stateSel = selState !== 'national' ? config?.byState?.[selState] : undefined;
 
-  const active = stateSel
+  // Memoised on its own inputs: as a bare object literal this was a new reference every render,
+  // so the useMemo keyed on it below recomputed every time and memoised nothing.
+  const active = useMemo(() => (stateSel
     ? { voteShare: stateSel.voteShare, totalSeats: stateSel.totalSeats,
         listSeats: stateSel.listSeats, stvSeats: stateSel.stvSeats }
     : { voteShare: nat.voteShare, totalSeats: nat.totalSeats,
-        listSeats: nat.list.seats, stvSeats: nat.stv.seats };
+        listSeats: nat.list.seats, stvSeats: nat.stv.seats }), [stateSel, nat]);
 
   // VotesVsSeats system entries
   const stateOpts = useMemo(() => [

@@ -121,6 +121,9 @@ interface Props {
   fdAttractionDrivers: { variant: string; party: string; axis: string; direction: string; attracted: string; attractedPct: number; factors: { factor: string; pct: number }[] }[];
 }
 
+const fdCondStops = [fdSenCond0, fdSenCond5, fdSenCond10, fdSenCond15, fdSenCond20, fdSenCond25, fdSenCond30] as unknown as FDSenateSeat[][];
+const fdIrvStops  = [fdSenIrv0, fdSenIrv5, fdSenIrv10, fdSenIrv15, fdSenIrv20, fdSenIrv25, fdSenIrv30] as unknown as FDSenateSeat[][];
+
 export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
                              clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers }: Props) {
@@ -134,10 +137,15 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   // ranking), so there is no ballot-depth toggle here.
   // Compression stops [0,5,10,15,20,25,30] for each pipeline; condRM/irvRM are the ACTIVE
   // scenario's Condorcet/IRV senate at the current turnout stop.
-  const rmCondStops = [condorcetRawMultiTurnout, senCondL5, senCondL10, senCondL15, senCondL20, senCondL25, senCondL30] as unknown as FDSenateSeat[][];
-  const rmIrvStops  = [irvRawMultiTurnout, senIrvL5, senIrvL10, senIrvL15, senIrvL20, senIrvL25, senIrvL30] as unknown as FDSenateSeat[][];
-  const fdCondStops = [fdSenCond0, fdSenCond5, fdSenCond10, fdSenCond15, fdSenCond20, fdSenCond25, fdSenCond30] as unknown as FDSenateSeat[][];
-  const fdIrvStops  = [fdSenIrv0, fdSenIrv5, fdSenIrv10, fdSenIrv15, fdSenIrv20, fdSenIrv25, fdSenIrv30] as unknown as FDSenateSeat[][];
+  // The party-line stops open with a prop, so they are memoised on it; the crossover stops are
+  // all static imports and live at module scope. Rebuilding these every render gave condRM a
+  // fresh identity each time, which stopped the React Compiler optimizing the component.
+  const rmCondStops = useMemo(
+    () => [condorcetRawMultiTurnout, senCondL5, senCondL10, senCondL15, senCondL20, senCondL25, senCondL30] as unknown as FDSenateSeat[][],
+    [condorcetRawMultiTurnout]);
+  const rmIrvStops = useMemo(
+    () => [irvRawMultiTurnout, senIrvL5, senIrvL10, senIrvL15, senIrvL20, senIrvL25, senIrvL30] as unknown as FDSenateSeat[][],
+    [irvRawMultiTurnout]);
   const condRM = (rawMultiOn ? rmCondStops : fdCondStops)[gi];
   const irvRM  = (rawMultiOn ? rmIrvStops  : fdIrvStops )[gi];
   // Sampling uncertainty at the active stop. Party-line only — the Crossover pipeline

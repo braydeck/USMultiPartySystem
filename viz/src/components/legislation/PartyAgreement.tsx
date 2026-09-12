@@ -9,9 +9,10 @@ import type { VoteMode } from '../../constants/labels';
 //  • Whipped   → same-side: % of bills where both parties whip the same yes/no vote (support > 50%).
 // Position-based, so it doesn't move with the seat/turnout controls above.
 
+const parties = F5_ORDER;
+
 export function PartyAgreement({ candidateVotes, voteModel }: { candidateVotes: CandidateVoteRow[]; voteModel: VoteMode }) {
   const view: 'position' | 'binary' = voteModel === 'whipped' ? 'binary' : 'position';
-  const parties = F5_ORDER;
 
   const { position, binary } = useMemo(() => {
     const position: Record<string, Record<string, number>> = {};

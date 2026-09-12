@@ -18,6 +18,19 @@ interface Props {
   wyoming?: 'double' | 'triple';
 }
 
+// Static JSX closing over nothing. Declared inside the render it was a new component type on
+// every pass, so React remounted both table headers rather than updating them.
+const ColHead = () => (
+  <TableHeader>
+    <TableRow>
+      <TableHead className="pb-1.5 pr-2 text-xs text-muted-foreground text-left">State</TableHead>
+      <TableHead className="pb-1.5 px-2 text-xs text-muted-foreground text-right">Now</TableHead>
+      <TableHead className="pb-1.5 px-2 text-xs text-muted-foreground text-right">STV</TableHead>
+      <TableHead className="pb-1.5 pl-2 text-xs text-muted-foreground text-right">Gain</TableHead>
+    </TableRow>
+  </TableHeader>
+);
+
 export function StateSeatsTable({ stateMap, wyoming = 'double' }: Props) {
   const rows = Object.values(stateMap)
     .map(entry => ({
@@ -44,17 +57,6 @@ export function StateSeatsTable({ stateMap, wyoming = 'double' }: Props) {
         <TableCell className="py-1 pl-2 text-xs text-right tabular-nums font-bold text-emerald-600">+{delta}</TableCell>
       </TableRow>
     ));
-
-  const ColHead = () => (
-    <TableHeader>
-      <TableRow>
-        <TableHead className="pb-1.5 pr-2 text-xs text-muted-foreground text-left">State</TableHead>
-        <TableHead className="pb-1.5 px-2 text-xs text-muted-foreground text-right">Now</TableHead>
-        <TableHead className="pb-1.5 px-2 text-xs text-muted-foreground text-right">STV</TableHead>
-        <TableHead className="pb-1.5 pl-2 text-xs text-muted-foreground text-right">Gain</TableHead>
-      </TableRow>
-    </TableHeader>
-  );
 
   return (
     <div>

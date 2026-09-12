@@ -88,9 +88,11 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
     ...Object.entries(config.byState).map(([f, s]) => ({ value: f, label: s.abbr })).sort((a, b) => a.label.localeCompare(b.label)),
   ], [config]);
   const stateSel = selState !== 'national' ? config.byState[selState] : undefined;
-  const active = stateSel
+  // Memoised on its own inputs: as a bare object literal this was a new reference every render,
+  // so the useMemo keyed on it below recomputed every time and memoised nothing.
+  const active = useMemo(() => (stateSel
     ? { voteShare: stateSel.voteShare, listSeats: stateSel.listSeats, stvSeats: stateSel.stvSeats, totalSeats: stateSel.totalSeats }
-    : { voteShare: nat.voteShare, listSeats: nat.listSeats, stvSeats: nat.stvSeats, totalSeats: nat.totalSeats };
+    : { voteShare: nat.voteShare, listSeats: nat.listSeats, stvSeats: nat.stvSeats, totalSeats: nat.totalSeats }), [stateSel, nat]);
 
   const districtResults = useMemo(() => {
     const out: Record<string, DistrictResult[]> = {};

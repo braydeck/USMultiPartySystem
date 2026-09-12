@@ -8,12 +8,15 @@ interface Props {
   stage: string;
 }
 
+// Fixed chart geometry. At module scope these are stable references, so the effect below can
+// list them honestly instead of reading recreated locals it never declares as dependencies.
+const W = 500, H = 380;
+const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+const iW = W - margin.left - margin.right;
+const iH = H - margin.top - margin.bottom;
+
 export function IdeologicalScatter({ candidates, stage }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const W = 500, H = 380;
-  const margin = { top: 30, right: 30, bottom: 50, left: 60 };
-  const iW = W - margin.left - margin.right;
-  const iH = H - margin.top - margin.bottom;
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);

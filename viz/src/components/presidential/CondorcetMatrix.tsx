@@ -10,14 +10,19 @@ interface Props {
 }
 
 export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props) {
-  // Collect all candidates
-  const candidateSet = new Set<string>();
-  for (const m of matchups) {
-    candidateSet.add(m.candidateA);
-    candidateSet.add(m.candidateB);
-  }
-  const candidates = Array.from(candidateSet);
-  const labels = useMemo(() => buildDisplayLabels(candidateSet), [matchups]); // eslint-disable-line react-hooks/exhaustive-deps
+  // candidateSet is derived from matchups, so building it inside the memo makes the dependency
+  // honest. Keyed on [matchups] while reading an outer Set, the React Compiler could not
+  // preserve the memoization and skipped optimizing the whole component.
+  const candidateSet = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of matchups) {
+      set.add(m.candidateA);
+      set.add(m.candidateB);
+    }
+    return set;
+  }, [matchups]);
+  const candidates = useMemo(() => Array.from(candidateSet), [candidateSet]);
+  const labels = useMemo(() => buildDisplayLabels(candidateSet), [candidateSet]);
   const label = (code: string) => labels[code] ?? code;
 
   // Build win/loss lookup: winsMap[row][col] = { aWinsPct, margin, winner }

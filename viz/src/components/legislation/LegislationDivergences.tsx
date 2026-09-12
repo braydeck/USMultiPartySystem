@@ -49,6 +49,13 @@ type Row = {
   score: number;
 };
 
+const SENATE_PROB: Record<string, keyof VoteModelRow> = {
+  'rawMulti+condorcet':  'condRawMultiProbPass',
+  'rawMulti+irv':        'irvRawMultiProbPass',
+  'factorDev+condorcet': 'condFDProbPass',
+  'factorDev+irv':       'irvFDProbPass',
+};
+
 export function LegislationDivergences({ houseVotes, senateVotes, election, pipeline, wyoming = 'double',
                                          system = 'stv', voteModel = 'free', candidateVotes = [], houseSeats = {},
                                          senateSeatsCond = {}, senateSeatsIRV = {},
@@ -62,14 +69,6 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
   const isFD = pipeline === 'factorDev';
   const condPresParty = election.condorcetWinner.split('_')[0];
   const irvPresParty  = election.irvWinner.split('_')[0];
-
-  const SENATE_PROB: Record<string, keyof VoteModelRow> = {
-    'rawMulti+condorcet':  'condRawMultiProbPass',
-    'rawMulti+irv':        'irvRawMultiProbPass',
-    'factorDev+condorcet': 'condFDProbPass',
-    'factorDev+irv':       'irvFDProbPass',
-  };
-
 
   const HOUSE_PROB = houseProbField(system, pipeline, wyoming, { depth, reserve });
 

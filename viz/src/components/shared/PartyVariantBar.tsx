@@ -62,16 +62,17 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
     }
 
     const present = F5_ORDER.filter(p => byPV[p] != null);
-    let maxTotal = 1;
 
     const rows = present.map(party => {
       const total = Object.values(byPV[party]).reduce((s, v) => s + v, 0);
-      if (total > maxTotal) maxTotal = total;
       const segments = VARIANT_ORDER
         .filter(vk => (byPV[party][vk] ?? 0) > 0)
         .map(vk => ({ vk, count: byPV[party][vk] }));
       return { party, total, segments };
     });
+    // Derived after the map rather than mutated inside it: reassigning across a callback is
+    // what stopped the React Compiler optimizing this component.
+    const maxTotal = Math.max(1, ...rows.map(r => r.total));
 
     return { rows, maxTotal, grandTotal };
   }, [seats]);
