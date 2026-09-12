@@ -5,7 +5,7 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
 **Solution:** 24-item, oblique rotation (oblimin), k=5 factors
 **Sample:** N=45,707 (2024 CES, listwise deletion)
 **Dropped item:** CC24_340a — near-Heywood condition (λ=−0.947); removed from ITEMS_25 to produce final ITEMS_24 set
-**Files:** `Claude/analysis/efa/efa_loadings_k5_final.csv`, `Claude/analysis/efa/efa_phi_k5_final.csv`
+**Files:** `analysis/efa/efa_loadings_k5_final.csv`, `analysis/efa/efa_phi_k5_final.csv`
 **Item selection & robustness:** the full audit of how these items were chosen and how the typology holds up under every alternative (mechanical selection rule, overlooked domains, k and rotation variants) is in [`EFA_ITEM_SELECTION_ROBUSTNESS.md`](EFA_ITEM_SELECTION_ROBUSTNESS.md).
 
 **Why k=5 (not k=4):** A 4-factor solution yields three clean factors (enforcement; a merged election+government *trust* factor; merged religion+values) plus an **uninterpretable junk factor** — mixed loadings dominated by the homeless post-9/11 surveillance item, soaking up under-extraction leftover. k=5 spends that degree of freedom on a *meaningful* split instead (Institutional Distrust vs Government Distrust). The trade-off: k=5's Government Distrust barely discriminates parties (η²=0.057) — but a weak-yet-clean dimension (benign ballast) is preferable to a junk dimension that injects incoherent variance into clustering. See **Robustness** below.
@@ -14,25 +14,30 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
   ---
   Exact Population Shares
 
+  'Soft' sums each respondent's posterior across all ten clusters; 'hard' assigns each
+  respondent wholly to their argmax. The app's Pop % column uses the HARD share, so it
+  differs from the soft column below (CON 19.2 hard vs 17.7 soft, STY 12.4 vs 14.3).
+  The gap is a diffuseness measure, not an error.
+
   ┌──────────────────────┬──────────┬────────────┐
-  │        Party         │ Weighted │ Unweighted │
+  │        Party         │   Soft   │ Soft, unwt │
   ├──────────────────────┼──────────┼────────────┤
   │ CON (Conservative)   │ 17.74%   │ 17.36%     │
   ├──────────────────────┼──────────┼────────────┤
-  │ SD (Social Democrat) │ 14.81%   │ 16.07%     │
+  │ LBR (Labor)          │ 14.81%   │ 16.07%     │
   ├──────────────────────┼──────────┼────────────┤
   │ STY (Solidarity)     │ 14.25%   │ 11.68%     │
   ├──────────────────────┼──────────┼────────────┤
   │ POP (Populist)         │ 10.43%   │ 8.76%      │
   ├──────────────────────┼──────────┼────────────┤
-  │ CUP (Centrist)       │ 9.35%    │ 8.52%      │
+  │ CUP (Civic Union)    │ 9.35%    │ 8.52%      │
   ├──────────────────────┼──────────┼────────────┤
   │ LIB (Liberal)        │ 8.81%    │ 11.50%     │
   ├──────────────────────┼──────────┼────────────┤
   │ NAT (Nationalist)    │ 8.71%    │ 8.20%      │
   ├──────────────────────┼──────────┼────────────┤
   │ DSA (Dem. Socialist) │ 5.94%    │ 5.83%      │
-  ├──────────────────────┼──────────┼────────────┤Z
+  ├──────────────────────┼──────────┼────────────┤
   │ PRG (Progressive)    │ 4.70%    │ 5.67%      │
   ├──────────────────────┼──────────┼────────────┤
   │ OAO (Order & Opp.)   │ 5.26%    │ 6.42%      │
@@ -190,6 +195,12 @@ Key relationships:
 
 ## Winning Coalition Type Scores on All Factors
 
+> **Retired model.** The blended senator types below (`CON/LBR`, `STY/LBR` and the like) came
+> from the mixed-senate model that has since been replaced. The live Senate fields 1-3 pure
+> party candidates per state by local strength, and its winners are codes like `STY_1`. Kept
+> for the factor geometry of the blend positions, which is still informative; do not read the
+> Chamber column or the type names as describing anything the pipeline now produces.
+
 Sorted by F5 descending (most populist-conservative to most progressive):
 
 | Type | Chamber | F1 SecOrd | F2 ElecSkep | F3 GovtDis | F4 ReligTrad | F5 PopCons |
@@ -205,15 +216,15 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 | CON/STY | senate | +0.258 | +0.263 | +0.120 | +0.196 | +0.230 |
 | STY/CON | senate | +0.076 | +0.365 | +0.124 | +0.188 | +0.155 |
 | CUP | both | +0.266 | −0.817 | −0.174 | +0.130 | +0.039 |
-| CON/SD | senate | +0.236 | −0.027 | +0.102 | −0.035 | −0.011 |
+| CON/LBR | senate | +0.236 | −0.027 | +0.102 | −0.035 | −0.011 |
 | STY | both | −0.446 | +0.658 | +0.133 | +0.165 | −0.062 |
-| SD/CON | senate | +0.153 | −0.028 | +0.101 | −0.074 | −0.081 |
-| SD/CUP | senate | −0.122 | −0.369 | −0.023 | −0.141 | −0.305 |
-| STY/SD | senate | −0.430 | +0.313 | +0.112 | −0.090 | −0.313 |
-| SD/STY | senate | −0.425 | +0.196 | +0.105 | −0.177 | −0.398 |
-| SD | both | −0.414 | −0.032 | +0.091 | −0.345 | −0.564 |
+| LBR/CON | senate | +0.153 | −0.028 | +0.101 | −0.074 | −0.081 |
+| LBR/CUP | senate | −0.122 | −0.369 | −0.023 | −0.141 | −0.305 |
+| STY/LBR | senate | −0.430 | +0.313 | +0.112 | −0.090 | −0.313 |
+| LBR/STY | senate | −0.425 | +0.196 | +0.105 | −0.177 | −0.398 |
+| LBR | both | −0.414 | −0.032 | +0.091 | −0.345 | −0.564 |
 | LIB/CUP | senate | −0.171 | −0.773 | −0.121 | −0.142 | −0.554 |
-| SD/LIB | senate | −0.438 | −0.381 | +0.004 | −0.334 | −0.753 |
+| LBR/LIB | senate | −0.438 | −0.381 | +0.004 | −0.334 | −0.753 |
 | DSA | house | **−1.303** | +0.504 | +0.076 | −0.387 | −0.874 |
 | LIB | both | −0.462 | −0.744 | −0.086 | −0.323 | −0.950 |
 | PRG | house | **−1.260** | −0.634 | −0.206 | −0.387 | −0.990 |
@@ -229,17 +240,17 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 |------|-------|
 | Very High | CON (+0.77), CON/NAT (+0.75) |
 | High | NAT (+0.74), CON/POP (+0.59), CON/CUP (+0.58), CUP (+0.27), CON/STY (+0.26) |
-| Medium | CON/SD (+0.24), POP (+0.20), SD/CON (+0.15), STY/CON (+0.08), POP/STY (−0.04), SD/CUP (−0.12), STY/POP (−0.15), LIB/CUP (−0.17) |
-| Low | SD (−0.41), SD/STY (−0.42), STY/SD (−0.43), SD/LIB (−0.44), STY (−0.45), LIB (−0.46) |
+| Medium | CON/LBR (+0.24), POP (+0.20), LBR/CON (+0.15), STY/CON (+0.08), POP/STY (−0.04), LBR/CUP (−0.12), STY/POP (−0.15), LIB/CUP (−0.17) |
+| Low | LBR (−0.41), LBR/STY (−0.42), STY/LBR (−0.43), LBR/LIB (−0.44), STY (−0.45), LIB (−0.46) |
 | Very Low | PRG (−1.26), DSA (−1.30) |
 
 ### F2 — Institutional Distrust
 | Tier | Types |
 |------|-------|
 | Very High | POP (+0.76) |
-| High | POP/STY (+0.72), STY/POP (+0.70), STY (+0.66), DSA (+0.50), NAT (+0.43), STY/CON (+0.36), STY/SD (+0.31), CON/STY (+0.26) |
-| Medium | CON/POP (+0.22), CON/NAT (+0.20), SD/STY (+0.20), CON (−0.02), CON/SD (−0.03), SD/CON (−0.03), SD (−0.03) |
-| Low | CON/CUP (−0.32), SD/CUP (−0.37), SD/LIB (−0.38), PRG (−0.63), LIB (−0.74) |
+| High | POP/STY (+0.72), STY/POP (+0.70), STY (+0.66), DSA (+0.50), NAT (+0.43), STY/CON (+0.36), STY/LBR (+0.31), CON/STY (+0.26) |
+| Medium | CON/POP (+0.22), CON/NAT (+0.20), LBR/STY (+0.20), CON (−0.02), CON/LBR (−0.03), LBR/CON (−0.03), LBR (−0.03) |
+| Low | CON/CUP (−0.32), LBR/CUP (−0.37), LBR/LIB (−0.38), PRG (−0.63), LIB (−0.74) |
 | Very Low | LIB/CUP (−0.77), CUP (−0.82) |
 
 ### F3 — Government Distrust (residual)
@@ -256,8 +267,8 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 |------|-------|
 | Very High | *(none)* |
 | High | NAT (+0.46), CON/NAT (+0.34) |
-| Medium | CON (+0.22) through SD/CON (−0.07) — 16 types |
-| Low | LIB (−0.32), SD/LIB (−0.33), SD (−0.34), DSA (−0.39), PRG (−0.39) |
+| Medium | CON (+0.22) through LBR/CON (−0.07) — 16 types |
+| Low | LIB (−0.32), LBR/LIB (−0.33), LBR (−0.34), DSA (−0.39), PRG (−0.39) |
 | Very Low | *(none)* |
 
 ### F5 — Populist Conservatism
@@ -265,9 +276,9 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 |------|-------|
 | Very High | NAT (+1.51), POP (+0.99), CON/NAT (+0.97) |
 | High | CON/POP (+0.61), POP/STY (+0.60), CON (+0.44), STY/POP (+0.41), CON/CUP (+0.29) |
-| Medium | CON/STY (+0.23) through SD/CON (−0.08) — 6 types |
-| Low | SD/CUP (−0.30), STY/SD (−0.31), SD/STY (−0.40), LIB/CUP (−0.55), SD (−0.56) |
-| Very Low | SD/LIB (−0.75), DSA (−0.87), LIB (−0.95), PRG (−0.99) |
+| Medium | CON/STY (+0.23) through LBR/CON (−0.08) — 6 types |
+| Low | LBR/CUP (−0.30), STY/LBR (−0.31), LBR/STY (−0.40), LIB/CUP (−0.55), LBR (−0.56) |
+| Very Low | LBR/LIB (−0.75), DSA (−0.87), LIB (−0.95), PRG (−0.99) |
 
 ---
 
@@ -295,7 +306,7 @@ The production typology rests on three modeling choices that aren't forced by th
 
 | Party | k=5 no-resid | k=4 resid | k=4 no-resid |
 |---|---|---|---|
-| SD, STY, POP, CON, NAT | preserved | preserved | preserved |
+| LBR, STY, POP, CON, NAT | preserved | preserved | preserved |
 | CUP | preserved | **split → CON** | **split → CON** |
 | PRG | absorbed (→DSA) | preserved | preserved |
 | LIB | **split** | **split** | **split** |
@@ -305,11 +316,11 @@ All four variants still produce 10 well-populated DPGMM clusters — k=4 does **
 
 ### Findings
 
-1. **Robust core (real structure):** SD, STY, POP, CON, NAT survive in every variant, residualized or not, k=4 or k=5. Crucially this includes **STY**, the cross-cutting flagship (left-ish enforcement + high institutional distrust + religious traditionalism) — it is not an artifact of the modeling choices.
+1. **Robust core (real structure):** LBR, STY, POP, CON, NAT survive in every variant, residualized or not, k=4 or k=5. Crucially this includes **STY**, the cross-cutting flagship (left-ish enforcement + high institutional distrust + religious traditionalism) — it is not an artifact of the modeling choices.
 
 2. **The cross-cutting structure survives without residualization.** In every variant there are simultaneously left-skeptic, right-skeptic, and right-trusting clusters — institutional distrust stays orthogonal to the enforcement (left–right) axis. Residualization *sharpens* separation (it moves ~40% of assignments, ARI≈0.60 vs baseline) but does not *create* the cross-cutting result.
 
-3. **The left bloc is weakly separated.** PRG, DSA, LIB, SD sit close together in policy space (pairwise cosine ≈ 0.72–0.77). LIB and DSA split in every variant; PRG wobbles. Only k=5 + residualization pulls the left quartet cleanly apart — they are the least robust groupings in the typology.
+3. **The left bloc is weakly separated.** PRG, DSA, LIB, LBR sit close together in policy space (pairwise cosine ≈ 0.72–0.77). LIB and DSA split in every variant; PRG wobbles. Only k=5 + residualization pulls the left quartet cleanly apart — they are the least robust groupings in the typology.
 
 4. **Civic Union (CUP) requires k=5.** At k=4, Institutional Distrust and Government Distrust merge into one trust factor, and CUP — the institutionalist defined by trusting *both* elections and government — loses the dimension that distinguishes it and is absorbed into Conservative. CUP only stands alone when the two trust dimensions are kept separate. **This is the concrete payoff of k=5**, despite Government Distrust's low standalone η².
 
@@ -323,7 +334,7 @@ Strength = weighted mean of each cluster's max posterior probability (how cleanl
 |---|--:|
 | CUP | 0.66 |
 | OAO (Order & Opportunity) | 0.70 |
-| CON / SD / LIB | 0.74 |
+| CON / LBR / LIB | 0.74 |
 | PRG | 0.76 |
 | POP / NAT | 0.80 |
 | STY / DSA | 0.81 |
@@ -366,7 +377,7 @@ We tested what happens if foreign policy were a *party-defining* sixth dimension
 |---|---|
 | PRG, DSA, LIB, CON, NAT | STY (3), LBR (2), CUP (2), POP (2), OAO (2) |
 
-The ideological poles hold; the cross-pressured center splits along engagement↔isolationism. The signature new entity is an **isolationist bloc** (POP 37 / STY 36 / CON 11, FP engagement −1.78) — drawn from the populist right *and* the economic left, united only by "stay out." SD splits into an **internationalist wing** (SD/LIB, FP +0.92) and a lower-engagement SD/STY group; STY fragments three ways.
+The ideological poles hold; the cross-pressured center splits along engagement↔isolationism. The signature new entity is an **isolationist bloc** (POP 37 / STY 36 / CON 11, FP engagement −1.78) — drawn from the populist right *and* the economic left, united only by "stay out." LBR splits into an **internationalist wing** (LBR/LIB, FP +0.92) and a lower-engagement LBR/STY group; STY fragments three ways.
 
 **Legislation effect (party-discipline House, seats ∝ population).** The electorate is identical, so most outcomes hold — but the re-sorted blocs, voting as units, **flip two knife-edge immigration bills toward restriction**: *grant legal status to undocumented* 60%→49% (fails, despite 59% popular) and *deny asylum* 50%→59% (passes). Foreign-policy votes also become more decisive/whippable (the isolationist bloc votes cohesively instead of splitting inside every party). The flips come from bloc mechanics under perfect party discipline, not changed minds — a reminder that *party structure*, not just opinion, decides near-even bills.
 

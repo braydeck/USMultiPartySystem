@@ -15,29 +15,34 @@ This is the **party-line** (a.k.a. `rawMulti` / pure_multi) STV result — the v
 
 | Party | Seats | Seat % | Pop % |
 |-------|------:|------:|------:|
-| Conservative | 202 | 23.1% | 18.7% |
-| Social Democrat | 164 | 18.8% | 15.6% |
-| Solidarity | 130 | 14.9% | 15.0% |
-| Civic Union Party | 103 | 11.8% | 9.9% |
-| Populist | 99 | 11.3% | 11.0% |
-| Liberal | 93 | 10.7% | 9.3% |
-| Nationalist | 46 | 5.3% | 9.2% |
-| DSA | 22 | 2.5% | 6.3% |
-| Progressive | 14 | 1.6% | 5.0% |
+| Conservative | 202 | 23.1% | 19.2% |
+| Labor | 158 | 18.1% | 14.1% |
+| Solidarity | 129 | 14.8% | 12.4% |
+| Populist | 104 | 11.9% | 9.0% |
+| Liberal | 92 | 10.5% | 9.2% |
+| Civic Union Party | 89 | 10.2% | 8.6% |
+| Nationalist | 43 | 4.9% | 9.8% |
+| DSA | 26 | 3.0% | 6.0% |
+| Order and Opportunity Party | 15 | 1.7% | 6.2% |
+| Progressive | 15 | 1.7% | 5.6% |
 
-**Conservative is the largest party (202).** Total = 873. The crossover-field House result
+**Conservative is the largest party (202).** Total = 873 across all ten parties. The crossover-field House result
 is `fdHouseSeats.json` (a different scenario — candidates shift on one axis).
 
-### DO NOT use these for "seats won"
-- `clusterProfiles.json` → `seatsHouse` (CON=164, **SD=166**, STY=160): cluster *population
-  baseline*, not an election result. This is the field that made every old doc say "SD is
-  largest." It only sizes the IdeologicalConstellation dots.
-  *(The outdated `canonical/stv_seat_summary.csv`, an 850-seat run that predated
-  pure_multi, was deleted 2026-09-12 along with three other unread CSVs in those directories.)*
-  *The `canonical` / `canonical_triple` directories themselves are NOT dead and are kept on
-  purpose:* the pure_multi and factor_deviation runs read their `ballots_checkpoint.parquet`
-  + `district_apportionment.csv` as inputs, and the viz's `transferMatrix.json` is built from
-  `canonical/transfer_matrix_10party.csv`.
+### `clusterProfiles.json` → `seatsHouse` is now safe to quote
+It used to hold a cluster *population baseline* (CON=164, SD=166, STY=160), which is what made
+older write-ups call SD the largest party. `prepare_data.py` now sources it from
+`pure_multi/house/stv_seat_summary.csv`, the same run the House tab shows, so it is identical
+to `houseSeats.json` for all ten parties. Verified 2026-09-12.
+
+One naming difference between the two files: cluster 8 is `DSA` in `houseSeats.json` and
+`Democratic Socialists` in `clusterProfiles.json`. Join on `party` (the code), not `partyName`.
+
+*The `canonical` / `canonical_triple` directories are kept for their inputs:* the pure_multi
+and factor_deviation runs read their `ballots_checkpoint.parquet` + `district_apportionment.csv`.
+The outdated 850-seat `canonical/stv_seat_summary.csv` was deleted 2026-09-12, along with the
+`transfer_matrix_10party.csv` that predated OAO — `transferMatrix.json` is now built from
+`pure_multi/house/transfer_matrix_10party.csv`.
 
 ## Senate seats (51, four scenarios)
 
@@ -53,12 +58,14 @@ candidate variant, `stateAbbr`/`stateFips` = state. Party totals:
 
 | Party | Cross-Cond | Cross-IRV | Pure-Cond | Pure-IRV |
 |-------|:--:|:--:|:--:|:--:|
-| STY | 34 | 19 | 33 | 11 |
-| SD | 11 | 27 | 15 | 26 |
-| CON | 1 | 3 | 1 | 11 |
-| POP | 5 | 1 | 1 | 2 |
-| CUP | 0 | 1 | 1 | 0 |
-| LIB | 0 | 0 | 0 | 1 |
+| LBR | 15 | 30 | 17 | 33 |
+| STY | 29 | 12 | 30 | 6 |
+| CON | 1 | 7 | 1 | 12 |
+| POP | 5 | 2 | 2 | 0 |
+| CUP | 1 | 0 | 1 | 0 |
+
+These four files are the no-turnout-weighting (λ=0) runs. The app defaults to a 5% turnout gap
+and reads `pureMultiSenate{Condorcet,IRV}TurnoutL5.json` instead, where the totals differ.
 
 ## Party policy %s and demographics
 
