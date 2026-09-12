@@ -97,9 +97,10 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    parties**, never 7. Sizing is `n_candidates_for_district()` in
    `run_pure_multi_house_stv.py`; the Senate uses share thresholds (≥12% → 3, ≥5% → 2, ≥1% → 1).
 
-2. **`pipeline/party_stv.py` is dead code.** Only `run_party_*.py` import it and nothing
-   displayed reads its output. It counts parties rather than candidates, and its input
-   `party_ballots.csv` is one column per party, the opposite of the live pipeline.
+2. **`pipeline/party_stv.py` is dead code**, but `party_ballots.csv` is NOT. Only
+   `run_party_*.py` import the module and nothing displayed reads its output. The ballots file
+   is separate: `prepare_data.py` reads `pure_multi/party_ballots.csv` to build
+   `houseTransfers.json`, which the House tab imports.
 
 3. **Party List counts each voter's top party on purpose.** `run_pure_multi_house_stv.py`
    scores candidates with `prob_cluster_k`, so STV's rank-1 already *is* the argmax. Matching
@@ -132,10 +133,12 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    because the map colors by `u.modal`. Note `sen.main(ballot_depth=N)` reassigns its global
    `OUTPUT_DIR` to `<parent>_topN/senate`, so read back where it wrote, not where you pointed it.
 
-9. **The `pure_only` runners are not idempotent against their own committed output.** Re-running
-   them rewrites several `data/outputs/pure_multi/` CSVs even with no code change, so never
+9. **The `pure_only` runners rewrite their own committed output on a no-op re-run**, so never
    verify a pipeline edit by diffing against HEAD. Run the unedited code, snapshot, apply the
-   edit, re-run, and diff those two.
+   edit, re-run, diff those two. The runners themselves are deterministic (byte-identical
+   across runs and across `PYTHONHASHSEED`); the gap is that committed outputs predate wired-in
+   input changes. The house case was `county_split_overrides.csv` (Maricopa), resolved in
+   7661e41; the primary CSVs still carry one.
 
 ## Voice for app copy
 
