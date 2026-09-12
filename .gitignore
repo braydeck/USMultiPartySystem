@@ -48,4 +48,7 @@ analysis/efa/previous_years/outputs/*/independent_fit.pkl
 
 # Alaska Dominion CVR exports (~1.5 GB each; download URLs in pipeline/rcv/README.md)
 data/raw/rcv/
-data/outputs/*reserve*/house/transfer_matrix_*.csv
+# Transfer matrices are emitted by every house tree as a side effect of the STV
+# instrumentation, but only the base pure_multi copy has a consumer (prepare_data.py).
+data/outputs/*/house/transfer_matrix_*.csv
+!data/outputs/pure_multi/house/transfer_matrix_*.csv
