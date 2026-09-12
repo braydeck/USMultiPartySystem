@@ -228,15 +228,31 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
     Every ballot the winner holds transfers, each scaled by its own current value, so a
     ballot's weight only ever shrinks and no ballot exceeds the one vote it started with.
 
-    Returns (elected codes in election order, n_below_quota),
+    Returns (elected codes in election order, n_below_quota, transfers),
     where n_below_quota counts seats filled by the field-collapse branch below the Droop
-    quota — the classic 'exhausted-ballots weaken late seats' failure mode."""
+    quota — the classic 'exhausted-ballots weaken late seats' failure mode, and transfers
+    is a list of (from_party, to_party, weight) for every cross-party flow: surplus at the
+    ballot's continuing value, elimination at full current value. Same-party flows inside a
+    slate are dropped, matching the zero diagonal the aggregate matrix asserts."""
     active      = set(cand_codes)
     ballot_wts  = weights.astype(float).copy()
     total_votes = float(weights.sum())
     quota       = total_votes / (n_seats + 1) + 1
     elected: list = []
     below_quota   = 0
+    transfers: list = []
+
+    def _record(moving_from, mask, moved_wts):
+        """Where does each moving ballot land once `moving_from` leaves the field?"""
+        src = moving_from.rsplit("_", 1)[0]
+        nxt = first_surviving_choice(ballots_arr, active)
+        for i in np.nonzero(mask)[0]:
+            dst_code = nxt[i]
+            if dst_code == "__exhausted__":
+                continue                      # exhausted: leaves the count entirely
+            dst = dst_code.rsplit("_", 1)[0]
+            if dst != src:
+                transfers.append((src, dst, float(moved_wts[i])))
 
     while len(elected) < n_seats and active:
         remaining = n_seats - len(elected)
@@ -273,10 +289,15 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
                 if fsc[i] == winner:
                     ballot_wts[i] *= sf
             active.discard(winner)
+            # After the discard, so first_surviving_choice skips the winner.
+            _record(winner, np.asarray(fsc) == winner, ballot_wts)
         else:
-            active.discard(min(active, key=lambda c: (totals[c], c)))
+            loser = min(active, key=lambda c: (totals[c], c))
+            moving = np.asarray(fsc) == loser
+            active.discard(loser)
+            _record(loser, moving, ballot_wts)
 
-    return elected, below_quota
+    return elected, below_quota, transfers
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -415,6 +436,8 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
     tier_counts_prob: dict = {party: {"URBAN": 0, "SUBURBAN": 0, "RURAL": 0}
                               for party in PARTY_CLUSTER}
     district_results_prob: list = []
+    # Realized cross-party transfer weight, summed over every district's STV rounds.
+    transfer_totals: dict = {}
     n_processed = 0
     n_skipped   = 0
 
@@ -456,7 +479,7 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
 
         scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
         ballots   = generate_ballots(scores, rng, candidates)
-        elected, _ = run_stv(ballots, d_count_weights, cand_codes, n_seats_eff)
+        elected, _, _ = run_stv(ballots, d_count_weights, cand_codes, n_seats_eff)
 
         # Tally by base party (strip _N suffix)
         elected_parties = [code.rsplit("_", 1)[0] for code in elected]
@@ -481,7 +504,9 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
         # Truncate to the top-`ballot_depth` preferences for the STV count; truncated ballots
         # exhaust when all ranked candidates are eliminated (they stop transferring).
         bal_stv        = prob_ballots if not ballot_depth else prob_ballots[:, :ballot_depth]
-        prob_elected, prob_below = run_stv(bal_stv, d_count_weights, cand_codes, n_seats_eff)
+        prob_elected, prob_below, prob_transfers = run_stv(bal_stv, d_count_weights, cand_codes, n_seats_eff)
+        for _src, _dst, _w in prob_transfers:
+            transfer_totals[(_src, _dst)] = transfer_totals.get((_src, _dst), 0.0) + _w
 
         # ── Representation metrics (canonical prob variant) ────────────────────
         # non-first-choice: ballot's first choice is not an election winner.
@@ -597,6 +622,31 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
     # prob → canonical; gaussian → reference
     summary_df_prob, total_seats_prob = _build_summary(tier_counts_prob)
     summary_df_prob.to_csv(output_dir / "stv_seat_summary.csv", index=False)
+
+    # ── Transfer matrices ──────────────────────────────────────────────────────
+    # directed[i,j] = share of all cross-party transfer weight flowing i -> j;
+    # symmetric[i,j] = share of total bidirectional weight between i and j (diagonal 0).
+    # Same definition as the retired stv_step4.py, now computed from the live 10-party run.
+    _labels = [f"C{k} {PARTY_LABELS[k]}" for k in range(10)]
+    _directed = np.zeros((10, 10), dtype=np.float64)
+    for (_src, _dst), _w in transfer_totals.items():
+        _i, _j = PARTY_CLUSTER.get(_src), PARTY_CLUSTER.get(_dst)
+        if _i is not None and _j is not None and _i != _j:
+            _directed[_i, _j] += _w
+    _dtot = _directed.sum()
+    _dpct = _directed / _dtot * 100.0 if _dtot > 0 else _directed
+    _sym = _directed + _directed.T
+    _stot = _sym.sum()
+    _spct = _sym / _stot * 100.0 if _stot > 0 else _sym
+    assert np.diag(_dpct).sum() < 1e-9, "non-zero diagonal in directed transfer matrix"
+    _dd = pd.DataFrame(_dpct.round(4), index=_labels, columns=_labels)
+    _dd.index.name, _dd.columns.name = "from_party", "to_party"
+    _dd.to_csv(output_dir / "transfer_matrix_directed.csv")
+    _ds = pd.DataFrame(_spct.round(4), index=_labels, columns=_labels)
+    _ds.index.name, _ds.columns.name = "party_a", "party_b"
+    _ds.to_csv(output_dir / "transfer_matrix_10party.csv")
+    print(f"  transfer matrices: {len(transfer_totals)} party pairs, "
+          f"{_dtot:,.0f} total transferred weight")
     print(f"Saved stv_seat_summary.csv (prob — canonical)  ({len(summary_df_prob)} parties with seats)")
 
     summary_df, total_seats = _build_summary(tier_counts)

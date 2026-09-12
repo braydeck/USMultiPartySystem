@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import type { ConstellationNode, TransferMatrix } from '../../types';
-import { getBlendColor, isCurrentParty, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
+import { getBlendColor, isCurrentParty, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, CLUSTER_TO_PARTY, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../shared/ToggleGroup';
 import { bamForZ, bamForPctile } from '../../lib/bam';
@@ -587,17 +587,10 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
   );
 }
 
+// Transfer-matrix columns are labelled "C<cluster> <party name>". Read the cluster index and
+// ignore the name: matching the full string silently dropped a party whenever a label changed
+// (it held 'C1 Social Democrat' after Labor was renamed, and had no C7 entry at all).
 function mapMatrixKeyToParty(key: string): string | null {
-  const map: Record<string, string> = {
-    'C0 Conservative': 'CON',
-    'C1 Social Democrat': 'LBR',
-    'C2 Solidarity': 'STY',
-    'C3 Nationalist': 'NAT',
-    'C4 Liberal': 'LIB',
-    'C5 Populist': 'POP',
-    'C6 Civic Union Party': 'CUP',
-    'C8 DSA': 'DSA',
-    'C9 Progressive': 'PRG',
-  };
-  return map[key] ?? null;
+  const m = /^C(\d)\b/.exec(key);
+  return m ? (CLUSTER_TO_PARTY[m[1]] ?? null) : null;
 }
