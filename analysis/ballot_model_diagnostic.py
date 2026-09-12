@@ -36,7 +36,7 @@ No canonical output is written.
 
 Provenance: data/processed/{efa_factor_scores,typology_cluster_assignments,
 turnout_propensity}.csv, data/outputs/pure_multi/state_candidate_profiles.csv,
-data/outputs/No_C7_canonical/{district_apportionment.csv,ballots_checkpoint.parquet}.
+data/outputs/canonical/{district_apportionment.csv,ballots_checkpoint.parquet}.
 Seeded rng 42; generate_ballots is deterministic given scores.
 
 Usage:  python3 analysis/ballot_model_diagnostic.py [--lam 0.05] [--depth 7]

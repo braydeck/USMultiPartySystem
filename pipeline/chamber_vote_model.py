@@ -152,7 +152,7 @@ def main():
     print("\n── HOUSE ─────────────────────────────────────────────────────")
     HOUSE_MAJORITY = 437
 
-    # The canonical 873-seat chamber, not No_C7_canonical's 850-seat older run.
+    # The canonical 873-seat chamber, not canonical's 850-seat older run.
     scenarios = [
         ("house", OUT_DIR / "pure_multi" / "house" / "stv_seat_summary.csv"),
     ]

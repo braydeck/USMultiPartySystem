@@ -18,7 +18,7 @@ in the canonical checkpoint.
 
 Outputs to data/outputs/pure_multi/house/:
   stv_seat_summary.csv        — seat counts by party × density tier
-                                (format matches No_C7_canonical/stv_seat_summary.csv)
+                                (format matches canonical/stv_seat_summary.csv)
   stv_results_by_district.csv — per-district elected party names
                                 (elected_k values are base party codes, not candidate codes)
 """
@@ -35,8 +35,8 @@ from turnout_weights import turnout_multiplier, output_tree, TURNOUT_WEIGHT
 
 BASE_DIR         = Path(__file__).parent.parent.parent
 _TREE            = output_tree("pure_multi")
-CHECKPOINT_PATH  = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
-APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
+CHECKPOINT_PATH  = BASE_DIR / "data" / "outputs" / "canonical" / "ballots_checkpoint.parquet"
+APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "canonical" / "district_apportionment.csv"
 EFA_PATH         = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY_PATH    = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / _TREE / "house"
@@ -45,8 +45,8 @@ COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 SPLIT_OVERRIDE_PATH     = BASE_DIR / "pipeline" / "county_split_overrides.csv"
 
 # Triple Wyoming variants
-CHECKPOINT_PATH_TRIPLE  = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "ballots_checkpoint.parquet"
-APPORTIONMENT_TRIPLE    = BASE_DIR / "data" / "outputs" / "No_C7_triple" / "district_apportionment.csv"
+CHECKPOINT_PATH_TRIPLE  = BASE_DIR / "data" / "outputs" / "canonical_triple" / "ballots_checkpoint.parquet"
+APPORTIONMENT_TRIPLE    = BASE_DIR / "data" / "outputs" / "canonical_triple" / "district_apportionment.csv"
 OUTPUT_DIR_TRIPLE       = BASE_DIR / "data" / "outputs" / output_tree("pure_multi_triple") / "house"
 COUNTY_DIST_PATH_TRIPLE = BASE_DIR / "data" / "processed" / "county_to_district_triple.csv"
 
@@ -596,7 +596,7 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
     print(f"Saved stv_representation_by_district.csv  |  non-first-choice "
           f"{rep_df['nonfirst_weight'].sum()/tvw*100:.1f}%  unrepresented {rep_df['unrep_weight'].sum()/tvw*100:.1f}%")
 
-    # ── Seat summary (format matches No_C7_canonical/stv_seat_summary.csv) ────
+    # ── Seat summary (format matches canonical/stv_seat_summary.csv) ────
     def _build_summary(tc_dict):
         total = sum(tc["URBAN"] + tc["SUBURBAN"] + tc["RURAL"] for tc in tc_dict.values())
         rows = []

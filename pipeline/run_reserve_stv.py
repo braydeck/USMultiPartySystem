@@ -25,15 +25,15 @@ LAMBDAS = [0, 5, 10, 15, 20, 25, 30]
 CONFIGS = [
     {
         "label": "reserve",
-        "apport": str(BASE_DIR / "data" / "outputs" / "No_C7_canonical_reserve" / "district_apportionment.csv"),
-        "checkpoint": str(BASE_DIR / "data" / "outputs" / "No_C7_canonical_reserve" / "ballots_checkpoint.parquet"),
+        "apport": str(BASE_DIR / "data" / "outputs" / "canonical_reserve" / "district_apportionment.csv"),
+        "checkpoint": str(BASE_DIR / "data" / "outputs" / "canonical_reserve" / "ballots_checkpoint.parquet"),
         "county_dist": str(BASE_DIR / "data" / "processed" / "county_to_district_reserve.csv"),
         "tree_base": "pure_multi_reserve",
     },
     {
         "label": "triple_reserve",
-        "apport": str(BASE_DIR / "data" / "outputs" / "No_C7_triple_reserve" / "district_apportionment.csv"),
-        "checkpoint": str(BASE_DIR / "data" / "outputs" / "No_C7_triple_reserve" / "ballots_checkpoint.parquet"),
+        "apport": str(BASE_DIR / "data" / "outputs" / "canonical_triple_reserve" / "district_apportionment.csv"),
+        "checkpoint": str(BASE_DIR / "data" / "outputs" / "canonical_triple_reserve" / "ballots_checkpoint.parquet"),
         "county_dist": str(BASE_DIR / "data" / "processed" / "county_to_district_triple_reserve.csv"),
         "tree_base": "pure_multi_triple_reserve",
     },

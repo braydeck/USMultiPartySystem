@@ -12,8 +12,8 @@ map (partition_seats for double, partition_seats_triple for triple). Single-dist
 The chamber size stays at 873 (double) and 1726 (triple). No seats are added.
 
 Output:
-  data/outputs/No_C7_canonical_reserve/district_apportionment.csv
-  data/outputs/No_C7_triple_reserve/district_apportionment.csv
+  data/outputs/canonical_reserve/district_apportionment.csv
+  data/outputs/canonical_triple_reserve/district_apportionment.csv
 """
 
 import inspect
@@ -36,13 +36,13 @@ CONFIGS = [
         "label": "DOUBLE",
         "pps": POP_PER_SEAT,
         "pfn": partition_seats,
-        "out": BASE_DIR / "data" / "outputs" / "No_C7_canonical_reserve" / "district_apportionment.csv",
+        "out": BASE_DIR / "data" / "outputs" / "canonical_reserve" / "district_apportionment.csv",
     },
     {
         "label": "TRIPLE",
         "pps": POP_PER_SEAT_TRIPLE,
         "pfn": partition_seats_triple,
-        "out": BASE_DIR / "data" / "outputs" / "No_C7_triple_reserve" / "district_apportionment.csv",
+        "out": BASE_DIR / "data" / "outputs" / "canonical_triple_reserve" / "district_apportionment.csv",
     },
 ]
 

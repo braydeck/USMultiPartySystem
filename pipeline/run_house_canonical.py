@@ -18,7 +18,7 @@ the legacy tier-shuffle assignment if those files are absent.
 2020 Census apportionment counts are sourced from stv_config.STATE_POPS.
 Factor scores are loaded from efa_factor_scores.csv (NOT the checkpoint).
 
-Outputs to data/outputs/No_C7_canonical/:
+Outputs to data/outputs/canonical/:
   stv_results_by_district.csv  — elected candidates per district
   stv_seat_summary.csv         — seat totals by party × density tier
 """
@@ -29,10 +29,10 @@ import pandas as pd
 from pathlib import Path
 
 BASE_DIR        = Path(__file__).parent.parent
-CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet"
+CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "canonical" / "ballots_checkpoint.parquet"
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
-OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "No_C7_canonical"
+OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "canonical"
 VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 SPLIT_OVERRIDE_PATH = BASE_DIR / "pipeline" / "county_split_overrides.csv"
@@ -707,7 +707,7 @@ def main(output_dir=None, pop_per_seat=POP_PER_SEAT, partition_fn=None, label="C
     print(sep)
 
 
-TRIPLE_OUTPUT_DIR = BASE_DIR / "data" / "outputs" / "No_C7_triple"
+TRIPLE_OUTPUT_DIR = BASE_DIR / "data" / "outputs" / "canonical_triple"
 
 
 def main_triple():

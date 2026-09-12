@@ -36,7 +36,7 @@ These are permanent project conventions. Never change them without explicit user
 |------|-------|
 | C7 = OAO (Order & Opportunity) | **Active party** — the former "Blue Dogs," a law-and-order Democratic bloc, kept and renamed. `DISSOLVED_PARTIES = []` in `stv_config.py`. Dissolving is a *scenario* option, not the baseline. |
 | C2 (Solidarity / STY) | **ALWAYS active.** Never add to `DISSOLVED_PARTIES`. |
-| Default STV output | `Claude/outputs/No_C7_canonical/` |
+| Default STV output | `Claude/outputs/canonical/` |
 | `round_elim_c{x}` encoding | `−1` = elected, `−2` = pre-dissolved (only for parties in a scenario's `pre_dissolved` list; never occurs in the baseline), `N≥1` = eliminated in round N, `None` = not present in district |
 
 Old output directories `baseline/` and `no_C2/` exist as historical artifacts. Do not regenerate them unless explicitly asked.
@@ -52,7 +52,7 @@ BASE_DIR        = Path("/Users/bdecker/Documents/STV")
 DTA_PATH        = BASE_DIR / "DataSets" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
 TYPOLOGY_PATH   = BASE_DIR / "Claude" / "data" / "typology_cluster_assignments.csv"
 EFA_SCORES_PATH = BASE_DIR / "Claude" / "data" / "efa_factor_scores.csv"
-OUTPUT_DIR      = BASE_DIR / "Claude" / "outputs" / "No_C7_canonical"
+OUTPUT_DIR      = BASE_DIR / "Claude" / "outputs" / "canonical"
 SCENARIOS_ROOT  = BASE_DIR / "Claude" / "outputs"
 ```
 
@@ -188,7 +188,7 @@ ITEMS_24 = [it for it in ITEMS_25 if it != "CC24_340a"]
 
 ## Ballot Checkpoint
 
-Written by `stv_main.py` after step 1. Stored at `No_C7_canonical/ballots_checkpoint.parquet`.
+Written by `stv_main.py` after step 1. Stored at `canonical/ballots_checkpoint.parquet`.
 
 **Shape:** 45,707 rows × many columns
 
@@ -298,9 +298,9 @@ prob   = 1.0 - norm.cdf(z)
 
 | File | Shape | Key Columns |
 |------|-------|-------------|
-| `No_C7_canonical/stv_seat_summary.csv` | 10×9 | `party`, `party_name`, `NATIONAL`, `URBAN`, `SUBURBAN`, `RURAL`, `pct_national` |
-| `No_C7_canonical/stv_results_by_district.csv` | 180×many | `district_id`, `seats`, `round_elim_c{0..9}` |
-| `No_C7_canonical/transfer_matrix_directed.csv` | 10×10 | row=eliminated, col=receiving, value=global % |
+| `canonical/stv_seat_summary.csv` | 10×9 | `party`, `party_name`, `NATIONAL`, `URBAN`, `SUBURBAN`, `RURAL`, `pct_national` |
+| `canonical/stv_results_by_district.csv` | 180×many | `district_id`, `seats`, `round_elim_c{0..9}` |
+| `canonical/transfer_matrix_directed.csv` | 10×10 | row=eliminated, col=receiving, value=global % |
 | `archive/affinity/second_choice_row_pct.csv` | 9×9 (STALE) | C7/OAO excluded; rows sum ≈ 100. Predates OAO reinstatement — regenerate as 10×10. |
 | `archive/affinity/mean_rank_proximity.csv` | 9×9 (STALE) | 0=far, 1=close; symmetric; C7/OAO excluded. Regenerate as 10×10. |
 | `archive/affinity/factor_mahalanobis.csv` | 9×9 (STALE) | Mahalanobis distance in 5D factor space; C7/OAO excluded. Regenerate as 10×10. |
@@ -373,7 +373,7 @@ python3 cross_chamber_coalitions.py          # Coalition analysis
 
 6. **DTA float-coded values** — CES DTA values come as floats (1.0, 2.0…). Comparisons like `series == 1` work correctly across int/float in pandas.
 
-7. **Old scenario paths** — `baseline/`, `no_C2/` are legacy. Never regenerate or write to them. All current work uses `No_C7_canonical/`.
+7. **Old scenario paths** — `baseline/`, `no_C2/` are legacy. Never regenerate or write to them. All current work uses `canonical/`.
 
 8. **Senate blend centroid math** — blend factor positions are computed as linear interpolation: `w_p × centroid_primary + (1−w_p) × centroid_secondary`. The weight `w_p` is the primary cluster share in the co-occurrence pair.
 

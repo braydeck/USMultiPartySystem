@@ -559,7 +559,7 @@ def build_house_state_map(src_dir=None, out_name="houseStateMap.json"):
 
 # ---------- transferMatrix.json ----------
 def build_transfer_matrix():
-    # Live 10-party run. The old No_C7_canonical copy predated OAO's reinstatement and had
+    # Live 10-party run. The old canonical copy predated OAO's reinstatement and had
     # C7 zeroed in both directions, so the constellation drew OAO with no links at all.
     rows = read_csv(PURE_MULTI_DIR / "house" / "transfer_matrix_10party.csv")
     parties = [k for k in rows[0].keys() if k != "party_a"]

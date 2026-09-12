@@ -18,7 +18,7 @@ Sainte-Laguë entitlement over the full state delegation (district + reserve). O
 absorbed inside the state's fixed total.
 
 Provenance: data/processed/{typology_cluster_assignments,turnout_propensity}.csv,
-data/outputs/No_C7_{canonical,triple}_reserve/{district_apportionment,ballots_checkpoint},
+data/outputs/canonical{,_triple}_reserve/{district_apportionment,ballots_checkpoint},
 data/outputs/pure_multi{,_triple}_reserve_turnout*/house/stv_results_by_district.csv.
 
 Output:
@@ -52,13 +52,13 @@ DEPTHS = {"full": 0, "top3": 3, "top5": 5, "top7": 7, "top10": 10}
 
 WYOMING = {
     "double": {
-        "apport": BASE_DIR / "data" / "outputs" / "No_C7_canonical_reserve" / "district_apportionment.csv",
-        "checkpoint": BASE_DIR / "data" / "outputs" / "No_C7_canonical_reserve" / "ballots_checkpoint.parquet",
+        "apport": BASE_DIR / "data" / "outputs" / "canonical_reserve" / "district_apportionment.csv",
+        "checkpoint": BASE_DIR / "data" / "outputs" / "canonical_reserve" / "ballots_checkpoint.parquet",
         "stv_tree": "pure_multi_reserve",
     },
     "triple": {
-        "apport": BASE_DIR / "data" / "outputs" / "No_C7_triple_reserve" / "district_apportionment.csv",
-        "checkpoint": BASE_DIR / "data" / "outputs" / "No_C7_triple_reserve" / "ballots_checkpoint.parquet",
+        "apport": BASE_DIR / "data" / "outputs" / "canonical_triple_reserve" / "district_apportionment.csv",
+        "checkpoint": BASE_DIR / "data" / "outputs" / "canonical_triple_reserve" / "ballots_checkpoint.parquet",
         "stv_tree": "pure_multi_triple_reserve",
     },
 }

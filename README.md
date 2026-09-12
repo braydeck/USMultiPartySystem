@@ -175,7 +175,7 @@ Broader modeling caveats (party cohesion, sincere voting, static factor space, t
 
 **Scripts:** `pipeline/stv_main.py` and supporting `pipeline/stv_step1.py`–`pipeline/stv_step5.py`
 **Published result:** `data/outputs/pure_multi/house/stv_seat_summary.csv` → `viz/src/data/houseSeats.json` (the party-line view the viz shows).
-**Note:** published seat counts come from `pure_multi`. The outdated 850-seat `No_C7_canonical/stv_seat_summary.csv` was deleted 2026-09-12, along with three other CSVs in those directories that nothing read. The `No_C7_*` directories are retained for their inputs rather than their results: the pure_multi and factor_deviation runs read `ballots_checkpoint.parquet` + `district_apportionment.csv`, and the viz transfer matrix is built from `No_C7_canonical/transfer_matrix_10party.csv`. See [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
+**Note:** published seat counts come from `pure_multi`. The outdated 850-seat `canonical/stv_seat_summary.csv` was deleted 2026-09-12, along with three other CSVs in those directories that nothing read. The `canonical*` directories are retained for their inputs rather than their results: the pure_multi and factor_deviation runs read `ballots_checkpoint.parquet` + `district_apportionment.csv`, and the viz transfer matrix is built from `canonical/transfer_matrix_10party.csv`. See [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
 
 - **873 seats** across **180 multi-member districts** (Urban / Suburban / Rural tiers per state)
 - Apportionment: Hamilton method, ~380,000 pop/seat from 2020 Census
@@ -279,8 +279,8 @@ All outputs are under `data/outputs/`.
 | `factor_deviation/house/stv_seat_summary.csv` | **Crossover House** seat totals (→ `fdHouseSeats.json`) |
 | `pure_multi/senate/senate_composition.csv` · `senate_irv_composition.csv` | **Party-line Senate** — Condorcet / IRV winner per state |
 | `factor_deviation/senate/senate_composition.csv` · `senate_irv_composition.csv` | **Crossover Senate** — Condorcet / IRV winner per state |
-| `No_C7_canonical/{ballots_checkpoint.parquet, district_apportionment.csv}` | Shared ballot + apportionment cache the pure_multi / factor_deviation runs read as input — see [DATA_SOURCES.md](docs/DATA_SOURCES.md) |
-| `No_C7_canonical/transfer_matrix_10party.csv` | Vote-transfer matrix (→ viz `transferMatrix.json`) |
+| `canonical/{ballots_checkpoint.parquet, district_apportionment.csv}` | Shared ballot + apportionment cache the pure_multi / factor_deviation runs read as input — see [DATA_SOURCES.md](docs/DATA_SOURCES.md) |
+| `canonical/transfer_matrix_10party.csv` | Vote-transfer matrix (→ viz `transferMatrix.json`) |
 | `profiles/cluster_stats.csv` | Per-item statistics for all 10 clusters (policy + demographics) |
 | `senate/senate_chamber_profile.csv` · `house_chamber_profile.csv` | Seat-weighted policy aggregates per chamber (vote-model inputs) |
 | `senate/senate_vote_model.csv` · `house_vote_model.csv` | 37-item bill passage probability per chamber |
@@ -294,7 +294,7 @@ All scripts live in `pipeline/` and use relative paths anchored to the project r
 
 All 10 clusters are active parties (C7 = **Order and Opportunity Party**). The election
 sims + `prepare_data.py` are the reproducible path; they read `data/processed/*.csv` and
-the geography checkpoint in `data/outputs/No_C7_canonical/` (party-independent).
+the geography checkpoint in `data/outputs/canonical/` (party-independent).
 
 ```bash
 # ── Base geography checkpoint (already cached; rebuilds ballots + apportionment) ──
@@ -320,7 +320,7 @@ python3 pipeline/run_fd_primary_2028.py
 python3 pipeline/run_fd_irv_2028.py                        # FD presidential
 
 # ── Canonical house + shared profiles ───────────────────────────────────────
-python3 pipeline/run_house_canonical.py            # → No_C7_canonical/ (party-card seats)
+python3 pipeline/run_house_canonical.py            # → canonical/ (party-card seats)
 python3 pipeline/house_chamber_profile.py          # House chamber policy aggregate
 
 # ── Respondent-level extras (read the raw .dta directly) ────────────────────

@@ -35,7 +35,7 @@ Inputs
   Claude/outputs/candidate_factor_centroids.csv
   Claude/outputs/senate/senate_composition.csv
   Claude/outputs/senate/senate_irv_composition.csv
-  Claude/outputs/No_C7_canonical/stv_seat_summary.csv
+  Claude/outputs/canonical/stv_seat_summary.csv
 
 Outputs
 -------
@@ -161,7 +161,7 @@ irv_seats  = (irv_comp["winner_label"]
 
 # ── House seat counts ─────────────────────────────────────────────────────────
 house_seats_raw = pd.read_csv(
-    # The canonical 873-seat chamber, not No_C7_canonical's 850-seat older run.
+    # The canonical 873-seat chamber, not canonical's 850-seat older run.
     BASE / "data" / "outputs" / "pure_multi" / "house" / "stv_seat_summary.csv"
 )[["party_name", "NATIONAL"]].rename(
     columns={"party_name": "type", "NATIONAL": "seats_house"}

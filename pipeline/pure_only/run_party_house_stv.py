@@ -22,7 +22,7 @@ from collections import defaultdict
 BASE_DIR         = Path(__file__).parent.parent.parent
 BALLOTS_PATH     = BASE_DIR / "data" / "outputs" / "pure_multi" / "party_ballots.csv"
 EFA_PATH         = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv"
+APPORTIONMENT    = BASE_DIR / "data" / "outputs" / "canonical" / "district_apportionment.csv"
 VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
 OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "pure_multi" / "house"

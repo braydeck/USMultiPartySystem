@@ -64,13 +64,13 @@ PARTS = [0, 5, 10, 15, 20, 25, 30]
 
 WYOMING = {
     "double": {
-        "checkpoint": BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet",
-        "apport": BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv",
+        "checkpoint": BASE_DIR / "data" / "outputs" / "canonical" / "ballots_checkpoint.parquet",
+        "apport": BASE_DIR / "data" / "outputs" / "canonical" / "district_apportionment.csv",
         "stv_tree": "pure_multi",
     },
     "triple": {
-        "checkpoint": BASE_DIR / "data" / "outputs" / "No_C7_triple" / "ballots_checkpoint.parquet",
-        "apport": BASE_DIR / "data" / "outputs" / "No_C7_triple" / "district_apportionment.csv",
+        "checkpoint": BASE_DIR / "data" / "outputs" / "canonical_triple" / "ballots_checkpoint.parquet",
+        "apport": BASE_DIR / "data" / "outputs" / "canonical_triple" / "district_apportionment.csv",
         "stv_tree": "pure_multi_triple",
     },
 }

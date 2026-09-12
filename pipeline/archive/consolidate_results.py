@@ -14,7 +14,7 @@ Reads from:
   data/outputs/pure_only/senate/         — pure-only senate (Cond + IRV)
   data/outputs/irv/                      — mixed-candidate presidential state IRV
   data/outputs/pure_only/irv/            — pure-only presidential state IRV
-  data/outputs/No_C7_canonical/          — STV house district results
+  data/outputs/canonical/          — STV house district results
   data/outputs/primary_results_2028.csv  — mixed-candidate primary
   data/outputs/pure_only/primary_results_2028.csv — pure-only primary
 """
@@ -59,7 +59,7 @@ def build_state_results() -> pd.DataFrame:
     senate_irv_pure   = read_csv(BASE_DIR / "data/outputs/pure_only/senate/senate_irv_composition.csv")
     pres_state_mixed  = read_csv(BASE_DIR / "data/outputs/irv/irv_presidential_states_2028.csv")
     pres_state_pure   = read_csv(BASE_DIR / "data/outputs/pure_only/irv/irv_presidential_states_2028.csv")
-    house_districts   = read_csv(BASE_DIR / "data/outputs/No_C7_canonical/stv_results_by_district.csv")
+    house_districts   = read_csv(BASE_DIR / "data/outputs/canonical/stv_results_by_district.csv")
 
     state_df = senate_cond_mixed[["state_abbr", "state_fips"]].copy()
     state_df["senate_cond_mixed"] = senate_cond_mixed["senator_code"]
@@ -112,7 +112,7 @@ def build_national_composition() -> pd.DataFrame:
             rows.append({"office": "senate", "scenario": scenario, "party": party, "value": count, "metric": "seats"})
 
     # House (single scenario)
-    house_summary = read_csv(BASE_DIR / "data/outputs/No_C7_canonical/stv_seat_summary.csv")
+    house_summary = read_csv(BASE_DIR / "data/outputs/canonical/stv_seat_summary.csv")
     for _, r in house_summary.iterrows():
         rows.append({
             "office": "house", "scenario": "stv_canonical",

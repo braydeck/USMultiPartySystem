@@ -32,13 +32,13 @@ from stv_config import POP_PER_SEAT, POP_PER_SEAT_TRIPLE  # noqa: E402
 CONFIGS = [
     {
         "label": "DOUBLE RESERVE",
-        "apport": BASE_DIR / "data" / "outputs" / "No_C7_canonical_reserve" / "district_apportionment.csv",
+        "apport": BASE_DIR / "data" / "outputs" / "canonical_reserve" / "district_apportionment.csv",
         "output": BASE_DIR / "data" / "processed" / "county_to_district_reserve.csv",
         "pps": POP_PER_SEAT,
     },
     {
         "label": "TRIPLE RESERVE",
-        "apport": BASE_DIR / "data" / "outputs" / "No_C7_triple_reserve" / "district_apportionment.csv",
+        "apport": BASE_DIR / "data" / "outputs" / "canonical_triple_reserve" / "district_apportionment.csv",
         "output": BASE_DIR / "data" / "processed" / "county_to_district_triple_reserve.csv",
         "pps": POP_PER_SEAT_TRIPLE,
     },

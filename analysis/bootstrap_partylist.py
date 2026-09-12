@@ -26,7 +26,7 @@ vector rather than getting zero seats (the generator cites AZ 04-03). Skipping t
 can empty a district the original sample covered — every party's range would sit low.
 
 Provenance: data/processed/{efa_factor_scores,typology_cluster_assignments,turnout_propensity}.csv
-+ data/outputs/No_C7_canonical/{ballots_checkpoint.parquet,district_apportionment.csv}.
++ data/outputs/canonical/{ballots_checkpoint.parquet,district_apportionment.csv}.
 Double-Wyoming map only, matching the chart's gate. Seeded 42 + draw, stratified within state.
 
 Usage:  python3 analysis/bootstrap_partylist.py [--draws 1000]
@@ -58,8 +58,8 @@ def load():
     efa = pd.read_csv(BASE / "data" / "processed" / "efa_factor_scores.csv")
     typ = pd.read_csv(BASE / "data" / "processed" / "typology_cluster_assignments.csv")
     turn = pd.read_csv(BASE / "data" / "processed" / "turnout_propensity.csv")
-    chk = pd.read_parquet(BASE / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet")
-    app = pd.read_csv(BASE / "data" / "outputs" / "No_C7_canonical" / "district_apportionment.csv")
+    chk = pd.read_parquet(BASE / "data" / "outputs" / "canonical" / "ballots_checkpoint.parquet")
+    app = pd.read_csv(BASE / "data" / "outputs" / "canonical" / "district_apportionment.csv")
     n = len(efa)
     assert len(typ) == len(turn) == len(chk) == n, "per-respondent files misaligned"
 

@@ -36,7 +36,7 @@ TYPE_COLS = [CLUSTER_NAMES[i] for i in range(10)]
 
 META_COLS = ["variable", "domain", "type", "stat_label", "question", "overall"]
 
-# The canonical 873-seat chamber. The No_C7_* directories are kept for their ballot checkpoint and
+# The canonical 873-seat chamber. The canonical* directories are kept for their ballot checkpoint and
 # apportionment; their 850-seat summaries were deleted 2026-09-12.
 SCENARIOS = [
     ("house_chamber", "pure_multi/house"),

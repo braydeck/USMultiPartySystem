@@ -9,8 +9,8 @@ voter assignment as run_house_canonical.py, and saves the checkpoint that
 run_pure_multi_house_stv.py reads.
 
 Output:
-  data/outputs/No_C7_canonical_reserve/ballots_checkpoint.parquet
-  data/outputs/No_C7_triple_reserve/ballots_checkpoint.parquet
+  data/outputs/canonical_reserve/ballots_checkpoint.parquet
+  data/outputs/canonical_triple_reserve/ballots_checkpoint.parquet
 """
 
 import sys
@@ -29,15 +29,15 @@ VOTER_FIPS_PATH = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 CONFIGS = [
     {
         "label": "DOUBLE RESERVE",
-        "apport": BASE_DIR / "data" / "outputs" / "No_C7_canonical_reserve" / "district_apportionment.csv",
+        "apport": BASE_DIR / "data" / "outputs" / "canonical_reserve" / "district_apportionment.csv",
         "county_dist": BASE_DIR / "data" / "processed" / "county_to_district_reserve.csv",
-        "out": BASE_DIR / "data" / "outputs" / "No_C7_canonical_reserve" / "ballots_checkpoint.parquet",
+        "out": BASE_DIR / "data" / "outputs" / "canonical_reserve" / "ballots_checkpoint.parquet",
     },
     {
         "label": "TRIPLE RESERVE",
-        "apport": BASE_DIR / "data" / "outputs" / "No_C7_triple_reserve" / "district_apportionment.csv",
+        "apport": BASE_DIR / "data" / "outputs" / "canonical_triple_reserve" / "district_apportionment.csv",
         "county_dist": BASE_DIR / "data" / "processed" / "county_to_district_triple_reserve.csv",
-        "out": BASE_DIR / "data" / "outputs" / "No_C7_triple_reserve" / "ballots_checkpoint.parquet",
+        "out": BASE_DIR / "data" / "outputs" / "canonical_triple_reserve" / "ballots_checkpoint.parquet",
     },
 ]
 
@@ -55,7 +55,7 @@ def main():
 
     # Need density_tier from the base checkpoint for fallback assignment
     base_ckpt = pd.read_parquet(
-        BASE_DIR / "data" / "outputs" / "No_C7_canonical" / "ballots_checkpoint.parquet",
+        BASE_DIR / "data" / "outputs" / "canonical" / "ballots_checkpoint.parquet",
         columns=["density_tier"])
     density_tiers = base_ckpt["density_tier"].values
 
