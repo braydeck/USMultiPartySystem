@@ -11,9 +11,7 @@ cluster_stats.csv columns c0–c9.
 Sources
 -------
   cluster_stats.csv                       - pure cluster profiles (c0–c9)
-  baseline/stv_seat_summary.csv           - baseline seat counts (party + NATIONAL)
-  no_C2/stv_seat_summary.csv              - no-C2 scenario seat counts
-  No_C7_canonical/stv_seat_summary.csv    - no-C7 scenario seat counts
+  pure_multi/house/stv_seat_summary.csv   - the canonical 873-seat chamber
 
 Output
 ------
@@ -38,8 +36,8 @@ TYPE_COLS = [CLUSTER_NAMES[i] for i in range(10)]
 
 META_COLS = ["variable", "domain", "type", "stat_label", "question", "overall"]
 
-# The canonical 873-seat chamber. No_C7_canonical/stv_seat_summary.csv is an 850-seat artifact of
-# an older run — that directory is kept for its ballot checkpoint and apportionment, not its seats.
+# The canonical 873-seat chamber. The No_C7_* directories are kept for their ballot checkpoint and
+# apportionment; their 850-seat summaries were deleted 2026-09-12.
 SCENARIOS = [
     ("house_chamber", "pure_multi/house"),
 ]

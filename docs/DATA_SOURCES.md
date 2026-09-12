@@ -32,12 +32,12 @@ is `fdHouseSeats.json` (a different scenario — candidates shift on one axis).
 - `clusterProfiles.json` → `seatsHouse` (CON=164, **SD=166**, STY=160): cluster *population
   baseline*, not an election result. This is the field that made every old doc say "SD is
   largest." It only sizes the IdeologicalConstellation dots.
-- `data/outputs/No_C7_canonical/stv_seat_summary.csv` (CON=136, total **750**): an **outdated
-  seat summary** — never quote it for seat counts; it predates the pure_multi result.
+  *(The outdated `No_C7_canonical/stv_seat_summary.csv`, an 850-seat run that predated
+  pure_multi, was deleted 2026-09-12 along with three other unread CSVs in those directories.)*
   *The `No_C7_canonical` / `No_C7_triple` directories themselves are NOT dead and are kept on
   purpose:* the pure_multi and factor_deviation runs read their `ballots_checkpoint.parquet`
   + `district_apportionment.csv` as inputs, and the viz's `transferMatrix.json` is built from
-  `No_C7_canonical/transfer_matrix_10party.csv`. Only the seat-summary CSV is stale.
+  `No_C7_canonical/transfer_matrix_10party.csv`.
 
 ## Senate seats (51, four scenarios)
 

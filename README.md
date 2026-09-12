@@ -175,7 +175,7 @@ Broader modeling caveats (party cohesion, sincere voting, static factor space, t
 
 **Scripts:** `pipeline/stv_main.py` and supporting `pipeline/stv_step1.py`–`pipeline/stv_step5.py`
 **Published result:** `data/outputs/pure_multi/house/stv_seat_summary.csv` → `viz/src/data/houseSeats.json` (the party-line view the viz shows).
-**Note:** published seat counts come from `pure_multi`, *not* from `data/outputs/No_C7_canonical/stv_seat_summary.csv` (an outdated 850-seat summary — don't quote it, and don't read it: the four scripts that used to were repointed at `pure_multi/house/`). The `No_C7_*` directories are retained on purpose, but for their inputs rather than their results: the pure_multi and factor_deviation runs read `ballots_checkpoint.parquet` + `district_apportionment.csv`, and the viz transfer matrix is built from `No_C7_canonical/transfer_matrix_10party.csv`. See [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
+**Note:** published seat counts come from `pure_multi`. The outdated 850-seat `No_C7_canonical/stv_seat_summary.csv` was deleted 2026-09-12, along with three other CSVs in those directories that nothing read. The `No_C7_*` directories are retained for their inputs rather than their results: the pure_multi and factor_deviation runs read `ballots_checkpoint.parquet` + `district_apportionment.csv`, and the viz transfer matrix is built from `No_C7_canonical/transfer_matrix_10party.csv`. See [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
 
 - **873 seats** across **180 multi-member districts** (Urban / Suburban / Rural tiers per state)
 - Apportionment: Hamilton method, ~380,000 pop/seat from 2020 Census

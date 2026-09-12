@@ -55,9 +55,9 @@ def senate():
 def caveats():
     print("DO NOT USE for 'seats won':")
     print("  - clusterProfiles.json -> seatsHouse : cluster POPULATION baseline (SD=166), not an election result.")
-    print("  - data/outputs/No_C7_canonical/stv_seat_summary.csv : outdated 850-seat summary, not the canonical result.")
-    print("    (But the No_C7_* DIRS are kept on purpose: pure_multi/factor_deviation read their")
-    print("     ballots_checkpoint + district_apportionment, and the viz transfer matrix sources from them.)")
+    print("    (The No_C7_* DIRS are kept on purpose: pure_multi/factor_deviation read their")
+    print("     ballots_checkpoint + district_apportionment, and the viz transfer matrix sources from them.")
+    print("     Their outdated seat summaries were deleted 2026-09-12.)")
     print()
     print("PARTY POLICY %s and demographics: read live from viz/src/data/clusterProfiles.json")
     print("  (variables[*].pct per party; variables[*].overall = national average). These were")
