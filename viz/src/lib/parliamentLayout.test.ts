@@ -62,6 +62,6 @@ describe('layoutSeatDots', () => {
   })
 
   it('returns no dots for an empty chamber', () => {
-    expect(layoutSeatDots([])).toEqual({ groupedDots: {}, nRings: 3, dotSize: 4 })
+    expect(layoutSeatDots([])).toEqual({ groupedDots: {}, nRings: 3, dotSize: 4, slotFracs: [] })
   })
 })
