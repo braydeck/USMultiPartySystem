@@ -1,5 +1,14 @@
 # Positional scoring + pure-only variant — session notes
 
+> **Historical record, 2026-06-17.** These notes describe the positional-scoring fix applied to
+> the mixed-candidate senate model, which has since been replaced. The scorer they introduce
+> (`compute_candidate_scores()`, Gaussian proximity with a 40/35/25 prominence prior) is still in
+> the tree but no pipeline calls it; the live ballots sort the DPGMM cluster posterior. The
+> blended types they discuss (`SD/STY`, `CON/POP`) no longer exist, `SD` is now Labor (LBR), and
+> seven of the scripts and outputs referenced below have been archived or deleted. Kept for the
+> reasoning about why coalition candidates starved at 0% first preferences, which is still the
+> clearest write-up of that failure mode.
+
 Branch: `bd-positional-senate-scoring`
 
 ## Problem
