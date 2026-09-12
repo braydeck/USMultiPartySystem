@@ -4,9 +4,10 @@ Repo: `/Users/bdecker/Local Projects/Personal/STV`. Direct push to `main`, no PR
 This file auto-loads every session for this project only. Keep it short and current; when
 something here goes stale, fix it here rather than adding a second note elsewhere.
 
-`docs/AGENTS.md`, `docs/AGENT_CONTEXT.md`, and `docs/PROJECT_GUIDE.md` are stale (they describe
-a two-worktree layout under `/Users/bdecker/Documents/STV/` that no longer exists). Read them
-for EFA and vote-model background only, and verify any path or seat count first.
+Supporting docs: `docs/METHODOLOGY.md` (how the pipeline works), `docs/EFA_FACTORS.md` (full
+factor loadings), `docs/DATA_SOURCES.md` (which file is authoritative for a given number).
+`docs/AGENTS.md`, `AGENT_CONTEXT.md` and `PROJECT_GUIDE.md` were deleted 2026-09-12; they
+described a two-worktree layout that no longer exists and held nothing the three above lack.
 
 ## What this is
 

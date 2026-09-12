@@ -37,15 +37,21 @@ labels are assigned afterward from each cluster's factor profile.
 
 ## 3. Ballot generation
 
-Each respondent is turned into a ranked ballot by comparing their 5D factor-score
-vector to each candidate's position in the same space. Similarity decays with a
-Gaussian proximity kernel (σ = 0.35, η²-weighted per factor). Within a party, candidate
-order is broken by a prominence prior (a 40/35/25 name-recognition split via
-Plackett-Luce sampling), so the top candidate does not sweep all same-party ballots.
+Each respondent is turned into a ranked ballot from their DPGMM cluster posterior: the
+probability they belong to each of the ten parties is the score, and sorting those scores
+descending is the ballot. Co-partisans share their party's score exactly, so a party's
+candidates take consecutive ranks and a ballot reads as a sequence of party blocks.
+
+Within a party the slate order is fixed and identical for every voter, which models slate
+voting at the strong-discipline limit. The `_1` candidate takes 100% of the party's first
+preferences. (A Gaussian proximity kernel and a 40/35/25 prominence prior exist in
+`compute_candidate_scores()`, but no pipeline calls it; the live scorers are
+`compute_candidate_scores_prob()` and, for the crossover field,
+`compute_candidate_scores_hybrid()`.)
 
 Two candidate fields are generated:
-- **Party-line** — 3 identical-platform candidates per party (`STY_1`, `STY_2`, …).
-- **Crossover** — 9 base candidates plus 28 variants, each shifted ±25% of the
+- **Party-line** — 1 to 3 candidates per party by local strength (`STY_1`, `STY_2`, …).
+- **Crossover** — 10 base candidates plus 28 variants, each shifted ±25% of the
   inter-party standard deviation on one axis (e.g. `STY_hi_so`, `CON_lo_pc`).
 
 ## 3b. Ballot depth
@@ -78,7 +84,7 @@ reads `BALLOT_DEPTH=N` / `--depth=N` and writes parallel `*_topN` output trees; 
 
 | Office | Method | Output |
 |--------|--------|--------|
-| House (873 seats, 180 multi-member districts) | STV — Droop quota, Gregory surplus transfers | `pure_multi/house/`, `factor_deviation/house/` |
+| House (873 seats, 150 multi-member districts; 1,726 over 243 under the triple Wyoming rule) | STV — Droop quota, weighted inclusive Gregory surplus transfers | `pure_multi/house/`, `factor_deviation/house/` |
 | Senate (51 seats) | IRV and Ranked-Pairs Condorcet | `pure_multi/senate/`, `factor_deviation/senate/` |
 | President | Rolling STV primary, then IRV + Condorcet general | `pure_multi/`, `factor_deviation/` |
 

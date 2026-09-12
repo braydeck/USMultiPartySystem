@@ -7,7 +7,7 @@ A full-stack simulation of what American politics might look like under proporti
 > **▶ Explore the live simulation: <https://usmultiparty.com/>**
 >
 > **Methodology:** [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) — how 45,707 survey responses become a ten-party legislature, with caveats.
-> For the full technical reference (agent/developer guide), see [`docs/AGENTS.md`](docs/AGENTS.md); for EFA factor loadings, [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md).
+> For methodology, see [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md); for EFA factor loadings, [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md); for which file is authoritative for a given number, [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md). Agents start at [`CLAUDE.md`](CLAUDE.md).
 
 ## Overview
 
