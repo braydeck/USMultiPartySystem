@@ -165,7 +165,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     const sMin = d3.min(sVals) ?? 0;
     const sMax = d3.max(sVals) ?? 1;
     const rScale = equalSize
-      ? (() => { const fn = (_: number) => 5; fn.domain = () => [0, 1]; fn.range = () => [5, 5]; return fn; })()
+      ? (() => { const fn = () => 5; fn.domain = () => [0, 1]; fn.range = () => [5, 5]; return fn; })()
       : sizeFactor === 'seats'
         ? d3.scaleSqrt().domain([0, sMax || 1]).range([6, 42])
         : d3.scaleLinear().domain([sMin, sMax === sMin ? sMin + 1 : sMax]).range([6, 30]);

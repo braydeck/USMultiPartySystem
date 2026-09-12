@@ -2,6 +2,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   Cell, LabelList,
 } from 'recharts';
+import type { DefaultTooltipContentProps, TooltipProps } from 'recharts';
 import type { HouseSeat } from '../../types';
 import { PARTY_COLORS, CLUSTER_TO_PARTY } from '../../constants/parties';
 import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
@@ -25,12 +26,13 @@ export function SeatDistributionBar({ seats: rawSeats }: Props) {
     total: s.national,
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: DefaultTooltipContentProps<number, string>
+    & Pick<TooltipProps<number, string>, 'active'>) => {
     if (!active || !payload?.length) return null;
     return (
       <div className="bg-white border border-border rounded px-3 py-2 text-sm text-foreground">
         <div className="font-semibold mb-1">{label}</div>
-        {payload.map((p: any) => (
+        {payload.map(p => (
           <div key={p.name} className="flex justify-between gap-4">
             <span className="text-muted-foreground">{p.name}:</span>
             <span style={{ color: p.fill }}>{p.value} seats</span>

@@ -142,7 +142,7 @@ export function ParliamentChart({ segments, factor, globalRange }: Props) {
             const ly = -labelR * Math.sin(angle);
             const anchor = mid < 0.12 ? 'end' : mid > 0.88 ? 'start' : 'middle';
             return (
-              <text key={i} x={lx} y={ly} textAnchor={anchor} fontSize={'10'} fill={'#6c757d'}>
+              <text key={i} x={lx} y={ly} textAnchor={anchor} fontSize={CHART_TYPE.axisTick} fill={'#6c757d'}>
                 {CAT_LABELS[b.band]}
               </text>
             );

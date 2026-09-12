@@ -23,7 +23,7 @@ export const F5_ORDER = ['PRG','DSA','LIB','LBR','OAO','STY','CUP','CON','POP','
 export const F5_ORDER_WFP = F5_ORDER;
 
 /** Party ordering (all 10 parties). Arg retained for call-site compatibility. */
-export function partyOrder(_wfpOn?: boolean): readonly string[] {
+export function partyOrder(): readonly string[] {
   return F5_ORDER;
 }
 

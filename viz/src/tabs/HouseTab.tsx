@@ -381,11 +381,11 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     return {
       id: party, label: party,
       seats: c.seatsHouse ?? 0,
-      F1: ((cp as any)?.z_F1 ?? 0),
-      F2: ((cp as any)?.z_F2 ?? 0),
-      F3: ((cp as any)?.z_F3 ?? 0),
-      F4: ((cp as any)?.z_F4 ?? 0),
-      F5: ((cp as any)?.z_F5 ?? 0),
+      F1: (cp?.z_F1 ?? 0),
+      F2: (cp?.z_F2 ?? 0),
+      F3: (cp?.z_F3 ?? 0),
+      F4: (cp?.z_F4 ?? 0),
+      F5: (cp?.z_F5 ?? 0),
     };
   };
 
@@ -567,7 +567,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           return fdNodes.length > 0 ? fdNodes : [];
         }
         return clusters
-          .filter(c => (c as any).seatsHouse > 0)
+          .filter(c => c.seatsHouse > 0)
           .map(c => clusterToNode(c));
       })()}
       transfers={scenario === 'rawMulti' ? transfers : undefined}

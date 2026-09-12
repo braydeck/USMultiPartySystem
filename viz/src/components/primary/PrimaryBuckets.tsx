@@ -41,19 +41,19 @@ function CandidatePill({ code, party, dimmed }: { code: string; party: string; d
 export default function PrimaryBuckets({ data, stageIdx }: Props) {
   const [tip, setTip] = useState<TooltipInfo | null>(null);
   const stage = data.stages[stageIdx];
-  if (!stage) return null;
 
-  // Sort survivors by first-choice preference (entering) descending
+  // Both memos run before the missing-stage guard below: hooks are matched by call order, so
+  // returning early above them makes this component render 1 hook on one pass and 3 on the next.
   const sortedWinners = useMemo(
-    () => [...stage.winners].sort((a, b) => b.entering - a.entering),
+    () => (stage ? [...stage.winners].sort((a, b) => b.entering - a.entering) : []),
+    [stage],
+  );
+  const sortedEliminated = useMemo(
+    () => (stage ? [...stage.eliminated].sort((a, b) => b.total - a.total) : []),
     [stage],
   );
 
-  // Sort eliminated by total votes held descending
-  const sortedEliminated = useMemo(
-    () => [...stage.eliminated].sort((a, b) => b.total - a.total),
-    [stage],
-  );
+  if (!stage) return null;
 
   // (scaleMax no longer needed — all bars are 100% stacked)
 

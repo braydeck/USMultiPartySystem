@@ -67,7 +67,7 @@ function colorFor(c: SRCandidate): string {
   return getFDColor(c.party, (c.direction as 'base' | 'hi' | 'lo') ?? 'base');
 }
 function resolveColors(a: SRCandidate, b: SRCandidate): [string, string] {
-  let ac = colorFor(a);
+  const ac = colorFor(a);
   let bc = colorFor(b);
   if (ac === bc) bc = darkenHex(bc, 0.35);
   return [ac, bc];

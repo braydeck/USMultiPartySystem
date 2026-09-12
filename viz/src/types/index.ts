@@ -150,6 +150,18 @@ export interface ClusterProfile {
   F3: number;
   F4: number;
   F5: number;
+  /** Factor scores standardised against the full electorate; present on every row. */
+  z_F1: number;
+  z_F2: number;
+  z_F3: number;
+  z_F4: number;
+  z_F5: number;
+  /** Percentile of the same factor score within the electorate. */
+  pctile_F1: number;
+  pctile_F2: number;
+  pctile_F3: number;
+  pctile_F4: number;
+  pctile_F5: number;
   seatsHouse: number;
   variables: Record<string, ClusterVariable>;
   keyPositions?: KeyPosition[];
