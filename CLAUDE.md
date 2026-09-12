@@ -124,6 +124,11 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    python3 pipeline/build_legislation_rank7.py
    python3 pipeline/build_senate_rank7.py
    ```
+   **Then run `npm test` in `viz/`, not just `tsc` and `npm run build`.** Several tests assert
+   against the real payloads in `viz/src/data/` (the contested-state set in
+   `senateDelegations.test.ts`, for one), so a data regeneration can turn the suite red while
+   the type check and the build both stay green. That is how a broken test rode along in
+   56db6d5 for four commits.
 
 8. **The senate bootstrap and `build_senate_rank7.py` must run at the same depth.**
    `analysis/bootstrap/contests.py` resamples the senate, and `viz/src/data/uncertainty*.json`
