@@ -111,9 +111,14 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    Apply the identical `ITEMS_24 + commonpostweight` `notna()` mask to the DTA before
    concatenating, or the join is silently wrong.
 
-5. **Below-quota seats track vote concentration, not district magnitude.** Short ballots
-   exhaust and late seats fill under the Droop quota, but the figure stays high at full ranking
-   in homogeneous districts, so it is structural rather than an exhaustion artifact.
+5. **A below-quota floor is ordinary STV; ballot depth drives the variation above it.** When
+   the continuing candidates run down to the seats remaining, the engine elects them regardless
+   of quota (`run_pure_multi_house_stv.py:241`). That is the normal end-game and needs no
+   exhaustion. Depth explains the movement: 34.2% of seats below quota at top-3, 18.8 / 13.2 /
+   9.6, and a 7.9% floor at full ranking. Benchmark the floor before calling it high — one such
+   seat in each of the 150 districts would be 17.2%, so 7.9% (69 seats, 46% of districts) sits
+   well under the ordinary rate. Concentration is a plausible story for *which* districts sit at
+   the floor, untested as of 2026-09-12.
 
 6. **`id` is the correct FD axis label.** Do not re-run `rename_ae_to_es.py`.
 
