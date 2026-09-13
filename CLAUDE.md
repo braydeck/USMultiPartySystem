@@ -144,12 +144,17 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    because the map colors by `u.modal`. Note `sen.main(ballot_depth=N)` reassigns its global
    `OUTPUT_DIR` to `<parent>_topN/senate`, so read back where it wrote, not where you pointed it.
 
-9. **The `pure_only` runners rewrite their own committed output on a no-op re-run**, so never
-   verify a pipeline edit by diffing against HEAD. Run the unedited code, snapshot, apply the
-   edit, re-run, diff those two. The runners themselves are deterministic (byte-identical
-   across runs and across `PYTHONHASHSEED`); the gap is that committed outputs predate wired-in
-   input changes. The house case was `county_split_overrides.csv` (Maricopa), resolved in
-   7661e41; the primary CSVs still carry one.
+9. **Committed outputs drift silently when an input changes and nothing re-runs.** Run
+   `python3 pipeline/check_stale.py` (1s) — it hashes every declared input against
+   `data/outputs/.verified.json` and names the groups that need rebuilding. `--regenerate`
+   (~3 min) rebuilds everything, diffs, and rewrites the stamp; commit the stamp with the
+   outputs. This is what caught nothing in July, when `county_split_overrides.csv` changed and
+   73 of 74 house trees sat stale for six weeks.
+
+   When verifying a pipeline **edit**, still never diff against HEAD: the runners rewrite their
+   own committed output on a no-op re-run. Run the unedited code, snapshot, apply the edit,
+   re-run, diff those two. The runners are deterministic (byte-identical across runs and across
+   `PYTHONHASHSEED`); it is the committed baseline that lags.
 
 ## Voice for app copy
 
