@@ -14,11 +14,13 @@
 const SQRT3 = Math.sqrt(3);
 
 /** Pull each state away from the map centre so neighbours read as separate shapes. */
-export const EXPLODE = 1.14;
+export const EXPLODE = 1.24;
 
 export interface CartogramMeta {
   R: number; x0: number; y0: number;
   seats: number; cellsPerSeat: number; triple: boolean; source: string;
+  /** cells are drawn on a lattice this many times finer than a seat */
+  subDiv?: number;
 }
 
 interface RawState {
@@ -27,8 +29,13 @@ interface RawState {
   districts: string[];
   /** seat i belongs to districts[seats[i]]; seats are pre-sorted west→east per district */
   seats: number[];
-  /** flat [col, row, seatIdx, isCore] runs */
+  /** flat cell runs: [col, row, seatIdx] with meta.subDiv, else [col, row, seatIdx, isCore] */
   cells: number[];
+  /** one point per seat on the coarse lattice, for label placement; only with subDiv */
+  seatCentres?: [number, number][];
+  /** miniature of the state holding its statewide seats; absent if it elects at large.
+   *  `cells` is a flat [col, row, seatIdx] run on a lattice `div` times finer than a seat. */
+  mini?: { rings: [number, number][][]; cells: number[]; div: number; district: string } | null;
 }
 
 export interface RawCartogram {
@@ -52,8 +59,10 @@ export interface StateGeometry {
   districtPaths: string[];
   /** boundaries between seats inside the same district */
   seatEdges: string;
-  /** boundaries between districts, and the outer edge of the tiling */
+  /** boundaries between districts */
   districtEdges: string;
+  /** the outer edge of the tiling, i.e. the state's own perimeter */
+  outerEdges: string;
   /** number of seats — core cells only */
   seatCount: number;
   bbox: { x0: number; y0: number; x1: number; y1: number };
@@ -63,6 +72,16 @@ export interface StateGeometry {
   silhouette: [number, number][];
   /** every hex centre, for the "does this label sit on tiles" test */
   centres: [number, number][];
+  /** the statewide miniature: its outline, one hexagon per seat, and whose results fill it */
+  mini: {
+    outline: string;
+    seatPaths: string[];
+    /** boundaries between its seats, so a region is not criss-crossed by sub-cell edges */
+    seatEdges: string;
+    district: string;
+    /** sub-cell centres, so label placement can treat the miniature as occupied */
+    cellCentres: [number, number][];
+  } | null;
 }
 
 export interface Cartogram {
@@ -175,16 +194,30 @@ function polygons(rings: [number, number][][]): string {
  */
 export function buildCartogram(raw: RawCartogram, explode = EXPLODE): Cartogram {
   const { R, x0, y0 } = raw.meta;
+  // Two payload shapes. The House cartograms carry `subDiv`: a seat is a region of cells
+  // that much finer than a seat, so a seat clipped by the outline still holds an equal
+  // share of its district's area. The electoral-college and population cartograms are
+  // one hexagon per tile and carry no `subDiv`, so they keep the older four-wide run
+  // with an isCore flag.
+  const subDiv = raw.meta.subDiv ?? 0;
+  const fine = subDiv > 0;
+  const stride = fine ? 3 : 4;
+  const sub = fine ? R / subDiv : R;
   const entries = Object.entries(raw.states);
 
   // Explode is measured on core-cell centres so a state with a long boundary-fill
   // fringe is not dragged off-centre by tiles that belong to its neighbour's silhouette.
   const coreCentres: Record<string, [number, number][]> = {};
   for (const [ab, st] of entries) {
-    const pts: [number, number][] = [];
-    for (let i = 0; i < st.cells.length; i += 4) {
-      if (st.cells[i + 3]) pts.push(hexCenter(st.cells[i], st.cells[i + 1], R, x0, y0));
-    }
+    const pts: [number, number][] = fine
+      ? (st.seatCentres ?? []).map(q => [q[0], q[1]])
+      : (() => {
+          const out: [number, number][] = [];
+          for (let i = 0; i < st.cells.length; i += 4) {
+            if (st.cells[i + 3]) out.push(hexCenter(st.cells[i], st.cells[i + 1], R, x0, y0));
+          }
+          return out;
+        })();
     coreCentres[ab] = pts.length ? pts : [[x0, y0]];
   }
   const all = entries.flatMap(([ab]) => coreCentres[ab]);
@@ -206,15 +239,14 @@ export function buildCartogram(raw: RawCartogram, explode = EXPLODE): Cartogram 
     // unclipped — its outline is a delegate hexagon, not a population-scaled shape — so
     // there the fill has nothing to hide behind and would inflate it into a blob.
     const cellIdx: number[] = [];
-    for (let i = 0; i < st.cells.length; i += 4) {
-      if (st.clip || st.cells[i + 3]) cellIdx.push(i);
+    for (let i = 0; i < st.cells.length; i += stride) {
+      if (fine || st.clip || st.cells[i + 3]) cellIdx.push(i);
     }
     const seatOf = new Map<string, number>();
     for (const i of cellIdx) seatOf.set(`${st.cells[i]},${st.cells[i + 1]}`, st.cells[i + 2]);
 
     const seatRings: [number, number][][][] = st.seats.map(() => []);
     const districtRings: [number, number][][][] = st.districts.map(() => []);
-    const centres: [number, number][] = [];
     const seatSeg: [number, number][][] = [];
     const distSeg: [number, number][][] = [];
     const outerSeg: [number, number][][] = [];
@@ -222,12 +254,14 @@ export function buildCartogram(raw: RawCartogram, explode = EXPLODE): Cartogram 
     // as a branch and stops early, so keep only the first sighting of each edge.
     const seen = new Set<string>();
 
+
+    const coarseCentres: [number, number][] = [];
     for (const i of cellIdx) {
       const col = st.cells[i], row = st.cells[i + 1];
-      const seat = st.cells[i + 2], isCore = st.cells[i + 3];
-      const c = hexCenter(col, row, R, x0, y0);
-      if (isCore) centres.push(T(c));
-      const verts = hexVertices(c[0], c[1], R).map(T) as [number, number][];
+      const seat = st.cells[i + 2];
+      const c = hexCenter(col, row, sub, x0, y0);
+      if (!fine && st.cells[i + 3]) coarseCentres.push(T(c));
+      const verts = hexVertices(c[0], c[1], sub).map(T) as [number, number][];
       seatRings[seat].push(verts);
       districtRings[st.seats[seat]].push(verts);
 
@@ -239,24 +273,31 @@ export function buildCartogram(raw: RawCartogram, explode = EXPLODE): Cartogram 
         const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`;
         if (seen.has(key)) return;
         seen.add(key);
-        // A missing neighbour is the outer edge of this state's tiling. For a clipped
-        // state that edge sits beyond the outline and vanishes under the clip; for an
-        // unclipped one it *is* the silhouette, so it is kept aside to stroke as such.
-        if (nb === undefined) { outerSeg.push([a, b]); if (st.clip) distSeg.push([a, b]); }
+        // A missing neighbour is the outer edge of this state's tiling — the state's own
+        // perimeter. Kept out of `distSeg` so the renderer can weight the state's rim
+        // separately from the lines between two districts; lumping them together meant
+        // the state border was set by the district width and could not be thinned on its
+        // own.
+        if (nb === undefined) { outerSeg.push([a, b]); }
+        // The band is not a district, so its boundary must not carry the district's
+        // weight: at full weight it read as a wall cutting the state in two.
         else if (st.seats[nb] !== st.seats[seat]) distSeg.push([a, b]);
         else seatSeg.push([a, b]);
       });
     }
 
-    // DC's ring is a delegate hexagon rather than a population-scaled shape, so its
-    // tiles do not fill it. Outline what is actually drawn — the edge of the tiling.
     const outlineRings = st.rings.map(r => r.map(p => T(p as [number, number])));
     const outline = st.clip ? polygons(outlineRings) : chain(outerSeg).map(polyline).join('');
     const silhouette: [number, number][] = st.clip
       ? outlineRings.flat()
       : outerSeg.flat();
 
-    const xs = silhouette.map(p => p[0]), ys = silhouette.map(p => p[1]);
+    // The miniature counts toward the state's extent: the view is framed from these
+    // boxes, and California's copy sits west of the state, so leaving it out cropped it
+    // off the map entirely.
+    const frame: [number, number][] = [...silhouette];
+    if (st.mini) for (const ring of st.mini.rings) for (const q of ring) frame.push(T(q as [number, number]));
+    const xs = frame.map(p => p[0]), ys = frame.map(p => p[1]);
 
     const seatsByDistrict: number[][] = st.districts.map(() => []);
     st.seats.forEach((di, si) => seatsByDistrict[di].push(si));
@@ -277,11 +318,58 @@ export function buildCartogram(raw: RawCartogram, explode = EXPLODE): Cartogram 
       // smooth line that is not.
       seatEdges: chain(seatSeg).map(polyline).join(''),
       districtEdges: chain(distSeg).map(polyline).join(''),
+      outerEdges: chain(outerSeg).map(polyline).join(''),
       seatCount: st.seats.length,
       bbox: { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) },
       centroid: [cx + ox, -(cy + oy)],
       silhouette,
-      centres,
+      centres: fine ? (st.seatCentres ?? []).map(q => T(q as [number, number])) : coarseCentres,
+      // The miniature carries its parent's explode offset, so it stays beside the state
+      // wherever the state lands. Its cells are full-size hexagons like every other seat,
+      // and a seat is the union of its cells — boundary fill included — so clipping the
+      // miniature to its own outline leaves no sliver and nothing spills past the edge.
+      mini: st.mini ? (() => {
+        // Each seat is a region of the miniature, grown on a lattice `div` times finer
+        // than a seat so it can deform to fill the outline while still holding an exact
+        // share of its area. A seat's fill is its sub-cells concatenated; the line
+        // between two seats is traced from adjacency, because stroking the fill would
+        // draw every sub-cell edge and rule the region into little hexagons.
+        const sub = R / st.mini!.div;
+        const cells = st.mini!.cells;
+        let n = 0;
+        for (let i = 0; i < cells.length; i += 3) n = Math.max(n, cells[i + 2] + 1);
+        const seatOfSub = new Map<string, number>();
+        for (let i = 0; i < cells.length; i += 3) seatOfSub.set(`${cells[i]},${cells[i + 1]}`, cells[i + 2]);
+
+        const rings: [number, number][][][] = Array.from({ length: n }, () => []);
+        const centresM: [number, number][] = [];
+        const edgeSeg: [number, number][][] = [];
+        const seenEdge = new Set<string>();
+        for (let i = 0; i < cells.length; i += 3) {
+          const col = cells[i], row = cells[i + 1], seat = cells[i + 2];
+          const c = hexCenter(col, row, sub, x0, y0);
+          const verts = hexVertices(c[0], c[1], sub).map(T) as [number, number][];
+          rings[seat].push(verts);
+          centresM.push(T(c));
+          NEIGHBORS[row & 1].forEach(([dc, dr], j) => {
+            const nb = seatOfSub.get(`${col + dc},${row + dr}`);
+            if (nb === seat) return;
+            const a = verts[(j + 1) % 6], b = verts[(j + 2) % 6];
+            const ka = KEY(a[0], a[1]), kb = KEY(b[0], b[1]);
+            const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`;
+            if (seenEdge.has(key)) return;
+            seenEdge.add(key);
+            if (nb !== undefined) edgeSeg.push([a, b]);
+          });
+        }
+        return {
+          outline: polygons(st.mini!.rings.map(r => r.map(q => T(q as [number, number])))),
+          seatPaths: rings.map(polygons),
+          seatEdges: chain(edgeSeg).map(polyline).join(''),
+          district: st.mini!.district,
+          cellCentres: centresM,
+        };
+      })() : null,
     });
   }
 
@@ -342,6 +430,8 @@ const PREFERRED: Record<string, [Side, Bias]> = {
   TX: ['bottom', 'right'], MS: ['bottom', 'right'], LA: ['bottom', 'right'],
   GA: ['right', 'bottom'], VA: ['bottom', 'right'], FL: ['right', 'center'],
   PA: ['right', 'top'],
+  // Maine's usual slot is now under Massachusetts' statewide miniature.
+  ME: ['left', 'top'],
 };
 
 /** Preference leans bottom-then-right so the eye learns one place to look. */
@@ -374,7 +464,11 @@ export interface Label {
  */
 export function placeLabels(cg: Cartogram, fontSize: number): Label[] {
   const R = cg.meta.R;
-  const occupied = cg.states.flatMap(s => s.centres);
+  // Miniatures are taken space too: Maine's label was landing inside Massachusetts'.
+  const occupied = cg.states.flatMap(s => [
+    ...s.centres,
+    ...(s.mini ? s.mini.cellCentres : []),
+  ]);
   const labH = fontSize;
 
   const nearestState = (x: number, y: number): string => {
@@ -495,11 +589,13 @@ const cache = new Map<string, Promise<Cartogram>>();
  * - `pop`: one hexagon per 1/4365 of the population, state area unscaled, so the smallest
  *   state holds ten tiles and a five-way vote share is legible everywhere.
  */
-export type CartogramBasis = 'double' | 'triple' | 'ec' | 'pop';
+export type CartogramBasis = 'double' | 'triple' | 'double-reserve' | 'triple-reserve' | 'ec' | 'pop';
 
 const BASIS_URL: Record<CartogramBasis, string> = {
   double: '/hexmap/hex_seat_cartogram.json',
   triple: '/hexmap/hex_seat_cartogram_triple.json',
+  'double-reserve': '/hexmap/hex_seat_cartogram_reserve.json',
+  'triple-reserve': '/hexmap/hex_seat_cartogram_triple_reserve.json',
   ec: '/hexmap/hex_ec_cartogram.json',
   pop: '/hexmap/hex_pop_cartogram.json',
 };

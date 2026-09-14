@@ -21,32 +21,55 @@ import { CARD_HINT, FOOTNOTE } from '../../constants/typography';
  */
 
 /**
- * Stroke widths as multiples of the hex circumradius, carried over from the print
- * prototype where the hierarchy was calibrated. They are converted to screen pixels and
- * drawn with a non-scaling stroke, so the map keeps the same weights whatever size the
- * card is — with floors, because the app renders this about five times smaller than the
+ * ── The look of the map, in one place ────────────────────────────────────────
+ *
+ * Widths are multiples of the hex circumradius, carried over from the print prototype
+ * where the hierarchy was calibrated. They are converted to screen pixels and drawn with
+ * a non-scaling stroke, so the map keeps the same weights whatever size the card is —
+ * with pixel floors, because the app renders this about five times smaller than the
  * poster it was tuned on and a sub-pixel line just disappears.
+ *
+ * The hierarchy is state > district > seat, carried by colour as much as by weight:
+ * black means district, grey means seat. Drawing both in white was the original reason
+ * districts were hard to pick out — a district border read as nothing more than a
+ * slightly fatter seat line, and no amount of extra weight fixes a colour collision.
  */
-const W_SEAT_R = 0.0284, W_DISTRICT_R = 0.265, W_CASING_R = 0.425, W_STATE_R = 0.193;
+
+/** Line widths, as multiples of the hex circumradius. */
+const W_SEAT_R = 0.1;      // between two seats
+const W_DISTRICT_R = 0.3;   // between two districts
+const W_CASING_R = 0.5;     // the white casing under a district line
+const W_STATE_R = 0.0001;      // a state's own border
+const W_MINI_R = 0.7;         // a miniature's border, as a multiple of the state border
+
+/** Pixel floors, so a line never thins to nothing on a small card. */
 const MIN_SEAT = 0.55, MIN_DISTRICT = 1.9, MIN_STATE = 1.45;
+
 const CASING_RATIO = W_CASING_R / W_DISTRICT_R;
 
 /**
  * District borders sat at 1.6x the print calibration, which the floors then compounded:
- * at the sizes this actually renders the district line came out around 3px against a
- * state outline of 1.1px or less, so the internal divisions shouted over the container
- * and over the party colours, which are the point of the map. Halved, and the state
- * floor raised, so the hierarchy runs state > district > seat again.
+ * the district line came out around 3px against a state outline of 1.1px or less, so the
+ * internal divisions shouted over the party colours, which are the point of the map.
  */
 const DISTRICT_EMPHASIS = 0.8;
 
 /**
- * Seat boundaries are grey, not white, so the two line colours carry the hierarchy on
- * their own: white means district, grey means seat. Drawing both in white was the real
- * reason districts were hard to pick out — a district border read as nothing more than a
- * slightly fatter seat line, and no amount of extra weight fixes a colour collision.
+ * The dark rim just inside a state's border, drawn at the district line's weight and
+ * clipped to the outline so about half its width shows. This, not W_STATE_R, is most of
+ * what a reader sees as the state border — W_STATE_R is the thin line on top of it.
+ * Set to 0 for a state border that is only W_STATE_R.
  */
-const C_SEAT = '#c2ccd8', C_CASING = '#ffffff', C_DISTRICT = '#111827', C_STATE = '#0b1220';
+const STATE_RIM = 1;
+
+/** Line colours. */
+const C_SEAT = '#c2ccd8';     // between two seats, in a state and in a miniature alike
+const C_CASING = '#ffffff';   // under a district line
+const C_DISTRICT = '#111827'; // between two districts
+const C_STATE = '#0b1220';    // a state's own border
+const C_MINI = '#64748b';     // a miniature's border, drawn dashed
+
+/** Fill for a seat with no winner. */
 const C_EMPTY = '#e2e8f0';
 
 /**
@@ -55,6 +78,12 @@ const C_EMPTY = '#e2e8f0';
  * footprint lights up a handful of hexes floating in white space.
  */
 const C_MUTED = '#e7ecf2';
+
+/**
+ * A seat is a group of sub-cells, so its fill carries a hairline of its own colour to
+ * close the seams between them. Multiple of the seat line's width.
+ */
+const W_SEAM = 0.5;
 
 /** Target on-screen size of a state label. Placement drops any that cannot clear. */
 const LABEL_PX = 11;
@@ -75,6 +104,8 @@ interface HoverInfo { districtId: string; abbr: string; x: number; y: number }
 
 interface Props {
   wyoming: 'double' | 'triple';
+  /** 'reserve' swaps in the reserve districting and its statewide band */
+  variant?: 'base' | 'reserve';
   /** live results keyed by state FIPS — the source of every fill colour */
   districtResults: Record<string, DistrictResult[]>;
   /** state abbreviation, or null for the whole map */
@@ -88,7 +119,7 @@ interface Props {
   toolbar?: React.ReactNode;
 }
 
-export function HexCartogram({ wyoming, districtResults, selected, onSelectState, highlight, footnote, toolbar }: Props) {
+export function HexCartogram({ wyoming, variant = 'base', districtResults, selected, onSelectState, highlight, footnote, toolbar }: Props) {
   const [cg, setCg] = useState<Cartogram | null>(null);
   const [err, setErr] = useState(false);
   const [hover, setHover] = useState<HoverInfo | null>(null);
@@ -100,11 +131,11 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
 
   useEffect(() => {
     let live = true;
-    loadCartogram(wyoming)
+    loadCartogram(variant === 'reserve' ? `${wyoming}-reserve` : wyoming)
       .then(c => { if (live) { setCg(c); setErr(false); } })
       .catch(() => { if (live) setErr(true); });
     return () => { live = false; };
-  }, [wyoming]);
+  }, [wyoming, variant]);
 
   useEffect(() => {
     const el = boxRef.current;
@@ -141,6 +172,23 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
         if (at) at.push(st.seatPaths[i]); else byParty.set(key, [st.seatPaths[i]]);
       });
       return { abbr: st.abbr, groups: [...byParty].map(([p, ds]) => ({ party: p, d: ds.join('') })) };
+    });
+  }, [cg, electedByDistrict]);
+
+  // One party per miniature seat, in F5 order, so a state's statewide delegation reads
+  // left to right and top down the same way a district does.
+  const minis = useMemo(() => {
+    if (!cg) return [];
+    const rank = new Map<string, number>(F5_ORDER.map((p, i) => [p as string, i]));
+    return cg.states.map(st => {
+      if (!st.mini) return [];
+      const elected = electedByDistrict[st.mini.district];
+      if (!elected) return st.mini.seatPaths.map(() => '');
+      const sorted = [...elected].sort(
+        (x, y) => (rank.get(x) ?? F5_ORDER.length) - (rank.get(y) ?? F5_ORDER.length)
+          || x.localeCompare(y),
+      );
+      return st.mini.seatPaths.map((_, k) => sorted[k] ?? '');
     });
   }, [cg, electedByDistrict]);
 
@@ -245,7 +293,12 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
             role="status"
             aria-live="polite"
           >
-            <span className="font-semibold">{hover.abbr} · District {districtNumber(hover.districtId)}</span>
+            <span className="font-semibold">
+              {hover.abbr}
+              {hover.districtId.endsWith('-RES')
+                ? ' · Statewide'
+                : ` · District ${districtNumber(hover.districtId)}`}
+            </span>
             {' — '}{hoverDistrict.seatCount} seat{hoverDistrict.seatCount === 1 ? '' : 's'}
             <div className="flex flex-wrap gap-1 mt-1">
               {F5_ORDER.filter(p => hoverDistrict.elected.includes(p)).map(p => (
@@ -278,9 +331,54 @@ export function HexCartogram({ wyoming, districtResults, selected, onSelectState
             {cg.states.filter(s => s.clip).map(s => (
               <clipPath key={s.abbr} id={`hexclip-${s.abbr}`}><path d={s.outline} /></clipPath>
             ))}
+            {cg.states.filter(s => s.mini).map(s => (
+              <clipPath key={`m-${s.abbr}`} id={`miniclip-${s.abbr}`}>
+                <path d={s.mini!.outline} />
+              </clipPath>
+            ))}
           </defs>
 
           <g transform={`translate(${zt.x},${zt.y}) scale(${zt.k})`}>
+          {/* Statewide seats: a miniature of the state parked beside it, one full-size
+              hexagon per seat. Drawn before the states so a state always wins an overlap. */}
+          <g>
+            {cg.states.map((st, i) => (st.mini ? (
+              <g
+                key={st.abbr}
+                opacity={selected !== null && selected !== st.abbr ? 0.34 : 1}
+                onClick={() => onSelectState(st.abbr)}
+                onMouseMove={e => {
+                  const r = boxRef.current?.getBoundingClientRect();
+                  setHover({ districtId: st.mini!.district, abbr: st.abbr,
+                    x: e.clientX - (r?.left ?? 0), y: e.clientY - (r?.top ?? 0) });
+                }}
+                onMouseLeave={() => setHover(null)}
+                style={{ cursor: 'pointer' }}
+              >
+                <g clipPath={`url(#miniclip-${st.abbr})`}>
+                  {st.mini.seatPaths.map((d, k) => {
+                    const party = minis[i][k];
+                    const lit = !highlight?.size || highlight.has(party);
+                    return (
+                      <path key={k} d={d}
+                        fill={!party ? C_EMPTY : lit ? (PARTY_COLORS[party] ?? '#6b7280') : C_MUTED}
+                        stroke={!party ? C_EMPTY : lit ? (PARTY_COLORS[party] ?? '#6b7280') : C_MUTED}
+                        strokeWidth={wSeat * W_SEAM} strokeLinejoin="round"
+                        vectorEffect="non-scaling-stroke" />
+                    );
+                  })}
+                  <path d={st.mini.seatEdges} fill="none" stroke={C_SEAT}
+                    strokeWidth={wSeat} strokeLinejoin="round" strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke" />
+                </g>
+                <path d={st.mini.outline} fill="none" stroke={C_MINI}
+                  strokeWidth={wStateBase * W_MINI_R}
+                  strokeDasharray={`${wStateBase * 2.5} ${wStateBase * 1.8}`}
+                  strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+              </g>
+            ) : null))}
+          </g>
+
           {cg.states.map((st, i) => (
             <StateTiles
               key={st.abbr}
@@ -365,7 +463,10 @@ function StateTiles({ st, groups, highlight, dim, wSeat, wDistrict, wCasing, onH
           const lit = !highlight?.size || highlight.has(g.party);
           return (
             <path key={g.party || 'none'} d={g.d}
-              fill={!g.party ? C_EMPTY : lit ? (PARTY_COLORS[g.party] ?? '#6b7280') : C_MUTED} />
+              fill={!g.party ? C_EMPTY : lit ? (PARTY_COLORS[g.party] ?? '#6b7280') : C_MUTED}
+              stroke={!g.party ? C_EMPTY : lit ? (PARTY_COLORS[g.party] ?? '#6b7280') : C_MUTED}
+              strokeWidth={wSeat * W_SEAM} strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke" />
           );
         })}
       </g>
@@ -375,6 +476,17 @@ function StateTiles({ st, groups, highlight, dim, wSeat, wDistrict, wCasing, onH
         strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       <path d={st.districtEdges} fill="none" stroke={C_DISTRICT} strokeWidth={wDistrict}
         strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      {STATE_RIM > 0 && (
+        <>
+          <path d={st.outerEdges} fill="none" stroke={C_CASING}
+            strokeWidth={wCasing * STATE_RIM} strokeLinejoin="round" strokeLinecap="round"
+            vectorEffect="non-scaling-stroke" />
+          <path d={st.outerEdges} fill="none" stroke={C_DISTRICT}
+            strokeWidth={wDistrict * STATE_RIM} strokeLinejoin="round" strokeLinecap="round"
+            vectorEffect="non-scaling-stroke" />
+        </>
+      )}
+
       {/* Transparent hit targets last so hover reads the district under the cursor. */}
       <g fill="transparent">
         {st.districts.map((did, i) => (

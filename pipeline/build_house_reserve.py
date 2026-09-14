@@ -150,6 +150,7 @@ def main():
             state_of = dict(zip(app["district_id"], app["state_fips"]))
             district_ids = list(app["district_id"])
             idx_by_dist = {d: np.where(district == d)[0] for d in district_ids}
+            tier_of = dict(zip(app["district_id"], app["density_tier"]))
 
             # Per-state structure
             by_state_dists: dict = {}
@@ -199,6 +200,10 @@ def main():
                 nat_shut = {sys: 0.0 for sys in ("list", "stv", "listRes", "stvRes")}
                 nat_w = 0.0
                 by_state_out = {}
+                # Per-district winners, for the hex map. The statewide tier has no
+                # district, so each state's reserve seats ride under a "<fips>-RES" id
+                # that the cartogram draws as the state's outer band.
+                districts_out = {}
 
                 for f, dists in by_state_dists.items():
                     m = inputstate == f
@@ -254,6 +259,23 @@ def main():
                         nat_scov[sys_name] += float((Ps[:, seated].sum(1) * sw).sum())
 
                     nat_w += float(sw.sum())
+
+                    st_dists = {}
+                    for d in dists:
+                        st_dists[d] = {
+                            "seatCount": int(seat_of[d]),
+                            "densityTier": str(tier_of[d]),
+                            "listElected": expand_seats(list_by_dist[d]),
+                            "stvElected": expand_seats(stv_seats.get(d, np.zeros(10, int))),
+                        }
+                    if R > 0:
+                        st_dists[f"{f:02d}-RES"] = {
+                            "seatCount": R,
+                            "densityTier": "STATEWIDE",
+                            "listElected": expand_seats(list_res),
+                            "stvElected": expand_seats(stv_res),
+                        }
+                    districts_out[f"{f:02d}"] = st_dists
 
                     abbr = app.loc[app["state_fips"] == f, "state_abbr"].iloc[0]
                     by_state_out[f"{f:02d}"] = {
@@ -323,6 +345,7 @@ def main():
                 out[dkey][wyo][str(part)] = {
                     "national": national,
                     "byState": by_state_out,
+                    "districts": districts_out,
                 }
                 # Strip elected[] from the summary — it's 80% of the payload and only
                 # needed by the per-state view, which reads from the lazy bundle.

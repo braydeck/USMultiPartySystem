@@ -31,6 +31,14 @@ from stv_config import (STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT,
 
 RESERVE_FRAC = 0.20
 
+# A state below this elects its whole delegation at large. One statewide district is
+# already proportional, so there is nothing for a compensatory tier to correct; carving
+# one would only take seats away from the body it is meant to correct. At or above it,
+# 20% is carved statewide and the remainder is districted by the base map's own sizing
+# rules. Ten is the smallest total where that remainder still makes two districts on the
+# double map: 10 gives two 4-seat districts and a 2-seat statewide pool.
+MIN_RESERVE_TOTAL = 10
+
 CONFIGS = [
     {
         "label": "DOUBLE",
@@ -65,43 +73,22 @@ def main():
             abbr = FIPS_TO_ABBR.get(fips, str(fips))
             kw = {'urban_pct': STATE_URBAN_PCT.get(fips, 70.0)} if has_urban else {}
 
-            orig = sorted(pfn(T, **kw), reverse=True)
-
-            # Single-district state: no reserve needed
-            if len(orig) <= 1:
-                tiers = assign_density_tiers(orig, fips)
-                for idx, (size, tier) in enumerate(zip(orig, tiers), start=1):
-                    rows.append({
-                        "state_fips": fips, "state_abbr": abbr,
-                        "district_id": f"{fips:02d}-{idx:02d}",
-                        "seat_count": size, "density_tier": tier,
-                        "reserve": 0,
-                    })
+            # Under the threshold the state is one at-large district, whatever the base
+            # map would have split it into, and takes no reserve.
+            if T < MIN_RESERVE_TOTAL:
+                tiers = assign_density_tiers([T], fips)
+                rows.append({
+                    "state_fips": fips, "state_abbr": abbr,
+                    "district_id": f"{fips:02d}-01",
+                    "seat_count": T, "density_tier": tiers[0],
+                    "reserve": 0,
+                })
                 total_d += T
                 continue
 
             R = int(round(RESERVE_FRAC * T))
             D = T - R
-
-            # If the reduced district total collapses to a single district under
-            # partition rules, shrink the reserve until it doesn't. A multi-district
-            # state with a single reserve district is pointless — the reserve has
-            # nothing to compensate against. Minimum reserve is 1 seat.
-            new = pfn(D, **kw)
-            while len(new) <= 1 and R > 1:
-                R -= 1
-                D = T - R
-                new = pfn(D, **kw)
-
-            if len(new) <= 1:
-                # Even R=1 doesn't split. Keep the base partition with no reserve —
-                # these are small states (T=8 at double, T=11 at triple) where the
-                # base map already has 2 reasonably-sized districts.
-                R = 0
-                D = T
-                new = orig
-
-            new = sorted(new, reverse=True)
+            new = sorted(pfn(D, **kw), reverse=True)
             tiers = assign_density_tiers(new, fips)
             for idx, (size, tier) in enumerate(zip(new, tiers), start=1):
                 rows.append({

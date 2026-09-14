@@ -5,12 +5,13 @@ import { FPTPvsSTV } from './FPTPvsSTV';
 import { Stat, seatMapToHouseSeats } from './PartyListView';
 import type { PLConfig } from './PartyListView';
 import { UrbSubRurChart } from './UrbSubRurChart';
+import { HexCartogram } from './HexCartogram';
 import { CollapsibleSection } from '../shared/CollapsibleSection';
 import { VotesVsSeats, type SystemEntry } from '../shared/VotesVsSeats';
 import { PartyProfileGrid } from '../shared/PartyProfileGrid';
 import { useUrlState, resetUrlParams } from '../../hooks/useUrlState';
 import { getBlendColor, PARTY_NAMES, F5_ORDER } from '../../constants/parties';
-import type { HouseSeat, ClusterProfile } from '../../types';
+import type { HouseSeat, ClusterProfile, DistrictResult } from '../../types';
 import { CARD_HEADING, MINOR_HEADING, CARD_HINT, TABLE_HEADER } from '../../constants/typography';
 import type { ReactNode } from 'react';
 
@@ -38,8 +39,17 @@ export interface ReserveNational {
   stv: SystemBlock;
 }
 
+export interface ReserveDistrict {
+  seatCount: number;
+  densityTier: string;
+  listElected: string[];
+  stvElected: string[];
+}
+
 export interface ReserveConfig {
   national: ReserveNational;
+  /** state FIPS → district id → winners. "<fips>-RES" holds the statewide seats. */
+  districts?: Record<string, Record<string, ReserveDistrict>>;
   byState: Record<string, {
     abbr: string; totalSeats: number; districtSeats: number; reserveSeats: number;
     voteShare: SeatMap; listSeats: SeatMap; stvSeats: SeatMap;
@@ -153,6 +163,32 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
 
   const baseGallagher = base?.national.gallagher[system === 'list' ? 'list' : 'stv'];
 
+  // The map reads the same per-district winners the tables do, with the statewide tier
+  // arriving as one "<fips>-RES" entry per state that the cartogram draws as its band.
+  const districtResults = useMemo(() => {
+    if (!config?.districts) return null;
+    const out: Record<string, DistrictResult[]> = {};
+    for (const [fips, dists] of Object.entries(config.districts)) {
+      out[fips] = Object.entries(dists).map(([districtId, d]) => ({
+        districtId,
+        densityTier: d.densityTier as DistrictResult['densityTier'],
+        seatCount: d.seatCount,
+        elected: system === 'list' ? d.listElected : d.stvElected,
+        nRespondents: 0,
+      }));
+    }
+    return out;
+  }, [config, system]);
+
+  const districtCount = useMemo(() => Object.values(config?.districts ?? {})
+    .reduce((n, d) => n + Object.keys(d).filter(k => !k.endsWith('-RES')).length, 0), [config]);
+
+  const abbrByFips = useMemo(
+    () => Object.fromEntries(Object.entries(config?.byState ?? {}).map(([f, st]) => [f, st.abbr])),
+    [config]);
+  const fipsByAbbr = useMemo(
+    () => Object.fromEntries(Object.entries(abbrByFips).map(([f, a]) => [a, f])), [abbrByFips]);
+
   return (
     <div className="space-y-8">
       {/* Hero — simplified: FPTP, PR 2-party, active system only */}
@@ -164,6 +200,32 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
           wyoming={wyoming}
         />
       </Card>
+
+      {districtResults && (
+        <Card className="p-4">
+          <h4 className={`${CARD_HEADING} mb-1`}>Where the seats are</h4>
+          <p className={`${CARD_HINT} mb-3`}>
+            {nat.districtSeats} seats are elected in {districtCount} districts under {sysLabel}.
+            The other {nat.reserveSeats} are elected statewide and belong to no district.
+          </p>
+          <HexCartogram
+            wyoming={wyoming}
+            variant="reserve"
+            districtResults={districtResults}
+            selected={selState !== 'national' ? (abbrByFips[selState] ?? null) : null}
+            onSelectState={ab => setSelState(
+              fipsByAbbr[ab] === selState ? 'national' : (fipsByAbbr[ab] ?? 'national'))}
+            footnote={
+              <>One hexagon is one seat, states sized by population. Black outlines separate
+              districts. The small dashed copy of a state beside it holds that state&rsquo;s
+              statewide seats, which belong to no district; its hexagons are the same size as
+              every other seat, so the copy&rsquo;s size is the share of the delegation elected
+              statewide. A state that elects its whole delegation at large has no copy. Click a
+              state to zoom, click it again to zoom back out.</>
+            }
+          />
+        </Card>
+      )}
 
       <CollapsibleSection id="profiles" title="See party profiles"
         hint="Ten parties, their positions and who they draw from">
