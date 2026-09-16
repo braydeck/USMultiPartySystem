@@ -991,12 +991,27 @@ def partition_equal(group, pos, seats, seeds):
         quota = [len(group) // n + (1 if i < len(group) % n else 0) for i in range(n)]
         return grow_equal_regions(set(group), pos, seeds, quota)
 
-    # How many seats each piece can hold, by size.
-    share = {i: len(c) * n / len(group) for i, c in enumerate(comps)}
-    alloc = {i: int(share[i]) for i in share}
+    # How many seats each piece can hold, by size. A piece has to be able to hold a
+    # decent fraction of a seat before it can be given one: otherwise largest remainder
+    # hands a spare seat to a two-cell island and that seat is drawn as two cells while
+    # its neighbours get forty.
+    avg = len(group) / n
+    eligible = [i for i, c in enumerate(comps) if len(c) >= 0.5 * avg] or [0]
+    pool = sum(len(comps[i]) for i in eligible)
+    share = {i: len(comps[i]) * n / pool for i in eligible}
+    alloc = {i: 0 for i in range(len(comps))}
+    for i in eligible:
+        alloc[i] = min(int(share[i]), len(comps[i]))
     spare = n - sum(alloc.values())
-    for i in sorted(share, key=lambda k: (-(share[k] - alloc[k]), k))[:spare]:
-        alloc[i] += 1
+    for i in sorted(eligible, key=lambda k: (-(share[k] - alloc[k]), k)):
+        if spare <= 0:
+            break
+        if alloc[i] < len(comps[i]):
+            alloc[i] += 1
+            spare -= 1
+    while spare > 0:            # everything capped; give the rest to the biggest piece
+        alloc[eligible[0]] += 1
+        spare -= 1
 
     def centre(cells):
         pts = [pos[c] for c in cells]

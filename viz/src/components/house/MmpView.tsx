@@ -5,6 +5,7 @@ import { Stat, seatMapToHouseSeats } from './PartyListView';
 import type { PLConfig } from './PartyListView';
 import type { ReserveNational } from './ReserveView';
 import { UrbSubRurChart } from './UrbSubRurChart';
+import { MmpMap } from './MmpMap';
 import { CollapsibleSection } from '../shared/CollapsibleSection';
 import { PartyProfileGrid } from '../shared/PartyProfileGrid';
 import { VotesVsSeats, type SystemEntry } from '../shared/VotesVsSeats';
@@ -75,6 +76,19 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
   const [sort, setSort] = useState<'size' | 'overhang'>('overhang');
   const [selState, setSelState] = useUrlState<string>('mmpstate', 'national');
   const nat = config?.national ?? national;
+
+  // The map needs one winner per real district, and the top-off counts per state.
+  const districtWinner = useMemo(() => {
+    const out: Record<string, string> = {};
+    for (const st of Object.values(config?.districts ?? {})) {
+      for (const [did, d] of Object.entries(st)) out[did] = d.winner;
+    }
+    return out;
+  }, [config]);
+  const topoffByState = useMemo(
+    () => Object.fromEntries(Object.entries(config?.byState ?? {})
+      .map(([fips, st]) => [fips, st.topoffSeats])),
+    [config]);
 
   const stateSel = selState !== 'national' ? config?.byState?.[selState] : undefined;
   const plSel = stateSel && pl ? pl.byState[selState] : undefined;
@@ -156,6 +170,26 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
           systemLabel="MMP"
           doubleSeats={doubleMmpSeats}
           wyoming={wyoming}
+        />
+      </Card>
+
+      <Card className="p-4">
+        <h4 className={`${CARD_HEADING} mb-1`}>Where the seats are</h4>
+        <p className={`${CARD_HINT} mb-3`}>
+          {nat.districtTotal} seats are won in the real congressional districts and
+          {' '}{nat.topoffTotal} are added statewide to top each delegation up, so every state
+          appears twice.
+        </p>
+        <MmpMap
+          wyoming={wyoming}
+          districtWinner={districtWinner}
+          topoffByState={topoffByState}
+          footnote={
+            <>One hexagon is one seat, states sized by population. Each state is drawn twice:
+            the solid outline holds the seats it wins in its districts, the dashed outline the
+            seats it is given statewide. The two copies together cover the area the state covers
+            on the other House maps, because each holds about half its delegation.</>
+          }
         />
       </Card>
 
