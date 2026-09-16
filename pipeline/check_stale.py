@@ -9,7 +9,7 @@ changes, nothing re-runs, and the stale outputs keep serving the app. Nothing si
 the pipeline still runs clean, the app still builds, and the tests still pass.
 
   python3 pipeline/check_stale.py              # hash check, ~1s, no side effects
-  python3 pipeline/check_stale.py --regenerate # rebuild everything and diff, ~3min
+  python3 pipeline/check_stale.py --regenerate # rebuild everything and diff, ~4min
 
 HOW IT DECIDES
 The fast check hashes the declared inputs and compares them to `.verified.json`, a stamp
@@ -26,8 +26,10 @@ which is the actual question.
 
 MAINTAINING IT
 GROUPS maps an output glob to the inputs that feed it, verified against each script's own path
-constants on 2026-09-12. When a runner gains an input, add it here or this check silently
-stops covering it. That is the one way this file rots.
+constants on 2026-09-12, with the hex cartograms added 2026-09-16. When a runner gains an
+input, add it here or this check silently stops covering it. That is the one way this file
+rots — and it did: the cartograms were outside GROUPS, so a change to how seats are cut left
+all four committed maps stale while every group reported ok.
 """
 
 import argparse
@@ -80,6 +82,26 @@ GROUPS = [
         "viz/scripts/prepare_data.py", "pipeline/build_house_partylist.py",
         "pipeline/build_house_reserve.py", "pipeline/build_legislation_rank7.py",
         "pipeline/build_senate_rank7.py"]),
+    # The hex maps sat outside this check until 2026-09-16, and a change to the seat
+    # partition in build_hex_seat_cartogram.py left all four committed cartograms stale
+    # while every group here still reported ok. They are geometry, not results, so
+    # nothing downstream complains — which is exactly why they need covering.
+    ("hex cartograms", [
+        "pipeline/build_hex_seat_cartogram.py", "pipeline/hexmap_io.py",
+        PROCESSED + "county_to_district.csv", PROCESSED + "county_to_district_triple.csv",
+        PROCESSED + "county_to_district_reserve.csv",
+        PROCESSED + "county_to_district_triple_reserve.csv",
+        "pipeline/county_split_overrides.csv",
+        "viz/src/data/districtStvResults.json",
+        "viz/src/data/districtStvResultsTriple.json",
+        "data/outputs/canonical_reserve/district_apportionment.csv",
+        "data/outputs/canonical_triple_reserve/district_apportionment.csv",
+        "viz/public/data/houseReserve.json",
+        "viz/src/constants/parties.ts"]),
+    ("mmp cartogram", [
+        "pipeline/build_hex_mmp_cartogram.py", "pipeline/build_hex_seat_cartogram.py",
+        "pipeline/hexmap_io.py", PROCESSED + "voter_county_fips.csv",
+        "viz/public/data/houseMmp.json"]),
 ]
 
 # Full rebuild in dependency order. resync stage 3 covers the 74 house trees; the rest are the
@@ -91,6 +113,13 @@ REGEN = [
     ("party list", ["python3", "pipeline/build_house_partylist.py"]),
     ("reserve payload", ["python3", "pipeline/build_house_reserve.py"]),
     ("viz payloads (+rank7)", ["python3", "viz/scripts/prepare_data.py"]),
+    ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py"]),
+    ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py", "--triple"]),
+    ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py", "--reserve"]),
+    ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py",
+                            "--reserve", "--triple"]),
+    ("mmp cartogram (2)", ["python3", "pipeline/build_hex_mmp_cartogram.py"]),
+    ("mmp cartogram (2)", ["python3", "pipeline/build_hex_mmp_cartogram.py", "--triple"]),
 ]
 
 
@@ -145,8 +174,11 @@ def regenerate() -> int:
         if r.returncode != 0:
             print(f"  FAILED: {' '.join(cmd)}\n{(r.stderr or r.stdout)[-1200:]}")
             return 1
+    # The hex maps live outside data/outputs, so they have to be named here too or a
+    # cartogram rebuilt into a different shape shows up as clean.
     dirty = [c for c in subprocess.run(
-        ["git", "status", "--porcelain", "data/outputs", "viz/src/data", "viz/public/data"],
+        ["git", "status", "--porcelain", "data/outputs", "viz/src/data", "viz/public/data",
+         "viz/public/hexmap", "data/processed"],
         cwd=BASE, capture_output=True, text=True).stdout.splitlines() if c[:2] != "??"]
     commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=BASE,
                             capture_output=True, text=True).stdout.strip()
