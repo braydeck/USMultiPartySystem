@@ -81,7 +81,7 @@ GROUPS = [
     ("viz payloads", SURVEY + TURNOUT + [
         "viz/scripts/prepare_data.py", "pipeline/build_house_partylist.py",
         "pipeline/build_house_reserve.py", "pipeline/build_legislation_rank7.py",
-        "pipeline/build_senate_rank7.py"]),
+        "pipeline/build_senate_rank7.py", "pipeline/build_house_mmp.py"]),
     # The hex maps sat outside this check until 2026-09-16, and a change to the seat
     # partition in build_hex_seat_cartogram.py left all four committed cartograms stale
     # while every group here still reported ok. They are geometry, not results, so
@@ -113,6 +113,7 @@ REGEN = [
     ("party list", ["python3", "pipeline/build_house_partylist.py"]),
     ("reserve payload", ["python3", "pipeline/build_house_reserve.py"]),
     ("viz payloads (+rank7)", ["python3", "viz/scripts/prepare_data.py"]),
+    ("mmp payload", ["python3", "pipeline/build_house_mmp.py"]),
     ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py"]),
     ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py", "--triple"]),
     ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py", "--reserve"]),

@@ -6,6 +6,11 @@ import { Stat, seatMapToHouseSeats } from './PartyListView';
 import type { PLConfig } from './PartyListView';
 import { UrbSubRurChart } from './UrbSubRurChart';
 import { HexCartogram } from './HexCartogram';
+import { HouseGridChart } from './HouseGridChart';
+import { PartyHighlightFilter } from './PartyHighlightFilter';
+import { StateDrilldown, StateSelect, type DrilldownGroup } from './StateDrilldown';
+import { usePartyHighlight } from '../../hooks/usePartyHighlight';
+import { seatTotals } from '../../lib/seatTotals';
 import { CollapsibleSection } from '../shared/CollapsibleSection';
 import { VotesVsSeats, type SystemEntry } from '../shared/VotesVsSeats';
 import { PartyProfileGrid } from '../shared/PartyProfileGrid';
@@ -44,6 +49,8 @@ export interface ReserveDistrict {
   densityTier: string;
   listElected: string[];
   stvElected: string[];
+  /** respondents drawn in the district; absent on the statewide entry */
+  nRespondents?: number;
 }
 
 export interface ReserveConfig {
@@ -83,7 +90,7 @@ const name = (p: string) => PARTY_NAMES[p] ?? p;
 const topoffFill = (party: string) => ({ backgroundColor: getBlendColor(party), opacity: 0.42 });
 
 export function ReserveView({ config, national, system, wyoming, onWyomingChange, doubleConfig, base, mmpGallagher, mmpCoverage, mmpUnrep, mmpExcess, mmpNational, baseSeats, clusters, profilesExtra, chamber }: Props) {
-  const [selState, setSelState] = useUrlState<string>('mmpstate', 'national');
+  const [selState, setSelState] = useUrlState<string>('mapstate', 'national');
   const nat = config?.national ?? national;
   const sys = nat[system];
   const sysLabel = system === 'list' ? 'Party list' : 'STV';
@@ -174,11 +181,28 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
         densityTier: d.densityTier as DistrictResult['densityTier'],
         seatCount: d.seatCount,
         elected: system === 'list' ? d.listElected : d.stvElected,
-        nRespondents: 0,
+        nRespondents: d.nRespondents ?? 0,
       }));
     }
     return out;
   }, [config, system]);
+
+  const [highlight, setHighlight] = usePartyHighlight();
+  const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
+  const mapTotals = useMemo(() => seatTotals(districtResults ?? {}), [districtResults]);
+
+  // The drill-down lists the state's districts, then its statewide seats as one card.
+  const drillGroups = useMemo((): DrilldownGroup[] => {
+    const rows = selState !== 'national' ? (districtResults?.[selState] ?? []) : [];
+    const districts = rows.filter(r => !r.districtId.endsWith('-RES'));
+    const statewide = rows.filter(r => r.districtId.endsWith('-RES'));
+    return [
+      ...districts.map(r => ({ id: r.districtId, densityTier: r.densityTier,
+        seatCount: r.seatCount, elected: r.elected, nRespondents: r.nRespondents })),
+      ...statewide.map(r => ({ id: r.districtId, densityTier: 'STATEWIDE',
+        seatCount: r.seatCount, elected: r.elected, label: 'Statewide reserve' })),
+    ];
+  }, [districtResults, selState]);
 
   const districtCount = useMemo(() => Object.values(config?.districts ?? {})
     .reduce((n, d) => n + Object.keys(d).filter(k => !k.endsWith('-RES')).length, 0), [config]);
@@ -203,27 +227,46 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
 
       {districtResults && (
         <Card className="p-4">
-          <h4 className={`${CARD_HEADING} mb-1`}>Where the seats are</h4>
+          <div className="flex items-center justify-between mb-1">
+            <h4 className={CARD_HEADING}>Where the seats are</h4>
+            <div className="flex gap-1">
+              {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
+                <Button key={v} onClick={() => setMapView(v)}
+                  variant={mapView === v ? 'default' : 'secondary'} size="sm">{label}</Button>
+              ))}
+            </div>
+          </div>
           <p className={`${CARD_HINT} mb-3`}>
             {nat.districtSeats} seats are elected in {districtCount} districts under {sysLabel}.
             The other {nat.reserveSeats} are elected statewide and belong to no district.
           </p>
-          <HexCartogram
+          <div className="mb-3">
+            <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
+          </div>
+          {mapView === 'grid' ? (
+            <HouseGridChart stateMap={{}} districtResults={districtResults} highlight={highlight}
+              footnote={<>Each square is one seat. Rows are districts, urban to rural; the dashed row is the state's statewide reserve.</>} />
+          ) : <HexCartogram
             wyoming={wyoming}
             variant="reserve"
             districtResults={districtResults}
+            highlight={highlight}
+            toolbar={<StateSelect value={selState} onChange={setSelState} />}
             selected={selState !== 'national' ? (abbrByFips[selState] ?? null) : null}
             onSelectState={ab => setSelState(
               fipsByAbbr[ab] === selState ? 'national' : (fipsByAbbr[ab] ?? 'national'))}
             footnote={
-              <>One hexagon is one seat, states sized by population. Black outlines separate
-              districts. The small dashed copy of a state beside it holds that state&rsquo;s
-              statewide seats, which belong to no district; its hexagons are the same size as
-              every other seat, so the copy&rsquo;s size is the share of the delegation elected
-              statewide. A state that elects its whole delegation at large has no copy. Click a
+              <>One hexagon cluster is one seat, states sized by population. Each state is drawn twice:
+              the solid outline holds the seats it wins in its districts, the dashed outline the
+              seats it is given statewide. Click a
               state to zoom, click it again to zoom back out.</>
             }
-          />
+          />}
+          {selState !== 'national' && (
+            <div className="mt-3">
+              <StateDrilldown fips={selState} groups={drillGroups} />
+            </div>
+          )}
         </Card>
       )}
 

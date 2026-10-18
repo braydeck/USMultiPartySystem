@@ -267,6 +267,7 @@ def main():
                             "densityTier": str(tier_of[d]),
                             "listElected": expand_seats(list_by_dist[d]),
                             "stvElected": expand_seats(stv_seats.get(d, np.zeros(10, int))),
+                            "nRespondents": int(len(idx_by_dist[d])),
                         }
                     if R > 0:
                         st_dists[f"{f:02d}-RES"] = {

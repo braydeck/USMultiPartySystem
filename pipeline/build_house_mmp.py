@@ -205,6 +205,7 @@ def main():
                     dist[k_win] += 1
                     dist_tiers[tier_of_cd[key]][k_win] += 1
                     dwin[key] = {"winner": CLUSTER_TO_PARTY[k_win],
+                                 "densityTier": tier_of_cd[key].upper(),
                                  "nRespondents": int(len(i)),
                                  "winnerShare": round(float(h[k_win] / h.sum() * 100), 2) if h.sum() else 0.0}
 

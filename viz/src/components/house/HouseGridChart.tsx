@@ -8,6 +8,8 @@ interface Props {
   districtResults: Record<string, DistrictResult[]>;
   /** parties to keep lit, owned by the parent so the map shares the same selection */
   highlight: ReadonlySet<string>;
+  /** replaces the default caption under the grid */
+  footnote?: React.ReactNode;
 }
 
 // Geographic grid [row, col]
@@ -34,7 +36,14 @@ const ABBR_TO_FIPS: Record<string, string> = Object.fromEntries(
   Object.entries(FIPS_TO_ABBR).map(([fips, abbr]) => [abbr, fips])
 );
 
-const TIER_ORDER = ['URBAN', 'SUBURBAN', 'RURAL'];
+// STATEWIDE rows are the reserve or MMP seats a state elects at large; they sort last.
+const TIER_ORDER = ['URBAN', 'SUBURBAN', 'RURAL', 'STATEWIDE'];
+const C_STATEWIDE = '#475569';
+
+// A row wraps past this many seats. Without it MMP's 52-seat statewide row for California
+// would stretch the whole column to 52 squares wide.
+const MAX_ROW = 14;
+const linesFor = (seats: number) => Math.max(1, Math.ceil(seats / MAX_ROW));
 
 // Seat square geometry
 const SQ      = 8;   // square side length
@@ -46,13 +55,21 @@ const COL_GAP = 6;   // gap between grid columns
 const ROW_GAP = 6;   // gap between grid rows
 
 function cellWidth(maxDistSeats: number): number {
-  return maxDistSeats * (SQ + SQ_GAP) - SQ_GAP + PAD * 2;
+  const w = Math.min(maxDistSeats, MAX_ROW);
+  return w * (SQ + SQ_GAP) - SQ_GAP + PAD * 2;
 }
-function cellHeight(numDists: number): number {
-  return numDists * SQ + Math.max(0, numDists - 1) * DIST_GAP + LABEL_H + PAD * 2;
+/** height of one district's block, which may wrap onto several lines */
+function blockHeight(seats: number): number {
+  const n = linesFor(seats);
+  return n * SQ + (n - 1) * SQ_GAP;
+}
+function cellHeight(dists: { seatCount: number }[]): number {
+  const n = Math.max(1, dists.length);
+  const blocks = dists.length ? dists.reduce((s, d) => s + blockHeight(d.seatCount), 0) : SQ;
+  return blocks + (n - 1) * DIST_GAP + LABEL_H + PAD * 2;
 }
 
-export function HouseGridChart({ stateMap, districtResults, highlight }: Props) {
+export function HouseGridChart({ stateMap, districtResults, highlight, footnote }: Props) {
   const [tooltip, setTooltip] = useState<string | null>(null);
   const highlighting = highlight.size > 0;
 
@@ -73,7 +90,7 @@ export function HouseGridChart({ stateMap, districtResults, highlight }: Props) 
       out[abbr] = {
         dists,
         cw: cellWidth(maxSeats),
-        ch: cellHeight(Math.max(1, dists.length)),
+        ch: cellHeight(dists),
       };
     }
     return out;
@@ -155,7 +172,9 @@ export function HouseGridChart({ stateMap, districtResults, highlight }: Props) 
 
                 {/* District rows — one per district, sorted urban→suburban→rural */}
                 {dists.map((dist, di) => {
-                  const distY = cy + PAD + di * (SQ + DIST_GAP);
+                  const distY = cy + PAD + dists.slice(0, di)
+                    .reduce((acc, d) => acc + blockHeight(d.seatCount) + DIST_GAP, 0);
+                  const statewide = dist.densityTier === 'STATEWIDE';
                   // Sort seats by F5_ORDER for consistent left-to-right coloring
                   const seats = [...dist.elected].sort(
                     (a, b) => F5_ORDER.indexOf(a as typeof F5_ORDER[number]) - F5_ORDER.indexOf(b as typeof F5_ORDER[number])
@@ -170,15 +189,26 @@ export function HouseGridChart({ stateMap, districtResults, highlight }: Props) 
                       onMouseEnter={() => {
                         const s = F5_ORDER.filter(p => counts[p])
                           .map(p => `${p}:${counts[p]}`).join(' · ');
-                        setTooltip(`${abbr} ${dist.densityTier} (${dist.seatCount}s) — ${s}`);
+                        const tier = statewide ? 'statewide' : dist.densityTier.toLowerCase();
+                        setTooltip(`${abbr} ${tier} (${dist.seatCount}s) — ${s}`);
                       }}
                       onMouseLeave={() => setTooltip(null)}
                     >
+                      {/* Statewide seats get a slate frame, matching the statewide card. */}
+                      {statewide && (
+                        <rect
+                          x={cx + PAD - 1.2} y={distY - 1.2}
+                          width={Math.min(dist.seatCount, MAX_ROW) * (SQ + SQ_GAP) - SQ_GAP + 2.4}
+                          height={blockHeight(dist.seatCount) + 2.4}
+                          fill="none" stroke={C_STATEWIDE} strokeWidth={0.9}
+                          strokeDasharray="2 1.4" rx={1.5}
+                        />
+                      )}
                       {seats.map((party, si) => (
                         <rect
                           key={si}
-                          x={cx + PAD + si * (SQ + SQ_GAP)}
-                          y={distY}
+                          x={cx + PAD + (si % MAX_ROW) * (SQ + SQ_GAP)}
+                          y={distY + Math.floor(si / MAX_ROW) * (SQ + SQ_GAP)}
                           width={SQ}
                           height={SQ}
                           fill={PARTY_COLORS[party] ?? '#6b7280'}
@@ -207,7 +237,7 @@ export function HouseGridChart({ stateMap, districtResults, highlight }: Props) 
         </svg>
       </div>
       <p className={`${CARD_HINT} mt-2 text-center`}>
-        Each square = one STV seat · rows = districts (urban → suburban → rural) · cell size ∝ state representation · highlight parties above to see their geographic reach
+        {footnote ?? <>Each square = one STV seat · rows = districts (urban → suburban → rural) · cell size ∝ state representation · highlight parties above to see their geographic reach</>}
       </p>
     </div>
   );

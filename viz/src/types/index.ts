@@ -456,7 +456,8 @@ export interface FPTPState {
 
 export interface DistrictResult {
   districtId: string;
-  densityTier: 'URBAN' | 'SUBURBAN' | 'RURAL';
+  /** STATEWIDE marks seats a state elects at large (the reserve tier, MMP top-off) */
+  densityTier: 'URBAN' | 'SUBURBAN' | 'RURAL' | 'STATEWIDE';
   seatCount: number;
   elected: string[];
   nRespondents: number;

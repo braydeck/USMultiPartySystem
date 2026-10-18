@@ -9,7 +9,7 @@ seats nationally — so neither tier is a companion to the other the way the res
 is. Each state therefore gets two copies of itself side by side: one holding the seats it
 elects in its real congressional districts, one holding the seats it elects statewide.
 
-One hexagon is one seat at the same size as everywhere else on the map, so a copy's area
+One hexagon cluster is one seat at the same size as everywhere else on the map, so a copy's area
 is its seat count: a copy holding half a state's seats is sqrt(0.5) = 0.707 of its width.
 The two copies together cover exactly the area the single state covers on the base map,
 which is what keeps the country the same size.

@@ -35,11 +35,14 @@ interface Props {
   topoffByState: Record<string, Record<string, number>>;
   /** parties to keep lit; empty means every seat shows its own colour */
   highlight?: ReadonlySet<string>;
+  /** state abbreviation to zoom to, or null for the whole map */
+  selected?: string | null;
+  onSelectState?: (abbr: string) => void;
   footnote?: React.ReactNode;
   toolbar?: React.ReactNode;
 }
 
-export function MmpMap({ wyoming, districtWinner, topoffByState, highlight, footnote, toolbar }: Props) {
+export function MmpMap({ wyoming, districtWinner, topoffByState, highlight, selected = null, onSelectState, footnote, toolbar }: Props) {
   const [cg, setCg] = useState<MmpCartogram | null>(null);
   const [err, setErr] = useState(false);
   const [hover, setHover] = useState<{ label: string; parties: string[]; x: number; y: number } | null>(null);
@@ -102,12 +105,23 @@ export function MmpMap({ wyoming, districtWinner, topoffByState, highlight, foot
     d3.select(svgRef.current).call(z).on('dblclick.zoom', null);
   }, [view]);
 
-  const reset = useCallback(() => {
-    if (svgRef.current && zoomRef.current) {
-      d3.select(svgRef.current).transition().duration(400)
-        .call(zoomRef.current.transform, d3.zoomIdentity);
-    }
-  }, []);
+  // Zoom to a state's pair, both copies in frame, the same way the House map zooms.
+  const zoomTo = useCallback((box: { x0: number; y0: number; x1: number; y1: number } | null) => {
+    if (!svgRef.current || !zoomRef.current || !view) return;
+    const sel = d3.select(svgRef.current).transition().duration(500);
+    if (!box) { sel.call(zoomRef.current.transform, d3.zoomIdentity); return; }
+    const k = Math.min(10, 0.82 / Math.max((box.x1 - box.x0) / view.w, (box.y1 - box.y0) / view.h));
+    const cx = (box.x0 + box.x1) / 2, cy = (box.y0 + box.y1) / 2;
+    sel.call(zoomRef.current.transform, d3.zoomIdentity
+      .translate(view.x + view.w / 2, view.y + view.h / 2).scale(k).translate(-cx, -cy));
+  }, [view]);
+
+  useEffect(() => {
+    if (!cg) return;
+    zoomTo(selected ? (cg.byAbbr[selected]?.bbox ?? null) : null);
+  }, [selected, cg, zoomTo]);
+
+  const reset = useCallback(() => zoomTo(null), [zoomTo]);
 
   if (err) return <p className={CARD_HINT}>The MMP map could not be loaded.</p>;
   if (!cg || !view) return <div className="h-64" aria-busy="true" />;
@@ -169,6 +183,8 @@ export function MmpMap({ wyoming, districtWinner, topoffByState, highlight, foot
             {cg.states.map((st, si) => st.tiers.map((t, ti) => (
               <Copy key={`${st.abbr}-${t.kind}`}
                 abbr={st.abbr} tier={t} parties={fills[si][ti]}
+                dim={selected !== null && selected !== st.abbr}
+                onClick={() => onSelectState?.(st.abbr)}
                 wSeat={wSeat} wDistrict={wDistrict} wState={wState} paint={paint}
                 onHover={(label, parties, e) => {
                   const r = boxRef.current?.getBoundingClientRect();
@@ -191,8 +207,10 @@ export function MmpMap({ wyoming, districtWinner, topoffByState, highlight, foot
 }
 
 /** One copy of one state: its seats, their boundaries, and its own border. */
-function Copy({ abbr, tier, parties, wSeat, wDistrict, wState, paint, onHover, onLeave }: {
+function Copy({ abbr, tier, parties, dim, onClick, wSeat, wDistrict, wState, paint, onHover, onLeave }: {
   abbr: string;
+  dim: boolean;
+  onClick: () => void;
   tier: MmpTierGeometry;
   parties: string[];
   wSeat: number; wDistrict: number; wState: number;
@@ -206,7 +224,7 @@ function Copy({ abbr, tier, parties, wSeat, wDistrict, wState, paint, onHover, o
   const isDistrictTier = tier.kind === 'district';
   return (
     <g onMouseMove={e => onHover(label, parties.filter(Boolean), e)} onMouseLeave={onLeave}
-      style={{ cursor: 'pointer' }}>
+      onClick={onClick} opacity={dim ? 0.34 : 1} style={{ cursor: 'pointer' }}>
       <g clipPath={`url(#mmpclip-${abbr}-${tier.kind})`}>
         {tier.seatPaths.map((d, k) => (
           <path key={k} d={d} fill={paint(parties[k] ?? '')}

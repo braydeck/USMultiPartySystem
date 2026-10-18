@@ -6,12 +6,17 @@ import type { PLConfig } from './PartyListView';
 import type { ReserveNational } from './ReserveView';
 import { UrbSubRurChart } from './UrbSubRurChart';
 import { MmpMap } from './MmpMap';
+import { HouseGridChart } from './HouseGridChart';
+import { Button } from '@/components/ui/button';
+import { PartyHighlightFilter } from './PartyHighlightFilter';
+import { StateDrilldown, StateSelect, US_STATES, type DrilldownGroup } from './StateDrilldown';
+import { usePartyHighlight } from '../../hooks/usePartyHighlight';
 import { CollapsibleSection } from '../shared/CollapsibleSection';
 import { PartyProfileGrid } from '../shared/PartyProfileGrid';
 import { VotesVsSeats, type SystemEntry } from '../shared/VotesVsSeats';
 import { useUrlState } from '../../hooks/useUrlState';
 import { getBlendColor, PARTY_NAMES, CLUSTER_TO_PARTY, F5_ORDER } from '../../constants/parties';
-import type { ClusterProfile, HouseSeat } from '../../types';
+import type { ClusterProfile, DistrictResult, HouseSeat } from '../../types';
 import {
   CARD_HEADING, MINOR_HEADING, CARD_HINT, TABLE_HEADER,
 } from '../../constants/typography';
@@ -50,7 +55,9 @@ export interface MmpStateRow {
 export interface MmpConfig {
   national: MmpNational;
   byState: Record<string, MmpStateRow>;
-  districts: Record<string, Record<string, { winner: string; nRespondents: number; winnerShare: number }>>;
+  districts: Record<string, Record<string, {
+    winner: string; densityTier?: string; nRespondents: number; winnerShare: number;
+  }>>;
 }
 
 interface Props {
@@ -74,7 +81,7 @@ const CLUSTER_OF: Record<string, number> = Object.fromEntries(
 
 export function MmpView({ config, national, wyoming, onWyomingChange, doubleConfig, pl, reserveNat, clusters, profilesExtra, chamber }: Props) {
   const [sort, setSort] = useState<'size' | 'overhang'>('overhang');
-  const [selState, setSelState] = useUrlState<string>('mmpstate', 'national');
+  const [selState, setSelState] = useUrlState<string>('mapstate', 'national');
   const nat = config?.national ?? national;
 
   // The map needs one winner per real district, and the top-off counts per state.
@@ -85,6 +92,62 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
     }
     return out;
   }, [config]);
+  const [highlight, setHighlight] = usePartyHighlight();
+  const [mapView, setMapView] = useUrlState<'map' | 'grid'>('view', 'map', { allowed: ['map', 'grid'] });
+
+  // The grid wants rows of seats. MMP's districts are one seat each, so a row per district
+  // would stack California 52 high; winners are grouped by density tier instead, with the
+  // state's top-off seats as a last, statewide row.
+  const gridRows = useMemo((): Record<string, DistrictResult[]> => {
+    const out: Record<string, DistrictResult[]> = {};
+    for (const [fips, st] of Object.entries(config?.byState ?? {})) {
+      const byTier: Record<string, string[]> = { URBAN: [], SUBURBAN: [], RURAL: [] };
+      for (const d of Object.values(config?.districts?.[fips] ?? {})) {
+        (byTier[d.densityTier ?? 'SUBURBAN'] ??= []).push(d.winner);
+      }
+      const rows: DistrictResult[] = (['URBAN', 'SUBURBAN', 'RURAL'] as const)
+        .filter(t => byTier[t].length)
+        .map(t => ({ districtId: `${fips}-${t}`, densityTier: t, seatCount: byTier[t].length,
+          elected: byTier[t], nRespondents: 0 }));
+      const top = F5_ORDER.flatMap(p => Array(st.topoffSeats[p] ?? 0).fill(p) as string[]);
+      if (top.length) rows.push({ districtId: `${fips}-TOP`, densityTier: 'STATEWIDE',
+        seatCount: top.length, elected: top, nRespondents: 0 });
+      out[fips] = rows;
+    }
+    return out;
+  }, [config]);
+
+  // Seat totals for the highlight pills: every district winner plus every top-off seat.
+  const mapTotals = useMemo(() => {
+    const per: Record<string, number> = {};
+    for (const st of Object.values(config?.districts ?? {})) {
+      for (const d of Object.values(st)) per[d.winner] = (per[d.winner] ?? 0) + 1;
+    }
+    for (const st of Object.values(config?.byState ?? {})) {
+      for (const [p, n] of Object.entries(st.topoffSeats)) per[p] = (per[p] ?? 0) + n;
+    }
+    return { per, all: Object.values(per).reduce((s, n) => s + n, 0) };
+  }, [config]);
+
+  // The drill-down: one card per real district, then the state's top-off seats as one.
+  const drillGroups = useMemo((): DrilldownGroup[] => {
+    if (selState === 'national') return [];
+    const dists = config?.districts?.[selState] ?? {};
+    const out: DrilldownGroup[] = Object.entries(dists).sort(([a], [b]) => a.localeCompare(b))
+      .map(([id, d]) => ({ id, densityTier: d.densityTier ?? 'SUBURBAN', seatCount: 1,
+        elected: [d.winner], nRespondents: d.nRespondents }));
+    const top = config?.byState?.[selState]?.topoffSeats ?? {};
+    const elected = F5_ORDER.flatMap(p => Array(top[p] ?? 0).fill(p) as string[]);
+    if (elected.length) {
+      out.push({ id: `${selState}-TOP`, densityTier: 'STATEWIDE', seatCount: elected.length,
+        elected, label: 'Statewide top-off' });
+    }
+    return out;
+  }, [config, selState]);
+
+  const abbrByFips = useMemo(() => Object.fromEntries(US_STATES.map(s => [s.fips, s.abbr])), []);
+  const fipsByAbbr = useMemo(() => Object.fromEntries(US_STATES.map(s => [s.abbr, s.fips])), []);
+
   const topoffByState = useMemo(
     () => Object.fromEntries(Object.entries(config?.byState ?? {})
       .map(([fips, st]) => [fips, st.topoffSeats])),
@@ -174,23 +237,47 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
       </Card>
 
       <Card className="p-4">
-        <h4 className={`${CARD_HEADING} mb-1`}>Where the seats are</h4>
+        <div className="flex items-center justify-between mb-1">
+          <h4 className={CARD_HEADING}>Where the seats are</h4>
+          <div className="flex gap-1">
+            {([['map', 'Map'], ['grid', 'Grid']] as const).map(([v, label]) => (
+              <Button key={v} onClick={() => setMapView(v)}
+                variant={mapView === v ? 'default' : 'secondary'} size="sm">{label}</Button>
+            ))}
+          </div>
+        </div>
         <p className={`${CARD_HINT} mb-3`}>
           {nat.districtTotal} seats are won in the real congressional districts and
           {' '}{nat.topoffTotal} are added statewide to top each delegation up, so every state
           appears twice.
         </p>
-        <MmpMap
+        <div className="mb-3">
+          <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
+        </div>
+        {mapView === 'grid' ? (
+          <HouseGridChart stateMap={{}} districtResults={gridRows} highlight={highlight}
+            footnote={<>Each square is one seat. Rows group district winners by tier, urban to rural; the dashed row is the state's top-off.</>} />
+        ) : <MmpMap
           wyoming={wyoming}
           districtWinner={districtWinner}
           topoffByState={topoffByState}
+          highlight={highlight}
+          selected={selState !== 'national' ? (abbrByFips[selState] ?? null) : null}
+          onSelectState={ab => setSelState(
+            fipsByAbbr[ab] === selState ? 'national' : (fipsByAbbr[ab] ?? 'national'))}
+          toolbar={<StateSelect value={selState} onChange={setSelState} />}
           footnote={
-            <>One hexagon is one seat, states sized by population. Each state is drawn twice:
+            <>One hexagon cluster is one seat, states sized by population. Each state is drawn twice:
             the solid outline holds the seats it wins in its districts, the dashed outline the
-            seats it is given statewide. The two copies together cover the area the state covers
-            on the other House maps, because each holds about half its delegation.</>
+            seats it is given statewide. Click a
+            state to zoom, click it again to zoom back out.</>
           }
-        />
+        />}
+        {selState !== 'national' && (
+          <div className="mt-3">
+            <StateDrilldown fips={selState} groups={drillGroups} />
+          </div>
+        )}
       </Card>
 
       <CollapsibleSection id="profiles" title="See party profiles"

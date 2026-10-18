@@ -2,6 +2,7 @@ import { useMemo, type ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { HouseMap } from './HouseMap';
+import { StateDrilldown, toGroups } from './StateDrilldown';
 import { HouseGridChart } from './HouseGridChart';
 import { PartyHighlightFilter } from './PartyHighlightFilter';
 import { CollapsibleSection } from '../shared/CollapsibleSection';
@@ -219,9 +220,15 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
           <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
         </div>
         {mapView === 'map'
-          ? <HouseMap districtResults={districtResults} districtCountyMap={districtCountyMap}
+          ? <HouseMap districtResults={districtResults}
               wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />
           : <HouseGridChart stateMap={stateMap} districtResults={districtResults} highlight={highlight} />}
+        {mapState !== 'national' && districtResults[mapState] && (
+          <div className="mt-3">
+            <StateDrilldown fips={mapState} groups={toGroups(districtResults[mapState])}
+              districtCountyMap={districtCountyMap} />
+          </div>
+        )}
       </Card>
 
       <Card className="p-4">
