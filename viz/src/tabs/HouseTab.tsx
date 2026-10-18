@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { HouseSeat, TransferMatrix, VoteModelRow, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { HouseMap } from '../components/house/HouseMap';
+import { StateDrilldown, toGroups } from '../components/house/StateDrilldown';
 import { HouseGridChart } from '../components/house/HouseGridChart';
 import { PartyHighlightFilter } from '../components/house/PartyHighlightFilter';
 import { seatTotals } from '../lib/seatTotals';
@@ -176,7 +177,7 @@ const RESERVE_NATIONAL = reserveNational as unknown as ReserveNationalMap;
 
 type TierBlock = { urban: PartyCounts; suburban: PartyCounts; rural: PartyCounts };
 const DEPTH_NATIONAL = depthNational as unknown as Record<string, Record<string, Record<string, {
-  national: { stvSeats: PartyCounts };
+  national: { stvSeats: PartyCounts; voteShare: PartyCounts };
   stvTiers: TierBlock;
   listTiers: TierBlock;
 }>>>;
@@ -684,9 +685,15 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
         <div className="mb-3">
           <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
         </div>
-        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap}
+        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults}
           wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />}
         {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} highlight={highlight} />}
+        {mapState !== 'national' && activeDistrictResults[mapState] && (
+          <div className="mt-3">
+            <StateDrilldown fips={mapState} groups={toGroups(activeDistrictResults[mapState])}
+              districtCountyMap={activeDistrictCountyMap} />
+          </div>
+        )}
       </Card>
 
       {/* Seats by District Type */}
@@ -860,6 +867,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
               stvVssData={stvVssData}
               plConfig={plConfig}
               mmpNationalEntry={MMP_NATIONAL[wyoming]?.[part]}
+              nationalVoteShare={scenario === 'rawMulti' ? depthEntry?.national.voteShare : undefined}
             />
           </div>
 
@@ -969,7 +977,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
 }
 
 // Builds system entries and delegates to VotesVsSeats for the STV disproportionality section.
-function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomingChange, stateMap, selectedState, onStateChange, houseU, stvVssData, plConfig, mmpNationalEntry }: {
+function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomingChange, stateMap, selectedState, onStateChange, houseU, stvVssData, plConfig, mmpNationalEntry, nationalVoteShare }: {
   activeSeats: HouseSeat[];
   fdSeats: HouseSeat[];
   scenario: 'rawMulti' | 'factorDev';
@@ -982,6 +990,7 @@ function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomi
   stvVssData: { stvIvs?: Record<string, Span>; voteSpans?: Record<string, Span>; listSpans?: Record<string, Span> };
   plConfig?: PLConfig;
   mmpNationalEntry?: MmpNational;
+  nationalVoteShare?: PartyCounts;
 }) {
   const isNational = selectedState === 'national';
 
@@ -1020,7 +1029,10 @@ function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomi
       }
       return stateEntry?.popShares ?? {};
     }
-    // National: use bootstrap vote share points if available, else population as proxy
+    // Turnout-weighted first-preference share, identical at every depth. Before 2026-10-18 only
+    // rank 7 got a real vote share (via the bootstrap); every other depth fell through to
+    // pctPopulation and drew population share under a "Votes" label (STY 12.4 against 7.27).
+    if (nationalVoteShare) return nationalVoteShare;
     if (stvVssData.voteSpans) {
       const out: Record<string, number> = {};
       for (const code of F5_ORDER) {
@@ -1030,7 +1042,7 @@ function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomi
       if (Object.keys(out).length > 0) return out;
     }
     return Object.fromEntries(activeSeats.map(s => [CLUSTER_TO_PARTY[String(s.party)], s.pctPopulation ?? 0]).filter((e): e is [string, number] => (e[1] as number) > 0));
-  }, [activeSeats, stateEntry, isNational, stvVssData, plConfig, stateMap, selectedState]);
+  }, [activeSeats, stateEntry, isNational, stvVssData, plConfig, stateMap, selectedState, nationalVoteShare]);
 
   // At national level with bootstrap: use pre-computed intervals.
   // At state level or without bootstrap: no intervals.
