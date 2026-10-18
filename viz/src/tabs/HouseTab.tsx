@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import type { HouseSeat, TransferMatrix, VoteModelRow, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { HouseMap } from '../components/house/HouseMap';
-import { StateDrilldown, toGroups } from '../components/house/StateDrilldown';
 import { HouseGridChart } from '../components/house/HouseGridChart';
 import { PartyHighlightFilter } from '../components/house/PartyHighlightFilter';
 import { seatTotals } from '../lib/seatTotals';
@@ -685,15 +684,9 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
         <div className="mb-3">
           <PartyHighlightFilter totals={mapTotals} value={highlight} onChange={setHighlight} />
         </div>
-        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults}
+        {mapView === 'map' && <HouseMap districtResults={activeDistrictResults} districtCountyMap={activeDistrictCountyMap}
           wyoming={wyoming} selectedFips={mapState} onSelectFips={setMapState} highlight={highlight} />}
         {mapView === 'grid' && <HouseGridChart stateMap={activeStateMap} districtResults={activeDistrictResults} highlight={highlight} />}
-        {mapState !== 'national' && activeDistrictResults[mapState] && (
-          <div className="mt-3">
-            <StateDrilldown fips={mapState} groups={toGroups(activeDistrictResults[mapState])}
-              districtCountyMap={activeDistrictCountyMap} />
-          </div>
-        )}
       </Card>
 
       {/* Seats by District Type */}
