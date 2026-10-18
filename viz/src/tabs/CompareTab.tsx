@@ -24,6 +24,8 @@ import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CurrentPartyDistance } from '../components/parties/CurrentPartyDistance';
+import { PartyOverlapMatrix } from '../components/parties/PartyOverlapMatrix';
+import { FactorPairGrid } from '../components/parties/FactorPairGrid';
 import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, MINOR_HEADING, TABLE_HEADER, CARD_HINT } from '../constants/typography';
 
 interface Props {
@@ -872,11 +874,11 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     <Card className="p-4">
       <h4 className={`${CARD_HEADING} mb-1`}>Ideological Constellation</h4>
       <p className={`${CARD_HINT} mb-3 leading-relaxed`}>
-        Each party is an ellipse spanning its members' range on the two strongest factors. Where ellipses{' '}
+        Each party is an ellipse spanning its members' range on the factors shown. Where ellipses{' '}
         <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
         {selected.length > 0 && ' Selected parties are highlighted; the rest stay for context.'}
       </p>
-      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={[...clusterSpreads, ...(currentPartySpreadsData as typeof clusterSpreads)]} selection={selected} />
+      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={[...clusterSpreads, ...(currentPartySpreadsData as typeof clusterSpreads)]} selection={selected} allow3d />
     </Card>
   );
 
@@ -1041,6 +1043,16 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
           </Card>
 
           {constellationCard}
+          </div>
+
+          {/* Party Overlap: who shares voters with whom, first across all factors, then pair by pair. */}
+          <div className="space-y-4">
+            <div>
+              <h3 className={SECTION_HEADING}>Party Overlap</h3>
+              <p className={`${CARD_HINT} mt-1`}>Which parties share voters, and on which factors they part ways.</p>
+            </div>
+            <PartyOverlapMatrix />
+            <FactorPairGrid factors={FACTORS_BY_DISCRIMINATION} selected={selected} />
           </div>
 
           {/* Sections */}

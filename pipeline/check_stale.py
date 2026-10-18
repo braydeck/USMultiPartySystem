@@ -98,6 +98,7 @@ GROUPS = [
         "data/outputs/canonical_triple_reserve/district_apportionment.csv",
         "viz/public/data/houseReserve.json",
         "viz/src/constants/parties.ts"]),
+    ("party factor ellipses", SURVEY + ["pipeline/build_party_factor_ellipses.py"]),
     ("mmp cartogram", [
         "pipeline/build_hex_mmp_cartogram.py", "pipeline/build_hex_seat_cartogram.py",
         "pipeline/hexmap_io.py", PROCESSED + "voter_county_fips.csv",
@@ -119,6 +120,7 @@ REGEN = [
     ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py", "--reserve"]),
     ("hex cartograms (4)", ["python3", "pipeline/build_hex_seat_cartogram.py",
                             "--reserve", "--triple"]),
+    ("party factor ellipses", ["python3", "pipeline/build_party_factor_ellipses.py"]),
     ("mmp cartogram (2)", ["python3", "pipeline/build_hex_mmp_cartogram.py"]),
     ("mmp cartogram (2)", ["python3", "pipeline/build_hex_mmp_cartogram.py", "--triple"]),
 ]

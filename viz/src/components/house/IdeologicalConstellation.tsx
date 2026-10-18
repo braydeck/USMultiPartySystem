@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ToggleGroup } from '../shared/ToggleGroup';
 import { bamForZ, bamForPctile } from '../../lib/bam';
 import { CARD_HINT, CHART_TYPE } from '../../constants/typography';
+import { Constellation3D } from './Constellation3D';
 
 interface ClusterSpread {
   party: string;
@@ -20,7 +21,11 @@ interface Props {
   // toggles: all parties stay visible, but any not in the selection are faded (highlight, not
   // filter). An empty array shows everything at full emphasis. Undefined = self-managed toggles.
   selection?: string[];
+  /** Offer a 3D view: three factors as axes, the fourth as optional colour. */
+  allow3d?: boolean;
 }
+
+const VIEW_LABELS: Record<'2d' | '3d', string> = { '2d': '2D', '3d': '3D' };
 
 const THRESHOLD = 1.5;
 // F3 (Government Distrust) omitted — non-interpretable residual, see docs/EFA_FACTORS.md.
@@ -67,8 +72,10 @@ function ControlSection({
   );
 }
 
-export function IdeologicalConstellation({ nodes: inputNodes, transfers, clusterSpreads, selection }: Props) {
+export function IdeologicalConstellation({ nodes: inputNodes, transfers, clusterSpreads, selection, allow3d }: Props) {
   const controlled = selection !== undefined;
+  const [view, setView] = useState<'2d' | '3d'>('2d');
+  const is3d = allow3d && view === '3d';
   const svgRef = useRef<SVGSVGElement>(null);
   const W = 560, H = 460;
   const PAD_L = 52, PAD_R = 24, PAD_T = 30, PAD_B = 52;
@@ -524,13 +531,24 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             })}
           </div>
         )}
-        <ToggleGroup label="Scale" value={scaleMode} onChange={setScaleMode}
-          options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
+        {allow3d && (
+          <ToggleGroup label="View" value={view} onChange={setView}
+            options={['2d', '3d'] as const} labels={VIEW_LABELS} />
+        )}
+        {!is3d && (
+          <ToggleGroup label="Scale" value={scaleMode} onChange={setScaleMode}
+            options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
+        )}
       </div>
+
+      {is3d && (
+        <Constellation3D nodes={inputNodes}
+          isDim={id => controlled && (selection?.length ?? 0) > 0 && !selection!.includes(id.split('_')[0])} />
+      )}
 
       {/* Chart + controls: controls fill the space to the right on wide screens, and drop
           below the chart on narrow / mobile (flex-col → lg:flex-row). */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+      <div className={`flex flex-col gap-3 lg:flex-row lg:items-start${is3d ? ' hidden' : ''}`}>
         <div className="min-w-0 flex-1">
           <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: 'auto', maxWidth: 620, display: 'block', margin: '0 auto' }} aria-label="Ideological factor constellation chart" />
           {transfers && (
