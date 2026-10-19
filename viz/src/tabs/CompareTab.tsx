@@ -24,8 +24,9 @@ import factorLoadingsData from '../data/factorLoadings.json';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CurrentPartyDistance } from '../components/parties/CurrentPartyDistance';
-import { PartyOverlapMatrix } from '../components/parties/PartyOverlapMatrix';
-import { FactorPairGrid } from '../components/parties/FactorPairGrid';
+// Parked with the Party Overlap section below.
+// import { PartyOverlapMatrix } from '../components/parties/PartyOverlapMatrix';
+// import { FactorPairGrid } from '../components/parties/FactorPairGrid';
 import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, MINOR_HEADING, TABLE_HEADER, CARD_HINT } from '../constants/typography';
 
 interface Props {
@@ -1045,7 +1046,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
           {constellationCard}
           </div>
 
-          {/* Party Overlap: who shares voters with whom, first across all factors, then pair by pair. */}
+          {/* Party Overlap, parked while the 3D constellation covers it. Restore with the two
+              imports at the top of the file.
           <div className="space-y-4">
             <div>
               <h3 className={SECTION_HEADING}>Party Overlap</h3>
@@ -1054,6 +1056,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
             <PartyOverlapMatrix />
             <FactorPairGrid factors={FACTORS_BY_DISCRIMINATION} selected={selected} />
           </div>
+          */}
 
           {/* Sections */}
           {sectionKeys.length === 0 ? (
