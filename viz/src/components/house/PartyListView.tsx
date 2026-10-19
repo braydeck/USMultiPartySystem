@@ -244,7 +244,7 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
         hint="Coverage, Gallagher index, and votes against seats across electoral methods">
         <section className="space-y-6">
           {/* Metric cards */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 xl:grid-cols-3">
             <Card className="p-4">
               <h5 className={`${MINOR_HEADING} mb-1`}>Representational coverage</h5>
               <p className={`${CARD_HINT} mb-3`}>Posterior identity on a seated party.</p>
@@ -329,7 +329,7 @@ export function Stat({ label, value, tone, note, isCount, sub }: {
     : tone === 'best' ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
     : 'border-border bg-muted/40 text-foreground';
   return (
-    <div className={`rounded-lg border p-3 ${cls}`}>
+    <div className={`min-w-0 rounded-lg border p-3 ${cls}`}>
       <div className="text-2xs text-muted-foreground">{label}{note && <span className="ml-1 opacity-70">· {note}</span>}</div>
       <div className="text-xl font-bold tabular-nums">
         {isCount ? value.toFixed(0) : `${value.toFixed(value >= 10 ? 1 : 2)}%`}

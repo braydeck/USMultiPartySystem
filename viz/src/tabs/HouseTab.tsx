@@ -799,7 +799,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
         <section className="space-y-6">
           {/* Metric cards — moved here from main page flow */}
           {scenario === 'rawMulti' && plConfig && (
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 xl:grid-cols-3">
               <Card className="p-4">
                 <h5 className={`${MINOR_HEADING} mb-1`}>Representational coverage</h5>
                 <p className={`${CARD_HINT} mb-3`}>Posterior identity on a seated party.</p>
