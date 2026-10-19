@@ -1,5 +1,5 @@
 {
-  "commit": "44d295e",
+  "commit": "7042b23",
   "inputs": {
     "data/outputs/canonical/ballots_checkpoint.parquet": "862bd9399abe4480",
     "data/outputs/canonical/district_apportionment.csv": "73b16ad01d35ac58",
@@ -22,7 +22,7 @@
     "pipeline/build_hex_mmp_cartogram.py": "cf7a0dd65ee783fb",
     "pipeline/build_hex_seat_cartogram.py": "6a05fc8b2dbcb229",
     "pipeline/build_house_mmp.py": "9cf0ac6db11a5ea3",
-    "pipeline/build_house_partylist.py": "715ef4a50f65cd17",
+    "pipeline/build_house_partylist.py": "b6f0f1b93ce6696e",
     "pipeline/build_house_reserve.py": "040729895d3a1259",
     "pipeline/build_legislation_rank7.py": "0eb26a0a085f27a6",
     "pipeline/build_party_factor_ellipses.py": "cefee285f9fae15e",
@@ -50,5 +50,5 @@
     "viz/src/data/districtStvResultsTriple.json": "dc101b2e0d939c20"
   },
   "note": "Written by pipeline/check_stale.py --regenerate. Records the inputs as they stood when every committed output last reproduced. Commit this with the regenerated outputs.",
-  "verified_at": "2026-10-18T21:39:58Z"
+  "verified_at": "2026-10-19T17:26:02Z"
 }

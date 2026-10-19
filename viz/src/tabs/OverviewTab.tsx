@@ -65,7 +65,7 @@ export function OverviewTab({
   type Wasted = { list: number; stv: number };
   const [hpl, setHpl] = useState<Record<string, Record<string, Record<string, {
     national: { stvSeats: Record<string, number>; listSeats: Record<string, number>;
-      unrepresented: Wasted; excess: Wasted } }>>> | null>(null);
+      unrepresented: Wasted; firstPartyShutOut?: Wasted; excess: Wasted } }>>> | null>(null);
   const [gd, setGd] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setHpl).catch(() => {});
@@ -185,6 +185,11 @@ export function OverviewTab({
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
                 <div className="text-2xs text-muted-foreground">STV</div>
                 <div className={`${METRIC_VALUE} text-emerald-700`}>{wasted.unrepresented.stv.toFixed(1)}%</div>
+                {wasted.firstPartyShutOut && (
+                  <div className="text-2xs text-muted-foreground mt-1 leading-snug">
+                    {wasted.firstPartyShutOut.stv.toFixed(1)}% saw their first-choice party win no seat
+                  </div>
+                )}
               </div>
             </div>
           </Card>

@@ -36,6 +36,7 @@ export interface PLConfig {
     stvSeats: SeatMap;
     fptpSeats?: SeatMap;
     unrepresented: ListStv;
+    firstPartyShutOut?: ListStv;
     nonFirstChoice: ListStv;
     excess: ListStv;
     wasted: Metrics;
@@ -45,7 +46,7 @@ export interface PLConfig {
   };
   byState: Record<string, {
     abbr: string; totalSeats: number; voteShare: SeatMap; listSeats: SeatMap; stvSeats: SeatMap;
-    unrepresented: ListStv; nonFirstChoice: ListStv; wasted: Metrics; belowQuota: { stv: number };
+    unrepresented: ListStv; firstPartyShutOut?: ListStv; nonFirstChoice: ListStv; wasted: Metrics; belowQuota: { stv: number };
   }>;
   districts: Record<string, {
     districtId: string; densityTier: string; seatCount: number;
@@ -261,7 +262,7 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
               <div className="grid grid-cols-3 gap-2">
                 <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
                 <Stat label="Party list" value={nat.unrepresented.list} tone="mid" />
-                <Stat label="STV" value={nat.unrepresented.stv} tone="best" />
+                <Stat label="STV" value={nat.unrepresented.stv} tone="best" sub={nat.firstPartyShutOut && `${nat.firstPartyShutOut.stv.toFixed(1)}% saw their first-choice party win no seat`} />
               </div>
             </Card>
             <Card className="p-4">
@@ -321,8 +322,8 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
   );
 }
 
-export function Stat({ label, value, tone, note, isCount }: {
-  label: string; value: number; tone: 'worst' | 'mid' | 'best'; note?: string; isCount?: boolean;
+export function Stat({ label, value, tone, note, isCount, sub }: {
+  label: string; value: number; tone: 'worst' | 'mid' | 'best'; note?: string; isCount?: boolean; sub?: string;
 }) {
   const cls = tone === 'worst' ? 'border-rose-200 bg-rose-50 text-rose-700'
     : tone === 'best' ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
@@ -333,6 +334,7 @@ export function Stat({ label, value, tone, note, isCount }: {
       <div className="text-xl font-bold tabular-nums">
         {isCount ? value.toFixed(0) : `${value.toFixed(value >= 10 ? 1 : 2)}%`}
       </div>
+      {sub && <div className="text-2xs text-muted-foreground mt-1 leading-snug">{sub}</div>}
     </div>
   );
 }

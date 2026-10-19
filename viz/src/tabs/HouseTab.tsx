@@ -817,7 +817,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
                 <div className="grid grid-cols-3 gap-2">
                   <Stat label="Today's House" value={35.8} tone="worst" note="2024" />
                   <Stat label="Party list" value={plConfig.national.unrepresented.list} tone="mid" />
-                  <Stat label="STV" value={plConfig.national.unrepresented.stv} tone="best" />
+                  <Stat label="STV" value={plConfig.national.unrepresented.stv} tone="best" sub={plConfig.national.firstPartyShutOut && `${plConfig.national.firstPartyShutOut.stv.toFixed(1)}% saw their first-choice party win no seat`} />
                 </div>
               </Card>
               <Card className="p-4">

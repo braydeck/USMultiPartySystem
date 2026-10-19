@@ -338,6 +338,9 @@ def main():
                     # STV = candidate-level, transfer-aware (none of top-S choices won).
                     "unrepresented": {"list": round(ssol / svw * 100, 2) if svw else 0,
                                       "stv": round(srunrep / srvw * 100, 2) if srvw else 0},
+                    # First-choice party won no seat in the voter's district, both systems.
+                    "firstPartyShutOut": {"list": round(ssol / svw * 100, 2) if svw else 0,
+                                          "stv": round(ssos / svw * 100, 2) if svw else 0},
                     "nonFirstChoice": {"list": round(ssol / svw * 100, 2) if svw else 0,
                                        "stv": round(srnfc / srvw * 100, 2) if srvw else 0},
                     "wasted": {"list": round(swl / stotV * 100, 2), "stv": round(sws / stotV * 100, 2),
@@ -367,6 +370,8 @@ def main():
                     "fptpSeats": as_party_map(nat_fptp, cast=int),
                     "unrepresented": {"list": round(nat_sol / nat_vw * 100, 2),
                                       "stv": round(nat_runrep / nat_rvw * 100, 2)},
+                    "firstPartyShutOut": {"list": round(nat_sol / nat_vw * 100, 2),
+                                          "stv": round(nat_sos / nat_vw * 100, 2)},
                     "nonFirstChoice": {"list": round(nat_sol / nat_vw * 100, 2),
                                        "stv": round(nat_rnfc / nat_rvw * 100, 2)},
                     # Over-quota surplus stranded (list); STV transfers its surplus (~0 wasted).
