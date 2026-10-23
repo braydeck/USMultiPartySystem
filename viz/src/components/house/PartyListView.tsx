@@ -19,6 +19,7 @@ import { populationShares, voteSharesAt, partyListSharesAt } from '../../lib/unc
 import type { DistrictResult, HouseStateEntry, HouseSeat, ClusterProfile } from '../../types';
 import type { SeatInterval } from '../../lib/uncertainty';
 import { CARD_HEADING, MINOR_HEADING, CARD_HINT } from '../../constants/typography';
+import { RepresentedByChoice } from './RepresentedByChoice';
 
 type SeatMap = Record<string, number>;
 interface Metrics { list: number; stv: number; fptp: number }
@@ -275,6 +276,8 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
               </div>
             </Card>
           </div>
+
+          <RepresentedByChoice />
 
           {/* Gallagher */}
           <div>

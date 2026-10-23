@@ -19,6 +19,7 @@ import { getBlendColor, PARTY_NAMES, F5_ORDER } from '../../constants/parties';
 import type { HouseSeat, ClusterProfile, DistrictResult } from '../../types';
 import { CARD_HEADING, MINOR_HEADING, CARD_HINT, TABLE_HEADER } from '../../constants/typography';
 import type { ReactNode } from 'react';
+import { RepresentedByChoice } from './RepresentedByChoice';
 
 export type SeatMap = Record<string, number>;
 
@@ -309,7 +310,7 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
             <Card className="p-4">
               <h5 className={`${MINOR_HEADING} mb-1`}>Representational coverage</h5>
               <p className={`${CARD_HINT} mb-3`}>Posterior identity on a seated party.</p>
-              <div className={`grid gap-2 ${mmpCoverage != null ? 'grid-cols-4' : 'grid-cols-3'}`}>
+              <div className={`grid gap-2 ${mmpCoverage != null ? 'grid-cols-2 sm:grid-cols-4 xl:grid-cols-2' : 'grid-cols-3'}`}>
                 <Stat label="Today's House" value={CURRENT_COVERAGE} tone="worst" note="2024 · binary" />
                 <Stat label="List + reserve" value={nat.list.softCoverage.state}
                   tone={nat.list.softCoverage.state >= nat.stv.softCoverage.state ? 'best' : 'mid'} />
@@ -321,7 +322,7 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
             <Card className="p-4">
               <h5 className={`${MINOR_HEADING} mb-1`}>Voters left unrepresented</h5>
               <p className={`${CARD_HINT} mb-3`}>Nobody they voted for won a seat.</p>
-              <div className={`grid gap-2 ${mmpUnrep != null ? 'grid-cols-4' : 'grid-cols-3'}`}>
+              <div className={`grid gap-2 ${mmpUnrep != null ? 'grid-cols-2 sm:grid-cols-4 xl:grid-cols-2' : 'grid-cols-3'}`}>
                 <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
                 <Stat label="List + reserve" value={nat.list.unrepresented} tone="mid" note="1st choice" />
                 <Stat label="STV + reserve" value={nat.stv.ballotPathUnrep ?? nat.stv.unrepresented}
@@ -335,7 +336,7 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
             <Card className="p-4">
               <h5 className={`${MINOR_HEADING} mb-1`}>Over-quota surplus</h5>
               <p className={`${CARD_HINT} mb-3`}>Votes above what a winner needed.</p>
-              <div className={`grid gap-2 ${mmpExcess != null ? 'grid-cols-4' : 'grid-cols-3'}`}>
+              <div className={`grid gap-2 ${mmpExcess != null ? 'grid-cols-2 sm:grid-cols-4 xl:grid-cols-2' : 'grid-cols-3'}`}>
                 <Stat label="Today's House" value={CURRENT_SURPLUS} tone="worst" note="2024" />
                 <Stat label="Party list" value={base?.national.excess?.list ?? 0} tone="mid" note="stranded" />
                 <Stat label="STV" value={base?.national.excess?.stv ?? 0} tone="best" note="transferred" />
@@ -343,6 +344,8 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
               </div>
             </Card>
           </div>
+
+          <RepresentedByChoice />
 
           {/* Gallagher index */}
           <div>

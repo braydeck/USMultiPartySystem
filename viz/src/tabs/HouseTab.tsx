@@ -110,6 +110,7 @@ import fdDistTri30 from '../data/fdDistrictStvResultsTripleTurnoutL30.json';
 import { PAGE_TITLE, CARD_HEADING, MINOR_HEADING, METRIC_VALUE, CARD_HINT } from '../constants/typography';
 import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
 import { SYSTEM_COLORS } from '../constants/parties';
+import { RepresentedByChoice } from '../components/house/RepresentedByChoice';
 
 // The district shape first, then the two counting rules the System toggle switches between.
 const HOUSE_RULES: Mechanism[] = [
@@ -831,6 +832,8 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
               </Card>
             </div>
           )}
+
+          {scenario === 'rawMulti' && <RepresentedByChoice />}
 
           {/* Gallagher index */}
           {scenario === 'rawMulti' && plConfig && (

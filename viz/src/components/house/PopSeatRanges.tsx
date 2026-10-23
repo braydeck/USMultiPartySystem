@@ -125,8 +125,8 @@ export function PopSeatRanges({ quantities, parties, max }: {
         </div>
       )}
 
-      <div className="grid grid-cols-[110px_1fr] gap-2 pb-1">
-        <span />
+      <div className="grid grid-cols-1 sm:grid-cols-[110px_minmax(0,1fr)] gap-2 pb-1">
+        <span className="hidden sm:block" />
         <div className="flex items-center gap-2">
           <span className={LABEL_COL} /><span className={PCT_COL} />
           <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 text-3xs text-muted-foreground">
@@ -154,7 +154,7 @@ export function PopSeatRanges({ quantities, parties, max }: {
         const name = PARTY_NAMES[p.code] ?? p.code;
         return (
           <div key={p.code}
-            className="grid grid-cols-[110px_1fr] items-center gap-2 py-1.5 border-t border-slate-100 first:border-t-0">
+            className="grid grid-cols-1 sm:grid-cols-[110px_minmax(0,1fr)] items-center gap-x-2 gap-y-1 py-1.5 border-t border-slate-100 first:border-t-0">
             <span className="text-xs font-medium text-foreground truncate">{name}</span>
             <div className="space-y-px">
               {shown.map(q => {
@@ -181,8 +181,8 @@ export function PopSeatRanges({ quantities, parties, max }: {
         );
       })}
 
-      <div className="grid grid-cols-[110px_1fr] gap-2">
-        <span />
+      <div className="grid grid-cols-1 sm:grid-cols-[110px_minmax(0,1fr)] gap-2">
+        <span className="hidden sm:block" />
         <div className="flex items-center gap-2">
           <span className={LABEL_COL} /><span className={PCT_COL} />
           <div className="relative flex-1 h-3">

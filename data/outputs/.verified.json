@@ -1,5 +1,5 @@
 {
-  "commit": "7042b23",
+  "commit": "5e7acbe",
   "inputs": {
     "data/outputs/canonical/ballots_checkpoint.parquet": "862bd9399abe4480",
     "data/outputs/canonical/district_apportionment.csv": "73b16ad01d35ac58",
@@ -7,6 +7,7 @@
     "data/outputs/canonical_reserve/district_apportionment.csv": "22b6279312ee05ce",
     "data/outputs/canonical_triple/ballots_checkpoint.parquet": "3ba93e2922392b50",
     "data/outputs/canonical_triple/district_apportionment.csv": "db2379a47c09bc93",
+    "data/outputs/canonical_triple_reserve/ballots_checkpoint.parquet": "89e301da40c379c9",
     "data/outputs/canonical_triple_reserve/district_apportionment.csv": "314785e7e5d1ebe3",
     "data/outputs/pure_multi/presidential_ballots.csv": "a9363fbbd6440083",
     "data/outputs/pure_multi/state_candidate_profiles.csv": "366a5cda2c8a4914",
@@ -23,6 +24,7 @@
     "pipeline/build_hex_seat_cartogram.py": "6a05fc8b2dbcb229",
     "pipeline/build_house_mmp.py": "9cf0ac6db11a5ea3",
     "pipeline/build_house_partylist.py": "b6f0f1b93ce6696e",
+    "pipeline/build_house_rep_by_rank.py": "e09d6d805651aa17",
     "pipeline/build_house_reserve.py": "040729895d3a1259",
     "pipeline/build_legislation_rank7.py": "0eb26a0a085f27a6",
     "pipeline/build_party_factor_ellipses.py": "cefee285f9fae15e",
@@ -35,7 +37,7 @@
     "pipeline/generate_factor_deviation_candidates.py": "ae6f59a385d696a5",
     "pipeline/hexmap_io.py": "0a1fb8623f8ebfb1",
     "pipeline/pure_only/generate_pure_multi_ballots.py": "6014c8ec44cb25de",
-    "pipeline/pure_only/run_pure_multi_house_stv.py": "cc2f053161719dd6",
+    "pipeline/pure_only/run_pure_multi_house_stv.py": "7a6864674128b798",
     "pipeline/pure_only/run_pure_multi_presidential.py": "e139f4141eec0d77",
     "pipeline/pure_only/run_pure_multi_primary.py": "f6a5990e45b72719",
     "pipeline/pure_only/run_pure_multi_senate.py": "a74858ef24254fd7",
@@ -43,6 +45,7 @@
     "pipeline/run_fd_house_stv.py": "4145486fe5a8a72d",
     "pipeline/run_reserve_stv.py": "c72976a7af120866",
     "viz/public/data/houseMmp.json": "4110062d3b850bd1",
+    "viz/public/data/housePartyList.json": "3ded37019fa2dc38",
     "viz/public/data/houseReserve.json": "7b5f5c4c996fdba3",
     "viz/scripts/prepare_data.py": "514629a7be9d922a",
     "viz/src/constants/parties.ts": "47f0300418cff32e",
@@ -50,5 +53,5 @@
     "viz/src/data/districtStvResultsTriple.json": "dc101b2e0d939c20"
   },
   "note": "Written by pipeline/check_stale.py --regenerate. Records the inputs as they stood when every committed output last reproduced. Commit this with the regenerated outputs.",
-  "verified_at": "2026-10-19T17:26:02Z"
+  "verified_at": "2026-10-20T17:36:14Z"
 }

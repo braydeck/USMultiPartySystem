@@ -20,6 +20,7 @@ import type { ClusterProfile, DistrictResult, HouseSeat } from '../../types';
 import {
   CARD_HEADING, MINOR_HEADING, CARD_HINT, TABLE_HEADER,
 } from '../../constants/typography';
+import { RepresentedByChoice } from './RepresentedByChoice';
 
 export type SeatMap = Record<string, number>;
 
@@ -369,7 +370,7 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
             <Card className="p-4">
               <h5 className={`${MINOR_HEADING} mb-1`}>Voters left unrepresented</h5>
               <p className={`${CARD_HINT} mb-3`}>Nobody they voted for won a seat.</p>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-2 gap-2">
                 <Stat label="Today's House" value={35.8} tone="worst" note="2024" />
                 {pl && <Stat label={reserveNat ? 'Party list + reserve' : 'Party list'}
                   value={reserveNat ? reserveNat.list.unrepresented : pl.national.unrepresented.list} tone="mid" note={reserveNat ? 'state' : 'district'} />}
@@ -402,6 +403,8 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
               </p>
             </Card>
           </div>
+
+          <RepresentedByChoice />
 
           {/* Gallagher index */}
           <div>

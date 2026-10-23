@@ -302,52 +302,10 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
-         output_dir=None, label="PURE MULTI", ballot_depth=0):
-    if apportionment_path is None:
-        apportionment_path = APPORTIONMENT
-    if checkpoint_path is None:
-        checkpoint_path = CHECKPOINT_PATH
-    if county_dist_path is None:
-        county_dist_path = COUNTY_DIST_PATH
-    if output_dir is None:
-        output_dir = OUTPUT_DIR
-    else:
-        output_dir = Path(output_dir)
-    # Ballot depth: 0 = full ranking (exhaustive); N = voters rank only their top N candidates.
-    # Truncated ballots can exhaust in STV, so this is what makes exhaustion/representation realistic.
-    if ballot_depth and ballot_depth > 0:
-        output_dir = output_dir.parent.parent / (output_dir.parent.name + f"_top{ballot_depth}") / output_dir.name
-
-    rng      = np.random.default_rng(42)
-    rng_prob = np.random.default_rng(43)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    sep  = "=" * 70
-    thin = "-" * 70
-
-    print(sep)
-    print(f"{label} HOUSE STV  —  state-proportional candidate pools")
-    print(sep)
-
-    # ── Load data ──────────────────────────────────────────────────────────────
-    print("\nLoading EFA factor scores…")
-    efa           = pd.read_csv(EFA_PATH)
-    typology      = pd.read_csv(TYPOLOGY_PATH)
-    assert len(efa) == len(typology), f"Row mismatch: {len(efa)} vs {len(typology)}"
-    voter_factors = efa[FACTOR_COLS].values.astype(np.float64)
-    weights       = efa["commonpostweight"].values.astype(np.float64)
-    # Population weights build the district candidate pool (party field fixed across
-    # cells); count_weights add turnout so only vote-counting reflects participation.
-    count_weights = weights * turnout_multiplier(len(efa))
-
-    print("Loading district apportionment…")
-    apportion_df = pd.read_csv(apportionment_path)
-    dist_seats   = dict(zip(apportion_df["district_id"], apportion_df["seat_count"]))
-    dist_state   = dict(zip(apportion_df["district_id"], apportion_df["state_fips"]))
-    dist_abbr    = dict(zip(apportion_df["district_id"], apportion_df["state_abbr"]))
-    dist_tier    = dict(zip(apportion_df["district_id"], apportion_df["density_tier"]))
-
+def assign_voter_districts(apportion_df, county_dist_path, checkpoint_path, n_voters):
+    """Each respondent's district id: whole-county assignment from the drawn map, split on
+    the real 119th-Congress district where a county is too big for one district, else the
+    checkpoint. Shared with build_house_rep_by_rank.py so it attributes voters as STV counted them."""
     if VOTER_FIPS_PATH.exists() and county_dist_path.exists():
         print(f"Assigning voters to districts via county FIPS ({county_dist_path.name})…")
         voter_fips_df  = pd.read_csv(VOTER_FIPS_PATH, index_col=0)
@@ -400,14 +358,64 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
         if n_split:
             print(f"  sub-county override applied to {n_split:,} respondents")
         n_unique = len({d for d in district_ids if d})
-        print(f"  {len(efa):,} respondents assigned to {n_unique} districts")
+        print(f"  {n_voters:,} respondents assigned to {n_unique} districts")
     else:
         print("Geo files not found — falling back to checkpoint…")
         checkpoint   = pd.read_parquet(checkpoint_path, columns=["district_id", "density_tier"])
-        assert len(checkpoint) == len(efa), \
-            f"Row count mismatch: checkpoint={len(checkpoint)}, efa={len(efa)}"
+        assert len(checkpoint) == n_voters, \
+            f"Row count mismatch: checkpoint={len(checkpoint)}, efa={n_voters}"
         district_ids = checkpoint["district_id"].values
-        print(f"  {len(efa):,} respondents in {checkpoint['district_id'].nunique()} districts")
+        print(f"  {n_voters:,} respondents in {checkpoint['district_id'].nunique()} districts")
+    return district_ids
+
+
+def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
+         output_dir=None, label="PURE MULTI", ballot_depth=0):
+    if apportionment_path is None:
+        apportionment_path = APPORTIONMENT
+    if checkpoint_path is None:
+        checkpoint_path = CHECKPOINT_PATH
+    if county_dist_path is None:
+        county_dist_path = COUNTY_DIST_PATH
+    if output_dir is None:
+        output_dir = OUTPUT_DIR
+    else:
+        output_dir = Path(output_dir)
+    # Ballot depth: 0 = full ranking (exhaustive); N = voters rank only their top N candidates.
+    # Truncated ballots can exhaust in STV, so this is what makes exhaustion/representation realistic.
+    if ballot_depth and ballot_depth > 0:
+        output_dir = output_dir.parent.parent / (output_dir.parent.name + f"_top{ballot_depth}") / output_dir.name
+
+    rng      = np.random.default_rng(42)
+    rng_prob = np.random.default_rng(43)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    sep  = "=" * 70
+    thin = "-" * 70
+
+    print(sep)
+    print(f"{label} HOUSE STV  —  state-proportional candidate pools")
+    print(sep)
+
+    # ── Load data ──────────────────────────────────────────────────────────────
+    print("\nLoading EFA factor scores…")
+    efa           = pd.read_csv(EFA_PATH)
+    typology      = pd.read_csv(TYPOLOGY_PATH)
+    assert len(efa) == len(typology), f"Row mismatch: {len(efa)} vs {len(typology)}"
+    voter_factors = efa[FACTOR_COLS].values.astype(np.float64)
+    weights       = efa["commonpostweight"].values.astype(np.float64)
+    # Population weights build the district candidate pool (party field fixed across
+    # cells); count_weights add turnout so only vote-counting reflects participation.
+    count_weights = weights * turnout_multiplier(len(efa))
+
+    print("Loading district apportionment…")
+    apportion_df = pd.read_csv(apportionment_path)
+    dist_seats   = dict(zip(apportion_df["district_id"], apportion_df["seat_count"]))
+    dist_state   = dict(zip(apportion_df["district_id"], apportion_df["state_fips"]))
+    dist_abbr    = dict(zip(apportion_df["district_id"], apportion_df["state_abbr"]))
+    dist_tier    = dict(zip(apportion_df["district_id"], apportion_df["density_tier"]))
+
+    district_ids = assign_voter_districts(apportion_df, county_dist_path, checkpoint_path, len(efa))
 
     print("Computing cluster centroids…")
     cluster_centroids = compute_cluster_centroids(efa, typology)

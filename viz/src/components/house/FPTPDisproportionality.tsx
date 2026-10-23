@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { MINOR_HEADING, CARD_HINT, CHART_TYPE, CHART_FILL } from '../../constants/typography';
+import { useElementWidth } from '../../hooks/useElementWidth';
 
 interface Props {
   states: FPTPState[];
@@ -32,6 +33,12 @@ const STATE_ABBR: Record<string, string> = {
 
 const gerryScore = (s: FPTPState) => Math.abs(s.fptpSeatDiff);
 
+// Inline labels are text-xs bold, about 7.5px a character, plus breathing room either side.
+// Decide on the segment's rendered width, so a label that fits a wide card still hides in a
+// narrow one.
+const labelFits = (pct: number, barWidth: number, text: string) =>
+  barWidth > 0 && (pct / 100) * barWidth >= text.length * 7.5 + 8;
+
 function SpotlightBar({
   label, dem, gop, demTotal, gopTotal, total, lightColors,
 }: {
@@ -41,10 +48,12 @@ function SpotlightBar({
 }) {
   const demPct = (dem / total) * 100;
   const gopPct = (gop / total) * 100;
+  const [barRef, barWidth] = useElementWidth<HTMLDivElement>();
+  const demLabel = `Dem ${demTotal}`, gopLabel = `Rep ${gopTotal}`;
   return (
     <div>
       <div className="text-xs text-muted-foreground font-medium mb-1">{label} ({total} seats)</div>
-      <div className="flex rounded overflow-hidden" style={{ height: 26 }}>
+      <div ref={barRef} className="flex rounded overflow-hidden" style={{ height: 26 }}>
         <div
           className="flex items-center justify-center"
           style={{
@@ -53,7 +62,7 @@ function SpotlightBar({
             minWidth: dem > 0 && demPct < 6 ? 3 : 0,
           }}
         >
-          {demPct >= 22 && <span className="text-white text-xs font-bold">Dem {demTotal}</span>}
+          {labelFits(demPct, barWidth, demLabel) && <span className="text-white text-xs font-bold">{demLabel}</span>}
         </div>
         <div
           className="flex items-center justify-center"
@@ -63,7 +72,7 @@ function SpotlightBar({
             minWidth: gop > 0 && gopPct < 6 ? 3 : 0,
           }}
         >
-          {gopPct >= 22 && <span className="text-white text-xs font-bold">Rep {gopTotal}</span>}
+          {labelFits(gopPct, barWidth, gopLabel) && <span className="text-white text-xs font-bold">{gopLabel}</span>}
         </div>
       </div>
     </div>
@@ -73,10 +82,11 @@ function SpotlightBar({
 function PartyBar({ entry, label }: { entry: HouseStateEntry; label: string }) {
   const { seats, totalSeats } = entry;
   const segments = F5_ORDER.filter(p => (seats[p] ?? 0) > 0).map(p => ({ party: p, n: seats[p] }));
+  const [barRef, barWidth] = useElementWidth<HTMLDivElement>();
   return (
     <div>
       <div className="text-xs text-muted-foreground font-medium mb-1">{label} ({totalSeats} seats)</div>
-      <div className="flex rounded overflow-hidden" style={{ height: 26 }}>
+      <div ref={barRef} className="flex rounded overflow-hidden" style={{ height: 26 }}>
         {segments.map(({ party, n }) => {
           const pct = (n / totalSeats) * 100;
           return (
@@ -90,7 +100,7 @@ function PartyBar({ entry, label }: { entry: HouseStateEntry; label: string }) {
                 minWidth: pct < 3 ? 2 : 0,
               }}
             >
-              {pct >= 10 && <span className="text-xs font-bold leading-none chip-text" style={{ color: getContrastText(PARTY_COLORS[party] ?? '#6b7280') }}>{party}</span>}
+              {labelFits(pct, barWidth, party) && <span className="text-xs font-bold leading-none chip-text" style={{ color: getContrastText(PARTY_COLORS[party] ?? '#6b7280') }}>{party}</span>}
             </div>
           );
         })}
@@ -129,11 +139,11 @@ function SpotlightCard({
 
   return (
     <Card className="p-3 flex flex-col gap-2.5">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <select
           value={stateName}
           onChange={e => onChangeState(e.target.value)}
-          className="flex-1 text-sm font-semibold text-foreground bg-transparent rounded border border-border py-0.5 px-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-400 cursor-pointer"
+          className="min-w-0 max-w-full flex-1 basis-40 text-sm font-semibold text-foreground bg-transparent rounded border border-border py-0.5 px-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-400 cursor-pointer"
         >
           {sortedOptions.map(s => (
             <option key={s.state} value={s.state}>
