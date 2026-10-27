@@ -373,15 +373,15 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
               <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-2 gap-2">
                 <Stat label="Today's House" value={35.8} tone="worst" note="2024" />
                 {pl && <Stat label={reserveNat ? 'Party list + reserve' : 'Party list'}
-                  value={reserveNat ? reserveNat.list.unrepresented : pl.national.unrepresented.list} tone="mid" note={reserveNat ? 'state' : 'district'} />}
-                <Stat label="MMP" value={nat.unrepresented} tone="mid" note="state" />
+                  value={reserveNat ? reserveNat.list.unrepresented : pl.national.unrepresented.list} tone="mid" note={reserveNat ? 'district + reserve' : 'district'} />}
+                <Stat label="MMP" value={nat.unrepresented} tone="mid" note="district + top-off" />
                 {pl && <Stat label={reserveNat ? 'STV + reserve' : 'STV'}
-                  value={reserveNat ? (reserveNat.stv.ballotPathUnrep ?? reserveNat.stv.unrepresented) : pl.national.unrepresented.stv} tone="best" note={reserveNat ? 'state' : 'district'} />}
+                  value={reserveNat ? (reserveNat.stv.ballotPathUnrep ?? reserveNat.stv.unrepresented) : pl.national.unrepresented.stv} tone="best" note={reserveNat ? 'ballot path' : 'district'} />}
               </div>
               <p className={`${CARD_HINT} mt-3`}>
-                {reserveNat
-                  ? 'All three systems are compared at the statewide level.'
-                  : "MMP's list is statewide; STV and party list are counted per district."}
+                A seat counts when it is in the voter&apos;s own district or their state&apos;s reserve or top-off
+                tier. List and MMP count first choice only. STV counts ballot path: did any of your ranked
+                choices win.
               </p>
             </Card>
             <Card className="p-4">

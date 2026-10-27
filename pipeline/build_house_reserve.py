@@ -214,12 +214,19 @@ def main():
                     Ps = P[m]
                     fcs = fc[m]
 
-                    # District tier results
+                    # District tier results, and whether each voter's own district seated
+                    # their first-choice party (a voter in no district stays unseated).
                     list_won = np.zeros(10, int)
                     stv_won = np.zeros(10, int)
+                    list_own = np.zeros(len(fc), dtype=bool)
+                    stv_own = np.zeros(len(fc), dtype=bool)
                     for d in dists:
+                        idx = idx_by_dist[d]
+                        d_stv = stv_seats.get(d, np.zeros(10, int))
                         list_won += list_by_dist[d]
-                        stv_won += stv_seats.get(d, np.zeros(10, int))
+                        stv_won += d_stv
+                        list_own[idx] = list_by_dist[d][fc[idx]] > 0
+                        stv_own[idx] = d_stv[fc[idx]] > 0
 
                     # Compensatory reserve: SL seeded with district wins
                     if R > 0:
@@ -238,12 +245,15 @@ def main():
                     nat["stvDist"] += stv_won
                     nat["stvRes"] += stv_res
 
-                    # Shut-out: first-choice party has no seat in the state
-                    nat_shut["listRes"] += float(sw[list_total[fcs] == 0].sum())
-                    nat_shut["stvRes"] += float(sw[stv_total[fcs] == 0].sum())
+                    # Shut-out: first-choice party holds neither a seat in the voter's own
+                    # district nor a reserve seat in their state, matching
+                    # build_house_rep_by_rank.py. A district seat won elsewhere is not theirs.
+                    lo, so = list_own[m], stv_own[m]
+                    nat_shut["listRes"] += float(sw[~lo & (list_res[fcs] == 0)].sum())
+                    nat_shut["stvRes"] += float(sw[~so & (stv_res[fcs] == 0)].sum())
                     # District-only shut-out for comparison
-                    nat_shut["list"] += float(sw[list_won[fcs] == 0].sum())
-                    nat_shut["stv"] += float(sw[stv_won[fcs] == 0].sum())
+                    nat_shut["list"] += float(sw[~lo].sum())
+                    nat_shut["stv"] += float(sw[~so].sum())
 
                     # Soft coverage
                     for sys_name, seats_vec in (("listDist", list_won), ("stvDist", stv_won)):

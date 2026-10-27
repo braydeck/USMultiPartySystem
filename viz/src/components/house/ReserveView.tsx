@@ -324,13 +324,15 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
               <p className={`${CARD_HINT} mb-3`}>Nobody they voted for won a seat.</p>
               <div className={`grid gap-2 ${mmpUnrep != null ? 'grid-cols-2 sm:grid-cols-4 xl:grid-cols-2' : 'grid-cols-3'}`}>
                 <Stat label="Today's House" value={CURRENT_UNREPRESENTED} tone="worst" note="2024" />
-                <Stat label="List + reserve" value={nat.list.unrepresented} tone="mid" note="1st choice" />
+                <Stat label="List + reserve" value={nat.list.unrepresented} tone="mid" note="district + reserve" />
                 <Stat label="STV + reserve" value={nat.stv.ballotPathUnrep ?? nat.stv.unrepresented}
                   tone="best" note="ballot path" />
-                {mmpUnrep != null && <Stat label="MMP" value={mmpUnrep} tone="mid" note="1st choice" />}
+                {mmpUnrep != null && <Stat label="MMP" value={mmpUnrep} tone="mid" note="district + top-off" />}
               </div>
               <p className={`${CARD_HINT} mt-3`}>
-                List and MMP count first-choice only. STV counts ballot path: did any of your ranked choices win.
+                A seat counts when it is in the voter&apos;s own district or their state&apos;s reserve or top-off
+                tier. List and MMP count first choice only. STV counts ballot path: did any of your ranked
+                choices win.
               </p>
             </Card>
             <Card className="p-4">

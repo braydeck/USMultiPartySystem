@@ -1,5 +1,5 @@
 {
-  "commit": "5e7acbe",
+  "commit": "cfd5291",
   "inputs": {
     "data/outputs/canonical/ballots_checkpoint.parquet": "862bd9399abe4480",
     "data/outputs/canonical/district_apportionment.csv": "73b16ad01d35ac58",
@@ -22,10 +22,10 @@
     "data/processed/voter_county_fips.csv": "28a318405772d8e3",
     "pipeline/build_hex_mmp_cartogram.py": "cf7a0dd65ee783fb",
     "pipeline/build_hex_seat_cartogram.py": "6a05fc8b2dbcb229",
-    "pipeline/build_house_mmp.py": "9cf0ac6db11a5ea3",
+    "pipeline/build_house_mmp.py": "9747548c8e023b2f",
     "pipeline/build_house_partylist.py": "b6f0f1b93ce6696e",
     "pipeline/build_house_rep_by_rank.py": "e09d6d805651aa17",
-    "pipeline/build_house_reserve.py": "040729895d3a1259",
+    "pipeline/build_house_reserve.py": "6497128de72aecd3",
     "pipeline/build_legislation_rank7.py": "0eb26a0a085f27a6",
     "pipeline/build_party_factor_ellipses.py": "cefee285f9fae15e",
     "pipeline/build_reserve_apportionment.py": "1c2e949b6175af5b",
@@ -44,14 +44,14 @@
     "pipeline/pure_only/turnout_weights.py": "ede74a4892acee1c",
     "pipeline/run_fd_house_stv.py": "4145486fe5a8a72d",
     "pipeline/run_reserve_stv.py": "c72976a7af120866",
-    "viz/public/data/houseMmp.json": "4110062d3b850bd1",
+    "viz/public/data/houseMmp.json": "24d8d5ef886d284b",
     "viz/public/data/housePartyList.json": "3ded37019fa2dc38",
-    "viz/public/data/houseReserve.json": "7b5f5c4c996fdba3",
+    "viz/public/data/houseReserve.json": "9068466c0af0fe50",
     "viz/scripts/prepare_data.py": "514629a7be9d922a",
     "viz/src/constants/parties.ts": "47f0300418cff32e",
     "viz/src/data/districtStvResults.json": "5db3b013bb15b8a0",
     "viz/src/data/districtStvResultsTriple.json": "dc101b2e0d939c20"
   },
   "note": "Written by pipeline/check_stale.py --regenerate. Records the inputs as they stood when every committed output last reproduced. Commit this with the regenerated outputs.",
-  "verified_at": "2026-10-20T17:36:14Z"
+  "verified_at": "2026-10-27T15:07:58Z"
 }

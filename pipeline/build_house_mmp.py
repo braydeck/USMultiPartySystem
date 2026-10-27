@@ -198,10 +198,12 @@ def main():
                 V = np.array([w[m & (fc == k)].sum() for k in range(10)])
                 dist = np.zeros(10, dtype=int)
                 dwin = {}
+                won_own_district = np.zeros(len(fc), dtype=bool)
                 for key in keys:
                     i = idx_by_cd[key]
                     h = np.array([w[i][fc[i] == k].sum() for k in range(10)])
                     k_win = int(h.argmax())
+                    won_own_district[i] = fc[i] == k_win
                     dist[k_win] += 1
                     dist_tiers[tier_of_cd[key]][k_win] += 1
                     dwin[key] = {"winner": CLUSTER_TO_PARTY[k_win],
@@ -218,7 +220,9 @@ def main():
                 over = int(np.maximum(dist - ent, 0).sum())
 
                 sw = w[m]
-                shut = float(sw[seats[fc[m]] == 0].sum())
+                # A voter is represented by their own district's winner or a top-off seat in
+                # their state; a district seat their party won elsewhere is not theirs.
+                shut = float(sw[~won_own_district[m] & (top[fc[m]] == 0)].sum())
                 Ps = P[m]
                 seated_mask = seats > 0
                 scov = float((Ps[:, seated_mask].sum(1) * sw).sum())
@@ -257,10 +261,8 @@ def main():
                     "topoffSeats": as_party_map(nat_top, cast=int),
                     "mmpSeats": as_party_map(mmp, cast=int),
                     "overhang": nat_over,
-                    # Share of voters whose first-choice party won no seat in their STATE.
-                    # State-level because the list tier is statewide; the party-list and STV
-                    # equivalents in build_house_partylist.py are per-district, so the two
-                    # numbers are not interchangeable.
+                    # Share of voters whose first-choice party holds neither their district's
+                    # seat nor a top-off seat in their state, matching build_house_rep_by_rank.py.
                     "unrepresented": round(nat_shut / nat_w * 100, 2),
                     "softCoverage": round(nat_scov / nat_w * 100, 2),
                     "excess": round(nat_surp / nat_totV * 100, 2) if nat_totV else 0.0,
