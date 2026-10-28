@@ -1,0 +1,156 @@
+item_id,domain,anes_sources,anes_map,label
+V241229,trust_fairness,V241229,"1=1,2=2,3=3,4=4,5=5",how often trust government in washington to do what is right [revised]
+V241230,trust_fairness,V241230,"1=1,2=2,3=3,4=4,5=5",how often can you trust the court system to do what is right
+V241231,trust_fairness,V241231,"1=1,2=2",government run by a few big interests or for benefit of all
+V241232,trust_fairness,V241232,"1=1,2=2,3=3",does government waste much tax money
+V241233,trust_fairness,V241233,"1=1,2=2,3=3,4=4,5=5",how many in government are corrupt
+V241234,trust_fairness,V241234,"1=1,2=2,3=3,4=4,5=5",how often can people be trusted
+V241235,trust_fairness,V241235,"1=1,2=2,3=3",elections make government pay attention
+V241314,trust_fairness,V241314,"1=1,2=2,3=3,4=4,5=5",votes counted accurately
+V241315,trust_fairness,V241315,"1=1,2=2,3=3,4=4,5=5",trust election officials
+V241316,trust_fairness,V241316,"1=1,2=2,3=3,4=4,5=5",how often people denied right to vote
+V242207,trust_fairness,V242207,"1=1,2=2,3=3,4=4,5=5",how often are votes counted fairly
+V242430,trust_fairness,V242430,"1=1,2=2,3=3,4=4,5=5",cses6-q13: fairness of election
+V242417,trust_fairness,V242417,"1=1,2=2,3=3,4=4",cses6-q07a: trust congress
+V242418,trust_fairness,V242418,"1=1,2=2,3=3,4=4",cses6-q07b: trust government
+V242419,trust_fairness,V242419,"1=1,2=2,3=3,4=4",cses6-q07c: trust judiciary
+V242420,trust_fairness,V242420,"1=1,2=2,3=3,4=4",cses6-q07d: trust scientists
+V242421,trust_fairness,V242421,"1=1,2=2,3=3,4=4",cses6-q07e: trust political parties
+V242422,trust_fairness,V242422,"1=1,2=2,3=3,4=4",cses6-q07f: trust traditional media
+V242423,trust_fairness,V242423,"1=1,2=2,3=3,4=4",cses6-q07g: trust social media
+V241335,trust_fairness,V241335,"1=1,2=2,3=3,4=4,5=5",how much trust in news media
+V242456,trust_fairness,V242456,"1=1,2=2,3=3,4=4",cses6- q07: how widespread is corruption
+V242431,trust_fairness,V242431,"1=1,2=2,3=3,4=4,5=5",cses6-q14b: who people vote for makes a big difference
+V242200,trust_fairness,V242200,"1=1,2=2,3=3,4=4,5=5",[std] public officials don’t care what people think
+V242201,trust_fairness,V242201,"1=1,2=2,3=3,4=4,5=5",[std] have no say about what government does
+V242215,trust_fairness,V242215,"1=1,2=2,3=3,4=4,5=5",congress pass laws that benefit contributor organization
+V242216,trust_fairness,V242216,"1=1,2=2,3=3,4=4,5=5",congress pass laws that benefit contributor individuals
+V242217,trust_fairness,V242217,"1=1,2=2,3=3,4=4,5=5",congress change votes because of donation to campaign
+V242214,trust_fairness,V242214,"1=1,3=2,2=3",limits on campaign spending
+V241324,democratic_norms,V241324,"1=1,2=2,3=3,4=4,5=5",how important that news organizations free to criticize
+V241325,democratic_norms,V241325,"1=1,2=2,3=3,4=4,5=5",how important branches of government keep one another from too
+V241326,democratic_norms,V241326,"1=1,2=2,3=3,4=4,5=5",how important elected officials face serious consequences for misconduct
+V241327,democratic_norms,V241327,"1=1,2=2,3=3,4=4,5=5",how important that people agree on basic facts
+V241330x,democratic_norms,V241330x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",helpful/harmful if pres didn’t have to worry about
+V241333x,democratic_norms,V241333x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor or oppose restricting journalist access
+V241334,democratic_norms,V241334,"1=1,2=2,3=3,4=4,5=5",how concerned government might undermine media
+V241338x,democratic_norms,V241338x,"1=1,2=2,3=3,4=4,5=5,6=6",prefer gov official who compromises/sticks to principles
+V241579,democratic_norms,V241579,"1=1,2=2,3=3,4=4,5=5",is it justified for people to use violence to pursue political goals
+V242409,democratic_norms,V242409,"1=1,2=2,3=3,4=4,5=5",cses6-q04a: prefer democracy
+V242410,democratic_norms,V242410,"1=1,2=2,3=3,4=4,5=5",cses6-q04b: courts’ authority
+V242411,democratic_norms,V242411,"1=1,2=2,3=3,4=4,5=5",cses6-q04e: attitudes about elites: strong leader in government is good
+V242412,democratic_norms,V242412,"1=1,2=2,3=3,4=4,5=5",cses6-q04d: policies to increase women representation
+V242413,democratic_norms,V242413,"1=1,2=2,3=3,4=4,5=5",cses6-q05a: political decisions should be left to business leaders
+V242414,democratic_norms,V242414,"1=1,2=2,3=3,4=4,5=5",cses6-q05b: political decisions should be left to independent experts
+V242415,democratic_norms,V242415,"1=1,2=2,3=3,4=4,5=5",cses6-q05bc: political decisions should be left to citizen referendums
+V241319x,democratic_norms,V241319x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose requiring id when voting
+V241322x,democratic_norms,V241322x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose allowing felons to vote
+V241420,religion_social,V241420,"1=1,2=2,3=3,4=4,5=5",is religion important part of r life [revised]
+V241421,religion_social,V241421,"1=1,2=2,3=3",is bible word of god or men
+V241248,religion_social,V241248,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",7pt scale abortion: self-placement
+V241302,religion_social,V241302,"1=1,2=2,3=3,4=4",std abortion: self-placement
+V241378x,religion_social,V241378x,"1=1,2=2,3=3,4=4",favor/oppose laws protect gays/lesbians against job discrimination
+V241381x,religion_social,V241381x,"1=1,2=2,3=3,4=4,5=5,6=6",summary should gay/lesbian couples be allowed to adopt children or not
+V241372x,religion_social,V241372x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",approve/disapprove transgender people use bathroom that
+V241375x,religion_social,V241375x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose banning transgender girls from k-12 girls sports
+V242364x,religion_social,V242364x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose transgender people serve in military
+V242258,religion_social,V242258,"1=1,2=2,3=3,4=4,5=5",the world is changing & we should adjust view of moral behavior
+V242259,religion_social,V242259,"1=1,2=2,3=3,4=4,5=5",fewer problems if there was more emphasis on traditional family values
+V241386,immigration,V241386,"1=1,2=2,3=3,4=4",us government policy toward unauthorized immigrants
+V241389x,immigration,V241389x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor or oppose ending birthright citizenship
+V241392x,immigration,V241392x,"1=1,2=2,3=3,4=4,5=5,6=6",should children brought illegally be sent back or allowed to stay
+V241395x,immigration,V241395x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor or oppose building a wall on border with mexico
+V242227,immigration,V242227,"1=1,2=2,3=3,4=4,5=5",what should immigration levels be
+V242231x,immigration,V242231x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",effect of illegal immigration on crime rate
+V242234x,immigration,V242234x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose providing path to citizenship
+V242235,immigration,V242235,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",are immigrants generally good or bad for america’s economy
+V242236,immigration,V242236,"1=1,2=2,3=3,4=4,5=5",how important is it for immigrants to adapt to customs/traditions of the us
+V241396,immigration,V241396,"1=1,2=2,3=3,4=4",how important to speak english in us
+V242453,immigration,V242453,"1=1,2=2,3=3,4=4,5=5",cses6- q05c: out-group attitudes: immigrants increase crime
+V242454,immigration,V242454,"1=1,2=2,3=3,4=4",cses6- q06a: national identity: to have been born in country
+V242455,immigration,V242455,"1=1,2=2,3=3,4=4",cses6- q06c: national identity: to be able to speak english
+V242325,guns_order,V242325,"1=1,3=2,2=3",should federal government make it more difficult or easier to buy a gun
+V242328x,guns_order,V242328x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose background checks for gun purchases
+V242331x,guns_order,V242331x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose banning ‘assault-style’ rifles
+V241397,guns_order,V241397,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",best way to deal with urban unrest
+V241308x,guns_order,V241308x,"1=1,2=2,3=3,4=4",r favor/oppose death penalty
+V242336,guns_order,V242336,"1=1,2=2,3=3,4=4,5=5",how often do police officers use more force than necessary
+V242343,guns_order,V242343,"1=1,2=2,3=3,4=4,5=5",dhs: how worried about terrorist attack in near future
+V241239,economy_role_of_gov,V241239,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",7pt scale spending & services: self- placement
+V241242,economy_role_of_gov,V241242,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",7pt scale defense spending: self- placement
+V241245,economy_role_of_gov,V241245,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",7pt scale gov-private medical insurance scale: self-placement
+V241252,economy_role_of_gov,V241252,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",7pt scale guaranteed job-income scale: self-placement
+V241255,economy_role_of_gov,V241255,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",7pt scale gov assistance to blacks scale: self-placement
+V241258,economy_role_of_gov,V241258,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",7pt scale environment-business tradeoff: self-placement
+V242248x,economy_role_of_gov,V242248x,"1=1,2=2,3=3,4=4,5=5,6=6",less or more government
+V242249,economy_role_of_gov,V242249,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",would it be good for society to have more or less government regulation
+V242250,economy_role_of_gov,V242250,"1=1,3=2,2=3",favor or oppose government trying to reduce income inequality
+V242316a,economy_role_of_gov,V242316a,"1=1,3=2,2=3",favor or oppose tax on millionaires
+V242350,economy_role_of_gov,V242350,"1=1,2=2,3=3,4=4","should the minimum wage be raised, kept the same, or lowered"
+V242353x,economy_role_of_gov,V242353x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",increase/decrease government spending to help pay for
+V241366x,economy_role_of_gov,V241366x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",government action about rising temperatures
+V242324x,economy_role_of_gov,V242324x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose increased regulation on greenhouse emissions
+V241369x,economy_role_of_gov,V241369x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",require employers to offer paid leave to parents of new children
+V242335x,economy_role_of_gov,V242335x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",summary should government do more/less about opioid drug addiction
+V242319x,economy_role_of_gov,V242319x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose requiring vaccines in schools
+V242357x,economy_role_of_gov,V242357x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",health benefits of vaccinations outweigh risks
+V242346x,economy_role_of_gov,V242346x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose free trade agreements
+V242226x,economy_role_of_gov,V242226x,"1=1,2=2,3=3,4=4",favor/oppose new limits on imports
+V242311,economy_role_of_gov,V242311,"1=1,2=2,3=3,4=4,5=5",how much opportunity in america for average person to get ahead
+V242314x,economy_role_of_gov,V242314x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",economic mobility
+V241451,economy_role_of_gov,V241451,"1=1,2=2,3=3,4=4,5=5",r how much better or worse off financially than 1 year ago
+V242300,race,V242300,"1=1,2=2,3=3,4=4,5=5",agree/disagree: blacks should work their way up without special favors
+V242301,race,V242301,"1=1,2=2,3=3,4=4,5=5",agree/disagree: past slavery & discrimination make it difficult for
+V242302,race,V242302,"1=1,2=2,3=3,4=4,5=5",agree/disagree: blacks have gotten less than they deserve
+V242303,race,V242303,"1=1,2=2,3=3,4=4,5=5",agree/disagree: if blacks tried harder they’d be as well off as whites
+V242241x,race,V242241x,"1=1,2=2,3=3,4=4",favor/oppose preferential hiring/promotion of blacks
+V242245x,race,V242245x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",does r favor/oppose affirmative action in universities
+V242522x,race,V242522x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",federal government treats blacks or whites better
+V242525x,race,V242525x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",police treat blacks or whites better
+V242519,race,V242519,"1=1,2=2,3=3,4=4,5=5",how likely whites unable to find jobs because employers hiring minorities
+V242349x,race,V242349x,"1=1,2=2,3=3,4=4,5=5",increasing diversity made us better/worse place to live
+V242526,race,V242526,"1=1,2=2,3=3",how much influence do whites have in us politics
+V242527,race,V242527,"1=1,2=2,3=3",how much influence do blacks have in us politics
+V242528,race,V242528,"1=1,2=2,3=3",how much influence do hispanics have in us politics
+V242529,race,V242529,"1=1,2=2,3=3",how much influence do asians have in us politics
+V242254,egalitarianism_authoritarianism,V242254,"1=1,2=2,3=3,4=4,5=5",society should make sure everyone has equal opportunity
+V242255,egalitarianism_authoritarianism,V242255,"1=1,2=2,3=3,4=4,5=5",we’d be better off if worried less about equality
+V242256,egalitarianism_authoritarianism,V242256,"1=1,2=2,3=3,4=4,5=5",not a big problem if some have more chance in life
+V242257,egalitarianism_authoritarianism,V242257,"1=1,2=2,3=3,4=4,5=5",if people were treated more fairly we would have fewer problems
+V242260,egalitarianism_authoritarianism,V242260,"1=1,2=2",which child trait more important: independence or respect
+V242261,egalitarianism_authoritarianism,V242261,"1=1,2=2",which child trait more important: curiosity or good manners
+V242262,egalitarianism_authoritarianism,V242262,"1=1,2=2",which child trait more important: obedience or self-reliance
+V242263,egalitarianism_authoritarianism,V242263,"1=1,2=2",which child trait more important: considerate or well-behaved
+V241607,gender,V241607,"1=1,2=2,3=3,4=4,5=5",agree/disagree - women interpret innocent remarks as sexist
+V241608,gender,V241608,"1=1,2=2,3=3,4=4,5=5",women seek to gain power by getting control over men
+V242280,gender,V242280,"1=1,2=2,3=3,4=4,5=5",do women demanding equality seek special favors
+V242281,gender,V242281,"1=1,2=2,3=3,4=4,5=5",do women complaining about discrimination cause more problems
+V242279x,gender,V242279x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",better/worse if man works and woman takes care of home
+V242361x,gender,V242361x,"1=1,2=2,3=3,4=4,5=5",attention to sexual harassment as gone too far/not far
+V241577,gender,V241577,"1=1,2=2,3=3,4=4",need to be more sensitive talking or people too easily offended
+V241312x,foreign_policy_nation,V241312x,"1=1,2=2,3=3,4=4",country would be better off if we just stayed home
+V241313,foreign_policy_nation,V241313,"1=1,2=2,3=3,4=4,5=5",force to solve international problems
+V241400x,foreign_policy_nation,V241400x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose u.s. giving weapons to help ukraine fight russia
+V241403x,foreign_policy_nation,V241403x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose u.s. giving military assistance to israel
+V241406x,foreign_policy_nation,V241406x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",favor/oppose u.s. giving humanitarian aid to palestinians
+V241409x,foreign_policy_nation,V241409x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",does r side more with israelis or palestinians
+V241412x,foreign_policy_nation,V241412x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",approve/disapprove of protests against war in gaza
+V242266x,foreign_policy_nation,V242266x,"1=1,2=2,3=3,4=4,5=5",us better or worse than most other countries
+V242365,foreign_policy_nation,V242365,"1=1,2=2,3=3,4=4,5=5",how much is china a threat to the united states
+V242366,foreign_policy_nation,V242366,"1=1,2=2,3=3,4=4,5=5",how much is russia a threat to the united states
+V242367,foreign_policy_nation,V242367,"1=1,2=2,3=3,4=4,5=5",how much is mexico a threat to the united states
+V242368,foreign_policy_nation,V242368,"1=1,2=2,3=3,4=4,5=5",how much is iran a threat to the united states
+V242369,foreign_policy_nation,V242369,"1=1,2=2,3=3,4=4,5=5",how much is japan a threat to the united states
+V242370,foreign_policy_nation,V242370,"1=1,2=2,3=3,4=4,5=5",how much is israel a threat to the united states
+V242269x,group_resentment_representation,V242269x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",people in rural areas get more/less from government
+V242272x,group_resentment_representation,V242272x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",people in rural areas have too much/too little influence
+V242275x,group_resentment_representation,V242275x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",people in rural areas get too much/too little respect
+V242308x,group_resentment_representation,V242308x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",does r think they get more or less than their fair share in life
+V241290x,group_resentment_representation,V241290x,"1=1,2=2,3=3,4=4,5=5,6=6,7=7","summary approve/disapprove diversity, equity, and inclusion (dei)"
+V242208,group_resentment_representation,V242208,"1=1,2=2,3=3,4=4,5=5",how important that more hispanics get elected to political office
+V242209,group_resentment_representation,V242209,"1=1,2=2,3=3,4=4,5=5",how important that more blacks get elected to political office
+V242210,group_resentment_representation,V242210,"1=1,2=2,3=3,4=4,5=5",how important that more asians get elected to political office
+V242211,group_resentment_representation,V242211,"1=1,2=2,3=3,4=4,5=5",how important that more lgbt people get elected to political office
+V242212,group_resentment_representation,V242212,"1=1,2=2,3=3,4=4,5=5",how important that more women get elected to political office
+church,religion_social,V241440|V241439,"V241440:5=1,4=2,3=3,2=4,1=5 / V241439:2=1",religious attendance (spliced)
+gay_marriage,religion_social,V241382|V241383,"V241382:1=1,2=2,3=3 / V241383:1=1,3=2,2=3",gay marriage (form 1A/1B splice)

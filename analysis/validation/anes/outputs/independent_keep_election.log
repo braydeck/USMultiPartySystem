@@ -1,0 +1,157 @@
+Stage B 1-3: 153 of 155 items remain; pairwise polychoric for redundancy...
+
+Dropped by stage: {'1': 1, '3': 1, '4': 17, '5': 36}
+
+Final: 100 items, listwise n = 2,717, k = 10
+
+--- N1 (20 items) ---
+                                                                 label                           domain     N1     h2
+V242453    cses6- q05c: out-group attitudes: immigrants increase crime                      immigration -0.471  0.659
+V242241x          favor/oppose preferential hiring/promotion of blacks                             race  0.536  0.651
+V242522x             federal government treats blacks or whites better                             race  0.444  0.643
+V242303   agree/disagree: if blacks tried harder they’d be as well off                             race -0.354  0.637
+V242301   agree/disagree: past slavery & discrimination make it diffic                             race  0.426  0.636
+V242526               how much influence do whites have in us politics                             race  0.483  0.634
+V242235     are immigrants generally good or bad for america’s economy                      immigration  0.644  0.569
+V242455    cses6- q06c: national identity: to be able to speak english                      immigration -0.462  0.567
+V242349x       increasing diversity made us better/worse place to live                             race  0.582  0.566
+V241386            us government policy toward unauthorized immigrants                      immigration -0.419  0.554
+V241392x  should children brought illegally be sent back or allowed to                      immigration -0.449  0.523
+V241396                           how important to speak english in us                      immigration -0.411  0.506
+V241406x     favor/oppose u.s. giving humanitarian aid to palestinians            foreign_policy_nation  0.342  0.506
+V242529               how much influence do asians have in us politics                             race -0.384  0.497
+V242210   how important that more asians get elected to political offi  group_resentment_representation  0.534  0.496
+V242236   how important is it for immigrants to adapt to customs/tradi                      immigration  0.392  0.492
+V242519   how likely whites unable to find jobs because employers hiri                             race -0.347  0.453
+V241389x                 favor or oppose ending birthright citizenship                      immigration -0.483  0.430
+V242336     how often do police officers use more force than necessary                       guns_order -0.331  0.401
+V242227                              what should immigration levels be                      immigration  0.586  0.400
+
+--- N2 (8 items) ---
+                                                                label          domain     N2     h2
+V242418                                  cses6-q07b: trust government  trust_fairness -0.746  0.704
+V242417                                    cses6-q07a: trust congress  trust_fairness -0.815  0.666
+V242421                           cses6-q07e: trust political parties  trust_fairness -0.790  0.594
+V242419                                   cses6-q07c: trust judiciary  trust_fairness -0.660  0.505
+V242422                           cses6-q07f: trust traditional media  trust_fairness -0.350  0.483
+V241230  how often can you trust the court system to do what is right  trust_fairness -0.315  0.313
+V241235                       elections make government pay attention  trust_fairness -0.315  0.279
+V242423                                cses6-q07g: trust social media  trust_fairness -0.397  0.216
+
+--- N3 (8 items) ---
+                                                                 label            domain     N3     h2
+V241325   how important branches of government keep one another from t  democratic_norms  0.782  0.680
+V241326   how important elected officials face serious consequences fo  democratic_norms  0.741  0.599
+V241324        how important that news organizations free to criticize  democratic_norms  0.694  0.554
+V241327                 how important that people agree on basic facts  democratic_norms  0.636  0.398
+V241334                 how concerned government might undermine media  democratic_norms  0.579  0.322
+V242431         cses6-q14b: who people vote for makes a big difference    trust_fairness  0.318  0.284
+V241330x            helpful/harmful if pres didn’t have to worry about  democratic_norms  0.331  0.272
+V241333x                 favor or oppose restricting journalist access  democratic_norms  0.502  0.263
+
+--- N4 (6 items) ---
+                                                          label                 domain     N4     h2
+V242368          how much is iran a threat to the united states  foreign_policy_nation -0.799  0.657
+V242366        how much is russia a threat to the united states  foreign_policy_nation -0.739  0.609
+V242365         how much is china a threat to the united states  foreign_policy_nation -0.714  0.551
+V242367        how much is mexico a threat to the united states  foreign_policy_nation -0.364  0.433
+V241242             7pt scale defense spending: self- placement    economy_role_of_gov -0.344  0.398
+V242343  dhs: how worried about terrorist attack in near future             guns_order  0.513  0.332
+
+--- N5 (14 items) ---
+                                                                     label                           domain     N5     h2
+gay_marriage                              gay marriage (form 1A/1B splice)                  religion_social -0.784  0.757
+V241372x           approve/disapprove transgender people use bathroom that                  religion_social -0.394  0.735
+V242364x                 favor/oppose transgender people serve in military                  religion_social -0.379  0.665
+V241302                                       std abortion: self-placement                  religion_social  0.560  0.647
+V242420                                       cses6-q07d: trust scientists                   trust_fairness -0.371  0.644
+V242259       fewer problems if there was more emphasis on traditional fam                  religion_social  0.438  0.606
+V242260          which child trait more important: independence or respect  egalitarianism_authoritarianism -0.508  0.569
+V242261        which child trait more important: curiosity or good manners  egalitarianism_authoritarianism -0.489  0.564
+V242262       which child trait more important: obedience or self-reliance  egalitarianism_authoritarianism  0.608  0.549
+V241378x      favor/oppose laws protect gays/lesbians against job discrimi                  religion_social -0.448  0.500
+V242258       the world is changing & we should adjust view of moral behav                  religion_social -0.403  0.459
+V242263       which child trait more important: considerate or well-behave  egalitarianism_authoritarianism -0.398  0.442
+church                                      religious attendance (spliced)                  religion_social -0.672  0.403
+V241338x          prefer gov official who compromises/sticks to principles                 democratic_norms -0.321  0.224
+
+--- N6 (7 items) ---
+                                                                 label            domain     N6     h2
+V241319x                         favor/oppose requiring id when voting  democratic_norms -0.341  0.592
+V241232                           does government waste much tax money    trust_fairness -0.507  0.580
+V241231    government run by a few big interests or for benefit of all    trust_fairness -0.636  0.549
+V241229   how often trust government in washington to do what is right    trust_fairness  0.442  0.546
+V241335                                   how much trust in news media    trust_fairness -0.490  0.533
+V241233                             how many in government are corrupt    trust_fairness -0.442  0.510
+V242456                       cses6- q07: how widespread is corruption    trust_fairness -0.377  0.410
+
+--- N7 (10 items) ---
+                                                                 label               domain     N7     h2
+V242325   should federal government make it more difficult or easier t           guns_order -0.645  0.719
+V242527               how much influence do blacks have in us politics                 race  0.409  0.644
+V242324x     favor/oppose increased regulation on greenhouse emissions  economy_role_of_gov -0.374  0.618
+V241314                                       votes counted accurately       trust_fairness  0.383  0.604
+V242331x                   favor/oppose banning ‘assault-style’ rifles           guns_order -0.564  0.574
+V242207                             how often are votes counted fairly       trust_fairness -0.363  0.552
+V241315                                       trust election officials       trust_fairness  0.345  0.549
+V242316a                           favor or oppose tax on millionaires  economy_role_of_gov -0.408  0.549
+V242328x              favor/oppose background checks for gun purchases           guns_order -0.637  0.518
+V242430                                cses6-q13: fairness of election       trust_fairness -0.295  0.292
+
+--- N8 (6 items) ---
+                                                                label            domain     N8     h2
+V241608          women seek to gain power by getting control over men            gender  0.404  0.483
+V242280               do women demanding equality seek special favors            gender  0.416  0.482
+V242200           [std] public officials don’t care what people think    trust_fairness  0.441  0.422
+V242201                  [std] have no say about what government does    trust_fairness  0.462  0.398
+V242411  cses6-q04e: attitudes about elites: strong leader in governm  democratic_norms  0.302  0.391
+V241607   agree/disagree - women interpret innocent remarks as sexist            gender  0.363  0.319
+
+--- N9 (15 items) ---
+                                                                 label                           domain     N9     h2
+V241255       7pt scale gov assistance to blacks scale: self-placement              economy_role_of_gov -0.456  0.698
+V241290x  summary approve/disapprove diversity, equity, and inclusion   group_resentment_representation -0.374  0.669
+V241397                             best way to deal with urban unrest                       guns_order -0.328  0.643
+V241252          7pt scale guaranteed job-income scale: self-placement              economy_role_of_gov -0.623  0.640
+V241239                 7pt scale spending & services: self- placement              economy_role_of_gov  0.621  0.627
+V242250   favor or oppose government trying to reduce income inequalit              economy_role_of_gov -0.429  0.618
+V242350   should the minimum wage be raised, kept the same, or lowered              economy_role_of_gov -0.593  0.601
+V242255              we’d be better off if worried less about equality  egalitarianism_authoritarianism  0.351  0.591
+V241245   7pt scale gov-private medical insurance scale: self-placemen              economy_role_of_gov -0.466  0.515
+V242353x         increase/decrease government spending to help pay for              economy_role_of_gov -0.543  0.464
+V242311   how much opportunity in america for average person to get ah              economy_role_of_gov  0.520  0.445
+V241577   need to be more sensitive talking or people too easily offen                           gender -0.326  0.422
+V241369x  require employers to offer paid leave to parents of new chil              economy_role_of_gov -0.357  0.352
+V242308x  does r think they get more or less than their fair share in   group_resentment_representation  0.452  0.296
+V242314x                                             economic mobility              economy_role_of_gov  0.444  0.241
+
+--- N10 (6 items) ---
+                                                                 label                 domain    N10     h2
+V241403x        favor/oppose u.s. giving military assistance to israel  foreign_policy_nation  0.563  0.615
+V241400x  favor/oppose u.s. giving weapons to help ukraine fight russi  foreign_policy_nation  0.419  0.592
+V242369                how much is japan a threat to the united states  foreign_policy_nation  0.418  0.476
+V241312x            country would be better off if we just stayed home  foreign_policy_nation -0.405  0.461
+V242370               how much is israel a threat to the united states  foreign_policy_nation  0.583  0.454
+V241579   is it justified for people to use violence to pursue politic       democratic_norms  0.402  0.449
+
+Factor correlations:
+        N1    N2    N3    N4    N5    N6    N7    N8    N9   N10
+N1   1.00  0.01 -0.28 -0.22 -0.46  0.20 -0.43 -0.34 -0.49 -0.09
+N2   0.01  1.00 -0.07 -0.06 -0.07 -0.28  0.11  0.09 -0.08 -0.19
+N3  -0.28 -0.07  1.00  0.01  0.35 -0.08  0.28  0.24  0.08 -0.23
+N4  -0.22 -0.06  0.01  1.00  0.24 -0.05  0.03  0.09  0.11  0.14
+N5  -0.46 -0.07  0.35  0.24  1.00 -0.18  0.36  0.31  0.35  0.03
+N6   0.20 -0.28 -0.08 -0.05 -0.18  1.00 -0.25 -0.21 -0.14  0.12
+N7  -0.43  0.11  0.28  0.03  0.36 -0.25  1.00  0.21  0.44 -0.04
+N8  -0.34  0.09  0.24  0.09  0.31 -0.21  0.21  1.00  0.13 -0.13
+N9  -0.49 -0.08  0.08  0.11  0.35 -0.14  0.44  0.13  1.00  0.24
+N10 -0.09 -0.19 -0.23  0.14  0.03  0.12 -0.04 -0.13  0.24  1.00
+
+Bridge (n = 2,688): matched-set factors x independent factors, score correlations
+                            N1    N2    N3    N4    N5    N6    N7    N8    N9   N10
+Religious Traditionalism  0.49  0.09 -0.27 -0.21 -0.84  0.27 -0.53 -0.18 -0.58 -0.14
+Institutional Distrust    0.46 -0.29 -0.41 -0.09 -0.47  0.62 -0.69 -0.31 -0.33  0.27
+Security & Order         -0.56 -0.18  0.21  0.44  0.47 -0.14  0.24  0.45  0.42  0.19
+Government Distrust      -0.54  0.09  0.18  0.10  0.27 -0.38  0.77  0.36  0.58  0.08
+Populist Conservatism     0.79 -0.01 -0.36 -0.24 -0.59  0.31 -0.62 -0.37 -0.62  0.03
+Hungarian pairs: [('Religious Traditionalism', 'N5', np.float64(-0.84)), ('Institutional Distrust', 'N6', np.float64(0.62)), ('Security & Order', 'N8', np.float64(0.45)), ('Government Distrust', 'N7', np.float64(0.77)), ('Populist Conservatism', 'N1', np.float64(0.79))]

@@ -1,0 +1,24 @@
+  50/500
+  100/500
+  150/500
+  200/500
+  250/500
+  300/500
+  350/500
+  400/500
+  450/500
+  500/500
+ k reference                   factor  median    lo    hi  p_fair  p_identical
+ 3     ces18   Institutional Distrust   0.795 0.709 0.861   0.070        0.000
+ 3     ces18    Populist Conservatism   0.730 0.568 0.827   0.006        0.000
+ 3     ces18 Religious Traditionalism   0.838 0.815 0.864   0.176        0.000
+ 5 canonical      Government Distrust   0.268 0.103 0.421   0.000        0.000
+ 5 canonical   Institutional Distrust   0.952 0.927 0.970   1.000        0.586
+ 5 canonical    Populist Conservatism   0.749 0.572 0.854   0.028        0.000
+ 5 canonical Religious Traditionalism   0.916 0.743 0.934   0.878        0.000
+ 5 canonical         Security & Order   0.780 0.691 0.842   0.012        0.000
+ 5     ces18      Government Distrust   0.804 0.717 0.850   0.026        0.000
+ 5     ces18   Institutional Distrust   0.956 0.925 0.975   1.000        0.660
+ 5     ces18    Populist Conservatism   0.609 0.302 0.710   0.000        0.000
+ 5     ces18 Religious Traditionalism   0.898 0.644 0.922   0.818        0.000
+ 5     ces18         Security & Order   0.821 0.744 0.862   0.108        0.000
