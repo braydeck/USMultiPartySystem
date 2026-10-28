@@ -1,0 +1,165 @@
+{
+  "log": {
+    "score_r_canonical+DK7": [
+      0.9944,
+      0.9223,
+      0.2017
+    ],
+    "score_r_production coding": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "S0_ari_vs_production": 1.0,
+    "B_polychoric_maxdiff_vs_frozen": 0.014136529398951991
+  },
+  "results": {
+    "A_vs_production": {
+      "ari": 0.494946738913694,
+      "n_clusters": 10,
+      "labels": {
+        "0": "STY",
+        "1": "CON",
+        "2": "POP",
+        "3": "CUP",
+        "4": "LBR",
+        "5": "NAT",
+        "6": "LIB",
+        "7": "OAO",
+        "8": "DSA",
+        "9": "PRG"
+      },
+      "purity": {
+        "0": 0.551,
+        "1": 0.814,
+        "2": 0.671,
+        "3": 0.541,
+        "4": 0.671,
+        "5": 0.943,
+        "6": 0.768,
+        "7": 0.565,
+        "8": 0.853,
+        "9": 0.877
+      }
+    },
+    "A_vs_B": {
+      "ari": 0.9547454387773185,
+      "pct_changed_w": 2.043505376134263,
+      "pct_changed_n": 2.0237094705179812,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "A_vs_B_frozen": {
+      "ari": 0.6697388242818008,
+      "pct_changed_w": 21.804101266881077,
+      "pct_changed_n": 22.453222453222455,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "A_vs_noise42": {
+      "ari": 0.9859292973771735,
+      "pct_changed_w": 0.6059068709161319,
+      "pct_changed_n": 0.6325474410580794,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "A_vs_noise43": {
+      "ari": 0.9816992375178888,
+      "pct_changed_w": 0.787853462993769,
+      "pct_changed_n": 0.7984252665103729,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "A_vs_noise44": {
+      "ari": 0.6384766833040774,
+      "pct_changed_w": 21.97978528343209,
+      "pct_changed_n": 23.95496969965055,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "A_vs_noise45": {
+      "ari": 0.9867670953252133,
+      "pct_changed_w": 0.5786087614474985,
+      "pct_changed_n": 0.5706197195558897,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "A_vs_noise46": {
+      "ari": 0.9821695985562112,
+      "pct_changed_w": 0.761991780707016,
+      "pct_changed_n": 0.7851550404741894,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "P_vs_production": {
+      "ari": 1.0,
+      "n_clusters": 10,
+      "labels": {
+        "0": "CON",
+        "1": "LBR",
+        "2": "STY",
+        "3": "NAT",
+        "4": "LIB",
+        "5": "POP",
+        "6": "CUP",
+        "7": "OAO",
+        "8": "DSA",
+        "9": "PRG"
+      },
+      "purity": {
+        "0": 1.0,
+        "1": 1.0,
+        "2": 1.0,
+        "3": 1.0,
+        "4": 1.0,
+        "5": 1.0,
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0,
+        "9": 1.0
+      }
+    },
+    "P_vs_P_noDK": {
+      "ari": 0.9286361620983482,
+      "pct_changed_w": 4.270239312855871,
+      "pct_changed_n": 3.620560003538727,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "P_vs_noise42": {
+      "ari": 0.47816933383576465,
+      "pct_changed_w": 42.18215677966762,
+      "pct_changed_n": 40.68430132259919,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "P_vs_noise43": {
+      "ari": 0.5561804640983949,
+      "pct_changed_w": 33.40658071137144,
+      "pct_changed_n": 30.908568142610697,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "P_vs_noise44": {
+      "ari": 0.6463045475450553,
+      "pct_changed_w": 25.362923258594734,
+      "pct_changed_n": 23.979298447383552,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "P_vs_noise45": {
+      "ari": 0.5552966376626519,
+      "pct_changed_w": 33.32463583441741,
+      "pct_changed_n": 30.92626177732561,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    },
+    "P_vs_noise46": {
+      "ari": 0.6413375056665921,
+      "pct_changed_w": 25.701586144088573,
+      "pct_changed_n": 24.40615738488079,
+      "n_clusters_new": 10,
+      "n_clusters_ref": 10
+    }
+  }
+}

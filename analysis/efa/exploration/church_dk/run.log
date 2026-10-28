@@ -1,0 +1,63 @@
+n = 45,707; DK = 493 (1.56% weighted)
+max |r| of canonical+DK7 scores with saved FS_F1..F3: [0.9944, 0.9223, 0.2017]
+max |r| of production coding scores with saved FS_F1..F3: [1.0, 1.0, 1.0]
+S0 DPGMM refit on saved FS: ARI vs production 1.000
+computing polychoric on 45,214 ...
+    polychoric 25/276  (0s, ~4s left)
+    polychoric 50/276  (1s, ~4s left)
+    polychoric 75/276  (1s, ~3s left)
+    polychoric 100/276  (2s, ~3s left)
+    polychoric 125/276  (2s, ~2s left)
+    polychoric 150/276  (2s, ~2s left)
+    polychoric 175/276  (3s, ~2s left)
+    polychoric 200/276  (3s, ~1s left)
+    polychoric 225/276  (3s, ~1s left)
+    polychoric 250/276  (4s, ~0s left)
+    polychoric 275/276  (4s, ~0s left)
+
+[A] ARI vs production 0.495; labels {0: 'STY', 1: 'CON', 2: 'POP', 3: 'CUP', 4: 'LBR', 5: 'NAT', 6: 'LIB', 7: 'OAO', 8: 'DSA', 9: 'PRG'}
+  B: ARI 0.955, changed 2.04% (w), k 10
+  B_frozen: ARI 0.670, changed 21.80% (w), k 10
+  noise42: ARI 0.986, changed 0.61% (w), k 10
+  noise43: ARI 0.982, changed 0.79% (w), k 10
+  noise44: ARI 0.638, changed 21.98% (w), k 10
+  noise45: ARI 0.987, changed 0.58% (w), k 10
+  noise46: ARI 0.982, changed 0.76% (w), k 10
+
+[P] ARI vs production 1.000; labels {0: 'CON', 1: 'LBR', 2: 'STY', 3: 'NAT', 4: 'LIB', 5: 'POP', 6: 'CUP', 7: 'OAO', 8: 'DSA', 9: 'PRG'}
+  P_noDK: ARI 0.929, changed 4.27% (w), k 10
+  noise42: ARI 0.478, changed 42.18% (w), k 10
+  noise43: ARI 0.556, changed 33.41% (w), k 10
+  noise44: ARI 0.646, changed 25.36% (w), k 10
+  noise45: ARI 0.555, changed 33.32% (w), k 10
+  noise46: ARI 0.641, changed 25.70% (w), k 10
+
+[A] party share deltas vs noise floor:
+       B_ref_share  B_new_share  B_delta_pp  B_frozen_ref_share  B_frozen_new_share  B_frozen_delta_pp  noise_min_pp  noise_max_pp  noise_max_abs_pp
+party                                                                                                                                               
+STY          17.74        17.40        0.05               17.74               17.28              -0.07         -0.76          0.03              0.76
+CON          16.49        16.73        0.23               16.49               20.05               3.56         -0.09          4.98              4.98
+POP          11.09        11.32        0.34               11.09               10.11              -0.87         -1.58          0.26              1.58
+CUP           9.89         9.47       -0.52                9.89               10.85               0.87         -0.78         -0.02              0.78
+LBR           9.84        10.25        0.29                9.84                9.95              -0.01         -0.06          0.15              0.15
+NAT           8.90         8.86       -0.06                8.90                9.37               0.45         -0.06          0.46              0.46
+LIB           8.05         7.79       -0.35                8.05                7.46              -0.67         -0.12          1.27              1.27
+OAO           7.12         7.26        0.11                7.12                4.16              -2.99         -3.15          0.12              3.15
+DSA           5.54         5.52       -0.10                5.54                5.93               0.31         -0.07          0.07              0.07
+PRG           5.33         5.40       -0.00                5.33                4.84              -0.57         -0.66          0.06              0.66
+noise ARI 0.638-0.987; changed 0.58-21.98%; k 10-10
+
+[P] party share deltas vs noise floor:
+       P_noDK_ref_share  P_noDK_new_share  P_noDK_delta_pp  noise_min_pp  noise_max_pp  noise_max_abs_pp
+party                                                                                                   
+CON               19.21             19.19            -0.08         -2.42         -0.51              2.42
+LBR               14.09             12.90            -1.11         -7.82          1.14              7.82
+STY               12.40             11.67            -0.57         -3.07          5.72              5.72
+NAT                9.75              9.80             0.05         -2.29         -0.05              2.29
+LIB                9.21              9.32            -0.00         -0.50          0.92              0.92
+POP                9.00             10.56             1.68         -1.15          8.36              8.36
+CUP                8.58              8.71             0.10         -0.83          2.00              2.00
+OAO                6.17              6.18            -0.02         -1.75          5.59              5.59
+DSA                5.99              5.97            -0.10         -1.70          0.15              1.70
+PRG                5.60              5.71             0.04         -0.77          0.29              0.77
+noise ARI 0.478-0.646; changed 25.36-42.18%; k 10-10
