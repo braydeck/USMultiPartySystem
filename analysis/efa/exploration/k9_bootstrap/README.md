@@ -56,6 +56,49 @@ OAO is the empty ID in 122 draws. LIB is empty in 51 draws, PRG in 23, CUP in 3 
 
 The electoral college is not a headline. Under per-state IRV, the leading party has a majority of electors in 35 of 200 draws, and CON leads in 119.
 
+## The three full-data solution families
+
+A 20-seed fit at cap 9 (seeds 42 to 61, n_init 5) finds three solutions, grouped by lower bound:
+
+- The 697 family has 11 seeds. Seed 45 from it is the observed run above.
+- The 757 family has 6 seeds. Seed 51 has the best bound overall.
+- The 360 family has 3 seeds, represented here by seed 49.
+
+IRV elects CON in two of the three families. Ranked Pairs elects STY in the same two. Seed 51 elects POP under both rules. The empty ID differs by family: OAO at seeds 45 and 51, LIB at seed 49.
+
+| | Seed 45 (697) | Seed 51 (757) | Seed 49 (361) |
+|---|---|---|---|
+| Empty ID | OAO | OAO | LIB |
+| IDs under 50% retention, besides the empty one | none | CUP 48.3 | OAO 43.9 |
+| Primary finalists | CON LBR LIB POP STY | CON CUP LBR LIB POP | CON CUP LBR PRG STY |
+| National IRV | CON over LBR by 2.5 | POP over CON by 21.9 | CON over LBR by 3.7 |
+| National Ranked Pairs | STY | POP | STY |
+| Senate IRV | LBR 23, CON 22, STY 3, POP 3 | CON 18, POP 15, LIB 9, STY 7, LBR 2 | CON 25, LBR 18, STY 5, CUP 2, PRG 1 |
+| Senate Ranked Pairs | STY 19, LBR 12, CON 11, POP 8, CUP 1 | POP 23, STY 16, CON 5, LBR 4, LIB 3 | STY 24, CON 10, LBR 10, POP 6, CUP 1 |
+
+| Party | Share % 45 / 51 / 49 | House STV 45 / 51 / 49 |
+|---|---|---|
+| CON | 20.5 / 16.6 / 20.1 | 201 / 160 / 207 |
+| LBR | 10.7 / 7.3 / 10.5 | 130 / 92 / 136 |
+| STY | 17.4 / 18.4 / 17.7 | 106 / 111 / 116 |
+| NAT | 9.4 / 9.1 / 9.3 | 73 / 78 / 70 |
+| LIB | 8.2 / 12.6 / 0 | 87 / 140 / 0 |
+| POP | 11.0 / 13.1 / 11.1 | 115 / 135 / 110 |
+| CUP | 11.1 / 11.5 / 11.4 | 95 / 94 / 108 |
+| OAO | 0 / 0 / 4.3 | 0 / 0 / 8 |
+| DSA | 5.9 / 5.5 / 5.2 | 31 / 30 / 14 |
+| PRG | 5.9 / 5.9 / 10.3 | 35 / 33 / 104 |
+
+The bootstrap draws cannot be sorted into families by lower bound. Each draw's bound comes from a fit to its own resample, and duplicated respondents raise it, so the draw bounds run from -102 to 2,701. Each draw is instead assigned to the family whose full-data clustering it matches most closely (ARI over all 45,214 respondents). The median best-match ARI is 0.85. The median lead over the second-closest family is 0.13 ARI.
+
+| Family | Draws | IRV winner | Ranked Pairs winner | Empty ID |
+|---|---|---|---|---|
+| 697 | 82 | CON 67, STY 13, LBR 1, POP 1 | STY 81, POP 1 | OAO 82 |
+| 360 | 72 | CON 70, LBR 2 | STY 50, POP 22 | LIB 51, PRG 20, STY 1 |
+| 757 | 46 | CON 15, POP 13, STY 11, LBR 7 | STY 27, POP 19 | OAO 40, CUP 3, PRG 3 |
+
+70 of the 82 cleanly matched draws are in the 697 family. Per-draw assignments are in `draw_families.csv`, and the three observed rows are in `observed_families.csv`.
+
 ## Senate delegations under the split rule
 
 Under the split rule in `viz/src/lib/senateDelegations.ts`, three states split under each counting rule. Each state's win share for a party is the fraction of the 200 draws in which that party wins the state. A state sends its top two parties when the gap between them is 12 points or less, and otherwise sends two senators from the top party. The app computes these shares from respondent resamples of one fixed typology. Here each draw re-clusters the parties instead.
