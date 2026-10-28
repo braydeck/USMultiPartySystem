@@ -29,11 +29,16 @@ is the eligible one with the highest mean adjusted Rand index against the other 
 seeds (the most typical solution). max_iter is 2000 because at 500 most seeds stopped
 before converging.
 
+--seed N fits only that seed and keeps it, skipping seed selection and leaving
+dpgmm_seed_selection.csv untouched (used by the seed sweep in
+analysis/efa/exploration/seed_sweep/).
+
 Cluster IDs are party identities, not size ranks. Each new cluster takes the ID of the
 previous-typology party it retains most of (Hungarian match on the weighted crosstab via
 caseid), so CON = 0 ... PRG = 9 stays valid in the code that hard-codes party IDs.
 """
 
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -43,7 +48,10 @@ from sklearn.metrics import adjusted_rand_score
 from sklearn.mixture import BayesianGaussianMixture
 
 DATA_DIR = Path(__file__).resolve().parents[3] / "data" / "processed"
-SEEDS = range(42, 62)
+ap = argparse.ArgumentParser()
+ap.add_argument("--seed", type=int, help="fit only this seed; skip seed selection")
+ARGS = ap.parse_args()
+SEEDS = [ARGS.seed] if ARGS.seed is not None else range(42, 62)
 N_PARTIES = 10
 CLUSTER_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4_resid", "FS_F5_resid"]
 COL_LABELS = ["F1(Enf)", "F2(ElDis)", "F3(GovTru)", "F4r(RepRel)", "F5r(ValCon)"]
@@ -94,22 +102,36 @@ for seed in SEEDS:
     print(f"  seed {seed}: converged={m.converged_}  lower bound={m.lower_bound_:.4f}  effective={n_eff_s}")
 
 eligible = [sd for sd, (m, _, ne) in fits.items() if ne == N_PARTIES and m.converged_]
-if len(eligible) < 2:
-    raise SystemExit(f"Only {len(eligible)} seeds produced {N_PARTIES} effective clusters; stopping.")
-ari = pd.DataFrame([[adjusted_rand_score(fits[a][1], fits[b][1]) for b in eligible] for a in eligible],
-                   index=eligible, columns=eligible)
-mean_ari = (ari.sum(axis=1) - 1) / (len(eligible) - 1)
-chosen = int(mean_ari.idxmax())
-pd.DataFrame({
-    "seed": list(SEEDS),
-    "effective_clusters": [fits[sd][2] for sd in SEEDS],
-    "converged": [fits[sd][0].converged_ for sd in SEEDS],
-    "lower_bound": [fits[sd][0].lower_bound_ for sd in SEEDS],
-    "mean_ari_vs_other_seeds": [mean_ari.get(sd, np.nan) for sd in SEEDS],
-    "chosen": [sd == chosen for sd in SEEDS],
-}).round(4).to_csv(DATA_DIR / "dpgmm_seed_selection.csv", index=False)
-print(f"\nEligible seeds: {len(eligible)} of {len(SEEDS)}; mean ARI range "
-      f"{mean_ari.min():.3f}-{mean_ari.max():.3f}; chosen seed {chosen} (mean ARI {mean_ari[chosen]:.3f})")
+
+
+def select_seed():
+    """Most typical eligible seed by mean ARI; writes dpgmm_seed_selection.csv."""
+    if len(eligible) < 2:
+        raise SystemExit(f"Only {len(eligible)} seeds produced {N_PARTIES} effective clusters; stopping.")
+    ari = pd.DataFrame([[adjusted_rand_score(fits[a][1], fits[b][1]) for b in eligible] for a in eligible],
+                       index=eligible, columns=eligible)
+    mean_ari = (ari.sum(axis=1) - 1) / (len(eligible) - 1)
+    chosen = int(mean_ari.idxmax())
+    pd.DataFrame({
+        "seed": list(SEEDS),
+        "effective_clusters": [fits[sd][2] for sd in SEEDS],
+        "converged": [fits[sd][0].converged_ for sd in SEEDS],
+        "lower_bound": [fits[sd][0].lower_bound_ for sd in SEEDS],
+        "mean_ari_vs_other_seeds": [mean_ari.get(sd, np.nan) for sd in SEEDS],
+        "chosen": [sd == chosen for sd in SEEDS],
+    }).round(4).to_csv(DATA_DIR / "dpgmm_seed_selection.csv", index=False)
+    print(f"\nEligible seeds: {len(eligible)} of {len(SEEDS)}; mean ARI range "
+          f"{mean_ari.min():.3f}-{mean_ari.max():.3f}; chosen seed {chosen} (mean ARI {mean_ari[chosen]:.3f})")
+    return chosen
+
+
+if ARGS.seed is None:
+    chosen = select_seed()
+elif eligible == [ARGS.seed]:
+    chosen = ARGS.seed
+    print(f"\n--seed {chosen}: seed selection skipped, dpgmm_seed_selection.csv not written")
+else:
+    raise SystemExit(f"Seed {ARGS.seed} did not converge to {N_PARTIES} effective clusters; stopping.")
 dpgmm, raw_labels, n_eff = fits[chosen]
 
 # ---------------------------------------------------------------------------
