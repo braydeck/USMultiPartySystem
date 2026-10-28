@@ -108,7 +108,7 @@ def main():
     # ── Aligned respondent frame ─────────────────────────────────────────────
     load = list(dict.fromkeys(ANCHORS + bill_vars + ["commonpostweight"]))
     df = pd.read_stata(DTA, columns=load, convert_categoricals=False)
-    mask = df[ANCHORS + ["commonpostweight"]].notna().all(axis=1)
+    mask = df[ANCHORS + ["commonpostweight"]].notna().all(axis=1) & df["pew_churatd"].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
     dc = df[mask].reset_index(drop=True)
 
     typo = pd.read_csv(TYPO)

@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import DTA_PATH, ITEMS_24
 
-EXPECTED_N    = 45_707
+EXPECTED_N    = 45_214
 OUTPUT_PATH   = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 DELETION_COLS = ITEMS_24 + ["commonpostweight"]
 READ_COLS     = ["caseid", "countyfips", "cdid119"] + DELETION_COLS
@@ -36,7 +36,7 @@ def main():
     df, _ = pyreadstat.read_dta(str(DTA_PATH), usecols=READ_COLS)
     print(f"  Raw rows: {len(df):,}")
 
-    mask = df[DELETION_COLS].notna().all(axis=1)
+    mask = df[DELETION_COLS].notna().all(axis=1) & df["pew_churatd"].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
     out  = df.loc[mask, ["caseid", "countyfips", "cdid119"]].reset_index(drop=True)
     print(f"  After listwise deletion: {len(out):,} rows")
     assert len(out) == EXPECTED_N, \

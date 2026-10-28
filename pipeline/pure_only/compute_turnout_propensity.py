@@ -51,7 +51,7 @@ def main():
     print(f"  raw rows: {len(df):,}")
 
     # Replicate efa_update.py listwise deletion (24 items + weight), preserve order
-    mask = df[ITEMS_24 + ["commonpostweight"]].notna().all(axis=1)
+    mask = df[ITEMS_24 + ["commonpostweight"]].notna().all(axis=1) & df["pew_churatd"].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
     dfc = df[mask].copy().reset_index(drop=True)
     print(f"  after listwise deletion: {len(dfc):,}")
 

@@ -20,7 +20,7 @@ import pandas as pd
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DTA = ROOT / "CCES24_Common_OUTPUT_vv_topost_final (2).dta"
+DTA = ROOT / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
 TYPO = ROOT / "data" / "processed" / "typology_cluster_assignments.csv"
 STATS = ROOT / "data" / "outputs" / "profiles" / "cluster_stats.csv"
 OUT_STATS = ROOT / "data" / "outputs" / "profiles" / "current_party_stats.csv"
@@ -185,7 +185,7 @@ def load_aligned():
     # Call value_labels() first to populate _varlist/_lbllist internal state.
     reader.value_labels()
     df = pd.read_stata(DTA, convert_categoricals=False)
-    mask = df[ANCHOR + ['commonpostweight']].notna().all(axis=1)
+    mask = df[ANCHOR + ['commonpostweight']].notna().all(axis=1) & df['pew_churatd'].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
     dc = df[mask].reset_index(drop=True)
     typo = pd.read_csv(TYPO)
     assert len(dc) == len(typo), f"row mismatch {len(dc)} vs {len(typo)}"

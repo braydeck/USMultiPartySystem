@@ -1,6 +1,6 @@
 """Patch pandas so the row-aligned per-respondent files return a resampled view.
 
-All five files are 45,707 rows in the same respondent order, and each pipeline
+All five files are 45,214 rows in the same respondent order, and each pipeline
 asserts len(efa) == len(typology), so reindexing them with one shared index vector
 keeps every downstream mask, weight and county lookup consistent. presidential_ballots.csv
 is row-aligned too, so reindexing it is equivalent to regenerating ballots from the
@@ -16,7 +16,7 @@ import pandas as pd
 BASE = Path(__file__).resolve().parents[2]
 PROCESSED = BASE / "data" / "processed"
 
-N_RESPONDENTS = 45707
+N_RESPONDENTS = 45214
 
 PROCESSED_FILES = (
     PROCESSED / "efa_factor_scores.csv",

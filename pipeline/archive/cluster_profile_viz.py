@@ -35,7 +35,7 @@ except ImportError:
     sys.exit(1)
 
 # ── Paths & constants ─────────────────────────────────────────────────────────
-BASE_DIR      = Path(__file__).parent.parent
+BASE_DIR      = Path(__file__).resolve().parents[2]
 DTA_PATH      = BASE_DIR / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
 TYPO_PATH     = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 OUTPUT_DIR    = BASE_DIR / "data" / "outputs" / "profiles"
@@ -675,10 +675,10 @@ def load_data():
     # Apply listwise deletion (same as STV pipeline)
     efa_present = [c for c in ITEMS_24 if c in df_dta.columns]
     mask_cols = efa_present + ["commonpostweight"]
-    mask = df_dta[mask_cols].notna().all(axis=1)
+    mask = df_dta[mask_cols].notna().all(axis=1) & df_dta["pew_churatd"].ne(7)  # church "Don't know" is outside the typology sample
     df = df_dta.loc[mask].reset_index(drop=True)
     print(f"  After listwise deletion: {len(df):,} rows")
-    assert len(df) == 45_707, f"Expected 45,707 rows, got {len(df)}"
+    assert len(df) == 45_214, f"Expected 45,214 rows, got {len(df)}"
 
     # Recode trust items: 8 (None at all) → 4
     for col in ["CC24_423", "CC24_424"]:

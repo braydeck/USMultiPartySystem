@@ -15,8 +15,11 @@ from scipy.stats import chi2_contingency
 warnings.filterwarnings("ignore")
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-DATA_DIR = Path("/Users/bdecker/Documents/STV/Claude")
-CES_PATH = Path("/Users/bdecker/Documents/STV/2024 CES Base/CCES24_Common_OUTPUT_vv_topost_final.dta")
+ROOT = Path(__file__).resolve().parents[3]
+PROCESSED = ROOT / "data" / "processed"
+EFA_DIR = ROOT / "analysis" / "efa"
+EXPLORATION = EFA_DIR / "exploration"
+CES_PATH = ROOT / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
 
 # ── Item ordering in original 25-item polychoric matrix ──────────────────────
 ITEMS_25 = [
@@ -29,20 +32,6 @@ ITEMS_25 = [
 DROP_ITEM  = "CC24_340a"
 ITEMS_24   = [it for it in ITEMS_25 if it != DROP_ITEM]
 
-# ── Recoding map for raw DTA → polychoric-consistent direction ────────────────
-# [rev] binary items (1/2): recode as 3 - x  (1→2, 2→1)
-REV_BINARY = {
-    "CC24_341c", "CC24_341d",
-    "CC24_323a", "CC24_323d",
-    "CC24_321e",
-    "CC24_340b", "CC24_340c",   # 340a dropped; 340b/340c still needed
-}
-# CC24_325: raw = weeks allowed; polychoric coding = 40 - raw (high = restrictive)
-# CC24_303: (rev: high=inflation) — direction verified empirically below
-# CC24_423/424: value 8 = "Not sure" → 2 (midpoint of 1–3 scale); no directional flip needed
-# CC24_421_1/2: already high=distrust in raw data
-# All other items: no recoding
-
 APPROX_V = {          # from narrative (Steps 5–7 output)
     "F1": 0.388,
     "F2": 0.147,
@@ -53,6 +42,39 @@ APPROX_V = {          # from narrative (Steps 5–7 output)
 
 
 # ── PAF ───────────────────────────────────────────────────────────────────────
+SUPPORT_HI = {"Support": 1, "Oppose": 0}
+OPPOSE_HI = {"Support": 0, "Oppose": 1}
+AGREE_HI = {"Strongly agree": 5, "Somewhat agree": 4, "Neither agree nor disagree": 3,
+            "Somewhat disagree": 2, "Strongly disagree": 1}
+DISAGREE_HI = {"Strongly agree": 1, "Somewhat agree": 2, "Neither agree nor disagree": 3,
+               "Somewhat disagree": 4, "Strongly disagree": 5}
+GOVT_TRUST = {"A great deal": 1, "A fair amount": 2, "Not very much": 3, "None at all": 4}
+LABEL_MAPS = {
+    "pew_churatd": {"Never": 1, "Seldom": 2, "A few times a year": 3, "Once or twice a month": 4,
+                    "Once a week": 5, "More than once a week": 6},
+    "CC24_302": {"Increased a lot": 1, "Increased somewhat": 2, "Stayed about the same": 3,
+                 "Decreased somewhat": 4, "Decreased a lot": 5},
+    "CC24_303": {"Decreased a lot": 1, "Decreased somewhat": 2, "Stayed about the same": 3,
+                 "Increased somewhat": 4, "Increased a lot": 5},
+    "CC24_341a": SUPPORT_HI, "CC24_341c": OPPOSE_HI, "CC24_341d": OPPOSE_HI,
+    "CC24_323a": OPPOSE_HI, "CC24_323b": SUPPORT_HI, "CC24_323d": OPPOSE_HI,
+    "CC24_321b": SUPPORT_HI, "CC24_321d": SUPPORT_HI, "CC24_321e": OPPOSE_HI,
+    "CC24_324b": SUPPORT_HI,
+    "CC24_340b": OPPOSE_HI, "CC24_340c": OPPOSE_HI, "CC24_340e": SUPPORT_HI, "CC24_340f": SUPPORT_HI,
+    "CC24_440b": AGREE_HI, "CC24_440c": AGREE_HI,
+    "CC24_421_1": DISAGREE_HI, "CC24_421_2": DISAGREE_HI,
+    "CC24_423": GOVT_TRUST, "CC24_424": GOVT_TRUST,
+}
+
+
+def recode_items(lab):
+    """Label-based recode matching efa_pipeline_v4.py (the polychoric's coding)."""
+    out = {c: lab[c].map(m).astype(float) for c, m in LABEL_MAPS.items()}
+    # CC24_325 is a numeric weeks value; 40 - weeks, so high = restrictive
+    out["CC24_325"] = 40.0 - pd.to_numeric(lab["CC24_325"].astype(str), errors="coerce")
+    return pd.DataFrame(out)[ITEMS_24]
+
+
 def compute_smc(R):
     try:
         R_inv = np.linalg.inv(R)
@@ -147,7 +169,7 @@ def main():
     print("STEP 1a: LOAD 24-ITEM POLYCHORIC SUBMATRIX")
     print(thin)
 
-    corr_df_25 = pd.read_csv(DATA_DIR / "polychoric_matrix.csv", index_col=0)
+    corr_df_25 = pd.read_csv(PROCESSED / "polychoric_matrix.csv", index_col=0)
     corr_df_24 = corr_df_25.drop(index=DROP_ITEM, columns=DROP_ITEM)
     assert list(corr_df_24.columns) == ITEMS_24, "Column order mismatch"
 
@@ -191,7 +213,7 @@ def main():
     print("  " + phi_df.to_string().replace("\n", "\n  "))
 
     # STEP 4 prep: load the original 25-item k=5 loadings for side-by-side
-    orig_L_df = pd.read_csv(DATA_DIR / "efa_loadings_k5.csv", index_col=0)
+    orig_L_df = pd.read_csv(EXPLORATION / "efa_loadings_k5.csv", index_col=0)
     # The CSV has columns: Label, Domain, PID_R2, F1…F5, h2
     # Extract the original F3 loadings for the 24 items (and 340a)
     factor_cols_orig = ["F1", "F2", "F3", "F4", "F5"]
@@ -219,73 +241,24 @@ def main():
     print("STEP 2: LOAD & RECODE RAW DTA DATA")
     print(thin)
 
-    COLS_NEEDED = ITEMS_24 + ["pid3", "ideo5", "commonpostweight", "inputstate"]
+    # Items are coded from their value LABELS with the same maps efa_pipeline_v4.py used to
+    # build the polychoric matrix, so the scores run in the direction of the loadings. The
+    # earlier version scored raw numeric codes: 18 of 24 items entered reversed relative to
+    # the other 6, government-trust "None at all" (raw 8) was recoded as "A fair amount",
+    # and church "Don't know" (raw 7) was kept as a value. Non-substantive answers are NaN
+    # and drop out at listwise deletion.
     print(f"  Reading {CES_PATH.name} …")
-    df_raw = pd.read_stata(CES_PATH, columns=COLS_NEEDED, convert_categoricals=False)
-    print(f"  Raw rows: {len(df_raw):,}")
+    lab = pd.read_stata(CES_PATH, columns=ITEMS_24, convert_categoricals=True,
+                        convert_missing=False, convert_dates=False)
+    meta = pd.read_stata(CES_PATH, columns=["caseid", "pid3", "ideo5", "commonpostweight", "inputstate"],
+                         convert_categoricals=False)
+    print(f"  Raw rows: {len(lab):,}")
+    df_raw = pd.concat([meta, recode_items(lab)], axis=1)
 
-    # Flag respondents where CC24_423 or CC24_424 was "Not sure" (value 8)
-    # Create BEFORE recoding so the flag reflects the original raw response
-    df_raw["govt_trust_imputed"] = (
-        (df_raw["CC24_423"] == 8) | (df_raw["CC24_424"] == 8)
-    ).astype(int)
-    n_imputed = df_raw["govt_trust_imputed"].sum()
-    print(f"  govt_trust_imputed: {n_imputed:,} respondents flagged "
-          f"(CC24_423==8 OR CC24_424==8)")
-
-    # Recode CC24_423/424: value 8 → 2 (midpoint of 1–3 scale)
-    for col in ["CC24_423", "CC24_424"]:
-        n_8 = (df_raw[col] == 8).sum()
-        df_raw[col] = df_raw[col].where(df_raw[col] != 8, other=2)
-        print(f"  {col}: recoded {n_8:,} value-8 → 2 (midpoint, scale 1–3)")
-
-    # Recode ideo5: value 6 → NaN ("Not sure")
     n_6 = (df_raw["ideo5"] == 6).sum()
     df_raw["ideo5"] = df_raw["ideo5"].where(df_raw["ideo5"] != 6, other=np.nan)
     print(f"  ideo5:   recoded {n_6:,} value-6 → NaN")
-
-    # Verify CC24_303 direction: compute weighted Pearson corr with CC24_341a
-    # In polychoric matrix, CC24_303 × CC24_341a = +0.3675
-    # If raw Pearson corr is negative, we need 6 - CC24_303
-    mask_valid = df_raw[["CC24_303", "CC24_341a", "commonpostweight"]].notna().all(axis=1)
-    df_chk = df_raw[mask_valid]
-    w = df_chk["commonpostweight"].values
-    x303  = df_chk["CC24_303"].values
-    x341a = df_chk["CC24_341a"].values
-    mu303  = np.sum(w * x303)  / w.sum()
-    mu341a = np.sum(w * x341a) / w.sum()
-    cov    = np.sum(w * (x303 - mu303) * (x341a - mu341a)) / w.sum()
-    s303   = np.sqrt(np.sum(w * (x303 - mu303)  ** 2) / w.sum())
-    s341a  = np.sqrt(np.sum(w * (x341a - mu341a) ** 2) / w.sum())
-    r_raw_303_341a = cov / (s303 * s341a)
-    print(f"\n  CC24_303 direction check:")
-    print(f"    Weighted Pearson(CC24_303, CC24_341a) in raw data = {r_raw_303_341a:+.4f}")
-    print(f"    Polychoric(CC24_303, CC24_341a) in matrix         = +0.3675")
-    if r_raw_303_361a := r_raw_303_341a < 0:
-        print(f"    → Raw correlation is NEGATIVE → applying 6 - CC24_303")
-        needs_rev_303 = True
-    else:
-        print(f"    → Raw correlation is POSITIVE → CC24_303 already in correct direction")
-        needs_rev_303 = False
-
-    # Apply all recodings
-    df = df_raw.copy()
-
-    if needs_rev_303:
-        df["CC24_303"] = 6 - df["CC24_303"]
-
-    for col in REV_BINARY:
-        if col in df.columns:
-            df[col] = 3 - df[col]
-
-    # CC24_325: 40 - raw (high = restrictive)
-    df["CC24_325"] = 40 - df["CC24_325"]
-
-    print(f"\n  Recoding applied:")
-    print(f"    Binary [rev]: {sorted(REV_BINARY)}")
-    print(f"    CC24_325 → 40 - CC24_325")
-    if needs_rev_303:
-        print(f"    CC24_303 → 6 - CC24_303")
+    df = df_raw
 
     # ── Listwise deletion on 24 items + weight ─────────────────────────────
     cols_for_deletion = ITEMS_24 + ["commonpostweight"]
@@ -382,6 +355,7 @@ def main():
         mean_rep = np.sum(w_rep * fs[mask_rep]) / w_rep.sum()
         if mean_rep < mean_dem:
             F[:, factor_j] *= -1
+            L_rot_24[:, factor_j] *= -1
             print(f"    F{factor_j+1} ({construct}): FLIPPED  "
                   f"[Rep {mean_rep:+.3f} → {-mean_rep:+.3f}, "
                   f"Dem {mean_dem:+.3f} → {-mean_dem:+.3f}]")
@@ -389,14 +363,33 @@ def main():
             print(f"    F{factor_j+1} ({construct}): OK  "
                   f"[Rep {mean_rep:+.3f} > Dem {mean_dem:+.3f}]")
 
-    # Cross-partisan factors: leave sign as-is
-    print(f"    F{f_distrust_j+1} (election distrust): left as-is (V≈0.11, cross-partisan)")
-    print(f"    F{f_govttr_j+1}  (govt trust):        left as-is (V≈0.06, near-orthogonal)")
+    # Cross-partisan factors have no partisan anchor, so orient them by their own item:
+    # high = distrust (CC24_421_2 and CC24_423 are both coded high = distrust).
+    for factor_j, item_idx, construct in [(f_distrust_j, idx_421_2, "election distrust"),
+                                          (f_govttr_j, idx_423, "govt distrust")]:
+        r = np.corrcoef(F[:, factor_j], Z[:, item_idx])[0, 1]
+        if r < 0:
+            F[:, factor_j] *= -1
+            L_rot_24[:, factor_j] *= -1
+        print(f"    F{factor_j+1} ({construct}): {'FLIPPED' if r < 0 else 'OK'}  "
+              f"[r with its anchor item {r:+.3f} -> {abs(r):+.3f}]")
 
     # Store factor scores in dataframe
     factor_score_cols = [f"FS_{fn}" for fn in fnames]
     for j, col in enumerate(factor_score_cols):
         df_complete[col] = F[:, j]
+
+    # Religion (F4) and values (F5) residualized on enforcement (F1) by weighted OLS; the
+    # clustering runs on these. Reproduces the previously committed FS_F4_resid/FS_F5_resid
+    # exactly from their FS_F1/F4/F5 (betas 0.2229, 0.5651).
+    assert (f_enforce_j, f_repro_j, f_values_j) == (0, 3, 4), "anchor factors moved; resid columns would mislabel"
+    Xd = np.column_stack([np.ones(len(F)), F[:, 0]])
+    Wn = w / w.mean()
+    for j in (3, 4):
+        beta = np.linalg.solve((Xd.T * Wn) @ Xd, (Xd.T * Wn) @ F[:, j])
+        df_complete[f"FS_F{j + 1}_resid"] = F[:, j] - Xd @ beta
+        print(f"    FS_F{j + 1}_resid = F{j + 1} - ({beta[0]:+.4f} {beta[1]:+.4f}*F1)")
+    factor_score_cols = factor_score_cols + ["FS_F4_resid", "FS_F5_resid"]
 
     print(f"\n  Factor score descriptives (weighted):")
     print(f"  {'Factor':>8}  {'W.Mean':>8}  {'W.SD':>8}  {'Min':>8}  {'Max':>8}")
@@ -486,7 +479,7 @@ def main():
 
     # Original 25-item F3 loadings (from efa_loadings_k5.csv)
     # The original CSV has factor columns named F1..F5
-    orig_L = pd.read_csv(DATA_DIR / "efa_loadings_k5.csv", index_col=0)
+    orig_L = pd.read_csv(EXPLORATION / "efa_loadings_k5.csv", index_col=0)
     # Identify which column in the original solution corresponds to F3
     # (the reproductive rights factor anchored by 340a and 340b)
     # Check which original factor has the highest loading on CC24_340b
@@ -579,21 +572,20 @@ def main():
     # 5a. Updated 24-item k=5 loadings
     df_L_out = pd.DataFrame(L_rot_24, index=ITEMS_24, columns=fnames)
     df_L_out.insert(0, "h2", h2_24)
-    df_L_out.to_csv(DATA_DIR / "efa_loadings_k5_final.csv")
+    df_L_out.to_csv(EFA_DIR / "efa_loadings_k5_final.csv")
     print("  ✓ efa_loadings_k5_final.csv")
 
     # 5b. Updated Phi
     phi_out = pd.DataFrame(np.round(Phi_24, 4), index=fnames, columns=fnames)
-    phi_out.to_csv(DATA_DIR / "efa_phi_k5_final.csv")
+    phi_out.to_csv(EFA_DIR / "efa_phi_k5_final.csv")
     print("  ✓ efa_phi_k5_final.csv")
 
     # 5c. Factor scores merged with metadata
     # (keep pid3 1-5 in the output file, not just 1-3, so analyst has full dataset)
-    save_cols = (["pid3", "ideo5", "inputstate", "commonpostweight",
-                  "govt_trust_imputed"]
-                 + factor_score_cols)
+    save_cols = (["pid3", "ideo5", "inputstate", "commonpostweight"]
+                 + factor_score_cols + ["caseid"])
     df_scores_out = df_complete[save_cols].copy()
-    df_scores_out.to_csv(DATA_DIR / "efa_factor_scores.csv", index=False)
+    df_scores_out.to_csv(PROCESSED / "efa_factor_scores.csv", index=False)
     print(f"  ✓ efa_factor_scores.csv  (N={len(df_scores_out):,})")
 
     # 5d. Cramér's V comparison table
@@ -608,7 +600,7 @@ def main():
             "N_weighted": vals["N_wtd"],
         })
     cramers_df = pd.DataFrame(cramers_rows)
-    cramers_df.to_csv(DATA_DIR / "efa_cramersv_actual.csv", index=False)
+    cramers_df.to_csv(EXPLORATION / "efa_cramersv_actual.csv", index=False)
     print("  ✓ efa_cramersv_actual.csv")
 
     print(f"\n{sep}")

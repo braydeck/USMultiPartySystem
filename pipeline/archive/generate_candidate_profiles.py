@@ -23,8 +23,8 @@ import pandas as pd
 from pathlib import Path
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-BASE_DIR          = Path(__file__).parent.parent
-ITEM_MEANS_PATH   = BASE_DIR / "analysis" / "clustering_old" / "cluster_item_means.csv"
+BASE_DIR          = Path(__file__).resolve().parents[2]
+ITEM_MEANS_PATH   = BASE_DIR / "archive" / "clustering_old" / "cluster_item_means.csv"
 EFA_SCORES_PATH   = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY_PATH     = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 OUTPUT_DIR        = BASE_DIR / "data" / "outputs"

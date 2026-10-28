@@ -75,19 +75,22 @@ PC_PARTIES = {"LIB", "LBR", "STY", "CUP", "CON", "POP"}
 AXIS_PARTIES = {"so": SO_PARTIES, "id": ES_PARTIES, "pc": PC_PARTIES}
 
 # OAO (cluster 7) is a small party: base candidate only, no crossover variants.
-# Centroid = weighted FS_F1..F5 mean of cluster 7 (matches clusterSpreads).
-OAO_CENTROID = {
-    "F1_security_order":          0.7235,
-    "F2_electoral_skepticism":   -0.6288,
-    "F3_government_distrust":      0.2912,
-    "F4_religious_traditionalism": -0.1322,
-    "F5_populist_conservatism":   -0.6845,
-}
+# Centroid = weighted FS_F1..F5 mean of cluster 7 (matches clusterSpreads), computed from the
+# current typology so it can't go stale against the other parties' centroids.
+def oao_centroid() -> dict[str, float]:
+    import numpy as np
+    import pandas as pd
+    fs = pd.read_csv(BASE_DIR / "data" / "processed" / "efa_factor_scores.csv")
+    cl = pd.read_csv(BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv", usecols=["cluster"])
+    m = (cl["cluster"] == 7).values
+    w = fs["commonpostweight"].values[m]
+    return {col: float(np.average(fs[f"FS_F{i + 1}"].values[m], weights=w)) for i, col in enumerate(FACTOR_COLS)}
+
 
 # Factor axis → column name (F3 and F4 excluded — inter-party SD too small)
 AXIS_FACTOR_IDX = {"so": 0, "id": 1, "pc": 4}
 AXIS_FACTOR_COL = {"so": "F1_security_order",
-                   "id": "F2_institutional_distrust",
+                   "id": "F2_electoral_skepticism",
                    "pc": "F5_populist_conservatism"}
 
 DEVIATION_PCT = 0.25   # fraction of inter-party SD
@@ -120,6 +123,7 @@ def compute_inter_party_sd(centroids: dict[str, dict[str, float]]) -> dict[str, 
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     centroids = load_pure_centroids()
+    oao = oao_centroid()
 
     print("Base party centroids:")
     print(f"  {'Party':5}  {'F1':>7}  {'F2':>7}  {'F3':>7}  {'F4':>7}  {'F5':>7}")
@@ -179,7 +183,7 @@ def main():
         "party":          "OAO",
         "axis":           "base",
         "direction":      "base",
-        **{col: round(OAO_CENTROID[col], 4) for col in FACTOR_COLS},
+        **{col: round(oao[col], 4) for col in FACTOR_COLS},
     })
     total += 1
 

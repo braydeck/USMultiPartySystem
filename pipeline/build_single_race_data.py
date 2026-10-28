@@ -62,7 +62,7 @@ CAND_FACTOR_COLS = ["F1_security_order", "F2_electoral_skepticism", "F3_governme
                     "F4_religious_traditionalism", "F5_populist_conservatism"]
 PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
 POSITIONAL_SIGMA = 0.35            # matches generate_factor_deviation_ballots.py
-EXPECTED_N       = 45_707
+EXPECTED_N       = 45_214
 DEC              = 4
 LOGPROB_FLOOR    = -700.0          # only replaces log(0)=-inf; preserves full ranking (100% ballots.csv match)
 
@@ -155,7 +155,7 @@ def main():
         sys.exit(1)
     read_cols = ["caseid", "inputstate", "cdid119", "commonpostweight"] + ITEMS_24
     dta, _ = pyreadstat.read_dta(str(DTA_PATH), usecols=read_cols)
-    mask = dta[ITEMS_24 + ["commonpostweight"]].notna().all(axis=1)
+    mask = dta[ITEMS_24 + ["commonpostweight"]].notna().all(axis=1) & dta["pew_churatd"].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
     dta = dta.loc[mask].reset_index(drop=True)
     assert len(dta) == EXPECTED_N, f"post-deletion rows {len(dta)} != {EXPECTED_N}"
     assert (dta["inputstate"].astype(int).values == efa["inputstate"].astype(int).values).all(), \

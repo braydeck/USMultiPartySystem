@@ -5,7 +5,7 @@ build_party_factor_ellipses.py
 Each party's spread across the four interpretable factors, for the Parties tab's factor-pair
 grid. Source: data/processed/efa_factor_scores.csv (raw FS_F1/F2/F4/F5 + commonpostweight)
 joined positionally to data/processed/typology_cluster_assignments.csv (hard `cluster`).
-Both files are 45,707 rows on the same listwise-deletion mask, asserted below. Raw F4/F5,
+Both files are 45,214 rows on the same listwise-deletion mask, asserted below. Raw F4/F5,
 not the resid columns, so the space matches the constellation's centroids.
 
 F3 is left out: it is a suppressor kept only to isolate CUP and runs opposite to real distrust.
@@ -43,7 +43,7 @@ def wmean(x, w):
 def main():
     scores = pd.read_csv(PROCESSED / "efa_factor_scores.csv")
     typ = pd.read_csv(PROCESSED / "typology_cluster_assignments.csv")
-    assert len(scores) == len(typ) == 45707
+    assert len(scores) == len(typ) == 45214
     assert np.allclose(scores.FS_F1, typ.FS_F1) and np.allclose(scores.commonpostweight, typ.commonpostweight)
 
     w = scores.commonpostweight.to_numpy()
