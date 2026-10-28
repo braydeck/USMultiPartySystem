@@ -1,0 +1,39 @@
+# Validation workstream decisions (ANES / GSS / CES team modules)
+
+Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans/ces_anes_gss_validation_plan.md` (full scope).
+
+## 2026-10-27
+
+- **ANES runs two EFAs: a matched one-to-one replication and an independent native EFA.** The matched
+  crosswalk (one ANES item per CES typology item, recode rules, state-trust stand-in) is frozen and
+  committed before any ANES correlation is computed. The independent pool uses the CES screening rules
+  (partisan-proxy, modal-share, multi-select, r>0.7 redundancy) and parallel analysis picks k. The two
+  solutions are bridged by correlating factor scores on the same ANES respondents, not by Tucker φ.
+- **The independent pool includes the trust and election-fairness items** (`V241229`–`V241233`,
+  `V241314`, `V241315`, `V242207`, `V242430`, CSES `V242417`–`V242423`). Institutional distrust is a
+  core concept in the CES typology and in Echelon Insights' segmentation, so leaving out the domain ANES
+  covers best would bias the exploratory test.
+- **The independent pool excludes the federal spending battery and the feeling thermometers.** The
+  cross-wave work showed that same-format spending items form a method factor
+  (`previous_years` `EXCLUDE_FROM_COMMON`). Thermometers are mostly partisan proxies and share one format.
+- **No stand-ins in the matched crosswalk.** A CES item without a clean ANES analog is omitted, including
+  `CC24_424` (state-government trust). Preserving F3's two-institution shape is not a goal, because F3
+  is a suppressor. The distrust dimension that matters is F2, and the independent fit lets ANES's richer
+  trust items define it.
+- **The CES police items (`CC24_321d`/`321e`) match to `V241397` (urban unrest, 1–7) and `V241270`
+  (federal crime spending).** If the spending-format items (`V241270`, `V241267`, `V241276`) load together
+  in ANES, treat that as a format factor, not Security & Order.
+- **The independent pool uses the CES Stage A/B item screen unchanged** (`docs/EFA_ITEM_SELECTION_ROBUSTNESS.md`).
+- **This round uses 2024 surveys only.** Workstream 7 (STY life-stage, the ANES 2016–2020–2024 panel, and
+  the GSS cohort analysis) is deferred. Goals 1–3 need nothing before 2024.
+- **All eight critique fixes are adopted** in `ces_anes_gss_validation_plan.md`:
+  - a native-cluster route for parties that fail the recall gate;
+  - a shrinkage factor measured on held-out CES respondents;
+  - cut-points that match the CES answer splits;
+  - a CES subsample benchmark for merges;
+  - the `caseid` positional join for team modules;
+  - the new workstream order: team modules → ANES EFAs → classifiers → profiles → GSS;
+  - corrected paths and context;
+  - a stated denominator for party shares.
+- **The multi-item conceptual-domain version is a sensitivity check only.** Item density reshapes the
+  factors (ANES's 4 racial-resentment items tend to form their own factor).

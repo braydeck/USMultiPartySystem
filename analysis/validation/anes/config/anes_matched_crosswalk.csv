@@ -1,0 +1,25 @@
+ces_var,ces_factor,ces_label,anes_sources,anes_map,fidelity,note
+pew_churatd,Religious Traditionalism,Church attendance frequency,V241440|V241439,"V241440:5=1,4=2,3=3,2=4,1=5 / V241439:2=1",close,Splice: frequency if asked; never-attenders (V241439=2) coded 1. ANES 5-pt vs CES 6-pt
+CC24_302,econ,Household income change past year (high=worse),V241451,"1=1,2=2,3=3,4=4,5=5",close,Better/worse off financially vs a year ago
+CC24_303,econ,Perceived price change past year,,,none,No ANES price-change item
+CC24_321b,Populist Conservatism,Support easier concealed carry,V242325,"1=1,3=2,2=3",close,Federal govt make buying a gun more difficult / same / easier; high=easier
+CC24_321d,Security & Order,Support increase police 10%,V241272x,"1=5,2=4,3=3,4=2,5=1",close,Federal spending on dealing with crime (5-pt summary); high=increase. Same format as V241269x/V241278x: check for a format factor
+CC24_321e,Security & Order,Oppose decrease police 10%,V241397,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",close,Urban unrest 1=solve racism/police violence .. 7=all available force; 99 haven't thought = NaN
+CC24_323a,Populist Conservatism,Oppose legal status for working immigrants,V241386,"1=4,2=3,3=2,4=1",close,Policy toward unauthorized immigrants; high=felons and deport
+CC24_323b,Security & Order,Support increase border patrols,V241269x,"1=5,2=4,3=3,4=2,5=1",close,Federal spending on tightening border security (5-pt summary); high=increase
+CC24_323d,Populist Conservatism,Oppose Dreamers pathway to citizenship,V241392x,"1=6,2=5,3=4,4=3,5=2,6=1",exact,"Children brought illegally, 10+ years, graduated HS: sent back vs allowed to live and work (6-pt summary); high=sent back. Alternate V242234x (general path to citizenship) not used"
+CC24_324b,Religious Traditionalism,Support abortion only rape/incest/life,V241302,"1=4,2=3,3=2,4=1",close,4-category standard abortion item; high=restrictive; 5 Other = NaN
+CC24_325,Religious Traditionalism,Abortion weeks limit (high=restrictive),V241248,"1=1,2=2,3=3,4=4,5=5,6=6,7=7",close,7-pt abortion self-placement; high=never permitted; 99 = NaN
+CC24_340b,Religious Traditionalism,Oppose prohibiting abortion service restrictions,,,none,No third ANES abortion item
+CC24_340c,Religious Traditionalism,Oppose required same-sex marriage recognition,V241382|V241383,"V241382:1=1,2=2,3=3 / V241383:1=1,3=2,2=3",close,Splice of form 1A (marry/civil unions/no recognition) and form 1B (favor/neither/oppose); high=oppose
+CC24_340e,Security & Order,Support renewing post-9/11 surveillance,,,none,No ANES surveillance item
+CC24_340f,Security & Order,Support denying asylum at border,,,none,No ANES asylum item
+CC24_341a,Populist Conservatism,Support extending 2017 tax cuts,,,none,No ANES tax-cut item
+CC24_341c,Populist Conservatism,Oppose letting $400k+ tax rates rise,V242316a,"1=1,3=2,2=3",close,Increase income taxes on people making over $1M; high=oppose
+CC24_341d,Populist Conservatism,Oppose $150B infrastructure spending,V241278x,"1=1,2=2,3=3,4=4,5=5",close,Federal spending on building and repairing highways (5-pt summary); high=decrease
+CC24_421_1,Institutional Distrust,Distrust federal elections,V241314,"1=5,2=4,3=3,4=2,5=1",close,How accurately votes will be counted in Nov 2024; high=distrust
+CC24_421_2,Institutional Distrust,Distrust state elections,V241315,"1=5,2=4,3=3,4=2,5=1",close,Trust officials who oversee elections where you live; high=distrust
+CC24_423,Government Distrust,Low trust in federal government,V241229,"1=1,2=2,3=3,4=4,5=5",close,How often trust the federal government in Washington; high=never
+CC24_424,Government Distrust,Low trust in state government,,,none,No ANES state-government trust item; omitted (no stand-in)
+CC24_440b,Populist Conservatism,Agree racial problems are rare/isolated,V242301,"1=1,2=2,3=3,4=4,5=5",close,Generations of slavery and discrimination make it difficult for Blacks; high=disagree
+CC24_440c,Populist Conservatism,Agree women seek power over men,V241608,"1=5,2=4,3=3,4=2,5=1",exact,"'Women seek to gain power by getting control over men' (same wording as CES); high=agree. V241607 (innocent remarks) is the neighboring hostile-sexism item, not used"
