@@ -110,12 +110,15 @@ def steps(draws, procs):
             ("pipeline/build_house_votemodel_depth.py",), ("pipeline/build_general_depth_bundle.py",),
             ("pipeline/build_primary_depth_bundle.py",), ("pipeline/build_top_two_bundle.py",),
             ("pipeline/build_party_factor_ellipses.py",), ("pipeline/build_cross_party_affinity.py",),
-            ("pipeline/build_single_race_data.py",), ("analysis/quota_flows.py",), ("analysis/quota_composition.py",),
+            ("pipeline/build_single_race_data.py",),
             ("viz/scripts/make_quiz_questions.py",),
             ("pipeline/build_hex_seat_cartogram.py",), ("pipeline/build_hex_seat_cartogram.py", "--triple"),
             ("pipeline/build_hex_seat_cartogram.py", "--reserve"),
             ("pipeline/build_hex_seat_cartogram.py", "--reserve", "--triple"),
-            ("pipeline/build_hex_mmp_cartogram.py",), ("pipeline/build_hex_mmp_cartogram.py", "--triple")]]),
+            ("pipeline/build_hex_mmp_cartogram.py",), ("pipeline/build_hex_mmp_cartogram.py", "--triple")]]
+            # the quota payloads describe the app's default stop and refuse to run at any other
+            + [[py(s, env={"TURNOUT_WEIGHT": "1", "TURNOUT_LAMBDA": "0.05"})]
+               for s in ("analysis/quota_flows.py", "analysis/quota_composition.py")]),
     ]
 
 

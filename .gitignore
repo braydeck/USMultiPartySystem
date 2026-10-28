@@ -52,3 +52,4 @@ data/raw/rcv/
 # instrumentation, but only the base pure_multi copy has a consumer (prepare_data.py).
 data/outputs/*/house/transfer_matrix_*.csv
 !data/outputs/pure_multi/house/transfer_matrix_*.csv
+data/outputs/rebuild_from_typology.log
