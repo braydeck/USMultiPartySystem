@@ -1,13 +1,13 @@
 # Methodology
 
-How 45,707 survey responses become a ten-party legislature. Every step uses a
+How 45,214 survey responses become a ten-party legislature. Every step uses a
 published method; the goal is a transparent, reproducible pipeline, not a forecast.
 
 ## Data
 
 **2024 Cooperative Election Study (CES)**, Harvard/YouGov. The CES is one of the
 largest academic surveys of US political opinion (~60,000 respondents). The analysis
-sample is **N = 45,707** after listwise deletion on the 24 policy items used for the
+sample is **N = 45,214** after listwise deletion on the 24 policy items used for the
 factor model plus the post-stratification weight (`commonpostweight`). Raw CES
 microdata is downloaded from the source (Harvard Dataverse), not redistributed here;
 see [`DATA_SOURCES.md`](DATA_SOURCES.md).
@@ -21,7 +21,7 @@ Polychoric exploratory factor analysis (EFA) with oblique (oblimin) rotation red
 |--------|----------|
 | F1 — Security & Order | policing, border enforcement, surveillance |
 | F2 — Institutional Distrust | belief that elections are run fairly |
-| F3 — Government Distrust (residual) | general institutional trust |
+| F3 — Government Distrust | general trust in federal and state government |
 | F4 — Religious Traditionalism | church attendance, abortion, same-sex marriage |
 | F5 — Populist Conservatism | immigration, fiscal, and racial-traditionalism cluster |
 

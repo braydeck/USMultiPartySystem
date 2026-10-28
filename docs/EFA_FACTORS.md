@@ -3,7 +3,7 @@
 Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution underlying the political typology.
 
 **Solution:** 24-item, oblique rotation (oblimin), k=5 factors
-**Sample:** N=45,707 (2024 CES, listwise deletion)
+**Sample:** N=45,214 (2024 CES, listwise deletion; church "Don't know" excluded since the 2026-10 rescore)
 **Dropped item:** CC24_340a — near-Heywood condition (λ=−0.947); removed from ITEMS_25 to produce final ITEMS_24 set
 **Files:** `analysis/efa/efa_loadings_k5_final.csv`, `analysis/efa/efa_phi_k5_final.csv`
 **Item selection & robustness:** the full audit of how these items were chosen and how the typology holds up under every alternative (mechanical selection rule, overlooked domains, k and rotation variants) is in [`EFA_ITEM_SELECTION_ROBUSTNESS.md`](EFA_ITEM_SELECTION_ROBUSTNESS.md).
@@ -149,6 +149,8 @@ Key relationships:
 **Critical note:** CC24_423 and CC24_424 load on BOTH F2 and F3. The distinction is: F2 = specifically about *election* integrity; F3 = general *institutional* trust. F3 has an unusual ideological mix that doesn't map cleanly to left-right.
 
 **Key finding for coalition analysis:** All 23 winning types score Medium on F3 (range −0.21 to +0.13). The full winning coalition set is mildly above the population mean on government distrust but undifferentiated from each other. F3 does not drive coalition formation.
+
+> **Superseded (2026-10).** The inversion below was produced by a scoring bug. `efa_update.py` scored raw codes against label-coded loadings, and it scored government-trust "None at all" as "A fair amount". Correctly scored, F3 correlates +0.84 with respondents' government-distrust answers. See `analysis/efa/exploration/church_dk/README.md`. The section is kept as a record.
 
 **Validity re-check (July 2026): F3 is a residual factor, and its sign is misleading.** Re-deriving the relationship from the stored factor scores (repro: `analysis/efa/exploration/verify_f3_inversion.py`) shows the factor does not measure what its name implies:
 
@@ -300,7 +302,7 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 
 The production typology rests on three modeling choices that aren't forced by the data alone: **k=5 factors** (parallel analysis was borderline between 4 and 5), **F1-residualization** of the two culture factors (F4, F5) before clustering, and the **DPGMM** itself. Because Government Distrust (F3) has near-zero discriminating power (η²=0.057) and Institutional Distrust already carries the trust signal, k=4 is a defensible alternative. To check whether the ten parties are real structure or artifacts of these choices, we re-ran the full pipeline (polychoric → PAF → oblimin → Thomson scores → DPGMM) under three variants — **k=5 no-resid, k=4 resid, k=4 no-resid** — and matched each variant's clusters back to the production parties in the common 24-item space.
 
-> Reproduction is approximate: listwise N=45,214 (vs production 45,707 — "Not sure" on the government-trust items mapped to the scale midpoint), oblimin rather than the stored solution, DPGMM stochasticity. Treat magnitudes as indicative; the qualitative survival pattern is stable. Scripts: `analysis/efa/{compare_k4_vs_k5_clustering, cluster_survival_k4_k5, build_cluster_explorer_data}.py`; interactive write-up: `analysis/efa/exploration/cluster_explorer.html`.
+> Reproduction is approximate: listwise N=45,214 (vs the pre-rescore production 45,707, which kept 493 church "Don't know" answers as a value), oblimin rather than the stored solution, DPGMM stochasticity. Treat magnitudes as indicative; the qualitative survival pattern is stable. Scripts: `analysis/efa/{compare_k4_vs_k5_clustering, cluster_survival_k4_k5, build_cluster_explorer_data}.py`; interactive write-up: `analysis/efa/exploration/cluster_explorer.html`.
 
 ### What survives
 

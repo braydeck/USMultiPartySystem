@@ -24,7 +24,7 @@ Cloudflare.
 
 | Fact | Value |
 |---|---|
-| Respondents after listwise deletion | **45,707** |
+| Respondents after listwise deletion | **45,214** (church "Don't know" excluded since the 2026-10 rescore) |
 | Parties | **10**, all active. OAO (cluster 7) and STY (cluster 2) are never dissolved. |
 | House chamber | **873 seats** (double magnitude), 1,726 (triple). **Not 435.** |
 | House districts | 150 double, 243 triple. MMP and Single Race instead use the 436 real 119th-Congress districts. |
@@ -37,11 +37,18 @@ Before quoting any chamber-level count, sum it out of the JSON. Do not reach for
 
 ## The five factors
 
-F1 Security & Order. F2 Institutional Distrust (elections). F3 Government Distrust (residual).
+F1 Security & Order. F2 Institutional Distrust (elections). F3 Government Distrust.
 F4 Religious Traditionalism. F5 Populist Conservatism (the primary left-right axis).
 
-**F3 runs opposite to real distrust** (corr −0.38); F2 carries it (+0.84). F3 is a suppressor
-kept only to isolate CUP. Never label F3 as "distrust" in reader-facing copy.
+**Scores are label-coded since the 2026-10 rescore (69a6eeb).** Before it, `efa_update.py`
+scored raw DTA codes against label-coded loadings. Six items ran backwards, and government-trust
+"None at all" was scored as "A fair amount". That is why F3 used to look inverted and was
+treated as a suppressor. Correctly scored, F3 correlates +0.84 with respondents' own
+government-distrust answers, so it is a real government-distrust axis. Party IDs are pinned to
+the previous parties through `data/processed/party_id_reference.csv`, and the clustering
+keeps the most typical of 20 converged seeds. A new typology is rebuilt with
+`pipeline/rebuild_from_typology.py`: `check_stale.py --regenerate` covers only the house trees
+and the payloads.
 
 ## How a voter becomes a ballot
 
@@ -118,7 +125,8 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    9.6, and a 7.9% floor at full ranking. Benchmark the floor before calling it high — one such
    seat in each of the 150 districts would be 17.2%, so 7.9% (69 seats, 46% of districts) sits
    well under the ordinary rate. Concentration is a plausible story for *which* districts sit at
-   the floor, untested as of 2026-09-12.
+   the floor, untested as of 2026-09-12. These figures predate the 2026-10 rescore; re-measure
+   before quoting.
 
 6. **`id` is the correct FD axis label.** Do not re-run `rename_ae_to_es.py`.
 

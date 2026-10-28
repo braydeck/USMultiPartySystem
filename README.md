@@ -1,12 +1,12 @@
 # American Multi-Party Electoral Simulation
 
-A full-stack simulation of what American politics might look like under proportional representation, using real ideological data from the **2024 Cooperative Election Study (CES)**: 60,000+ respondents, 45,707 after listwise deletion.
+A full-stack simulation of what American politics might look like under proportional representation, using real ideological data from the **2024 Cooperative Election Study (CES)**: 60,000+ respondents, 45,214 after listwise deletion.
 
 ![The simulated ten-party U.S. House: 873 seats across an ideological spectrum, no party near a majority.](viz/public/og-image.png)
 
 > **▶ Explore the live simulation: <https://usmultiparty.com/>**
 >
-> **Methodology:** [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) — how 45,707 survey responses become a ten-party legislature, with caveats.
+> **Methodology:** [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) — how 45,214 survey responses become a ten-party legislature, with caveats.
 > For methodology, see [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md); for EFA factor loadings, [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md); for which file is authoritative for a given number, [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md). Agents start at [`CLAUDE.md`](CLAUDE.md).
 
 ## Overview
@@ -71,7 +71,7 @@ deleted. To resurrect it, restore from history rather than re-adding an environm
 ## Pipeline at a Glance
 
 ```
-2024 CES Survey (N=45,707)
+2024 CES Survey (N=45,214)
         │
         ▼
   Exploratory Factor Analysis (EFA)
@@ -165,7 +165,7 @@ NAT is the extreme high end (+1.51); PRG (−0.99) and LIB (−0.95) are the ext
 
 ## Caveats
 
-**Institutional distrust reads as a floor, not a level.** Clustering requires a complete answer on all 24 items, which restricts the analysis sample to the ~45,700 respondents who returned for the post-election wave. That attrition is not random: the returners run about eleven years older and markedly more politically engaged than the full 60,000, and the CES post-election weights correct the demographic margins but not the engagement gap. The exposure concentrates on one battery. The institutional-trust items, whether elections are run fairly and how far federal and state government can be trusted, are all post-wave, so the voters who left are absent from exactly the questions their attitudes would move most. And among those who did answer, the least engaged are the most distrustful: they score highest on election-illegitimacy and on distrust of state government. The alienated, low-information, "system is rigged" voter is the one least likely to have stayed to say so. So the simulation more likely understates institutional distrust than overstates it, especially toward elections and state government.
+**Institutional distrust reads as a floor, not a level.** Clustering requires a complete answer on all 24 items, which restricts the analysis sample to the ~45,200 respondents who returned for the post-election wave. That attrition is not random: the returners run about eleven years older and markedly more politically engaged than the full 60,000, and the CES post-election weights correct the demographic margins but not the engagement gap. The exposure concentrates on one battery. The institutional-trust items, whether elections are run fairly and how far federal and state government can be trusted, are all post-wave, so the voters who left are absent from exactly the questions their attitudes would move most. And among those who did answer, the least engaged are the most distrustful: they score highest on election-illegitimacy and on distrust of state government. The alienated, low-information, "system is rigged" voter is the one least likely to have stayed to say so. So the simulation more likely understates institutional distrust than overstates it, especially toward elections and state government.
 
 Broader modeling caveats (party cohesion, sincere voting, static factor space, turnout) live in [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) and the simulation's Caveats tab.
 
@@ -398,8 +398,8 @@ openpyxl        # Excel read for county density-tier map
 | Dataset | Description | Path |
 |---------|-------------|------|
 | 2024 CES | ~60,000 respondents, 2024 Cooperative Election Study | `data/raw/2024 CES Base/CCES24_Common_OUTPUT_vv_topost_final.dta` |
-| Typology | DPGMM cluster assignments (45,707 rows) | `data/processed/typology_cluster_assignments.csv` |
+| Typology | DPGMM cluster assignments (45,214 rows) | `data/processed/typology_cluster_assignments.csv` |
 | EFA scores | 5 factor scores per respondent | `data/processed/efa_factor_scores.csv` |
 | Polychoric matrix | 24×24 polychoric correlation matrix | `data/processed/polychoric_matrix.csv` |
 
-**Analysis sample:** N=45,707 after listwise deletion (24 items + `commonpostweight` non-missing).
+**Analysis sample:** N=45,214 after listwise deletion (24 items + `commonpostweight` non-missing).
