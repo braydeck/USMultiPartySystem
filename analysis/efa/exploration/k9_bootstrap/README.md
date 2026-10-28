@@ -56,6 +56,28 @@ OAO is the empty ID in 122 draws. LIB is empty in 51 draws, PRG in 23, CUP in 3 
 
 The electoral college is not a headline. Under per-state IRV, the leading party has a majority of electors in 35 of 200 draws, and CON leads in 119.
 
+## Senate delegations under the split rule
+
+Under the split rule in `viz/src/lib/senateDelegations.ts`, three states split under each counting rule. Each state's win share for a party is the fraction of the 200 draws in which that party wins the state. A state sends its top two parties when the gap between them is 12 points or less, and otherwise sends two senators from the top party. The app computes these shares from respondent resamples of one fixed typology. Here each draw re-clusters the parties instead.
+
+| Rule | Split states (top / runner-up, win share %) | Delegation, 102 seats |
+|---|---|---|
+| IRV | ID CON/POP 55.0-45.0, PA CON/LBR 54.0-46.0, WY POP/CUP 45.5-37.0 | CON 48, LBR 45, STY 6, POP 2, CUP 1 |
+| Ranked Pairs | AR CON/STY 40.0-33.5, IL LBR/STY 51.5-40.5, NE POP/STY 53.0-44.5 | STY 37, LBR 25, CON 21, POP 17, CUP 2 |
+
+Sorted, the IRV top-two gaps run 8, 8.5 and 10 and then jump to 23.5. Any cutoff from 10 to 23 gives the same split set. The Ranked Pairs gaps run 6.5, 8.5 and 11 and then reach 13 in two states. Only cutoffs from 11 to just under 13 give the same set, so the 12-point line sits in a 2-point empty stretch. Two states have no runner-up under each rule, because one party wins them in all 200 draws. Ties for second place (IRV: IL, KS; Ranked Pairs: VA) occur only in states that do not split.
+
+Restricted to the 82 draws where every party matched at 50% or more, the split rule gives:
+
+| Rule | Split states | Delegation, 102 seats |
+|---|---|---|
+| IRV | PA LBR/CON 50.0-50.0 | CON 49, LBR 45, STY 6, CUP 2 |
+| Ranked Pairs | AR STY/POP 40.2-31.7, IL STY/LBR 46.3-43.9, NE POP/STY 50.0-46.3, WV POP/CON 52.4-41.5 | STY 37, LBR 25, CON 21, POP 17, CUP 2 |
+
+On this subset, the IRV gaps run 0 and then 12.2, which is 10 of 82 draws and just over the line, then 15.9. The Ranked Pairs gaps run 2.4, 3.7, 8.5 and 11.0, then 13.4.
+
+The observed full-sample winners are LBR 23, CON 22, POP 3 and STY 3 under IRV. Under Ranked Pairs they are STY 19, LBR 12, CON 11, POP 8 and CUP 1.
+
 ## Files
 
 - `run_k9_bootstrap.py` is the driver. It is resumable, and its provenance and method are in the docstring.
@@ -63,5 +85,6 @@ The electoral college is not a headline. Under per-state IRV, the leading party 
 - `per_draw.csv` holds one row per draw. It records shares, retention (`ret_*`), STV and list seats at double and triple magnitude, the presidency, the Senate and the electoral college.
 - `summarize.py` prints the tables above.
 - `seed61_party_ids.csv` is the frozen seed-61 caseid-to-party map that IDs are matched against.
+- `senate_per_state.py` reruns the default Senate tree on each cached draw (no refits) and checks each draw against the Senate totals in `per_draw.csv`. It writes `per_state_senate.csv` (draw by state, IRV and Ranked Pairs winners, plus the observed row) and `senate_delegations_irv.csv` / `senate_delegations_rp.csv`, then prints the split-rule results above. That run took 18 minutes.
 
 Runtime is 38 minutes for the observed fit plus 200 draws. The draws take a median of 11 s each, and six single-threaded fits run alongside the election pipeline.
