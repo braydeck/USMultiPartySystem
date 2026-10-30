@@ -22,6 +22,8 @@ import sys
 BASE_DIR        = Path(__file__).parent.parent
 sys.path.insert(0, str(BASE_DIR / "pipeline" / "pure_only"))
 from turnout_weights import turnout_multiplier, output_tree  # noqa: E402
+sys.path.insert(0, str(BASE_DIR / "pipeline"))
+from party_codes import PARTY_TO_CLUSTER  # noqa: E402
 
 CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT   = BASE_DIR / "data" / "outputs" / "canonical" / "district_apportionment.csv"
@@ -46,10 +48,7 @@ POSITIONAL_SIGMA = 0.35
 FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 MIN_RESPONDENTS  = 5
 
-PARTY_CLUSTER = {
-    "CON": 0, "LBR": 1, "STY": 2, "NAT": 3, "LIB": 4,
-    "POP": 5, "CUP": 6, "OAO": 7, "DSA": 8, "PRG": 9,
-}
+PARTY_CLUSTER = PARTY_TO_CLUSTER
 
 
 # ── Ballot generation ────────────────────────────────────────────────────────

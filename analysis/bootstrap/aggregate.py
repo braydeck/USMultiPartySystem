@@ -166,13 +166,10 @@ def _decomp(draws, fips, method):
     return out
 
 
-def build_uncertainty(draws, observed, n_draws, seed):
-    out = {"nDraws": n_draws, "seed": seed, "senate": {}}
-    for method in ("cond", "irv"):
-        out["senate"][method] = _senate_block(draws, observed, method)
-
-    hp = [Counter(d["house"]) for d in draws]
-    ho = Counter(observed["house"])
+def house_seats(draw_counts, observed_counts):
+    """Per-party House seat intervals from per-draw {party: seats} dicts."""
+    hp = [Counter(c) for c in draw_counts]
+    ho = Counter(observed_counts)
     parties = sorted({p for c in hp for p in c} | set(ho))
     hseats = _seat_stats(hp, parties, ho)
     # House modal: per-party mode of its own seat-count distribution. Modes of marginals
@@ -194,7 +191,15 @@ def build_uncertainty(draws, observed, n_draws, seed):
         # the one that most overstates it), so no party moves far from its own mode.
         pick = max(cands, key=lambda p: step * (hseats[p]["expected"] - hseats[p]["modal"]))
         hseats[pick]["modal"] += step
-    out["house"] = {"seats": hseats}
+    return hseats
+
+
+def build_uncertainty(draws, observed, n_draws, seed):
+    out = {"nDraws": n_draws, "seed": seed, "senate": {}}
+    for method in ("cond", "irv"):
+        out["senate"][method] = _senate_block(draws, observed, method)
+
+    out["house"] = {"seats": house_seats([d["house"] for d in draws], observed["house"])}
 
     slate = Counter()
     for d in draws:

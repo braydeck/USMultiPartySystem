@@ -50,7 +50,7 @@ PARTY_LABELS = {
     1: "Social Democrat",
     2: "Solidarity",
     3: "Nationalist",
-    4: "Liberal",
+    4: "Democratic Alliance",
     5: "Populist",
     6: "Civic Union Party",
     8: "DSA",

@@ -3,6 +3,7 @@ import type { HouseSeat } from '../../types';
 import { CLUSTER_TO_PARTY, PARTY_NAMES, PARTY_COLORS, F5_ORDER_WFP as F5_ORDER, getContrastText } from '../../constants/parties';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import { CARD_HEADING } from '../../constants/typography';
+import { MajorityMark } from '../shared/MajorityMark';
 
 // 2024 House composition (approximate)
 const FPTP_HOUSE = { GOP: 220, DEM: 215 };
@@ -75,23 +76,26 @@ function SeatBar({ label, total, segments, faded = false }: {
   return (
     <div>
       <BarLabel label={label} total={total} faded={faded} />
-      <div className={`flex rounded-lg overflow-hidden ${faded ? 'opacity-60' : ''}`} style={{ height: BAR_HEIGHT }}>
-        {segments.map(({ party, seats: n }) => {
-          const pct = (n / total) * 100;
-          const color = PARTY_COLORS[party] ?? '#6b7280';
-          return (
-            <div
-              key={party}
-              title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(1)}%)`}
-              className="seat-segment flex min-w-0 items-center justify-center overflow-hidden"
-              style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}
-            >
-              <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text" style={{ color: getContrastText(color) }}>
-                {party}<br />{pct.toFixed(1)}%
-              </span>
-            </div>
-          );
-        })}
+      <div className="relative">
+        <MajorityMark />
+        <div className={`flex rounded-lg overflow-hidden ${faded ? 'opacity-60' : ''}`} style={{ height: BAR_HEIGHT }}>
+          {segments.map(({ party, seats: n }) => {
+            const pct = (n / total) * 100;
+            const color = PARTY_COLORS[party] ?? '#6b7280';
+            return (
+              <div
+                key={party}
+                title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(1)}%)`}
+                className="seat-segment flex min-w-0 items-center justify-center overflow-hidden"
+                style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}
+              >
+                <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text" style={{ color: getContrastText(color) }}>
+                  {party}<br />{pct.toFixed(1)}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -101,12 +105,15 @@ function FixedPartyBar({ label, total, dem, gop }: { label: string; total: numbe
   return (
     <div>
       <BarLabel label={label} total={total} />
-      <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
-        <div className="flex items-center justify-center" style={{ width: `${(dem / total) * 100}%`, backgroundColor: '#1d4ed8' }}>
-          <span className="text-white text-sm font-bold">Dem {dem} ({((dem / total) * 100).toFixed(0)}%)</span>
-        </div>
-        <div className="flex items-center justify-center" style={{ width: `${(gop / total) * 100}%`, backgroundColor: '#dc2626' }}>
-          <span className="text-white text-sm font-bold">Rep {gop} ({((gop / total) * 100).toFixed(0)}%)</span>
+      <div className="relative">
+        <MajorityMark />
+        <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
+          <div className="flex items-center justify-center" style={{ width: `${(dem / total) * 100}%`, backgroundColor: '#1d4ed8' }}>
+            <span className="text-white text-sm font-bold">Dem {dem} ({((dem / total) * 100).toFixed(0)}%)</span>
+          </div>
+          <div className="flex items-center justify-center" style={{ width: `${(gop / total) * 100}%`, backgroundColor: '#dc2626' }}>
+            <span className="text-white text-sm font-bold">Rep {gop} ({((gop / total) * 100).toFixed(0)}%)</span>
+          </div>
         </div>
       </div>
     </div>

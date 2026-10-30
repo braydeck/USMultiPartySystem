@@ -20,7 +20,7 @@ PARTY_LABELS = {
     1: "Labor",
     2: "Solidarity",
     3: "Nationalist",
-    4: "Liberal",
+    4: "Democratic Alliance",
     5: "Populist",
     6: "Civic Union Party",
     7: "Order and Opportunity Party",

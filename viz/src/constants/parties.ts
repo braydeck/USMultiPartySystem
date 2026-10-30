@@ -2,27 +2,27 @@ export const PARTY_COLORS: Record<string, string> = {
   // Cool left (green→blue), distinct center (violet, brown), warm right (orange→red)
   PRG: '#15803d',  // lively green, deep (leftmost)
   DSA: '#22c55e',  // lively green, bright
-  LIB: '#0284c7',  // rich azure
+  DAL: '#0284c7',  // rich azure
   LBR: '#38bdf8',  // vivid sky blue (Labor — formerly SD)
   STY: '#8a70b8',  // violet (center)
   CUP: '#825a27',  // brown (center)
   CON: '#e68c2c',  // orange
   POP: '#d34812',  // red-orange
   NAT: '#a01d2a',  // deep red (rightmost)
-  OAO: '#5b6b8c',  // Order and Opportunity Party (C7) — slate steel-blue (own slot between LBR sky-blue and STY violet; no longer green-adjacent to PRG)
   // Current (real) parties — muted D/R/I, rendered dashed to read as "status quo".
   DEM: '#5b7fa6',
   IND: '#8a8f98',
   REP: '#a66b6b',
 };
 
-// Left→right order for all 10 parties (OAO after Labor, before STY).
-export const F5_ORDER = ['PRG','DSA','LIB','LBR','OAO','STY','CUP','CON','POP','NAT'] as const;
+// Left→right order for the nine parties. Cluster ID 7 (formerly OAO) holds no voters; the
+// pipeline keeps the slot and pipeline/scrub_empty_parties.py drops it from every payload.
+export const F5_ORDER = ['PRG','DSA','DAL','LBR','STY','CUP','CON','POP','NAT'] as const;
 
 // Back-compat alias (previously toggled the 10th party); now identical to F5_ORDER.
 export const F5_ORDER_WFP = F5_ORDER;
 
-/** Party ordering (all 10 parties). Arg retained for call-site compatibility. */
+/** Party ordering (all nine parties). Arg retained for call-site compatibility. */
 export function partyOrder(): readonly string[] {
   return F5_ORDER;
 }
@@ -41,11 +41,10 @@ export const PARTY_NAMES: Record<string, string> = {
   STY: 'Solidarity',
   POP: 'Populist',
   CUP: 'Civic Union Party',
-  LIB: 'Liberal',                   // cluster 4 — professional establishment left
+  DAL: 'Democratic Alliance',       // cluster 4 — renamed from Liberal 2026-10 (institutionalist, security-minded left)
   NAT: 'Nationalist',
   DSA: 'Democratic Socialists',
   PRG: 'Progressive',
-  OAO: 'Order and Opportunity Party', // cluster 7 (formerly WFP)
   DEM: 'Democratic',
   IND: 'Independent',
   REP: 'Republican',
@@ -54,7 +53,7 @@ export const PARTY_NAMES: Record<string, string> = {
 // Condensed from PARTY_BLURBS — keep factual (positions), no editorial/comparative phrasing.
 export const PARTY_TAGLINES: Record<string, string> = {
   PRG: 'Progressive on taxes, climate, and civil liberties; trusts elections',
-  LIB: 'Progressive on economics and climate; backs border enforcement and police',
+  DAL: 'Progressive on economics and climate; backs border enforcement and police',
   DSA: 'Progressive on economics and culture, secular, election-skeptic',
   LBR: 'Safety net, clean energy, and a Dreamer pathway with border enforcement',
   STY: 'Economically progressive and religiously traditional; election-skeptic',
@@ -62,7 +61,6 @@ export const PARTY_TAGLINES: Record<string, string> = {
   CON: 'Low-tax, law-and-order; trusts elections and backs background checks',
   POP: 'Immigration-restrictionist and election-skeptic; backs Medicaid expansion',
   NAT: 'Anti-immigration, religiously traditional, low-tax, and election-skeptic',
-  OAO: 'Economically progressive and law-and-order; trusts elections',
 };
 
 // One-to-two sentence descriptions: who the cluster is and what it supports.
@@ -70,14 +68,13 @@ export const PARTY_TAGLINES: Record<string, string> = {
 export const PARTY_BLURBS: Record<string, string> = {
   PRG: 'The urban, college-educated left. Strongly progressive on taxes, climate, immigration, social justice, and civil liberties. Trusts elections and institutions.',
   DSA: 'The young, urban, anti-establishment left. Strongly progressive on economics and culture, and secular. Strongly skeptical of elections and institutions.',
-  LIB: 'The older, professional-class left. Progressive on economics, climate, and civil liberties. Supports border enforcement and opposes cutting police.',
+  DAL: 'The older, professional-class left. Progressive on economics, climate, and civil liberties. Supports border enforcement and opposes cutting police.',
   LBR: 'The working-class, racially diverse center-left. Backs the safety net, clean energy, and a Dreamer pathway, along with border enforcement. More moderate on social issues than other Left parties.',
   STY: 'Young, majority non-white, lowest-income, and religiously traditional. Economically progressive on Medicaid and infrastructure, and skeptical of elections and institutions.',
   CUP: 'The religious, mostly-white moderate. Centrist on economics and culture, but place emphasis on law-and-order. The most institutionalist party.',
   CON: 'The pre-Trump, Reaganite right. Low-tax and law-and-order; trusts elections and backs universal background checks.',
   POP: 'The populist right. Immigration-restrictionist, skeptical of elections, and religiously traditional. Support Medicaid expansion.',
   NAT: 'The far right. Strongly anti-immigration, religiously traditional, low-tax, high racial and gender resentment, and skeptical of elections.',
-  OAO: 'Among the most law-and-order parties of any — strong on policing, security, and order — while economically progressive on taxes, spending, and the safety net. Secular, and strongly trusts elections and institutions.',
 };
 
 export const CLUSTER_TO_PARTY: Record<string, string> = {
@@ -85,10 +82,9 @@ export const CLUSTER_TO_PARTY: Record<string, string> = {
   '1': 'LBR',
   '2': 'STY',
   '3': 'NAT',
-  '4': 'LIB',
+  '4': 'DAL',
   '5': 'POP',
   '6': 'CUP',
-  '7': 'OAO',
   '8': 'DSA',
   '9': 'PRG',
 };

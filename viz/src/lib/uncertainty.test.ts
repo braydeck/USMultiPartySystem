@@ -108,9 +108,9 @@ describe('share ranges', () => {
     expect(voteSharesAt(7)).toBeUndefined()
   })
 
-  it('covers all ten parties and totals 100% in every block', () => {
+  it('covers all nine parties and totals 100% in every block', () => {
     for (const [label, shares] of blocks()) {
-      expect(Object.keys(shares), label).toHaveLength(10)
+      expect(Object.keys(shares), label).toHaveLength(9)
       for (const k of ['point', 'expected'] as const) {
         const sum = Object.values(shares).reduce((s, v) => s + v[k], 0)
         expect(sum, `${label}.${k}`).toBeCloseTo(100, 1)

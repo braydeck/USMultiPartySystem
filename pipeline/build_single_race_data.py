@@ -29,8 +29,8 @@ log-posteriors and the 5 factor scores. The score comparison is done in log spac
     logScore(base)    = logprob_k
     logScore(variant) = logprob_k - d_var^2/2σ^2 + min(d_base^2/2σ^2, -log(1e-10))
 
-Candidate positions come from the canonical candidate_factor_centroids.csv (38
-candidates incl. OAO) — the same slate ballots.csv was built from.
+Candidate positions come from the canonical candidate_factor_centroids.csv (37
+candidates) — the same slate ballots.csv was built from.
 
 Row alignment: efa_factor_scores.csv, typology_cluster_assignments.csv and the
 listwise-deleted CES .dta share row order (see make_voter_counties.py).
@@ -50,6 +50,7 @@ import pandas as pd
 BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import DTA_PATH, ITEMS_24  # noqa: E402
+from party_codes import PARTY_TO_CLUSTER  # noqa: E402
 
 EFA_PATH   = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPO_PATH  = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
@@ -66,13 +67,9 @@ EXPECTED_N       = 45_214
 DEC              = 4
 LOGPROB_FLOOR    = -700.0          # only replaces log(0)=-inf; preserves full ranking (100% ballots.csv match)
 
-# Party -> GMM cluster index (run_fd_house_stv.PARTY_CLUSTER)
-PARTY_CLUSTER = {
-    "CON": 0, "LBR": 1, "STY": 2, "NAT": 3, "LIB": 4,
-    "POP": 5, "CUP": 6, "OAO": 7, "DSA": 8, "PRG": 9,
-}
+PARTY_CLUSTER = PARTY_TO_CLUSTER
 # Display order left->right (constants/parties.ts F5_ORDER)
-PARTY_ORDER = ["PRG", "DSA", "LIB", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
+PARTY_ORDER = [p for p in ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"] if p in PARTY_CLUSTER]
 
 # Current Electoral College (2020 census apportionment, used 2024/2028) — 538 total.
 STATE_EV = {
@@ -118,7 +115,7 @@ ME_NE = {
 
 
 def build_candidates() -> list:
-    """Canonical FD slate (candidate_factor_centroids.csv) — 38 candidates incl. OAO.
+    """Canonical FD slate (candidate_factor_centroids.csv) — 37 candidates.
     Ordered by party (left->right) then base-first."""
     cdf = pd.read_csv(CAND_PATH)
     by_code = {}

@@ -28,6 +28,7 @@ import { CurrentPartyDistance } from '../components/parties/CurrentPartyDistance
 // import { PartyOverlapMatrix } from '../components/parties/PartyOverlapMatrix';
 // import { FactorPairGrid } from '../components/parties/FactorPairGrid';
 import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, MINOR_HEADING, TABLE_HEADER, CARD_HINT } from '../constants/typography';
+import factorPopulationSd from '../data/factorPopulationSd.json';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -269,7 +270,7 @@ function getFactorScores(
 }
 
 // Population SDs for raw→z conversion
-const POP_SD: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+const POP_SD: Record<string, number> = factorPopulationSd;
 function rawToZ(val: number, factor: string): number {
   return val / (POP_SD[factor] || 1);
 }
@@ -965,7 +966,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
       {selected.length === 0 && (
         <p className={CARD_HINT}>
-          Showing all ten parties. Filter above to narrow the comparison — try PRG + NAT
+          Showing all nine parties. Filter above to narrow the comparison — try PRG + NAT
           (maximum divergence) or LBR + CON (presidential rivals)
           {SHOW_CROSSOVER && ', or LBR_hi_so + LBR for crossover against its base'}.
         </p>

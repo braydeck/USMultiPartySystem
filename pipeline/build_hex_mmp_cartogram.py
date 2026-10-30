@@ -73,7 +73,7 @@ BASE = OUT_DIR.parent.parent
 MMP_JSON = BASE / "viz" / "public" / "data" / "houseMmp.json"
 CD_PATH = BASE / "data" / "processed" / "voter_county_fips.csv"
 
-F5_FALLBACK = ["PRG", "DSA", "LIB", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
+F5_FALLBACK = ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"]
 
 # The paired map draws 102 shapes where the House map draws 51, so the states need
 # pushing further apart before their pairs have room to sit together.

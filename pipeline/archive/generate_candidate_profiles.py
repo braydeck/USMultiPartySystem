@@ -56,7 +56,7 @@ CANDIDATES = [
 
 CAND_NAMES = {
     "RH":      "CON",     "MW":      "LBR",      "MRJ":     "STY",
-    "BE":      "NAT",     "CO":      "LIB",     "DH":      "REF",
+    "BE":      "NAT",     "CO":      "DAL",     "DH":      "REF",
     "LK":      "CTR",     "ZN":      "DSA",     "JR":      "PRG",
     "LBR_STY":  "LBR/STY",  "CON_CTR": "CON/CTR", "CON_SD":  "CON/LBR",
     "CON_STY": "CON/STY", "STY_REF": "STY/REF", "LBR_CON":  "LBR/CON",

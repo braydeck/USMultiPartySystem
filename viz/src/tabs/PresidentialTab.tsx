@@ -85,7 +85,7 @@ const PRESIDENCY_RULES: Mechanism[] = [
     term: 'FPTP',
     color: SYSTEM_COLORS.FPTP,
     what: 'Most first choices wins outright, with no transfers.',
-    consequence: 'In a ten-party field the winner can hold barely a third of the vote.',
+    consequence: 'In a nine-party field the winner can hold barely a third of the vote.',
   },
 ];
 
@@ -313,6 +313,14 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                 <h4 className={GROUP_LABEL}>
                   {g.methods.join(' · ')} — {rmLabel(g.winner)}
                 </h4>
+                {ud?.president && g.methods.some(m => m !== 'FPTP') && (
+                  <p className={CARD_HINT}>
+                    {g.methods.filter(m => m !== 'FPTP').map(m => {
+                      const share = ud.president[m === 'IRV' ? 'irv' : 'cond'].dist[g.winner.split('_')[0]] ?? 0;
+                      return `${m === 'IRV' ? 'IRV' : 'Condorcet'} elects ${rmLabel(g.winner)} in ${Math.round(share * 100)}%`;
+                    }).join('; ')} of {ud.nDraws.toLocaleString()} simulations.
+                  </p>
+                )}
                 {clusterByParty[g.winner.split('_')[0]] && (
                   <PartyProfileCard cluster={clusterByParty[g.winner.split('_')[0]]} />
                 )}

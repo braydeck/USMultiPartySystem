@@ -11,6 +11,9 @@ import { Button } from '@/components/ui/button';
 import { submitQuizResult, submitVibe, answersToVariableMap, track } from '../utils/analytics';
 import { PAGE_TITLE, CARD_HINT } from '../constants/typography';
 
+// Liberal (LIB) was renamed Democratic Alliance (DAL); links shared before the rename still say LIB.
+const RESULT_ALIASES = { LIB: 'DAL' };
+
 interface Props {
   questions: QuizQuestionType[];
   clusters: ClusterProfile[];
@@ -25,6 +28,7 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
   const [resultParty, setResultParty] = useUrlState<string>('result', '', {
     allowed: [...F5_ORDER_WFP],
     push: true,
+    aliases: RESULT_ALIASES,
   });
   const [submissionId, setSubmissionId] = useState<string>('');
   const [respondentFactors, setRespondentFactors] = useState<Record<string, number> | null>(null);
@@ -123,7 +127,7 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
       <div>
         <h2 className={`${PAGE_TITLE} mb-1`}>Which Party Are You?</h2>
         <p className="text-muted-foreground text-sm">
-          {questions.length} questions to find which of the 10 parties best matches your political values.
+          {questions.length} questions to find which of the 9 parties best matches your political values.
         </p>
       </div>
 

@@ -1,0 +1,27 @@
+[Parallel(n_jobs=11)]: Using backend LokyBackend with 11 concurrent workers.
+[Parallel(n_jobs=11)]: Done  19 out of 600 | elapsed:  1.7min
+[Parallel(n_jobs=11)]: Done 140 out of 600 | elapsed: 29.0min
+[Parallel(n_jobs=11)]: Done 343 out of 600 | elapsed: 45.5min
+[Parallel(n_jobs=11)]: Done 600 out of 600 | elapsed: 46.3min finished
+method  K  seed_ari_mean  n_solutions  modal_solution_share  best_fit_solution_share  resample_ari_mean  resample_ari_q10  n_stable  n_dissolved
+ dpgmm  8          0.758            3                  0.40                     0.40              0.650             0.522         4            0
+ dpgmm  9          0.793            3                  0.55                     0.30              0.690             0.547         4            0
+ dpgmm 10          0.782            6                  0.50                     0.05              0.635             0.509         4            1
+ dpgmm 11          0.731            7                  0.35                     0.05              0.546             0.427         1            4
+   gmm  8          0.675            5                  0.35                     0.05              0.582             0.438         1            0
+   gmm  9          0.689            6                  0.70                     0.70              0.536             0.361         0            2
+   gmm 10          0.599            6                  0.50                     0.05              0.508             0.387         0            5
+   gmm 11          0.574            9                  0.40                     0.05              0.520             0.403         1            2
+kmeans  8          0.973            1                  1.00                     1.00              0.932             0.893         8            0
+kmeans  9          0.962            1                  1.00                     1.00              0.916             0.873         9            0
+kmeans 10          0.947            2                  0.95                     0.95              0.936             0.912        10            0
+kmeans 11          0.948            2                  0.90                     0.90              0.840             0.735        10            0
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/cluster/_hdbscan/hdbscan.py:722: FutureWarning: The default value of `copy` will change from False to True in 1.10. Explicitly set a value for `copy` to silence this warning.
+  warn(
+HDBSCAN min_cluster_size 250: 3 clusters, noise 82.1%
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/cluster/_hdbscan/hdbscan.py:722: FutureWarning: The default value of `copy` will change from False to True in 1.10. Explicitly set a value for `copy` to silence this warning.
+  warn(
+HDBSCAN min_cluster_size 500: 3 clusters, noise 82.1%
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/cluster/_hdbscan/hdbscan.py:722: FutureWarning: The default value of `copy` will change from False to True in 1.10. Explicitly set a value for `copy` to silence this warning.
+  warn(
+HDBSCAN min_cluster_size 1000: 2 clusters, noise 80.1%

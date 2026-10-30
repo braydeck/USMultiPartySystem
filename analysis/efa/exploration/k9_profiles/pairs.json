@@ -1,0 +1,735 @@
+[
+ {
+  "a": "CUP",
+  "b": "CON",
+  "names": [
+   "Civic Union Party",
+   "Conservative"
+  ],
+  "colors": [
+   "#825a27",
+   "#e68c2c"
+  ],
+  "share": [
+   11.12,
+   20.47
+  ],
+  "seats": [
+   95,
+   200
+  ],
+  "factors": {
+   "F1": [
+    0.66,
+    0.97
+   ],
+   "F2": [
+    -0.9,
+    0.06
+   ],
+   "F3": [
+    -0.54,
+    -0.12
+   ],
+   "F4": [
+    0.37,
+    0.58
+   ],
+   "F5": [
+    0.21,
+    0.32
+   ]
+  },
+  "origin": [
+   {
+    "CUP": 79.9,
+    "CON": 10.0,
+    "OAO": 8.4
+   },
+   {
+    "CON": 71.4,
+    "OAO": 23.9
+   }
+  ],
+  "meanGap": 7.0,
+  "within5": 23,
+  "nItems": 71,
+  "top": [
+   {
+    "q": "Increase police by 10%",
+    "domain": "Police & Guns",
+    "a": 77.6734,
+    "b": 99.4313,
+    "all": 56.6855
+   },
+   {
+    "q": "Repeal the Affordable Care Act",
+    "domain": "Healthcare & Housing",
+    "a": 40.8684,
+    "b": 59.445,
+    "all": 38.2712
+   },
+   {
+    "q": "Strengthen Clean Air/Water Act enforcement (even if it costs jobs)",
+    "domain": "Environment & Climate",
+    "a": 49.1118,
+    "b": 33.3434,
+    "all": 55.2373
+   },
+   {
+    "q": "Build a wall between the U.S. and Mexico",
+    "domain": "Immigration",
+    "a": 74.7389,
+    "b": 89.5584,
+    "all": 53.6596
+   },
+   {
+    "q": "Require 20% renewable electricity",
+    "domain": "Environment & Climate",
+    "a": 63.8295,
+    "b": 49.372,
+    "all": 66.1816
+   },
+   {
+    "q": "Give EPA power to regulate CO2 emissions",
+    "domain": "Environment & Climate",
+    "a": 58.726,
+    "b": 44.8088,
+    "all": 62.5814
+   },
+   {
+    "q": "Halt new oil and gas leases on federal lands",
+    "domain": "Environment & Climate",
+    "a": 34.3608,
+    "b": 21.1431,
+    "all": 44.8628
+   },
+   {
+    "q": "Expand abortion access and affordability",
+    "domain": "Abortion",
+    "a": 49.9371,
+    "b": 37.433,
+    "all": 60.3252
+   },
+   {
+    "q": "Ban assault rifles",
+    "domain": "Police & Guns",
+    "a": 57.198,
+    "b": 44.9462,
+    "all": 59.7329
+   },
+   {
+    "q": "Ukraine: provide arms to Ukraine",
+    "domain": "Foreign Policy & Defense",
+    "a": 35.1534,
+    "b": 22.9198,
+    "all": 34.7155
+   },
+   {
+    "q": "Increase fossil fuel production in the U.S.",
+    "domain": "Environment & Climate",
+    "a": 71.6292,
+    "b": 83.4638,
+    "all": 56.9248
+   },
+   {
+    "q": "Extend the 2017 tax cuts",
+    "domain": "Taxes & Economy",
+    "a": 73.3462,
+    "b": 84.9521,
+    "all": 62.8948
+   },
+   {
+    "q": "Always allow abortion as a matter of personal choice",
+    "domain": "Abortion",
+    "a": 49.4602,
+    "b": 38.3644,
+    "all": 61.1819
+   },
+   {
+    "q": "Forgive up to $20k of student loan debt per person",
+    "domain": "Immigration",
+    "a": 39.964,
+    "b": 28.9728,
+    "all": 54.1554
+   }
+  ],
+  "domains": [
+   {
+    "domain": "Environment & Climate",
+    "gap": 12.5,
+    "signed": 12.5,
+    "n": 6,
+    "bRight": 6
+   },
+   {
+    "domain": "Healthcare & Housing",
+    "gap": 9.3,
+    "signed": 9.3,
+    "n": 5,
+    "bRight": 5
+   },
+   {
+    "domain": "Immigration",
+    "gap": 9.1,
+    "signed": 9.1,
+    "n": 6,
+    "bRight": 6
+   },
+   {
+    "domain": "Police & Guns",
+    "gap": 8.8,
+    "signed": 8.8,
+    "n": 6,
+    "bRight": 6
+   },
+   {
+    "domain": "Government Spending",
+    "gap": 7.7,
+    "signed": 7.7,
+    "n": 5,
+    "bRight": 5
+   },
+   {
+    "domain": "Abortion",
+    "gap": 6.5,
+    "signed": 6.0,
+    "n": 8,
+    "bRight": 7
+   },
+   {
+    "domain": "Taxes & Economy",
+    "gap": 6.5,
+    "signed": 6.5,
+    "n": 4,
+    "bRight": 4
+   },
+   {
+    "domain": "Civil Liberties",
+    "gap": 5.6,
+    "signed": 5.6,
+    "n": 7,
+    "bRight": 7
+   },
+   {
+    "domain": "Foreign Policy & Defense",
+    "gap": 4.8,
+    "signed": 4.8,
+    "n": 24,
+    "bRight": 23
+   }
+  ],
+  "demo": [
+   {
+    "label": "White",
+    "a": 70.15,
+    "b": 75.99,
+    "all": 67.52
+   },
+   {
+    "label": "Black",
+    "a": 11.52,
+    "b": 6.83,
+    "all": 11.53
+   },
+   {
+    "label": "Hispanic",
+    "a": 8.53,
+    "b": 7.83,
+    "all": 9.45
+   },
+   {
+    "label": "Median age",
+    "a": 56.0,
+    "b": 59.0,
+    "all": 50.0
+   },
+   {
+    "label": "4-year degree",
+    "a": 19.68,
+    "b": 19.12,
+    "all": 21.68
+   },
+   {
+    "label": "Post-grad",
+    "a": 11.89,
+    "b": 9.63,
+    "all": 13.27
+   },
+   {
+    "label": "City",
+    "a": 26.68,
+    "b": 21.03,
+    "all": 26.68
+   },
+   {
+    "label": "Rural",
+    "a": 21.02,
+    "b": 25.71,
+    "all": 20.21
+   },
+   {
+    "label": "Women",
+    "a": 47.54,
+    "b": 54.14,
+    "all": 50.65
+   },
+   {
+    "label": "Born-again",
+    "a": 41.6914,
+    "b": 43.4798,
+    "all": 31.1671
+   },
+   {
+    "label": "Never attends church",
+    "a": 24.02,
+    "b": 23.81,
+    "all": 35.06
+   },
+   {
+    "label": "No religion",
+    "a": 19.5455,
+    "b": 18.3495,
+    "all": 34.4378
+   },
+   {
+    "label": "Democrat",
+    "a": 24.18,
+    "b": 12.85,
+    "all": 34.41
+   },
+   {
+    "label": "Republican",
+    "a": 42.93,
+    "b": 56.68,
+    "all": 30.02
+   },
+   {
+    "label": "Independent",
+    "a": 28.22,
+    "b": 24.23,
+    "all": 27.27
+   },
+   {
+    "label": "Voted Harris",
+    "a": 34.1179,
+    "b": 14.2195,
+    "all": 48.0699
+   },
+   {
+    "label": "Voted Trump",
+    "a": 61.9154,
+    "b": 82.1951,
+    "all": 47.1166
+   },
+   {
+    "label": "Did not vote 2024",
+    "a": 1.575,
+    "b": 1.8364,
+    "all": 2.8014
+   },
+   {
+    "label": "US elections fair: strongly agree",
+    "a": 59.63,
+    "b": 11.23,
+    "all": 25.16
+   },
+   {
+    "label": "US elections fair: strongly disagree",
+    "a": 0.0,
+    "b": 1.81,
+    "all": 5.83
+   },
+   {
+    "label": "Trust federal govt: none at all",
+    "a": 4.14,
+    "b": 11.01,
+    "all": 14.69
+   },
+   {
+    "label": "Trust state govt: none at all",
+    "a": 4.37,
+    "b": 9.76,
+    "all": 13.04
+   },
+   {
+    "label": "Family income under $50k",
+    "a": 41.06,
+    "b": 40.8,
+    "all": 40.4
+   },
+   {
+    "label": "Family income $100k+",
+    "a": 25.94,
+    "b": 24.48,
+    "all": 27.22
+   }
+  ]
+ },
+ {
+  "a": "LBR",
+  "b": "LIB",
+  "names": [
+   "Labor",
+   "Liberal"
+  ],
+  "colors": [
+   "#38bdf8",
+   "#0284c7"
+  ],
+  "share": [
+   10.71,
+   8.16
+  ],
+  "seats": [
+   132,
+   85
+  ],
+  "factors": {
+   "F1": [
+    -0.61,
+    -0.06
+   ],
+   "F2": [
+    -0.51,
+    -1.04
+   ],
+   "F3": [
+    -0.01,
+    -0.67
+   ],
+   "F4": [
+    -0.9,
+    -0.83
+   ],
+   "F5": [
+    -0.68,
+    -1.04
+   ]
+  },
+  "origin": [
+   {
+    "LBR": 87.3,
+    "LIB": 5.4
+   },
+   {
+    "LIB": 87.2,
+    "OAO": 9.3
+   }
+  ],
+  "meanGap": 6.0,
+  "within5": 41,
+  "nItems": 71,
+  "top": [
+   {
+    "q": "Increase police by 10%",
+    "domain": "Police & Guns",
+    "a": 27.6172,
+    "b": 56.4342,
+    "all": 56.6855
+   },
+   {
+    "q": "Renew post-9/11 surveillance programs",
+    "domain": "Civil Liberties",
+    "a": 30.4809,
+    "b": 53.0959,
+    "all": 33.991
+   },
+   {
+    "q": "Decrease police by 10%, increase other funding",
+    "domain": "Police & Guns",
+    "a": 39.4003,
+    "b": 16.8059,
+    "all": 26.8737
+   },
+   {
+    "q": "Increase state spending on law enforcement",
+    "domain": "Government Spending",
+    "a": 33.3416,
+    "b": 53.4328,
+    "all": 53.6957
+   },
+   {
+    "q": "Grant legal status to long-term undocumented immigrants",
+    "domain": "Immigration",
+    "a": 78.9446,
+    "b": 97.6173,
+    "all": 59.2697
+   },
+   {
+    "q": "Increase border patrols",
+    "domain": "Immigration",
+    "a": 71.3821,
+    "b": 89.2761,
+    "all": 79.5933
+   },
+   {
+    "q": "Ukraine: provide arms to Ukraine",
+    "domain": "Foreign Policy & Defense",
+    "a": 57.4072,
+    "b": 75.1128,
+    "all": 34.7155
+   },
+   {
+    "q": "Ban TikTok unless China sells to a US company",
+    "domain": "Civil Liberties",
+    "a": 46.9187,
+    "b": 60.5876,
+    "all": 55.5334
+   },
+   {
+    "q": "Allow rates on $400k+ earners to rise to 35%",
+    "domain": "Taxes & Economy",
+    "a": 86.7643,
+    "b": 98.2003,
+    "all": 65.5892
+   },
+   {
+    "q": "Use US troops: to spread democracy",
+    "domain": "Foreign Policy & Defense",
+    "a": 19.5669,
+    "b": 30.2443,
+    "all": 17.161
+   },
+   {
+    "q": "Easier concealed-carry permits",
+    "domain": "Police & Guns",
+    "a": 14.5971,
+    "b": 4.5896,
+    "all": 38.7964
+   },
+   {
+    "q": "Use US troops: to destroy a terrorist camp",
+    "domain": "Foreign Policy & Defense",
+    "a": 52.8693,
+    "b": 62.6607,
+    "all": 54.0652
+   },
+   {
+    "q": "Israel/Gaza: provide arms to Israel",
+    "domain": "Foreign Policy & Defense",
+    "a": 14.0926,
+    "b": 23.649,
+    "all": 27.3093
+   },
+   {
+    "q": "Ukraine: impose economic sanctions on Russia",
+    "domain": "Foreign Policy & Defense",
+    "a": 64.8166,
+    "b": 74.2985,
+    "all": 42.4775
+   }
+  ],
+  "domains": [
+   {
+    "domain": "Police & Guns",
+    "gap": 12.3,
+    "signed": 4.9,
+    "n": 6,
+    "bRight": 2
+   },
+   {
+    "domain": "Civil Liberties",
+    "gap": 8.8,
+    "signed": 6.4,
+    "n": 7,
+    "bRight": 5
+   },
+   {
+    "domain": "Immigration",
+    "gap": 8.3,
+    "signed": 1.7,
+    "n": 6,
+    "bRight": 4
+   },
+   {
+    "domain": "Foreign Policy & Defense",
+    "gap": 6.1,
+    "signed": -3.3,
+    "n": 24,
+    "bRight": 6
+   },
+   {
+    "domain": "Government Spending",
+    "gap": 6.1,
+    "signed": 3.6,
+    "n": 5,
+    "bRight": 3
+   },
+   {
+    "domain": "Taxes & Economy",
+    "gap": 5.8,
+    "signed": -5.8,
+    "n": 4,
+    "bRight": 0
+   },
+   {
+    "domain": "Healthcare & Housing",
+    "gap": 4.4,
+    "signed": -2.1,
+    "n": 5,
+    "bRight": 1
+   },
+   {
+    "domain": "Environment & Climate",
+    "gap": 2.3,
+    "signed": -0.3,
+    "n": 6,
+    "bRight": 3
+   },
+   {
+    "domain": "Abortion",
+    "gap": 1.0,
+    "signed": 0.8,
+    "n": 8,
+    "bRight": 6
+   }
+  ],
+  "demo": [
+   {
+    "label": "White",
+    "a": 64.17,
+    "b": 69.78,
+    "all": 67.52
+   },
+   {
+    "label": "Black",
+    "a": 12.93,
+    "b": 12.76,
+    "all": 11.53
+   },
+   {
+    "label": "Hispanic",
+    "a": 10.3,
+    "b": 8.97,
+    "all": 9.45
+   },
+   {
+    "label": "Median age",
+    "a": 45.0,
+    "b": 62.0,
+    "all": 50.0
+   },
+   {
+    "label": "4-year degree",
+    "a": 25.3,
+    "b": 25.21,
+    "all": 21.68
+   },
+   {
+    "label": "Post-grad",
+    "a": 17.63,
+    "b": 21.37,
+    "all": 13.27
+   },
+   {
+    "label": "City",
+    "a": 29.53,
+    "b": 27.67,
+    "all": 26.68
+   },
+   {
+    "label": "Rural",
+    "a": 13.02,
+    "b": 14.9,
+    "all": 20.21
+   },
+   {
+    "label": "Women",
+    "a": 47.93,
+    "b": 48.88,
+    "all": 50.65
+   },
+   {
+    "label": "Born-again",
+    "a": 13.9905,
+    "b": 14.892,
+    "all": 31.1671
+   },
+   {
+    "label": "Never attends church",
+    "a": 52.22,
+    "b": 43.4,
+    "all": 35.06
+   },
+   {
+    "label": "No religion",
+    "a": 51.9737,
+    "b": 38.7784,
+    "all": 34.4378
+   },
+   {
+    "label": "Democrat",
+    "a": 62.28,
+    "b": 72.16,
+    "all": 34.41
+   },
+   {
+    "label": "Republican",
+    "a": 2.98,
+    "b": 4.1,
+    "all": 30.02
+   },
+   {
+    "label": "Independent",
+    "a": 29.87,
+    "b": 21.6,
+    "all": 27.27
+   },
+   {
+    "label": "Voted Harris",
+    "a": 91.6264,
+    "b": 96.1485,
+    "all": 48.0699
+   },
+   {
+    "label": "Voted Trump",
+    "a": 4.947,
+    "b": 2.4223,
+    "all": 47.1166
+   },
+   {
+    "label": "Did not vote 2024",
+    "a": 1.609,
+    "b": 0.6062,
+    "all": 2.8014
+   },
+   {
+    "label": "US elections fair: strongly agree",
+    "a": 30.07,
+    "b": 76.67,
+    "all": 25.16
+   },
+   {
+    "label": "US elections fair: strongly disagree",
+    "a": 3.49,
+    "b": 0.08,
+    "all": 5.83
+   },
+   {
+    "label": "Trust federal govt: none at all",
+    "a": 10.71,
+    "b": 3.39,
+    "all": 14.69
+   },
+   {
+    "label": "Trust state govt: none at all",
+    "a": 7.58,
+    "b": 3.59,
+    "all": 13.04
+   },
+   {
+    "label": "Family income under $50k",
+    "a": 35.64,
+    "b": 31.74,
+    "all": 40.4
+   },
+   {
+    "label": "Family income $100k+",
+    "a": 32.93,
+    "b": 34.44,
+    "all": 27.22
+   }
+  ]
+ }
+]

@@ -4,6 +4,11 @@
 Writes viz/src/data/uncertainty{Suffix}.json. Nothing canonical is written; every
 pipeline run goes to a temp dir.
 
+Each draw re-clusters by default (analysis/bootstrap/recluster.py): the parties are refit on
+the draw's resample before its elections run, so the intervals carry the uncertainty in the
+parties as well as in the votes. --fixed-parties restores the old harness, which resamples
+respondents under the published parties only.
+
   python3 analysis/bootstrap_uncertainty.py                 # all 7 stops, 1000 draws
   python3 analysis/bootstrap_uncertainty.py --draws 50 --stops 5   # quick check
 
@@ -24,13 +29,13 @@ STOPS = [(0, "Turnout"), (5, "TurnoutL5"), (10, "TurnoutL10"), (15, "TurnoutL15"
 
 
 def _work(args):
-    seed, lam, depth, observed = args
+    seed, lam, depth, observed, recluster = args
     import sys
     if str(BASE) not in sys.path:      # a worker runs ~26 jobs; don't grow sys.path per draw
         sys.path.insert(0, str(BASE))
     from analysis.bootstrap.contests import run_draw
     try:
-        return run_draw(seed=seed, lam=lam, depth=depth, observed=observed)
+        return run_draw(seed=seed, lam=lam, depth=depth, observed=observed, recluster=recluster)
     except Exception as e:
         return {"error": f"{type(e).__name__}: {e}", "seed": seed}
 
@@ -73,6 +78,8 @@ def main():
     # trade responsiveness for ~14%.
     ap.add_argument("--procs", type=int, default=max(1, (mp.cpu_count() or 2) - 2))
     ap.add_argument("--stops", default="", help="comma-separated stop percentages, e.g. 0,5")
+    ap.add_argument("--fixed-parties", action="store_true",
+                    help="resample respondents under the published parties instead of refitting them per draw")
     ap.add_argument("--force", action="store_true",
                     help="overwrite payloads that already hold more draws than this run")
     a = ap.parse_args()
@@ -100,14 +107,25 @@ def main():
                 raise RuntimeError(f"{path.name} already holds {prev} draws; refusing to "
                                    f"overwrite it with {a.draws} (pass --force to override)")
 
+    recluster = not a.fixed_parties
+    if recluster:
+        from analysis.bootstrap import recluster as rc
+        t0 = time.time()
+        rc.fit_all(a.draws, a.procs)
+        fits = rc.fit_summary(a.draws)
+        fits.to_csv(rc.CACHE / "fit_summary.csv", index=False)
+        bad = fits[~fits.converged | (fits.n_eff != rc.K)]
+        print(f"re-clustering fits: {len(fits)} draws in {time.time()-t0:.0f}s, "
+              f"{len(bad)} not converged to {rc.K} clusters", flush=True)
+
     for pct, suffix in stops:
         lam = pct / 100.0
         t0 = time.time()
         # The observed anchor runs inside the pool too, not here: contests.py pins one lambda
         # per process at import time, so importing the pipelines into this parent would make
         # every stop after the first raise. Job 0 is the anchor, the rest are the draws.
-        jobs = ([(0, lam, a.depth, True)]
-                + [(42 + d, lam, a.depth, False) for d in range(a.draws)])
+        jobs = ([(0, lam, a.depth, True, False)]
+                + [(42 + d, lam, a.depth, False, recluster) for d in range(a.draws)])
         with mp.Pool(a.procs) as pool:
             # chunksize=1, not pool.map's default. For 1,001 jobs over 12 workers the default is
             # 21, so the last worker can still be 21 draws (~5 min) behind when the others are

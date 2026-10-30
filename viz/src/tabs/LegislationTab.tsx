@@ -82,7 +82,7 @@ interface Props {
 }
 
 const CLUSTER_TO_PARTY: Record<number, string> = {
-  0: 'CON', 1: 'LBR', 2: 'STY', 3: 'NAT', 4: 'LIB', 5: 'POP', 6: 'CUP', 7: 'OAO', 8: 'DSA', 9: 'PRG',
+  0: 'CON', 1: 'LBR', 2: 'STY', 3: 'NAT', 4: 'DAL', 5: 'POP', 6: 'CUP', 8: 'DSA', 9: 'PRG',
 };
 const toSeatMap = (arr: { party: number; national: number }[]): Record<string, number> =>
   Object.fromEntries(arr.map((r) => [CLUSTER_TO_PARTY[r.party], r.national]));

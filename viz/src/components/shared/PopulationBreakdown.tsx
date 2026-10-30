@@ -5,6 +5,7 @@ import { LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import partyPopData from '../../data/partyPopulation.json';
 import { MINOR_HEADING, CARD_HINT } from '../../constants/typography';
+import { MajorityMark } from './MajorityMark';
 
 type Row = { party: string; popShare: number; voteShare: number; turnoutPresidential: number; turnoutMidterm: number };
 const DATA = partyPopData as unknown as Row[];
@@ -21,22 +22,25 @@ function Bar({ title, sub, valueKey }: { title: string; sub: string; valueKey: '
         <span className="text-xs font-semibold text-foreground">{title}</span>
         <span className="text-xs text-muted-foreground">· {sub}</span>
       </div>
-      <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
-        {ORDER.map(r => {
-          const pct = r[valueKey];
-          const color = PARTY_COLORS[r.party] ?? '#6b7280';
-          return (
-            <div key={r.party}
-              title={`${PARTY_NAMES[r.party] ?? r.party}: ${pct}%`}
-              className="seat-segment flex min-w-0 items-center justify-center overflow-hidden"
-              style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
-              <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text"
-                style={{ color: getContrastText(color) }}>
-                {r.party}<br />{pct.toFixed(0)}%
-              </span>
-            </div>
-          );
-        })}
+      <div className="relative">
+        <MajorityMark />
+        <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
+          {ORDER.map(r => {
+            const pct = r[valueKey];
+            const color = PARTY_COLORS[r.party] ?? '#6b7280';
+            return (
+              <div key={r.party}
+                title={`${PARTY_NAMES[r.party] ?? r.party}: ${pct}%`}
+                className="seat-segment flex min-w-0 items-center justify-center overflow-hidden"
+                style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
+                <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text"
+                  style={{ color: getContrastText(color) }}>
+                  {r.party}<br />{pct.toFixed(0)}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

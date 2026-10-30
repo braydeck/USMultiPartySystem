@@ -46,15 +46,15 @@ BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent / "pure_only"))
 from run_pure_multi_house_stv import (  # noqa: E402
     MIN_RESPONDENTS, assign_voter_districts, n_candidates_for_district)
+sys.path.insert(0, str(Path(__file__).parent))
+from party_codes import ALL_PARTIES, CLUSTER_TO_PARTY  # noqa: E402
 
 PROCESSED = BASE_DIR / "data" / "processed"
 OUTPUTS = BASE_DIR / "data" / "outputs"
 VIZ_DATA = BASE_DIR / "viz" / "public" / "data"
 OUT_PATH = VIZ_DATA / "houseRepByRank.json"
 
-CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-                    5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
-PARTIES = [CLUSTER_TO_PARTY[k] for k in range(10)]
+PARTIES = list(ALL_PARTIES.values())  # indexed by cluster ID, like the length-10 count vectors
 PARTS = [0, 5, 10, 15, 20, 25, 30]
 DEPTHS = {"full": 0, "top3": 3, "top5": 5, "top7": 7, "top10": 10}
 
@@ -100,7 +100,7 @@ def tabulate(rank: np.ndarray, via_state: np.ndarray, w: np.ndarray, fc: np.ndar
         cells = [w[m & (rank == r) & ~via_state].sum() / tot * 100 for r in range(1, 11)]
         cells += [w[m & via_state].sum() / tot * 100, w[m & (rank == 0)].sum() / tot * 100]
         return [round(float(c), 2) for c in cells]
-    out = {CLUSTER_TO_PARTY[k]: row(fc == k) for k in range(10)}
+    out = {p: row(fc == k) for k, p in CLUSTER_TO_PARTY.items()}
     out["ALL"] = row(np.ones_like(fc, dtype=bool))
     return out
 

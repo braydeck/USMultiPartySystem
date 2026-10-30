@@ -20,19 +20,21 @@ Output: viz/src/data/partyFactorEllipses.json (bundled).
 """
 
 import json
+import sys
 from itertools import combinations
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from party_codes import CLUSTER_TO_PARTY  # noqa: E402
+
 BASE = Path(__file__).resolve().parent.parent
 PROCESSED = BASE / "data" / "processed"
 OUT = BASE / "viz" / "src" / "data" / "partyFactorEllipses.json"
 
 FACTORS = ["F1", "F2", "F4", "F5"]
-CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-                    5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
 CHI2_2DF_50 = 2 * np.log(2)  # squared Mahalanobis radius holding 50% of a 2-D Gaussian
 
 

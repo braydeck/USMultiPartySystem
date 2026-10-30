@@ -13,7 +13,7 @@ described a two-worktree layout that no longer exists and held nothing the three
 
 A simulation of American elections under proportional representation, built from 2024 CES
 survey data. A polychoric EFA reduces 24 policy items to 5 ideological factors; a Dirichlet
-Process Gaussian Mixture Model clusters respondents into 10 voter types, and each cluster
+Process Gaussian Mixture Model clusters respondents into 9 voter types, and each cluster
 becomes a party. Those parties then contest a House, a Senate, a presidency, and a legislative
 agenda under several counting rules. The point is that the counting rule changes the answer.
 
@@ -25,12 +25,12 @@ Cloudflare.
 | Fact | Value |
 |---|---|
 | Respondents after listwise deletion | **45,214** (church "Don't know" excluded since the 2026-10 rescore) |
-| Parties | **10**, all active. OAO (cluster 7) and STY (cluster 2) are never dissolved. |
+| Parties | **9** since the 2026-10 nine-party rebuild. The DPGMM fills every component it is given, so the count is a cap chosen on stability (`analysis/efa/exploration/k_stability/fair_compare.py`): at 9 DPGMM has fewer distinct solutions (3 vs 6 across 20 seeds) and no party dissolves under resampling. At 10, OAO is the one that dissolves (overlap 0.45), and it folds mostly into CON at 9. Most voters sit in one continuous mass (HDBSCAN finds only the hard right and the left as dense groups), so borders between neighboring parties are approximate; the re-clustering bootstrap carries that into every interval. No party is protected: a new typology may add, merge or drop parties on the evidence. |
 | House chamber | **873 seats** (double magnitude), 1,726 (triple). **Not 435.** |
 | House districts | 150 double, 243 triple. MMP and Single Race instead use the 436 real 119th-Congress districts. |
 | Senate | 51 seats, one per state plus DC |
 | Electoral college | 975 electors |
-| Cluster to party | 0 CON, 1 LBR, 2 STY, 3 NAT, 4 LIB, 5 POP, 6 CUP, 7 OAO, 8 DSA, 9 PRG |
+| Cluster to party | 0 CON, 1 LBR, 2 STY, 3 NAT, 4 DAL (Democratic Alliance, renamed from LIB / Liberal 2026-10), 5 POP, 6 CUP, 8 DSA, 9 PRG. Slot 7 (formerly OAO) holds no voters. IDs stay stable across typologies; scripts get the live parties from `pipeline/party_codes.py`, which reads them off the typology, and keep length-10 arrays only where `prob_cluster_0..9` is positional. |
 | App defaults | ballot depth `top7`, turnout gap `5%`, magnitude `double`, field `rawMulti` |
 
 Before quoting any chamber-level count, sum it out of the JSON. Do not reach for 435.
@@ -45,14 +45,15 @@ scored raw DTA codes against label-coded loadings. Six items ran backwards, and 
 "None at all" was scored as "A fair amount". That is why F3 used to look inverted and was
 treated as a suppressor. Correctly scored, F3 correlates +0.84 with respondents' own
 government-distrust answers, so it is a real government-distrust axis. Party IDs are pinned to
-the previous parties through `data/processed/party_id_reference.csv`, and the clustering
-keeps the most typical of 20 converged seeds. A new typology is rebuilt with
+the ten-party seed-61 typology of the rescore through `data/processed/party_id_reference.csv`,
+and the clustering keeps the most common of the solutions 20 converged seeds reach at cap 9
+(11 of 20), best lower bound within it. A better-fitting solution reached by 6 seeds elects POP. A new typology is rebuilt with
 `pipeline/rebuild_from_typology.py`: `check_stale.py --regenerate` covers only the house trees
 and the payloads.
 
 ## How a voter becomes a ballot
 
-The DPGMM gives each respondent a membership probability across all ten clusters. Candidate
+The DPGMM gives each respondent a membership probability across the nine clusters. Candidate
 scores come from that posterior, and `argsort` on the scores is the ranked ballot. Ranks 1
 through 3 carry 98.6% of a voter's probability mass. Slate order within a party is fixed and
 identical for every voter, so the model represents slate voting at the strong-discipline limit.
@@ -68,13 +69,13 @@ adds ideologically shifted variant candidates and is reachable only via `?lab=cr
 | **Overview** | Headline results, turnout robustness, the case for the whole thing |
 | **Party Quiz** | Answer real CES items, get scored on the 5 factors, land in a party |
 | **Parties** | Party platforms, factor positions, comparison against today's DEM/IND/REP |
-| **Presidency** | *Primary:* 27 candidates (10 parties × 3) through a 4-stage rolling-electorate STV winnow (Retail 27→12, Pod A 12→9, Pod C 9→7, Pod B/D 7→5). *General:* national IRV, per-state IRV, and Ranked Pairs Condorcet over the 5 finalists, plus an electoral-college cartogram and a top-two reduction |
+| **Presidency** | *Primary:* 27 candidates (9 parties × 3) through a 4-stage rolling-electorate STV winnow (Retail 27→12, Pod A 12→9, Pod C 9→7, Pod B/D 7→5). *General:* national IRV, per-state IRV, and Ranked Pairs Condorcet over the 5 finalists, plus an electoral-college cartogram and a top-two reduction |
 | **Senate** | Two stages per state: a rank-7 STV winnow of ~20 candidates to 5 finalists, then IRV or Condorcet over those 5 **fully ranked**. No depth toggle |
 | **House** | Four systems on the same ballots: **STV** (multi-member, Droop quota, weighted inclusive Gregory), **Party List** (Sainte-Laguë), **MMP** (compensatory, real 119th districts + per-state top-off), and a **~20% per-state reserve** tier layered on STV or List. Toggles: system, magnitude, depth, turnout, reserve |
 | **Single Race** | FPTP head-to-head in a real 119th district, with opinion and turnout sliders |
 | **Legislation** | Bill-by-bill floor-vote probabilities for House and Senate, baked at rank-7 chambers and depth-7 president. Two models: **chamber vote model** (sum of independent binomials over observed per-party support) and **candidate vote model** (per-bill logistic regression on the 5 factors, predicting from party centroids). Their disagreement is the "divergence" finding |
 | **IRV Case Studies** | Real Alaska and Maine cast vote records, not simulation |
-| **What Is This?** | Methodology, the 10 parties, voting systems, turnout, caveats |
+| **What Is This?** | Methodology, the nine parties, voting systems, turnout, caveats |
 
 `polarization/` is a separate cross-national study (V-Dem / QoG) with its own README and
 FINDINGS; it does not feed the app.
@@ -151,6 +152,16 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    depths the page shows one model and the observed files hold another, which is invisible
    because the map colors by `u.modal`. Note `sen.main(ballot_depth=N)` reassigns its global
    `OUTPUT_DIR` to `<parent>_topN/senate`, so read back where it wrote, not where you pointed it.
+
+   **Every bootstrap draw re-clusters** (`analysis/bootstrap/recluster.py`): the parties are
+   refit on the draw's resample, then the draw's elections run on that same resample, so the
+   intervals carry party uncertainty as well as vote noise. Fits are cached in
+   `data/bootstrap_cache/` (gitignored); delete it after a new typology. `analysis/bootstrap_house.py` reruns only the
+   House on those fits for every other map and depth (`viz/public/data/houseSeatRanges.json`);
+   `bootstrap_partylist.py` covers all four maps. `--fixed-parties` on
+   the three bootstrap scripts restores the old fixed-party harness. The Senate split cutoff
+   (`SPLIT_THRESHOLD_PP` in `viz/src/lib/senateDelegations.ts`) was chosen on these draws'
+   per-state gaps and must be re-measured whenever the parties change.
 
 9. **Committed outputs drift silently when an input changes and nothing re-runs.** Run
    `python3 pipeline/check_stale.py` (1s) — it hashes every declared input against

@@ -78,15 +78,15 @@ const PROPORTIONAL_SYSTEMS = [
 const SCENARIOS = [
   {
     name: 'Party-Line',
-    tag: '28 candidates',
+    tag: '27 candidates',
     color: '#1d4ed8',
-    desc: 'The nine larger parties each field a 3-candidate slate; the small Order & Opportunity party fields 1, for 28 in all. Same-party candidates share identical ideological positions and are ranked in a fixed slate order, so nothing but ballot position separates them.',
+    desc: 'The nine parties each field a 3-candidate slate, for 27 in all. Same-party candidates share identical ideological positions and are ranked in a fixed slate order, so nothing but ballot position separates them.',
     insight: 'Isolates the structural effect of proportional voting itself. Same-party candidates differ only in slate position, not ideology.',
-    candidates: 'LBR_1, LBR_2, LBR_3 · CON_1, CON_2, CON_3 · … · OAO_1',
+    candidates: 'LBR_1, LBR_2, LBR_3 · CON_1, CON_2, CON_3 · … · PRG_3',
   },
   {
     name: 'Crossover',
-    tag: '38 candidates',
+    tag: '37 candidates',
     color: '#ea580c',
     desc: '10 base candidates (one per party) + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like LBR_hi_so (a Labor candidate who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
     insight: 'Models intra-party ideological diversity. Voters can express a preference not just for a party, but for a faction within it.',
@@ -107,8 +107,8 @@ const STEPS = [
   },
   {
     n: 3, color: '#16a34a',
-    title: 'Voter Typology: 10 Clusters',
-    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM, a clustering method that discovers how many groups the data supports rather than being told in advance) groups respondents into 10 voter types by their 5 factor scores. Each cluster becomes a party, including cluster 7 (Order & Opportunity), a cross-cutting law-and-order + economic-progressive bloc that sits diagonally to the usual left-right axis.',
+    title: 'Voter Typology: 9 Clusters',
+    body: 'A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents into 9 voter types by their 5 factor scores, and gives each respondent a probability of belonging to every type. Those probabilities become the ranked ballots. The number of types is set for stability: at 9, fits on resampled respondents keep recovering the same parties, and at 10 the tenth party dissolves. Each type becomes a party.',
   },
   {
     n: 4, color: '#ea580c',
@@ -138,7 +138,7 @@ const SLATE_THRESHOLDS = [7, 6, 5, 4, 3].map(seats => ({
 const BALLOT_SPLIT = [
   { label: 'elected the 1st choice', value: 0.75, color: PARTY_COLORS.STY },
   { label: 'elected the 2nd choice', value: 0.15, color: PARTY_COLORS.LBR },
-  { label: 'elected the 3rd choice', value: 0.07, color: PARTY_COLORS.LIB },
+  { label: 'elected the 3rd choice', value: 0.07, color: PARTY_COLORS.DAL },
   { label: 'still live for later choices', value: 0.03, color: '#94a3b8' },
 ];
 
@@ -147,7 +147,7 @@ const BALLOT_SPLIT = [
 const EXAMPLE_SLATES = [
   { code: 'STY', n: 3 },
   { code: 'LBR', n: 3 },
-  { code: 'LIB', n: 3 },
+  { code: 'DAL', n: 3 },
   { code: 'PRG', n: 2 },
 ] as const;
 
@@ -203,7 +203,7 @@ type Section = 'overview' | 'data' | 'parties' | 'voting' | 'scenarios' | 'turno
 const SECTIONS = ([
   { id: 'overview',  label: 'Overview'        },
   { id: 'data',      label: 'Methodology'     },
-  { id: 'parties',   label: 'The 10 Parties'  },
+  { id: 'parties',   label: 'The Nine Parties'  },
   { id: 'voting',    label: 'Voting Systems'  },
   { id: 'scenarios', label: 'Two Scenarios'   },
   { id: 'turnout',   label: 'Turnout'         },
@@ -247,7 +247,7 @@ export function AboutTab() {
           <Card className="bg-slate-900 text-white border-slate-700 px-6 py-8">
             <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-3">The premise</div>
             <p className="text-xl font-semibold leading-snug mb-4">
-              What if Americans voted in a 10-party proportional system in 2028, using their actual political beliefs?
+              What if Americans voted in a nine-party proportional system in 2028, using their actual political beliefs?
             </p>
             <p className="text-slate-300 text-sm leading-relaxed">
               Winner-take-all voting compresses a multi-dimensional electorate into two parties. Feed the same
@@ -294,9 +294,9 @@ export function AboutTab() {
             <div className={`${MINOR_HEADING} mb-4`}>What each tab shows</div>
             <div className="space-y-2.5">
               {[
-                { tab: 'Party Quiz', desc: 'Answer the actual CES survey questions and see which of the ten parties your factor scores land closest to.', group: '' },
+                { tab: 'Party Quiz', desc: 'Answer the actual CES survey questions and see which of the nine parties your factor scores land closest to.', group: '' },
                 { tab: 'Overview', desc: 'A proportional government at a glance: how each chamber\'s composition shifts from winner-take-all to STV, a population-vs-voters breakdown, and a turnout-robustness check across the whole model.', group: '' },
-                { tab: 'Parties', desc: `The ten parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties${SHOW_CROSSOVER ? ' or crossover candidates' : ''}.`, group: '' },
+                { tab: 'Parties', desc: `The nine parties as an ideological constellation and individual profiles, plus a policy-by-policy comparison across up to 4 parties${SHOW_CROSSOVER ? ' or crossover candidates' : ''}.`, group: '' },
                 { tab: 'Presidency', desc: 'A 4-round STV primary that consolidates a 9+ party field into finalists, then a head-to-head general where IRV and Condorcet often pick different winners.', group: 'Scenarios' },
                 { tab: 'Senate',   desc: 'Per-state elections filling 102 seats (two per state + DC). Condorcet tends to favor centrists; IRV often produces more polarized chambers.', group: 'Scenarios' },
                 { tab: 'House',    desc: 'Multi-seat STV across 873 seats, tiered by urban/suburban/rural district type, with a representation-gap analysis.', group: 'Scenarios' },
@@ -422,7 +422,7 @@ export function AboutTab() {
 
             <div className="grid sm:grid-cols-3 gap-3 mb-4">
               {[
-                { n: '1', h: 'Score every party', b: 'The DPGMM gives each respondent a membership probability in all ten clusters. That posterior is the ranking key.' },
+                { n: '1', h: 'Score every party', b: 'The DPGMM gives each respondent a membership probability in each of the nine clusters. That posterior is the ranking key.' },
                 { n: '2', h: 'Rank parties by it', b: 'Highest posterior first. Co-partisans share their party\'s score, so a party\'s candidates take consecutive ranks.' },
                 { n: '3', h: 'Keep the slate in order', b: 'Inside a party block every voter lists the slate in the same order, so transfers exhaust the party before leaving it.' },
               ].map(s => (
@@ -551,7 +551,7 @@ export function AboutTab() {
         </div>
       )}
 
-      {/* ── The 10 Parties ───────────────────────────────────── */}
+      {/* ── The Nine Parties ───────────────────────────────────── */}
       {active === 'parties' && (
         <div className="space-y-5">
           <Card className="p-5">

@@ -20,19 +20,20 @@ import type { StateUncertainty } from './uncertainty';
 /**
  * How close the runner-up has to be, in points of resample win share, for a state to split.
  *
- * The measure is the gap between the top two, not the leader's own share. With ten parties
- * a leader can hold a clear lead on well under half the resamples — Montana's Conservative
- * takes 46% against Solidarity's 24% — while a leader over half can be in a photo finish:
- * Virginia is 50.3 to 47.4. A rule on the leader's level splits Montana and not Virginia,
- * which is backwards.
+ * The measure is the gap between the top two, not the leader's own share. With many parties
+ * a leader can hold a clear lead on well under half the resamples, while a leader over half
+ * can be in a photo finish. A rule on the leader's level splits the first and not the
+ * second, which is backwards.
  *
- * Twelve is a judgement, but not a free one. Sorted, the Condorcet gaps run 0.8 up to 10.6
- * and then jump to 15.5; the IRV gaps run to 9.6 and then jump to 12.7. Twelve sits in the
- * empty space in both, so the split set is the same for any cutoff from 11 to 12 and does
- * not turn on where exactly the line falls. Ten sat on top of a state — Wyoming's gap is
- * exactly 10.0 — which made one delegation depend on a rounding convention.
+ * Eighteen is a judgement, but not a free one. It was set on the 1,000 nine-party
+ * re-clustering draws at the default 5% stop, where each draw refits the parties on a voter
+ * resample and then runs its election on that resample. Sorted, the IRV gaps climb to 12.4
+ * across ten states and then jump to 20.1; the Ranked Pairs gaps climb to 15.1 across
+ * thirteen states and then jump to 23.0. Eighteen sits inside the stretch both rules leave
+ * empty, so the split set does not turn on where exactly the line falls. The earlier cutoff
+ * of 12 would have cut through both runs of gaps. Re-measure whenever the parties change.
  */
-export const SPLIT_THRESHOLD_PP = 12;
+export const SPLIT_THRESHOLD_PP = 18;
 
 /** Inclusive, with slack for float error: gaps come from subtracting two shares, so a
  *  state exactly on the line lands at 9.999999999999998 rather than 10. */

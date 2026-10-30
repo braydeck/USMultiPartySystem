@@ -31,12 +31,17 @@ def ballots_path(tree: str = "pure_multi") -> Path:
 
 
 @contextlib.contextmanager
-def resampled_inputs(idx, extra_paths: Iterable[Path] = ()):
-    """Within this block, reads of the per-respondent files return df.iloc[idx]."""
+def resampled_inputs(idx, extra_paths: Iterable[Path] = (), substitutes: dict | None = None):
+    """Within this block, reads of the per-respondent files return df.iloc[idx].
+
+    `substitutes` maps a real path to a stand-in file read in its place (a re-clustering draw's
+    typology, turnout and ballots). Row-aligned stand-ins are then resampled like the originals.
+    """
     real = pd.read_csv
     targets = {str(Path(p).resolve()) for p in PROCESSED_FILES} | {
         str(Path(p).resolve()) for p in extra_paths
     }
+    swap = {str(Path(k).resolve()): v for k, v in (substitutes or {}).items()}
 
     def _resolved(path):
         # Callers build paths inconsistently (some BASE_DIRs skip .resolve()), and a
@@ -47,8 +52,9 @@ def resampled_inputs(idx, extra_paths: Iterable[Path] = ()):
             return None
 
     def patched(path, *args, **kwargs):
-        df = real(path, *args, **kwargs)
-        if _resolved(path) in targets:
+        key = _resolved(path)
+        df = real(swap.get(key, path), *args, **kwargs)
+        if key in targets:
             assert len(df) == len(idx), (
                 f"{Path(path).name}: {len(df)} rows but index has {len(idx)}"
             )

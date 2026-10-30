@@ -10,6 +10,7 @@ from collections import defaultdict
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "pipeline"))
 from stv_config import BILL_VARS  # noqa: E402  — the canonical bill set, shared with the pipeline
+from party_codes import CLUSTER_TO_PARTY as PARTY_BY_CLUSTER, PARTY_TO_CLUSTER  # noqa: E402
 
 OUTPUTS          = Path(__file__).parent.parent.parent / "data" / "outputs"
 FD_DIR           = OUTPUTS / "factor_deviation"
@@ -23,10 +24,7 @@ RESULTS          = Path(__file__).parent.parent.parent / "results"
 DATA_OUT = Path(__file__).parent.parent / "src" / "data"
 DATA_OUT.mkdir(parents=True, exist_ok=True)
 
-CLUSTER_TO_PARTY = {
-    "0": "CON", "1": "LBR", "2": "STY", "3": "NAT",
-    "4": "LIB", "5": "POP", "6": "CUP", "7": "OAO", "8": "DSA", "9": "PRG",
-}
+CLUSTER_TO_PARTY = {str(k): p for k, p in PARTY_BY_CLUSTER.items()}
 
 # Soft-weighted national population shares per cluster (excluding C7/Blue Dogs, renormalized to 100%)
 # Derived from: np.average(prob_cluster_k, weights=commonpostweight), then renormalized.
@@ -36,7 +34,7 @@ NATIONAL_POP_SHARES = {
     1: 15.63,   # SD
     2: 15.04,   # STY
     3:  9.19,   # NAT
-    4:  9.30,   # LIB
+    4:  9.30,   # DAL
     5: 11.01,   # POP
     6:  9.86,   # CUP
     8:  6.27,   # DSA
@@ -46,9 +44,8 @@ NATIONAL_POP_SHARES = {
 
 PARTY_NAMES = {
     "CON": "Conservative", "LBR": "Labor", "STY": "Solidarity",
-    "NAT": "Nationalist", "LIB": "Liberal", "POP": "Populist",
-    "CUP": "Civic Union Party", "OAO": "Order and Opportunity Party",
-    "DSA": "Democratic Socialists", "PRG": "Progressive",
+    "NAT": "Nationalist", "DAL": "Democratic Alliance", "POP": "Populist",
+    "CUP": "Civic Union Party", "DSA": "Democratic Socialists", "PRG": "Progressive",
 }
 
 # Domains are assigned upstream by CES variable battery, which misfiles the items whose subject
@@ -102,11 +99,7 @@ def write_json(data, name):
 # Senators are pure party types. The blended types this file used to carry (SD_sty, CON_ctr and the
 # rest) came from the retired mixed-senate model; every live seat map keys on a party code alone.
 
-_PURE_CLUSTER: dict = {
-    "CON": 0, "LBR": 1, "STY": 2, "NAT": 3, "LIB": 4,
-    "POP": 5, "CUP": 6, "DSA": 8, "PRG": 9,
-    "OAO": 7,   # Order and Opportunity Party (cluster 7)
-}
+_PURE_CLUSTER: dict = PARTY_TO_CLUSTER
 
 def _lf_senator_support(code: str, cluster_row: dict) -> float:
     """% of a party's coalition supporting a bill, from its cluster_stats row. Returns 0 for an
@@ -274,8 +267,6 @@ def build_fd_variant_attraction():
     ballot_rows = read_csv(str(ballot_path))
     typology_rows = read_csv(str(Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"))
 
-    CLUSTER_TO_PARTY = {"0":"CON","1":"LBR","2":"STY","3":"NAT","4":"LIB","5":"POP","6":"CUP","7":"OAO","8":"DSA","9":"PRG"}
-
     # variant → {source_party: weighted_count}
     variant_sources: dict = {}
     variant_totals: dict = {}
@@ -284,7 +275,7 @@ def build_fd_variant_attraction():
         variant = br.get("rank_1", "")
         cluster = typology_rows[i].get("cluster", "")
         home = CLUSTER_TO_PARTY.get(str(cluster), "")
-        if home == "OAO" or not home:
+        if not home:
             continue
         w = float(typology_rows[i].get("commonpostweight", 1))
         if variant not in variant_sources:
@@ -478,8 +469,7 @@ def build_house_vote_model(rm_dir=PURE_MULTI_DIR, out_name="houseVoteModel.json"
 def _compute_state_pop_shares() -> dict:
     """Compute FIRST-CHOICE population shares per state.
 
-    All 10 clusters are kept and sum to ~100% (no renormalization). OAO (C7) is a permanent
-    party; the old 9-party variant that dropped and renormalized it was removed 2026-09-07.
+    Every party is kept and the shares sum to ~100% (no renormalization).
     """
     import numpy as np
     efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
@@ -487,8 +477,6 @@ def _compute_state_pop_shares() -> dict:
     efa_rows = read_csv(efa_path)
     typ_rows = read_csv(typ_path)
 
-    PARTY_CODES = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB", 5: "POP", 6: "CUP",
-                   7: "OAO", 8: "DSA", 9: "PRG"}
     result: dict = {}
     states = set()
     for r in efa_rows:
@@ -513,8 +501,8 @@ def _compute_state_pop_shares() -> dict:
             probs = [float(row.get(f"prob_cluster_{k}", 0) or 0) for k in range(10)]
             fc_w[probs.index(max(probs))] += ws[j]
         shares: dict = {}
-        for k in range(10):
-            shares[PARTY_CODES[k]] = round(fc_w[k] / total_w * 100, 2)
+        for k, code in PARTY_BY_CLUSTER.items():
+            shares[code] = round(fc_w[k] / total_w * 100, 2)
         fips2 = str(st_int).zfill(2)
         result[fips2] = shares
     return result
@@ -559,8 +547,6 @@ def build_house_state_map(src_dir=None, out_name="houseStateMap.json"):
 
 # ---------- transferMatrix.json ----------
 def build_transfer_matrix():
-    # Live 10-party run. The old canonical copy predated OAO's reinstatement and had
-    # C7 zeroed in both directions, so the constellation drew OAO with no links at all.
     rows = read_csv(PURE_MULTI_DIR / "house" / "transfer_matrix_10party.csv")
     parties = [k for k in rows[0].keys() if k != "party_a"]
     matrix = {}
@@ -582,7 +568,7 @@ def collect_cluster_variables(rows):
       - pew_churatd: weekly+ church attendance (% More than once/week + % Once/week)
       - race / gender4 categorical: specific buckets included as demographic facts
     """
-    cluster_ids = [str(i) for i in range(10)]
+    cluster_ids = list(CLUSTER_TO_PARTY)
     result = {cid: {} for cid in cluster_ids}
 
     # Phase 1: binary and binary_agree
@@ -900,7 +886,7 @@ def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=5):
         nb = [x for x in (_fnum(r.get(f"c{nc}")) for nc in neighbor_cids) if x is not None]
         if not nb:
             continue
-        allp = [x for x in (_fnum(r.get(f"c{i}")) for i in range(10)) if x is not None]
+        allp = [x for x in (_fnum(r.get(f"c{i}")) for i in CLUSTER_TO_PARTY) if x is not None]
         m = sum(allp) / len(allp)
         field_sd = (sum((x - m) ** 2 for x in allp) / len(allp)) ** 0.5 if len(allp) > 1 else 0.0
         neighbor_avg = sum(nb) / len(nb)
@@ -958,8 +944,8 @@ def _compute_cluster_factor_centroids() -> dict:
             v = typo_rows[row_idx].get(col)
         return float(v or 0)
 
-    num = {str(k): {fk: 0.0 for fk in factor_map} for k in range(10)}
-    den = {str(k): 0.0 for k in range(10)}
+    num = {cid: {fk: 0.0 for fk in factor_map} for cid in CLUSTER_TO_PARTY}
+    den = {cid: 0.0 for cid in CLUSTER_TO_PARTY}
     for i, tr in enumerate(typo_rows):
         cid = str(tr.get("cluster", "")).strip().replace(".0", "")
         if cid not in den:
@@ -975,8 +961,8 @@ def _compute_cluster_factor_centroids() -> dict:
 def build_cluster_profiles(out_name="clusterProfiles.json",
                            house_summary_csv=None):
     rows = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
-    clusters = {str(i): {"id": str(i), "variables": {}}
-                for i in range(10)}
+    clusters = {cid: {"id": cid, "variables": {}}
+                for cid in CLUSTER_TO_PARTY}
 
     all_vars = collect_cluster_variables(rows)
     # These binary rows are now rendered as distribution items (faith heatmap + vote-by-year
@@ -1303,10 +1289,7 @@ def build_quiz():
 # ══════════════════════════════════════════════════════════════════════════════
 
 # ---------- fdSenateCondorcet.json + fdSenateIRV.json ----------
-_FD_PARTY_CLUSTER = {
-    "CON": "0", "LBR": "1", "STY": "2", "NAT": "3", "LIB": "4",
-    "POP": "5", "CUP": "6", "DSA": "8", "PRG": "9", "OAO": "7",
-}
+_FD_PARTY_CLUSTER = {p: cid for cid, p in CLUSTER_TO_PARTY.items()}
 
 def build_fd_senate(src_dir=FD_DIR, cond_name="fdSenateCondorcet.json", irv_name="fdSenateIRV.json"):
     """FD senate compositions. CSV uses senator_party/axis/dir instead of label/cluster cols."""
@@ -2372,7 +2355,7 @@ def build_senate_buckets(src_dir=None, out_name="senateBuckets.json"):
     src_dir = src_dir or PURE_MULTI_DIR
     bucket_rows  = read_csv(src_dir / "senate" / "senate_stv_buckets.csv")
 
-    PARTIES = ["CON", "CUP", "DSA", "LIB", "NAT", "PRG", "POP", "LBR", "STY", "OAO"]
+    PARTIES = ["CON", "CUP", "DSA", "DAL", "NAT", "PRG", "POP", "LBR", "STY"]
     STV_SURVIVORS = 5
 
     # Build per-state finalist bucket data
@@ -2451,7 +2434,7 @@ def build_senate_condorcet(src_dir=None, out_name="senateCondorcet.json"):
     src_dir = src_dir or PURE_MULTI_DIR
     cond_rows = read_csv(src_dir / "senate" / "senate_condorcet_results.csv")
 
-    PARTIES = ["PRG", "LIB", "DSA", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
+    PARTIES = ["PRG", "DAL", "DSA", "LBR", "STY", "CUP", "CON", "POP", "NAT"]
 
     # Per-state matchups (for drill-down)
     states = {}
@@ -3119,7 +3102,7 @@ def build_senate_vote_model_wfp(src, out_name="senateVoteModelWFP.json"):
         row["condRawMultiProbOverride"] = cond_ovr.get(var, {}).get("prob_pass", 0.0)
         row["irvRawMultiProbOverride"]  = irv_ovr.get(var, {}).get("prob_pass", 0.0)
 
-    # ── Crossover (FD) senate columns from the native FD run (OAO-inclusive) ──
+    # ── Crossover (FD) senate columns from the native FD run ──
     fd_stats = read_csv(FD_DIR / "profiles" / "factor_deviation_stats.csv")
     fd_by_var = {r["variable"]: r for r in fd_stats
                  if r.get("stat_label") == "% Supporting" and r.get("type") == "binary"
@@ -3296,13 +3279,12 @@ def build_party_population():
     w    = efa["commonpostweight"].values.astype(float)
     cluster = tp["cluster"].values                     # hard argmax cluster
     t_cluster = tp["turnout_cluster"].values           # per-cluster validated turnout (what the sim uses)
-    CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
     Wtot = w.sum()
     # popShare: first-choice head count (canonical, matches _national_pop_shares_10 / House page).
     # turnout: hard per-cluster rate the compression sim weights by. voteShare: their product.
-    fc = typo[[f"prob_cluster_{k}" for k in range(len(CODES))]].values.astype(float).argmax(axis=1)
+    fc = typo[[f"prob_cluster_{k}" for k in range(10)]].values.astype(float).argmax(axis=1)
     pops, turns = [], []
-    for k in range(len(CODES)):
+    for k in range(10):
         pops.append(float(w[fc == k].sum()) / Wtot * 100)
         km = cluster == k
         turns.append(float(t_cluster[km][0]) if km.any() else 0.0)
@@ -3316,7 +3298,7 @@ def build_party_population():
         # per-cluster 2024 figure (STY 32.5) next to the stale turnoutPresidential (38.0) —
         # two 2024 turnout numbers side by side inviting someone to grab the wrong one. The
         # corrected figure lives in turnout_propensity.csv and turnoutVerification.json.
-    } for k, code in enumerate(CODES)]
+    } for k, code in PARTY_BY_CLUSTER.items()]
     # turnoutPresidential / turnoutMidterm come from the cross-wave analysis
     # (analysis/efa/previous_years/compare/turnout_by_wave.py): 2024 canonical labels and 2022
     # imposed through the supervised 2024 Gaussian, both on the validated voter file. Read from its
@@ -3366,9 +3348,8 @@ def build_distributions():
         categorical_dist / ordinal_dist / binary rows already in cluster_stats.csv
     Output distributions.json = {meta{varKey:...}, national{varKey:...}, parties{code:{varKey:...}}}."""
     proc = Path(__file__).parent.parent.parent / "data" / "processed"
-    CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
     CUR = ["DEM", "IND", "REP"]
-    meta, national, parties = {}, {}, {c: {} for c in CODES}
+    meta, national, parties = {}, {}, {c: {} for c in PARTY_BY_CLUSTER.values()}
     for c in CUR:
         parties[c] = {}
 
@@ -3543,7 +3524,7 @@ def build_distributions():
         national[key] = {"pcts": [seg_val(src, "overall") for _, src in segs]}
         if key == "income":
             national[key]["value"] = income_med.get("ALL")
-        for k, code in enumerate(CODES):
+        for k, code in PARTY_BY_CLUSTER.items():
             parties[code][key] = {"pcts": [seg_val(src, f"c{k}") for _, src in segs]}
             if key == "income":
                 parties[code][key]["value"] = income_med.get(code)
@@ -3588,7 +3569,7 @@ def build_turnout_crossover_triple():
 
 
 if __name__ == "__main__":
-    print("Preparing data (native 10-party incl. OAO)...")
+    print(f"Preparing data ({len(PARTY_BY_CLUSTER)} parties)...")
 
     def _run(fn, *args, **kw):
         """Run a builder; skip (keep committed JSON) if its inputs are missing.
@@ -3604,7 +3585,7 @@ if __name__ == "__main__":
     # Vote models: the native chamber-vote-model chain (results/vote_model.csv,
     # blend_stats.csv, pure_only/senate) is pruned from this checkout, so we
     # keep the committed vote-model JSON and recompute only the Raw-Multi columns
-    # from the native pure_multi run (which now includes OAO).
+    # from the native pure_multi run.
     _run(build_senate_vote_model_wfp, PURE_MULTI_DIR, out_name="senateVoteModel.json")
     _run(build_house_vote_model_wfp,  PURE_MULTI_DIR, out_name="houseVoteModel.json")
     _run(build_candidate_vote_model)

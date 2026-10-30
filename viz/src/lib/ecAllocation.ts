@@ -1,5 +1,5 @@
 /**
- * ecAllocation.ts — what the electoral college does to a ten-party field.
+ * ecAllocation.ts — what the electoral college does to a nine-party field.
  *
  * The presidency is decided nationally on this site: one ballot, counted once, by IRV or
  * Condorcet. That is the national override. This module answers the obvious next question

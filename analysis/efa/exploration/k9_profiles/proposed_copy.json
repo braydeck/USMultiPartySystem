@@ -1,0 +1,38 @@
+{
+ "PRG": {
+  "tagline": "Progressive on taxes, climate, and civil liberties; trusts elections",
+  "blurb": "The college-educated left: 30% hold a postgraduate degree, and 82% voted in 2024, the highest turnout of any party. Strongly progressive on taxes, climate, immigration, and civil liberties, and backs moving police funding to other services (75%). Trusts elections."
+ },
+ "DSA": {
+  "tagline": "Progressive on economics and culture, secular, election-skeptic",
+  "blurb": "The youngest party, with a median age of 33. Strongly progressive on economics and culture, and secular: 74% have no religion. Opposes more policing and border patrols (19%). Skeptical of elections and distrustful of government."
+ },
+ "LIB": {
+  "tagline": "Progressive and institutionalist; backs border patrols and arms for Ukraine",
+  "blurb": "The oldest party, with a median age of 62, and the most trusting of elections: 77% strongly agree US elections are fair. Progressive on taxes, climate, guns, and abortion. Backs border patrols (89%) and arming Ukraine (75%)."
+ },
+ "LBR": {
+  "tagline": "Safety net, clean energy, abortion rights, and a Dreamer pathway",
+  "blurb": "The Democratic center: 62% are Democrats and 92% voted Harris. Backs the safety net, clean energy, abortion rights, and a pathway for Dreamers (99%). Opposes a border wall (14%) and more police (28%)."
+ },
+ "STY": {
+  "tagline": "Lowest-income, majority non-white; progressive on immigration; election-skeptic",
+  "blurb": "Young, majority non-white, and the lowest-income party: 54% earn under $50k. Progressive on immigration, student debt, and Medicaid, and skeptical of more policing. Skeptical of elections. Turnout is the lowest of any party, at 33%."
+ },
+ "CUP": {
+  "tagline": "Law-and-order institutionalists; near the national average on taxes and climate",
+  "blurb": "Religious and mostly white: 42% are born-again. Backs border enforcement and more police (78%), and sits within about 10 points of the national average on taxes, climate, and abortion. Trusts elections and government."
+ },
+ "CON": {
+  "tagline": "Law-and-order and low-tax; backs a Dreamer pathway and Medicaid expansion",
+  "blurb": "The law-and-order right: 99% back more police and 100% back more border patrols. Low-tax, with 85% backing an extension of the 2017 tax cuts, while majorities back a Dreamer pathway (59%) and Medicaid expansion (71%). 82% voted Trump."
+ },
+ "POP": {
+  "tagline": "Immigration-restrictionist, election-skeptic, and distrustful of government",
+  "blurb": "The populist right. Restrictionist on immigration, opposed to climate regulation, and pro-gun. Skeptical of elections and distrustful of government: 33% have no trust at all in the federal government."
+ },
+ "NAT": {
+  "tagline": "Anti-immigration, religiously traditional, low-tax, and election-skeptic",
+  "blurb": "The hard right, and wealthier than average: 37% earn $100k or more. Opposes any legal status for undocumented immigrants or Dreamers, opposes tax increases, and backs easier concealed carry (92%). Religiously traditional, skeptical of elections, and distrustful of government."
+ }
+}

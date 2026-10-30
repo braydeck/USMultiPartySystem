@@ -12,6 +12,7 @@ Retune by editing QUESTIONS and re-running.
 """
 import csv
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -23,7 +24,9 @@ PROFILES = ROOT / "viz" / "src" / "data" / "clusterProfiles.json"
 CLUSTER_STATS = ROOT / "data" / "outputs" / "profiles" / "cluster_stats.csv"
 CONTINUOUS_SRC = {"CC24_325_median": ("CC24_325", "Median")}
 OUT = ROOT / "viz" / "src" / "data" / "quizQuestions.json"
-ACTIVE = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]  # all 10; C7 is OAO, reinstated
+sys.path.insert(0, str(ROOT / "pipeline"))
+from party_codes import LIVE_CLUSTERS  # noqa: E402
+ACTIVE = [str(k) for k in LIVE_CLUSTERS]
 
 # Response scales: exact CES wording on the surface, each option's `value` keyed to the
 # clusterSupport axis (clusterSupport = pct/100 = fraction giving the keyed response, so

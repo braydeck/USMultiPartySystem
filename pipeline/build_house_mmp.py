@@ -59,6 +59,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import (STATE_POPS, FIPS_TO_ABBR,  # noqa: E402
                         POP_PER_SEAT, POP_PER_SEAT_TRIPLE)
 from run_house_canonical import assign_density_tiers  # noqa: E402
+from party_codes import ALL_PARTIES, CLUSTER_TO_PARTY, PARTY_TO_CLUSTER  # noqa: E402
 
 TYPO_PATH = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 TURNOUT_PATH = BASE_DIR / "data" / "processed" / "turnout_propensity.csv"
@@ -67,10 +68,8 @@ OUT_PATH = BASE_DIR / "viz" / "public" / "data" / "houseMmp.json"
 SUMMARY_PATH = BASE_DIR / "viz" / "src" / "data" / "houseMmpNational.json"
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
-CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-                    5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
-PARTIES = [CLUSTER_TO_PARTY[k] for k in range(10)]
-F5_ORDER = ["PRG", "DSA", "LIB", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
+PARTIES = list(ALL_PARTIES.values())  # indexed by cluster ID, like the length-10 count vectors
+F5_ORDER = [p for p in ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"] if p in PARTY_TO_CLUSTER]
 PARTS = [0, 5, 10, 15, 20, 25, 30]
 WYOMING = {"double": POP_PER_SEAT, "triple": POP_PER_SEAT_TRIPLE}
 
@@ -117,7 +116,7 @@ def gallagher(vote_share: np.ndarray, seat_share: np.ndarray) -> float:
 
 def as_party_map(vec, cast=float, rnd=None):
     out = {}
-    for k in range(10):
+    for k in CLUSTER_TO_PARTY:
         v = cast(vec[k])
         if rnd is not None:
             v = round(v, rnd)

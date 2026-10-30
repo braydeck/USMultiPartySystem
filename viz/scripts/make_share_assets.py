@@ -22,26 +22,23 @@ R_DIR = ROOT / "viz" / "public" / "r"
 SITE = "https://usmultiparty.com"
 
 # Names / colors / taglines mirror viz/src/constants/parties.ts (PARTY_NAMES, PARTY_COLORS,
-# PARTY_TAGLINES). Keep in sync if those change. All ten current parties, incl. LBR (formerly
-# SD) and OAO.
+# PARTY_TAGLINES). Keep in sync if those change.
 NAMES = {"CON": "Conservative", "LBR": "Labor", "STY": "Solidarity", "POP": "Populist",
-         "CUP": "Civic Union Party", "LIB": "Liberal", "NAT": "Nationalist",
-         "DSA": "Democratic Socialists", "PRG": "Progressive",
-         "OAO": "Order and Opportunity Party"}
-COLORS = {"PRG": "#15803d", "DSA": "#22c55e", "LIB": "#0284c7", "LBR": "#38bdf8", "STY": "#8a70b8",
-          "CUP": "#825a27", "CON": "#e68c2c", "POP": "#d34812", "NAT": "#a01d2a", "OAO": "#5b6b8c"}
+         "CUP": "Civic Union Party", "DAL": "Democratic Alliance", "NAT": "Nationalist",
+         "DSA": "Democratic Socialists", "PRG": "Progressive"}
+COLORS = {"PRG": "#15803d", "DSA": "#22c55e", "DAL": "#0284c7", "LBR": "#38bdf8", "STY": "#8a70b8",
+          "CUP": "#825a27", "CON": "#e68c2c", "POP": "#d34812", "NAT": "#a01d2a"}
 TAGLINES = {"PRG": "Progressive on taxes, climate, and civil liberties; trusts elections",
-            "LIB": "Progressive on economics and climate; backs border enforcement and police",
+            "DAL": "Progressive on economics and climate; backs border enforcement and police",
             "DSA": "Progressive on economics and culture, secular, election-skeptic",
             "LBR": "Safety net, clean energy, and a Dreamer pathway with border enforcement",
             "STY": "Economically progressive and religiously traditional; election-skeptic",
             "CUP": "Centrist on economics and culture; law-and-order institutionalists",
             "CON": "Low-tax, law-and-order; trusts elections and backs background checks",
             "POP": "Immigration-restrictionist and election-skeptic; backs Medicaid expansion",
-            "NAT": "Anti-immigration, religiously traditional, low-tax, and election-skeptic",
-            "OAO": "Economically progressive and law-and-order; trusts elections"}
-CODE_TO_ID = {"CON": "0", "LBR": "1", "STY": "2", "NAT": "3", "LIB": "4",
-              "POP": "5", "CUP": "6", "OAO": "7", "DSA": "8", "PRG": "9"}
+            "NAT": "Anti-immigration, religiously traditional, low-tax, and election-skeptic"}
+CODE_TO_ID = {"CON": "0", "LBR": "1", "STY": "2", "NAT": "3", "DAL": "4",
+              "POP": "5", "CUP": "6", "DSA": "8", "PRG": "9"}
 
 by_id = {p["id"]: p for p in PROFILES}
 seats_by_id = {str(h["party"]): h["national"] for h in HOUSE}

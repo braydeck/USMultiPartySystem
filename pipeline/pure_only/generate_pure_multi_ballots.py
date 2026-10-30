@@ -7,7 +7,7 @@ Plackett-Luce sampling.
 
 Candidate design
 ----------------
-All 10 parties field 3 candidates each. Candidates from the same party
+Every party that holds voters fields 3 candidates. Candidates from the same party
 share the same factor-space centroid, so cross-party ordering is
 identical to the 9-party pure simulation. Within-party ordering is
 governed by a "prominence weight" that scales each candidate's
@@ -37,6 +37,10 @@ import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from party_codes import CLUSTER_TO_PARTY
 
 BASE_DIR        = Path(__file__).parent.parent.parent
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
@@ -59,8 +63,8 @@ FIPS_TO_ABBR = {
     55:"WI", 56:"WY", 72:"PR",
 }
 
-# ── 21 candidates ──────────────────────────────────────────────────────────────
-# cluster: CES 2024 typology cluster index (C7/BLB excluded)
+# ── 3 candidates per party ─────────────────────────────────────────────────────
+# cluster: CES 2024 typology cluster index; parties with no voters are dropped below
 # prominence: intra-party ballot weight; ratios produce first-choice splits of
 #   40/35/25 (3-candidate) or 60/40 (2-candidate) among same-party voters.
 CANDIDATES = [
@@ -80,10 +84,10 @@ CANDIDATES = [
     {"code": "NAT_1", "party": "NAT", "cluster": 3, "prominence": 0.40},
     {"code": "NAT_2", "party": "NAT", "cluster": 3, "prominence": 0.35},
     {"code": "NAT_3", "party": "NAT", "cluster": 3, "prominence": 0.25},
-    # ── LIB: 3 candidates ──
-    {"code": "LIB_1", "party": "LIB", "cluster": 4, "prominence": 0.40},
-    {"code": "LIB_2", "party": "LIB", "cluster": 4, "prominence": 0.35},
-    {"code": "LIB_3", "party": "LIB", "cluster": 4, "prominence": 0.25},
+    # ── DAL: 3 candidates ──
+    {"code": "DAL_1", "party": "DAL", "cluster": 4, "prominence": 0.40},
+    {"code": "DAL_2", "party": "DAL", "cluster": 4, "prominence": 0.35},
+    {"code": "DAL_3", "party": "DAL", "cluster": 4, "prominence": 0.25},
     # ── POP: 3 candidates ──
     {"code": "POP_1", "party": "POP", "cluster": 5, "prominence": 0.40},
     {"code": "POP_2", "party": "POP", "cluster": 5, "prominence": 0.35},
@@ -100,9 +104,8 @@ CANDIDATES = [
     {"code": "PRG_1", "party": "PRG", "cluster": 9, "prominence": 0.40},
     {"code": "PRG_2", "party": "PRG", "cluster": 9, "prominence": 0.35},
     {"code": "PRG_3", "party": "PRG", "cluster": 9, "prominence": 0.25},
-    # ── OAO (Order and Opportunity Party, cluster 7): single candidate (small party) ──
-    {"code": "OAO_1", "party": "OAO", "cluster": 7, "prominence": 1.00},
 ]
+CANDIDATES = [c for c in CANDIDATES if c["cluster"] in CLUSTER_TO_PARTY]
 
 N_CANDIDATES = len(CANDIDATES)
 CAND_CODES   = [c["code"] for c in CANDIDATES]
@@ -256,7 +259,7 @@ def main():
     print(table.to_string())
 
     print("\nWithin-party first-choice splits (verify 40/35/25):")
-    for party in ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "DSA", "PRG"]:
+    for party in ["CON", "LBR", "STY", "NAT", "DAL", "POP", "CUP", "DSA", "PRG"]:
         codes = [f"{party}_{i}" for i in (1, 2, 3)]
         totals = {c: fc_counts.get(c, 0) for c in codes}
         party_total = sum(totals.values())

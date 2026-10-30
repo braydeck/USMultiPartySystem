@@ -1,4 +1,5 @@
 import { F5_ORDER, getPartyColor, getContrastText, PARTY_NAMES } from '../../constants/parties';
+import { MajorityMark } from '../shared/MajorityMark';
 
 interface Props {
   shares: Record<string, number>; // party -> share, sums to ~1
@@ -6,27 +7,30 @@ interface Props {
   legend?: boolean;
 }
 
-/** Horizontal stacked bar over the 10 parties (left→right ideological order), colored by party. */
+/** Horizontal stacked bar over the nine parties (left→right ideological order), colored by party. */
 export function PartyStackBar({ shares, height = 26, legend = true }: Props) {
   const ordered = F5_ORDER.filter(p => (shares[p] ?? 0) > 0.0005);
   const byShare = [...ordered].sort((a, b) => (shares[b] ?? 0) - (shares[a] ?? 0));
   return (
     <div className="space-y-1.5">
-      <div className="flex w-full rounded-md overflow-hidden ring-1 ring-black/5" style={{ height }}>
-        {ordered.map(p => {
-          const s = shares[p];
-          const c = getPartyColor(p);
-          return (
-            <div
-              key={p}
-              title={`${PARTY_NAMES[p]} — ${(s * 100).toFixed(1)}%`}
-              className="flex items-center justify-center text-3xs font-bold overflow-hidden"
-              style={{ width: `${s * 100}%`, background: c, color: getContrastText(c) }}
-            >
-              {s >= 0.08 ? p : ''}
-            </div>
-          );
-        })}
+      <div className="relative mt-1.5">
+        <MajorityMark />
+        <div className="flex w-full rounded-md overflow-hidden ring-1 ring-black/5" style={{ height }}>
+          {ordered.map(p => {
+            const s = shares[p];
+            const c = getPartyColor(p);
+            return (
+              <div
+                key={p}
+                title={`${PARTY_NAMES[p]} — ${(s * 100).toFixed(1)}%`}
+                className="flex items-center justify-center text-3xs font-bold overflow-hidden"
+                style={{ width: `${s * 100}%`, background: c, color: getContrastText(c) }}
+              >
+                {s >= 0.08 ? p : ''}
+              </div>
+            );
+          })}
+        </div>
       </div>
       {legend && (
         <div className="flex flex-wrap gap-x-3 gap-y-1">

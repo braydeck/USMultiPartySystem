@@ -34,10 +34,15 @@ Outputs
   data/outputs/candidate_vote_params.csv  (per-bill fitted coefficients)
 """
 
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from party_codes import CLUSTER_TO_PARTY, PARTY_TO_CLUSTER  # noqa: E402
 
 BASE = Path(__file__).parent.parent
 OUT_DIR = BASE / "data" / "outputs"
@@ -53,9 +58,6 @@ CENTROID_COLS = [
     "F1_security_order", "F2_electoral_skepticism", "F3_government_distrust",
     "F4_religious_traditionalism", "F5_populist_conservatism",
 ]
-CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-                    5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
-PARTY_TO_CLUSTER = {v: k for k, v in CLUSTER_TO_PARTY.items()}
 
 # 24 EFA-anchor items — the listwise mask that defines the typology row set.
 ANCHORS = ['pew_churatd', 'CC24_302', 'CC24_303', 'CC24_341a', 'CC24_341c',
@@ -126,9 +128,9 @@ def main():
     stats = stats.set_index("variable")
 
     # Centroid = weighted mean of FS_F1..F5 within each cluster (the definition).
-    # We reconstruct all 10 directly from the aligned factor scores rather than
+    # We reconstruct them directly from the aligned factor scores rather than
     # read candidate_factor_centroids.csv, which carries stale cluster labels
-    # (REF/CTR for POP/CUP) and no OAO row. The file is used only as a cross-check
+    # (REF/CTR for POP/CUP). The file is used only as a cross-check
     # where its labels still match the current taxonomy.
     pure = {}
     for party, cluster in PARTY_TO_CLUSTER.items():
@@ -167,7 +169,7 @@ def main():
 
         # Gate A: recoded → per-cluster weighted mean matches cluster_stats c0..c9
         if var in stats.index:
-            for cluster in range(10):
+            for cluster in CLUSTER_TO_PARTY:
                 obs = stats.loc[var, f"c{cluster}"]
                 rec = wpct(y, w, cl == cluster)
                 if not np.isnan(obs) and not np.isnan(rec):

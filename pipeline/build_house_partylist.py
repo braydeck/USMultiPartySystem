@@ -43,6 +43,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from party_codes import ALL_PARTIES, CLUSTER_TO_PARTY, PARTY_TO_CLUSTER  # noqa: E402
+
 BASE_DIR = Path(__file__).parent.parent
 TYPO_PATH = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 TURNOUT_PATH = BASE_DIR / "data" / "processed" / "turnout_propensity.csv"
@@ -56,10 +59,8 @@ OUT_PATH = BASE_DIR / "viz" / "public" / "data" / "housePartyList.json"
 SUMMARY_PATH = BASE_DIR / "viz" / "src" / "data" / "houseDepthNational.json"
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
-CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-                    5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
-PARTIES = [CLUSTER_TO_PARTY[k] for k in range(10)]
-F5_ORDER = ["PRG", "DSA", "LIB", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
+PARTIES = list(ALL_PARTIES.values())  # indexed by cluster ID, like the length-10 count vectors
+F5_ORDER = [p for p in ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"] if p in PARTY_TO_CLUSTER]
 PARTS = [0, 5, 10, 15, 20, 25, 30]
 
 WYOMING = {
@@ -150,7 +151,7 @@ def stv_seats_by_district(csv_path: Path) -> dict:
 
 def as_party_map(vec, cast=float, rnd=None):
     out = {}
-    for k in range(10):
+    for k in CLUSTER_TO_PARTY:
         v = cast(vec[k])
         if rnd is not None:
             v = round(v, rnd)
@@ -430,8 +431,7 @@ def main():
         m = inputstate == fips_i
         s = (FC[m] * cpw[m, None]).sum(0); s = s / s.sum()
         pop = hsm.get(f"{int(fips_i):02d}", {}).get("popShares", {})
-        for k in range(10):
-            p = CLUSTER_TO_PARTY[k]
+        for k, p in CLUSTER_TO_PARTY.items():
             if p in pop and abs(s[k] * 100 - pop[p]) > worst:
                 worst = abs(s[k] * 100 - pop[p]); worst_at = f"{int(fips_i):02d}/{p}"
     print(f"first-choice share vs houseStateMap popShares: max gap {worst:.2f} pp at {worst_at}")

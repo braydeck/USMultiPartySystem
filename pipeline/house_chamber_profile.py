@@ -18,21 +18,23 @@ Output
   Claude/outputs/house_chamber_profile.csv
 """
 
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from party_codes import CLUSTER_TO_PARTY  # noqa: E402
 
 BASE        = Path(__file__).parent.parent
 PROFILE_DIR = BASE / "data" / "outputs" / "profiles"
 OUT_DIR     = BASE / "data" / "outputs"
 
 # Cluster index → label mapping
-CLUSTER_NAMES = {
-    0: "CON", 1: "LBR",  2: "STY", 3: "NAT", 4: "LIB",
-    5: "POP", 6: "CUP", 7: "OAO",  8: "DSA", 9: "PRG",
-}
+CLUSTER_NAMES = CLUSTER_TO_PARTY
 
-TYPE_COLS = [CLUSTER_NAMES[i] for i in range(10)]
+TYPE_COLS = list(CLUSTER_NAMES.values())
 
 META_COLS = ["variable", "domain", "type", "stat_label", "question", "overall"]
 
@@ -86,7 +88,7 @@ def main():
         seats = load_seat_counts(path)
         total = sum(seats.values())
         print(f"\n{col_name}: {total} seats")
-        for i in range(10):
+        for i in CLUSTER_NAMES:
             s = seats.get(i, 0)
             if s > 0:
                 print(f"  {CLUSTER_NAMES[i]:<6} {s:>4} ({100*s/total:.1f}%)")

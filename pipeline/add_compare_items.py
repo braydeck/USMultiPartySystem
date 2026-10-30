@@ -8,8 +8,12 @@ codes, notna on the 24 items + weight → N=45,707, same order as the typology f
 to typology_cluster_assignments.csv by row position. Idempotent: removes any prior
 rows for these variables before appending.
 """
+import sys
 import numpy as np, pandas as pd
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from party_codes import CLUSTER_TO_PARTY  # noqa: E402
 
 ROOT=Path(__file__).resolve().parent.parent
 DTA=ROOT / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
@@ -164,14 +168,13 @@ def main():
     # Turnout verification composition per cluster: what share of each force can be confirmed
     # against the voter file at all. verifiedVoted(1..6) / matchedNonvoter(7) / unmatched(missing)
     # sum to 100. The unmatched slice is why the reported-vs-verified gap is NOT pure over-report.
-    CODES=['CON','LBR','STY','NAT','LIB','POP','CUP','OAO','DSA','PRG']
     vv=np.where((~np.isnan(ts))&(ts<=6),1.0,0.0)
     mnv=np.where(ts==7,1.0,0.0)
     unm=np.where(np.isnan(ts),1.0,0.0)
     comp=[]
-    for k in range(10):
+    for k,code in CLUSTER_TO_PARTY.items():
         m=cl==k
-        comp.append({'cluster':k,'party':CODES[k],'verifiedVoted':wpct(vv,m),
+        comp.append({'cluster':k,'party':code,'verifiedVoted':wpct(vv,m),
                      'matchedNonvoter':wpct(mnv,m),'unmatched':wpct(unm,m)})
     allm=np.ones(len(vv),bool)
     comp.append({'cluster':-1,'party':'ALL','verifiedVoted':wpct(vv,allm),
@@ -196,9 +199,9 @@ def main():
         return [round(float(np.interp(q/100.0,cw,v)),1) for q in qs]
     QS=[10,25,50,75,90]; controws=[]
     for var,vals,unit in CONT:
-        for k in range(10):
+        for k,code in CLUSTER_TO_PARTY.items():
             p=wpctl(vals,cl==k,QS)
-            controws.append({'var':var,'unit':unit,'cluster':k,'party':CODES[k],
+            controws.append({'var':var,'unit':unit,'cluster':k,'party':code,
                              'p10':p[0],'q25':p[1],'median':p[2],'q75':p[3],'p90':p[4]})
         p=wpctl(vals,np.ones(len(vals),bool),QS)
         controws.append({'var':var,'unit':unit,'cluster':-1,'party':'ALL',

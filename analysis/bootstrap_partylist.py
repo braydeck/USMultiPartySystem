@@ -29,7 +29,11 @@ Provenance: data/processed/{efa_factor_scores,typology_cluster_assignments,turno
 + data/outputs/canonical/{ballots_checkpoint.parquet,district_apportionment.csv}.
 Double-Wyoming map only, matching the chart's gate. Seeded 42 + draw, stratified within state.
 
-Usage:  python3 analysis/bootstrap_partylist.py [--draws 1000]
+Each draw re-clusters (analysis/bootstrap/recluster.py): draw d's first choices and cluster
+turnout come from the parties refit on that draw's resample. --fixed-parties keeps the
+published parties in every draw.
+
+Usage:  python3 analysis/bootstrap_partylist.py [--draws 1000] [--fixed-parties]
 """
 
 import argparse
@@ -47,6 +51,7 @@ sys.path.insert(0, str(BASE / "pipeline"))
 from analysis.bootstrap.contests import CLUSTER_TO_PARTY  # noqa: E402
 from analysis.bootstrap.resample import stratified_indices  # noqa: E402
 from build_house_partylist import sainte_lague  # noqa: E402  reuse, do not reimplement
+from build_house_reserve import sainte_lague as reserve_topoff  # noqa: E402  seeded: returns the seats it adds
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 OUT = BASE / "viz" / "src" / "data" / "partyListSeatRange.json"
@@ -54,12 +59,19 @@ STOPS = [(0, "Turnout"), (5, "TurnoutL5"), (10, "TurnoutL10"), (15, "TurnoutL15"
          (20, "TurnoutL20"), (25, "TurnoutL25"), (30, "TurnoutL30")]
 
 
-def load():
+# The four House maps the app offers. Reserve maps hold ~20% of each state's seats back for a
+# statewide Sainte-Laguë top-off seeded with the district list wins (build_house_reserve.py).
+MAPS = {"double": ("canonical", 873, False), "triple": ("canonical_triple", 1726, False),
+        "reserve": ("canonical_reserve", 873, True), "triple_reserve": ("canonical_triple_reserve", 1726, True)}
+
+
+def load(map_key: str = "double"):
+    tree, _, reserve = MAPS[map_key]
     efa = pd.read_csv(BASE / "data" / "processed" / "efa_factor_scores.csv")
     typ = pd.read_csv(BASE / "data" / "processed" / "typology_cluster_assignments.csv")
     turn = pd.read_csv(BASE / "data" / "processed" / "turnout_propensity.csv")
-    chk = pd.read_parquet(BASE / "data" / "outputs" / "canonical" / "ballots_checkpoint.parquet")
-    app = pd.read_csv(BASE / "data" / "outputs" / "canonical" / "district_apportionment.csv")
+    chk = pd.read_parquet(BASE / "data" / "outputs" / tree / "ballots_checkpoint.parquet")
+    app = pd.read_csv(BASE / "data" / "outputs" / tree / "district_apportionment.csv")
     n = len(efa)
     assert len(typ) == len(turn) == len(chk) == n, "per-respondent files misaligned"
 
@@ -77,6 +89,10 @@ def load():
     states = sorted({int(v) for v in state_of.values()})
     state_ix = {s: i for i, s in enumerate(states)}
     dist_state = np.array([state_ix[int(state_of[d])] for d in uniq], dtype=int)
+    state_reserve = np.zeros(len(states), dtype=int)
+    if reserve:
+        for d, r in zip(app["district_id"], app["reserve"]):
+            state_reserve[state_ix[int(state_of[d])]] = int(r)
 
     # First-choice one-hot, matching build_house_partylist.py's allocation basis. The vote basis
     # is the one thing this script duplicates rather than imports (it imports `sainte_lague` to avoid
@@ -92,14 +108,17 @@ def load():
         turnout=turn["turnout_cluster"].values.astype(np.float64),
         inputstate=efa["inputstate"].values.astype(int),
         codes=codes, seats=seats, dist_state=dist_state,
-        n_dist=len(uniq), n_state=len(states), state_ix=state_ix,
+        n_dist=len(uniq), n_state=len(states), state_ix=state_ix, state_reserve=state_reserve,
     )
 
 
-def allocate(d, idx, lam):
-    """Party-list seats per party for one resample at one turnout stop."""
-    w = d["base_w"][idx] * (d["turnout"][idx] + lam * (1.0 - d["turnout"][idx]))
-    P, c = d["probs"][idx], d["codes"][idx]
+def allocate(d, idx, lam, probs=None, turnout=None):
+    """Party-list seats per party for one resample at one turnout stop. `probs` and `turnout`
+    replace the published first choices and cluster turnout for a re-clustering draw."""
+    probs = d["probs"] if probs is None else probs
+    turnout = d["turnout"] if turnout is None else turnout
+    w = d["base_w"][idx] * (turnout[idx] + lam * (1.0 - turnout[idx]))
+    P, c = probs[idx], d["codes"][idx]
 
     votes = np.empty((d["n_dist"], 10))
     st_votes = np.empty((d["n_state"], 10))
@@ -110,6 +129,7 @@ def allocate(d, idx, lam):
         st_votes[:, k] = np.bincount(st_of_resp, weights=wk, minlength=d["n_state"])
 
     out = np.zeros(10, dtype=int)
+    won = np.zeros((d["n_state"], 10), dtype=int)
     for i in range(d["n_dist"]):
         s = int(d["seats"][i])
         if s <= 0:
@@ -117,47 +137,61 @@ def allocate(d, idx, lam):
         # No respondents landed here in this draw: use the state's vote vector so the
         # district's seats are still allocated rather than silently dropped.
         v = votes[i] if votes[i].sum() > 0 else st_votes[d["dist_state"][i]]
-        out += sainte_lague(v, s)
+        got = sainte_lague(v, s)
+        out += got
+        won[d["dist_state"][i]] += got
+    for j, r in enumerate(d["state_reserve"]):
+        if r > 0:
+            out += reserve_topoff(st_votes[j], int(r), seed=won[j])
     return out
 
 
-def build(n_draws: int) -> dict:
-    d = load()
-    base = np.arange(len(d["base_w"]))
-    payload = {"nDraws": n_draws, "seed": 42, "stops": {}}
+def build(n_draws: int, recluster: bool = True) -> dict:
+    """`stops` is the double map, which the House chart reads; `maps` holds all four."""
+    payload = {"nDraws": n_draws, "seed": 42, "reclustered": recluster, "stops": {}, "maps": {}}
+    if recluster:
+        from analysis.bootstrap import recluster as rc
+        per_draw = [rc.draw_first_choice(i) for i in range(n_draws)]
 
-    for pct, suffix in STOPS:
-        lam = pct / 100.0
-        point = allocate(d, base, lam)
-        draws = np.vstack([allocate(d, stratified_indices(d["inputstate"], seed=42 + i), lam)
-                           for i in range(n_draws)])
-        total = int(d["seats"].sum())
-        assert total == 873, f"apportionment totals {total}, expected 873"
-        assert point.sum() == total, f"{suffix}: point allocates {point.sum()} of {total}"
-        assert (draws.sum(axis=1) == total).all(), f"{suffix}: a draw did not allocate {total}"
+    for map_key, (_, chamber, _) in MAPS.items():
+        d = load(map_key)
+        base = np.arange(len(d["base_w"]))
+        if not recluster:
+            per_draw = [(None, None, stratified_indices(d["inputstate"], seed=42 + i)) for i in range(n_draws)]
+        total = int(d["seats"].sum() + d["state_reserve"].sum())
+        assert total == chamber, f"{map_key}: apportionment totals {total}, expected {chamber}"
+        payload["maps"][map_key] = {}
+        for pct, suffix in STOPS:
+            lam = pct / 100.0
+            point = allocate(d, base, lam)
+            draws = np.vstack([allocate(d, idx, lam, fc, turn) for fc, turn, idx in per_draw])
+            assert point.sum() == total, f"{map_key} {suffix}: point allocates {point.sum()} of {total}"
+            assert (draws.sum(axis=1) == total).all(), f"{map_key} {suffix}: a draw did not allocate {total}"
 
-        shares = {}
-        for k in range(10):
-            col = draws[:, k].astype(float)
-            lo, hi = np.percentile(col, [2.5, 97.5])
-            exp = float(col.mean())
-            shares[CLUSTER_TO_PARTY[k]] = {
-                "point": int(point[k]),
-                "expected": round(exp, 2),
-                # Contain the centre, matching the seat payload's convention.
-                "lo": int(min(np.floor(lo), np.floor(exp))),
-                "hi": int(max(np.ceil(hi), np.ceil(exp))),
-            }
-        payload["stops"][suffix] = {"totalSeats": total, "shares": shares}
+            shares = {}
+            for k in CLUSTER_TO_PARTY:
+                col = draws[:, k].astype(float)
+                lo, hi = np.percentile(col, [2.5, 97.5])
+                exp = float(col.mean())
+                shares[CLUSTER_TO_PARTY[k]] = {
+                    "point": int(point[k]),
+                    "expected": round(exp, 2),
+                    # Contain the centre, matching the seat payload's convention.
+                    "lo": int(min(np.floor(lo), np.floor(exp))),
+                    "hi": int(max(np.ceil(hi), np.ceil(exp))),
+                }
+            payload["maps"][map_key][suffix] = {"totalSeats": total, "shares": shares}
+    payload["stops"] = payload["maps"]["double"]
     return payload
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--draws", type=int, default=1000)
+    ap.add_argument("--fixed-parties", action="store_true")
     a = ap.parse_args()
 
-    payload = build(a.draws)
+    payload = build(a.draws, recluster=not a.fixed_parties)
     OUT.write_text(json.dumps(payload, separators=(",", ":"), sort_keys=True))
 
     l5 = payload["stops"]["TurnoutL5"]

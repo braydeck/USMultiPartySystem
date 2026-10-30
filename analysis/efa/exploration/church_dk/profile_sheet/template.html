@@ -1,0 +1,131 @@
+<title>Party Profiles After Rescore</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column of ten party dossiers in left-to-right order, each a two-column grid that stacks on phones */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --fg:#1b2230; --muted:#5d6778; --line:#dfe3ea; --accent:#3d5a99;
+  --up:#1d7a4a; --down:#b0402f; --flag:#a3610b; --flagbg:#fdf3e3; --okbg:#eaf5ee;
+  --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161d; --panel:#1a2029; --fg:#e4e8ef; --muted:#9aa4b5; --line:#2c3440; --accent:#8fa9e6;
+  --up:#5fcf92; --down:#f08a78; --flag:#f0b25a; --flagbg:#2b2214; --okbg:#16271d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161d; --panel:#1a2029; --fg:#e4e8ef; --muted:#9aa4b5; --line:#2c3440; --accent:#8fa9e6;
+  --up:#5fcf92; --down:#f08a78; --flag:#f0b25a; --flagbg:#2b2214; --okbg:#16271d; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1{font-family:var(--display);font-weight:650;font-size:30px;margin:0;text-wrap:balance}
+.lede{color:var(--muted);max-width:72ch;margin:0}
+.lede b{color:var(--fg);font-weight:600}
+nav{display:flex;flex-wrap:wrap;gap:6px}
+nav a{font-family:var(--mono);font-size:12px;font-weight:500;text-decoration:none;color:#fff;padding:3px 9px;border-radius:4px}
+nav a:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.pairs{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.pairs h2,.party h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0;font-weight:600}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:3px 8px 3px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:12px}
+td.n,th.n{text-align:right;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.party{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;scroll-margin-top:12px}
+.phead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:14px 16px 12px;border-top:5px solid var(--pc)}
+.phead h2{font-family:var(--display);font-weight:650;font-size:22px;margin:0}
+.code{font-family:var(--mono);font-size:12px;color:#fff;background:var(--pc);padding:1px 7px;border-radius:3px}
+.kpis{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12.5px;color:var(--muted);margin-left:auto}
+.kpis b{color:var(--fg);font-family:var(--mono);font-weight:500}
+.body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px 28px;padding:4px 16px 18px}
+@media (max-width:820px){.body{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.copy{display:flex;flex-direction:column;gap:4px}
+.copy .tag{font-weight:600}
+.copy .blurb{color:var(--muted)}
+.notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.notes li{padding:6px 10px;border-radius:4px;background:var(--flagbg);border-left:3px solid var(--flag)}
+.notes li.info{background:transparent;border-left-color:var(--line)}
+.notes li.ok{background:var(--okbg);border-left-color:var(--up)}
+.fac{display:grid;grid-template-columns:minmax(0,11.5em) minmax(0,1fr) 7.5em;gap:3px 10px;align-items:center;font-size:12.5px}
+.fac .lab{color:var(--muted)}
+.bar{position:relative;height:14px;background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat}
+.bar i{position:absolute;top:3px;height:8px;border-radius:2px}
+.bar i.old{background:var(--muted);opacity:.35;top:0;height:14px}
+.bar i.new{background:var(--pc)}
+.fac .v{font-family:var(--mono);font-size:12px;text-align:right;white-space:nowrap}
+.d.up{color:var(--up)} .d.down{color:var(--down)}
+.small{font-size:12px;color:var(--muted)}
+.origin{display:flex;height:12px;border-radius:2px;overflow:hidden;border:1px solid var(--line)}
+.origin span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+footer{color:var(--muted);font-size:12px;max-width:90ch}
+</style>
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <h1>Party Profiles After the Rescore</h1>
+    <p class="lede">Each party's current site copy next to its rescored numbers. <b>Amber</b> notes mark copy the new data no longer supports; <b>green</b> notes mark copy that still holds; grey notes are new facts the copy does not cover. Old values are the live site (pre-rescore, 45,707 respondents); new values are branch <code>bd-corrected-scoring</code> (45,214). All figures are survey-weighted.</p>
+    <nav id="nav"></nav>
+  </header>
+  <section class="pairs">
+    <h2>Closest party pairs now</h2>
+    <div class="scroll"><table id="pairs"></table></div>
+    <div class="small">Gap is the mean absolute difference, in percentage points, across __NPOL__ policy and trust response rows (binary support items plus each category of the Likert and trust items).</div>
+  </section>
+  <main id="parties" style="display:flex;flex-direction:column;gap:22px"></main>
+  <footer>Factor bars show party mean z-scores; the grey band is the old position, the colored bar the new one. Religious Traditionalism and Populist Conservatism are shown net of Security &amp; Order, as clustered. House seats are the default view (double magnitude, rank-7 ballots, 5% turnout gap, 873 seats). "Came from" is the share of each new party whose members sat in each old party, matched by respondent ID. Built by <code>analysis/efa/exploration/church_dk/profile_sheet/build_sheet_data.py</code>.</footer>
+</div>
+<script>
+const DATA = __DATA__;
+const FN = {F1:"Security & Order",F2:"Institutional Distrust",F3:"Government Distrust",F4:"Religious Traditionalism",F5:"Populist Conservatism"};
+const COLOR = Object.fromEntries(DATA.parties.map(p=>[p.code,p.color]));
+const NAME = Object.fromEntries(DATA.parties.map(p=>[p.code,p.name]));
+const f0 = v => v==null?"–":Math.round(v).toString();
+const f1 = v => (v>0?"+":"")+v.toFixed(2);
+const delta = (o,n,dig=0) => { const d=n-o; const s=(d>0?"+":"")+d.toFixed(dig); const c=Math.abs(d)<(dig?0.1:3)?"":(d>0?"up":"down"); return `<span class="d ${c}">${s}</span>`; };
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const chip = c => `<span class="code" style="--pc:${COLOR[c]}">${c}</span>`;
+
+document.getElementById("nav").innerHTML = DATA.parties.map(p=>`<a href="#${p.code}" style="background:${p.color}">${p.code}</a>`).join("");
+
+const seen=new Set(), pairs=[];
+DATA.parties.forEach(p=>p.nearest.forEach(n=>{const k=[p.code,n.party].sort().join("-"); if(!seen.has(k)){seen.add(k);pairs.push({a:p.code,b:n.party,new:n.new,old:n.old});}}));
+pairs.sort((x,y)=>x.new-y.new);
+document.getElementById("pairs").innerHTML = `<tr><th>Pair</th><th class="n">Gap now</th><th class="n">Gap before</th><th class="n">Change</th></tr>` +
+  pairs.slice(0,6).map(r=>`<tr><td>${chip(r.a)} ${chip(r.b)}</td><td class="n">${r.new.toFixed(1)}</td><td class="n">${r.old.toFixed(1)}</td><td class="n">${delta(r.old,r.new,1).replace(/class="d (up|down)"/,(m,c)=>`class="d ${c==="up"?"down":"up"}"`)}</td></tr>`).join("");
+
+const SCALE = 2.2;
+const pos = v => 50 + Math.max(-1,Math.min(1,v/SCALE))*50;
+function bar(o,n){
+  const seg=(v,cls)=>{const a=pos(0),b=pos(v);return `<i class="${cls}" style="left:${Math.min(a,b)}%;width:${Math.max(Math.abs(b-a),0.6)}%"></i>`;};
+  return `<div class="bar">${seg(o,"old")}${seg(n,"new")}</div>`;
+}
+document.getElementById("parties").innerHTML = DATA.parties.map(p=>{
+  const flag = s => /fails|no longer|weak|commentary|not distinctive|does not mention|below the/.test(s);
+  const cls = s => flag(s) ? "" : (/\bhold/.test(s) ? "ok" : "info");
+  const fac = Object.entries(p.factors).map(([f,v])=>`<span class="lab">${FN[f]}</span>${bar(v.old,v.new)}<span class="v">${f1(v.old)} → ${f1(v.new)}</span>`).join("");
+  const demo = p.demo.map(r=>`<tr><td>${esc(r.label)}</td><td class="n">${f0(r.old)}</td><td class="n">${f0(r.new)}</td><td class="n">${delta(r.old,r.new)}</td><td class="n">${f0(r.overall)}</td></tr>`).join("");
+  const dist = p.distinct.map(r=>`<tr><td>${esc(r.q)}</td><td class="n">${f0(r.new)}</td><td class="n">${f0(r.overall)}</td><td class="n">${delta(r.overall,r.new)}</td></tr>`).join("");
+  const shf = p.shifted.map(r=>`<tr><td>${esc(r.q)}${r.stat!=="% Supporting"?` <span class="small">(${esc(r.stat.replace("% ",""))})</span>`:""}</td><td class="n">${f0(r.old)}</td><td class="n">${f0(r.new)}</td><td class="n">${delta(r.old,r.new)}</td></tr>`).join("");
+  const orig = Object.entries(p.origin);
+  const rest = 100 - orig.reduce((s,[,v])=>s+v,0);
+  return `<article class="party" id="${p.code}" style="--pc:${p.color}">
+    <div class="phead"><span class="code">${p.code}</span><h2>${esc(p.name)}</h2>
+      <div class="kpis"><span>Share <b>${p.share.old.toFixed(1)}% → ${p.share.new.toFixed(1)}%</b></span><span>House seats <b>${p.seats.old} → ${p.seats.new}</b></span><span>Kept <b>${p.retention.toFixed(0)}%</b> of old members</span></div></div>
+    <div class="body">
+      <div class="col">
+        <div class="copy"><h3>Current site copy</h3><div class="tag">${esc(p.tagline)}</div><div class="blurb">${esc(p.blurb)}</div></div>
+        <div class="copy"><h3>Against the new data</h3><ul class="notes">${p.notes.map(s=>`<li class="${cls(s)}">${esc(s)}</li>`).join("")}</ul></div>
+        <div class="copy"><h3>Factor positions (z)</h3><div class="fac">${fac}</div></div>
+        <div class="copy"><h3>Came from</h3>
+          <div class="origin">${orig.map(([c,v])=>`<span style="width:${v}%;background:${COLOR[c]}" title="${c} ${v}%"></span>`).join("")}<span style="width:${rest}%;background:var(--line)"></span></div>
+          <div class="legend">${orig.map(([c,v])=>`<span><i style="background:${COLOR[c]}"></i>old ${c} ${v.toFixed(0)}%</span>`).join("")}${rest>0.5?`<span><i style="background:var(--line)"></i>others ${rest.toFixed(0)}%</span>`:""}</div></div>
+        <div class="copy"><h3>Nearest parties now (gap, pp)</h3><div class="small" style="color:var(--fg)">${p.nearest.map(n=>`${chip(n.party)} ${n.new.toFixed(1)} <span class="small">(was ${n.old.toFixed(1)})</span>`).join("&nbsp;&nbsp; ")}</div></div>
+      </div>
+      <div class="col">
+        <div class="copy"><h3>Who they are (%)</h3><div class="scroll"><table><tr><th>Measure</th><th class="n">Old</th><th class="n">New</th><th class="n">Δ</th><th class="n">All</th></tr>${demo}</table></div></div>
+        <div class="copy"><h3>Most distinctive positions (% support)</h3><div class="scroll"><table><tr><th>Item</th><th class="n">Party</th><th class="n">All</th><th class="n">Gap</th></tr>${dist}</table></div></div>
+        <div class="copy"><h3>Biggest shifts from the old party (%)</h3><div class="scroll"><table><tr><th>Item</th><th class="n">Old</th><th class="n">New</th><th class="n">Δ</th></tr>${shf}</table></div></div>
+      </div>
+    </div></article>`;
+}).join("");
+</script>

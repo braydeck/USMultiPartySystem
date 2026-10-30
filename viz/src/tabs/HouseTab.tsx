@@ -44,7 +44,7 @@ import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
 import { StickyControlBar } from '../components/shared/StickyControlBar';
 import { CollapsibleSection } from '../components/shared/CollapsibleSection';
-import { uncertaintyAt, populationShares, voteSharesAt, partyListSharesAt } from '../lib/uncertainty';
+import { populationShares, voteSharesAt, partyListSharesAt, houseSeatsFor, houseMap, loadHouseRanges, type HouseRangeData } from '../lib/uncertainty';
 // Compression stops (5-point steps to 30% of the turnout gap closed); floor comes via props.
 import houseSeatsL5 from '../data/houseSeatsTurnoutL5.json';
 import houseSeatsL10 from '../data/houseSeatsTurnoutL10.json';
@@ -286,21 +286,23 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   const fdDistrictGi       = [fdDist0, fdDist5, fdDist10, fdDist15, fdDist20, fdDist25, fdDist30][gi] as unknown as Record<string, DistrictResult[]>;
   const fdDistrictTripleGi = [fdDistTri0, fdDistTri5, fdDistTri10, fdDistTri15, fdDistTri20, fdDistTri25, fdDistTri30][gi] as unknown as Record<string, DistrictResult[]>;
   const districtTripleGi   = [distTri0, distTri5, distTri10, distTri15, distTri20, distTri25, distTri30][gi] as unknown as Record<string, DistrictResult[]>;
-  // Sampling uncertainty at the active stop. The bootstrap ran the party-line pipeline with
-  // rank-7 ballots on the 873-seat double-Wyoming map, so its seat counts describe that
-  // configuration only; every other combination degrades to plain bars with no ranges.
-  // The depth condition is what pairs the bounds with a matching point estimate: at any other
-  // depth the chamber differs by up to 6 seats per party, so a range drawn then would describe a
-  // different chamber than the number beside it. Since `stvDepthSeats` now comes from a bundled
-  // projection rather than the 4.1 MB fetch, this resolves at first paint.
-  const houseU = scenario === 'rawMulti' && wyoming === 'double' && depth === 'top7'
-    ? uncertaintyAt(gi)?.house.seats
-    : undefined;
+  // Sampling uncertainty at the active stop, map and depth. The default chamber (double, rank-7)
+  // comes from the bundled uncertainty payloads and resolves at first paint; every other map and
+  // depth has its own bootstrap in houseSeatRanges.json, fetched when the reader leaves the
+  // default. The ranges always describe the chamber the point estimate beside them comes from:
+  // depth alone moves a party by up to 6 seats, so borrowing rank-7 bounds would not.
+  const [houseRanges, setHouseRanges] = useState<HouseRangeData | null>(null);
+  useEffect(() => {
+    if (!houseRanges && (wyoming !== 'double' || depth !== 'top7' || reserve === 'on')) {
+      loadHouseRanges().then(setHouseRanges);
+    }
+  }, [houseRanges, wyoming, depth, reserve]);
+  const houseU = scenario === 'rawMulti' ? houseSeatsFor(houseRanges, gi, wyoming, depth) : undefined;
   // The party-list view has no Scenario control — the list is always allocated from the party-line
   // vote — so it must not inherit a stale `factorDev` from the STV view. Depth still binds: the
-  // list is depth-invariant, but its STV comparison row's point estimate is not, and pairing a
-  // top-3 point with rank-7 bounds would describe two different chambers.
-  const houseUList = wyoming === 'double' && depth === 'top7' ? uncertaintyAt(gi)?.house.seats : undefined;
+  // list is depth-invariant, but its STV comparison row's point estimate is not.
+  const houseUList = houseSeatsFor(houseRanges, gi, wyoming, depth);
+  const reserveU = houseSeatsFor(houseRanges, gi, houseMap(wyoming, true), depth);
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -329,8 +331,8 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
 
   const fdSeatsAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
-    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
-    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',7:'Order and Opportunity Party',8:'DSA',9:'Progressive' };
+    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, DAL: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
+    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Democratic Alliance',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
     for (const s of fdSeatsGi) {
       const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
       if (cluster < 0) continue;
@@ -354,8 +356,8 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   // FD aggregation for triple Wyoming
   const fdSeatsTripleAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
-    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
-    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Liberal',5:'Populist',6:'Civic Union Party',7:'Order and Opportunity Party',8:'DSA',9:'Progressive' };
+    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, DAL: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
+    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Democratic Alliance',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
     for (const s of fdSeatsTripleGi) {
       const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
       if (cluster < 0) continue;
@@ -457,7 +459,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   const stvVssData = useMemo(() => {
     const stvTotal = activeTotalSeats || 1;
     const voteIvs = houseU ? voteSharesAt(gi) : undefined;
-    const listIvs = houseU ? partyListSharesAt(gi) : undefined;
+    const listIvs = houseU ? partyListSharesAt(gi, wyoming) : undefined;
 
     const stvIvs: Record<string, Span> = {};
     const voteSpans: Record<string, Span> = {};
@@ -475,7 +477,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       voteSpans: Object.keys(voteSpans).length ? voteSpans : undefined,
       listSpans: Object.keys(listSpans).length ? listSpans : undefined,
     };
-  }, [activeTotalSeats, houseU, gi]);
+  }, [activeTotalSeats, houseU, gi, wyoming]);
 
   const activeDistrictResults = stvDepthDetail ? stvDepthDetail.districts : (wyoming === 'triple'
     ? (scenario === 'factorDev' ? fdDistrictTripleGi : districtTripleGi)
@@ -513,7 +515,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   const parliamentSegments: ParliamentSegment[] = parliamentSeats
     .filter(s => s.national > 0)
     .map(s => {
-      const code = s.party === 7 ? 'OAO' : (CLUSTER_TO_PARTY[String(s.party)] ?? '');
+      const code = CLUSTER_TO_PARTY[String(s.party)] ?? '';
       const fVal = (clusterByParty[code] as unknown as Record<string, number>)?.[parliamentFactor] ?? 0;
       return { code, seats: s.national, fVal };
     })
@@ -621,7 +623,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
             } : undefined}
             baseSeats={system === 'stv' ? (stvTierSeats ?? activeSeats) : listTierSeats}
             clusters={orderedClusters} profilesExtra={constellationNode}
-            chamber={chamberNode} />
+            chamber={chamberNode} gi={gi} reserveU={reserveU} baseU={houseUList} />
         : <div className="py-24 text-center text-sm text-muted-foreground">Loading reserve results…</div>)}
 
       {system === 'mmp' && (mmpConfig
@@ -661,7 +663,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
         />
       </Card>
 
-      <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
+      <CollapsibleSection id="profiles" title="See party profiles" hint="Nine parties, their positions and who they draw from">
         {/* Nine-Party Profiles — above the map */}
         <PartyProfileGrid clusters={orderedClusters} />
         {constellationNode}

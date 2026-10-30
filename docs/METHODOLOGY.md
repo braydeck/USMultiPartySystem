@@ -32,13 +32,28 @@ from how responses actually correlate. Full item loadings are in
 ## 2. Clustering (the parties)
 
 A Dirichlet Process Gaussian Mixture Model (DPGMM) groups respondents by their 5
-factor scores. It returns **10 clusters**, all kept as parties — including cluster 7, the Order & Opportunity Party (OAO), a law-and-order Democratic bloc formerly labeled "Blue Dogs." Parties are not named by hand; the
+factor scores into **9 clusters**, each kept as a party. Parties are not named by hand; the
 labels are assigned afterward from each cluster's factor profile.
+
+The number of clusters is a cap, and the DPGMM fills whatever cap it is given (all 15 at a cap
+of 15), so the cap is chosen on stability (`analysis/efa/exploration/k_stability/fair_compare.py`).
+At 9, the 20 seeds reach 3 distinct solutions and no party dissolves when respondents are
+resampled. At 10 they reach 6, and the tenth party, Order & Opportunity (a law-and-order,
+economically progressive bloc), dissolves under resampling and folds mostly into CON at 9. The
+published typology is the solution most seeds reach (11 of 20), best lower bound within it. Most
+voters sit in one continuous mass (HDBSCAN finds only the hard right and the left as separate
+dense groups), so the borders between neighboring parties are approximate. The bootstrap carries
+that into every interval: each draw refits the parties on its resample before its election runs
+(`analysis/bootstrap/recluster.py`).
+
+Party IDs keep the ten-party numbering (CON 0 ... PRG 9) with slot 7 unused. Scripts take the
+parties that hold voters from `pipeline/party_codes.py`, so an empty slot fields no candidates
+and appears in no output.
 
 ## 3. Ballot generation
 
 Each respondent is turned into a ranked ballot from their DPGMM cluster posterior: the
-probability they belong to each of the ten parties is the score, and sorting those scores
+probability they belong to each of the nine parties is the score, and sorting those scores
 descending is the ballot. Co-partisans share their party's score exactly, so a party's
 candidates take consecutive ranks and a ballot reads as a sequence of party blocks.
 

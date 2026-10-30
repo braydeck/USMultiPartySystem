@@ -5,8 +5,8 @@ build_cross_party_affinity.py
 Partial matches between parties, from the GMM cluster posterior in
 data/processed/typology_cluster_assignments.csv (prob_cluster_0..9 + commonpostweight).
 
-Each voter carries a full posterior over the ten parties. The argmax of that row is the
-voter's best fit and so their party; the other nine entries are partial fits. Two
+Each voter carries a full posterior over the parties. The argmax of that row is the
+voter's best fit and so their party; the other entries are partial fits. Two
 directions of that partial fit, both in percentage points of the electorate:
 
   received_k = Σ_{i: fc(i) != k}  P(k|i) · w_i / W · 100
@@ -40,15 +40,16 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from party_codes import ALL_PARTIES, PARTY_TO_CLUSTER  # noqa: E402
+
 BASE_DIR = Path(__file__).parent.parent
 TYPO_PATH = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 OUT_PATH = BASE_DIR / "viz" / "src" / "data" / "crossPartyAffinity.json"
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
-CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-                    5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
-PARTIES = [CLUSTER_TO_PARTY[k] for k in range(10)]
-F5_ORDER = ["PRG", "DSA", "LIB", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
+PARTIES = list(ALL_PARTIES.values())  # indexed by cluster ID, like the posterior columns
+F5_ORDER = [p for p in ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"] if p in PARTY_TO_CLUSTER]
 
 
 def main():

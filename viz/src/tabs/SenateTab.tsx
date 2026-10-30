@@ -294,7 +294,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       {/* Same section, id and content as the House tab, so a reader who opened it
           there finds it open here. */}
       <CollapsibleSection id="profiles" title="See party profiles"
-        hint="Ten parties, their positions and who they draw from">
+        hint="Nine parties, their positions and who they draw from">
         <PartyProfileGrid clusters={orderedClusters} />
         <Card className="p-4">
           <h4 className={`${CARD_HEADING} mb-3`}>

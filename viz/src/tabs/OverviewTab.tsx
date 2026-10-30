@@ -99,6 +99,13 @@ export function OverviewTab({
   // both cards report the same chamber. Derived rather than hardcoded so changing the
   // default in one place cannot leave the two silently disagreeing.
   const senateUnc = uncertaintyAt(DEFAULT_STOP_INDEX);
+  // Win share across the bootstrap, where each draw refits the parties before its election. The
+  // cards below show the run on the full sample; this line says how often that party wins.
+  const winShare = (method: 'irv' | 'cond', party: string) => {
+    const p = senateUnc?.president[method];
+    if (!p) return null;
+    return `Wins ${Math.round((p.dist[party] ?? 0) * 100)}% of ${senateUnc!.nDraws.toLocaleString()} simulations`;
+  };
 
   return (
     <div className="space-y-10">
@@ -234,11 +241,13 @@ export function OverviewTab({
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <h5 className={`${MINOR_HEADING} mb-2`}>Condorcet Winner</h5>
+            <h5 className={`${MINOR_HEADING} mb-0.5`}>Condorcet Winner</h5>
+            {winShare('cond', condParty) && <p className={`${CARD_HINT} mb-2`}>{winShare('cond', condParty)}</p>}
             {clusterByParty[condParty] && <PartyProfileCard cluster={clusterByParty[condParty]} />}
           </div>
           <div>
-            <h5 className={`${MINOR_HEADING} mb-2`}>IRV Winner</h5>
+            <h5 className={`${MINOR_HEADING} mb-0.5`}>IRV Winner</h5>
+            {winShare('irv', irvParty) && <p className={`${CARD_HINT} mb-2`}>{winShare('irv', irvParty)}</p>}
             {clusterByParty[irvParty] && <PartyProfileCard cluster={clusterByParty[irvParty]} />}
           </div>
         </div>

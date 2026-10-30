@@ -282,7 +282,7 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
       </Card>
 
       <CollapsibleSection id="profiles" title="See party profiles"
-        hint="Ten parties, their positions and who they draw from">
+        hint="Nine parties, their positions and who they draw from">
         <PartyProfileGrid clusters={clusters} />
         {profilesExtra}
       </CollapsibleSection>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the social-preview / README hero image: the ten-party House as an
+"""Render the social-preview / README hero image: the multiparty House as an
 ideological-spectrum seat bar. Outputs viz/public/og-image.png (1200x630).
 
 Seat totals are read from the default site view (src/data/houseSeatsTurnout.json,
@@ -17,16 +17,16 @@ from pathlib import Path
 W, H = 1200, 630
 
 # F5 left -> right (matches parties.ts F5_ORDER)
-ORDER = ["PRG", "DSA", "LIB", "LBR", "OAO", "STY", "CUP", "CON", "POP", "NAT"]
+ORDER = ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"]
 # Party colors (mirror src/constants/parties.ts PARTY_COLORS)
 COLORS = {
-    "PRG": "#15803d", "DSA": "#22c55e", "LIB": "#0284c7", "LBR": "#38bdf8",
-    "OAO": "#5b6b8c", "STY": "#8a70b8", "CUP": "#825a27", "CON": "#e68c2c",
+    "PRG": "#15803d", "DSA": "#22c55e", "DAL": "#0284c7", "LBR": "#38bdf8",
+    "STY": "#8a70b8", "CUP": "#825a27", "CON": "#e68c2c",
     "POP": "#d34812", "NAT": "#a01d2a",
 }
 # houseSeats party integer codes -> party code (parties.ts CLUSTER_TO_PARTY)
-CODE = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-        5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
+CODE = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "DAL",
+        5: "POP", 6: "CUP", 8: "DSA", 9: "PRG"}
 
 ROOT = Path(__file__).resolve().parent.parent
 rows = json.loads((ROOT / "src" / "data" / "houseSeatsTurnout.json").read_text())
@@ -37,7 +37,7 @@ fig = plt.figure(figsize=(W / 100, H / 100), dpi=100)
 fig.patch.set_facecolor("#ffffff")
 ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, W); ax.set_ylim(0, H); ax.axis("off")
 
-ax.text(60, H - 78, "If America Had Ten Parties", fontsize=42, fontweight="bold", color="#1c1b1a")
+ax.text(60, H - 78, "If America Had Nine Parties", fontsize=42, fontweight="bold", color="#1c1b1a")
 ax.text(60, H - 120, f"Simulated U.S. House under proportional representation   ·   {TOTAL} seats   ·   no majority",
         fontsize=16, color="#6b6a67")
 

@@ -7,6 +7,7 @@ import { ToggleGroup } from '../shared/ToggleGroup';
 import { bamForZ, bamForPctile } from '../../lib/bam';
 import { CARD_HINT, CHART_TYPE } from '../../constants/typography';
 import { Constellation3D } from './Constellation3D';
+import factorPopulationSd from '../../data/factorPopulationSd.json';
 
 interface ClusterSpread {
   party: string;
@@ -136,7 +137,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
     // Expand domain to fit penumbra extents in percentile space
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
-      const POP_SD_D: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+      const POP_SD_D: Record<string, number> = factorPopulationSd;
       const r2plot = (raw: number, f: string) => {
         const z = raw / (POP_SD_D[f] || 1);
         return scaleMode === 'percentile' ? zToPctile(z) : z;
@@ -305,7 +306,7 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
       const penumbraG = svg.append('g').attr('class', 'penumbra').attr('clip-path', `url(#${clipId})`);
       // Population stats for raw→z conversion
-      const POP_SD_P: Record<string, number> = { F1: 0.787, F2: 0.818, F3: 0.630, F4: 0.486, F5: 0.879 };
+      const POP_SD_P: Record<string, number> = factorPopulationSd;
       const rawToPlot = (raw: number, f: string) => {
         const z = raw / (POP_SD_P[f] || 1);
         return scaleMode === 'percentile' ? zToPctile(z) : z;

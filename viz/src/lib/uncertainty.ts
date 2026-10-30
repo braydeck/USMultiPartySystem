@@ -94,21 +94,37 @@ export function voteSharesAt(gi: number): Record<string, ShareInterval> | undefi
   return key ? SHARE_RANGES.votes[key]?.shares : undefined;
 }
 
+/** The four House maps: double or triple Wyoming, each with or without the statewide reserve. */
+export type HouseMap = 'double' | 'triple' | 'reserve' | 'triple_reserve';
+
+/** The House map for a Wyoming rule and reserve toggle. */
+export function houseMap(wyoming: 'double' | 'triple', reserve: boolean): HouseMap {
+  return reserve ? (wyoming === 'double' ? 'reserve' : 'triple_reserve') : wyoming;
+}
+
+type ListStop = { totalSeats: number; shares: Record<string, ShareInterval> };
+
 interface PartyListRangeData {
   nDraws: number;
   seed: number;
-  /** Seven blocks keyed by `VOTE_STOP_KEYS`: list allocation is turnout-weighted like the vote
-   *  row. Values are seat COUNTS out of `totalSeats`, not percentages. */
-  stops: Record<string, { totalSeats: number; shares: Record<string, ShareInterval> }>;
+  /** Seven blocks keyed by `VOTE_STOP_KEYS`, double map: list allocation is turnout-weighted like
+   *  the vote row. Values are seat COUNTS out of `totalSeats`, not percentages. */
+  stops: Record<string, ListStop>;
+  /** The same seven blocks for each House map. List is depth-invariant, so there is no depth key. */
+  maps?: Partial<Record<HouseMap, Record<string, ListStop>>>;
 }
 
 const PARTY_LIST_RANGES = partyListRanges as unknown as PartyListRangeData;
 
-/** Party-list seat spans at one turnout stop, converted to percent of the chamber so they share
- *  the STV row's axis. Undefined outside 0-6. */
-export function partyListSharesAt(gi: number): Record<string, ShareInterval> | undefined {
+function listStop(gi: number, map: HouseMap): ListStop | undefined {
   const key = VOTE_STOP_KEYS[gi];
-  const stop = key ? PARTY_LIST_RANGES.stops[key] : undefined;
+  if (!key) return undefined;
+  return map === 'double' ? PARTY_LIST_RANGES.stops[key] : PARTY_LIST_RANGES.maps?.[map]?.[key];
+}
+
+/** Party-list seat shares at one turnout stop, in percent of the chamber. */
+export function partyListSharesAt(gi: number, map: HouseMap = 'double'): Record<string, ShareInterval> | undefined {
+  const stop = listStop(gi, map);
   if (!stop) return undefined;
   const total = stop.totalSeats || 1;
   const pct = (v: number) => v / total * 100;
@@ -118,9 +134,37 @@ export function partyListSharesAt(gi: number): Record<string, ShareInterval> | u
 }
 
 /** Party-list seat counts at one turnout stop, for readouts that name seats rather than shares. */
-export function partyListSeatsAt(gi: number): Record<string, ShareInterval> | undefined {
+export function partyListSeatsAt(gi: number, map: HouseMap = 'double'): Record<string, ShareInterval> | undefined {
+  return listStop(gi, map)?.shares;
+}
+
+/** House STV seat ranges for every map and depth except the default (double, rank-7), which
+ *  the per-stop uncertainty payloads hold. Written by analysis/bootstrap_house.py. */
+export interface HouseRangeData {
+  nDraws: number;
+  seed: number;
+  /** Keyed by `VOTE_STOP_KEYS`, then `"<map>/<depth>"`. */
+  stops: Record<string, Record<string, Record<string, SeatInterval>>>;
+}
+
+let houseRangesPromise: Promise<HouseRangeData | null> | null = null;
+
+/** Lazy-load houseSeatRanges.json once per page. Resolves null if the fetch fails. */
+export function loadHouseRanges(): Promise<HouseRangeData | null> {
+  houseRangesPromise ??= fetch(`${import.meta.env.BASE_URL}data/houseSeatRanges.json`)
+    .then(r => (r.ok ? r.json() : null))
+    .catch(() => null);
+  return houseRangesPromise;
+}
+
+/** House STV seat intervals for one map, depth and stop. The default chamber comes from the
+ *  bundled payload, so it resolves at first paint; the rest need `ranges` loaded. */
+export function houseSeatsFor(
+  ranges: HouseRangeData | null | undefined, gi: number, map: HouseMap, depth: string,
+): Record<string, SeatInterval> | undefined {
+  if (map === 'double' && depth === 'top7') return uncertaintyAt(gi)?.house.seats;
   const key = VOTE_STOP_KEYS[gi];
-  return key ? PARTY_LIST_RANGES.stops[key]?.shares : undefined;
+  return key ? ranges?.stops[key]?.[`${map}/${depth}`] : undefined;
 }
 
 export function chamberTotal(

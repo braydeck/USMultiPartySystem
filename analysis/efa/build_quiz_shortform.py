@@ -18,12 +18,13 @@ Ships viz/src/data/quizShortform.json:
 Run from repo root:  python3 analysis/efa/build_quiz_shortform.py
 """
 import json
+import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
-CES = ROOT / "CCES24_Common_OUTPUT_vv_topost_final.csv"
+CES = ROOT / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
 PROC = ROOT / "data" / "processed"
 VIZDATA = ROOT / "viz" / "src" / "data"
 OUT = VIZDATA / "quizShortform.json"
@@ -33,8 +34,9 @@ OUT = VIZDATA / "quizShortform.json"
 FACTORS = ["F1", "F2", "F3", "F4", "F5"]
 DISPLAY = ["F1", "F2", "F4", "F5"]
 TEMP = 3
-C2P = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB", 5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
-WING = {"CON": "R", "NAT": "R", "POP": "R", "LBR": "L", "STY": "L", "LIB": "L", "PRG": "L", "DSA": "L", "CUP": "C", "OAO": "C"}
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pipeline"))
+from party_codes import CLUSTER_TO_PARTY as C2P  # noqa: E402
+WING = {"CON": "R", "NAT": "R", "POP": "R", "LBR": "L", "STY": "L", "DAL": "L", "PRG": "L", "DSA": "L", "CUP": "C"}
 
 RAW = {"CC24_421_1_agree": "CC24_421_1", "CC24_421_2_agree": "CC24_421_2",
        "CC24_440b_agree": "CC24_440b", "CC24_440c_agree": "CC24_440c", "CC24_325_median": "CC24_325"}
@@ -69,8 +71,10 @@ def main():
     key = pd.DataFrame({"caseid": tp["caseid"].astype("int64"), "cluster": tp["cluster"].values,
                         "w": fs["commonpostweight"].values,
                         **{f: fs[f"FS_{f}"].values for f in FACTORS}})
-    ces = pd.read_csv(CES, low_memory=False); ces["caseid"] = ces["caseid"].astype("int64")
-    m = key.merge(ces[["caseid"] + [RAW.get(v, v) for v in variables]], on="caseid", how="inner")
+    raw_cols = [RAW.get(v, v) for v in variables]
+    ces = pd.read_stata(CES, columns=["caseid"] + raw_cols, convert_categoricals=False)  # raw codes, as recode() expects
+    ces["caseid"] = ces["caseid"].astype("int64")
+    m = key.merge(ces, on="caseid", how="inner")
     w = m["w"].values
     print(f"merged respondents: {len(m):,}")
 
@@ -97,7 +101,8 @@ def main():
 
     # full-covariance cluster params (weighted) in raw {F1,F2,F4,F5}
     clusters = {}
-    for k in range(10):
+    live = list(C2P)
+    for k in live:
         sub = m[m.cluster == k]; wk = sub["w"].values
         Xk = np.column_stack([sub[f].values for f in FACTORS])
         mu = np.average(Xk, axis=0, weights=wk)
@@ -109,11 +114,11 @@ def main():
 
     # validate: reproduce DPGMM cluster (full-cov, flat prior)
     P = np.column_stack([SF[f] for f in FACTORS]); saved = m["cluster"].values
-    ll = np.zeros((len(m), 10))
-    for k in range(10):
+    ll = np.zeros((len(m), len(live)))
+    for j, k in enumerate(live):
         c = clusters[str(k)]; mu = np.array(c["mean"]); ic = np.array(c["invCov"])
-        dd = P - mu; ll[:, k] = -0.5 * np.einsum("ni,ij,nj->n", dd, ic, dd) - 0.5 * c["logDet"]
-    pred = ll.argmax(1)
+        dd = P - mu; ll[:, j] = -0.5 * np.einsum("ni,ij,nj->n", dd, ic, dd) - 0.5 * c["logDet"]
+    pred = np.array(live)[ll.argmax(1)]
     ex = np.average(pred == saved, weights=w)
     wg = np.average([WING[C2P[a]] == WING[C2P[b]] for a, b in zip(pred, saved)], weights=w)
     print(f"[validate] full-cov reproduction of DPGMM: exact={ex:.3f}  same-wing={wg:.3f}")
@@ -137,7 +142,7 @@ def main():
     fd = {f: float(coefs[f][0] + xd @ coefs[f][1:]) for f in FACTORS}
     pv = np.array([fd[f] for f in FACTORS])
     lg = {}
-    for k in range(10):
+    for k in live:
         c = clusters[str(k)]; d = pv - np.array(c["mean"])
         lg[C2P[k]] = (-0.5 * d @ np.array(c["invCov"]) @ d - 0.5 * c["logDet"]) / TEMP
     mx = max(lg.values()); e = {p: np.exp(v - mx) for p, v in lg.items()}; Z = sum(e.values())

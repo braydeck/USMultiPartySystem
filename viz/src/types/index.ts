@@ -116,7 +116,7 @@ export interface PartyVote {
   diverges: boolean;            // |delta| ≥ 15pp
 }
 
-/** Per-bill candidate vote predictions across all 10 parties. */
+/** Per-bill candidate vote predictions across all nine parties. */
 export interface CandidateVoteRow {
   variable: string;
   domain: string;

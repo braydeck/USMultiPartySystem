@@ -42,7 +42,7 @@ const MIN_BLOCK_H     = 4;    // minimum visible block height
 // F5 ideological order — used to sort candidates within each column
 const F5_ORDER = [
   'PRG', 'PRG_dsa',
-  'LIB', 'LIB_dsa', 'LIB_sd',
+  'DAL', 'DAL_dsa', 'DAL_sd',
   'DSA', 'DSA_prg', 'DSA_lib',
   'LBR', 'LBR_lib', 'LBR_sty',
   'STY', 'STY_sd', 'STY_ctr',

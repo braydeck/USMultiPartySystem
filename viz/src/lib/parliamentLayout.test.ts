@@ -13,21 +13,21 @@ const dotCounts = (segments: ParliamentSegment[]) => {
 
 describe('layoutSeatDots', () => {
   // The regression this guards: dots used to be assigned by the angle they landed at,
-  // so the 102-seat senate drew 11 LIB and 5 POP for parties holding 8 and 2 seats.
+  // so the 102-seat senate drew 11 DAL and 5 POP for parties holding 8 and 2 seats.
   it('draws exactly one dot per seat for the 102-seat senate', () => {
     const senate = [
-      seg('LIB_1', 8, -1.16), seg('LBR_1', 42, -0.5), seg('STY_1', 2, 0.0),
+      seg('DAL_1', 8, -1.16), seg('LBR_1', 42, -0.5), seg('STY_1', 2, 0.0),
       seg('CON_1', 48, 0.8), seg('POP_1', 2, 1.51),
     ]
     expect(dotCounts(senate)).toEqual({
-      LIB_1: 8, LBR_1: 42, STY_1: 2, CON_1: 48, POP_1: 2,
+      DAL_1: 8, LBR_1: 42, STY_1: 2, CON_1: 48, POP_1: 2,
     })
   })
 
   it('draws exactly one dot per seat for a 435-seat house', () => {
     const house = [
       seg('PRG', 21, -2), seg('DSA', 34, -1.5), seg('LBR', 96, -1),
-      seg('LIB', 58, -0.2), seg('STY', 40, 0.1), seg('CUP', 47, 0.6),
+      seg('DAL', 58, -0.2), seg('STY', 40, 0.1), seg('CUP', 47, 0.6),
       seg('CON', 88, 1.2), seg('NAT', 30, 1.8), seg('POP', 21, 2.2),
     ]
     const counts = dotCounts(house)

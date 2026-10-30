@@ -1,0 +1,117 @@
+<title>Neighboring Parties</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: two pair comparisons stacked, each a split view of two parties; naming options at the end */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --fg:#1b2230; --muted:#5d6778; --line:#dfe3ea; --accent:#3d5a99; --soft:#eef1f6;
+  --display:"Fraunces",Georgia,serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161d; --panel:#1a2029; --fg:#e4e8ef; --muted:#9aa4b5; --line:#2c3440; --accent:#8fa9e6; --soft:#212836; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161d; --panel:#1a2029; --fg:#e4e8ef; --muted:#9aa4b5; --line:#2c3440; --accent:#8fa9e6; --soft:#212836; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:26px}
+h1{font-family:var(--display);font-weight:650;font-size:30px;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:650;font-size:22px;margin:0;text-wrap:balance}
+h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0;font-weight:600}
+.lede{color:var(--muted);max-width:74ch;margin:0}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px 16px;display:flex;flex-direction:column;gap:16px}
+.reading{max-width:80ch;margin:0}
+.heads{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.head{border-top:5px solid var(--pc);padding-top:8px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.head b{font-family:var(--display);font-size:18px;font-weight:650}
+.head span{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px 28px}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:3px 8px 3px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:12px}
+td.n,th.n{text-align:right;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+td.big{font-weight:600}
+.chip{display:inline-block;font-family:var(--mono);font-size:11px;color:#fff;padding:0 6px;border-radius:3px}
+.fac{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr) 8.5em;gap:4px 10px;align-items:center;font-size:12.5px}
+.fac .lab{color:var(--muted)}
+.bar{position:relative;height:16px;background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat}
+.bar i{position:absolute;width:10px;height:10px;border-radius:50%;top:3px;transform:translateX(-50%);border:1.5px solid var(--panel)}
+.fac .v{font-family:var(--mono);font-size:12px;text-align:right;white-space:nowrap}
+.dom{display:flex;flex-direction:column;gap:4px}
+.dom .row{display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr) 7.5em;gap:8px;align-items:center;font-size:12.5px}
+.dom .track{position:relative;height:12px;background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat}
+.dom .track em{position:absolute;top:2px;height:8px;border-radius:2px}
+.dom .val{font-family:var(--mono);font-size:12px;text-align:right;white-space:nowrap}
+.dom .axis{display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr) 7.5em;gap:8px;font-size:11.5px;color:var(--muted)}
+.dom .axis div{display:flex;justify-content:space-between}
+.names{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px 16px;display:flex;flex-direction:column;gap:12px}
+.optlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.opt{background:var(--soft);border-radius:5px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.opt b{font-family:var(--display);font-size:17px;font-weight:650}
+.opt code{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.small{font-size:12px;color:var(--muted)}
+</style>
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <h1>Neighboring Parties</h1>
+    <p class="lede">The two closest pairs in the nine-party typology, side by side: Civic Union against Conservative, and Labor against Liberal. Figures are survey-weighted shares of each party's members (45,214 respondents, branch <code>bd-nine-parties</code>). "All" is the national figure. House seats are the default view (873 seats).</p>
+  </header>
+  <div id="pairs" style="display:flex;flex-direction:column;gap:26px"></div>
+  <section class="names">
+    <h2>Name options for the Liberal party</h2>
+    <p class="reading">The party is progressive on taxes, climate, abortion and guns, at or above the national average on policing and border patrols, the most trusting of elections of any party, and interventionist abroad (75% back arming Ukraine). It is the oldest party, median age 62. "Liberal" in US usage reads as simply left of center, which covers the first half of that profile and misses the second.</p>
+    <div class="optlist" id="names"></div>
+    <p class="small">Codes are checked against the existing ones (CON, LBR, STY, NAT, LIB, POP, CUP, DSA, PRG). Renaming touches party labels across the app and the data payloads, so it is best settled before the party copy goes in.</p>
+  </section>
+</div>
+<script>
+const PAIRS = __PAIRS__;
+const READINGS = {
+  "CUP-CON": "Civic Union and Conservative split most on trust in elections. 60% of Civic Union strongly agree US elections are fair, against 11% of Conservatives. Across 71 policy items they differ by 7 points on average, and 23 items fall within 5 points. Where policy does split them, Conservatives back more police (99% against 78%), the border wall (90% against 75%) and repealing the ACA (59% against 41%), and Civic Union sits closer to the national average on climate and abortion. 82% of Conservatives voted Trump; 62% of Civic Union did.",
+  "LBR-LIB": "Labor and Liberal split most on policing and security, and on age. Liberals back 10% more police at the national rate (56% against 57% nationally); Labor is at 28%. Liberals back renewing post-9/11 surveillance (53% against 30%) and arming Ukraine (75% against 57%). Across 71 policy items the two differ by 6 points on average, and 41 items fall within 5 points; on abortion they differ by 1 point and on climate by 2. Liberals are 17 years older (median 62 against 45) and far more trusting of elections (77% against 30% strongly agree)."
+};
+const NAMES = [
+  {name:"Liberal Order", code:"LOR", why:"Names both halves: liberal on policy, order on policing, institutions and the international order it backs abroad."},
+  {name:"Institutionalist", code:"INS", why:"Leads with its most distinctive trait: the highest trust in elections and government of any party."},
+  {name:"Social Liberal", code:"SLB", why:"The European label for progressive economics plus liberal institutionalism; familiar abroad, less so in the US."},
+  {name:"Atlantic", code:"ATL", why:"Points at the internationalist, pro-NATO foreign policy. Narrower: it says nothing about the domestic platform."},
+  {name:"Liberal (keep)", code:"LIB", why:"Still accurate on taxes, climate, abortion and guns; the law-and-order shift would then live in the description."},
+];
+const FN = {F1:"Security & Order",F2:"Institutional Distrust",F3:"Government Distrust",F4:"Religious Traditionalism",F5:"Populist Conservatism"};
+const f0 = v => Math.round(v).toString();
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const pos = v => 50 + Math.max(-1,Math.min(1,v/1.8))*50;
+document.getElementById("pairs").innerHTML = PAIRS.map(p=>{
+  const [ca,cb]=p.colors;
+  const chipA=`<span class="chip" style="background:${ca}">${p.a}</span>`, chipB=`<span class="chip" style="background:${cb}">${p.b}</span>`;
+  const fac=Object.entries(p.factors).map(([f,[a,b]])=>`<span class="lab">${FN[f]}</span><div class="bar"><i style="left:${pos(a)}%;background:${ca}"></i><i style="left:${pos(b)}%;background:${cb}"></i></div><span class="v">${(a>0?"+":"")+a.toFixed(2)} / ${(b>0?"+":"")+b.toFixed(2)}</span>`).join("");
+  const keep=new Set(["White","Black","Hispanic","Median age","4-year degree","Post-grad","Rural","Born-again","No religion","Democrat","Republican","Voted Harris","Voted Trump","US elections fair: strongly agree","Trust federal govt: none at all","Family income $100k+"]);
+  const demo=p.demo.filter(r=>keep.has(r.label)).map(r=>{const big=Math.abs(r.a-r.b)>=10;return `<tr><td>${esc(r.label)}</td><td class="n ${big?"big":""}">${f0(r.a)}</td><td class="n ${big?"big":""}">${f0(r.b)}</td><td class="n">${f0(r.all)}</td></tr>`}).join("");
+  const top=p.top.map(r=>`<tr><td>${esc(r.q)}</td><td class="n">${f0(r.a)}</td><td class="n">${f0(r.b)}</td><td class="n">${f0(r.all)}</td></tr>`).join("");
+  const maxd=Math.max(...p.domains.map(d=>Math.abs(d.signed)), 1);
+  const axis=`<div class="axis"><span></span><div><span>← ${p.a} to the right</span><span>${p.b} to the right →</span></div><span></span></div>`;
+  const dom=axis+p.domains.map(d=>{const w=Math.abs(d.signed)/maxd*50; const left=d.signed>=0?50:50-w;
+    return `<div class="row"><span>${esc(d.domain)}</span><div class="track"><em style="left:${left}%;width:${Math.max(w,0.8)}%;background:${d.signed>=0?cb:ca}"></em></div><span class="val">${d.gap.toFixed(1)} · ${d.bRight}/${d.n} ${p.b}</span></div>`}).join("");
+  const orig=o=>Object.entries(o).map(([k,v])=>`${k} ${v.toFixed(0)}%`).join(", ");
+  return `<section class="pair">
+    <h2>${esc(p.names[0])} and ${esc(p.names[1])}</h2>
+    <p class="reading">${READINGS[p.a+"-"+p.b]}</p>
+    <div class="heads">
+      <div class="head" style="--pc:${ca}"><b>${chipA} ${esc(p.names[0])}</b><span>${p.share[0].toFixed(1)}% of adults · ${p.seats[0]} House seats</span><span>Members came from: ${orig(p.origin[0])}</span></div>
+      <div class="head" style="--pc:${cb}"><b>${chipB} ${esc(p.names[1])}</b><span>${p.share[1].toFixed(1)}% of adults · ${p.seats[1]} House seats</span><span>Members came from: ${orig(p.origin[1])}</span></div>
+    </div>
+    <div class="grid">
+      <div class="col">
+        <div><h3 style="margin-bottom:6px">Factor positions (z)</h3><div class="fac">${fac}</div></div>
+        <div><h3 style="margin-bottom:6px">Who they are (%) · gaps of 10+ points in bold</h3><div class="scroll"><table><tr><th>Measure</th><th class="n">${chipA}</th><th class="n">${chipB}</th><th class="n">All</th></tr>${demo}</table></div></div>
+      </div>
+      <div class="col">
+        <div><h3 style="margin-bottom:6px">Which party sits to the right, by issue area</h3><div class="dom">${dom}</div>
+          <div class="small" style="margin-top:6px">Each item is oriented so "right" is the side Nationalists take against Progressives. The bar is the average signed gap in points; the label gives the average size of the gap regardless of direction, and how many items lean each way. Mean gap ${p.meanGap} points across ${p.nItems} support items; ${p.within5} items within 5 points.</div></div>
+        <div><h3 style="margin-bottom:6px">Largest policy gaps (% support)</h3><div class="scroll"><table><tr><th>Item</th><th class="n">${chipA}</th><th class="n">${chipB}</th><th class="n">All</th></tr>${top}</table></div></div>
+      </div>
+    </div></section>`;
+}).join("");
+document.getElementById("names").innerHTML = NAMES.map(n=>`<div class="opt"><b>${esc(n.name)}</b><code>${n.code}</code><span>${esc(n.why)}</span></div>`).join("");
+</script>

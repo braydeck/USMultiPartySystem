@@ -53,3 +53,4 @@ data/raw/rcv/
 data/outputs/*/house/transfer_matrix_*.csv
 !data/outputs/pure_multi/house/transfer_matrix_*.csv
 data/outputs/rebuild_from_typology.log
+data/bootstrap_cache/

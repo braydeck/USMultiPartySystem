@@ -1,0 +1,17 @@
+[Parallel(n_jobs=11)]: Using backend LokyBackend with 11 concurrent workers.
+[Parallel(n_jobs=11)]: Done  50 out of 315 | elapsed:  6.7min
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/sklearn/mixture/_base.py:293: ConvergenceWarning: Best performing initialization did not converge. Try different init parameters, or increase max_iter, tol, or check for degenerate data.
+  warnings.warn(
+[Parallel(n_jobs=11)]: Done 140 out of 315 | elapsed: 11.0min
+[Parallel(n_jobs=11)]: Done 266 out of 315 | elapsed: 26.0min
+[Parallel(n_jobs=11)]: Done 315 out of 315 | elapsed: 37.3min finished
+ K  best_bound  best_seed  eff_clusters  seed_ari_mean  seed_ari_min  boot_ari_median  boot_ari_q10  n_stable_clusters  n_dissolved_clusters  boot_converged
+ 6     -3140.1         42             6          0.718         0.485            0.668         0.391                  0                     0              30
+ 7     -1712.8         44             7          0.593         0.437            0.444         0.430                  0                     3              30
+ 8      -353.4         44             8          0.730         0.551            0.611         0.523                  2                     1              30
+ 9       697.6         45             9          0.999         0.999            0.748         0.649                  6                     0              30
+10      1704.6         42            10          0.751         0.601            0.656         0.568                  3                     1              30
+11      2790.2         42            11          0.675         0.566            0.547         0.450                  1                     5              30
+12      2829.7         43            12          0.803         0.675            0.628         0.460                  2                     4              30
+13      4684.5         42            13          0.714         0.391            0.450         0.406                  2                     8              30
+14      5294.1         45            14          0.479         0.388            0.485         0.438                  3                     8              30

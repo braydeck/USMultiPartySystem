@@ -31,6 +31,8 @@ import os
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from party_codes import PARTY_TO_CLUSTER, LIVE_CLUSTERS
 from turnout_weights import turnout_multiplier, output_tree, TURNOUT_WEIGHT
 
 BASE_DIR         = Path(__file__).parent.parent.parent
@@ -67,7 +69,7 @@ PROMINENCE_BY_K: dict[int, list[float]] = {
 }
 
 
-MIN_SHARE = 0.00   # every party fields at least 1 candidate in every district
+MIN_SHARE = 0.00   # every party with any voters fields at least 1 candidate in every district
 
 def n_candidates_for_district(share: float, n_seats: int) -> int:
     """Droop-based candidate count for one party in one district.
@@ -83,23 +85,12 @@ def n_candidates_for_district(share: float, n_seats: int) -> int:
     expected = int(share / droop)          # floor(share / droop)
     return min(expected + 1, n_seats // 2 + 1)
 
-# ── Party → cluster index (all 10 parties; OAO/C7 is permanently active) ──────
-PARTY_CLUSTER = {
-    "CON": 0,
-    "LBR":  1,
-    "STY": 2,
-    "NAT": 3,
-    "LIB": 4,
-    "POP": 5,
-    "CUP": 6,
-    "OAO": 7,
-    "DSA": 8,
-    "PRG": 9,
-}
+# ── Party → cluster index (the parties that hold voters) ──────────────────────
+PARTY_CLUSTER = PARTY_TO_CLUSTER
 PARTY_LABELS = {
     0: "Conservative", 1: "Labor", 2: "Solidarity",
-    3: "Nationalist",  4: "Liberal",         5: "Populist",
-    6: "Civic Union Party", 7: "Order and Opportunity Party", 8: "DSA", 9: "Progressive",
+    3: "Nationalist",  4: "Democratic Alliance", 5: "Populist",
+    6: "Civic Union Party", 8: "DSA", 9: "Progressive",
 }
 
 MIN_RESPONDENTS = 5
@@ -112,10 +103,17 @@ def build_district_candidates(cluster_shares: dict, n_seats: int) -> list:
 
     Returns a list of dicts: {code, party, cluster, prominence}.
     """
+    shares = {p: cluster_shares.get(f"prob_cluster_{c}", 0.0) for p, c in PARTY_CLUSTER.items()}
+    # A zero-vote candidate would take a seat whenever the field is exactly as large as the
+    # district, because the count elects every continuing candidate once they number the seats left.
+    ks = {p: n_candidates_for_district(sh, n_seats) for p, sh in shares.items() if sh > 0}
+    # Never field fewer candidates than seats: add runners to the strongest parties first.
+    while 0 < sum(ks.values()) < n_seats:
+        top = max((p for p in ks if ks[p] < max(PROMINENCE_BY_K)), key=lambda p: shares[p] / (ks[p] + 1))
+        ks[top] += 1
     candidates = []
     for party, cluster_idx in PARTY_CLUSTER.items():
-        share = cluster_shares.get(f"prob_cluster_{cluster_idx}", 0.0)
-        k = n_candidates_for_district(share, n_seats)
+        k = ks.get(party, 0)
         if k == 0:
             continue
         prominences = PROMINENCE_BY_K[k]
@@ -634,8 +632,7 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
     # ── Transfer matrices ──────────────────────────────────────────────────────
     # directed[i,j] = share of all cross-party transfer weight flowing i -> j;
     # symmetric[i,j] = share of total bidirectional weight between i and j (diagonal 0).
-    # Same definition as the retired stv_step4.py, now computed from the live 10-party run.
-    _labels = [f"C{k} {PARTY_LABELS[k]}" for k in range(10)]
+    # Same definition as the retired stv_step4.py, over the parties that hold voters.
     _directed = np.zeros((10, 10), dtype=np.float64)
     for (_src, _dst), _w in transfer_totals.items():
         _i, _j = PARTY_CLUSTER.get(_src), PARTY_CLUSTER.get(_dst)
@@ -647,6 +644,8 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
     _stot = _sym.sum()
     _spct = _sym / _stot * 100.0 if _stot > 0 else _sym
     assert np.diag(_dpct).sum() < 1e-9, "non-zero diagonal in directed transfer matrix"
+    _dpct, _spct = (m[np.ix_(LIVE_CLUSTERS, LIVE_CLUSTERS)] for m in (_dpct, _spct))
+    _labels = [f"C{k} {PARTY_LABELS[k]}" for k in LIVE_CLUSTERS]
     _dd = pd.DataFrame(_dpct.round(4), index=_labels, columns=_labels)
     _dd.index.name, _dd.columns.name = "from_party", "to_party"
     _dd.to_csv(output_dir / "transfer_matrix_directed.csv")

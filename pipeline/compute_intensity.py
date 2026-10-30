@@ -11,8 +11,12 @@ show the real shape. Same listwise-alignment trick as add_compare_items.py.
 Emits viz/src/data/clusterIntensity.json.
 """
 import json
+import sys
 import numpy as np, pandas as pd
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from party_codes import CLUSTER_TO_PARTY  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DTA = ROOT / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
@@ -20,7 +24,6 @@ TYPO = ROOT / "data" / "processed" / "typology_cluster_assignments.csv"
 STATS = ROOT / "data" / "outputs" / "profiles" / "cluster_stats.csv"
 OUT = ROOT / "viz" / "src" / "data" / "clusterIntensity.json"
 
-CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB", 5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
 
 ITEMS_25 = ['pew_churatd','CC24_302','CC24_303','CC24_341a','CC24_341c','CC24_341d','CC24_323a','CC24_323b','CC24_323d','CC24_321b','CC24_321d','CC24_321e','CC24_325','CC24_324b','CC24_340a','CC24_340b','CC24_340c','CC24_340e','CC24_340f','CC24_440b','CC24_440c','CC24_421_1','CC24_421_2','CC24_423','CC24_424']
 ITEMS = [x for x in ITEMS_25 if x != 'CC24_340a']  # 24 EFA anchor (row alignment)
@@ -96,7 +99,7 @@ def main():
         labels = [lab for _, lab in codes]
         kind = KIND[var]
         national = shares(var, codes, np.ones(len(dc), bool))
-        parties = {CLUSTER_TO_PARTY[k]: shares(var, codes, cl == k) for k in range(10)}
+        parties = {p: shares(var, codes, cl == k) for k, p in CLUSTER_TO_PARTY.items()}
         for code, m in PID_GROUPS.items():
             parties[code] = shares(var, codes, m)
         # Fixed orientation (no partisan flip): reverse so code 1 lands on the right —

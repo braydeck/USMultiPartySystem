@@ -245,7 +245,7 @@ export function FPTPDisproportionality({ states, stateMap, listStateMap }: Props
         <p className={`${CARD_HINT} mb-3`}>
           Use the dropdowns to compare any states, sorted by gerrymander score (seat share − vote share gap).
           {stateMap && <span> The lower bars show what the same state returns under the
-            ten-party simulation, by STV and by party list.</span>}
+            nine-party simulation, by STV and by party list.</span>}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {([0, 1, 2] as const).map(i => (

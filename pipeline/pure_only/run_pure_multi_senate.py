@@ -30,6 +30,8 @@ from pathlib import Path
 from itertools import combinations
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from party_codes import PARTY_TO_CLUSTER
 from turnout_weights import turnout_multiplier, output_tree
 
 BASE_DIR       = Path(__file__).parent.parent.parent
@@ -56,19 +58,8 @@ PROMINENCE_3 = [0.40, 0.35, 0.25]
 PROMINENCE_2 = [0.60, 0.40]
 PROMINENCE_1 = [1.00]
 
-# ── Party → cluster index (all 10 parties; OAO/C7 is permanently active) ──────
-PARTY_CLUSTER = {
-    "CON": 0,
-    "LBR":  1,
-    "STY": 2,
-    "NAT": 3,
-    "LIB": 4,
-    "POP": 5,
-    "CUP": 6,
-    "OAO": 7,
-    "DSA": 8,
-    "PRG": 9,
-}
+# ── Party → cluster index (the parties that hold voters) ──────────────────────
+PARTY_CLUSTER = PARTY_TO_CLUSTER
 STV_SURVIVORS   = 5
 MIN_RESPONDENTS = 10
 

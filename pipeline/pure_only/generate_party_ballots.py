@@ -2,9 +2,9 @@
 """
 generate_party_ballots.py
 -------------------------
-Generate ranked-choice ballots for 10 parties using GMM posteriors.
+Generate ranked-choice ballots over the parties using GMM posteriors.
 
-Each voter ranks 10 parties via Plackett-Luce sampling weighted by their
+Each voter ranks every party via Plackett-Luce sampling weighted by their
 personal GMM cluster probabilities. No intra-party candidate distinction —
 the party IS the candidate. Multiple "slots" for strong parties are
 determined downstream by Droop quota allocation.
@@ -14,27 +14,21 @@ Outputs to data/outputs/pure_multi/:
   party_state_profiles.csv    — per-state vote shares
 """
 
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from party_codes import CLUSTER_TO_PARTY
 
 BASE_DIR    = Path(__file__).parent.parent.parent
 EFA_PATH    = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPOLOGY    = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 OUTPUT_DIR  = BASE_DIR / "data" / "outputs" / "pure_multi"
 
-PARTIES = [
-    {"code": "CON", "cluster": 0},
-    {"code": "LBR",  "cluster": 1},
-    {"code": "STY", "cluster": 2},
-    {"code": "NAT", "cluster": 3},
-    {"code": "LIB", "cluster": 4},
-    {"code": "POP", "cluster": 5},
-    {"code": "CUP", "cluster": 6},
-    {"code": "OAO", "cluster": 7},
-    {"code": "DSA", "cluster": 8},
-    {"code": "PRG", "cluster": 9},
-]
+PARTIES = [{"code": p, "cluster": k} for k, p in CLUSTER_TO_PARTY.items()]
 N_PARTIES   = len(PARTIES)
 PARTY_CODES = [p["code"] for p in PARTIES]
 CLUSTER_IDS = [p["cluster"] for p in PARTIES]
@@ -67,7 +61,7 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     print("=" * 60)
-    print("PARTY BALLOT GENERATION — 10 parties, GMM posteriors")
+    print(f"PARTY BALLOT GENERATION — {N_PARTIES} parties, GMM posteriors")
     print("=" * 60)
 
     print("\nLoading data…")
@@ -79,7 +73,7 @@ def main():
     weights    = efa["commonpostweight"].values
     inputstate = efa["inputstate"].values
 
-    # GMM posteriors for the 9 active parties
+    # GMM posteriors for each party
     scores = np.zeros((N, N_PARTIES), dtype=np.float64)
     for j, p in enumerate(PARTIES):
         col = f"prob_cluster_{p['cluster']}"

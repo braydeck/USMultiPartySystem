@@ -41,7 +41,11 @@ Provenance: data/processed/{efa_factor_scores,typology_cluster_assignments}.csv.
 Resampling is stratified within state and seeded (42 + draw), matching the seat harness so
 the two sides of the chart are the same resamples.
 
-Usage:  python3 analysis/bootstrap_population.py [--draws 1000]
+Each draw re-clusters (analysis/bootstrap/recluster.py): draw d's first choices and cluster
+turnout come from the parties refit on that draw's resample. --fixed-parties keeps the
+published parties in every draw.
+
+Usage:  python3 analysis/bootstrap_population.py [--draws 1000] [--fixed-parties]
 """
 
 import argparse
@@ -77,15 +81,15 @@ def _shares(first_choice: np.ndarray, weights: np.ndarray, idx: np.ndarray) -> n
     return (first_choice[idx] * w[:, None]).sum(axis=0) / w.sum() * 100.0
 
 
-def _intervals(probs, weights, state, n_draws):
+def _intervals(probs, weights, per_draw):
+    """`per_draw` holds (first choice, weights, index) per draw."""
     point = _shares(probs, weights, np.arange(len(weights)))
-    draws = np.vstack([_shares(probs, weights, stratified_indices(state, seed=42 + d))
-                       for d in range(n_draws)])
+    draws = np.vstack([_shares(fc, w, idx) for fc, w, idx in per_draw])
     assert abs(point.sum() - 100.0) < 1e-6, f"point shares sum to {point.sum()}"
     assert np.abs(draws.sum(axis=1) - 100.0).max() < 1e-6, "a draw did not sum to 100"
 
     out = {}
-    for k in range(10):
+    for k in CLUSTER_TO_PARTY:
         col = draws[:, k]
         lo, hi = np.percentile(col, [2.5, 97.5])
         out[CLUSTER_TO_PARTY[k]] = {
@@ -100,7 +104,7 @@ def _intervals(probs, weights, state, n_draws):
     return out
 
 
-def build(n_draws: int) -> dict:
+def build(n_draws: int, recluster: bool = True) -> dict:
     efa = pd.read_csv(BASE / "data" / "processed" / "efa_factor_scores.csv")
     typ = pd.read_csv(BASE / "data" / "processed" / "typology_cluster_assignments.csv")
     turn = pd.read_csv(BASE / "data" / "processed" / "turnout_propensity.csv")
@@ -117,26 +121,36 @@ def build(n_draws: int) -> dict:
     fc = np.zeros_like(probs)
     fc[np.arange(len(probs)), probs.argmax(axis=1)] = 1.0
 
+    if recluster:
+        from analysis.bootstrap import recluster as rc
+        draws = [rc.draw_first_choice(d) for d in range(n_draws)]
+    else:
+        draws = [(fc, t, stratified_indices(state, seed=42 + d)) for d in range(n_draws)]
+
     payload = {
         "nDraws": n_draws,
         "seed": 42,
-        "population": {"stopInvariant": True, "shares": _intervals(fc, base_w, state, n_draws)},
+        "reclustered": recluster,
+        "population": {"stopInvariant": True,
+                       "shares": _intervals(fc, base_w, [(f, base_w, i) for f, _, i in draws])},
         "votes": {},
     }
     for pct, suffix in STOPS:
         lam = pct / 100.0
         # Same compression the pipelines apply: each force's turnout moves toward parity.
         w = base_w * (t + lam * (1.0 - t))
-        payload["votes"][suffix] = {"shares": _intervals(fc, w, state, n_draws)}
+        payload["votes"][suffix] = {"shares": _intervals(
+            fc, w, [(f, base_w * (td + lam * (1.0 - td)), i) for f, td, i in draws])}
     return payload
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--draws", type=int, default=1000)
+    ap.add_argument("--fixed-parties", action="store_true")
     a = ap.parse_args()
 
-    payload = build(a.draws)
+    payload = build(a.draws, recluster=not a.fixed_parties)
     OUT.write_text(json.dumps(payload, separators=(",", ":"), sort_keys=True))
 
     pop = payload["population"]["shares"]

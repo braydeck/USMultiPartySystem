@@ -14,3 +14,8 @@
 /legislation  /?tab=legislation  302
 /rcv          /?tab=rcv          302
 /about        /?tab=about        302
+
+# Liberal (LIB) was renamed Democratic Alliance (DAL); keep old share links working.
+/r/LIB        /r/DAL             301
+/r/LIB/       /r/DAL/            301
+/og/LIB.png   /og/DAL.png        301

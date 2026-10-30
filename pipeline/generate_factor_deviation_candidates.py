@@ -15,14 +15,14 @@ Active axes and qualifying parties (within/inter SD ratio >= 0.70):
   so  — Security & Order (F1)      → SD (0.72), STY (0.75)
   id  — Institutional Distrust (F2)  → DSA (1.16), SD (0.88), STY (1.47),
                                       CON (0.91), POP (1.39), NAT (1.39)
-  pc  — Populist Conservatism (F5) → LIB (0.72), SD (0.86), STY (1.21),
+  pc  — Populist Conservatism (F5) → DAL (0.72), SD (0.86), STY (1.21),
                                       CUP (0.99), CON (0.86), POP (1.09)
 
 Deviation = 25% of the inter-party SD on each factor.
 
 Candidate count:
   PRG  — base only                   =  1
-  LIB  — base + PC×2                 =  3
+  DAL  — base + PC×2                 =  3
   DSA  — base + ES×2                 =  3
   SD   — base + SO×2 + ES×2 + PC×2  =  7
   STY  — base + SO×2 + ES×2 + PC×2  =  7
@@ -59,7 +59,7 @@ PURE_CODES = {
     "LBR":  "MW",
     "STY": "MRJ",
     "NAT": "BE",
-    "LIB": "CO",
+    "DAL": "CO",
     "POP": "DH",
     "CUP": "LK",
     "DSA": "ZN",
@@ -70,22 +70,9 @@ PARTIES = list(PURE_CODES.keys())
 # Parties that qualify for each axis (within-party SD / inter-party SD >= 0.70)
 SO_PARTIES = {"LBR", "STY"}
 ES_PARTIES = {"DSA", "LBR", "STY", "CON", "POP", "NAT"}
-PC_PARTIES = {"LIB", "LBR", "STY", "CUP", "CON", "POP"}
+PC_PARTIES = {"DAL", "LBR", "STY", "CUP", "CON", "POP"}
 
 AXIS_PARTIES = {"so": SO_PARTIES, "id": ES_PARTIES, "pc": PC_PARTIES}
-
-# OAO (cluster 7) is a small party: base candidate only, no crossover variants.
-# Centroid = weighted FS_F1..F5 mean of cluster 7 (matches clusterSpreads), computed from the
-# current typology so it can't go stale against the other parties' centroids.
-def oao_centroid() -> dict[str, float]:
-    import numpy as np
-    import pandas as pd
-    fs = pd.read_csv(BASE_DIR / "data" / "processed" / "efa_factor_scores.csv")
-    cl = pd.read_csv(BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv", usecols=["cluster"])
-    m = (cl["cluster"] == 7).values
-    w = fs["commonpostweight"].values[m]
-    return {col: float(np.average(fs[f"FS_F{i + 1}"].values[m], weights=w)) for i, col in enumerate(FACTOR_COLS)}
-
 
 # Factor axis → column name (F3 and F4 excluded — inter-party SD too small)
 AXIS_FACTOR_IDX = {"so": 0, "id": 1, "pc": 4}
@@ -123,7 +110,6 @@ def compute_inter_party_sd(centroids: dict[str, dict[str, float]]) -> dict[str, 
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     centroids = load_pure_centroids()
-    oao = oao_centroid()
 
     print("Base party centroids:")
     print(f"  {'Party':5}  {'F1':>7}  {'F2':>7}  {'F3':>7}  {'F4':>7}  {'F5':>7}")
@@ -175,17 +161,6 @@ def main():
                     **factors,
                 })
                 total += 1
-
-    # OAO (cluster 7): base candidate only, no variants (small party)
-    rows.append({
-        "candidate_code": "OAO",
-        "candidate_name": "OAO",
-        "party":          "OAO",
-        "axis":           "base",
-        "direction":      "base",
-        **{col: round(oao[col], 4) for col in FACTOR_COLS},
-    })
-    total += 1
 
     print(f"\nGenerated {total} candidates:")
     for p in PARTIES:

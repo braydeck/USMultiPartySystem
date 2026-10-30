@@ -34,13 +34,16 @@ import pandas as pd, numpy as np, sys, warnings
 warnings.filterwarnings('ignore')
 from sklearn.mixture import GaussianMixture
 sys.path.insert(0, 'analysis/efa/previous_years')
+sys.path.insert(0, 'pipeline')
+from party_codes import CLUSTER_TO_PARTY, LIVE_CLUSTERS
 from common import io_paths as io, crosswalk as cwmod
 from independent.wave_items import get_items, recode_items
 
 PID3_LABEL = {'Democrat': 1, 'Republican': 2, 'Independent': 3, 'Other': 4, 'Not sure': 5}
-CODES = ['CON','LBR','STY','NAT','LIB','POP','CUP','OAO','DSA','PRG']
+CODES = CLUSTER_TO_PARTY
+COMPONENT = {pk: i for i, pk in enumerate(LIVE_CLUSTERS)}  # GMM component index per cluster ID
 NAMES = {'CON':'Conservative','LBR':'Labor','STY':'Solidarity','NAT':'Nationalist',
-         'LIB':'Liberal','POP':'Populist','CUP':'Civic Union','OAO':'Order & Opp.',
+         'DAL':'Dem. Alliance','POP':'Populist','CUP':'Civic Union',
          'DSA':'Dem. Socialist','PRG':'Progressive'}
 CANONICAL_24 = [
     'pew_churatd','CC24_302','CC24_303','CC24_341a','CC24_341c','CC24_341d',
@@ -68,20 +71,21 @@ for it in items_cfg:
 tp = pd.read_csv(io.ROOT / 'data/processed/typology_cluster_assignments.csv')
 cw24_sub = cw[cw['construct_id'].isin(shared_cids) & cw['var_2024'].notna()]
 vars24 = list(set(cw24_sub['var_2024']))
-all_vars = list(set(CANONICAL_24 + vars24 + ['commonpostweight','pid3', TURNOUT['2024'], 'newsint']))
+all_vars = list(set(CANONICAL_24 + vars24 + ['caseid','commonpostweight','pid3', TURNOUT['2024'], 'newsint']))
 all_cols = pd.read_stata(str(io.dta_path('2024')), iterator=True).variable_labels()
 all_vars = [v for v in all_vars if v in all_cols]
 df24 = pd.read_stata(str(io.dta_path('2024')), columns=all_vars,
                      convert_categoricals=True, convert_missing=False, convert_dates=False)
 w24 = pd.to_numeric(df24['commonpostweight'], errors='coerce').values.astype(float)
-canon_mask = ~np.isnan(w24)
-for var in CANONICAL_24:
-    if var not in df24.columns: continue
-    col = df24[var]
-    if col.dtype.name == 'category': canon_mask &= col.notna().values
-    else: canon_mask &= pd.to_numeric(col, errors='coerce').notna().values
+# The production sample, by caseid: efa_factor_scores.csv and the typology are row-aligned on the
+# listwise-deletion mask (since the 2026-10 rescore that also drops church "Don't know").
+fs_ids = pd.read_csv(io.ROOT / 'data/processed/efa_factor_scores.csv', usecols=['caseid'])['caseid'].astype('int64')
+assert len(fs_ids) == len(tp)
+pos = pd.Series(np.arange(len(fs_ids)), index=fs_ids.values)
+cid24 = pd.to_numeric(df24['caseid'], errors='coerce').astype('int64')
+canon_mask = cid24.isin(pos.index).values
 cluster24 = np.full(len(df24), -1, dtype=int)
-cluster24[canon_mask] = tp['cluster'].values
+cluster24[canon_mask] = tp['cluster'].values[pos.loc[cid24[canon_mask].values].values]
 items24 = cwmod.recode_wave(df24, '2024', levels={'exact','equivalent'}, cw=cw24_sub)
 mask24 = canon_mask.copy()
 for cid in shared_cids:
@@ -94,14 +98,15 @@ std24 = np.sqrt(np.average((X24 - mu24)**2, axis=0, weights=w24m))
 std24[std24 < 0.01] = 1.0
 Z24 = (X24 - mu24) / std24
 
-gm = GaussianMixture(n_components=10, covariance_type='full', max_iter=1, n_init=1, random_state=42)
+gm = GaussianMixture(n_components=len(LIVE_CLUSTERS), covariance_type='full', max_iter=1, n_init=1, random_state=42)
 gm.fit(Z24)
-for pk in range(10):
-    mk = y24 == pk; wk = w24m[mk]; wn = wk / wk.sum()
-    gm.means_[pk] = (wn[:, None] * Z24[mk]).sum(0)
-    diff = Z24[mk] - gm.means_[pk]
-    gm.covariances_[pk] = (wn[:, None, None] * (diff[:, :, None] * diff[:, None, :])).sum(0) + np.eye(len(shared_cids)) * 0.01
-    gm.weights_[pk] = wk.sum() / w24m.sum()
+for i, pk in enumerate(LIVE_CLUSTERS):
+    mk = y24 == pk; wk = w24m[mk]
+    wn = wk / wk.sum()
+    gm.means_[i] = (wn[:, None] * Z24[mk]).sum(0)
+    diff = Z24[mk] - gm.means_[i]
+    gm.covariances_[i] = (wn[:, None, None] * (diff[:, :, None] * diff[:, None, :])).sum(0) + np.eye(len(shared_cids)) * 0.01
+    gm.weights_[i] = wk.sum() / w24m.sum()
 gm.precisions_cholesky_ = np.array([np.linalg.cholesky(np.linalg.inv(c)) for c in gm.covariances_])
 
 # 2024 canonical turnout first
@@ -123,7 +128,7 @@ print()
 # 2024 canonical turnout
 print('2024 (canonical, presidential):')
 print(f'  {"party":>5} {"name":>14} {"share":>6} {"turnout":>7} {"newsint":>8}')
-for pk in range(10):
+for pk in LIVE_CLUSTERS:
     mk = y24 == pk; wk = w24m[mk]
     to = 100 * wk[voted_24[mk]].sum() / wk.sum()
     # newsint
@@ -138,7 +143,7 @@ for pk in range(10):
             if 'most' in s or 'always' in s or 'follow' in s:
                 most_int = 100 * wk[ni_obj.values == val].sum() / wk.sum()
         ni_str = f'{most_int:.0f}%'
-    print(f'  {CODES[pk]:>5} {NAMES[CODES[pk]]:>14} {gm.weights_[pk]*100:>5.1f}% {to:>6.1f}% {ni_str:>8}')
+    print(f'  {CODES[pk]:>5} {NAMES[CODES[pk]]:>14} {gm.weights_[COMPONENT[pk]]*100:>5.1f}% {to:>6.1f}% {ni_str:>8}')
     RESULT.setdefault('2024', {})[CODES[pk]] = round(float(to), 1)
 print(f'  overall: {100*w24m[voted_24].sum()/w24m.sum():.1f}%')
 
@@ -200,11 +205,11 @@ for wave in ['2022', '2020', '2018']:
             X_for_gm[:, i] = mu24[i]
     
     Z = (X_for_gm - mu24) / std24
-    imposed = gm.predict(Z)
+    imposed = np.array(LIVE_CLUSTERS)[gm.predict(Z)]
     
     print(f'\n{wave} ({WAVE_TYPE[wave]}):')
     print(f'  {"party":>5} {"name":>14} {"share":>6} {"turnout":>7} {"newsint":>8}  D/R')
-    for pk in range(10):
+    for pk in LIVE_CLUSTERS:
         mk = imposed == pk; wk = wm[mk]
         if wk.sum() == 0: continue
         sh = 100 * wk.sum() / wm.sum()
@@ -241,7 +246,7 @@ _pres, _mid = RESULT.get("2024", {}), RESULT.get("2022", {})
 with open(_out, "w", newline="", encoding="utf-8") as _f:
     _wr = _csv.writer(_f)
     _wr.writerow(["party", "turnoutPresidential", "turnoutMidterm"])
-    for _p in CODES:
+    for _p in CODES.values():
         if _p in _pres and _p in _mid:
             _wr.writerow([_p, _pres[_p], _mid[_p]])
 print(f"\nSaved {_out}")

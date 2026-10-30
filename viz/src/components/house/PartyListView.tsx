@@ -70,7 +70,7 @@ interface Props {
   mmpNational?: { seats: SeatMap; totalSeats: number };
 }
 
-const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, LIB: 4, POP: 5, CUP: 6, OAO: 7, DSA: 8, PRG: 9 };
+const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, DAL: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
 
 export function seatMapToHouseSeats(seatMap: SeatMap): HouseSeat[] {
   return F5_ORDER.map(p => ({
@@ -144,12 +144,12 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
     [wyoming, doubleConfig],
   );
 
-  // Bootstrap intervals (only at rank-7 / double-Wyoming)
+  // Bootstrap intervals for the active map and depth
   const intervals = useMemo(() => {
     if (!houseU || stateSel) return { pop: undefined, vote: undefined, list: undefined, stv: undefined };
     const pop = populationShares();
     const vote = voteSharesAt(gi);
-    const listIvs = partyListSharesAt(gi);
+    const listIvs = partyListSharesAt(gi, wyoming);
     if (!vote || !listIvs) return { pop: undefined, vote: undefined, list: undefined, stv: undefined };
     const stvTotal = Object.values(nat.stvSeats).reduce((a, b) => a + b, 0) || 1;
 
@@ -165,7 +165,7 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
       if (u) stvSpans[code] = { expected: u.expected / stvTotal * 100, lo: u.lo / stvTotal * 100, hi: u.hi / stvTotal * 100 };
     }
     return { pop: popIvs, vote: voteIvs, list: listSpans, stv: stvSpans };
-  }, [houseU, gi, stateSel, nat]);
+  }, [houseU, gi, stateSel, nat, wyoming]);
 
   // Build system entries for VotesVsSeats
   const vssSystems = useMemo(() => {
@@ -202,7 +202,7 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
         />
       </Card>
 
-      <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
+      <CollapsibleSection id="profiles" title="See party profiles" hint="Nine parties, their positions and who they draw from">
         <PartyProfileGrid clusters={clusters} />
         {profilesExtra}
       </CollapsibleSection>

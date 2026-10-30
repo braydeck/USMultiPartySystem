@@ -81,7 +81,7 @@ export function SimulationBanner({
     <Card className="p-4 space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h4 className={CARD_HEADING}>What the simulation elects in {stateLabel}</h4>
-        <span className={CARD_HINT}>Ten-party slate, CES 2024 survey respondents</span>
+        <span className={CARD_HINT}>Nine-party slate, CES 2024 survey respondents</span>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

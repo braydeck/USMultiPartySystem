@@ -262,7 +262,7 @@ export function PrimaryTab({
         </Card>
       )}
 
-      <CollapsibleSection id="profiles" title="See party profiles" hint="Ten parties, their positions and who they draw from">
+      <CollapsibleSection id="profiles" title="See party profiles" hint="Nine parties, their positions and who they draw from">
         <PartyProfileGrid clusters={orderedClusters} />
         <Card className="p-4">
           <h4 className={`${CARD_HEADING} mb-1`}>

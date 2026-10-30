@@ -11,8 +11,7 @@ import type { PrimaryStageShares, FDPrimaryData } from '../../types';
  *
  * Two things happen as the reader advances a stage, and both are already in the payload:
  * a pod's states fill in for the first time, and states that voted earlier *recolour*,
- * because their ballots transfer as candidates are eliminated. Delaware's 14% OAO block
- * disappears after the retail stage and reappears as LIB and CUP. So the map is not a
+ * because their ballots transfer as candidates are eliminated. So the map is not a
  * running total being appended to — it is the whole field re-counted at every stage, which
  * is what STV actually does.
  *

@@ -26,14 +26,14 @@ This is the **party-line** (a.k.a. `rawMulti` / pure_multi) STV result — the v
 | Order and Opportunity Party | 15 | 1.7% | 6.2% |
 | Progressive | 15 | 1.7% | 5.6% |
 
-**Conservative is the largest party (202).** Total = 873 across all ten parties. The crossover-field House result
+**Conservative is the largest party (202).** Total = 873 across all nine parties. The crossover-field House result
 is `fdHouseSeats.json` (a different scenario — candidates shift on one axis).
 
 ### `clusterProfiles.json` → `seatsHouse` is now safe to quote
 It used to hold a cluster *population baseline* (CON=164, SD=166, STY=160), which is what made
 older write-ups call SD the largest party. `prepare_data.py` now sources it from
 `pure_multi/house/stv_seat_summary.csv`, the same run the House tab shows, so it is identical
-to `houseSeats.json` for all ten parties. Verified 2026-09-12.
+to `houseSeats.json` for all nine parties. Verified 2026-09-12.
 
 One naming difference between the two files: cluster 8 is `DSA` in `houseSeats.json` and
 `Democratic Socialists` in `clusterProfiles.json`. Join on `party` (the code), not `partyName`.

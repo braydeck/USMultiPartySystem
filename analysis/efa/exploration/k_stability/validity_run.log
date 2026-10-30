@@ -1,0 +1,23 @@
+Loading DTA metadata to determine available columns...
+  WARNING: 1 columns not in DTA, skipping: ['age']
+  Reading 89 columns from DTA...
+  DTA rows: 60,000
+  After listwise deletion: 45,214 rows
+  Loading cluster assignments...
+  Cluster distribution: {0: 7176, 1: 5308, 2: 6132, 3: 3731, 4: 5141, 5: 4308, 6: 4232, 7: 3659, 8: 2557, 9: 2970}
+47 outcome items
+[Parallel(n_jobs=6)]: Using backend LokyBackend with 6 concurrent workers.
+[Parallel(n_jobs=6)]: Done  6 out of 45 | elapsed:   23.2s
+[Parallel(n_jobs=6)]: Done 45 out of 45 | elapsed:  6.0min finished
+        mean_r2  median_r2  items
+K                                
+6        0.2032     0.2001     47
+7        0.2120     0.2022     47
+8        0.2193     0.2059     47
+9        0.2185     0.2035     47
+10       0.2273     0.2152     47
+11       0.2267     0.2104     47
+12       0.2267     0.2114     47
+13       0.2262     0.2120     47
+14       0.2335     0.2226     47
+linear   0.2753     0.2717     47

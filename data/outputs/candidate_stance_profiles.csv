@@ -103,32 +103,32 @@ BE,NAT,CC24_423,Federal government trust (high=distrust),"1=Trust, 2=Neutral, 3=
 BE,NAT,CC24_424,State government trust (high=distrust),"1=Trust, 2=Neutral, 3=Distrust",Institutional Trust,2.1875,2.2445,0.057,12.81
 BE,NAT,ideo5,Ideology self-placement,1=Very Liberal … 5=Very Conservative,Demographics,3.0532,4.2101,1.1569,43.85
 BE,NAT,pew_religimp,Importance of religion (flipped: HIGH=more important),1=Not at all important … 4=Very important; HIGH=more religious,Religion,2.7105,3.1868,0.4763,32.6
-CO,LIB,pew_churatd,Church attendance frequency,1=Never … 6=More than once/week,Religion,4.3467,4.8123,0.4656,32.17
-CO,LIB,CC24_302,Household income change past year,1–5 scale (see CCES codebook),Economic Context,3.1199,2.6856,-0.4343,-50.38
-CO,LIB,CC24_303,Perceived price change past year (high=inflation),1–5 scale (higher=more inflation perceived),Economic Context,1.6116,2.0245,0.4129,45.71
-CO,LIB,CC24_341a,Support extending 2017 tax cuts,"1=Oppose, 2=Support (HIGH=con)",Economic,1.3709,1.67,0.2991,36.46
-CO,LIB,CC24_341c,Oppose raising $400k+ income tax rates,"1=Lib (support raise), 2=Con (oppose raise); HIGH=con",Economic,1.3465,1.02,-0.3265,-35.32
-CO,LIB,CC24_341d,Oppose $150B infrastructure spending,"1=Lib (support spending), 2=Con (oppose spending); HIGH=con",Economic,1.1955,1.0256,-0.1699,-38.03
-CO,LIB,CC24_323a,Oppose legal status for working immigrants,"1=Lib (support legal status), 2=Con (oppose); HIGH=con",Immigration,1.4077,1.0169,-0.3908,-39.17
-CO,LIB,CC24_323b,Increase border patrols,"1=Oppose, 2=Support (HIGH=con)",Immigration,1.2043,1.2467,0.0424,5.19
-CO,LIB,CC24_323d,Oppose Dreamers pathway to citizenship,"1=Lib (support pathway), 2=Con (oppose); HIGH=con",Immigration,1.296,1.0003,-0.2957,-29.65
-CO,LIB,CC24_321b,Support easier concealed carry permits,"1=Oppose, 2=Support (HIGH=con)",Guns/Policing,1.6107,1.927,0.3163,34.88
-CO,LIB,CC24_321d,Increase police funding 10%,"1=Oppose, 2=Support (HIGH=con)",Guns/Policing,1.4328,1.6442,0.2114,21.2
-CO,LIB,CC24_321e,Oppose 10% police budget cut,"1=Lib (support cut), 2=Con (oppose cut); HIGH=con",Guns/Policing,1.732,1.6436,-0.0884,-10.15
-CO,LIB,CC24_325,Abortion week limit (40−raw; high=more restrictive),0–39 (0=most permissive),Abortion,23.9201,15.1906,-8.7295,-38.47
-CO,LIB,CC24_324b,Permit abortion only rape/incest/life danger,"1=Oppose, 2=Support (HIGH=restrictive)",Abortion,1.486,1.7427,0.2567,38.62
-CO,LIB,CC24_340b,Oppose ban on abortion service restrictions,"1=Lib (support ban), 2=Con (oppose ban); HIGH=con",Abortion,1.3698,1.1118,-0.258,-40.21
-CO,LIB,CC24_340c,Oppose same-sex marriage recognition,"1=Lib (support SSM), 2=Con (oppose SSM); HIGH=con",Civil Liberties,1.3393,1.0274,-0.3119,-42.51
-CO,LIB,CC24_340e,Renew post-9/11 surveillance programs,"1=Oppose, 2=Support (HIGH=con)",Civil Liberties,1.6598,1.5699,-0.0899,-13.25
-CO,LIB,CC24_340f,Deny asylum at the border,"1=Oppose, 2=Support (HIGH=con)",Immigration,1.3683,1.7057,0.3374,33.75
-CO,LIB,CC24_440b,Racial problems today are rare and isolated,"1=Disagree, 2=Agree (HIGH=racial minimization)",Race/Gender,3.4832,4.3917,0.9085,32.52
-CO,LIB,CC24_440c,Women seek to gain power over men,"1=Disagree, 2=Agree (HIGH=traditional gender)",Race/Gender,3.5378,4.4205,0.8827,39.67
-CO,LIB,CC24_421_1,Disagree: U.S. elections are fair [distrust],"1=Agree (trust), 2=Disagree (distrust)",Institutional Trust,2.3653,1.4053,-0.96,-52.2
-CO,LIB,CC24_421_2,Disagree: 2024 state/local election was fair [distrust],"1=Agree (trust), 2=Disagree (distrust)",Institutional Trust,1.9098,1.0048,-0.905,-49.85
-CO,LIB,CC24_423,Federal government trust (high=distrust),"1=Trust, 2=Neutral, 3=Distrust",Institutional Trust,2.41,2.2553,-0.1547,-30.69
-CO,LIB,CC24_424,State government trust (high=distrust),"1=Trust, 2=Neutral, 3=Distrust",Institutional Trust,2.1875,2.0066,-0.1809,-40.67
-CO,LIB,ideo5,Ideology self-placement,1=Very Liberal … 5=Very Conservative,Demographics,3.0532,2.1897,-0.8635,-32.73
-CO,LIB,pew_religimp,Importance of religion (flipped: HIGH=more important),1=Not at all important … 4=Very important; HIGH=more religious,Religion,2.7105,2.2193,-0.4912,-33.62
+CO,DAL,pew_churatd,Church attendance frequency,1=Never … 6=More than once/week,Religion,4.3467,4.8123,0.4656,32.17
+CO,DAL,CC24_302,Household income change past year,1–5 scale (see CCES codebook),Economic Context,3.1199,2.6856,-0.4343,-50.38
+CO,DAL,CC24_303,Perceived price change past year (high=inflation),1–5 scale (higher=more inflation perceived),Economic Context,1.6116,2.0245,0.4129,45.71
+CO,DAL,CC24_341a,Support extending 2017 tax cuts,"1=Oppose, 2=Support (HIGH=con)",Economic,1.3709,1.67,0.2991,36.46
+CO,DAL,CC24_341c,Oppose raising $400k+ income tax rates,"1=Lib (support raise), 2=Con (oppose raise); HIGH=con",Economic,1.3465,1.02,-0.3265,-35.32
+CO,DAL,CC24_341d,Oppose $150B infrastructure spending,"1=Lib (support spending), 2=Con (oppose spending); HIGH=con",Economic,1.1955,1.0256,-0.1699,-38.03
+CO,DAL,CC24_323a,Oppose legal status for working immigrants,"1=Lib (support legal status), 2=Con (oppose); HIGH=con",Immigration,1.4077,1.0169,-0.3908,-39.17
+CO,DAL,CC24_323b,Increase border patrols,"1=Oppose, 2=Support (HIGH=con)",Immigration,1.2043,1.2467,0.0424,5.19
+CO,DAL,CC24_323d,Oppose Dreamers pathway to citizenship,"1=Lib (support pathway), 2=Con (oppose); HIGH=con",Immigration,1.296,1.0003,-0.2957,-29.65
+CO,DAL,CC24_321b,Support easier concealed carry permits,"1=Oppose, 2=Support (HIGH=con)",Guns/Policing,1.6107,1.927,0.3163,34.88
+CO,DAL,CC24_321d,Increase police funding 10%,"1=Oppose, 2=Support (HIGH=con)",Guns/Policing,1.4328,1.6442,0.2114,21.2
+CO,DAL,CC24_321e,Oppose 10% police budget cut,"1=Lib (support cut), 2=Con (oppose cut); HIGH=con",Guns/Policing,1.732,1.6436,-0.0884,-10.15
+CO,DAL,CC24_325,Abortion week limit (40−raw; high=more restrictive),0–39 (0=most permissive),Abortion,23.9201,15.1906,-8.7295,-38.47
+CO,DAL,CC24_324b,Permit abortion only rape/incest/life danger,"1=Oppose, 2=Support (HIGH=restrictive)",Abortion,1.486,1.7427,0.2567,38.62
+CO,DAL,CC24_340b,Oppose ban on abortion service restrictions,"1=Lib (support ban), 2=Con (oppose ban); HIGH=con",Abortion,1.3698,1.1118,-0.258,-40.21
+CO,DAL,CC24_340c,Oppose same-sex marriage recognition,"1=Lib (support SSM), 2=Con (oppose SSM); HIGH=con",Civil Liberties,1.3393,1.0274,-0.3119,-42.51
+CO,DAL,CC24_340e,Renew post-9/11 surveillance programs,"1=Oppose, 2=Support (HIGH=con)",Civil Liberties,1.6598,1.5699,-0.0899,-13.25
+CO,DAL,CC24_340f,Deny asylum at the border,"1=Oppose, 2=Support (HIGH=con)",Immigration,1.3683,1.7057,0.3374,33.75
+CO,DAL,CC24_440b,Racial problems today are rare and isolated,"1=Disagree, 2=Agree (HIGH=racial minimization)",Race/Gender,3.4832,4.3917,0.9085,32.52
+CO,DAL,CC24_440c,Women seek to gain power over men,"1=Disagree, 2=Agree (HIGH=traditional gender)",Race/Gender,3.5378,4.4205,0.8827,39.67
+CO,DAL,CC24_421_1,Disagree: U.S. elections are fair [distrust],"1=Agree (trust), 2=Disagree (distrust)",Institutional Trust,2.3653,1.4053,-0.96,-52.2
+CO,DAL,CC24_421_2,Disagree: 2024 state/local election was fair [distrust],"1=Agree (trust), 2=Disagree (distrust)",Institutional Trust,1.9098,1.0048,-0.905,-49.85
+CO,DAL,CC24_423,Federal government trust (high=distrust),"1=Trust, 2=Neutral, 3=Distrust",Institutional Trust,2.41,2.2553,-0.1547,-30.69
+CO,DAL,CC24_424,State government trust (high=distrust),"1=Trust, 2=Neutral, 3=Distrust",Institutional Trust,2.1875,2.0066,-0.1809,-40.67
+CO,DAL,ideo5,Ideology self-placement,1=Very Liberal … 5=Very Conservative,Demographics,3.0532,2.1897,-0.8635,-32.73
+CO,DAL,pew_religimp,Importance of religion (flipped: HIGH=more important),1=Not at all important … 4=Very important; HIGH=more religious,Religion,2.7105,2.2193,-0.4912,-33.62
 DH,REF,pew_churatd,Church attendance frequency,1=Never … 6=More than once/week,Religion,4.3467,4.1999,-0.1468,-10.14
 DH,REF,CC24_302,Household income change past year,1–5 scale (see CCES codebook),Economic Context,3.1199,3.4277,0.3078,35.7
 DH,REF,CC24_303,Perceived price change past year (high=inflation),1–5 scale (higher=more inflation perceived),Economic Context,1.6116,1.3853,-0.2263,-25.05

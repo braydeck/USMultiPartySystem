@@ -12,7 +12,8 @@ import { StateDrilldown, StateSelect, type DrilldownGroup } from './StateDrilldo
 import { usePartyHighlight } from '../../hooks/usePartyHighlight';
 import { seatTotals } from '../../lib/seatTotals';
 import { CollapsibleSection } from '../shared/CollapsibleSection';
-import { VotesVsSeats, type SystemEntry } from '../shared/VotesVsSeats';
+import { VotesVsSeats, type SystemEntry, type Span } from '../shared/VotesVsSeats';
+import { partyListSharesAt, voteSharesAt, houseMap, type SeatInterval } from '../../lib/uncertainty';
 import { PartyProfileGrid } from '../shared/PartyProfileGrid';
 import { useUrlState, resetUrlParams } from '../../hooks/useUrlState';
 import { getBlendColor, PARTY_NAMES, F5_ORDER } from '../../constants/parties';
@@ -82,6 +83,20 @@ interface Props {
   clusters: ClusterProfile[];
   profilesExtra?: ReactNode;
   chamber?: ReactNode;
+  /** Turnout stop index, for the bootstrap ranges. */
+  gi?: number;
+  /** STV + reserve seat ranges on this map and depth. */
+  reserveU?: Record<string, SeatInterval>;
+  /** STV seat ranges without the reserve, for the "STV (no reserve)" row. */
+  baseU?: Record<string, SeatInterval>;
+}
+
+/** Seat-count intervals as percentages of the chamber, the unit VotesVsSeats draws in. */
+function seatSpans(u: Record<string, SeatInterval> | undefined, total: number): Record<string, Span> | undefined {
+  if (!u) return undefined;
+  return Object.fromEntries(Object.entries(u).map(([p, v]) => [p, {
+    expected: v.expected / total * 100, lo: v.lo / total * 100, hi: v.hi / total * 100,
+  }]));
 }
 
 const CURRENT_UNREPRESENTED = 35.8;
@@ -90,7 +105,7 @@ const CURRENT_SURPLUS = 14.2;
 const name = (p: string) => PARTY_NAMES[p] ?? p;
 const topoffFill = (party: string) => ({ backgroundColor: getBlendColor(party), opacity: 0.42 });
 
-export function ReserveView({ config, national, system, wyoming, onWyomingChange, doubleConfig, base, mmpGallagher, mmpCoverage, mmpUnrep, mmpExcess, mmpNational, baseSeats, clusters, profilesExtra, chamber }: Props) {
+export function ReserveView({ config, national, system, wyoming, onWyomingChange, doubleConfig, base, mmpGallagher, mmpCoverage, mmpUnrep, mmpExcess, mmpNational, baseSeats, clusters, profilesExtra, chamber, gi, reserveU, baseU }: Props) {
   const [selState, setSelState] = useUrlState<string>('mapstate', 'national');
   const nat = config?.national ?? national;
   const sys = nat[system];
@@ -126,6 +141,10 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
   ], [config]);
 
   const vssSystems = useMemo((): SystemEntry[] => {
+    // Bootstrap ranges describe the national chamber only.
+    const national = !stateSel && gi !== undefined;
+    const listResIvs = national ? partyListSharesAt(gi, houseMap(wyoming, true)) : undefined;
+    const stvResIvs = national ? seatSpans(reserveU, active.totalSeats) : undefined;
     const entries: SystemEntry[] = [];
     entries.push({
       key: system === 'list' ? 'listRes' : 'stvRes',
@@ -133,6 +152,7 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
       texture: 'primary',
       seats: system === 'list' ? active.listSeats : active.stvSeats,
       totalSeats: active.totalSeats,
+      intervals: system === 'list' ? listResIvs : stvResIvs,
       defaultOn: true,
     });
     entries.push({
@@ -141,16 +161,19 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
       texture: 'compare',
       seats: system === 'list' ? active.stvSeats : active.listSeats,
       totalSeats: active.totalSeats,
+      intervals: system === 'list' ? stvResIvs : listResIvs,
     });
     // Base (no reserve) from plConfig
     if (base && !stateSel) {
       entries.push({
         key: 'listBase', label: 'List (no reserve)', texture: 'compare',
         seats: base.national.listSeats, totalSeats: base.national.totalSeats,
+        intervals: national ? partyListSharesAt(gi, wyoming) : undefined,
       });
       entries.push({
         key: 'stvBase', label: 'STV (no reserve)', texture: 'compare',
         seats: base.national.stvSeats, totalSeats: base.national.totalSeats,
+        intervals: national ? seatSpans(baseU, base.national.totalSeats) : undefined,
       });
     }
     // MMP
@@ -161,7 +184,7 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
       });
     }
     return entries;
-  }, [system, active, base, mmpNational, stateSel]);
+  }, [system, active, base, mmpNational, stateSel, gi, wyoming, reserveU, baseU]);
 
   const states = useMemo(() => {
     return Object.entries(config?.byState ?? {})
@@ -272,7 +295,7 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
       )}
 
       <CollapsibleSection id="profiles" title="See party profiles"
-        hint="Ten parties, their positions and who they draw from">
+        hint="Nine parties, their positions and who they draw from">
         <PartyProfileGrid clusters={clusters} />
         {profilesExtra}
       </CollapsibleSection>
@@ -377,6 +400,7 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
             <VotesVsSeats
               systems={vssSystems}
               voteShare={active.voteShare}
+              voteIntervals={!stateSel && gi !== undefined ? voteSharesAt(gi) : undefined}
               stateOptions={stateOpts}
               selectedState={selState}
               onStateChange={setSelState}

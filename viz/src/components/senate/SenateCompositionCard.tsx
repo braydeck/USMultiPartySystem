@@ -7,6 +7,7 @@ import { BAR_HEIGHT, LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import type { MethodUncertainty } from '../../lib/uncertainty';
 import { CARD_HEADING, FOOTNOTE } from '../../constants/typography';
+import { MajorityMark } from '../shared/MajorityMark';
 
 // Shared "FPTP Today vs Preferential Senate" composition card, used by both the Senate tab
 // and the Overview summary so the two charts are identical. Condorcet/IRV model one winner
@@ -36,21 +37,24 @@ function SenateCompBar({ label, seats, segments, total: totalOverride, multiplie
         <span className="text-xs font-semibold text-foreground">{label}</span>
         <span className="text-xs text-muted-foreground">· {total} seats</span>
       </div>
-      <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
-        {segs.map(({ party, n, color }) => {
-          const pct = (n / total) * 100;
-          return (
-            <div key={party}
-              title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(0)}%)`}
-              className="seat-segment flex min-w-0 items-center justify-center overflow-hidden"
-              style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
-              <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text"
-                style={{ color: getContrastText(color) }}>
-                {party}<br />{n}
-              </span>
-            </div>
-          );
-        })}
+      <div className="relative">
+        <MajorityMark />
+        <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
+          {segs.map(({ party, n, color }) => {
+            const pct = (n / total) * 100;
+            return (
+              <div key={party}
+                title={`${PARTY_NAMES[party] ?? party}: ${n} seats (${pct.toFixed(0)}%)`}
+                className="seat-segment flex min-w-0 items-center justify-center overflow-hidden"
+                style={{ width: `${pct}%`, backgroundColor: color, minWidth: pct < 3 ? 2 : 0 }}>
+                <span className="seat-segment-label text-xs font-bold leading-tight text-center px-0.5 chip-text"
+                  style={{ color: getContrastText(color) }}>
+                  {party}<br />{n}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

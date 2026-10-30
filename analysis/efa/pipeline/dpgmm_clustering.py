@@ -4,7 +4,8 @@ dpgmm_clustering.py
 Dirichlet Process Gaussian Mixture Model clustering of CES 2024 factor scores.
 
 Input:  efa_factor_scores.csv  (N=45,214; five factor scores + weights + caseid)
-        party_id_reference.csv  (caseid -> party id from the previous typology)
+        party_id_reference.csv  (caseid -> party id from the ten-party seed-61 typology of
+                                 the 2026-10 rescore, so CON = 0 ... PRG = 9 keep their meaning)
 Output: typology_cluster_assignments.csv  (hard + soft cluster assignments)
         dpgmm_seed_selection.csv  (per-seed fit diagnostics and agreement)
 
@@ -16,17 +17,23 @@ Factor inputs:
   FS_F5_resid   - Values Conservatism, F1-residualized
 
 DPGMM params:
-  n_components=10  (upper bound; effective k determined by data)
+  n_components=9  (a cap, not a discovery: the Dirichlet process fills every component it is
+                   given, all 15 at a cap of 15. Nine is the cap whose solution is stable:
+                   every seed reaches the same clusters and none dissolves under resampling.
+                   analysis/efa/exploration/k_stability/)
   covariance_type='full'
   weight_concentration_prior_type='dirichlet_process'
   n_init=5
   max_iter=2000
   random_state=42..61 (20 seeds)
 
-Seed selection: the DPGMM lands on different solutions at different seeds. Every seed is
-fit; seeds that converge with 10 effective components are eligible, and the solution kept
-is the eligible one with the highest mean adjusted Rand index against the other eligible
-seeds (the most typical solution). max_iter is 2000 because at 500 most seeds stopped
+Seed selection: every seed is fit; seeds that converge with K effective components are
+eligible. At K = 9 the 20 seeds land on three solutions (groups of seeds agreeing at ARI >=
+0.9): 11 seeds reach the most common one, 6 a better-fitting one, 3 a third. The default
+(--select modal) keeps the most common solution, and within it the best lower bound.
+The bootstrap re-clusters every draw, so the other solutions are carried in the published
+intervals (analysis/bootstrap/recluster.py). --select bound keeps the best lower bound
+overall; --select ari keeps the most typical seed by mean ARI. max_iter is 2000 because at 500 most seeds stopped
 before converging.
 
 Exploration options (analysis/efa/exploration/seed_sweep/, k9_bootstrap/). Any of them leaves
@@ -58,14 +65,14 @@ DATA_DIR = Path(__file__).resolve().parents[3] / "data" / "processed"
 ap = argparse.ArgumentParser()
 ap.add_argument("--seed", type=int, help="fit only this seed; skip seed selection")
 ap.add_argument("--seeds", type=int, nargs="+")
-ap.add_argument("--select", choices=["ari", "bound"], default="ari")
-ap.add_argument("--n-components", type=int, default=10)
+ap.add_argument("--select", choices=["modal", "ari", "bound"], default="modal")
+ap.add_argument("--n-components", type=int, default=9)
 ap.add_argument("--reference", type=Path, default=DATA_DIR / "party_id_reference.csv")
 ap.add_argument("--resample", type=int)
 ap.add_argument("--out", type=Path, default=DATA_DIR / "typology_cluster_assignments.csv")
 ARGS = ap.parse_args()
 SEEDS = [ARGS.seed] if ARGS.seed is not None else ARGS.seeds or range(42, 62)
-PRODUCTION_RUN = (ARGS.seed is None and ARGS.seeds is None and ARGS.n_components == 10 and ARGS.resample is None
+PRODUCTION_RUN = (ARGS.seed is None and ARGS.seeds is None and ARGS.n_components == ap.get_default("n_components") and ARGS.select == ap.get_default("select") and ARGS.resample is None
                   and ARGS.reference == ap.get_default("reference") and ARGS.out == ap.get_default("out"))
 N_PARTIES = 10
 K = ARGS.n_components
@@ -134,6 +141,13 @@ def select_seed():
     chosen = int(mean_ari.idxmax())
     if ARGS.select == "bound":
         chosen = max(eligible, key=lambda sd: fits[sd][0].lower_bound_)
+    elif ARGS.select == "modal":
+        from scipy.sparse.csgraph import connected_components
+        _, comp = connected_components((ari.values >= 0.9).astype(int), directed=False)
+        modal = [sd for sd, c in zip(eligible, comp) if c == np.bincount(comp).argmax()]
+        chosen = max(modal, key=lambda sd: fits[sd][0].lower_bound_)
+        print(f"  solutions among eligible seeds: {len(set(comp))}; most common reached by "
+              f"{len(modal)} of {len(eligible)} seeds: {modal}")
     table = pd.DataFrame({
         "seed": list(SEEDS),
         "effective_clusters": [fits[sd][2] for sd in SEEDS],

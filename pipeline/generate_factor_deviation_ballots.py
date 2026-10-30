@@ -18,9 +18,14 @@ Outputs:
   data/outputs/factor_deviation/state_candidate_profiles.csv
 """
 
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+from party_codes import PARTY_TO_CLUSTER  # noqa: E402
 
 BASE_DIR        = Path(__file__).parent.parent
 CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
@@ -32,11 +37,7 @@ OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation"
 VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 PROB_COLS         = [f"prob_cluster_{k}" for k in range(10)]
 
-# Party → cluster index (C7/BLB excluded)
-PARTY_CLUSTER = {
-    "CON": 0, "LBR": 1, "STY": 2, "NAT": 3, "LIB": 4,
-    "POP": 5, "CUP": 6, "OAO": 7, "DSA": 8, "PRG": 9,
-}
+PARTY_CLUSTER = PARTY_TO_CLUSTER
 
 # Corresponding columns in the candidate CSV
 CAND_FACTOR_COLS = [

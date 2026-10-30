@@ -25,16 +25,14 @@ from pathlib import Path
 from scipy.stats import norm
 
 from stv_config import BILL_VARS
+from party_codes import CLUSTER_TO_PARTY
 
 BASE    = Path(__file__).parent.parent
 OUT_DIR = BASE / "data" / "outputs"
 
 # ── House type columns (from house_chamber_profile.csv) ────────────────────
-HOUSE_CLUSTER_NAMES = {
-    0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-    5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG",
-}
-HOUSE_TYPES = [HOUSE_CLUSTER_NAMES[i] for i in range(10)]
+HOUSE_CLUSTER_NAMES = CLUSTER_TO_PARTY
+HOUSE_TYPES = list(HOUSE_CLUSTER_NAMES.values())
 
 VERDICT_PASS   = "PASS"
 VERDICT_FAIL   = "FAIL"

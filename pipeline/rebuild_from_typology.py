@@ -101,21 +101,27 @@ def steps(draws, procs):
                                 [py("pipeline/build_current_party_profiles.py")], [py("pipeline/compute_intensity.py")],
                                 [py("pipeline/candidate_vote_model.py")]]),
         (14, "house payloads", [[py("pipeline/build_house_partylist.py")], [py("pipeline/build_house_reserve.py")]]),
-        (15, f"bootstraps ({draws} draws)", [[py("analysis/bootstrap_uncertainty.py", "--draws", str(draws), "--force", *procs_arg)],
+        (15, f"bootstraps ({draws} draws)", [[py("analysis/bootstrap_uncertainty.py", "--draws", str(draws), "--force", *procs_arg),
+                                             # same cached fits; after, so the two do not share cores
+                                             py("analysis/bootstrap_house.py", "--draws", str(draws), *procs_arg)],
                                             [py("analysis/bootstrap_partylist.py", "--draws", str(draws))],
-                                            [py("analysis/bootstrap_population.py", "--draws", str(draws))]]),
+                                            [py("analysis/bootstrap_population.py", "--draws", str(draws))],
+                                            # cycle turnout for partyPopulation.json, read by prepare_data
+                                            [py("analysis/efa/previous_years/compare/turnout_by_wave.py")]]),
         (16, "viz payloads (chains the rank-7 rebuilds)", [[py("viz/scripts/prepare_data.py")]]),
         (17, "payloads downstream of prepare_data", [[py(s, *a)] for s, *a in [
             ("pipeline/build_house_mmp.py",), ("pipeline/build_house_rep_by_rank.py",),
             ("pipeline/build_house_votemodel_depth.py",), ("pipeline/build_general_depth_bundle.py",),
             ("pipeline/build_primary_depth_bundle.py",), ("pipeline/build_top_two_bundle.py",),
             ("pipeline/build_party_factor_ellipses.py",), ("pipeline/build_cross_party_affinity.py",),
+            ("pipeline/build_cluster_spreads.py",),
             ("pipeline/build_single_race_data.py",),
-            ("viz/scripts/make_quiz_questions.py",),
             ("pipeline/build_hex_seat_cartogram.py",), ("pipeline/build_hex_seat_cartogram.py", "--triple"),
             ("pipeline/build_hex_seat_cartogram.py", "--reserve"),
             ("pipeline/build_hex_seat_cartogram.py", "--reserve", "--triple"),
             ("pipeline/build_hex_mmp_cartogram.py",), ("pipeline/build_hex_mmp_cartogram.py", "--triple")]]
+            # the short-form key reads quizQuestions.json, so it runs after it
+            + [[py("viz/scripts/make_quiz_questions.py"), py("analysis/efa/build_quiz_shortform.py")]]
             # the quota payloads describe the app's default stop and refuse to run at any other
             + [[py(s, env={"TURNOUT_WEIGHT": "1", "TURNOUT_LAMBDA": "0.05"})]
                for s in ("analysis/quota_flows.py", "analysis/quota_composition.py")]),

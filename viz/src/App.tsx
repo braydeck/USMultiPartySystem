@@ -411,7 +411,7 @@ export default function App() {
           </a>
         </p>
         <p className="mt-1">
-          Built on CES 2024 survey data · 10-party STV simulation · 873 / 1,726 House seats · 51 Senate seats
+          Built on CES 2024 survey data · 9-party STV simulation · 873 / 1,726 House seats · 51 Senate seats
         </p>
       </footer>
     </div>

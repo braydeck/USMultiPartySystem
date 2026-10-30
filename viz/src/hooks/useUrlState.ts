@@ -72,6 +72,8 @@ interface Options<T extends string> {
   push?: boolean;
   /** Map internal value → URL token, so the URL can read in product language ({ factorDev: 'crossover' }). */
   map?: Partial<Record<T, string>>;
+  /** Retired URL tokens still accepted on read (a renamed party's old code). Never written. */
+  aliases?: Record<string, T>;
 }
 
 export function useUrlState<T extends string>(
@@ -79,18 +81,18 @@ export function useUrlState<T extends string>(
   defaultValue: T,
   options: Options<T> = {},
 ): [T, (next: T | ((prev: T) => T)) => void] {
-  const { allowed, push = false, map } = options;
+  const { allowed, push = false, map, aliases } = options;
   const search = useSyncExternalStore(subscribe, getSearch, getSearch);
 
   // token (as seen in the URL) → internal value
   const decode = useMemo(() => {
-    const reverse: Record<string, T> = {};
+    const reverse: Record<string, T> = { ...aliases };
     if (map) for (const internal in map) {
       const token = map[internal as T];
       if (token) reverse[token] = internal as T;
     }
     return reverse;
-  }, [map]);
+  }, [map, aliases]);
 
   const read = useCallback(
     (s: string): T => {

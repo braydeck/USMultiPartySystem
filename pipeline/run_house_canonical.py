@@ -39,30 +39,20 @@ SPLIT_OVERRIDE_PATH = BASE_DIR / "pipeline" / "county_split_overrides.csv"
 
 sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT, POP_PER_SEAT_TRIPLE, STATE_URBAN_PCT
+from party_codes import CLUSTER_TO_PARTY
 
 FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 POSITIONAL_SIGMA = 0.35
 FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
 MIN_RESPONDENTS  = 5
 
-CANDIDATES = [
-    {"name": "CON", "cluster": 0},
-    {"name": "LBR",  "cluster": 1},
-    {"name": "STY", "cluster": 2},
-    {"name": "NAT", "cluster": 3},
-    {"name": "LIB", "cluster": 4},
-    {"name": "POP", "cluster": 5},
-    {"name": "CUP", "cluster": 6},
-    {"name": "OAO", "cluster": 7},
-    {"name": "DSA", "cluster": 8},
-    {"name": "PRG", "cluster": 9},
-]
+CANDIDATES = [{"name": p, "cluster": k} for k, p in CLUSTER_TO_PARTY.items()]
 CAND_NAMES = [c["name"] for c in CANDIDATES]
 
 PARTY_LABELS = {
     0: "Conservative", 1: "Labor", 2: "Solidarity",
-    3: "Nationalist",  4: "Liberal",         5: "Populist",
-    6: "Civic Union Party", 7: "Order and Opportunity Party", 8: "DSA", 9: "Progressive",
+    3: "Nationalist",  4: "Democratic Alliance", 5: "Populist",
+    6: "Civic Union Party", 8: "DSA", 9: "Progressive",
 }
 NAME_TO_CLUSTER = {c["name"]: c["cluster"] for c in CANDIDATES}
 
