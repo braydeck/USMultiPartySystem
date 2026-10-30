@@ -37,3 +37,11 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   - a stated denominator for party shares.
 - **The multi-item conceptual-domain version is a sensitivity check only.** Item density reshapes the
   factors (ANES's 4 racial-resentment items tend to form their own factor).
+
+## 2026-10-28 (upstream changes this workstream depends on)
+
+- **The CES typology is now nine parties on label-coded scores** (rescore 69a6eeb, nine-party rebuild
+  on branch `bd-nine-parties`). Slot 7 (formerly OAO) holds no voters; LIB is renamed DAL (Democratic
+  Alliance). Rulings live in the project `CLAUDE.md` and memory `typology-defensibility.md`. ANES
+  outputs committed before 69a6eeb compare against the ten-party, miscoded production and must be
+  rerun before they are cited.
