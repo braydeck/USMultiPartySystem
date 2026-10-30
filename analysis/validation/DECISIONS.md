@@ -43,5 +43,6 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
 - **The CES typology is now nine parties on label-coded scores** (rescore 69a6eeb, nine-party rebuild
   on branch `bd-nine-parties`). Slot 7 (formerly OAO) holds no voters; LIB is renamed DAL (Democratic
   Alliance). Rulings live in the project `CLAUDE.md` and memory `typology-defensibility.md`. ANES
-  outputs committed before 69a6eeb compare against the ten-party, miscoded production and must be
-  rerun before they are cited.
+  clustering outputs committed before 69a6eeb use the ten-party labels and must be rerun before they
+  are cited. The matched and independent EFAs stand: their CES inputs changed only by Populist
+  Conservatism's sign (checked 2026-10-30, see NEXT.md).
