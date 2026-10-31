@@ -1,101 +1,104 @@
 ,label,domain,N1,N2,N3,N4,N5,N6,N7,N8,N9,N10,h2,primary
-V242453,cses6- q05c: out-group attitudes: immigrants increase crime,immigration,-0.471,-0.067,0.097,0.082,0.169,-0.161,0.118,0.093,0.035,-0.062,0.659,N1
-V242241x,favor/oppose preferential hiring/promotion of blacks,race,0.536,0.015,0.085,-0.02,0.007,0.128,-0.022,-0.093,-0.242,-0.201,0.651,N1
-V242522x,federal government treats blacks or whites better,race,0.444,0.011,0.024,-0.033,0.046,-0.087,-0.341,-0.036,-0.169,-0.225,0.643,N1
-V242303,agree/disagree: if blacks tried harder they’d be as well off,race,-0.354,-0.07,0.079,0.057,0.086,-0.015,0.144,0.304,0.161,0.001,0.637,N1
-V242301,agree/disagree: past slavery & discrimination make it diffic,race,0.426,-0.025,-0.076,-0.017,-0.12,0.044,-0.179,-0.117,-0.13,-0.167,0.636,N1
-V242526,how much influence do whites have in us politics,race,0.483,0.077,-0.036,-0.032,-0.035,-0.053,-0.372,-0.015,-0.033,-0.128,0.634,N1
-V242235,are immigrants generally good or bad for america’s economy,immigration,0.644,-0.029,-0.164,0.013,-0.102,0.087,-0.075,0.082,0.108,0.096,0.569,N1
-V242455,cses6- q06c: national identity: to be able to speak english,immigration,-0.462,-0.059,0.001,0.158,0.256,-0.055,-0.192,0.21,0.038,-0.015,0.567,N1
-V242349x,increasing diversity made us better/worse place to live,race,0.582,-0.115,-0.11,0.029,-0.122,-0.106,-0.06,-0.123,0.033,0.132,0.566,N1
-V241386,us government policy toward unauthorized immigrants,immigration,-0.419,-0.021,-0.044,0.054,0.184,-0.021,0.1,0.027,0.232,-0.134,0.554,N1
-V241392x,should children brought illegally be sent back or allowed to,immigration,-0.449,0.024,0.141,0.012,0.077,0.007,0.133,-0.063,0.198,-0.118,0.523,N1
-V241396,how important to speak english in us,immigration,-0.411,-0.108,-0.047,0.1,0.255,-0.055,-0.163,0.246,0.05,-0.013,0.506,N1
-V241406x,favor/oppose u.s. giving humanitarian aid to palestinians,foreign_policy_nation,0.342,-0.093,-0.237,-0.055,-0.027,0.003,-0.125,-0.108,-0.158,0.107,0.506,N1
-V242529,how much influence do asians have in us politics,race,-0.384,-0.016,0.059,0.081,0.028,0.208,0.374,0.093,-0.016,0.087,0.497,N1
-V242210,how important that more asians get elected to political offi,group_resentment_representation,0.534,-0.088,0.027,0.113,-0.07,-0.027,-0.083,-0.011,-0.165,-0.083,0.496,N1
-V242236,how important is it for immigrants to adapt to customs/tradi,immigration,0.392,0.04,0.098,-0.157,-0.246,0.008,0.032,-0.278,0.052,-0.006,0.492,N1
-V242519,how likely whites unable to find jobs because employers hiri,race,-0.347,-0.075,0.071,0.149,-0.004,-0.024,0.279,0.119,0.034,-0.039,0.453,N1
-V241389x,favor or oppose ending birthright citizenship,immigration,-0.483,0.011,0.103,0.089,-0.01,-0.041,-0.008,0.01,0.188,-0.043,0.43,N1
-V242336,how often do police officers use more force than necessary,guns_order,-0.331,-0.044,0.038,-0.01,-0.019,0.041,0.063,-0.199,0.226,0.299,0.401,N1
-V242227,what should immigration levels be,immigration,0.586,-0.019,0.015,-0.092,-0.047,0.135,0.104,-0.021,0.018,0.061,0.4,N1
-V241403x,favor/oppose u.s. giving military assistance to israel,foreign_policy_nation,-0.02,-0.089,0.111,0.264,0.244,-0.014,0.162,-0.01,-0.028,0.563,0.615,N10
-V241400x,favor/oppose u.s. giving weapons to help ukraine fight russi,foreign_policy_nation,0.111,0.041,-0.115,0.241,-0.076,0.282,-0.118,-0.019,-0.274,0.419,0.592,N10
-V242369,how much is japan a threat to the united states,foreign_policy_nation,0.091,0.068,-0.31,-0.294,-0.108,0.086,0.016,0.05,0.126,0.418,0.476,N10
-V241312x,country would be better off if we just stayed home,foreign_policy_nation,-0.139,0.067,0.16,-0.198,-0.134,-0.152,0.093,0.142,0.145,-0.405,0.461,N10
-V242370,how much is israel a threat to the united states,foreign_policy_nation,0.031,-0.046,-0.049,-0.173,0.127,-0.006,0.07,0.082,0.152,0.583,0.454,N10
-V241579,is it justified for people to use violence to pursue politic,democratic_norms,-0.018,-0.16,-0.054,0.06,-0.028,-0.391,-0.207,-0.29,0.059,0.402,0.449,N10
-V242418,cses6-q07b: trust government,trust_fairness,-0.031,-0.746,-0.012,-0.059,-0.031,0.2,-0.091,-0.004,0.008,-0.015,0.704,N2
-V242417,cses6-q07a: trust congress,trust_fairness,-0.033,-0.815,0.061,-0.049,0.021,-0.024,0.025,-0.028,-0.029,0.006,0.666,N2
-V242421,cses6-q07e: trust political parties,trust_fairness,0.08,-0.79,0.028,0.033,0.021,-0.068,0.099,0.071,-0.107,0.005,0.594,N2
-V242419,cses6-q07c: trust judiciary,trust_fairness,0.025,-0.66,-0.077,-0.006,-0.069,-0.071,0.022,-0.022,0.226,0.063,0.505,N2
-V242422,cses6-q07f: trust traditional media,trust_fairness,0.057,-0.35,-0.009,-0.026,-0.112,0.262,-0.288,-0.006,-0.057,-0.032,0.483,N2
-V241230,how often can you trust the court system to do what is right,trust_fairness,-0.065,-0.315,0.079,-0.02,-0.09,0.284,-0.051,-0.013,0.113,0.151,0.313,N2
-V241235,elections make government pay attention,trust_fairness,-0.024,-0.315,-0.113,0.129,-0.009,0.222,-0.093,-0.047,-0.105,0.012,0.279,N2
-V242423,cses6-q07g: trust social media,trust_fairness,0.014,-0.397,0.025,-0.11,-0.003,-0.118,0.153,0.019,-0.057,-0.244,0.216,N2
-V241325,how important branches of government keep one another from t,democratic_norms,0.025,0.007,0.782,-0.034,0.063,0.152,-0.024,0.053,-0.066,-0.073,0.68,N3
-V241326,how important elected officials face serious consequences fo,democratic_norms,0.119,-0.01,0.741,-0.035,0.018,0.139,0.099,-0.024,0.142,-0.026,0.599,N3
-V241324,how important that news organizations free to criticize,democratic_norms,-0.03,-0.131,0.694,0.059,0.033,-0.234,-0.097,0.015,-0.107,0.089,0.554,N3
-V241327,how important that people agree on basic facts,democratic_norms,-0.039,0.078,0.636,-0.011,-0.016,0.003,-0.016,-0.023,0.058,0.035,0.398,N3
-V241334,how concerned government might undermine media,democratic_norms,-0.061,-0.025,0.579,-0.154,-0.09,-0.052,-0.069,-0.1,0.076,0.053,0.322,N3
-V242431,cses6-q14b: who people vote for makes a big difference,trust_fairness,-0.032,0.237,0.318,-0.197,-0.179,-0.088,0.008,0.129,0.018,-0.074,0.284,N3
-V241330x,helpful/harmful if pres didn’t have to worry about,democratic_norms,0.003,0.002,0.331,-0.115,-0.092,-0.016,0.015,0.29,-0.057,-0.11,0.272,N3
-V241333x,favor or oppose restricting journalist access,democratic_norms,-0.083,0.014,0.502,0.012,0.001,-0.027,-0.108,0.006,0.029,-0.004,0.263,N3
-V242368,how much is iran a threat to the united states,foreign_policy_nation,0.023,-0.025,0.016,-0.799,0.031,-0.069,-0.057,0.002,-0.081,0.006,0.657,N4
-V242366,how much is russia a threat to the united states,foreign_policy_nation,-0.106,-0.064,0.089,-0.739,0.121,-0.016,0.152,0.076,0.077,0.017,0.609,N4
-V242365,how much is china a threat to the united states,foreign_policy_nation,-0.009,-0.067,0.053,-0.714,-0.007,0.049,0.009,0.028,-0.117,-0.028,0.551,N4
-V242367,how much is mexico a threat to the united states,foreign_policy_nation,0.251,0.078,-0.15,-0.364,0.001,0.081,-0.14,0.068,-0.014,0.322,0.433,N4
-V241242,7pt scale defense spending: self- placement,economy_role_of_gov,0.116,0.086,-0.048,-0.344,-0.227,-0.073,-0.037,-0.124,-0.022,-0.145,0.398,N4
-V242343,dhs: how worried about terrorist attack in near future,guns_order,0.05,-0.052,0.065,0.513,0.028,-0.018,0.076,0.179,-0.035,-0.048,0.332,N4
-gay_marriage,gay marriage (form 1A/1B splice),religion_social,0.122,-0.091,-0.009,0.041,-0.784,-0.027,-0.103,0.092,-0.03,-0.039,0.757,N5
-V241372x,approve/disapprove transgender people use bathroom that,religion_social,0.264,0.035,-0.058,-0.056,-0.394,0.152,-0.074,-0.075,-0.219,-0.028,0.735,N5
-V242364x,favor/oppose transgender people serve in military,religion_social,0.284,-0.05,-0.014,-0.041,-0.379,-0.051,-0.168,-0.141,-0.146,-0.015,0.665,N5
-V241302,std abortion: self-placement,religion_social,-0.04,-0.061,0.016,0.001,0.56,-0.117,0.169,-0.031,0.189,0.057,0.647,N5
-V242420,cses6-q07d: trust scientists,trust_fairness,0.157,-0.262,-0.213,-0.026,-0.371,0.038,-0.263,0.012,-0.03,0.003,0.644,N5
-V242259,fewer problems if there was more emphasis on traditional fam,religion_social,-0.064,-0.091,0.022,0.085,0.438,-0.079,0.048,0.238,0.184,0.086,0.606,N5
-V242260,which child trait more important: independence or respect,egalitarianism_authoritarianism,0.076,0.041,-0.154,-0.161,-0.508,0.006,0.089,-0.178,-0.047,-0.104,0.569,N5
-V242261,which child trait more important: curiosity or good manners,egalitarianism_authoritarianism,0.036,0.062,-0.248,-0.059,-0.489,0.043,0.091,-0.269,0.087,0.015,0.564,N5
-V242262,which child trait more important: obedience or self-reliance,egalitarianism_authoritarianism,0.016,-0.046,0.176,0.028,0.608,0.036,-0.09,0.234,-0.116,-0.016,0.549,N5
-V241378x,favor/oppose laws protect gays/lesbians against job discrimi,religion_social,0.135,-0.149,-0.083,0.024,-0.448,-0.087,-0.146,-0.051,-0.114,0.092,0.5,N5
-V242258,the world is changing & we should adjust view of moral behav,religion_social,0.179,-0.012,0.083,-0.037,-0.403,0.099,-0.091,0.19,-0.162,-0.173,0.459,N5
-V242263,which child trait more important: considerate or well-behave,egalitarianism_authoritarianism,-0.012,0.095,-0.039,0.055,-0.398,-0.08,0.001,-0.383,0.005,0.199,0.442,N5
-church,religious attendance (spliced),religion_social,-0.115,0.04,0.004,-0.015,-0.672,-0.014,0.098,0.097,-0.093,-0.076,0.403,N5
-V241338x,prefer gov official who compromises/sticks to principles,democratic_norms,-0.029,0.031,0.0,0.133,-0.321,0.249,-0.143,0.09,0.057,0.102,0.224,N5
-V241319x,favor/oppose requiring id when voting,democratic_norms,-0.24,-0.184,0.08,0.098,0.135,-0.341,-0.023,0.163,0.232,-0.001,0.592,N6
-V241232,does government waste much tax money,trust_fairness,-0.033,0.133,-0.044,0.044,-0.001,-0.507,0.018,0.231,0.26,-0.085,0.58,N6
-V241231,government run by a few big interests or for benefit of all,trust_fairness,-0.054,0.169,-0.071,-0.016,-0.043,-0.636,0.032,0.096,-0.05,-0.036,0.549,N6
-V241229,how often trust government in washington to do what is right,trust_fairness,-0.017,-0.333,0.128,0.034,-0.011,0.442,-0.178,-0.012,-0.176,0.051,0.546,N6
-V241335,how much trust in news media,trust_fairness,-0.062,0.145,0.103,-0.03,0.065,-0.49,0.233,-0.091,0.113,0.065,0.533,N6
-V241233,how many in government are corrupt,trust_fairness,0.048,0.252,0.01,-0.047,0.054,-0.442,0.075,0.12,0.064,-0.222,0.51,N6
-V242456,cses6- q07: how widespread is corruption,trust_fairness,-0.059,0.275,-0.118,0.017,0.059,-0.377,-0.202,0.201,-0.123,-0.117,0.41,N6
-V242325,should federal government make it more difficult or easier t,guns_order,0.107,0.051,0.022,0.009,-0.033,0.173,-0.645,-0.119,-0.085,-0.062,0.719,N7
-V242527,how much influence do blacks have in us politics,race,-0.36,0.028,0.069,0.053,0.03,0.131,0.409,0.058,0.144,0.13,0.644,N7
-V242324x,favor/oppose increased regulation on greenhouse emissions,economy_role_of_gov,0.088,-0.013,-0.104,0.015,-0.186,0.091,-0.374,-0.011,-0.288,0.022,0.618,N7
-V241314,votes counted accurately,trust_fairness,-0.134,0.019,0.121,0.029,0.182,-0.343,0.383,-0.048,-0.01,-0.077,0.604,N7
-V242331x,favor/oppose banning ‘assault-style’ rifles,guns_order,0.013,-0.023,0.06,0.045,-0.081,0.086,-0.564,-0.177,-0.142,-0.006,0.574,N7
-V242207,how often are votes counted fairly,trust_fairness,0.009,-0.118,-0.133,-0.058,-0.24,0.258,-0.363,-0.004,0.177,0.227,0.552,N7
-V241315,trust election officials,trust_fairness,0.015,0.118,0.203,0.035,0.122,-0.341,0.345,0.054,-0.094,-0.142,0.549,N7
-V242316a,favor or oppose tax on millionaires,economy_role_of_gov,-0.108,0.051,-0.025,-0.076,-0.188,0.073,-0.408,-0.012,-0.37,0.092,0.549,N7
-V242328x,favor/oppose background checks for gun purchases,guns_order,0.067,-0.032,-0.102,0.073,-0.021,-0.059,-0.637,0.056,-0.049,0.043,0.518,N7
-V242430,cses6-q13: fairness of election,trust_fairness,-0.148,-0.126,-0.066,-0.039,-0.031,0.187,-0.295,-0.081,0.236,0.182,0.292,N7
-V241608,women seek to gain power by getting control over men,gender,-0.072,-0.084,0.163,0.008,0.089,0.027,0.185,0.404,0.136,-0.042,0.483,N8
-V242280,do women demanding equality seek special favors,gender,-0.052,-0.032,-0.009,-0.059,0.17,0.077,0.244,0.416,0.156,-0.073,0.482,N8
-V242200,[std] public officials don’t care what people think,trust_fairness,0.062,0.337,-0.026,0.013,-0.073,-0.219,-0.027,0.441,-0.129,0.062,0.422,N8
-V242201,[std] have no say about what government does,trust_fairness,-0.03,0.28,0.097,-0.039,-0.167,-0.165,-0.038,0.462,-0.156,0.058,0.398,N8
-V242411,cses6-q04e: attitudes about elites: strong leader in governm,democratic_norms,-0.11,-0.167,0.143,-0.08,-0.043,-0.171,0.189,0.302,0.121,-0.06,0.391,N8
-V241607,agree/disagree - women interpret innocent remarks as sexist,gender,-0.114,-0.12,0.123,0.069,-0.003,-0.014,0.072,0.363,0.098,0.111,0.319,N8
-V241255,7pt scale gov assistance to blacks scale: self-placement,economy_role_of_gov,0.384,-0.03,-0.014,0.02,-0.123,0.053,0.058,-0.112,-0.456,-0.107,0.698,N9
-V241290x,"summary approve/disapprove diversity, equity, and inclusion ",group_resentment_representation,0.296,-0.01,0.057,-0.044,-0.021,0.132,-0.22,-0.089,-0.374,-0.116,0.669,N9
-V241397,best way to deal with urban unrest,guns_order,0.295,0.029,-0.076,-0.087,-0.078,0.023,-0.159,-0.153,-0.328,-0.085,0.643,N9
-V241252,7pt scale guaranteed job-income scale: self-placement,economy_role_of_gov,0.103,-0.026,-0.044,-0.076,-0.067,0.106,-0.003,0.008,-0.623,-0.155,0.64,N9
-V241239,7pt scale spending & services: self- placement,economy_role_of_gov,-0.071,0.012,0.015,0.085,0.015,-0.096,0.083,0.056,0.621,0.115,0.627,N9
-V242250,favor or oppose government trying to reduce income inequalit,economy_role_of_gov,-0.037,0.05,-0.087,-0.198,-0.145,0.148,-0.237,-0.083,-0.429,-0.049,0.618,N9
-V242350,"should the minimum wage be raised, kept the same, or lowered",economy_role_of_gov,0.026,-0.012,-0.019,-0.04,-0.117,0.073,-0.17,0.008,-0.593,0.034,0.601,N9
-V242255,we’d be better off if worried less about equality,egalitarianism_authoritarianism,-0.166,-0.041,0.129,0.015,0.073,-0.013,0.191,0.235,0.351,-0.009,0.591,N9
-V241245,7pt scale gov-private medical insurance scale: self-placemen,economy_role_of_gov,0.155,0.052,-0.084,-0.108,-0.086,0.1,-0.07,0.043,-0.466,-0.052,0.515,N9
-V242353x,increase/decrease government spending to help pay for,economy_role_of_gov,0.107,0.001,-0.071,-0.012,-0.088,0.013,-0.06,0.047,-0.543,0.027,0.464,N9
-V242311,how much opportunity in america for average person to get ah,economy_role_of_gov,-0.047,-0.098,-0.107,0.084,0.179,0.207,-0.024,0.044,0.52,0.005,0.445,N9
-V241577,need to be more sensitive talking or people too easily offen,gender,0.195,0.022,0.015,-0.021,0.029,0.199,-0.119,-0.134,-0.326,-0.084,0.422,N9
-V241369x,require employers to offer paid leave to parents of new chil,economy_role_of_gov,0.11,-0.091,-0.176,-0.101,0.071,-0.175,-0.14,-0.12,-0.357,-0.099,0.352,N9
-V242308x,does r think they get more or less than their fair share in ,group_resentment_representation,0.113,-0.004,-0.106,-0.045,-0.018,0.254,-0.022,-0.144,0.452,0.071,0.296,N9
-V242314x,economic mobility,economy_role_of_gov,0.084,-0.059,0.121,0.018,0.107,0.241,-0.115,-0.071,0.444,-0.047,0.241,N9
+V241395x,favor or oppose building a wall on border with mexico,immigration,-0.406,-0.122,0.024,0.103,0.181,0.004,0.197,-0.001,0.206,0.166,0.733,N1
+V242453,cses6- q05c: out-group attitudes: immigrants increase crime,immigration,-0.498,-0.054,0.087,0.076,0.177,-0.069,0.152,0.068,0.025,0.115,0.665,N1
+V242241x,favor/oppose preferential hiring/promotion of blacks,race,0.508,0.0,0.073,-0.016,0.02,0.122,-0.107,0.226,-0.26,-0.032,0.65,N1
+V242301,agree/disagree: past slavery & discrimination make it diffic,race,0.383,-0.035,-0.095,-0.019,-0.099,0.153,-0.022,0.191,-0.15,-0.205,0.644,N1
+V242522x,federal government treats blacks or whites better,race,0.391,0.009,0.02,-0.036,0.05,0.068,0.103,0.23,-0.184,-0.368,0.64,N1
+V242526,how much influence do whites have in us politics,race,0.45,0.069,-0.036,-0.039,-0.034,0.029,0.075,0.128,-0.04,-0.395,0.63,N1
+V242303,agree/disagree: if blacks tried harder they’d be as well off,race,-0.328,-0.065,0.093,0.054,0.072,-0.314,0.002,0.001,0.175,0.153,0.629,N1
+V242235,are immigrants generally good or bad for america’s economy,immigration,0.643,-0.036,-0.16,0.014,-0.098,-0.062,-0.071,-0.073,0.121,-0.085,0.568,N1
+V242349x,increasing diversity made us better/worse place to live,race,0.575,-0.117,-0.104,0.031,-0.12,0.135,0.118,-0.123,0.043,-0.076,0.567,N1
+V242455,cses6- q06c: national identity: to be able to speak english,immigration,-0.458,-0.058,-0.0,0.162,0.254,-0.22,0.038,0.012,0.037,-0.176,0.566,N1
+V241386,us government policy toward unauthorized immigrants,immigration,-0.433,-0.018,-0.052,0.055,0.189,-0.017,0.018,0.14,0.228,0.098,0.565,N1
+V241392x,should children brought illegally be sent back or allowed to,immigration,-0.462,0.029,0.148,0.007,0.065,0.064,-0.011,0.1,0.191,0.124,0.521,N1
+V241396,how important to speak english in us,immigration,-0.419,-0.119,-0.045,0.099,0.252,-0.257,0.048,0.012,0.045,-0.159,0.517,N1
+V241406x,favor/oppose u.s. giving humanitarian aid to palestinians,foreign_policy_nation,0.33,-0.096,-0.242,-0.05,-0.015,0.109,0.003,-0.109,-0.167,-0.131,0.504,N1
+V242236,how important is it for immigrants to adapt to customs/tradi,immigration,0.391,0.049,0.099,-0.16,-0.243,0.283,0.001,-0.003,0.056,0.021,0.493,N1
+V242210,how important that more asians get elected to political offi,group_resentment_representation,0.5,-0.093,0.021,0.111,-0.056,0.051,0.044,0.108,-0.171,-0.108,0.49,N1
+V242519,how likely whites unable to find jobs because employers hiri,race,-0.326,-0.069,0.07,0.146,-0.01,-0.123,0.018,0.048,0.045,0.293,0.452,N1
+V242226x,favor/oppose new limits on imports,economy_role_of_gov,-0.316,-0.103,0.04,0.016,0.199,0.063,0.174,0.045,0.131,0.133,0.445,N1
+V241389x,favor or oppose ending birthright citizenship,immigration,-0.487,0.015,0.108,0.085,-0.023,-0.02,0.037,0.029,0.193,-0.004,0.44,N1
+V242336,how often do police officers use more force than necessary,guns_order,-0.314,-0.035,0.034,-0.002,-0.008,0.183,-0.057,-0.314,0.231,0.078,0.408,N1
+V242227,what should immigration levels be,immigration,0.599,-0.025,0.013,-0.084,-0.036,0.03,-0.123,-0.039,0.022,0.101,0.403,N1
+V242325,should federal government make it more difficult or easier t,guns_order,0.082,0.058,0.021,0.004,-0.044,0.114,-0.174,0.052,-0.063,-0.663,0.715,N10
+V242527,how much influence do blacks have in us politics,race,-0.317,0.023,0.079,0.059,0.015,-0.08,-0.14,-0.129,0.154,0.432,0.643,N10
+V242324x,favor/oppose increased regulation on greenhouse emissions,economy_role_of_gov,0.09,-0.01,-0.094,0.021,-0.194,-0.004,-0.103,-0.036,-0.276,-0.383,0.626,N10
+V241314,votes counted accurately,trust_fairness,-0.143,0.029,0.123,0.032,0.176,0.052,0.339,0.08,-0.018,0.375,0.602,N10
+V242331x,favor/oppose banning ‘assault-style’ rifles,guns_order,-0.014,-0.016,0.057,0.036,-0.086,0.178,-0.09,-0.012,-0.136,-0.571,0.567,N10
+V242316a,favor or oppose tax on millionaires,economy_role_of_gov,-0.103,0.052,-0.014,-0.077,-0.195,-0.01,-0.089,-0.116,-0.358,-0.411,0.554,N10
+V242207,how often are votes counted fairly,trust_fairness,0.027,-0.139,-0.135,-0.057,-0.231,-0.016,-0.254,-0.232,0.177,-0.352,0.549,N10
+V242328x,favor/oppose background checks for gun purchases,guns_order,0.03,-0.025,-0.115,0.074,-0.015,-0.042,0.059,-0.036,-0.025,-0.658,0.514,N10
+V242529,how much influence do asians have in us politics,race,-0.34,-0.015,0.064,0.082,0.022,-0.106,-0.219,-0.078,-0.002,0.399,0.492,N10
+V242430,cses6-q13: fairness of election,trust_fairness,-0.145,-0.132,-0.061,-0.048,-0.024,0.076,-0.19,-0.201,0.236,-0.305,0.304,N10
+V242418,cses6-q07b: trust government,trust_fairness,-0.029,-0.749,-0.005,-0.061,-0.041,-0.006,-0.202,0.007,0.006,-0.088,0.708,N2
+V242417,cses6-q07a: trust congress,trust_fairness,-0.034,-0.81,0.067,-0.05,0.017,0.027,0.019,-0.01,-0.033,0.029,0.66,N2
+V242421,cses6-q07e: trust political parties,trust_fairness,0.068,-0.791,0.024,0.028,0.02,-0.051,0.072,0.009,-0.112,0.107,0.587,N2
+V242419,cses6-q07c: trust judiciary,trust_fairness,0.036,-0.663,-0.074,-0.004,-0.074,0.013,0.08,-0.062,0.23,0.032,0.508,N2
+V242422,cses6-q07f: trust traditional media,trust_fairness,0.058,-0.354,-0.006,-0.03,-0.114,-0.0,-0.259,0.024,-0.063,-0.283,0.483,N2
+V241230,how often can you trust the court system to do what is right,trust_fairness,-0.065,-0.315,0.062,-0.018,-0.066,0.024,-0.289,-0.136,0.112,-0.044,0.305,N2
+V241235,elections make government pay attention,trust_fairness,-0.043,-0.327,-0.12,0.127,-0.011,0.065,-0.219,0.006,-0.106,-0.096,0.287,N2
+V242423,cses6-q07g: trust social media,trust_fairness,-0.002,-0.379,0.03,-0.113,-0.017,0.004,0.123,0.251,-0.047,0.152,0.211,N2
+V241325,how important branches of government keep one another from t,democratic_norms,0.032,0.01,0.779,-0.031,0.066,-0.053,-0.156,0.081,-0.065,-0.021,0.679,N3
+V241326,how important elected officials face serious consequences fo,democratic_norms,0.125,-0.013,0.746,-0.034,0.013,0.027,-0.132,0.034,0.139,0.091,0.599,N3
+V241324,how important that news organizations free to criticize,democratic_norms,-0.037,-0.131,0.692,0.057,0.037,-0.014,0.232,-0.092,-0.116,-0.093,0.551,N3
+V241327,how important that people agree on basic facts,democratic_norms,-0.027,0.063,0.635,-0.004,-0.013,0.007,0.004,-0.039,0.048,-0.009,0.399,N3
+V241334,how concerned government might undermine media,democratic_norms,-0.057,-0.025,0.592,-0.156,-0.092,0.085,0.049,-0.081,0.064,-0.077,0.328,N3
+V242431,cses6-q14b: who people vote for makes a big difference,trust_fairness,-0.018,0.22,0.322,-0.189,-0.179,-0.155,0.088,0.067,-0.005,0.017,0.282,N3
+V241333x,favor or oppose restricting journalist access,democratic_norms,-0.091,0.016,0.518,0.003,-0.008,0.006,0.025,-0.002,0.039,-0.117,0.273,N3
+V241330x,helpful/harmful if pres didn’t have to worry about,democratic_norms,-0.01,-0.005,0.324,-0.124,-0.08,-0.249,0.023,0.143,-0.05,0.013,0.26,N3
+V242368,how much is iran a threat to the united states,foreign_policy_nation,0.02,-0.024,0.018,-0.798,0.03,-0.006,0.066,-0.014,-0.08,-0.059,0.654,N4
+V242366,how much is russia a threat to the united states,foreign_policy_nation,-0.105,-0.067,0.081,-0.737,0.132,-0.065,0.018,0.0,0.082,0.157,0.609,N4
+V242365,how much is china a threat to the united states,foreign_policy_nation,-0.014,-0.065,0.054,-0.719,-0.011,-0.02,-0.05,0.032,-0.095,0.009,0.553,N4
+V242367,how much is mexico a threat to the united states,foreign_policy_nation,0.276,0.065,-0.148,-0.359,0.008,-0.093,-0.079,-0.32,-0.006,-0.131,0.434,N4
+V241242,7pt scale defense spending: self- placement,economy_role_of_gov,0.117,0.091,-0.036,-0.342,-0.24,0.103,0.075,0.113,-0.031,-0.048,0.392,N4
+V242343,dhs: how worried about terrorist attack in near future,guns_order,0.053,-0.043,0.063,0.513,0.027,-0.165,0.011,0.067,-0.027,0.071,0.323,N4
+gay_marriage,gay marriage (form 1A/1B splice),religion_social,0.129,-0.103,-0.014,0.036,-0.78,-0.075,0.038,0.049,-0.022,-0.093,0.749,N5
+V241372x,approve/disapprove transgender people use bathroom that,religion_social,0.252,0.029,-0.066,-0.055,-0.381,0.094,-0.148,0.036,-0.223,-0.082,0.73,N5
+V242364x,favor/oppose transgender people serve in military,religion_social,0.265,-0.049,-0.02,-0.041,-0.372,0.152,0.056,0.012,-0.151,-0.18,0.661,N5
+V242420,cses6-q07d: trust scientists,trust_fairness,0.162,-0.267,-0.203,-0.028,-0.38,-0.024,-0.035,-0.023,-0.022,-0.269,0.655,N5
+V241302,std abortion: self-placement,religion_social,-0.039,-0.052,0.02,-0.001,0.568,0.025,0.115,-0.058,0.184,0.157,0.647,N5
+V242259,fewer problems if there was more emphasis on traditional fam,religion_social,-0.062,-0.089,0.021,0.083,0.447,-0.237,0.074,-0.069,0.181,0.041,0.598,N5
+V242260,which child trait more important: independence or respect,egalitarianism_authoritarianism,0.072,0.067,-0.157,-0.165,-0.505,0.199,-0.009,0.101,-0.03,0.078,0.581,N5
+V242261,which child trait more important: curiosity or good manners,egalitarianism_authoritarianism,0.027,0.076,-0.255,-0.06,-0.474,0.284,-0.047,-0.028,0.089,0.076,0.568,N5
+V242262,which child trait more important: obedience or self-reliance,egalitarianism_authoritarianism,0.019,-0.048,0.186,0.038,0.59,-0.247,-0.045,0.027,-0.108,-0.085,0.547,N5
+V242357x,health benefits of vaccinations outweigh risks,economy_role_of_gov,0.064,0.013,-0.091,0.074,-0.305,0.027,-0.2,-0.173,-0.064,-0.284,0.51,N5
+V241378x,favor/oppose laws protect gays/lesbians against job discrimi,religion_social,0.131,-0.155,-0.096,0.023,-0.428,0.062,0.093,-0.087,-0.117,-0.141,0.487,N5
+V242258,the world is changing & we should adjust view of moral behav,religion_social,0.165,-0.018,0.079,-0.041,-0.389,-0.157,-0.092,0.199,-0.157,-0.106,0.449,N5
+church,religious attendance (spliced),religion_social,-0.104,0.02,-0.01,-0.017,-0.658,-0.091,0.026,0.084,-0.106,0.119,0.393,N5
+V241338x,prefer gov official who compromises/sticks to principles,democratic_norms,-0.02,0.037,0.0,0.132,-0.32,-0.092,-0.254,-0.105,0.061,-0.137,0.23,N5
+V241608,women seek to gain power by getting control over men,gender,-0.049,-0.1,0.171,0.007,0.075,-0.417,-0.021,0.061,0.14,0.191,0.486,N6
+V242280,do women demanding equality seek special favors,gender,-0.041,-0.041,-0.004,-0.068,0.168,-0.405,-0.071,0.103,0.158,0.242,0.47,N6
+V242263,which child trait more important: considerate or well-behave,egalitarianism_authoritarianism,-0.023,0.103,-0.052,0.056,-0.378,0.381,0.077,-0.22,-0.009,-0.003,0.441,N6
+V242200,[std] public officials don’t care what people think,trust_fairness,0.072,0.3,-0.035,0.02,-0.073,-0.466,0.23,-0.045,-0.146,-0.012,0.432,N6
+V242201,[std] have no say about what government does,trust_fairness,-0.023,0.249,0.085,-0.032,-0.161,-0.475,0.168,-0.043,-0.173,-0.015,0.398,N6
+V241607,agree/disagree - women interpret innocent remarks as sexist,gender,-0.083,-0.132,0.132,0.065,-0.016,-0.38,0.014,-0.101,0.107,0.084,0.32,N6
+V241319x,favor/oppose requiring id when voting,democratic_norms,-0.259,-0.176,0.072,0.095,0.139,-0.146,0.339,0.012,0.235,-0.025,0.595,N7
+V241232,does government waste much tax money,trust_fairness,-0.045,0.134,-0.039,0.046,-0.006,-0.229,0.519,0.085,0.252,0.0,0.578,N7
+V241231,government run by a few big interests or for benefit of all,trust_fairness,-0.055,0.165,-0.064,-0.006,-0.055,-0.114,0.64,0.019,-0.063,0.033,0.551,N7
+V241229,how often trust government in washington to do what is right,trust_fairness,-0.022,-0.338,0.118,0.032,-0.004,0.023,-0.45,-0.036,-0.17,-0.167,0.542,N7
+V241315,trust election officials,trust_fairness,0.004,0.127,0.215,0.037,0.109,-0.046,0.341,0.141,-0.105,0.326,0.538,N7
+V241335,how much trust in news media,trust_fairness,-0.056,0.157,0.113,-0.031,0.058,0.073,0.485,-0.086,0.108,0.224,0.524,N7
+V241233,how many in government are corrupt,trust_fairness,0.033,0.267,0.022,-0.058,0.045,-0.113,0.45,0.216,0.059,0.045,0.511,N7
+V242456,cses6- q07: how widespread is corruption,trust_fairness,-0.067,0.284,-0.117,0.007,0.053,-0.205,0.373,0.115,-0.112,-0.21,0.412,N7
+V241400x,favor/oppose u.s. giving weapons to help ukraine fight russi,foreign_policy_nation,0.129,0.041,-0.112,0.235,-0.069,0.007,-0.297,-0.421,-0.261,-0.119,0.603,N8
+V241403x,favor/oppose u.s. giving military assistance to israel,foreign_policy_nation,-0.009,-0.093,0.097,0.26,0.27,0.013,0.005,-0.543,-0.028,0.173,0.603,N8
+V242369,how much is japan a threat to the united states,foreign_policy_nation,0.108,0.049,-0.325,-0.293,-0.087,-0.059,-0.079,-0.404,0.127,0.037,0.469,N8
+V241579,is it justified for people to use violence to pursue politic,democratic_norms,-0.004,-0.163,-0.054,0.07,-0.019,0.253,0.384,-0.447,0.045,-0.195,0.459,N8
+V241312x,country would be better off if we just stayed home,foreign_policy_nation,-0.161,0.061,0.167,-0.196,-0.152,-0.129,0.168,0.402,0.13,0.083,0.457,N8
+V242370,how much is israel a threat to the united states,foreign_policy_nation,0.041,-0.066,-0.07,-0.164,0.155,-0.079,0.005,-0.555,0.148,0.095,0.441,N8
+V241255,7pt scale gov assistance to blacks scale: self-placement,economy_role_of_gov,0.362,-0.037,-0.026,0.024,-0.113,0.135,-0.046,0.123,-0.471,0.052,0.7,N9
+V241290x,"summary approve/disapprove diversity, equity, and inclusion ",group_resentment_representation,0.267,-0.012,0.048,-0.046,-0.009,0.111,-0.126,0.121,-0.385,-0.231,0.667,N9
+V241397,best way to deal with urban unrest,guns_order,0.276,0.023,-0.085,-0.085,-0.068,0.158,-0.016,0.082,-0.345,-0.165,0.643,N9
+V241252,7pt scale guaranteed job-income scale: self-placement,economy_role_of_gov,0.097,-0.03,-0.037,-0.078,-0.085,-0.009,-0.108,0.153,-0.616,-0.004,0.635,N9
+V241239,7pt scale spending & services: self- placement,economy_role_of_gov,-0.054,0.008,0.014,0.09,0.019,-0.072,0.102,-0.114,0.615,0.089,0.622,N9
+V242250,favor or oppose government trying to reduce income inequalit,economy_role_of_gov,-0.05,0.059,-0.094,-0.204,-0.135,0.086,-0.155,0.038,-0.426,-0.239,0.614,N9
+V242350,"should the minimum wage be raised, kept the same, or lowered",economy_role_of_gov,0.012,-0.005,-0.027,-0.042,-0.111,-0.003,-0.081,-0.038,-0.591,-0.167,0.591,N9
+V242255,we’d be better off if worried less about equality,egalitarianism_authoritarianism,-0.162,-0.041,0.133,0.008,0.068,-0.224,0.019,0.023,0.354,0.196,0.588,N9
+V241245,7pt scale gov-private medical insurance scale: self-placemen,economy_role_of_gov,0.156,0.044,-0.081,-0.108,-0.097,-0.047,-0.097,0.051,-0.46,-0.062,0.507,N9
+V242257,if people were treated more fairly we would have fewer probl,egalitarianism_authoritarianism,0.225,-0.091,-0.055,0.042,0.038,-0.084,-0.042,0.141,-0.311,-0.294,0.47,N9
+V242353x,increase/decrease government spending to help pay for,economy_role_of_gov,0.107,0.001,-0.071,-0.011,-0.09,-0.05,-0.022,-0.026,-0.535,-0.062,0.459,N9
+V242311,how much opportunity in america for average person to get ah,economy_role_of_gov,-0.039,-0.083,-0.108,0.087,0.182,-0.029,-0.211,0.013,0.542,-0.023,0.454,N9
+V241577,need to be more sensitive talking or people too easily offen,gender,0.177,0.038,0.01,-0.027,0.035,0.151,-0.203,0.087,-0.321,-0.134,0.426,N9
+V241369x,require employers to offer paid leave to parents of new chil,economy_role_of_gov,0.086,-0.077,-0.184,-0.104,0.083,0.151,0.173,0.108,-0.344,-0.149,0.35,N9
+V242308x,does r think they get more or less than their fair share in ,group_resentment_representation,0.113,-0.013,-0.111,-0.043,-0.006,0.158,-0.246,-0.057,0.465,-0.022,0.303,N9
+V242314x,economic mobility,economy_role_of_gov,0.088,-0.063,0.127,0.029,0.109,0.076,-0.236,0.05,0.443,-0.117,0.244,N9

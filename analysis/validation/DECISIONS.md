@@ -56,3 +56,12 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   which interpreter runs them.
 - **The ANES clustering benchmark caps the DPGMM at the live party count (9)** and takes party codes
   from `pipeline/party_codes.py`, matching the nine-party typology.
+
+## 2026-10-31
+
+- **The ANES independent screen has no party-ID cap.** The CES curation excluded direct party items
+  (approvals, ideology placements) by category and never dropped a policy item for party-ID R² alone,
+  so the 0.34 cap overstated the CES rule. Its only ANES casualty was the border-wall item
+  (`V241395x`, R² 0.40), which now loads on the immigration factor. All 10 independent factors match
+  the capped fit (Tucker φ 0.99–1.00). The redundancy tie-break (keep the less partisan twin) stays,
+  as in CES.

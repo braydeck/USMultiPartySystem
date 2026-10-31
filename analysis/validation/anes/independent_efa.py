@@ -8,7 +8,9 @@ issue-importance ratings and multi-selects excluded). Weight V240108a; party ID 
 Stage B screen, the CES rules from docs/EFA_ITEM_SELECTION_ROBUSTNESS.md applied in order:
   1. drop items missing for > 30% of post-weighted respondents
   2. drop items whose weighted modal category share > 85%
-  3. drop partisan proxies: weighted linear R^2 on 7-pt party ID > 0.34 (cross-wave convention)
+  3. no party-ID cap: the CES curation excluded direct party items (approvals, ideology
+     placements) by category, not policy items by party-ID R^2 (DECISIONS 2026-10-31). Those
+     categories are already out of the Stage A pool.
   4. for pairs with weighted polychoric |r| > 0.70, drop the higher-party-ID-R^2 member
      (greedy, strongest pair first)
   5. listwise, parallel analysis picks k; PAF + oblimin; drop items with max |loading| < 0.30
@@ -33,7 +35,7 @@ PID = "V241227x"
 ELECTION = ["V241314", "V241315", "V242207", "V242430"]
 KEEP_ELECTION = "--keep-election" in sys.argv
 SUFFIX = "_keep_election" if KEEP_ELECTION else ""
-MAX_MISSING, MAX_MODAL, MAX_PID_R2, MAX_R, MIN_LOAD, MIN_H2 = 0.30, 0.85, 0.34, 0.70, 0.30, 0.20
+MAX_MISSING, MAX_MODAL, MAX_R, MIN_LOAD, MIN_H2 = 0.30, 0.85, 0.70, 0.30, 0.20
 
 
 def weighted_r2(y, x, w):
@@ -84,11 +86,8 @@ def main():
         elif modal > MAX_MODAL:
             drop(c, "2 modal share", modal); alive.remove(c)
     r2 = {c: weighted_r2(items[c].values, pid, w) for c in alive}
-    for c in list(alive):
-        if r2[c] > MAX_PID_R2:
-            drop(c, "3 party-ID R2", r2[c]); alive.remove(c)
 
-    print(f"Stage B 1-3: {len(alive)} of {items.shape[1]} items remain; pairwise polychoric for redundancy...", flush=True)
+    print(f"Stage B 1-2: {len(alive)} of {items.shape[1]} items remain; pairwise polychoric for redundancy...", flush=True)
     R_pw = em.polychoric_matrix(items[alive], alive, w, progress=False)
     pairs = sorted(((abs(R_pw[i, j]), alive[i], alive[j]) for i in range(len(alive)) for j in range(i + 1, len(alive))
                     if abs(R_pw[i, j]) > MAX_R), reverse=True)

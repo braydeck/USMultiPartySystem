@@ -1,6 +1,5 @@
 item_id,label,dropped_at,value
 V241409x,does r side more with israelis or palestinians,1 missing,0.391
-V241395x,favor or oppose building a wall on border with mexico,3 party-ID R2,0.398
 V242208,how important that more hispanics get elected to political office,4 redundant with V242210,0.918
 V242209,how important that more blacks get elected to political office,4 redundant with V242210,0.897
 V241248,7pt scale abortion: self-placement,4 redundant with V241302,0.839
@@ -20,41 +19,39 @@ V242525x,police treat blacks or whites better,4 redundant with V242522x,0.722
 V241366x,government action about rising temperatures,4 redundant with V242324x,0.709
 V241314,votes counted accurately,4 redundant with V241315,0.7
 V241234,how often can people be trusted,5 weak loading/communality,0.252
-V241315,trust election officials,5 weak loading/communality,0.35
-V241316,how often people denied right to vote,5 weak loading/communality,0.35
-V242207,how often are votes counted fairly,5 weak loading/communality,0.35
-V242430,cses6-q13: fairness of election,5 weak loading/communality,0.35
+V241315,trust election officials,5 weak loading/communality,0.352
+V241316,how often people denied right to vote,5 weak loading/communality,0.352
+V242207,how often are votes counted fairly,5 weak loading/communality,0.352
+V242430,cses6-q13: fairness of election,5 weak loading/communality,0.352
 V242215,congress pass laws that benefit contributor organization,5 weak loading/communality,0.497
 V242216,congress pass laws that benefit contributor individuals,5 weak loading/communality,0.497
-V242214,limits on campaign spending,5 weak loading/communality,0.451
+V242214,limits on campaign spending,5 weak loading/communality,0.45
 V242409,cses6-q04a: prefer democracy,5 weak loading/communality,0.741
-V242412,cses6-q04d: policies to increase women representation,5 weak loading/communality,0.608
-V242414,cses6-q05b: political decisions should be left to independent experts,5 weak loading/communality,0.317
-V242415,cses6-q05bc: political decisions should be left to citizen referendums,5 weak loading/communality,0.317
-V241322x,favor/oppose allowing felons to vote,5 weak loading/communality,0.526
-V241375x,favor/oppose banning transgender girls from k-12 girls sports,5 weak loading/communality,0.434
-V242454,cses6- q06a: national identity: to have been born in country,5 weak loading/communality,0.742
-V241308x,r favor/oppose death penalty,5 weak loading/communality,0.549
-V242248x,less or more government,5 weak loading/communality,0.5
-V242249,would it be good for society to have more or less government regulation,5 weak loading/communality,0.5
-V241369x,require employers to offer paid leave to parents of new children,5 weak loading/communality,0.6
-V242335x,summary should government do more/less about opioid drug addiction,5 weak loading/communality,0.6
-V242346x,favor/oppose free trade agreements,5 weak loading/communality,0.559
-V241451,r how much better or worse off financially than 1 year ago,5 weak loading/communality,0.387
-V242245x,does r favor/oppose affirmative action in universities,5 weak loading/communality,0.419
-V242256,not a big problem if some have more chance in life,5 weak loading/communality,0.583
-V241313,force to solve international problems,5 weak loading/communality,0.634
-V241412x,approve/disapprove of protests against war in gaza,5 weak loading/communality,0.613
-V242266x,us better or worse than most other countries,5 weak loading/communality,0.613
-V242272x,people in rural areas have too much/too little influence,5 weak loading/communality,0.608
-V242217,congress change votes because of donation to campaign,5 weak loading/communality,0.299
-V242410,cses6-q04b: courts’ authority,5 weak loading/communality,0.452
-V242234x,favor/oppose providing path to citizenship,5 weak loading/communality,0.516
-V242226x,favor/oppose new limits on imports,5 weak loading/communality,0.511
-V242279x,better/worse if man works and woman takes care of home,5 weak loading/communality,0.418
-V242361x,attention to sexual harassment as gone too far/not far,5 weak loading/communality,0.418
-V242269x,people in rural areas get more/less from government,5 weak loading/communality,0.717
-V242275x,people in rural areas get too much/too little respect,5 weak loading/communality,0.717
-V242254,society should make sure everyone has equal opportunity,5 weak loading/communality,0.336
-V242413,cses6-q05a: political decisions should be left to business leaders,5 weak loading/communality,0.381
-V242336,how often do police officers use more force than necessary,5 weak loading/communality,0.648
+V242412,cses6-q04d: policies to increase women representation,5 weak loading/communality,0.609
+V242413,cses6-q05a: political decisions should be left to business leaders,5 weak loading/communality,0.609
+V242414,cses6-q05b: political decisions should be left to independent experts,5 weak loading/communality,0.609
+V242415,cses6-q05bc: political decisions should be left to citizen referendums,5 weak loading/communality,0.609
+V241322x,favor/oppose allowing felons to vote,5 weak loading/communality,0.315
+V241375x,favor/oppose banning transgender girls from k-12 girls sports,5 weak loading/communality,0.337
+V242454,cses6- q06a: national identity: to have been born in country,5 weak loading/communality,0.74
+V241308x,r favor/oppose death penalty,5 weak loading/communality,0.555
+V242248x,less or more government,5 weak loading/communality,0.493
+V242249,would it be good for society to have more or less government regulation,5 weak loading/communality,0.493
+V242335x,summary should government do more/less about opioid drug addiction,5 weak loading/communality,0.601
+V241451,r how much better or worse off financially than 1 year ago,5 weak loading/communality,0.515
+V242245x,does r favor/oppose affirmative action in universities,5 weak loading/communality,0.5
+V242256,not a big problem if some have more chance in life,5 weak loading/communality,0.45
+V241313,force to solve international problems,5 weak loading/communality,0.67
+V241412x,approve/disapprove of protests against war in gaza,5 weak loading/communality,0.445
+V242266x,us better or worse than most other countries,5 weak loading/communality,0.445
+V242272x,people in rural areas have too much/too little influence,5 weak loading/communality,0.404
+V242410,cses6-q04b: courts’ authority,5 weak loading/communality,0.305
+V242411,cses6-q04e: attitudes about elites: strong leader in government is good,5 weak loading/communality,0.305
+V242234x,favor/oppose providing path to citizenship,5 weak loading/communality,0.731
+V242279x,better/worse if man works and woman takes care of home,5 weak loading/communality,0.381
+V242361x,attention to sexual harassment as gone too far/not far,5 weak loading/communality,0.381
+V242269x,people in rural areas get more/less from government,5 weak loading/communality,0.738
+V242275x,people in rural areas get too much/too little respect,5 weak loading/communality,0.738
+V242217,congress change votes because of donation to campaign,5 weak loading/communality,0.3
+V242346x,favor/oppose free trade agreements,5 weak loading/communality,0.52
+V242254,society should make sure everyone has equal opportunity,5 weak loading/communality,0.635
