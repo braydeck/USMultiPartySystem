@@ -1,0 +1,9 @@
+factor,r_ideology,anchor,residualized,top_items
+economy + guns + immigration,0.69,False,True,should federal government make it more difficult or easier to buy a gu (+0.76); favor/oppose background checks for gun purchases (+0.64); favor/oppose banning ‘assault-style’ rifles (+0.63)
+government waste + institutional trust,0.28,False,False,government run by a few big interests or for benefit of all (-0.75); how many in government are corrupt (-0.60); does government waste much tax money (-0.56)
+Democratic norms,0.21,False,False,how important branches of government keep one another from too (-0.82); how important elected officials face serious consequences for miscondu (-0.74); how important that people agree on basic facts (-0.67)
+"Iran, Russia, China as threats",0.16,False,False,how much is iran a threat to the united states (+0.81); how much is russia a threat to the united states (+0.79); how much is china a threat to the united states (+0.71)
+Religion and social traditionalism,0.64,True,False,gay marriage (form 1A/1B splice) (+0.88); religious attendance (spliced) (+0.68); std abortion: self-placement (-0.64)
+Trust in institutions (CSES),0.2,False,False,cses6-q07a: trust congress (-0.71); cses6-q07e: trust political parties (-0.70); [std] public officials don’t care what people think (+0.27)
+No say in government; gender attitudes,0.33,False,False,[std] have no say about what government does (-0.59); [std] public officials don’t care what people think (-0.54); how important to speak english in us (-0.32)
+Israel and Ukraine aid,0.33,False,False,how much is israel a threat to the united states (-0.58); favor/oppose u.s. giving military assistance to israel (-0.54); is it justified for people to use violence to pursue political goals (-0.52)

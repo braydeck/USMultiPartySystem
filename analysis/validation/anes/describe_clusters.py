@@ -4,12 +4,12 @@ Data: ANES 2024 Time Series CSV (2025-08-08 release), post weight V240108a.
   - Matched clusters: the production chain on the 18 crosswalk items (matched_clustering.run_chain,
     DPGMM cap 9, seed 42), n = 3,796. Party labels come from outputs/clustering/anes_clusters.csv,
     which matched_clustering.py writes; this script asserts it reproduces those cluster shares.
-  - Independent clusters: Thomson scores on the 10 factors of the independent EFA (the 96 items in
-    outputs/independent_loadings.csv), clustered with the same DPGMM settings. No residualization:
-    the independent solution has no enforcement factor to residualize on.
+  - Independent clusters: read from outputs/clustering/independent/ (independent_clustering.py:
+    culled to 4 items per factor, residualized on one anchor, DPGMM cap chosen on stability).
 Factors in both sets are oriented so that high = the end that correlates with conservative
 self-placement (V241177); factors whose |r| with ideology is under 0.10 keep their top item's sign.
-Descriptors: party ID V241227x, 2024 presidential vote V242096x, ideology V241177.
+Descriptors: party ID V241227x, 2024 presidential vote V242096x, ideology V241177, and the count of
+"haven't thought much" answers (code 99) on the six 7-point scales in SCALES_7PT.
 
 Writes outputs/clustering/cluster_profiles.json; cluster_profiles_page.py renders it.
 """
@@ -37,17 +37,21 @@ INDEPENDENT_NAMES = {
     "N6": "No say in government; gender attitudes", "N7": "Government waste and big interests",
     "N8": "Israel and Ukraine aid", "N9": "Government role in the economy", "N10": "Gun policy",
 }
+# 7-point self-placement scales that offer "haven't thought much about this" (code 99)
+SCALES_7PT = ["V241239", "V241242", "V241245", "V241252", "V241255", "V241397"]
 VOTE = {1: "Harris", 2: "Trump", 3: "Other", 4: "Other", 5: "Other", 6: "Other"}
 
 
 def descriptors():
-    d = pd.read_csv(rm.ANES_CSV, usecols=["V240001", rm.WEIGHT, "V241227x", "V242096x", "V241177"], low_memory=False)
+    d = pd.read_csv(rm.ANES_CSV, usecols=["V240001", rm.WEIGHT, "V241227x", "V242096x", "V241177"] + SCALES_7PT, low_memory=False)
     w = pd.to_numeric(d[rm.WEIGHT], errors="coerce").values
     keep = ~np.isnan(w) & (w > 0)
     pid7 = d.V241227x.where(d.V241227x.between(1, 7))
     vote = d.V242096x.map(VOTE).fillna(pd.Series(np.where(d.V242096x == -6, "No post interview", "Did not vote / missing"), index=d.index))
     ideo = d.V241177.where(d.V241177.between(1, 7))
-    return pd.DataFrame({"caseid": d.V240001, "w": w, "pid7": pid7, "vote": vote, "ideo": ideo}), keep
+    not_thought = (d[SCALES_7PT].apply(pd.to_numeric, errors="coerce") == 99).sum(axis=1)
+    return pd.DataFrame({"caseid": d.V240001, "w": w, "pid7": pid7, "vote": vote, "ideo": ideo,
+                         "not_thought": not_thought}), keep
 
 
 def orient(F, names, ideo, w, L):
@@ -85,6 +89,8 @@ def profile(cluster, desc, F, fnames, w):
             "pid_rep": float(np.average(pid[okp] >= 5, weights=ww[okp])),
             "pid7_mean": float(np.average(pid[okp], weights=ww[okp])),
             "ideo_mean": float(np.average(ideo[oki], weights=ww[oki])) if oki.any() else None,
+            "not_thought_any": float(np.average(g.not_thought.values > 0, weights=ww)),
+            "not_thought_mean": float(np.average(g.not_thought.values, weights=ww)),
             "vote": {v: float(vote.get(v, 0.0)) for v in ["Harris", "Trump", "Other", "Did not vote / missing", "No post interview"]},
             "factors": {f: float(np.average(Fz[m, j], weights=ww)) for j, f in enumerate(fnames)},
         })
@@ -125,30 +131,20 @@ def matched(desc_all, keep_w):
 
 
 def independent(desc_all, keep_w):
-    items, w, pid, cw = ie.load_pool()
-    load = pd.read_csv(me.OUT / "independent_loadings.csv", index_col=0)
-    alive = list(load.index)
-    fcols = [c for c in load.columns if c.startswith("N") and c[1:].isdigit()]
-    D = items[alive].dropna()
-    wD = w[D.index.values]
-    desc = desc_all[keep_w].reset_index(drop=True).iloc[D.index.values].reset_index(drop=True)
-    _, L, _, _, F = ie.fit_scores(D.reset_index(drop=True), wD, len(fcols))
-    # name the refit's factors by Tucker match to the committed independent loadings
-    fnames = [None] * len(fcols)
-    for m in me.cg.match_factors(load[fcols].values, L):
-        fnames[m["factor_2"]] = INDEPENDENT_NAMES[fcols[m["factor_1"]]]
-    F, L, r_ideo = orient(F, fnames, desc.ideo.values, wD, L)
-    Fs = (F - np.average(F, axis=0, weights=wD)) / np.sqrt(np.average((F - np.average(F, axis=0, weights=wD)) ** 2, axis=0, weights=wD))
-    model, raw, _ = cl.dpgmm_fit(Fs, n_components=K, max_iter=2000)
-    clu, _ = cl.remap_by_weighted_n(raw, wD, model.weights_)
-    print(f"independent: n = {len(D):,}, {len(fcols)} factors, converged = {model.converged_}, clusters = {clu.max() + 1}")
-    top = {}
-    for j, f in enumerate(fnames):
-        order = np.argsort(-np.abs(L[:, j]))[:3]
-        top[f] = [f"{cw.label[alive[i]][:70]} ({L[i, j]:+.2f})" for i in order]
-    rows = profile(clu, desc, F, fnames, wD)
-    return {"fnames": fnames, "r_ideo": r_ideo, "top_items": top, "clusters": rows,
-            "caseid": desc.caseid.values, "cluster": clu}
+    """Read the stable independent clustering written by independent_clustering.py."""
+    src = OUT / "independent"
+    lab = pd.read_csv(src / "independent_clusters.csv")
+    fac = pd.read_csv(src / "factors.csv")
+    fnames = list(fac.factor)
+    desc = lab[["caseid"]].merge(desc_all, on="caseid", how="left")
+    F = lab[[f"F_{f}" for f in fnames]].values
+    clu = lab.cluster.values
+    top = {f: t.split("; ") for f, t in zip(fnames, fac.top_items)}
+    rows = profile(clu, desc, F, fnames, desc.w.values)
+    print(f"independent: n = {len(lab):,}, {len(fnames)} factors, clusters = {clu.max() + 1}")
+    return {"fnames": fnames, "r_ideo": list(fac.r_ideology), "top_items": top, "clusters": rows,
+            "anchor": fac.factor[fac.anchor].tolist(), "residualized": fac.factor[fac.residualized].tolist(),
+            "caseid": lab.caseid.values, "cluster": clu}
 
 
 def main():

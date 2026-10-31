@@ -1,0 +1,41 @@
+item,label,factor,loading,max_cross,missing,filled
+V241389x,favor or oppose ending birthright citizenship,Immigration and diversity,-0.469,0.215,0.006,False
+V241392x,should children brought illegally be sent back or allowed to,Immigration and diversity,-0.446,0.196,0.013,False
+V241386,us government policy toward unauthorized immigrants,Immigration and diversity,-0.411,0.228,0.011,False
+V241396,how important to speak english in us,Immigration and diversity,-0.407,0.275,0.003,False
+V241235,elections make government pay attention,Trust in institutions (CSES),-0.322,0.235,0.004,False
+V241230,how often can you trust the court system to do what is right,Trust in institutions (CSES),-0.314,0.299,0.003,False
+V242417,cses6-q07a: trust congress,Trust in institutions (CSES),-0.807,0.066,0.125,True
+V242421,cses6-q07e: trust political parties,Trust in institutions (CSES),-0.784,0.111,0.125,True
+V241325,how important branches of government keep one another from t,Democratic norms,0.777,0.155,0.009,False
+V241326,how important elected officials face serious consequences fo,Democratic norms,0.738,0.136,0.006,False
+V241324,how important that news organizations free to criticize,Democratic norms,0.699,0.232,0.008,False
+V241327,how important that people agree on basic facts,Democratic norms,0.635,0.066,0.01,False
+V242368,how much is iran a threat to the united states,"Iran, Russia, China as threats",-0.799,0.072,0.128,True
+V242366,how much is russia a threat to the united states,"Iran, Russia, China as threats",-0.743,0.139,0.125,True
+V242365,how much is china a threat to the united states,"Iran, Russia, China as threats",-0.727,0.076,0.125,True
+V242343,dhs: how worried about terrorist attack in near future,"Iran, Russia, China as threats",0.505,0.169,0.121,True
+gay_marriage,gay marriage (form 1A/1B splice),Religion and social traditionalism,-0.789,0.121,0.011,False
+church,religious attendance (spliced),Religion and social traditionalism,-0.656,0.124,0.007,False
+V241302,std abortion: self-placement,Religion and social traditionalism,0.57,0.171,0.036,False
+V241378x,favor/oppose laws protect gays/lesbians against job discrimi,Religion and social traditionalism,-0.429,0.162,0.018,False
+V241608,women seek to gain power by getting control over men,No say in government; gender attitudes,0.413,0.205,0.027,False
+V241607,agree/disagree - women interpret innocent remarks as sexist,No say in government; gender attitudes,0.383,0.14,0.026,False
+V242201,[std] have no say about what government does,No say in government; gender attitudes,0.459,0.245,0.119,True
+V242200,[std] public officials don’t care what people think,No say in government; gender attitudes,0.447,0.296,0.119,True
+V241231,government run by a few big interests or for benefit of all,Government waste and big interests,0.655,0.16,0.013,False
+V241232,does government waste much tax money,Government waste and big interests,0.53,0.241,0.005,False
+V241335,how much trust in news media,Government waste and big interests,0.471,0.197,0.005,False
+V241233,how many in government are corrupt,Government waste and big interests,0.459,0.271,0.008,False
+V241403x,favor/oppose u.s. giving military assistance to israel,Israel and Ukraine aid,-0.538,0.271,0.017,False
+V241312x,country would be better off if we just stayed home,Israel and Ukraine aid,0.408,0.185,0.015,False
+V242370,how much is israel a threat to the united states,Israel and Ukraine aid,-0.541,0.165,0.128,True
+V241579,is it justified for people to use violence to pursue politic,Israel and Ukraine aid,-0.436,0.376,0.017,True
+V241290x,"summary approve/disapprove diversity, equity, and inclusion ",Government role in the economy,-0.397,0.251,0.022,False
+V241369x,require employers to offer paid leave to parents of new chil,Government role in the economy,-0.356,0.176,0.006,False
+V241577,need to be more sensitive talking or people too easily offen,Government role in the economy,-0.338,0.202,0.022,False
+V241239,7pt scale spending & services: self- placement,Government role in the economy,0.639,0.108,0.145,True
+V242325,should federal government make it more difficult or easier t,Gun policy,0.703,0.195,0.122,True
+V242328x,favor/oppose background checks for gun purchases,Gun policy,0.698,0.112,0.121,True
+V242331x,favor/oppose banning ‘assault-style’ rifles,Gun policy,0.618,0.155,0.124,True
+V242527,how much influence do blacks have in us politics,Gun policy,-0.458,0.296,0.14,True

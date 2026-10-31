@@ -1,0 +1,24 @@
+[1] culled to 40 items (15 filled past the coverage/cross-loading screen)
+    listwise n = 3,614 (99 items: 2,697; post-weighted respondents: 5,276)
+[2] parallel analysis k = 8; similarity to the 99-item factors: {'Trust in institutions (CSES)': 0.94, 'Democratic norms': 0.99, 'Iran, Russia, China as threats': 0.99, 'Religion and social traditionalism': 0.96, 'No say in government; gender attitudes': 0.86, 'Government waste and big interests': 0.96, 'Israel and Ukraine aid': 0.95, 'Gun policy': 0.83}; named ['economy + guns + immigration', 'government waste + institutional trust', 'Democratic norms', 'Iran, Russia, China as threats', 'Religion and social traditionalism', 'Trust in institutions (CSES)', 'No say in government; gender attitudes', 'Israel and Ukraine aid']
+[3] anchor Religion and social traditionalism; residualized on it: ['economy + guns + immigration (r +0.54)']
+    largest |r| after residualizing: 0.38
+[4] stability by cap:
+  K  effective_clusters_median  seed_ari_mean  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
+ 5                          5          0.952            2                  0.95              0.600         1            0
+ 6                          6          0.834            4                  0.75              0.494         1            1
+ 7                          7          0.699            8                  0.55              0.429         0            5
+ 8                          8          0.663           12                  0.25              0.455         0            4
+ 9                          9          0.657            9                  0.35              0.417         0            5
+10                         10          0.618           14                  0.15              0.413         0            6
+    kept cap 5: seed 48, 5 clusters, modal solution reached by 19 of 20 seeds
+[5] drop one factor at cap 5 (mean ARI vs the full fit, seeds 42-51); seed-to-seed baseline 0.95:
+                                 factor   ari
+    Religion and social traditionalism 0.280
+government waste + institutional trust 0.588
+                      Democratic norms 0.604
+                Israel and Ukraine aid 0.618
+          economy + guns + immigration 0.625
+          Trust in institutions (CSES) 0.719
+        Iran, Russia, China as threats 0.792
+No say in government; gender attitudes 0.924

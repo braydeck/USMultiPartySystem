@@ -1,0 +1,7 @@
+K,effective_clusters_median,seed_ari_mean,n_solutions,modal_solution_share,resample_ari_mean,n_stable,n_dissolved
+5,5,0.952,2,0.95,0.6,1,0
+6,6,0.834,4,0.75,0.494,1,1
+7,7,0.699,8,0.55,0.429,0,5
+8,8,0.663,12,0.25,0.455,0,4
+9,9,0.657,9,0.35,0.417,0,5
+10,10,0.618,14,0.15,0.413,0,6

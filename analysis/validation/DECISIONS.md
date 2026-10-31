@@ -65,3 +65,12 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   (`V241395x`, R² 0.40), which now loads on the immigration factor. All 10 independent factors match
   the capped fit (Tucker φ 0.99–1.00). The redundancy tie-break (keep the less partisan twin) stays,
   as in CES.
+- **The independent ANES clustering is culled, residualized and stabilized before it is read**
+  (`anes/independent_clustering.py`):
+  - **Cull:** 4 items per factor, chosen by a rule fixed in advance (highest loading, no cross-loading
+    ≥ 0.30, ≤ 5% missing).
+  - **Factor count:** parallel analysis re-picks k on the culled items rather than holding 10.
+  - **Residualization:** CES-style, one anchor. The anchor is the factor most correlated with the
+    others, and factors with |r| ≥ 0.40 with it are residualized on it.
+  - **Factors clustered:** all of them, none hand-excluded.
+  - **Cluster count:** the DPGMM cap is chosen on seed and resample stability, as in `fair_compare.py`.

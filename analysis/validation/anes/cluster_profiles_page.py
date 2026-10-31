@@ -63,10 +63,10 @@ def cluster_table(S, prefix, show_party):
             f'<div class="cap">{pct(c["pid_dem"])} D · {pct(c["pid_rep"])} R</div></td>'
             f'<td>{stack([("Harris", "d", v["Harris"]), ("Trump", "r", v["Trump"]), ("Other", "i", v["Other"]), ("Did not vote or no data", "nv", nv)])}'
             f'<div class="cap">{pct(v["Harris"])} Harris · {pct(v["Trump"])} Trump · {pct(nv)} no vote</div></td>'
-            f'<td class="num">{c["ideo_mean"]:.1f}</td>'
+            f'<td class="num">{c["ideo_mean"]:.1f}</td><td class="num">{pct(c["not_thought_any"])}</td>'
             + "".join(cell(c["factors"][f]) for f in fn) + "</tr>")
     return (f'<div class="scroll"><table><thead><tr><th>Cluster</th><th>Share</th><th>n</th>{party_h}<th>Party ID</th>'
-            f'<th>2024 vote</th><th>Ideology (1–7)</th>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>')
+            f'<th>2024 vote</th><th>Ideology (1–7)</th><th title="Share answering haven\'t thought much on at least one of six 7-point scales">Haven\'t thought much</th>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>')
 
 
 def factor_key(S):
@@ -140,13 +140,13 @@ table.items td.lab{{font-size:12px;max-width:320px}} .legend{{font-size:12px;col
 </style></head><body><main>
 <h1>ANES 2024 clusters, two ways</h1>
 <p>Matched clusters run the production CES chain on the 18 items ANES shares with the CES typology (n = {nM:,}).
-Independent clusters use ANES's own 10 factors from its 96-item screened pool (n = {nI:,}, respondents complete on all 96).
-Both use the same DPGMM, capped at 9 clusters; respondents in components holding under 1% of the weight are left unassigned ({D["unassigned"]["matched"]:,} matched, {D["unassigned"]["independent"]:,} independent). Rows are ordered from most Democratic to most Republican party ID.</p>
+Independent clusters use ANES's own factors, refit on 4 items per factor (n = {nI:,}, respondents complete on those 40 items),
+with the cluster count chosen on seed and resample stability ({len(I["clusters"])} clusters). Matched clusters use the DPGMM capped at 9; respondents in components holding under 1% of the weight are left unassigned ({D["unassigned"]["matched"]:,} matched, {D["unassigned"]["independent"]:,} independent). Rows are ordered from most Democratic to most Republican party ID.</p>
 <div class="legend"><span><span class="sw" style="background:var(--d)"></span>Democrat / Harris</span>
 <span><span class="sw" style="background:var(--i)"></span>Independent / other candidate</span>
 <span><span class="sw" style="background:var(--r)"></span>Republican / Trump</span>
 <span><span class="sw" style="background:var(--nv)"></span>Did not vote or no post-election data</span>
-<span>Factor cells: SD from the ANES mean, blue = liberal end, red = conservative end. Trust in institutions (CSES) has no ideological lean (r −0.04), so its direction follows its top item. Hover a factor name for its top items.</span></div>
+<span>Factor cells: SD from the ANES mean, blue = liberal end, red = conservative end. A factor with almost no ideological lean (|r| under 0.10) follows its top item's direction instead. Hover a factor name for its top items.</span></div>
 
 <h2>Matched: 18 CES items</h2>
 <p>"Nearest CES party" is the CES party whose centroid sits closest in the same factor space. On CES subsamples of this size that label names the right party for 69% of respondents.</p>
@@ -155,7 +155,7 @@ Both use the same DPGMM, capped at 9 clusters; respondents in components holding
 {item_table(M)}
 
 <h2>Independent: ANES's own factors</h2>
-<p>These clusters have no CES party label, because their factors are ANES's own.</p>
+<p>These clusters have no CES party label, because their factors are ANES's own. The {", ".join(I["residualized"])} factor is clustered net of {", ".join(I["anchor"])}, the factor most correlated with the others; the cells show scores before that adjustment.</p>
 {cluster_table(I, "I", False)}
 {factor_key(I)}
 
