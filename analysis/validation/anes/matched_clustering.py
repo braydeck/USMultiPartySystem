@@ -1,13 +1,15 @@
 """Cluster ANES 2024 on the matched factors, with a CES subsample benchmark at ANES's n.
 
 Data: CES 2024 Common Content (UNTRACKED/CES Data/2024, canonical recode from
-analysis/efa/previous_years/wave_2024/reproduce_gate.py, listwise n = 45,707, production
-parties from data/processed/typology_cluster_assignments.csv joined by position); ANES 2024
+analysis/efa/previous_years/wave_2024/reproduce_gate.py, listwise n = 45,214, production
+parties from data/processed/typology_cluster_assignments.csv joined by position, live party
+codes from pipeline/party_codes.py); ANES 2024
 matched set (config/anes_matched_crosswalk.csv, n = 3,796).
 
 Every fit runs the production chain from reproduce_gate.py: weighted polychoric -> PAF k=5 +
 oblimin -> Thomson scores -> partisan sign-align -> religion/values factors residualized on the
-enforcement factor (anchors CC24_323b, pew_churatd, CC24_440b) -> 10-component DPGMM, seed 42.
+enforcement factor (anchors CC24_323b, pew_churatd, CC24_440b) -> DPGMM capped at the live party
+count (9), max_iter 2000 as in dpgmm_clustering.py, one seed (42) rather than production's 20.
 
   1. CES full sample on the 18 matched items: party survival from dropping 6 items alone.
   2. Benchmark: 100 simple random CES subsamples of n = 3,796 (seed 42), on the 18 items and on
@@ -34,11 +36,15 @@ from common import congruence as cg
 from common import efa_math as em
 
 sys.path.insert(0, str(me.ROOT / "analysis" / "efa" / "previous_years" / "wave_2024"))
+sys.path.insert(0, str(me.ROOT / "pipeline"))
 import reproduce_gate as rg  # noqa: E402
+import party_codes as pc  # noqa: E402
 
 OUT = me.OUT / "clustering"
 N_SUB, N_REP, SEED = 3796, 100, 42
-PARTIES = cl.PARTY_CODES
+PARTIES = pc.ALL_PARTIES
+LIVE = pc.LIVE_CLUSTERS
+K = len(LIVE)
 ANCHORS = ("CC24_323b", "pew_churatd", "CC24_440b")
 
 
@@ -58,7 +64,7 @@ def run_chain(D, w, pid3, ids):
     X = F.copy()
     for j in {rel, val} - {enf}:
         X[:, j] = em.wresid(F[:, j], F[:, enf], w)
-    model, raw, _ = cl.dpgmm_fit(X)
+    model, raw, _ = cl.dpgmm_fit(X, n_components=K, max_iter=2000)
     cluster, _ = cl.remap_by_weighted_n(raw, w, model.weights_)
     X = (X - np.average(X, axis=0, weights=w)) / np.sqrt(np.average((X - np.average(X, axis=0, weights=w)) ** 2, axis=0, weights=w))
     return L, X, cluster
@@ -68,7 +74,7 @@ def survival(cluster, party, w):
     rows = []
     ok = cluster >= 0
     ct = pd.crosstab(party[ok], cluster[ok], values=w[ok], aggfunc="sum").fillna(0)
-    for p in range(len(PARTIES)):
+    for p in LIVE:
         if p not in ct.index:
             continue
         row = ct.loc[p]
@@ -92,32 +98,28 @@ def label_clusters(Xa, cluster, w, party_centroids):
     n = cluster.max() + 1
     C = cl.weighted_centroids(Xa, cluster, w, n)
     dist = np.linalg.norm(C[:, None, :] - party_centroids[None, :, :], axis=2)
-    nearest = dist.argmin(axis=1)
+    nearest = np.array(LIVE)[dist.argmin(axis=1)]
     ri, ci = linear_sum_assignment(dist)
-    hung = dict(zip(ri, ci))
+    hung = {r: LIVE[c] for r, c in zip(ri, ci)}
     return C, dist, nearest, hung
 
 
 def load_ces():
-    """Production labels attach by position on production's own mask (efa_update.py reads raw
-    numeric codes, ITEMS_24 + commonpostweight notna -> 45,707). Item values come from the
-    label-based canonical recode, which also sets Don't-know codes to missing, so rows that
-    production kept as numeric codes are then dropped."""
-    num = pd.read_stata(str(rg.DTA), columns=rg.ITEMS + ["commonpostweight"], convert_categoricals=False)
-    prod_mask = num[rg.ITEMS + ["commonpostweight"]].notna().all(axis=1).values
+    """Production labels attach by position. efa_update.py codes items from their value labels
+    and drops non-substantive answers, the same as the canonical recode here, so both masks keep
+    ITEMS_24 + commonpostweight complete cases (45,214)."""
     df = pd.read_stata(str(rg.DTA), columns=rg.ITEMS + ["commonpostweight", "pid3"],
                        convert_categoricals=True, convert_missing=False, convert_dates=False)
     R = rg.canonical_recode(df)
     R["w"] = pd.to_numeric(df["commonpostweight"], errors="coerce").values
     R["pid3"] = df["pid3"].map({"Democrat": 1, "Republican": 2, "Independent": 3, "Other": 4, "Not sure": 5}).values
     prod = pd.read_csv(me.ROOT / "data" / "processed" / "typology_cluster_assignments.csv", usecols=["cluster", "commonpostweight"])
-    assert prod_mask.sum() == len(prod), "production mask does not reproduce 45,707"
+    prod_mask = (R[rg.ITEMS].notna().all(axis=1) & R.w.notna()).values
+    assert prod_mask.sum() == len(prod), f"recode keeps {prod_mask.sum():,} rows, production has {len(prod):,}"
     R = R[prod_mask].reset_index(drop=True)
     assert np.allclose(prod.commonpostweight.values, R.w.values), "positional join broken"
-    R["party"] = prod.cluster.values
-    clean = R[rg.ITEMS].notna().all(axis=1)
-    print(f"production rows {len(R):,}; dropped {int((~clean).sum()):,} whose items are non-substantive codes", flush=True)
-    return R[clean].reset_index(drop=True)
+    R["party"] = prod.cluster.values.astype(int)
+    return R
 
 
 def main():
@@ -138,7 +140,7 @@ def main():
     surv_full = survival(clu_ref, party, w)
     surv_full.to_csv(OUT / "ces18_fullsample_survival.csv", index=False)
     print("\n[1] CES full sample, 18 items:\n", surv_full.to_string(index=False))
-    party_centroids = cl.weighted_centroids(X_ref, party, w, len(PARTIES))
+    party_centroids = cl.weighted_centroids(X_ref, party, w, max(LIVE) + 1)[LIVE]
 
     rng = np.random.default_rng(SEED)
     reps, calib = [], []
@@ -196,15 +198,15 @@ def main():
         h = hung.get(k)
         rows.append({"anes_cluster": k, "share": wa[m].sum() / wa.sum(), "dem": np.average(pa[m] == 1, weights=wa[m]),
                      "rep": np.average(pa[m] == 2, weights=wa[m]), "nearest_party": PARTIES[nearest[k]],
-                     "nearest_dist": dist[k, nearest[k]], "hungarian_party": PARTIES[h] if h is not None else None,
-                     "hungarian_dist": dist[k, h] if h is not None else np.nan,
+                     "nearest_dist": dist[k].min(), "hungarian_party": PARTIES[h] if h is not None else None,
+                     "hungarian_dist": dist[k, LIVE.index(h)] if h is not None else np.nan,
                      "party_ces_share": ces_mix.ces_share[h] if h is not None else np.nan,
                      "party_ces_dem": ces_mix.ces_dem[h] if h is not None else np.nan,
                      "party_ces_rep": ces_mix.ces_rep[h] if h is not None else np.nan})
     anes = pd.DataFrame(rows).round(3)
     anes.to_csv(OUT / "anes_clusters.csv", index=False)
     pd.DataFrame(C, columns=[f"F{j + 1}" for j in range(5)]).round(3).to_csv(OUT / "anes_cluster_centroids.csv")
-    pd.DataFrame(party_centroids, index=PARTIES, columns=[f"F{j + 1}" for j in range(5)]).round(3).to_csv(
+    pd.DataFrame(party_centroids, index=[PARTIES[p] for p in LIVE], columns=[f"F{j + 1}" for j in range(5)]).round(3).to_csv(
         OUT / "ces18_party_centroids.csv")
     print(f"\n[3] ANES clusters (n = {len(A):,}):\n", anes.to_string(index=False))
 

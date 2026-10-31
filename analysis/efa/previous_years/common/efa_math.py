@@ -13,8 +13,8 @@ import warnings
 warnings.filterwarnings("ignore")
 import numpy as np
 from scipy.optimize import minimize_scalar
+from scipy.special import owens_t
 from scipy.stats import norm
-from scipy.stats import multivariate_normal as mvn
 
 BIG = 6.5
 
@@ -153,6 +153,22 @@ def wresid(y, x, w):
 
 
 # ── Weighted polychoric correlation (single pair) ────────────────────────────
+def bvn_cdf(h, k, rho):
+    """Exact standard bivariate normal CDF P(X<=h, Y<=k) via Owen's T (Owen 1956).
+
+    Replaces scipy's multivariate_normal.cdf, a randomized quasi-Monte Carlo integral whose
+    error (up to ~0.01 in a correlation) differed on every run."""
+    h = np.asarray(h, float)
+    k = np.asarray(k, float)
+    s = np.sqrt(1.0 - rho * rho)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        a_h = np.where(h == 0, np.where(k == 0, 0.0, np.sign(k) * np.inf), (k - rho * h) / (h * s))
+        a_k = np.where(k == 0, np.where(h == 0, 0.0, np.sign(h) * np.inf), (h - rho * k) / (k * s))
+    beta = np.where((h * k < 0) | ((h * k == 0) & (h + k < 0)), 0.5, 0.0)
+    cdf = 0.5 * (norm.cdf(h) + norm.cdf(k)) - owens_t(h, a_h) - owens_t(k, a_k) - beta
+    return np.where((h == 0) & (k == 0), 0.25 + np.arcsin(rho) / (2 * np.pi), cdf)
+
+
 def weighted_polychoric(x, y, wts):
     mask = ~(np.isnan(x) | np.isnan(y))
     x_, y_, w_ = x[mask], y[mask], wts[mask]
@@ -175,10 +191,8 @@ def weighted_polychoric(x, y, wts):
     tau_y = np.concatenate([[-BIG], norm.ppf(np.clip(np.cumsum(y_marg)[:-1], 1e-7, 1 - 1e-7)), [BIG]])
 
     def neg_log_lik(rho):
-        cov = [[1.0, rho], [rho, 1.0]]
         H, K = np.meshgrid(tau_x, tau_y, indexing="ij")
-        pts = np.column_stack([H.ravel(), K.ravel()])
-        cdf = mvn(mean=[0, 0], cov=cov).cdf(pts).reshape(nx + 1, ny + 1)
+        cdf = bvn_cdf(H, K, rho)
         P = np.diff(np.diff(cdf, axis=0), axis=1)
         P = np.maximum(P, 1e-12)
         return -np.sum(ct * np.log(P))

@@ -1,31 +1,28 @@
-production rows 45,707; dropped 493 whose items are non-substantive codes
 CES listwise n = 45,214; matched items = 18
 
-[0] CES full sample, 24 items (ARI vs production 0.49):
+[0] CES full sample, 24 items (ARI vs production 0.73):
  party  best_cluster  purity  cluster_share  verdict
-  CON             1   0.704          0.811 SURVIVES
-  LBR             3   0.475          0.649   splits
-  STY             0   0.777          0.547 SURVIVES
-  NAT             5   0.858          0.944 SURVIVES
-  LIB             6   0.648          0.776 SURVIVES
-  POP             2   0.837          0.656 SURVIVES
-  CUP             4   0.608          0.553 SURVIVES
-  OAO             7   0.652          0.557 SURVIVES
-  DSA             8   0.775          0.851 SURVIVES
-  PRG             9   0.830          0.869 SURVIVES
+  CON             0   0.954          0.884 SURVIVES
+  LBR             2   0.879          0.807 SURVIVES
+  STY             1   0.933          0.953 SURVIVES
+  NAT             5   0.985          0.984 SURVIVES
+  DAL             4   0.543          0.433   splits
+  POP             3   0.941          0.948 SURVIVES
+  CUP             6   0.629          0.751 SURVIVES
+  DSA             7   0.802          0.877 SURVIVES
+  PRG             4   0.884          0.507 SURVIVES
 
 [1] CES full sample, 18 items:
  party  best_cluster  purity  cluster_share   verdict
-  CON             2   0.417          0.670    splits
-  LBR             7   0.225          0.470    splits
-  STY             1   0.479          0.383    splits
-  NAT             4   0.683          0.600  SURVIVES
-  LIB             3   0.311          0.242    splits
-  POP             1   0.675          0.392 merges-in
-  CUP             0   0.282          0.132    splits
-  OAO             0   0.882          0.299 merges-in
-  DSA             3   0.535          0.271    splits
-  PRG             8   0.487          0.448    splits
+  CON             0   0.310          0.341    splits
+  LBR             3   0.379          0.307    splits
+  STY             1   0.500          0.508    splits
+  NAT             0   0.992          0.504  SURVIVES
+  DAL             2   0.460          0.222    splits
+  POP             6   0.397          0.799    splits
+  CUP             2   0.257          0.169    splits
+  DSA             3   0.729          0.325 merges-in
+  PRG             4   0.926          0.473 merges-in
   benchmark 10/100
   benchmark 20/100
   benchmark 30/100
@@ -39,40 +36,37 @@ CES listwise n = 45,214; matched items = 18
 
 [2] Benchmark, share of 100 CES subsamples (n = 3,796):
     items party  SURVIVES  splits  merges-in
-18 items   CON      0.07    0.87       0.06
-18 items   CUP      0.00    1.00       0.00
-18 items   DSA      0.11    0.17       0.72
+18 items   CON      0.02    0.93       0.05
+18 items   CUP      0.00    0.99       0.01
+18 items   DAL      0.20    0.60       0.20
+18 items   DSA      0.10    0.15       0.75
 18 items   LBR      0.00    1.00       0.00
-18 items   LIB      0.01    0.93       0.06
-18 items   NAT      0.41    0.16       0.43
-18 items   OAO      0.00    0.65       0.35
-18 items   POP      0.03    0.92       0.05
-18 items   PRG      0.05    0.19       0.76
-18 items   STY      0.00    0.99       0.01
-24 items   CON      0.18    0.81       0.01
-24 items   CUP      0.00    0.98       0.02
-24 items   DSA      0.29    0.20       0.51
-24 items   LBR      0.00    1.00       0.00
-24 items   LIB      0.11    0.85       0.04
-24 items   NAT      0.57    0.11       0.32
-24 items   OAO      0.11    0.58       0.31
-24 items   POP      0.18    0.75       0.07
-24 items   PRG      0.15    0.18       0.67
-24 items   STY      0.11    0.80       0.09
-clusters per subsample: {'mean': {'18 items': 9.8, '24 items': 10.0}, 'min': {'18 items': 8.0, '24 items': 9.0}, 'max': {'18 items': 10.0, '24 items': 10.0}}
-label method 'nearest' names the cluster's plurality party for 61% of subsample weight
-label method 'hungarian' names the cluster's plurality party for 56% of subsample weight
-Hungarian hit rate by true party: {'CON': 0.4, 'CUP': 0.82, 'DSA': 0.5, 'LBR': 0.34, 'LIB': 0.45, 'NAT': 0.87, 'OAO': 0.81, 'POP': 0.71, 'PRG': 0.91, 'STY': 0.51}
+18 items   NAT      0.31    0.15       0.54
+18 items   POP      0.04    0.90       0.06
+18 items   PRG      0.04    0.25       0.71
+18 items   STY      0.02    0.97       0.01
+24 items   CON      0.24    0.72       0.04
+24 items   CUP      0.02    0.88       0.10
+24 items   DAL      0.28    0.67       0.05
+24 items   DSA      0.29    0.17       0.54
+24 items   LBR      0.01    0.99       0.00
+24 items   NAT      0.46    0.07       0.47
+24 items   POP      0.19    0.76       0.05
+24 items   PRG      0.15    0.16       0.69
+24 items   STY      0.16    0.84       0.00
+clusters per subsample: {'mean': {'18 items': 9.0, '24 items': 9.0}, 'min': {'18 items': 8.0, '24 items': 9.0}, 'max': {'18 items': 9.0, '24 items': 9.0}}
+label method 'nearest' names the cluster's plurality party for 69% of subsample weight
+label method 'hungarian' names the cluster's plurality party for 57% of subsample weight
+Hungarian hit rate by true party: {'CON': 0.37, 'CUP': 0.79, 'DAL': 0.82, 'DSA': 0.52, 'LBR': 0.49, 'NAT': 0.91, 'POP': 0.71, 'PRG': 0.91, 'STY': 0.39}
 
 [3] ANES clusters (n = 3,796):
   anes_cluster  share   dem   rep nearest_party  nearest_dist hungarian_party  hungarian_dist  party_ces_share  party_ces_dem  party_ces_rep
-            0  0.193 0.772 0.004           LIB         0.448             PRG           0.670            0.057          0.745          0.002
-            1  0.187 0.082 0.602           CON         1.030             CON           1.030            0.193          0.104          0.582
-            2  0.159 0.078 0.574           POP         0.586             POP           0.586            0.089          0.099          0.458
-            3  0.126 0.446 0.110           LBR         0.680             LBR           0.680            0.140          0.543          0.071
-            4  0.078 0.644 0.075           OAO         0.464             OAO           0.464            0.062          0.450          0.260
-            5  0.069 0.597 0.055           LIB         0.737             LIB           0.737            0.093          0.689          0.036
-            6  0.061 0.161 0.347           POP         1.199             STY           1.488            0.122          0.365          0.175
-            7  0.053 0.491 0.168           LBR         1.419             CUP           1.532            0.086          0.252          0.441
-            8  0.050 0.065 0.743           NAT         1.067             NAT           1.067            0.098          0.012          0.598
-            9  0.024 0.318 0.251           STY         1.905             DSA           2.573            0.061          0.617          0.000
+            0  0.193 0.771 0.005           LBR         0.551             PRG           0.614            0.059          0.738          0.002
+            1  0.193 0.156 0.449           POP         1.053             STY           1.172            0.174          0.411          0.165
+            2  0.186 0.098 0.596           CON         0.953             CON           0.953            0.205          0.129          0.567
+            3  0.137 0.441 0.143           LBR         0.884             DSA           1.552            0.059          0.639          0.000
+            4  0.077 0.620 0.046           LBR         0.839             LBR           0.839            0.107          0.623          0.030
+            5  0.073 0.613 0.078           DAL         0.952             DAL           0.952            0.082          0.722          0.041
+            6  0.064 0.203 0.355           POP         1.119             POP           1.119            0.110          0.113          0.401
+            7  0.051 0.046 0.761           NAT         0.901             NAT           0.901            0.094          0.007          0.606
+            8  0.026 0.201 0.492           CON         1.915             CUP           2.357            0.111          0.242          0.429

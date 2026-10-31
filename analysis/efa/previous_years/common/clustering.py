@@ -16,13 +16,13 @@ from scipy.optimize import linear_sum_assignment
 PARTY_CODES = ["CON", "LBR", "STY", "NAT", "LIB", "POP", "CUP", "OAO", "DSA", "PRG"]
 
 
-def dpgmm_fit(X, n_components=10, seed=42):
+def dpgmm_fit(X, n_components=10, seed=42, max_iter=500):
     """Fit the production DPGMM (unweighted, per sklearn limitation). Returns the
     fitted model plus raw predict labels and probabilities."""
     m = BayesianGaussianMixture(
         n_components=n_components, covariance_type="full",
         weight_concentration_prior_type="dirichlet_process",
-        n_init=5, max_iter=500, random_state=seed,
+        n_init=5, max_iter=max_iter, random_state=seed,
     ).fit(X)
     return m, m.predict(X), m.predict_proba(X)
 

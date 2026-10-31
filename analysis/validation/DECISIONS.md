@@ -46,3 +46,13 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   clustering outputs committed before 69a6eeb use the ten-party labels and must be rerun before they
   are cited. The matched and independent EFAs stand: their CES inputs changed only by Populist
   Conservatism's sign (checked 2026-10-30, see NEXT.md).
+
+## 2026-10-30
+
+- **The polychoric uses an exact bivariate-normal CDF** (Owen's T, `efa_math.bvn_cdf`) instead of
+  `scipy.stats.multivariate_normal.cdf`. Under the project `.venv` (scipy 1.17) the old call was already
+  exact, so no committed output moves (largest CDF difference 2e-16). Under the system Python (scipy
+  1.16) it was a randomized integral that changed on every run. The fix makes results independent of
+  which interpreter runs them.
+- **The ANES clustering benchmark caps the DPGMM at the live party count (9)** and takes party codes
+  from `pipeline/party_codes.py`, matching the nine-party typology.
