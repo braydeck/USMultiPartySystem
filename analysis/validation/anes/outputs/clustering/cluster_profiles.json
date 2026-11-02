@@ -482,200 +482,200 @@
    "Trust in institutions (CSES)",
    "Democratic norms",
    "Iran, Russia, China as threats",
-   "Government waste and big interests",
-   "Religion and social traditionalism",
    "No say in government; gender attitudes",
+   "Religion and social traditionalism",
    "Israel and Ukraine aid",
-   "Gun policy",
-   "Government role in the economy"
+   "Government waste and big interests",
+   "Government role in the economy",
+   "Gun policy"
   ],
   "r_ideo": [
-   0.72,
-   -0.07,
-   0.22,
-   0.2,
-   0.28,
    0.66,
-   0.39,
-   0.13,
-   0.55,
-   0.64
+   -0.08,
+   0.26,
+   0.22,
+   0.41,
+   0.64,
+   -0.06,
+   0.41,
+   0.67,
+   0.53
   ],
   "top_items": {
    "Immigration and diversity": [
-    "favor or oppose ending birthright citizenship (-0.68)",
-    "should children brought illegally be sent back or allowed to stay (-0.64)",
-    "are immigrants generally good or bad for america\u2019s economy (+0.62)"
+    "are immigrants generally good or bad for america\u2019s economy (+0.62)",
+    "what should immigration levels be (+0.55)",
+    "how important that more asians get elected to political office (+0.50)"
    ],
    "Trust in institutions (CSES)": [
     "cses6-q07a: trust congress (+0.83)",
-    "cses6-q07e: trust political parties (+0.79)",
-    "cses6-q07b: trust government (+0.76)"
+    "cses6-q07e: trust political parties (+0.75)",
+    "cses6-q07b: trust government (+0.72)"
    ],
    "Democratic norms": [
-    "how important branches of government keep one another from too (-0.78)",
-    "how important elected officials face serious consequences for miscondu (-0.74)",
-    "how important that news organizations free to criticize (-0.66)"
+    "how important branches of government keep one another from too (-0.80)",
+    "how important elected officials face serious consequences for miscondu (-0.73)",
+    "how important that news organizations free to criticize (-0.71)"
    ],
    "Iran, Russia, China as threats": [
-    "how much is iran a threat to the united states (+0.79)",
-    "how much is russia a threat to the united states (+0.75)",
-    "how much is china a threat to the united states (+0.71)"
-   ],
-   "Government waste and big interests": [
-    "government run by a few big interests or for benefit of all (-0.65)",
-    "how often trust government in washington to do what is right [revised] (+0.50)",
-    "does government waste much tax money (-0.43)"
-   ],
-   "Religion and social traditionalism": [
-    "gay marriage (form 1A/1B splice) (+0.80)",
-    "religious attendance (spliced) (+0.75)",
-    "std abortion: self-placement (-0.62)"
+    "how much is iran a threat to the united states (+0.76)",
+    "how much is russia a threat to the united states (+0.74)",
+    "how much is china a threat to the united states (+0.70)"
    ],
    "No say in government; gender attitudes": [
-    "[std] have no say about what government does (-0.52)",
-    "[std] public officials don\u2019t care what people think (-0.49)",
-    "women seek to gain power by getting control over men (-0.46)"
+    "[std] have no say about what government does (-0.43)",
+    "women seek to gain power by getting control over men (-0.42)",
+    "do women demanding equality seek special favors (-0.41)"
+   ],
+   "Religion and social traditionalism": [
+    "gay marriage (form 1A/1B splice) (+0.71)",
+    "religious attendance (spliced) (+0.61)",
+    "which child trait more important: obedience or self-reliance (-0.60)"
    ],
    "Israel and Ukraine aid": [
-    "favor/oppose u.s. giving military assistance to israel (-0.62)",
-    "how much is israel a threat to the united states (-0.60)",
-    "favor/oppose u.s. giving weapons to help ukraine fight russia (-0.53)"
+    "how much is israel a threat to the united states (+0.53)",
+    "favor/oppose u.s. giving military assistance to israel (+0.51)",
+    "favor/oppose u.s. giving weapons to help ukraine fight russia (+0.50)"
    ],
-   "Gun policy": [
-    "favor/oppose background checks for gun purchases (+0.75)",
-    "should federal government make it more difficult or easier to buy a gu (+0.72)",
-    "favor/oppose banning \u2018assault-style\u2019 rifles (+0.65)"
+   "Government waste and big interests": [
+    "government run by a few big interests or for benefit of all (-0.69)",
+    "does government waste much tax money (-0.54)",
+    "how often trust government in washington to do what is right [revised] (+0.52)"
    ],
    "Government role in the economy": [
-    "7pt scale spending & services: self- placement (-0.57)",
-    "7pt scale guaranteed job-income scale: self-placement (+0.57)",
-    "should the minimum wage be raised, kept the same, or lowered (+0.44)"
+    "7pt scale guaranteed job-income scale: self-placement (+0.66)",
+    "7pt scale spending & services: self- placement (-0.64)",
+    "should the minimum wage be raised, kept the same, or lowered (+0.61)"
+   ],
+   "Gun policy": [
+    "favor/oppose background checks for gun purchases (+0.67)",
+    "should federal government make it more difficult or easier to buy a gu (+0.66)",
+    "favor/oppose banning \u2018assault-style\u2019 rifles (+0.58)"
    ]
   },
   "clusters": [
    {
     "cluster": 0,
-    "n": 984,
-    "share": 0.3028210255525729,
-    "pid_dem": 0.061679274083405865,
-    "pid_ind": 0.02115904693133703,
-    "pid_rep": 0.917161678985257,
-    "pid7_mean": 5.935677058888727,
-    "ideo_mean": 5.554454784257248,
-    "not_thought_any": 0.09427387908350113,
-    "not_thought_mean": 0.11715435052381337,
+    "n": 1592,
+    "share": 0.34443533278676963,
+    "pid_dem": 0.6226808370192358,
+    "pid_ind": 0.08027972849237909,
+    "pid_rep": 0.2970394344883852,
+    "pid7_mean": 3.238360295211956,
+    "ideo_mean": 3.832427868227927,
+    "not_thought_any": 0.3872480699450728,
+    "not_thought_mean": 0.830303034311193,
     "vote": {
-     "Harris": 0.05078248880175488,
-     "Trump": 0.7876101829527375,
-     "Other": 0.01629567956411314,
-     "Did not vote / missing": 0.14531164868139446,
+     "Harris": 0.5557899946845544,
+     "Trump": 0.19727045473880994,
+     "Other": 0.03577749701513518,
+     "Did not vote / missing": 0.21116205356150053,
      "No post interview": 0.0
     },
     "factors": {
-     "Immigration and diversity": 0.8213592106718943,
-     "Trust in institutions (CSES)": -0.09735865022741283,
-     "Democratic norms": -0.029200484183468888,
-     "Iran, Russia, China as threats": 0.306214142236153,
-     "Government waste and big interests": 0.4622105238749849,
-     "Religion and social traditionalism": 0.9005055948250261,
-     "No say in government; gender attitudes": 0.3768764335958397,
-     "Israel and Ukraine aid": 0.40664868285855027,
-     "Gun policy": 0.7422458969953653,
-     "Government role in the economy": 0.9771991247959441
+     "Immigration and diversity": -0.09470735529840979,
+     "Trust in institutions (CSES)": -0.09021837943486365,
+     "Democratic norms": 0.09808989389390983,
+     "Iran, Russia, China as threats": -0.008167898128416255,
+     "No say in government; gender attitudes": 0.05199648524161362,
+     "Religion and social traditionalism": -0.09235868661115211,
+     "Israel and Ukraine aid": 0.021564919018624326,
+     "Government waste and big interests": -0.0544389675022669,
+     "Government role in the economy": -0.24969086983644004,
+     "Gun policy": -0.4791216125425399
     }
    },
    {
     "cluster": 1,
-    "n": 869,
-    "share": 0.26726095606030803,
-    "pid_dem": 0.9741550105251412,
-    "pid_ind": 0.0076436328227617225,
-    "pid_rep": 0.018201356652097038,
-    "pid7_mean": 1.8205220813766507,
-    "ideo_mean": 2.4593223400315356,
-    "not_thought_any": 0.05110642441495987,
-    "not_thought_mean": 0.05400012039792711,
+    "n": 1396,
+    "share": 0.2772929978011651,
+    "pid_dem": 0.03870428753365625,
+    "pid_ind": 0.027048804675340054,
+    "pid_rep": 0.9342469077910039,
+    "pid7_mean": 6.034559485115422,
+    "ideo_mean": 5.588300922527717,
+    "not_thought_any": 0.23156827069067965,
+    "not_thought_mean": 0.37612869257868997,
     "vote": {
-     "Harris": 0.9160222996153519,
-     "Trump": 0.006768442534165042,
-     "Other": 0.011475165107353722,
-     "Did not vote / missing": 0.06573409274312925,
+     "Harris": 0.033307066268304784,
+     "Trump": 0.7986683728347913,
+     "Other": 0.01763149561705233,
+     "Did not vote / missing": 0.15039306527985158,
      "No post interview": 0.0
     },
     "factors": {
-     "Immigration and diversity": -1.0404620084710083,
-     "Trust in institutions (CSES)": 0.20728562346307308,
-     "Democratic norms": -0.6898530745850304,
-     "Iran, Russia, China as threats": -0.15270721121195593,
-     "Government waste and big interests": -0.27976194652935543,
-     "Religion and social traditionalism": -0.924409791971022,
-     "No say in government; gender attitudes": -0.757807655629007,
-     "Israel and Ukraine aid": 0.12423625279673546,
-     "Gun policy": -0.7600855948780166,
-     "Government role in the economy": -0.6326784477349745
+     "Immigration and diversity": 0.805541912266572,
+     "Trust in institutions (CSES)": -0.17155361628851962,
+     "Democratic norms": -0.1093873269234584,
+     "Iran, Russia, China as threats": 0.4241018948737903,
+     "No say in government; gender attitudes": 0.355333672593857,
+     "Religion and social traditionalism": 0.6700243551547062,
+     "Israel and Ukraine aid": -0.37825607862891075,
+     "Government waste and big interests": 0.7209499712475953,
+     "Government role in the economy": 1.079074279505879,
+     "Gun policy": 0.7000540029067058
     }
    },
    {
     "cluster": 2,
-    "n": 829,
-    "share": 0.2656374751780145,
-    "pid_dem": 0.6648872575451277,
-    "pid_ind": 0.08274484314648221,
-    "pid_rep": 0.2523678993083902,
-    "pid7_mean": 3.015815646406733,
-    "ideo_mean": 3.651131174362038,
-    "not_thought_any": 0.12171141864862586,
-    "not_thought_mean": 0.1435631676843012,
+    "n": 1038,
+    "share": 0.210694667586772,
+    "pid_dem": 0.9764552885344543,
+    "pid_ind": 0.009922254166328765,
+    "pid_rep": 0.013622457299216859,
+    "pid7_mean": 1.763909662801295,
+    "ideo_mean": 2.384943752535486,
+    "not_thought_any": 0.14661590325334123,
+    "not_thought_mean": 0.1955906146571073,
     "vote": {
-     "Harris": 0.6344618927313856,
-     "Trump": 0.1491929114742848,
-     "Other": 0.03227084687863912,
-     "Did not vote / missing": 0.18407434891569055,
+     "Harris": 0.9203072081383049,
+     "Trump": 0.0,
+     "Other": 0.016038551206569766,
+     "Did not vote / missing": 0.06365424065512522,
      "No post interview": 0.0
     },
     "factors": {
-     "Immigration and diversity": -0.17679229089738824,
-     "Trust in institutions (CSES)": -0.19777877547837608,
-     "Democratic norms": 0.0883021922830533,
-     "Iran, Russia, China as threats": 0.017224684478223336,
-     "Government waste and big interests": -0.058581999495972356,
-     "Religion and social traditionalism": -0.3509288042551282,
-     "No say in government; gender attitudes": -0.014635956683225088,
-     "Israel and Ukraine aid": 0.06385556276187819,
-     "Gun policy": -0.45310659865695835,
-     "Government role in the economy": -0.19713473062648687
+     "Immigration and diversity": -1.0193912842783375,
+     "Trust in institutions (CSES)": 0.09612868133239934,
+     "Democratic norms": -0.855992411238127,
+     "Iran, Russia, China as threats": -0.20493600932583772,
+     "No say in government; gender attitudes": -0.9467790744732995,
+     "Religion and social traditionalism": -1.126036156895763,
+     "Israel and Ukraine aid": -0.36218545422646203,
+     "Government waste and big interests": -0.55580197945799,
+     "Government role in the economy": -0.7984036174900279,
+     "Gun policy": -0.7704773438078748
     }
    },
    {
     "cluster": 3,
-    "n": 450,
-    "share": 0.16428054320910454,
-    "pid_dem": 0.37319324244056923,
-    "pid_ind": 0.1100728435861927,
-    "pid_rep": 0.516733913973238,
-    "pid7_mean": 4.331882339905867,
-    "ideo_mean": 4.400383713074368,
-    "not_thought_any": 0.166949251070871,
-    "not_thought_mean": 0.2195777689611611,
+    "n": 647,
+    "share": 0.16757700182529314,
+    "pid_dem": 0.37684815343496614,
+    "pid_ind": 0.16446491149210682,
+    "pid_rep": 0.45868693507292685,
+    "pid7_mean": 4.118527403644817,
+    "ideo_mean": 4.42207221725943,
+    "not_thought_any": 0.5360326456058752,
+    "not_thought_mean": 1.3458631050212282,
     "vote": {
-     "Harris": 0.19403211590233552,
-     "Trump": 0.3398173200546656,
-     "Other": 0.018717469150759593,
-     "Did not vote / missing": 0.4474330948922392,
+     "Harris": 0.17909286964433654,
+     "Trump": 0.26931396862904367,
+     "Other": 0.011183459300465966,
+     "Did not vote / missing": 0.5404097024261537,
      "No post interview": 0.0
     },
     "factors": {
-     "Immigration and diversity": 0.464526649960366,
-     "Trust in institutions (CSES)": 0.16204199502781624,
-     "Democratic norms": 1.0333356470277733,
-     "Iran, Russia, China as threats": -0.3438686402958337,
-     "Government waste and big interests": -0.30214195884486156,
-     "Religion and social traditionalism": 0.41140878440173034,
-     "No say in government; gender attitudes": 0.5618081557461788,
-     "Israel and Ukraine aid": -1.054949648724844,
-     "Gun policy": 0.6010184161766344,
-     "Government role in the economy": -0.45324796687024205
+     "Immigration and diversity": 0.1433951870054982,
+     "Trust in institutions (CSES)": 0.34844407581892206,
+     "Democratic norms": 1.0556326296178578,
+     "Iran, Russia, China as threats": -0.4273154904983106,
+     "No say in government; gender attitudes": 0.4955353985247396,
+     "Religion and social traditionalism": 0.49689602856524645,
+     "Israel and Ukraine aid": 1.0369596299675818,
+     "Government waste and big interests": -0.3822670229206727,
+     "Government role in the economy": -0.2685213286496207,
+     "Gun policy": 0.7951079525122874
     }
    }
   ],
@@ -683,68 +683,68 @@
    "Immigration and diversity"
   ],
   "residualized": [
-   "Religion and social traditionalism",
    "No say in government; gender attitudes",
-   "Gun policy",
-   "Government role in the economy"
+   "Religion and social traditionalism",
+   "Government role in the economy",
+   "Gun policy"
   ]
  },
  "crosstab": {
-  "n": 2959,
+  "n": 3784,
   "row_share": [
    [
+    0.23,
+    0.006,
+    0.762,
+    0.002
+   ],
+   [
+    0.359,
+    0.462,
+    0.021,
+    0.158
+   ],
+   [
+    0.17,
+    0.644,
     0.0,
-    0.844,
-    0.15,
-    0.006
+    0.186
    ],
    [
-    0.556,
-    0.012,
-    0.231,
-    0.201
+    0.598,
+    0.087,
+    0.195,
+    0.12
    ],
    [
-    0.695,
-    0.001,
-    0.138,
-    0.166
+    0.422,
+    0.019,
+    0.528,
+    0.032
    ],
    [
-    0.069,
-    0.212,
-    0.559,
-    0.16
+    0.684,
+    0.037,
+    0.236,
+    0.043
    ],
    [
-    0.022,
-    0.562,
-    0.379,
-    0.037
+    0.207,
+    0.317,
+    0.023,
+    0.453
    ],
    [
-    0.018,
-    0.301,
-    0.579,
-    0.102
-   ],
-   [
-    0.358,
-    0.013,
-    0.158,
-    0.471
-   ],
-   [
-    0.711,
+    0.099,
+    0.673,
     0.0,
-    0.008,
-    0.281
+    0.228
    ],
    [
-    0.075,
-    0.0,
-    0.415,
-    0.511
+    0.528,
+    0.164,
+    0.004,
+    0.303
    ]
   ],
   "cols": [
@@ -765,7 +765,7 @@
    8
   ]
  },
- "ari": 0.2635089175760058,
+ "ari": 0.19977576851247167,
  "unassigned": {
   "matched": 0,
   "independent": 0

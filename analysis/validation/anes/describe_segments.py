@@ -1,20 +1,21 @@
 """Who is in each stable ANES segment: every independent cluster against the rest of the sample.
 
 Data: ANES 2024 Time Series CSV and codebook (2025-08-08 release), post weight V240108a. Segments from
-outputs/clustering/independent/independent_clusters.csv (independent_clustering.py, n = 3,614, 5 clusters).
+outputs/clustering/independent_available/independent_clusters.csv (independent_clustering.py --available,
+n = 4,673, 4 clusters).
 Descriptors are variables the clustering never saw: demographics, religion, finances, engagement,
 emotions about the country, issue importance, group and candidate thermometers, news and social media,
-and the attitude-pool items left out by the 4-per-factor cull.
+and the attitude-pool items the independent screen excluded (in the pool, not among the 99 factored items).
 
 Each descriptor is a weighted share (binary) or weighted mean. Segment vs rest is compared by a
 respondent bootstrap (1,000 draws, seed 42): the difference, its 95% interval, and P(segment > rest),
 labeled with the research-statistics group-comparison table (>= 0.95 Strong, 0.90-0.95 Moderate,
 0.80-0.90 Directional, else Inconclusive; mirrored for "lower"). The bootstrap ignores the ANES PSU and
-strata, so intervals run somewhat narrow; ~120 descriptors x 5 segments are compared, so expect a few
+strata, so intervals run somewhat narrow; ~120 descriptors x 4 segments are compared, so expect a few
 Strong labels by chance among the small differences. Effect size for ranking: percentage points for
 shares, difference in weighted SDs for means.
 
-Writes outputs/clustering/independent/segment_descriptors.csv.
+Writes outputs/clustering/independent_available/segment_descriptors.csv.
 """
 import re
 
@@ -26,7 +27,7 @@ import independent_efa as ie
 import matched_efa as me
 import recode_matched as rm
 
-SRC = me.OUT / "clustering" / "independent"
+SRC = me.OUT / "clustering" / "independent_available"
 CODEBOOK = rm.ANES_CSV.parent / "anes_timeseries_2024_userguidecodebook_20250808.pdf"
 N_BOOT, SEED = 1000, 42
 
@@ -147,14 +148,14 @@ def main():
     D = build(raw)
     D.index = raw.V240001.values
 
-    # attitude-pool items the 4-per-factor cull left out
+    # attitude-pool items the independent screen excluded from the 99 factored items
     CODE_LABELS = codebook_labels()
     items, w_pool, _, cw = ie.load_pool()
     desc_all, keep_w = dc.descriptors()
     items.index = desc_all.caseid[keep_w].values
-    culled = set(pd.read_csv(SRC / "culled_items.csv").item)
+    factored = set(pd.read_csv(me.OUT / "independent_loadings.csv", index_col=0).index)
     for c in items.columns:
-        if c in culled or "|" in cw.loc[c, "anes_sources"]:
+        if c in factored or "|" in cw.loc[c, "anes_sources"]:
             continue
         top = top_label(cw.loc[c, "anes_sources"], cw.loc[c, "anes_map"])
         if top is None:

@@ -4,7 +4,8 @@
 - Matched EFA, PSU bootstrap of φ and the nine-party matched clustering benchmark stand (`anes/outputs/`, c73f4d8). On 18 matched items no CES party survives a majority of ANES-sized subsamples, which is the case for the classifier.
 - Independent ANES EFA: 99 items, 10 factors, no party-ID cap (`anes/independent_efa.py`, 6394b0f; DECISIONS 2026-10-31).
 - Independent segmentation, now primary: available-item scoring, no cull (`anes/independent_clustering.py --available`, output `anes/outputs/clustering/independent_available/`; DECISIONS 2026-11-02). It covers 4,673 respondents and fits 10 factors (φ 0.97–0.99 vs the 99-item fit). Cap 4 gives 4 clusters, 20 of 20 seeds reach one solution, and resample ARI is 0.68. Committed with this handoff.
-- The culled segmentation (`anes/outputs/clustering/independent/`, 3777ff7) is superseded. The descriptors and portraits were built on it: `describe_segments.py`, `segment_portraits_page.py` and `describe_clusters.py` still read `independent/`. Against the available version the culled one has ARI 0.64 and 84–90% per-segment correspondence, but only 63% for the young disaffected segment. Unverified: whether the four portrait names still fit.
+- Profiles and portraits now read the available output (`describe_clusters.py`, `describe_segments.py`, `segment_portraits_page.py`, `cluster_profiles_page.py`). The four segments rematched by profile: 2 secular progressives, 0 center-left moderates (renamed from "moderate Democrats": 56% Harris, 20% Trump, 30% Republican ID), 3 young disaffected working class, 1 religious conservatives. Portrait claims and superlatives re-derived from the new CSVs. The Israel and Ukraine aid factor runs high = opposes aid in this fit; `STANCE` was flipped and Trust in institutions added.
+- The culled segmentation (`anes/outputs/clustering/independent/`, 3777ff7) is superseded but not yet archived: `archive.py` needs a managed project root (AGENTS.md with a Sources of truth section) and this repo has none.
 - CES side: the listwise-deletion check moved to its own workstream, `analysis/efa/exploration/listwise_check/NEXT.md`.
 
 ## Waiting on the researcher
@@ -12,9 +13,8 @@
 - Party copy rewrite (main app): drafts in `analysis/efa/exploration/k9_profiles/proposed_copy.json`.
 
 ## Next steps
-1. Repoint the profile scripts at the available output. Change `SRC` in `anes/describe_segments.py:29` and `anes/segment_portraits_page.py:17`, and `independent()` in `anes/describe_clusters.py`, to `clustering/independent_available`. Then archive `outputs/clustering/independent/` to `_ARCHIVE (superseded, do not cite)/` with the research-project-setup `archive.py`.
-2. Rerun `describe_clusters.py`, `describe_segments.py` and `segment_portraits_page.py`. Segment ids will differ from the culled run. Rematch the segments by profile, then re-derive the names, `ORDER`, the `STANCE` map and every portrait claim from the new CSVs. Don't carry text over. Check each superlative against the data. Open the page locally with `open` (memory `artifacts-local-only`) and commit.
-3. Classifier (workstream 2 of `UNTRACKED/plans/ces_anes_gss_validation_plan.md`): CES→ANES on `exact`/`close` crosswalk items, nine-party posterior target, recall gate 0.5, shrinkage on held-out CES. Writes `classifier_report_anes.md`. Re-measure which parties fail recall.
+1. Archive `anes/outputs/clustering/independent/` once the project has an archive root, or decide to leave it in place. Only `independent_clustering.py` without `--available` writes there.
+2. Classifier (workstream 2 of `UNTRACKED/plans/ces_anes_gss_validation_plan.md`): CES→ANES on `exact`/`close` crosswalk items, nine-party posterior target, recall gate 0.5, shrinkage on held-out CES. Writes `classifier_report_anes.md`. Re-measure which parties fail recall.
 
 ## Handed off in parallel
 - `analysis/efa/exploration/listwise_check/` (CES): tests whether CES loadings and parties survive re-estimation on all 49,432 post-weight respondents. This workstream waits on nothing from it. Same tree and branch: commit with explicit paths.
