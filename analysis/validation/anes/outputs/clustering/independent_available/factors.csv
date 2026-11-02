@@ -1,0 +1,11 @@
+factor,r_ideology,anchor,residualized,top_items
+Immigration and diversity,0.66,True,False,are immigrants generally good or bad for america’s economy (+0.62); what should immigration levels be (+0.55); how important that more asians get elected to political office (+0.50)
+Trust in institutions (CSES),-0.08,False,False,cses6-q07a: trust congress (+0.83); cses6-q07e: trust political parties (+0.75); cses6-q07b: trust government (+0.72)
+Democratic norms,0.26,False,False,how important branches of government keep one another from too (-0.80); how important elected officials face serious consequences for miscondu (-0.73); how important that news organizations free to criticize (-0.71)
+"Iran, Russia, China as threats",0.22,False,False,how much is iran a threat to the united states (+0.76); how much is russia a threat to the united states (+0.74); how much is china a threat to the united states (+0.70)
+No say in government; gender attitudes,0.41,False,True,[std] have no say about what government does (-0.43); women seek to gain power by getting control over men (-0.42); do women demanding equality seek special favors (-0.41)
+Religion and social traditionalism,0.64,False,True,gay marriage (form 1A/1B splice) (+0.71); religious attendance (spliced) (+0.61); which child trait more important: obedience or self-reliance (-0.60)
+Israel and Ukraine aid,-0.06,False,False,how much is israel a threat to the united states (+0.53); favor/oppose u.s. giving military assistance to israel (+0.51); favor/oppose u.s. giving weapons to help ukraine fight russia (+0.50)
+Government waste and big interests,0.41,False,False,government run by a few big interests or for benefit of all (-0.69); does government waste much tax money (-0.54); how often trust government in washington to do what is right [revised] (+0.52)
+Government role in the economy,0.67,False,True,"7pt scale guaranteed job-income scale: self-placement (+0.66); 7pt scale spending & services: self- placement (-0.64); should the minimum wage be raised, kept the same, or lowered (+0.61)"
+Gun policy,0.53,False,True,favor/oppose background checks for gun purchases (+0.67); should federal government make it more difficult or easier to buy a gu (+0.66); favor/oppose banning ‘assault-style’ rifles (+0.58)

@@ -1,0 +1,15 @@
+post-weight respondents 49,432; complete 45,214; dropped 4,218
+items answered by the dropped: {23: 3786, 22: 318, 21: 70, 20: 30, 19: 9}
+most-skipped items among the dropped: {'CC24_325': 0.382, 'CC24_440b': 0.141, 'pew_churatd': 0.136, 'CC24_341a': 0.088, 'CC24_340c': 0.061}
+party ID among the dropped: Dem 22%, Rep 42%, Ind 25% | complete: Dem 34%, Rep 30%, Ind 27%
+assignment confidence (weighted mean top posterior): dropped 0.79, complete 0.78
+party  production_share  dropped_share  dropped_lo  dropped_hi  p_dropped_higher  combined_share  shift_pp
+  CON            0.2047         0.2563      0.2320      0.2830             1.000          0.2094    0.4710
+  LBR            0.1071         0.0509      0.0413      0.0620             0.000          0.1019   -0.5131
+  STY            0.1738         0.2154      0.1875      0.2434             0.999          0.1776    0.3800
+  NAT            0.0944         0.1195      0.1038      0.1367             0.998          0.0967    0.2295
+  DAL            0.0816         0.0484      0.0396      0.0594             0.000          0.0785   -0.3026
+  POP            0.1097         0.1503      0.1270      0.1756             1.000          0.1134    0.3700
+  CUP            0.1112         0.1168      0.0992      0.1358             0.742          0.1117    0.0512
+  DSA            0.0590         0.0217      0.0145      0.0304             0.000          0.0556   -0.3403
+  PRG            0.0586         0.0207      0.0151      0.0278             0.000          0.0551   -0.3456

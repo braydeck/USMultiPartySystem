@@ -30,6 +30,7 @@ stability_clusters.csv, drop_one.csv, independent_clusters.csv, run.log via stdo
 import os
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 import itertools
+import sys
 
 import numpy as np
 import pandas as pd
@@ -44,7 +45,11 @@ import recode_matched as rm
 from common import clustering as cl
 from common import efa_math as em
 
-OUT = me.OUT / "clustering" / "independent"
+# --available: no cull. The ten factors keep all 99 screened items; respondents answering at least half
+# of each factor's items are scored on the items they answered (regression scores per missing-data pattern).
+AVAILABLE = "--available" in sys.argv
+OUT = me.OUT / "clustering" / ("independent_available" if AVAILABLE else "independent")
+MIN_SHARE_PER_FACTOR = 0.5
 PER_FACTOR_RANGE, MIN_PHI, MAX_CROSS, MAX_MISS, ANCHOR_R = range(3, 11), 0.85, 0.30, 0.05, 0.40
 KS, SEEDS, N_BOOT = range(2, 11), range(42, 62), 30
 SHORT = {"Immigration and diversity": "immigration", "Trust in institutions (CSES)": "institutional trust",
@@ -70,6 +75,25 @@ def cull(load, items, w, per_factor):
                          "max_cross": round(float(cross[c]), 3), "missing": round(float(miss[c]), 3),
                          "filled": c not in eligible})
     return pd.DataFrame(rows)
+
+
+def available_scores(D, w, R, L, Phi):
+    """Thomson regression scores computed per missing-data pattern on the items each respondent answered."""
+    X = D.values.astype(float)
+    ok = ~np.isnan(X)
+    wn = w / w.sum()
+    mu = np.array([np.average(X[ok[:, j], j], weights=wn[ok[:, j]]) for j in range(X.shape[1])])
+    sd = np.array([np.sqrt(np.average((X[ok[:, j], j] - mu[j]) ** 2, weights=wn[ok[:, j]])) for j in range(X.shape[1])])
+    Z = (X - mu) / sd
+    S = L @ Phi
+    F = np.zeros((len(X), L.shape[1]))
+    patterns = {}
+    for i, row in enumerate(ok):
+        patterns.setdefault(row.tobytes(), []).append(i)
+    for rows in patterns.values():
+        m = ok[rows[0]]
+        F[rows] = Z[np.ix_(rows, np.where(m)[0])] @ np.linalg.solve(R[np.ix_(m, m)], S[m])
+    return F, len(patterns)
 
 
 def refit(items, w, ids):
@@ -130,16 +154,29 @@ def main():
     items, w, pid, cw = ie.load_pool()
     load = pd.read_csv(me.OUT / "independent_loadings.csv", index_col=0)
     fc = [c for c in load.columns if c.startswith("N") and c[1:].isdigit()]
-    per_factor = choose_per_factor(load, items, w, fc)
-    kept = cull(load, items, w, per_factor)
-    kept.to_csv(OUT / "culled_items.csv", index=False)
-    print(f"[1] {per_factor} items per factor: {len(kept)} items ({int(kept.filled.sum())} filled past the coverage/cross-loading screen)")
-
-    ids = list(kept.item)
-    D, wD, R, k, L, Phi = refit(items, w, ids)
-    print(f"    listwise n = {len(D):,} (99 items: 2,697; post-weighted respondents: {len(items):,})")
-    Z, _, _ = em.weighted_standardize(D.values.astype(float), wD)
-    F, _ = em.thomson_scores(Z, R, L, Phi)
+    if AVAILABLE:
+        ids = list(load.index)
+        kept = pd.DataFrame({"item": ids, "factor": load.primary.map(dc.INDEPENDENT_NAMES).values, "filled": False})
+        answered = pd.DataFrame({f: items[load.index[load.primary == f]].notna().mean(axis=1) for f in fc})
+        D = items.loc[(answered >= MIN_SHARE_PER_FACTOR).all(axis=1), ids]
+        wD = w[D.index.values]
+        R = em.regularize_corr(em.polychoric_matrix(D.reset_index(drop=True), ids, wD, progress=False))
+        k = len(fc)
+        pa_k, _, _ = em.parallel_analysis(R, n_obs=len(D))
+        L, Phi, _ = me.fit(R, k)
+        F, n_pat = available_scores(D, wD, R, L, Phi)
+        print(f"[1] no cull: {len(ids)} items, {len(D):,} respondents answering >= half of each factor's items "
+              f"(of {len(items):,}); {n_pat} missing-data patterns; k held at {k} (parallel analysis on the pairwise matrix: {pa_k})")
+    else:
+        per_factor = choose_per_factor(load, items, w, fc)
+        kept = cull(load, items, w, per_factor)
+        kept.to_csv(OUT / "culled_items.csv", index=False)
+        print(f"[1] {per_factor} items per factor: {len(kept)} items ({int(kept.filled.sum())} filled past the coverage/cross-loading screen)")
+        ids = list(kept.item)
+        D, wD, R, k, L, Phi = refit(items, w, ids)
+        print(f"    listwise n = {len(D):,} (99 items: 2,697; post-weighted respondents: {len(items):,})")
+        Z, _, _ = em.weighted_standardize(D.values.astype(float), wD)
+        F, _ = em.thomson_scores(Z, R, L, Phi)
     full = load.loc[ids, fc].values
     names, phis = [None] * k, {}
     for m in me.cg.match_factors(full, L):
@@ -225,6 +262,10 @@ def main():
     print(f"[5] drop one factor at cap {K} (mean ARI vs the full fit, seeds 42-51); seed-to-seed baseline {seed_mean:.2f}:\n",
           dd.to_string(index=False))
 
+    n_ans = D.notna().sum(axis=1).values
+    print("[6] items answered by cluster (weighted mean; share answering all):",
+          {int(c): (round(float(np.average(n_ans[cluster == c], weights=wD[cluster == c])), 1),
+                    round(float(np.average(n_ans[cluster == c] == len(ids), weights=wD[cluster == c])), 2)) for c in np.unique(cluster)})
     pd.DataFrame({"caseid": desc.caseid.values, "cluster": cluster,
                   **{f"F_{nm}": F[:, j] for j, nm in enumerate(names)}}).to_csv(OUT / "independent_clusters.csv", index=False)
     pd.DataFrame({"factor": names, "r_ideology": r_ideo, "anchor": [j == anchor for j in range(k)],

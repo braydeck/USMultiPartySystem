@@ -88,3 +88,11 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
 - **The independent ANES cluster count is the largest DPGMM cap from 2 to 10 where no cluster
   dissolves under resampling**, the rule CES used to keep 9. The old range of 5 to 10 had no cap
   without a dissolving cluster once the full ten-factor structure came back.
+- **Available-item scoring is the primary independent ANES segmentation, replacing the cull**
+  (`anes/independent_clustering.py --available`). Items define the factors; missingness never
+  removes an item. All 99 pool items enter a pairwise polychoric, k stays at 10 (parallel analysis
+  on the pairwise matrix also gives 10), and each respondent is scored on the items they answered
+  (Thomson scores per missing-data pattern). Respondents need at least half of each factor's items:
+  4,673 of 5,276, against 3,132 under the 7-item cull. Same anchor rule and the same cap rule, which
+  keeps cap 4 (20 of 20 seeds reach one solution, resample ARI 0.68 vs 0.62 under the cull). The
+  culled output in `anes/outputs/clustering/independent/` is superseded.

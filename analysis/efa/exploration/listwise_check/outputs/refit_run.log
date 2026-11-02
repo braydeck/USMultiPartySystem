@@ -1,0 +1,59 @@
+group  n_dropped                   factor  complete_mean_sd  gap_sd     lo    hi  p_dropped_higher
+  All       4218         Security & Order               0.0   0.224  0.176 0.277             1.000
+  All       4218   Institutional Distrust               0.0   0.146  0.094 0.203             1.000
+  All       4218      Government Distrust               0.0  -0.020 -0.086 0.047             0.278
+  All       4218 Religious Traditionalism               0.0   0.481  0.432 0.533             1.000
+  All       4218    Populist Conservatism               0.0   0.253  0.205 0.306             1.000
+
+Within-party gap (dropped minus complete, SD units):
+ factor  Government Distrust  Institutional Distrust  Populist Conservatism  Religious Traditionalism  Security & Order
+group                                                                                                                 
+CON                   -0.01                    0.00                   0.08                      0.23             -0.03
+LBR                   -0.04                   -0.08                   0.02                     -0.01              0.07
+STY                   -0.19                   -0.03                   0.09                      0.19              0.13
+NAT                   -0.00                   -0.01                  -0.02                      0.28             -0.02
+DAL                   -0.02                    0.03                  -0.02                      0.18              0.08
+POP                    0.01                    0.03                  -0.07                      0.20             -0.05
+CUP                    0.03                    0.02                  -0.00                      0.43             -0.11
+DSA                   -0.20                   -0.14                  -0.01                      0.15              0.10
+PRG                   -0.13                   -0.03                   0.00                      0.09              0.06
+
+Party centroids, complete respondents (SD units):
+ factor  Government Distrust  Institutional Distrust  Populist Conservatism  Religious Traditionalism  Security & Order
+group                                                                                                                 
+CON                   -0.12                    0.06                   0.32                      0.58              0.97
+LBR                   -0.01                   -0.51                  -0.68                     -0.90             -0.61
+STY                   -0.42                    0.67                  -0.43                      0.08             -0.59
+NAT                    0.93                    0.46                   1.73                      1.02              0.90
+DAL                   -0.67                   -1.04                  -1.04                     -0.83             -0.06
+POP                    0.81                    0.86                   0.89                      0.44              0.09
+CUP                   -0.54                   -0.90                   0.21                      0.37              0.66
+DSA                    0.51                    0.51                  -1.03                     -1.29             -1.75
+PRG                    0.10                   -0.96                  -0.95                     -1.33             -1.55
+
+Refit on 49,432: 4 solutions across 20 seeds, modal 14 of 20 (seed 42); seed ARI mean 0.859
+ARI, refit vs production on the 45,214 complete respondents: 0.971
+ARI vs production, each seed: {42: np.float64(0.97), 43: np.float64(0.97), 44: np.float64(0.97), 45: np.float64(0.97), 46: np.float64(0.97), 47: np.float64(0.71), 48: np.float64(0.97), 49: np.float64(0.65), 50: np.float64(0.97), 51: np.float64(0.71), 52: np.float64(0.71), 53: np.float64(0.97), 54: np.float64(0.97), 55: np.float64(0.97), 56: np.float64(0.97), 57: np.float64(0.97), 58: np.float64(0.71), 59: np.float64(0.97), 60: np.float64(0.75), 61: np.float64(0.97)}
+party  production_share  refit_share  jaccard  kept_in_party  centroid_shift
+  CON             0.205        0.213    0.974          0.995           0.037
+  LBR             0.107        0.102    0.975          0.986           0.013
+  STY             0.174        0.181    0.963          0.990           0.032
+  NAT             0.094        0.095    0.978          0.978           0.040
+  DAL             0.082        0.079    0.985          0.995           0.016
+  POP             0.110        0.109    0.953          0.960           0.041
+  CUP             0.111        0.109    0.969          0.974           0.042
+  DSA             0.059        0.057    0.979          0.999           0.018
+  PRG             0.059        0.055    0.997          1.000           0.006
+
+Production party (rows) across refit parties, complete respondents:
+ refit         CON    CUP    DAL    DSA    LBR    NAT    POP    PRG    STY
+production                                                               
+CON         0.995  0.000  0.000  0.000  0.001  0.000  0.001  0.000  0.002
+CUP         0.019  0.974  0.004  0.000  0.000  0.001  0.001  0.000  0.000
+DAL         0.000  0.000  0.995  0.001  0.002  0.000  0.000  0.002  0.000
+DSA         0.000  0.000  0.000  0.999  0.001  0.000  0.000  0.000  0.000
+LBR         0.000  0.001  0.002  0.004  0.986  0.000  0.000  0.000  0.006
+NAT         0.017  0.000  0.000  0.000  0.000  0.978  0.005  0.000  0.000
+POP         0.006  0.001  0.000  0.000  0.000  0.000  0.960  0.000  0.033
+PRG         0.000  0.000  0.000  0.000  0.000  0.000  0.000  1.000  0.000
+STY         0.000  0.002  0.000  0.004  0.004  0.000  0.000  0.000  0.990
