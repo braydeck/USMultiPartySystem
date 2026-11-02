@@ -1,0 +1,44 @@
+eligible: 49,428 of 49,432 post-weighted (4 answer < half of some factor's items); production complete cases 45,214
+167 missing-data patterns; correlation with production scores on the 45,214 complete respondents: {'Security & Order': 0.9967, 'Institutional Distrust': 0.9912, 'Government Distrust': 0.9628, 'Religious Traditionalism': 0.9944, 'Populist Conservatism': 0.9891}
+
+Refit on 49,428: 4 solutions across 20 seeds, modal 10 of 20 (seed 48); solution sizes [10, 5, 4, 1]
+ARI, refit vs production on the 45,214 complete respondents: 0.606
+ARI vs production by refit solution (seeds per solution, mean ARI): {0: {'size': 5, 'mean': 0.531}, 1: {'size': 10, 'mean': 0.605}, 2: {'size': 4, 'mean': 0.594}, 3: {'size': 1, 'mean': 0.564}}
+benchmark, frozen-loadings refit seeds vs production (refit_with_dropped.py): ARI range 0.65-0.97
+
+ party  production_share  refit_share  jaccard  kept_in_party  centroid_shift_sd  shift_pp
+  CON             0.205        0.241    0.713          0.898              0.223     3.673
+  LBR             0.107        0.096    0.519          0.660              0.405    -1.106
+  STY             0.174        0.198    0.742          0.894              0.395     2.399
+  NAT             0.094        0.109    0.869          0.986              0.155     1.422
+  DAL             0.082        0.093    0.416          0.643              0.609     1.138
+  POP             0.110        0.116    0.714          0.849              0.254     0.614
+  CUP             0.111        0.036    0.109          0.131              1.328    -7.485
+  DSA             0.059        0.059    0.798          0.920              0.201     0.038
+  PRG             0.059        0.052    0.875          0.902              0.247    -0.695
+
+Factor centers in SD units, production / refit:
+ factor Security & Order Institutional Distrust Government Distrust Religious Traditionalism Populist Conservatism
+party                                                                                                            
+CON         0.97 / 0.96           0.06 / -0.13       -0.12 / -0.18               0.58 / 0.5           0.32 / 0.37
+LBR       -0.61 / -0.77          -0.51 / -0.21       -0.01 / -0.03              -0.9 / -0.9         -0.68 / -0.91
+STY       -0.59 / -0.49            0.67 / 0.42       -0.42 / -0.66              0.08 / 0.19          -0.43 / -0.3
+NAT          0.9 / 0.87            0.46 / 0.51         0.93 / 0.96              1.02 / 1.07           1.73 / 1.59
+DAL       -0.06 / -0.17           -1.04 / -1.1       -0.67 / -0.14            -0.83 / -0.82         -1.04 / -0.77
+POP         0.09 / 0.12            0.86 / 0.62         0.81 / 0.74              0.44 / 0.46           0.89 / 0.91
+CUP         0.66 / 0.96           -0.9 / -0.99        -0.54 / -1.0             0.37 / -0.37          0.21 / -0.74
+DSA       -1.75 / -1.81            0.51 / 0.51         0.51 / 0.33             -1.29 / -1.3         -1.03 / -1.08
+PRG       -1.55 / -1.54          -0.96 / -0.96           0.1 / 0.3             -1.33 / -1.3          -0.95 / -1.1
+
+Production party (rows) across refit parties, complete respondents:
+ refit         CON    CUP    DAL    DSA    LBR    NAT    POP    PRG    STY
+production                                                               
+CON         0.898  0.020  0.000  0.000  0.006  0.051  0.018  0.000  0.007
+CUP         0.424  0.131  0.128  0.000  0.000  0.000  0.146  0.000  0.170
+DAL         0.001  0.216  0.643  0.012  0.106  0.000  0.000  0.019  0.002
+DSA         0.000  0.000  0.002  0.920  0.071  0.000  0.000  0.002  0.006
+LBR         0.011  0.013  0.267  0.018  0.660  0.000  0.005  0.001  0.026
+NAT         0.011  0.000  0.000  0.000  0.000  0.986  0.003  0.000  0.000
+POP         0.020  0.000  0.002  0.000  0.000  0.019  0.849  0.000  0.109
+PRG         0.000  0.000  0.005  0.062  0.032  0.000  0.000  0.902  0.000
+STY         0.008  0.000  0.007  0.014  0.077  0.000  0.000  0.000  0.894

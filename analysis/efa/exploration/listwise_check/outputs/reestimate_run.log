@@ -1,0 +1,58 @@
+samples: repro 45,143, listwise 45,214, pairwise 49,432
+pairwise n per item pair: min 47,256, median 49,191
+production vs repro: max |dr| 0.0151, mean 0.0005, cells > 0.02: 0 of 276
+repro vs listwise: max |dr| 0.0023, mean 0.0005, cells > 0.02: 0 of 276
+listwise vs pairwise: max |dr| 0.0315, mean 0.0067, cells > 0.02: 4 of 276
+largest pairwise-minus-listwise cells: [('CC24_341d', 'CC24_324b', -0.031), ('CC24_324b', 'CC24_340c', -0.031), ('CC24_323a', 'CC24_324b', -0.03), ('CC24_323d', 'CC24_324b', -0.023), ('CC24_341a', 'CC24_341d', -0.02)]
+production matrix refit reproduces efa_loadings_k5_final.csv exactly
+
+Factor congruence (Tucker phi) and largest loading change:
+   matrix                   factor  phi_vs_production  phi_vs_listwise  max_abs_dloading_vs_production  max_abs_dloading_vs_listwise
+   repro         Security & Order             1.0000           1.0000                          0.0049                        0.0029
+   repro   Institutional Distrust             1.0000           0.9999                          0.0032                        0.0131
+   repro      Government Distrust             0.9999           0.9998                          0.0063                        0.0086
+   repro Religious Traditionalism             1.0000           1.0000                          0.0088                        0.0037
+   repro    Populist Conservatism             0.9999           0.9999                          0.0090                        0.0093
+listwise         Security & Order             1.0000           1.0000                          0.0078                        0.0000
+listwise   Institutional Distrust             0.9998           1.0000                          0.0163                        0.0000
+listwise      Government Distrust             0.9996           1.0000                          0.0140                        0.0000
+listwise Religious Traditionalism             0.9999           1.0000                          0.0097                        0.0000
+listwise    Populist Conservatism             0.9998           1.0000                          0.0183                        0.0000
+pairwise         Security & Order             0.9963           0.9960                          0.0564                        0.0604
+pairwise   Institutional Distrust             0.9850           0.9876                          0.1615                        0.1452
+pairwise      Government Distrust             0.9637           0.9696                          0.1146                        0.1042
+pairwise Religious Traditionalism             0.9874           0.9876                          0.1013                        0.1010
+pairwise    Populist Conservatism             0.9824           0.9824                          0.1269                        0.1232
+
+Largest loading changes, pairwise minus listwise (same code):
+  CC24_423    Institutional Distrust    listwise +0.256 -> pairwise +0.401
+  CC24_341d   Populist Conservatism     listwise +0.362 -> pairwise +0.238
+  CC24_340f   Populist Conservatism     listwise +0.265 -> pairwise +0.374
+  CC24_424    Institutional Distrust    listwise +0.392 -> pairwise +0.498
+  CC24_423    Government Distrust       listwise +0.653 -> pairwise +0.549
+  CC24_341c   Populist Conservatism     listwise +0.532 -> pairwise +0.428
+  CC24_341d   Religious Traditionalism  listwise +0.300 -> pairwise +0.401
+  CC24_341c   Religious Traditionalism  listwise +0.281 -> pairwise +0.372
+
+Factor correlations, listwise (lower) / pairwise (upper):
+              Security & O  Institutiona  Government D  Religious Tr  Populist Con
+Security & O         1.000        -0.008        -0.015         0.528         0.508
+Institutiona         0.017         1.000         0.252         0.163         0.175
+Government D        -0.035         0.333         1.000         0.044         0.247
+Religious Tr         0.554         0.181         0.032         1.000         0.553
+Populist Con         0.512         0.151         0.277         0.553         1.000
+
+Structure-matrix phi, pairwise vs listwise (rotation-frame free): {'Security & Order': 0.9995, 'Institutional Distrust': 0.9978, 'Government Distrust': 0.9824, 'Religious Traditionalism': 0.999, 'Populist Conservatism': 0.9989}
+
+                           phi_pattern_min  phi_pattern_med  dload_med  dload_max  phi_structure_min  pairwise_phi  pairwise_dload  share_draws_phi_below_pairwise
+factor                                                                                                                                                           
+Security & Order                   0.6942           0.9898     0.1136     0.5968             0.9757        0.9960          0.0604                            0.74
+Institutional Distrust             0.9352           0.9906     0.1201     0.3150             0.9841        0.9876          0.1452                            0.46
+Government Distrust                0.5714           0.9638     0.1316     0.3997             0.7704        0.9696          0.1042                            0.54
+Religious Traditionalism           0.9107           0.9898     0.0882     0.3203             0.9899        0.9876          0.1010                            0.42
+Populist Conservatism              0.7099           0.9708     0.1784     0.5584             0.9778        0.9824          0.1232                            0.64
+
+Parallel analysis k (n capped at 20,000):
+  production k = 4; first six eigenvalues [8.139, 2.928, 1.369, 1.264, 0.976, 0.927]
+  listwise   k = 4; first six eigenvalues [8.143, 2.928, 1.369, 1.263, 0.974, 0.926]
+  pairwise   k = 4; first six eigenvalues [8.041, 2.908, 1.379, 1.28, 0.974, 0.943]
