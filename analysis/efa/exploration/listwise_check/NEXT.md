@@ -11,9 +11,13 @@
 ## Waiting on the researcher
 - Read `findings.md`. Then rule: adopt available-item scoring for CES at the next rebuild, or record listwise deletion as a known limitation. The finding bears on a second question the original ask didn't: CUP depends on one draw of the loadings, and the production bootstrap (`analysis/bootstrap/recluster.py`) holds loadings fixed. Log rulings in a new `DECISIONS.md` in this folder and in memory.
 
+- Cap for the rescored typology: 8 (most reproducible) or 9 (largest with no dissolved party). The two criteria agreed on production data and split here (`findings.md`).
+
 ## Next steps
 1. If the researcher wants it: CUP survival across bootstrap loading draws. For each of the 50 draws in `outputs/loadings_bootstrap.csv` (rebuild the draw's loadings with the same seed-42 resampling in `reestimate_loadings.py`), score the 45,214 complete respondents, run the 20-seed DPGMM (`refit_with_dropped.fit`), and record each party's kept share against production. About 3 minutes per draw; run in the background.
-2. After the ruling, adopting the change is a typology rebuild (`pipeline/rebuild_from_typology.py`). That is the researcher's call and outside this workstream.
+2. Cap scan done (`k_scan.py`, `outputs/kscan/`, `findings.md` "How many parties"): cap 8 is the most reproducible (19 of 20 seeds, resample ARI 0.77, no CUP); cap 9 is the largest with no dissolved party (ninth party Jaccard 0.61). Researcher to pick the criterion. Run the loading-draw test (step 1) at both 8 and 9.
+3. Larger CES item pool, as its own check after step 1 (proposed by the ANES session in conversation; not yet in any DECISIONS.md). Rule it proposed for both surveys: curate the item pool for construct reasons, never cull for missingness, handle missing answers at scoring. An earlier uncurated CES pool gave an unstable factor solution, so ANES's clean 99-item fit doesn't predict CES. With available-item scoring, extra items no longer cost respondents, so the 24-item set rests only on construct choices (party proxies out, domains balanced). Judge party changes against the loading-draw noise floor from step 1, and report per-party kept share and Jaccard, not just factor φ: a larger pool moves border voters even when the factors replicate.
+4. After the ruling, adopting the change is a typology rebuild (`pipeline/rebuild_from_typology.py`). That is the researcher's call and outside this workstream.
 
 ## Don't redo
 - The frozen-loadings check, the three polychoric matrices and the 50 bootstrap draws are cached in `outputs/`; delete a cache file only to rebuild it on purpose.

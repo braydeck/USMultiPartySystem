@@ -50,6 +50,31 @@ production. Production seeds under frozen loadings range 0.65 to 0.97 against pr
   ARI 0.62, CUP keeps 13%, the other eight keep 63% to 99%. Adding the dropped respondents moves nothing.
   The earlier frozen-loadings refit with the dropped added matched production at ARI 0.97.
 
+## How many parties the rescored data supports
+
+`k_scan.py`: the `k_stability/fair_compare.py` procedure, DPGMM only, caps 7 to 11 on the rescored data,
+with production's own scan alongside (`outputs/kscan/summary.csv`).
+
+| Cap | Solutions across 20 seeds (rescored / production) | Seeds in the most common solution | Resample ARI | Parties stable / dissolved |
+|---|---|---|---|---|
+| 7 | 3 / 3 | 60% / 75% | 0.68 / 0.63 | 2 / 0 |
+| 8 | **2** / 3 | **95%** / 40% | **0.77** / 0.65 | 5 / 0 |
+| 9 | 4 / 3 | 50% / 55% | 0.72 / 0.69 | 6 / 0 |
+| 10 | 7 / 6 | 35% / 50% | 0.66 / 0.64 | 4 / 1 |
+| 11 | 9 / 7 | 25% / 35% | 0.59 / 0.55 | 4 / 4 |
+
+(Stable and dissolved counts are for the rescored data; production's are in `k_stability/outputs/fair/summary.csv`.)
+
+- Cap 8 is the most reproducible cap on the rescored data by every seed and resample measure: 19 of 20 seeds
+  reach one solution. Its eight parties are production's minus CUP. CON absorbs most of CUP (CUP is 24% of
+  the cap-8 CON cluster), and DAL separates cleanly (94% production DAL).
+- Cap 9 is the largest cap where no party dissolves, the rule the nine-party ruling and the ANES cap cited.
+  Its ninth party is the secular, pro-order group (7.7% of voters; 56% production CON, 19% CUP, 16% DAL),
+  with mean Jaccard 0.61: neither stable (≥ 0.75) nor dissolved (< 0.5).
+- No cap from 7 to 11 rebuilds production CUP. Its members are a minority of every cluster they enter.
+- The two stability criteria agreed on production data. On the rescored data they split: 8 on
+  reproducibility, 9 on the no-dissolution rule.
+
 ## What this bears on
 
 - Listwise deletion is not what threatens the typology. Adding the 4,218 respondents changes party shares
