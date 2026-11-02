@@ -1,0 +1,19 @@
+input,share,largest_party,largest_party_pct,second,mean_jaccard
+raw,18.7,STY,85,CUP 9,0.787
+raw,16.7,CON,95,CUP 3,0.765
+raw,12.5,DAL,58,LBR 33,0.604
+raw,12.4,POP,81,CUP 14,0.792
+raw,11.4,CUP,55,CON 34,0.556
+raw,8.9,NAT,99,CON 1,0.935
+raw,7.6,LBR,78,STY 14,0.551
+raw,6.0,PRG,97,DAL 2,0.62
+raw,5.8,DSA,95,STY 3,0.605
+resid,22.3,CON,91,CUP 7,0.831
+resid,17.4,STY,96,POP 4,0.83
+resid,10.4,LBR,95,STY 3,0.725
+resid,10.2,CUP,93,STY 3,0.569
+resid,10.0,POP,99,CON 0,0.823
+resid,9.5,NAT,99,CON 1,0.95
+resid,8.6,DAL,94,LBR 4,0.601
+resid,5.9,DSA,96,STY 2,0.734
+resid,5.8,PRG,100,DAL 0,0.673

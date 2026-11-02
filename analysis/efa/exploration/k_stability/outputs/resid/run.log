@@ -1,0 +1,38 @@
+[Parallel(n_jobs=11)]: Using backend LokyBackend with 11 concurrent workers.
+[Parallel(n_jobs=11)]: Done  19 out of 100 | elapsed:  2.6min
+[Parallel(n_jobs=11)]: Done 100 out of 100 | elapsed: 11.8min finished
+input  seed_ari_mean  n_solutions  modal_solution_share  resample_ari_mean  resample_ari_q10  n_stable  n_dissolved
+resid          0.793            3                  0.55              0.690             0.547         4            0
+  raw          0.839            2                  0.80              0.639             0.485         4            0
+input  share largest_party  largest_party_pct second  mean_jaccard
+  raw   18.7           STY                 85  CUP 9         0.787
+  raw   16.7           CON                 95  CUP 3         0.765
+  raw   12.5           DAL                 58 LBR 33         0.604
+  raw   12.4           POP                 81 CUP 14         0.792
+  raw   11.4           CUP                 55 CON 34         0.556
+  raw    8.9           NAT                 99  CON 1         0.935
+  raw    7.6           LBR                 78 STY 14         0.551
+  raw    6.0           PRG                 97  DAL 2         0.620
+  raw    5.8           DSA                 95  STY 3         0.605
+resid   22.3           CON                 91  CUP 7         0.831
+resid   17.4           STY                 96  POP 4         0.830
+resid   10.4           LBR                 95  STY 3         0.725
+resid   10.2           CUP                 93  STY 3         0.569
+resid   10.0           POP                 99  CON 0         0.823
+resid    9.5           NAT                 99  CON 1         0.950
+resid    8.6           DAL                 94  LBR 4         0.601
+resid    5.9           DSA                 96  STY 2         0.734
+resid    5.8           PRG                100  DAL 0         0.673
+
+Production party (rows) across the modal raw solution's clusters (share of each party's weight):
+col_0      0      1      2      3      4      5      6      7      8
+row_0                                                               
+CON    0.000  0.783  0.000  0.008  0.020  0.002  0.185  0.000  0.002
+CUP    0.000  0.037  0.077  0.000  0.169  0.140  0.577  0.000  0.000
+DAL    0.015  0.000  0.871  0.007  0.000  0.001  0.105  0.000  0.000
+DSA    0.001  0.000  0.003  0.068  0.000  0.007  0.000  0.921  0.000
+LBR    0.001  0.003  0.403  0.541  0.017  0.022  0.011  0.004  0.000
+NAT    0.000  0.005  0.000  0.000  0.000  0.000  0.035  0.000  0.960
+POP    0.000  0.008  0.000  0.000  0.950  0.039  0.000  0.000  0.003
+PRG    0.979  0.000  0.021  0.000  0.000  0.000  0.000  0.000  0.000
+STY    0.000  0.000  0.012  0.052  0.009  0.925  0.000  0.002  0.000
