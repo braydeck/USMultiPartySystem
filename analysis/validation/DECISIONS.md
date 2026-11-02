@@ -74,3 +74,17 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
     others, and factors with |r| ≥ 0.40 with it are residualized on it.
   - **Factors clustered:** all of them, none hand-excluded.
   - **Cluster count:** the DPGMM cap is chosen on seed and resample stability, as in `fair_compare.py`.
+
+## 2026-11-02
+
+- **Items per factor in the independent ANES cull is chosen by rule, replacing the fixed 4.** The
+  rule is the smallest number (3 to 10) whose refit keeps every 99-item factor recognizable
+  (one-to-one Tucker φ ≥ 0.85). At 4 items the immigration and economy factors had no
+  counterpart, and their items merged with the gun items into one factor. The rule was set before
+  the clustering was rerun. The sweep is written to `anes/outputs/clustering/independent/cull_sweep.csv`.
+- **ANES can't separate immigration enforcement from immigration status at any item count.** Its
+  enforcement items (wall, urban unrest, police use of force) load with immigration and the economy.
+  The CES items behind Security & Order are absent from ANES or sit in the excluded spending battery.
+- **The independent ANES cluster count is the largest DPGMM cap from 2 to 10 where no cluster
+  dissolves under resampling**, the rule CES used to keep 9. The old range of 5 to 10 had no cap
+  without a dissolving cluster once the full ten-factor structure came back.

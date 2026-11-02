@@ -1,24 +1,29 @@
-[1] culled to 40 items (15 filled past the coverage/cross-loading screen)
-    listwise n = 3,614 (99 items: 2,697; post-weighted respondents: 5,276)
-[2] parallel analysis k = 8; similarity to the 99-item factors: {'Trust in institutions (CSES)': 0.94, 'Democratic norms': 0.99, 'Iran, Russia, China as threats': 0.99, 'Religion and social traditionalism': 0.96, 'No say in government; gender attitudes': 0.86, 'Government waste and big interests': 0.96, 'Israel and Ukraine aid': 0.95, 'Gun policy': 0.83}; named ['economy + guns + immigration', 'government waste + institutional trust', 'Democratic norms', 'Iran, Russia, China as threats', 'Religion and social traditionalism', 'Trust in institutions (CSES)', 'No say in government; gender attitudes', 'Israel and Ukraine aid']
-[3] anchor Religion and social traditionalism; residualized on it: ['economy + guns + immigration (r +0.54)']
-    largest |r| after residualizing: 0.38
+[1] 7 items per factor: 67 items (34 filled past the coverage/cross-loading screen)
+    listwise n = 3,132 (99 items: 2,697; post-weighted respondents: 5,276)
+[2] parallel analysis k = 10; similarity to the 99-item factors: {'Immigration and diversity': 0.95, 'Trust in institutions (CSES)': 0.99, 'Democratic norms': 0.99, 'Iran, Russia, China as threats': 0.99, 'Religion and social traditionalism': 0.98, 'No say in government; gender attitudes': 0.97, 'Government waste and big interests': 0.96, 'Israel and Ukraine aid': 0.96, 'Government role in the economy': 0.92, 'Gun policy': 0.97}; named ['Immigration and diversity', 'Trust in institutions (CSES)', 'Democratic norms', 'Iran, Russia, China as threats', 'Government waste and big interests', 'Religion and social traditionalism', 'No say in government; gender attitudes', 'Israel and Ukraine aid', 'Gun policy', 'Government role in the economy']
+[3] anchor Immigration and diversity; residualized on it: ['Religion and social traditionalism (r +0.57)', 'No say in government; gender attitudes (r +0.44)', 'Gun policy (r +0.55)', 'Government role in the economy (r +0.55)']
+    largest |r| after residualizing: 0.33
 [4] stability by cap:
   K  effective_clusters_median  seed_ari_mean  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
- 5                          5          0.952            2                  0.95              0.600         1            0
- 6                          6          0.834            4                  0.75              0.494         1            1
- 7                          7          0.699            8                  0.55              0.429         0            5
- 8                          8          0.663           12                  0.25              0.455         0            4
- 9                          9          0.657            9                  0.35              0.417         0            5
-10                         10          0.618           14                  0.15              0.413         0            6
-    kept cap 5: seed 48, 5 clusters, modal solution reached by 19 of 20 seeds
-[5] drop one factor at cap 5 (mean ARI vs the full fit, seeds 42-51); seed-to-seed baseline 0.95:
+ 2                          2          1.000            1                  1.00              0.921         2            0
+ 3                          3          0.996            1                  1.00              0.758         3            0
+ 4                          4          0.998            1                  1.00              0.615         2            0
+ 5                          5          0.996            1                  1.00              0.549         2            2
+ 6                          6          0.709            4                  0.60              0.458         0            3
+ 7                          7          0.759            4                  0.40              0.422         0            4
+ 8                          8          0.751            4                  0.65              0.401         0            5
+ 9                          9          0.628           16                  0.15              0.365         0            7
+10                         10          0.573           20                  0.05              0.352         0            9
+    kept cap 4: seed 60, 4 clusters, modal solution reached by 20 of 20 seeds
+[5] drop one factor at cap 4 (mean ARI vs the full fit, seeds 42-51); seed-to-seed baseline 1.00:
                                  factor   ari
-    Religion and social traditionalism 0.280
-government waste + institutional trust 0.588
-                      Democratic norms 0.604
-                Israel and Ukraine aid 0.618
-          economy + guns + immigration 0.625
-          Trust in institutions (CSES) 0.719
-        Iran, Russia, China as threats 0.792
-No say in government; gender attitudes 0.924
+             Immigration and diversity 0.303
+    Religion and social traditionalism 0.514
+        Government role in the economy 0.539
+                            Gun policy 0.557
+                      Democratic norms 0.602
+No say in government; gender attitudes 0.651
+                Israel and Ukraine aid 0.678
+        Iran, Russia, China as threats 0.694
+    Government waste and big interests 0.797
+          Trust in institutions (CSES) 0.885

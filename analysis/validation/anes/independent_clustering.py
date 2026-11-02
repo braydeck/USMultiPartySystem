@@ -1,23 +1,26 @@
-"""Stable clusters on ANES's own factors: cull to 4 items per factor, residualize, pick the cap on stability.
+"""Stable clusters on ANES's own factors: cull items per factor, residualize, pick the cap on stability.
 
 Data: ANES 2024 Time Series CSV (2025-08-08 release), post weight V240108a. Items and loadings from
 outputs/independent_loadings.csv (independent_efa.py, 99 items, 10 factors, no party-ID cap).
 Rulings: analysis/validation/DECISIONS.md 2026-10-31.
 
   1. Cull. For each factor, eligible items have it as primary, no other |loading| >= 0.30, and at most
-     5% of post-weighted respondents missing. Keep the 4 highest |loading|; if fewer than 4 are
-     eligible, fill from the factor's remaining items by |loading|.
+     5% of post-weighted respondents missing. Keep the m highest |loading|; if fewer than m are
+     eligible, fill from the factor's remaining items by |loading|. m is the smallest of 3..10 whose
+     refit keeps every 99-item factor recognizable: one-to-one Tucker match, |phi| >= 0.85
+     (DECISIONS 2026-11-02; the sweep is written to cull_sweep.csv).
   2. Refit on the culled items, listwise. Parallel analysis re-picks k. Factors are named by Tucker
-     match to the 99-item solution (a factor drawing 2+ items from several of them is named for all) and oriented so high = the end that correlates with conservative
-     self-placement (V241177).
+     match to the 99-item solution (a factor where no 99-item factor supplies a majority of its items
+     is named for every factor supplying 2+) and oriented so high = the end that correlates with
+     conservative self-placement (V241177).
   3. Residualize, CES-style (efa_update.py residualizes religion and values on enforcement). The
      anchor is the factor with the highest mean |r| with the others; every factor with |r| >= 0.40
      with the anchor is replaced by its weighted-OLS residual on the anchor.
-  4. Stability, the fair_compare.py procedure: for DPGMM caps K = 5..10, 20 full-data seeds (42-61)
+  4. Stability, the fair_compare.py procedure: for DPGMM caps K = 2..10, 20 full-data seeds (42-61)
      and 30 resamples. Seed agreement = mean pairwise ARI; solutions = groups of seeds agreeing at
      ARI >= 0.9; per-cluster stability = mean best Jaccard of the medoid resample's clusters across
-     the other 29 (>= 0.75 stable, < 0.5 dissolved). Rule: among caps where no cluster dissolves,
-     keep the fewest solutions, ties to the larger modal share. The kept fit is the best lower bound
+     the other 29 (>= 0.75 stable, < 0.5 dissolved). Rule: keep the largest cap where no cluster
+     dissolves, as CES kept 9 (DECISIONS 2026-11-02). The kept fit is the best lower bound
      within the modal solution, as in dpgmm_clustering.py. Unweighted fits, as in production.
   5. Drop-one-factor test at the kept cap, against that cap's own seed-to-seed agreement.
 
@@ -42,8 +45,8 @@ from common import clustering as cl
 from common import efa_math as em
 
 OUT = me.OUT / "clustering" / "independent"
-PER_FACTOR, MAX_CROSS, MAX_MISS, ANCHOR_R = 4, 0.30, 0.05, 0.40
-KS, SEEDS, N_BOOT = range(5, 11), range(42, 62), 30
+PER_FACTOR_RANGE, MIN_PHI, MAX_CROSS, MAX_MISS, ANCHOR_R = range(3, 11), 0.85, 0.30, 0.05, 0.40
+KS, SEEDS, N_BOOT = range(2, 11), range(42, 62), 30
 SHORT = {"Immigration and diversity": "immigration", "Trust in institutions (CSES)": "institutional trust",
          "Democratic norms": "democratic norms", "Iran, Russia, China as threats": "foreign threats",
          "Religion and social traditionalism": "religion", "No say in government; gender attitudes": "no say",
@@ -51,7 +54,7 @@ SHORT = {"Immigration and diversity": "immigration", "Trust in institutions (CSE
          "Government role in the economy": "economy", "Gun policy": "guns"}
 
 
-def cull(load, items, w):
+def cull(load, items, w, per_factor):
     fc = [c for c in load.columns if c.startswith("N") and c[1:].isdigit()]
     miss = {c: 1 - np.average(items[c].notna(), weights=w) for c in load.index}
     rows = []
@@ -60,13 +63,40 @@ def cull(load, items, w):
         cross = sub[[g for g in fc if g != f]].abs().max(axis=1)
         order = sub[f].abs().sort_values(ascending=False).index
         eligible = [c for c in order if cross[c] < MAX_CROSS and miss[c] <= MAX_MISS]
-        keep = eligible[:PER_FACTOR]
-        keep += [c for c in order if c not in keep][:PER_FACTOR - len(keep)]
+        keep = eligible[:per_factor]
+        keep += [c for c in order if c not in keep][:per_factor - len(keep)]
         for c in keep:
             rows.append({"item": c, "label": load.label[c], "factor": dc.INDEPENDENT_NAMES[f], "loading": load.loc[c, f],
                          "max_cross": round(float(cross[c]), 3), "missing": round(float(miss[c]), 3),
                          "filled": c not in eligible})
     return pd.DataFrame(rows)
+
+
+def refit(items, w, ids):
+    D = items[ids].dropna()
+    wD = w[D.index.values]
+    R = em.regularize_corr(em.polychoric_matrix(D.reset_index(drop=True), ids, wD, progress=False))
+    k, _, _ = em.parallel_analysis(R, n_obs=len(D))
+    L, Phi, _ = me.fit(R, k)
+    return D, wD, R, k, L, Phi
+
+
+def choose_per_factor(load, items, w, fc):
+    rows = []
+    for m in PER_FACTOR_RANGE:
+        kept = cull(load, items, w, m)
+        ids = list(kept.item)
+        D, _, _, k, L, _ = refit(items, w, ids)
+        phi = {f: 0.0 for f in fc}
+        for mm in me.cg.match_factors(load.loc[ids, fc].values, L):
+            phi[fc[mm["factor_1"]]] = abs(mm["phi"])
+        rows.append({"per_factor": m, "items": len(ids), "filled": int(kept.filled.sum()), "n": len(D), "k": k,
+                     "min_phi": round(min(phi.values()), 3), "n_recognizable": sum(v >= MIN_PHI for v in phi.values()),
+                     **{f"phi_{dc.INDEPENDENT_NAMES[f]}": round(v, 3) for f, v in phi.items()}})
+        if rows[-1]["n_recognizable"] == len(fc):
+            break
+    pd.DataFrame(rows).to_csv(OUT / "cull_sweep.csv", index=False)
+    return rows[-1]["per_factor"]
 
 
 def dpgmm(K, seed):
@@ -100,17 +130,14 @@ def main():
     items, w, pid, cw = ie.load_pool()
     load = pd.read_csv(me.OUT / "independent_loadings.csv", index_col=0)
     fc = [c for c in load.columns if c.startswith("N") and c[1:].isdigit()]
-    kept = cull(load, items, w)
+    per_factor = choose_per_factor(load, items, w, fc)
+    kept = cull(load, items, w, per_factor)
     kept.to_csv(OUT / "culled_items.csv", index=False)
-    print(f"[1] culled to {len(kept)} items ({int(kept.filled.sum())} filled past the coverage/cross-loading screen)")
+    print(f"[1] {per_factor} items per factor: {len(kept)} items ({int(kept.filled.sum())} filled past the coverage/cross-loading screen)")
 
     ids = list(kept.item)
-    D = items[ids].dropna()
-    wD = w[D.index.values]
+    D, wD, R, k, L, Phi = refit(items, w, ids)
     print(f"    listwise n = {len(D):,} (99 items: 2,697; post-weighted respondents: {len(items):,})")
-    R = em.regularize_corr(em.polychoric_matrix(D.reset_index(drop=True), ids, wD, progress=False))
-    k, ev, thr = em.parallel_analysis(R, n_obs=len(D))
-    L, Phi, h2 = me.fit(R, k)
     Z, _, _ = em.weighted_standardize(D.values.astype(float), wD)
     F, _ = em.thomson_scores(Z, R, L, Phi)
     full = load.loc[ids, fc].values
@@ -123,9 +150,8 @@ def main():
     primary = np.abs(L).argmax(axis=1)
     for j in range(k):
         src = kept.factor[primary == j].value_counts()
-        src = list(src[src >= 2].index)
-        if len(src) > 1:
-            names[j] = " + ".join(SHORT[s] for s in src)
+        if src.iloc[0] / src.sum() <= 0.5 and (src >= 2).sum() > 1:
+            names[j] = " + ".join(SHORT[s] for s in src[src >= 2].index)
     print(f"[2] parallel analysis k = {k}; similarity to the 99-item factors: {phis}; named {names}")
 
     desc_all, keep_w = dc.descriptors()
@@ -178,7 +204,7 @@ def main():
     if ok.empty:
         print("    no cap is free of dissolving clusters; keeping the fewest dissolved")
         ok = summ[summ.n_dissolved == summ.n_dissolved.min()]
-    K = int(ok.sort_values(["n_solutions", "modal_solution_share"], ascending=[True, False]).iloc[0].K)
+    K = int(ok.K.max())
     seeds = sorted(store[(K, "seed")], key=lambda t: t[0])
     S = pairwise([l for _, l, _ in seeds])
     _, comp = connected_components(S >= 0.9, directed=False)

@@ -9,12 +9,15 @@ import json
 
 import pandas as pd
 
+import numpy as np
+
 import matched_efa as me
+import recode_matched as rm
 
 SRC = me.OUT / "clustering" / "independent"
 D = pd.read_csv(SRC / "segment_descriptors.csv")
 P = {c["cluster"]: c for c in json.loads((me.OUT / "clustering" / "cluster_profiles.json").read_text())["independent"]["clusters"]}
-ORDER = [2, 4, 1, 0, 3]
+ORDER = [1, 2, 3, 0]
 
 
 def val(k, name):
@@ -39,33 +42,63 @@ def therm(nm):
     return f"Warmth toward {nm} (0-100)"
 
 
-def view(prefix):
-    return D[D.descriptor.str.startswith(prefix)].descriptor.iloc[0]
+
+# Weighted means of a few clustering items, to state the factor positions in the items' own units
+ITEMS = {"V241325": (1, 5), "V241403x": (1, 7), "V241400x": (1, 7), "V241239": (1, 7), "V241579": (1, 5)}
+_lab = pd.read_csv(SRC / "independent_clusters.csv")
+_raw = pd.read_csv(rm.ANES_CSV, usecols=["V240001", rm.WEIGHT] + list(ITEMS), low_memory=False).apply(pd.to_numeric, errors="coerce")
+_raw = _lab[["caseid", "cluster"]].merge(_raw.rename(columns={"V240001": "caseid"}), on="caseid")
 
 
-GAY_ADOPT = view("summary should gay/lesbian couples be allowed to adopt")
-ABORT7 = view("7pt scale abortion: self-placement")
-TRUST_FED = view("how often trust government in washington")
-TRUST_OFF = view("trust election officials")
-UKRAINE = view("favor/oppose u.s. giving weapons to help ukraine")
-FAMILY = view("fewer problems if there was more emphasis on traditional family")
+def item(k, var, nd=1):
+    lo, hi = ITEMS[var]
+    x = _raw[var].where(_raw[var].between(lo, hi))
+    sel = x.notna() & ((_raw.cluster == k) if k is not None else True)
+    return f"{np.average(x[sel], weights=_raw[rm.WEIGHT][sel]):.{nd}f}"
+
+
+# Plain-language reading of each factor's high end (oriented so high = the end that goes with
+# conservative self-placement; directions checked against raw items)
+STANCE = {"Immigration and diversity": ("more restrictive on immigration", "more open to immigration"),
+          "Democratic norms": ("rates checks and balances, accountability and a free press as less important", "rates checks and balances, accountability and a free press as more important"),
+          "Iran, Russia, China as threats": ("sees Iran, Russia and China as bigger threats", "sees Iran, Russia and China as smaller threats"),
+          "Government waste and big interests": ("sees government as wasteful and run by big interests", "trusts government more"),
+          "Religion and social traditionalism": ("more religious and socially traditional", "less religious and more socially liberal"),
+          "No say in government; gender attitudes": ("feels shut out of government; agrees more that women seek power over men", "feels heard by government; rejects that women seek power over men"),
+          "Israel and Ukraine aid": ("supports aid to Israel and Ukraine", "opposes aid to Israel and Ukraine"),
+          "Gun policy": ("opposes gun restrictions", "supports gun restrictions"),
+          "Government role in the economy": ("wants a smaller government role in the economy", "wants a larger government role in the economy")}
+_fac = pd.read_csv(SRC / "factors.csv")
+_F = _lab[[f"F_{f}" for f in _fac.factor]].values
+assert (_raw.caseid.values == _lab.caseid.values).all()
+_w = _raw[rm.WEIGHT].values
+_mu = np.average(_F, axis=0, weights=_w)
+_F = (_F - _mu) / np.sqrt(np.average((_F - _mu) ** 2, axis=0, weights=_w))
+
+
+def stances(k, n=4):
+    m = np.average(_F[_lab.cluster.values == k], axis=0, weights=_w[_lab.cluster.values == k])
+    out = []
+    for j in np.argsort(-np.abs(m)):
+        f = _fac.factor[j]
+        if f in STANCE and len(out) < n:
+            out.append(f"{STANCE[f][0] if m[j] > 0 else STANCE[f][1]} <span class=muted>({m[j]:+.1f} SD)</span>")
+    return out
+
 
 SEGMENTS = {
-    2: ("Secular progressives",
-        "Harris voters for whom religion plays little part, the most secular and most urban of the five.",
-        lambda k: f"""Religion is very or extremely important to {pct(k, "Religion very or extremely important")} of this segment, against {allv("Religion very or extremely important")} of the sample, and {pct(k, "Atheist, agnostic or nothing in particular")} are atheist, agnostic or nothing in particular. {pct(k, "Bachelor's degree or more")} hold a bachelor's degree and {pct(k, "Gay, lesbian, bisexual or other")} identify as gay, lesbian, bisexual or something else. They rate Donald Trump at {num(k, therm("Donald Trump"))} out of 100, Christian fundamentalists at {num(k, therm("Christian fundamentalists"))} and the Supreme Court at {num(k, therm("US Supreme Court"))}. US democracy ({pct(k, "Rates US democracy extremely or very important")}) and climate change ({pct(k, "Rates climate change extremely or very important")}) top their issue list; illegal immigration is rated very important by {pct(k, "Rates illegal immigration extremely or very important")}, against {allv("Rates illegal immigration extremely or very important")} overall."""),
-    4: ("Institution-trusting Democrats",
-        "Older, engaged Harris voters who trust the people counting the votes and feel hopeful about the country.",
-        lambda k: f"""{pct(k, "Voted for president in 2024")} voted, and {pct(k, "Very or extremely hopeful")} feel very or extremely hopeful about the country, against {allv("Very or extremely hopeful")} overall; {pct(k, "Very or extremely angry")} feel very or extremely angry ({allv("Very or extremely angry")} overall). They trust their local election officials at {num(k, TRUST_OFF, 1)} on a 1 to 5 scale, against {allv(TRUST_OFF, 1)} overall. {pct(k, "Age 65 or older")} are 65 or older and {pct(k, "Women")} are women. They watch the network evening news ({pct(k, "Watches network evening news (ABC, CBS or NBC) regularly")}), MSNBC's evening shows ({pct(k, "Watches MSNBC evening shows (Maddow, O'Donnell, Hayes, Wallace, Ruhle) regularly")}) and PBS NewsHour ({pct(k, "Watches PBS NewsHour regularly")}). Religion is very or extremely important to {pct(k, "Religion very or extremely important")}, against {pct(2, "Religion very or extremely important")} of the secular progressives, the segment they border."""),
-    1: ("Multiracial religious traditionalists",
-        "A working-class, religious segment split evenly between Harris and Trump, and the most likely of the five to say they haven't thought much about a policy.",
-        lambda k: f"""{pct(k, "White, non-Hispanic")} of this segment is white, {pct(k, "Black, non-Hispanic")} Black and {pct(k, "Hispanic")} Hispanic, against {allv("White, non-Hispanic")}, {allv("Black, non-Hispanic")} and {allv("Hispanic")} overall. {pct(k, "No education past high school")} have no education past high school, {pct(k, "Children under 18 at home")} have children at home, and religion is very or extremely important to {pct(k, "Religion very or extremely important")}. They are cooler than the sample toward gay men and lesbians ({num(k, therm("gay men and lesbians"))} vs {allv(therm("gay men and lesbians"), 0)}), transgender people ({num(k, therm("transgender people"))} vs {allv(therm("transgender people"), 0)}) and Jews ({num(k, therm("Jews"))} vs {allv(therm("Jews"), 0)}). {pct(k, "Haven't thought much on at least one 7-point scale")} answered "haven't thought much" on at least one policy scale, and {pct(k, "Voted for president in 2024")} voted."""),
-    0: ("Financially squeezed skeptics",
-        "The largest segment: Republican-leaning but loosely attached, under financial strain, distrustful of government and elections, and focused on prices.",
-        lambda k: f"""{pct(k, "Cut down on spending this year")} cut their spending this year and {pct(k, "Borrowed money to pay bills this year")} borrowed to pay bills, the highest of the five on both. Asked how often they trust the federal government, they average {num(k, TRUST_FED, 2)} on a 1 to 5 scale (5 = never), against {allv(TRUST_FED, 2)} overall. {pct(k, "Pays attention to politics always or most of the time")} follow politics always or most of the time, the lowest of the five, and {pct(k, "Voted for president in 2024")} voted. Cost of living is very important to {pct(k, "Rates cost of living extremely or very important")}; abortion ({pct(k, "Rates abortion extremely or very important")}), gun policy ({pct(k, "Rates gun policy extremely or very important")}) and climate change ({pct(k, "Rates climate change extremely or very important")}) rank lower here than in the sample. They rate the NRA at {num(k, therm("NRA"))}, Donald Trump at {num(k, therm("Donald Trump"))} and Kamala Harris at {num(k, therm("Kamala Harris"))}."""),
-    3: ("Religious conservatives",
-        "Older, rural, devout Trump voters, the angriest and most afraid about the country of the five.",
-        lambda k: f"""Religion is very or extremely important to {pct(k, "Religion very or extremely important")} and {pct(k, "Born-again Christian")} are born-again Christians. {pct(k, "Thinks of self as a small-town or rural person")} think of themselves as small-town or rural people, {pct(k, "Married")} are married and {pct(k, "Age 65 or older")} are 65 or older. {pct(k, "Very or extremely angry")} feel very or extremely angry about the country and {pct(k, "Very or extremely afraid")} very or extremely afraid. They rate MAGA at {num(k, therm("MAGA"))} and Planned Parenthood at {num(k, therm("Planned Parenthood"))}, and place themselves at {num(k, ABORT7, 1)} on the 1 to 7 abortion scale (7 = never permitted), against {allv(ABORT7, 1)} overall. {pct(k, "Watches Fox News shows (Hannity, The Five, Ingraham, Gutfeld!, Watters, Baier, Outnumbered) regularly")} watch Fox News shows regularly. Climate change is very important to {pct(k, "Rates climate change extremely or very important")}."""),
+    1: ("Secular progressives",
+        "Harris voters for whom religion plays little part: the most educated, most urban and most hopeful of the four.",
+        lambda k: f"""Religion is very or extremely important to {pct(k, "Religion very or extremely important")} of this segment, against {allv("Religion very or extremely important")} of the sample, and {pct(k, "Atheist, agnostic or nothing in particular")} are atheist, agnostic or nothing in particular. {pct(k, "Bachelor's degree or more")} hold a bachelor's degree, {pct(k, "Gay, lesbian, bisexual or other")} identify as gay, lesbian, bisexual or something else, and {pct(k, "Voted for president in 2024")} voted. They rate Donald Trump at {num(k, therm("Donald Trump"))} out of 100 and Planned Parenthood at {num(k, therm("Planned Parenthood"))}. US democracy ({pct(k, "Rates US democracy extremely or very important")}), climate change ({pct(k, "Rates climate change extremely or very important")}) and abortion ({pct(k, "Rates abortion extremely or very important")}) top their issue list; illegal immigration is rated very important by {pct(k, "Rates illegal immigration extremely or very important")}, against {allv("Rates illegal immigration extremely or very important")} overall. They want more government services ({item(k, "V241239")} on a 1 to 7 scale, against {item(None, "V241239")} overall) and favor weapons for Ukraine ({item(k, "V241400x")} on 1 to 7, 1 = favor a great deal)."""),
+    2: ("Moderate Democrats",
+        "Center-left Harris voters, less engaged than the progressives and the calmest of the four about the country.",
+        lambda k: f"""{P[k]['vote']['Harris']:.0%} voted for Harris and {P[k]['vote']['Trump']:.0%} for Trump, and {P[k]['pid_dem']:.0%} identify as Democrats, but they place themselves at {P[k]['ideo_mean']:.1f} on the 1 to 7 ideology scale, just left of the midpoint. They sit mildly left of the sample on guns, religion, the economy and immigration, and near the sample average on the rest. {pct(k, "White, non-Hispanic")} are white, {pct(k, "Black, non-Hispanic")} Black and {pct(k, "Hispanic")} Hispanic, and religion is very or extremely important to {pct(k, "Religion very or extremely important")}. {pct(k, "Pays attention to politics always or most of the time")} follow politics most of the time, against {allv("Pays attention to politics always or most of the time")} overall. {pct(k, "Very or extremely angry")} feel very or extremely angry about the country and {pct(k, "Very or extremely afraid")} very or extremely afraid, the lowest of the four on both. {pct(k, "Watches network evening news (ABC, CBS or NBC) regularly")} watch the network evening news, the most of the four. They rate Kamala Harris at {num(k, therm("Kamala Harris"))} and Donald Trump at {num(k, therm("Donald Trump"))}."""),
+    3: ("Young, disaffected working class",
+        "The youngest, poorest and least engaged segment: wants more from government, leans right on immigration and guns, and is the most skeptical of democratic norms and of foreign aid.",
+        lambda k: f"""{P[k]['vote']['Did not vote / missing'] + P[k]['vote']['No post interview']:.0%} did not vote or have no vote recorded, {P[k]['vote']['Trump']:.0%} voted for Trump and {P[k]['vote']['Harris']:.0%} for Harris. {pct(k, "Age under 35")} are under 35, {pct(k, "No education past high school")} have no education past high school and {pct(k, "Household income under $30k")} have household incomes under $30,000. {pct(k, "White, non-Hispanic")} are white, {pct(k, "Hispanic")} Hispanic, {pct(k, "Black, non-Hispanic")} Black and {pct(k, "Asian American or Pacific Islander")} Asian American. They rate checks and balances at {item(k, "V241325")} on a 1 to 5 importance scale, against {item(None, "V241325")} overall. They oppose military aid to Israel ({item(k, "V241403x")} on 1 to 7, 7 = oppose a great deal, against {item(None, "V241403x")}) and weapons for Ukraine ({item(k, "V241400x")} against {item(None, "V241400x")}), and want more government services ({item(k, "V241239")} against {item(None, "V241239")}). Asked whether violence to pursue political goals is justified, they average {item(k, "V241579", 2)} on a 1 to 5 scale (1 = not at all), against {item(None, "V241579", 2)} overall. {pct(k, "Very or extremely worried about finances")} are very or extremely worried about their finances."""),
+    0: ("Religious conservatives",
+        "Older, rural, devout Trump voters, the angriest and most afraid about the country of the four.",
+        lambda k: f"""Religion is very or extremely important to {pct(k, "Religion very or extremely important")} and {pct(k, "Born-again Christian")} are born-again Christians. {pct(k, "Thinks of self as a small-town or rural person")} think of themselves as small-town or rural people, {pct(k, "Married")} are married, {pct(k, "Age 65 or older")} are 65 or older and {pct(k, "Women")} are women. {pct(k, "Very or extremely angry")} feel very or extremely angry about the country and {pct(k, "Very or extremely afraid")} very or extremely afraid. They rate the police at {num(k, therm("police"))}, MAGA at {num(k, therm("MAGA"))} and Planned Parenthood at {num(k, therm("Planned Parenthood"))}, and {pct(k, "Watches Fox News shows (Hannity, The Five, Ingraham, Gutfeld!, Watters, Baier, Outnumbered) regularly")} watch Fox News shows regularly. Cost of living ({pct(k, "Rates cost of living extremely or very important")}), schools ({pct(k, "Rates what is taught in public schools extremely or very important")}), crime ({pct(k, "Rates crime extremely or very important")}) and illegal immigration ({pct(k, "Rates illegal immigration extremely or very important")}) top their list; climate change is very important to {pct(k, "Rates climate change extremely or very important")}. They favor military aid to Israel ({item(k, "V241403x")} on 1 to 7, 1 = favor a great deal)."""),
 }
 
 GLANCE = ["Women", "Age under 35", "Age 65 or older", "Bachelor's degree or more", "Household income under $30k",
@@ -129,7 +162,8 @@ def card(k):
     return f"""<section class="card"><h2>{html.escape(name)}</h2><p class="sub">{html.escape(sub)}</p>
 <p class="meta">{p['share']:.0%} of the sample (n = {p['n']:,}) · {v['Harris']:.0%} Harris, {v['Trump']:.0%} Trump, {nv:.0%} did not vote or no data · party ID {p['pid_dem']:.0%} D, {p['pid_rep']:.0%} R</p>
 <p class="portrait">{text(k)}</p>
-<div class="grid"><div><h3>What they rate very important</h3><ul class="pri">{pri_rows}</ul></div>
+<div class="grid"><div><h3>Where they stand</h3><ul class="dist">{"".join(f"<li>{x}</li>" for x in stances(k))}</ul>
+<h3>What they rate very important</h3><ul class="pri">{pri_rows}</ul></div>
 <div><h3>Warmest toward</h3><ul class="th">{"".join(f"<li>{fmt(r)}</li>" for r in warm.itertuples())}</ul>
 <h3>Coldest toward</h3><ul class="th">{"".join(f"<li>{fmt(r)}</li>" for r in cold.itertuples())}</ul></div>
 <div><h3>Furthest from the sample</h3><ul class="dist">{dist_rows}</ul></div></div></section>"""
@@ -155,11 +189,11 @@ ul{{list-style:none;margin:0 0 8px;padding:0}} ul.pri li{{position:relative;heig
 .bar{{position:absolute;left:0;top:2px;bottom:2px;background:var(--accent);opacity:.18;border-radius:3px}} .bl{{position:relative;padding-left:6px;font-size:12.5px}}
 ul.th li,ul.dist li{{font-size:12.5px;margin:3px 0}}
 </style></head><body><main>
-<h1>Five kinds of ANES voters</h1>
-<p class="lead">The five stable segments ANES 2024 forms from its own attitude factors (n = 3,614 respondents complete on the 40 clustering items, post-election weights).
-Everything below describes the segments on things the clustering never used. Names are working labels for this page.
+<h1>Four kinds of ANES voters</h1>
+<p class="lead">The four stable segments ANES 2024 forms from its own ten attitude factors (n = {sum(p["n"] for p in P.values()):,} respondents complete on the clustering items, post-election weights).
+"Where they stand" reads the factors the segments were built on; everything else describes them on things the clustering never used. Names are working labels for this page.
 In the table, violet cells sit clearly above the full sample and orange cells clearly below it, judged by a 1,000-draw bootstrap (P ≥ 0.95); uncolored cells are within the noise.
-In the priority lists, ▲ and ▼ mark the same test. The two Harris-voting segments share the least stable border.</p>
+In the priority lists, ▲ and ▼ mark the same test. The two middle segments hold up less well under resampling than the two outer ones.</p>
 {glance()}
 {"".join(card(k) for k in ORDER)}
 </main></body></html>"""
