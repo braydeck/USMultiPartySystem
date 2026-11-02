@@ -1,0 +1,68 @@
+CES n = 45,214
+
+== ANES n #1 (n = 4,673) kept cap 6
+ K  effective_clusters_median  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
+ 2                          2            1                  1.00              0.854         2            0
+ 3                          3            1                  1.00              0.902         3            0
+ 4                          4            1                  1.00              0.878         4            0
+ 5                          5            2                  0.85              0.722         3            0
+ 6                          6            7                  0.25              0.552         0            0
+ 7                          7            3                  0.90              0.510         0            3
+ 8                          8            1                  1.00              0.509         0            3
+ 9                          9            5                  0.60              0.478         0            4
+10                         10            2                  0.95              0.478         0            5
+
+== ANES n #2 (n = 4,673) kept cap 5
+ K  effective_clusters_median  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
+ 2                          2            1                  1.00              0.849         2            0
+ 3                          3            1                  1.00              0.893         3            0
+ 4                          4            1                  1.00              0.688         3            0
+ 5                          5            1                  1.00              0.609         1            0
+ 6                          6            7                  0.30              0.551         2            1
+ 7                          7            4                  0.85              0.464         0            3
+ 8                          8            5                  0.65              0.461         0            2
+ 9                          9            2                  0.90              0.484         1            4
+10                         10           12                  0.30              0.480         1            5
+
+== ANES n #3 (n = 4,673) kept cap 9
+ K  effective_clusters_median  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
+ 2                          2            1                  1.00              0.825         2            0
+ 3                          3            1                  1.00              0.849         3            0
+ 4                          4            1                  1.00              0.621         3            0
+ 5                          5            4                  0.45              0.613         2            1
+ 6                          6            3                  0.90              0.591         2            1
+ 7                          7            2                  0.90              0.548         0            1
+ 8                          8            5                  0.65              0.526         0            0
+ 9                          9            6                  0.55              0.554         0            0
+10                         10            7                  0.60              0.517         1            2
+
+== 2x ANES n (n = 9,346) kept cap 8
+ K  effective_clusters_median  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
+ 2                          2            1                  1.00              0.878         2            0
+ 3                          3            1                  1.00              0.953         3            0
+ 4                          4            1                  1.00              0.898         4            0
+ 5                          5            2                  0.95              0.685         2            0
+ 6                          6            2                  0.60              0.546         0            0
+ 7                          7            3                  0.80              0.543         0            0
+ 8                          8            4                  0.55              0.527         1            0
+ 9                          9            3                  0.50              0.543         1            1
+10                         10           11                  0.30              0.520         2            1
+
+== 4x ANES n (n = 18,692) kept cap 9
+ K  effective_clusters_median  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
+ 2                          2            1                  1.00              0.864         2            0
+ 3                          3            1                  1.00              0.925         3            0
+ 4                          4            1                  1.00              0.929         4            0
+ 5                          5            3                  0.75              0.634         1            1
+ 6                          6            2                  0.95              0.562         0            0
+ 7                          7            6                  0.65              0.561         0            0
+ 8                          8            4                  0.40              0.578         1            1
+ 9                          9            2                  0.60              0.670         6            0
+10                         10            4                  0.60              0.608         3            2
+
+       arm     n  kept_cap  resample_ari_at_kept
+ANES n #1  4673         6                 0.552
+ANES n #2  4673         5                 0.609
+ANES n #3  4673         9                 0.554
+2x ANES n  9346         8                 0.527
+4x ANES n 18692         9                 0.670

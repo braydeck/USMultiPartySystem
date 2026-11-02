@@ -1,0 +1,6 @@
+arm,n,kept_cap,resample_ari_at_kept
+ANES n #1,4673,6,0.552
+ANES n #2,4673,5,0.609
+ANES n #3,4673,9,0.554
+2x ANES n,9346,8,0.527
+4x ANES n,18692,9,0.67
