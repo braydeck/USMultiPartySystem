@@ -1,45 +1,49 @@
-Stage B: 136 of 155 items remain
-k: parallel analysis 19, MAP 17 (n for parallel analysis = 4,671)
+Stage B: 161 of 162 pass missing/modal; 142 after redundancy
+k: parallel analysis 19, MAP 17 (n = 4,673); lower bounded to 3-7: k = 7
+retained in > 25 of 50 resamples: 115 items (full-sample screens alone would keep 109; 10 differ)
+full-sample fit at k = 7 on 115 items; recheck: parallel analysis 13, MAP 14 (differs from the fitted k; disclosed, not looped)
+weak items in the full-sample fit of the retained pool: 4; cross-loaders (|l| >= 0.30 on 2+): 29
 
-k = 17 (lower of the two): 86 items after reduction; recheck on final pool: parallel analysis 14, MAP 14
- factor  n_clean  n_batteries  passes                                                                                                                                                                                                                  top_items
-      0        8            5    True federal government treats blacks or whites be (+0.60); favor/oppose preferential hiring/promotion of (+0.59); how much influence do blacks have in us polit (-0.57); agree/disagree: if blacks tried harder they’d (-0.51)
-      1        4            1   False                                                                 cses6-q07a: trust congress (-0.80); cses6-q07e: trust political parties (-0.75); cses6-q07b: trust government (-0.74); cses6-q07c: trust judiciary (-0.64)
-      2        6            3    True how important branches of government keep one (-0.75); how important that news organizations free to (-0.73); how important elected officials face serious  (-0.71); how important that people agree on basic fact (-0.64)
-      3        4            3    True          cses6- q06c: national identity: to be able to (+0.90); how important to speak english in us (+0.64); how important is it for immigrants to adapt t (-0.51); cses6- q06a: national identity: to have been  (+0.42)
-      4        3            1   False   how much is russia a threat to the united sta (+0.85); how much is iran a threat to the united state (+0.75); how much is china a threat to the united stat (+0.74); 7pt scale defense spending: self- placement (+0.16)
-      5        3            3    True         people in rural areas get more/less from gove (+0.74); people in rural areas have too much/too littl (+0.73); people in rural areas get too much/too little (+0.68); favor/oppose requiring id when voting (-0.18)
-      6        5            5    True                                              gay marriage (form 1A/1B splice) (+0.80); religious attendance (spliced) (+0.67); std abortion: self-placement (-0.61); favor/oppose laws protect gays/lesbians again (+0.42)
-      7        2            1   False congress pass laws that benefit contributor o (+0.80); congress pass laws that benefit contributor i (+0.68); congress change votes because of donation to  (+0.35); how important that more asians get elected to (+0.15)
-      8        3            1   False cses6-q05b: political decisions should be lef (-0.76); cses6-q05a: political decisions should be lef (-0.59); cses6-q05bc: political decisions should be le (-0.55); the world is changing & we should adjust view (-0.18)
-      9        4            3    True         favor/oppose u.s. giving weapons to help ukra (+0.63); favor/oppose u.s. giving military assistance  (+0.56); country would be better off if we just stayed (-0.54); force to solve international problems (+0.46)
-     10        6            6    True 7pt scale spending & services: self- placemen (+0.62); 7pt scale guaranteed job-income scale: self-p (-0.58); 7pt scale gov-private medical insurance scale (-0.54); should the minimum wage be raised, kept the s (-0.49)
-     11        4            3    True            how often can you trust the court system to d (+0.77); how often trust government in washington to d (+0.75); government run by a few big interests or for  (-0.57); how many in government are corrupt (-0.42)
-     12        2            1   False  [std] public officials don’t care what people (-0.82); [std] have no say about what government does (-0.75); government run by a few big interests or for  (-0.20); congress change votes because of donation to  (-0.18)
-     13        2            2    True                   which child trait more important: considerate (+0.58); which child trait more important: curiosity o (+0.48); limits on campaign spending (+0.38); agree/disagree: if blacks tried harder they’d (-0.25)
-     14        5            5    True             should children brought illegally be sent bac (-0.55); us government policy toward unauthorized immi (-0.53); are immigrants generally good or bad for amer (+0.45); what should immigration levels be (+0.45)
-     15        3            3    True   should federal government make it more diffic (+0.84); favor/oppose background checks for gun purcha (+0.76); favor/oppose banning ‘assault-style’ rifles (+0.64); favor/oppose increased regulation on greenhou (+0.37)
-     16        1            1   False         favor/oppose requiring id when voting (-0.47); favor or oppose building a wall on border wit (-0.26); how important that news organizations free to (-0.26); require employers to offer paid leave to pare (-0.25)
+ factor  n_clean  n_batteries  passes  resample_pass  resample_matched  median_phi  clusters                                                                                                                                                                                                                                                                         top_items
+      0       28           24    True             47                47       0.984      True agree/disagree: blacks have gotten less than  (-0.72); federal government treats blacks or whites be (-0.72); agree/disagree: if blacks tried harder they’d (+0.71); favor/oppose preferential hiring/promotion of (-0.71); how much influence do blacks have in us polit (+0.70)
+      1       12            7    True             49                49       0.986      True how important branches of government keep one (+0.69); how much is japan a threat to the united stat (-0.63); how important elected officials face serious  (+0.61); how important that people agree on basic fact (+0.52); how important that news organizations free to (+0.52)
+      2        4            1   False             10                45       0.975     False                                                                 cses6-q07a: trust congress (+0.83); cses6-q07b: trust government (+0.71); cses6-q07e: trust political parties (+0.70); cses6-q07c: trust judiciary (+0.69); [std] public officials don’t care what people (-0.34)
+      3        4            2    True             43                50       0.981      True how much is iran a threat to the united state (-0.77); how much is russia a threat to the united sta (-0.75); how much is china a threat to the united stat (-0.71); dhs: how worried about terrorist attack in ne (+0.44); how much is mexico a threat to the united sta (-0.41)
+      4        7            7    True             50                50       0.988      True                                                                is bible word of god or men (-0.82); gay marriage (form 1A/1B splice) (+0.74); religious attendance (spliced) (+0.71); which child trait more important: obedience o (-0.63); std abortion: self-placement (-0.59)
+      5        3            3    True             29                36       0.959      True                                favor or oppose tax on millionaires (+0.45); should the minimum wage be raised, kept the s (+0.42); federal spending on social security (+0.42); favor/oppose background checks for gun purcha (+0.41); federal spending on public schools (+0.37)
+      6        6            6    True             44                44       0.976      True                                      government run by a few big interests or for  (-0.67); does government waste much tax money (-0.60); how many in government are corrupt (-0.54); how often trust government in washington to d (+0.54); how much trust in news media (-0.53)
 
-clustering factors: [0, 2, 3, 5, 6, 9, 10, 11, 13, 14, 15] of 17
-respondents scored: 4,596 of 5,276
+factor correlations:
+      0     1     2     3     4     5     6
+0  1.00  0.16  0.07  0.14 -0.52 -0.36 -0.36
+1  0.16  1.00 -0.13 -0.17 -0.28  0.02 -0.11
+2  0.07 -0.13  1.00  0.10 -0.09  0.01  0.27
+3  0.14 -0.17  0.10  1.00 -0.13  0.07 -0.07
+4 -0.52 -0.28 -0.09 -0.13  1.00  0.14  0.25
+5 -0.36  0.02  0.01  0.07  0.14  1.00  0.10
+6 -0.36 -0.11  0.27 -0.07  0.25  0.10  1.00
 
-kept cap 6
+clustering factors: [0, 1, 3, 4, 5, 6] of 7
+step 7 (state in-power): no state-government items in the pool; no adjustment
+respondents scored: 4,690 of 5,276
+
+kept cap 5
  K  effective_clusters_median  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
- 2                          2            1                  1.00              0.932         2            0
- 3                          3            1                  1.00              0.817         3            0
- 4                          4            1                  1.00              0.634         2            0
- 5                          5            1                  1.00              0.593         1            0
- 6                          6            1                  1.00              0.608         1            0
- 7                          7            3                  0.65              0.535         1            1
- 8                          8            6                  0.30              0.476         1            3
- 9                          9           15                  0.15              0.440         1            4
-10                         10           16                  0.15              0.429         0            5
+ 2                          2            1                  1.00              0.925         2            0
+ 3                          3            1                  1.00              0.812         3            0
+ 4                          4            1                  1.00              0.648         2            0
+ 5                          5            2                  0.90              0.503         1            0
+ 6                          6            1                  1.00              0.478         1            1
+ 7                          7            4                  0.55              0.421         0            3
+ 8                          8           10                  0.40              0.425         0            4
+ 9                          9            8                  0.50              0.400         0            5
+10                         10           17                  0.20              0.382         0            6
+cluster shares (weighted): {0: 0.254, 1: 0.247, 2: 0.189, 3: 0.229, 4: 0.081}
 
-overlap with production segments: n = 4,582, ARI 0.36
-cluster_new                 0     1     2     3     4     5
-cluster_prod                                               
-center-left moderates    0.04  0.23  0.39  0.03  0.11  0.20
-religious conservatives  0.56  0.29  0.04  0.00  0.04  0.07
-secular progressives     0.00  0.00  0.13  0.78  0.00  0.09
-young disaffected        0.03  0.24  0.04  0.00  0.66  0.02
+overlap with production segments: n = 4,670, ARI 0.54
+cluster_new                 0     1     2     3     4
+cluster_prod                                         
+center-left moderates    0.06  0.55  0.04  0.30  0.05
+religious conservatives  0.82  0.06  0.00  0.12  0.00
+secular progressives     0.00  0.16  0.84  0.00  0.00
+young disaffected        0.02  0.05  0.00  0.55  0.37

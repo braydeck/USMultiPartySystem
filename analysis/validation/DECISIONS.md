@@ -13,7 +13,7 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   `V241314`, `V241315`, `V242207`, `V242430`, CSES `V242417`–`V242423`). Institutional distrust is a
   core concept in the CES typology and in Echelon Insights' segmentation, so leaving out the domain ANES
   covers best would bias the exploratory test.
-- **The independent pool excludes the federal spending battery and the feeling thermometers.** The
+- **The independent pool excludes the federal spending battery and the feeling thermometers.** (Spending battery reinstated 2026-11-03; see below.) The
   cross-wave work showed that same-format spending items form a method factor
   (`previous_years` `EXCLUDE_FROM_COMMON`). Thermometers are mostly partisan proxies and share one format.
 - **No stand-ins in the matched crosswalk.** A CES item without a clean ANES analog is omitted, including
@@ -124,3 +124,17 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   `stage_c.py` now passes `n_max=len(pool)`. A code fix, not a threshold change. Result: 86 items, 11 clustering
   factors, cap 6 on 4,596 respondents (1 of 6 clusters stable at >= 0.75, none dissolve), ARI 0.36 vs production.
 
+- **2026-11-03: ANES Stage C follows §3c as revised 2026-11-03** (researcher ruling, in
+  `docs/EFA_ITEM_SELECTION_ROBUSTNESS.md`): economic sentiment out at Stage A (`V241451`, personal finances vs a
+  year ago, leaves the pool); party-blind redundancy tie-break (keep the LOWER mean |r| with the pool; first written as higher, corrected the same day after the higher-mean version chained on CES, the border wall absorbing 11 cross-topic items); k = the
+  lower of parallel analysis and MAP bounded to 3-7; cross-loaders stay in; the redundancy and weak-item screens
+  and the entry test run on 50 resamples (retain / pass in more than half); outcome tests for any comparison;
+  step 7 (state in-power adjustment) has no ANES item to act on, since the pool has no state-government items.
+- **2026-11-03: the federal spending battery is back in the independent pool** (researcher, reopening the
+  2026-10-27 exclusion). The eight 5-point summaries (`V241263x`-`V241284x`: Social Security, public schools,
+  border security, crime, welfare, highways, aid to the poor, environment) are tagged as one battery, so a factor
+  built from them alone fails the two-battery entry test; that test is the format control (option 1 of three,
+  chosen over an explicit format factor and over centering each respondent's spending answers). CES already keeps
+  its own spending grid (`CC24_443`) on the same terms. Reason: ANES's closest analogs to CES's Security & Order
+  items (border-patrol and police spending) sit in this battery. Chosen before the rerun. Retagging also corrected
+  `V242253x`'s stale battery tag (it carried the replaced `V242250`'s id).

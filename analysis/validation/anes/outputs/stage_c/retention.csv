@@ -1,0 +1,162 @@
+item_id,survived_of_50,retained,in_full_stage_b,label
+V241229,50,True,True,how often trust government in washington to do what is right [revised]
+V241230,50,True,True,how often can you trust the court system to do what is right
+V241231,50,True,True,government run by a few big interests or for benefit of all
+V241232,50,True,True,does government waste much tax money
+V241233,50,True,True,how many in government are corrupt
+V241234,33,True,True,how often can people be trusted
+V241235,35,True,True,elections make government pay attention
+V241239,50,True,True,7pt scale spending & services: self- placement
+V241242,44,True,True,7pt scale defense spending: self- placement
+V241245,49,True,True,7pt scale gov-private medical insurance scale: self-placement
+V241248,6,False,False,7pt scale abortion: self-placement
+V241252,50,True,True,7pt scale guaranteed job-income scale: self-placement
+V241255,50,True,True,7pt scale gov assistance to blacks scale: self-placement
+V241258,0,False,False,7pt scale environment-business tradeoff: self-placement
+V241263x,49,True,True,federal spending on social security
+V241266x,50,True,True,federal spending on public schools
+V241269x,49,True,True,federal spending on tightening border security
+V241272x,21,False,True,federal spending on dealing with crime
+V241275x,0,False,False,federal spending on welfare programs
+V241278x,0,False,True,federal spending on building and repairing highways
+V241281x,50,True,True,federal spending on aid to the poor
+V241284x,50,True,True,federal spending on protecting the environment
+V241290x,50,True,True,"summary approve/disapprove diversity, equity, and inclusion (dei)"
+V241302,44,True,True,std abortion: self-placement
+V241308x,43,True,True,r favor/oppose death penalty
+V241312x,38,True,True,country would be better off if we just stayed home
+V241313,0,False,True,force to solve international problems
+V241314,19,False,False,votes counted accurately
+V241315,46,True,True,trust election officials
+V241316,5,False,True,how often people denied right to vote
+V241319x,49,True,True,favor/oppose requiring id when voting
+V241322x,4,False,True,favor/oppose allowing felons to vote
+V241324,50,True,True,how important that news organizations free to criticize
+V241325,50,True,True,how important branches of government keep one another from too
+V241326,49,True,True,how important elected officials face serious consequences for misconduct
+V241327,50,True,True,how important that people agree on basic facts
+V241330x,24,False,True,helpful/harmful if pres didn’t have to worry about
+V241333x,50,True,True,favor or oppose restricting journalist access
+V241334,45,True,True,how concerned government might undermine media
+V241335,50,True,True,how much trust in news media
+V241338x,0,False,True,prefer gov official who compromises/sticks to principles
+V241366x,0,False,False,government action about rising temperatures
+V241369x,50,True,True,require employers to offer paid leave to parents of new children
+V241372x,48,True,True,approve/disapprove transgender people use bathroom that
+V241375x,33,True,True,favor/oppose banning transgender girls from k-12 girls sports
+V241378x,44,True,True,favor/oppose laws protect gays/lesbians against job discrimination
+V241381x,1,False,False,summary should gay/lesbian couples be allowed to adopt children or not
+gay_marriage,49,True,True,gay marriage (form 1A/1B splice)
+V241386,49,True,True,us government policy toward unauthorized immigrants
+V241389x,48,True,True,favor or oppose ending birthright citizenship
+V241392x,49,True,True,should children brought illegally be sent back or allowed to stay
+V241395x,23,False,True,favor or oppose building a wall on border with mexico
+V241396,45,True,True,how important to speak english in us
+V241397,50,True,True,best way to deal with urban unrest
+V241400x,44,True,True,favor/oppose u.s. giving weapons to help ukraine fight russia
+V241403x,42,True,True,favor/oppose u.s. giving military assistance to israel
+V241406x,48,True,True,favor/oppose u.s. giving humanitarian aid to palestinians
+V241412x,45,True,True,approve/disapprove of protests against war in gaza
+V241420,0,False,False,is religion important part of r life [revised]
+V241421,26,True,False,is bible word of god or men
+church,49,True,True,religious attendance (spliced)
+V241577,48,True,True,need to be more sensitive talking or people too easily offended
+V241579,44,True,True,is it justified for people to use violence to pursue political goals
+V241607,12,False,True,agree/disagree - women interpret innocent remarks as sexist
+V241608,13,False,True,women seek to gain power by getting control over men
+V242200,48,True,True,[std] public officials don’t care what people think
+V242201,45,True,True,[std] have no say about what government does
+V242207,48,True,True,how often are votes counted fairly
+V242208,49,True,True,how important that more hispanics get elected to political office
+V242209,0,False,False,how important that more blacks get elected to political office
+V242210,1,False,False,how important that more asians get elected to political office
+V242211,0,False,False,how important that more lgbt people get elected to political office
+V242212,0,False,False,how important that more women get elected to political office
+V242214,49,True,True,limits on campaign spending
+V242215,0,False,True,congress pass laws that benefit contributor organization
+V242216,0,False,True,congress pass laws that benefit contributor individuals
+V242217,29,True,True,congress change votes because of donation to campaign
+V242226x,15,False,True,favor/oppose new limits on imports
+V242227,22,False,True,what should immigration levels be
+V242231x,46,True,True,effect of illegal immigration on crime rate
+V242234x,19,False,True,favor/oppose providing path to citizenship
+V242235,48,True,True,are immigrants generally good or bad for america’s economy
+V242236,42,True,True,how important is it for immigrants to adapt to customs/traditions of the us
+V242241x,50,True,True,favor/oppose preferential hiring/promotion of blacks
+V242245x,50,True,True,does r favor/oppose affirmative action in universities
+V242248x,0,False,True,less or more government
+V242249,47,True,True,would it be good for society to have more or less government regulation
+V242253x,44,True,True,summary favor or oppose government trying to reduce income inequality
+V242254,50,True,True,society should make sure everyone has equal opportunity
+V242255,50,True,True,we’d be better off if worried less about equality
+V242256,50,True,True,not a big problem if some have more chance in life
+V242257,50,True,True,if people were treated more fairly we would have fewer problems
+V242258,35,True,True,the world is changing & we should adjust view of moral behavior
+V242259,50,True,True,fewer problems if there was more emphasis on traditional family values
+V242260,50,True,True,which child trait more important: independence or respect
+V242261,50,True,True,which child trait more important: curiosity or good manners
+V242262,50,True,True,which child trait more important: obedience or self-reliance
+V242263,45,True,True,which child trait more important: considerate or well-behaved
+V242266x,24,False,True,us better or worse than most other countries
+V242269x,18,False,True,people in rural areas get more/less from government
+V242272x,22,False,True,people in rural areas have too much/too little influence
+V242275x,21,False,True,people in rural areas get too much/too little respect
+V242279x,33,True,True,better/worse if man works and woman takes care of home
+V242280,38,True,True,do women demanding equality seek special favors
+V242281,0,False,False,do women complaining about discrimination cause more problems
+V242300,12,False,False,agree/disagree: blacks should work their way up without special favors
+V242301,20,False,False,agree/disagree: past slavery & discrimination make it difficult for
+V242302,29,True,True,agree/disagree: blacks have gotten less than they deserve
+V242303,37,True,True,agree/disagree: if blacks tried harder they’d be as well off as whites
+V242308x,27,True,True,does r think they get more or less than their fair share in life
+V242311,30,True,True,how much opportunity in america for average person to get ahead
+V242314x,0,False,True,economic mobility
+V242316a,49,True,True,favor or oppose tax on millionaires
+V242319x,38,True,True,favor/oppose requiring vaccines in schools
+V242324x,48,True,True,favor/oppose increased regulation on greenhouse emissions
+V242325,44,True,True,should federal government make it more difficult or easier to buy a gun
+V242328x,49,True,True,favor/oppose background checks for gun purchases
+V242331x,33,True,True,favor/oppose banning ‘assault-style’ rifles
+V242335x,23,False,True,summary should government do more/less about opioid drug addiction
+V242336,50,True,True,how often do police officers use more force than necessary
+V242343,50,True,True,dhs: how worried about terrorist attack in near future
+V242346x,39,True,True,favor/oppose free trade agreements
+V242349x,50,True,True,increasing diversity made us better/worse place to live
+V242350,50,True,True,"should the minimum wage be raised, kept the same, or lowered"
+V242353x,49,True,True,increase/decrease government spending to help pay for
+V242357x,4,False,False,health benefits of vaccinations outweigh risks
+V242361x,48,True,True,attention to sexual harassment as gone too far/not far
+V242364x,49,True,True,favor/oppose transgender people serve in military
+V242365,50,True,True,how much is china a threat to the united states
+V242366,50,True,True,how much is russia a threat to the united states
+V242367,50,True,True,how much is mexico a threat to the united states
+V242368,50,True,True,how much is iran a threat to the united states
+V242369,50,True,True,how much is japan a threat to the united states
+V242370,45,True,True,how much is israel a threat to the united states
+V242409,47,True,True,cses6-q04a: prefer democracy
+V242410,42,True,True,cses6-q04b: courts’ authority
+V242411,23,False,True,cses6-q04e: attitudes about elites: strong leader in government is good
+V242412,50,True,True,cses6-q04d: policies to increase women representation
+V242413,31,True,True,cses6-q05a: political decisions should be left to business leaders
+V242414,3,False,True,cses6-q05b: political decisions should be left to independent experts
+V242415,1,False,True,cses6-q05bc: political decisions should be left to citizen referendums
+V242417,50,True,True,cses6-q07a: trust congress
+V242418,30,True,True,cses6-q07b: trust government
+V242419,50,True,True,cses6-q07c: trust judiciary
+V242420,50,True,True,cses6-q07d: trust scientists
+V242421,50,True,True,cses6-q07e: trust political parties
+V242422,50,True,True,cses6-q07f: trust traditional media
+V242423,3,False,True,cses6-q07g: trust social media
+V242430,19,False,True,cses6-q13: fairness of election
+V242431,11,False,True,cses6-q14b: who people vote for makes a big difference
+V242453,1,False,False,cses6- q05c: out-group attitudes: immigrants increase crime
+V242454,29,True,True,cses6- q06a: national identity: to have been born in country
+V242455,47,True,True,cses6- q06c: national identity: to be able to speak english
+V242456,49,True,True,cses6- q07: how widespread is corruption
+V242519,45,True,True,how likely whites unable to find jobs because employers hiring minorities
+V242522x,50,True,True,federal government treats blacks or whites better
+V242525x,4,False,False,police treat blacks or whites better
+V242526,50,True,True,how much influence do whites have in us politics
+V242527,39,True,True,how much influence do blacks have in us politics
+V242528,0,False,False,how much influence do hispanics have in us politics
+V242529,48,True,True,how much influence do asians have in us politics
