@@ -98,3 +98,9 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   culled output in `anes/outputs/clustering/independent/` is superseded.
 - **The CES-to-ANES classifier waits for the eight-party CES rebuild** and targets the eight parties, not the
   nine-party typology. Ruled by the researcher.
+- **One rule chooses the clustering dimensions for both CES and ANES**: `docs/EFA_ITEM_SELECTION_ROBUSTNESS.md`
+  §3c (Stage C). Factors need 3 clean items (|λ| ≥ 0.40 here, < 0.30 elsewhere) from at least 2 batteries;
+  parallel analysis and MAP both pick k, and when they disagree a factor must pass in both fits (Tucker φ ≥ 0.85);
+  cross-loaders (|λ| ≥ 0.30 on two factors) are removed worst first. Failing factors profile, they don't cluster.
+  Ruled by the researcher. Replaces the content-based flags and the single-grid r ≥ 0.40 exception proposed the
+  same day, which were set after seeing results.

@@ -83,6 +83,56 @@ Two economic-*perception* items (household-income change, price change) are reta
 
 ---
 
+## 3c. Stage C — which factors define the clustering (shared rule, adopted 2026-11-02)
+
+One rule governs both the CES typology and the ANES independent segmentation, so a difference between the two
+surveys reflects the electorates, not two methods. Choosing items (Stages A and B) and choosing clustering dimensions
+are separate decisions. Every threshold below is fixed before results are seen. Changing one means rerunning
+everything downstream, not adjusting a single factor's verdict.
+
+**Stages A and B, as they apply to both surveys.** The pool holds policy and attitude items only (Stage A). Approval
+of actors, thermometers, self-placement, vote choice and select-all checkbox items are excluded by category. Stage B
+drops items over 30% missing and items whose modal category holds over 85% of weighted respondents. For pairs with
+weighted polychoric |r| > 0.70 it keeps the member with lower party-ID R². No item is dropped for its party-ID R²
+alone, and no factor is validated against party ID: the aim is cross-cutting structure, and a party-ID test would
+build the two-party axis into what counts as real.
+
+**1. Battery.** Every item in the pool is tagged with a battery before the rule runs. A battery is a set of items that
+share one response scale and are asked consecutively in the questionnaire, with no other question between them.
+Shared format and adjacency are the two main sources of method variance (Podsakoff et al. 2003), so two grids with
+identical scales asked back to back count as one battery even if their stems differ. In CES, items sharing a
+`CC24_NNN` root form one battery, plus any adjacent root with the same scale. In ANES, consecutive variable IDs with
+the same scale within one questionnaire section form one battery, checked against the questionnaire. The tags live in
+each survey's item list (`battery_id` column) and are committed before Stage C runs.
+
+**2. Number of factors.** Parallel analysis (Horn, polychoric, 95th percentile) and Velicer's MAP each pick k on the
+screened pool. If they agree, that k is fit. If they disagree, both are fit. A factor can enter the clustering space
+only if it passes the entry test (step 4) in both fits, matched across the two fits at Tucker φ ≥ 0.85. That is the
+threshold this project already uses for "recognizably the same factor" (`analysis/validation/DECISIONS.md`,
+2026-11-02). k is not set by interpretability.
+
+**3. Cross-loaders.** Fit PAF with oblimin. An item cross-loads if it has |λ| ≥ 0.30 on two or more factors. Remove
+the cross-loader with the largest second-highest |λ|, refit at the same k, and repeat until none remain. Then rerun
+parallel analysis and MAP once on the final pool and report the result. If k would change, disclose it rather than
+loop. Removed items leave the factor analysis and remain available for profiling. Items with max |λ| < 0.30 or
+h² < 0.20 are dropped as in Stage B.
+
+**4. Entry test.** A factor defines the clustering only if it has:
+- at least **3 clean items**, meaning |λ| ≥ 0.40 on this factor and |λ| < 0.30 on every other factor; and
+- clean items from **at least 2 batteries**, so the factor can be told apart from one battery's shared format.
+
+These are conventional minimums: Costello and Osborne (2005) treat a factor with fewer than three items as weak, and
+two batteries is the fewest that separates an attitude from a format. Interpretability is not a criterion. Naming
+happens after a factor passes.
+
+**5. Factors that fail.** Their items stay in the factor analysis, so the remaining factors are estimated on the full
+pool. The failing factors leave the clustering input and are used afterward to describe the groups.
+
+**Unchanged downstream.** Available-item scoring, the anchor residualization rule and the DPGMM cap rule (the largest
+cap from 2 to 10 at which no cluster dissolves under resampling) apply as before, to the factors that pass.
+
+---
+
 ## 4. Rotation: oblimin (not Promax)
 
 The pipeline uses **oblimin** oblique rotation (`efa_update.py`, `Rotator(method="oblimin")`), which lets the factors correlate (they do: F1↔F4 = +0.55). Earlier docs said "Promax"; that was an error, now corrected. The distinction matters: on this correlated, cross-loading structure, Promax (a post-hoc power-transform of a varimax solution) is unstable — in testing it spuriously **merged the two trust factors** and caused an anchor collision, while oblimin reproduces the production factor scores cleanly (r≈0.93–0.96). Any replication must use oblimin.
