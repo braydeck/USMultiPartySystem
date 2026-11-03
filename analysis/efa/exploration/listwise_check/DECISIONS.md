@@ -16,3 +16,10 @@
   A larger-pool test stays a separate later check (`NEXT.md`).
 - **Loading-draw test is not a gate.** Production was never tested against loading draws either; cap 8
   beats production on the stability measures both were tested on.
+- **The larger-pool test re-tests every hand drop; only Stage A category exclusions stay out** (researcher).
+  Out by category: approvals (`CC24_312*`), ideology self-placement (`CC24_330a`), the economy
+  retrospective (`CC24_301`, a Biden-approval proxy), multi-selects (`CC24_420_*`, `CC24_309d_8`). Back in,
+  because they were dropped by judgment below the Stage B thresholds: `CC24_440a` (r 0.66 with a retained
+  item, under the 0.70 redundancy cut), `CC24_441a` and `CC24_441b` (racial-resentment thinning),
+  `pew_bornagain` (r 0.61, modal share 67%, under the 85% cut). Mechanical Stage B drops are re-decided by
+  the rule as it runs.
