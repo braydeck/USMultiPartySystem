@@ -14,10 +14,10 @@ and segmentation on ANES's own attitude items. A CES-to-ANES classifier is next.
 
 | Question | Current source | Notes |
 |---|---|---|
-| ANES independent segments (who is in which segment) | `anes/outputs/clustering/independent_available/independent_clusters.csv`, `factors.csv`, `stability_summary.csv` | Built by `anes/independent_clustering.py` with `--available` (available-item scoring, DECISIONS 2026-11-02) |
-| What each ANES segment looks like | `anes/outputs/clustering/independent_available/segment_portraits.html` | Built by `anes/segment_portraits_page.py` from `segment_descriptors.csv` (`anes/describe_segments.py`) |
+| ANES independent segments (who is in which segment) | `anes/outputs/stage_c/independent_clusters.csv`, `factors.csv`, `entry_test.csv`, `caps.csv` | Built by `anes/stage_c.py` then `anes/stage_c_export.py` (shared Stage C rule, `docs/EFA_ITEM_SELECTION_ROBUSTNESS.md` §3c) |
+| What each ANES segment looks like | `anes/outputs/stage_c/segment_portraits.html` | Built by `anes/segment_portraits_page.py` from `segment_descriptors.csv` (`anes/describe_segments.py`) |
 | Matched vs independent ANES clusters side by side | `anes/outputs/clustering/cluster_profiles.html` | `anes/describe_clusters.py` writes the JSON, `anes/cluster_profiles_page.py` renders it |
-| ANES's own factor structure | `anes/outputs/independent_loadings.csv` | Built by `anes/independent_efa.py` |
+| ANES's own factor structure | `anes/outputs/stage_c/loadings_k10.csv` | Built by `anes/stage_c.py` |
 | Whether the CES factors replicate on matched items | `anes/outputs/matched_loadings_anes_k5.csv`, `anes/outputs/bootstrap_phi_summary.csv` | `anes/matched_efa.py`, `anes/bootstrap_phi.py` |
 | Whether CES parties survive in ANES-sized samples | `anes/outputs/clustering/benchmark_summary.csv` | Built by `anes/matched_clustering.py` |
 | Which CES 2024 team-module items could profile clusters | `ces_team_modules_scan.md` | Scanned 2026-10-27 |

@@ -479,203 +479,203 @@
  "independent": {
   "fnames": [
    "Immigration and diversity",
-   "Trust in institutions (CSES)",
    "Democratic norms",
-   "Iran, Russia, China as threats",
-   "No say in government; gender attitudes",
+   "Trust in institutions (CSES)",
+   "Leave decisions to experts or business (CSES)",
+   "Foreign threats",
    "Religion and social traditionalism",
-   "Israel and Ukraine aid",
-   "Government waste and big interests",
+   "Rural resentment",
    "Government role in the economy",
-   "Gun policy"
+   "Gun policy",
+   "Ukraine and Israel aid"
   ],
   "r_ideo": [
-   0.66,
-   -0.08,
-   0.26,
-   0.22,
-   0.41,
-   0.64,
-   -0.06,
-   0.41,
    0.67,
-   0.53
+   0.19,
+   0.03,
+   0.45,
+   0.17,
+   0.62,
+   0.51,
+   0.67,
+   0.45,
+   0.27
   ],
   "top_items": {
    "Immigration and diversity": [
-    "are immigrants generally good or bad for america\u2019s economy (+0.62)",
-    "what should immigration levels be (+0.55)",
-    "how important that more asians get elected to political office (+0.50)"
-   ],
-   "Trust in institutions (CSES)": [
-    "cses6-q07a: trust congress (+0.83)",
-    "cses6-q07e: trust political parties (+0.75)",
-    "cses6-q07b: trust government (+0.72)"
+    "are immigrants generally good or bad for america\u2019s economy (+0.64)",
+    "what should immigration levels be (+0.62)",
+    "cses6- q05c: out-group attitudes: immigrants increase crime (-0.54)"
    ],
    "Democratic norms": [
     "how important branches of government keep one another from too (-0.80)",
-    "how important elected officials face serious consequences for miscondu (-0.73)",
-    "how important that news organizations free to criticize (-0.71)"
+    "how important elected officials face serious consequences for miscondu (-0.74)",
+    "how important that people agree on basic facts (-0.64)"
    ],
-   "Iran, Russia, China as threats": [
-    "how much is iran a threat to the united states (+0.76)",
-    "how much is russia a threat to the united states (+0.74)",
-    "how much is china a threat to the united states (+0.70)"
+   "Trust in institutions (CSES)": [
+    "cses6-q07a: trust congress (+0.85)",
+    "cses6-q07b: trust government (+0.83)",
+    "cses6-q07e: trust political parties (+0.72)"
    ],
-   "No say in government; gender attitudes": [
-    "[std] have no say about what government does (-0.43)",
-    "women seek to gain power by getting control over men (-0.42)",
-    "do women demanding equality seek special favors (-0.41)"
+   "Leave decisions to experts or business (CSES)": [
+    "cses6-q05a: political decisions should be left to business leaders (-0.54)",
+    "cses6-q05b: political decisions should be left to independent experts (-0.42)",
+    "cses6-q04e: attitudes about elites: strong leader in government is goo (-0.38)"
+   ],
+   "Foreign threats": [
+    "how much is russia a threat to the united states (+0.80)",
+    "how much is iran a threat to the united states (+0.77)",
+    "how much is china a threat to the united states (+0.72)"
    ],
    "Religion and social traditionalism": [
-    "gay marriage (form 1A/1B splice) (+0.71)",
-    "religious attendance (spliced) (+0.61)",
-    "which child trait more important: obedience or self-reliance (-0.60)"
+    "gay marriage (form 1A/1B splice) (+0.77)",
+    "religious attendance (spliced) (+0.67)",
+    "which child trait more important: obedience or self-reliance (-0.59)"
    ],
-   "Israel and Ukraine aid": [
-    "how much is israel a threat to the united states (+0.53)",
-    "favor/oppose u.s. giving military assistance to israel (+0.51)",
-    "favor/oppose u.s. giving weapons to help ukraine fight russia (+0.50)"
-   ],
-   "Government waste and big interests": [
-    "government run by a few big interests or for benefit of all (-0.69)",
-    "does government waste much tax money (-0.54)",
-    "how often trust government in washington to do what is right [revised] (+0.52)"
+   "Rural resentment": [
+    "people in rural areas have too much/too little influence (+0.72)",
+    "people in rural areas get more/less from government (+0.70)",
+    "people in rural areas get too much/too little respect (+0.68)"
    ],
    "Government role in the economy": [
-    "7pt scale guaranteed job-income scale: self-placement (+0.66)",
-    "7pt scale spending & services: self- placement (-0.64)",
-    "should the minimum wage be raised, kept the same, or lowered (+0.61)"
+    "7pt scale guaranteed job-income scale: self-placement (+0.71)",
+    "7pt scale spending & services: self- placement (-0.68)",
+    "should the minimum wage be raised, kept the same, or lowered (+0.59)"
    ],
    "Gun policy": [
-    "favor/oppose background checks for gun purchases (+0.67)",
-    "should federal government make it more difficult or easier to buy a gu (+0.66)",
+    "favor/oppose background checks for gun purchases (+0.74)",
+    "should federal government make it more difficult or easier to buy a gu (+0.64)",
     "favor/oppose banning \u2018assault-style\u2019 rifles (+0.58)"
+   ],
+   "Ukraine and Israel aid": [
+    "favor/oppose u.s. giving weapons to help ukraine fight russia (+0.75)",
+    "favor/oppose u.s. giving military assistance to israel (+0.54)",
+    "country would be better off if we just stayed home (-0.52)"
    ]
   },
   "clusters": [
    {
     "cluster": 0,
-    "n": 1592,
-    "share": 0.34443533278676963,
-    "pid_dem": 0.6226808370192358,
-    "pid_ind": 0.08027972849237909,
-    "pid_rep": 0.2970394344883852,
-    "pid7_mean": 3.238360295211956,
-    "ideo_mean": 3.832427868227927,
-    "not_thought_any": 0.3872480699450728,
-    "not_thought_mean": 0.830303034311193,
+    "n": 1504,
+    "share": 0.2973348778371558,
+    "pid_dem": 0.050537620519834486,
+    "pid_ind": 0.04394398920851222,
+    "pid_rep": 0.9055183902716533,
+    "pid7_mean": 5.911081562688373,
+    "ideo_mean": 5.573441739945982,
+    "not_thought_any": 0.2536707992582594,
+    "not_thought_mean": 0.4532588996631367,
     "vote": {
-     "Harris": 0.5557899946845544,
-     "Trump": 0.19727045473880994,
-     "Other": 0.03577749701513518,
-     "Did not vote / missing": 0.21116205356150053,
+     "Harris": 0.05620712441010509,
+     "Trump": 0.7663123330495968,
+     "Other": 0.01933993104470331,
+     "Did not vote / missing": 0.15814061149559477,
      "No post interview": 0.0
     },
     "factors": {
-     "Immigration and diversity": -0.09470735529840979,
-     "Trust in institutions (CSES)": -0.09021837943486365,
-     "Democratic norms": 0.09808989389390983,
-     "Iran, Russia, China as threats": -0.008167898128416255,
-     "No say in government; gender attitudes": 0.05199648524161362,
-     "Religion and social traditionalism": -0.09235868661115211,
-     "Israel and Ukraine aid": 0.021564919018624326,
-     "Government waste and big interests": -0.0544389675022669,
-     "Government role in the economy": -0.24969086983644004,
-     "Gun policy": -0.4791216125425399
+     "Immigration and diversity": 0.7492614716448421,
+     "Democratic norms": -0.14093477191698514,
+     "Trust in institutions (CSES)": -0.023294441360310964,
+     "Leave decisions to experts or business (CSES)": 0.40027559245145145,
+     "Foreign threats": 0.29996043068080475,
+     "Religion and social traditionalism": 0.6824536918045053,
+     "Rural resentment": 0.6435915946762041,
+     "Government role in the economy": 1.1241174261260005,
+     "Gun policy": 0.5603402245670261,
+     "Ukraine and Israel aid": 0.16611958840130123
     }
    },
    {
     "cluster": 1,
-    "n": 1396,
-    "share": 0.2772929978011651,
-    "pid_dem": 0.03870428753365625,
-    "pid_ind": 0.027048804675340054,
-    "pid_rep": 0.9342469077910039,
-    "pid7_mean": 6.034559485115422,
-    "ideo_mean": 5.588300922527717,
-    "not_thought_any": 0.23156827069067965,
-    "not_thought_mean": 0.37612869257868997,
+    "n": 1043,
+    "share": 0.26249259308735057,
+    "pid_dem": 0.3860186900047972,
+    "pid_ind": 0.14440505914589355,
+    "pid_rep": 0.4695762508493095,
+    "pid7_mean": 4.148275702291237,
+    "ideo_mean": 4.303687033319837,
+    "not_thought_any": 0.5120877192411402,
+    "not_thought_mean": 1.248426339092202,
     "vote": {
-     "Harris": 0.033307066268304784,
-     "Trump": 0.7986683728347913,
-     "Other": 0.01763149561705233,
-     "Did not vote / missing": 0.15039306527985158,
+     "Harris": 0.21613811796945606,
+     "Trump": 0.3011769824827175,
+     "Other": 0.0186632605835825,
+     "Did not vote / missing": 0.464021638964244,
      "No post interview": 0.0
     },
     "factors": {
-     "Immigration and diversity": 0.805541912266572,
-     "Trust in institutions (CSES)": -0.17155361628851962,
-     "Democratic norms": -0.1093873269234584,
-     "Iran, Russia, China as threats": 0.4241018948737903,
-     "No say in government; gender attitudes": 0.355333672593857,
-     "Religion and social traditionalism": 0.6700243551547062,
-     "Israel and Ukraine aid": -0.37825607862891075,
-     "Government waste and big interests": 0.7209499712475953,
-     "Government role in the economy": 1.079074279505879,
-     "Gun policy": 0.7000540029067058
+     "Immigration and diversity": 0.3428720346605343,
+     "Democratic norms": 0.950175781052217,
+     "Trust in institutions (CSES)": 0.19283318459547585,
+     "Leave decisions to experts or business (CSES)": 0.40047936643235205,
+     "Foreign threats": -0.35042936090089655,
+     "Religion and social traditionalism": 0.3116327269145866,
+     "Rural resentment": -0.011965790890444276,
+     "Government role in the economy": -0.44426047950504427,
+     "Gun policy": 0.48204001334401725,
+     "Ukraine and Israel aid": 0.6236983095138223
     }
    },
    {
     "cluster": 2,
-    "n": 1038,
-    "share": 0.210694667586772,
-    "pid_dem": 0.9764552885344543,
-    "pid_ind": 0.009922254166328765,
-    "pid_rep": 0.013622457299216859,
-    "pid7_mean": 1.763909662801295,
-    "ideo_mean": 2.384943752535486,
-    "not_thought_any": 0.14661590325334123,
-    "not_thought_mean": 0.1955906146571073,
+    "n": 1178,
+    "share": 0.25736829805259437,
+    "pid_dem": 0.7766761976910089,
+    "pid_ind": 0.05131256610057404,
+    "pid_rep": 0.1720112362084171,
+    "pid7_mean": 2.646740375841408,
+    "ideo_mean": 3.482483005801902,
+    "not_thought_any": 0.32005353702566275,
+    "not_thought_mean": 0.5853932656981505,
     "vote": {
-     "Harris": 0.9203072081383049,
-     "Trump": 0.0,
-     "Other": 0.016038551206569766,
-     "Did not vote / missing": 0.06365424065512522,
+     "Harris": 0.7118843580300415,
+     "Trump": 0.1038993791767078,
+     "Other": 0.036838212876419224,
+     "Did not vote / missing": 0.14737804991683137,
      "No post interview": 0.0
     },
     "factors": {
-     "Immigration and diversity": -1.0193912842783375,
-     "Trust in institutions (CSES)": 0.09612868133239934,
-     "Democratic norms": -0.855992411238127,
-     "Iran, Russia, China as threats": -0.20493600932583772,
-     "No say in government; gender attitudes": -0.9467790744732995,
-     "Religion and social traditionalism": -1.126036156895763,
-     "Israel and Ukraine aid": -0.36218545422646203,
-     "Government waste and big interests": -0.55580197945799,
-     "Government role in the economy": -0.7984036174900279,
-     "Gun policy": -0.7704773438078748
+     "Immigration and diversity": -0.3963785374365445,
+     "Democratic norms": -0.2302238689477575,
+     "Trust in institutions (CSES)": -0.1479093645106698,
+     "Leave decisions to experts or business (CSES)": -0.15775874428457518,
+     "Foreign threats": 0.00971407006759427,
+     "Religion and social traditionalism": -0.33235394216411873,
+     "Rural resentment": -0.15805177040459428,
+     "Government role in the economy": -0.31811723306177897,
+     "Gun policy": -0.6837657031709996,
+     "Ukraine and Israel aid": -0.27183395416022677
     }
    },
    {
     "cluster": 3,
-    "n": 647,
-    "share": 0.16757700182529314,
-    "pid_dem": 0.37684815343496614,
-    "pid_ind": 0.16446491149210682,
-    "pid_rep": 0.45868693507292685,
-    "pid7_mean": 4.118527403644817,
-    "ideo_mean": 4.42207221725943,
-    "not_thought_any": 0.5360326456058752,
-    "not_thought_mean": 1.3458631050212282,
+    "n": 909,
+    "share": 0.18280423102289928,
+    "pid_dem": 0.9781632714684234,
+    "pid_ind": 0.00601584116709345,
+    "pid_rep": 0.015820887364482915,
+    "pid7_mean": 1.767109693126766,
+    "ideo_mean": 2.3633053418496215,
+    "not_thought_any": 0.14050873366918654,
+    "not_thought_mean": 0.21595045057549478,
     "vote": {
-     "Harris": 0.17909286964433654,
-     "Trump": 0.26931396862904367,
-     "Other": 0.011183459300465966,
-     "Did not vote / missing": 0.5404097024261537,
+     "Harris": 0.923515575583544,
+     "Trump": 0.0051398725206426585,
+     "Other": 0.014103006141052653,
+     "Did not vote / missing": 0.057241545754760634,
      "No post interview": 0.0
     },
     "factors": {
-     "Immigration and diversity": 0.1433951870054982,
-     "Trust in institutions (CSES)": 0.34844407581892206,
-     "Democratic norms": 1.0556326296178578,
-     "Iran, Russia, China as threats": -0.4273154904983106,
-     "No say in government; gender attitudes": 0.4955353985247396,
-     "Religion and social traditionalism": 0.49689602856524645,
-     "Israel and Ukraine aid": 1.0369596299675818,
-     "Government waste and big interests": -0.3822670229206727,
-     "Government role in the economy": -0.2685213286496207,
-     "Gun policy": 0.7951079525122874
+     "Immigration and diversity": -1.1529693096860765,
+     "Democratic norms": -0.8110149054783713,
+     "Trust in institutions (CSES)": -0.030764339205852347,
+     "Leave decisions to experts or business (CSES)": -1.0040066425657739,
+     "Foreign threats": 0.0016209687393075965,
+     "Religion and social traditionalism": -1.0895874679733215,
+     "Rural resentment": -0.8071136030171181,
+     "Government role in the economy": -0.7426028417743123,
+     "Gun policy": -0.6409097281062457,
+     "Ukraine and Israel aid": -0.7830666235459482
     }
    }
   ],
@@ -683,68 +683,68 @@
    "Immigration and diversity"
   ],
   "residualized": [
-   "No say in government; gender attitudes",
    "Religion and social traditionalism",
+   "Rural resentment",
    "Government role in the economy",
    "Gun policy"
   ]
  },
  "crosstab": {
-  "n": 3784,
+  "n": 3761,
   "row_share": [
    [
-    0.23,
+    0.007,
+    0.008,
+    0.288,
+    0.697
+   ],
+   [
+    0.492,
+    0.304,
+    0.197,
+    0.006
+   ],
+   [
+    0.662,
+    0.237,
+    0.101,
+    0.0
+   ],
+   [
+    0.091,
+    0.335,
+    0.451,
+    0.123
+   ],
+   [
+    0.024,
+    0.062,
+    0.468,
+    0.446
+   ],
+   [
+    0.035,
+    0.15,
+    0.608,
+    0.207
+   ],
+   [
+    0.364,
+    0.553,
+    0.074,
+    0.01
+   ],
+   [
+    0.726,
+    0.267,
     0.006,
-    0.762,
-    0.002
+    0.0
    ],
    [
-    0.359,
-    0.462,
-    0.021,
-    0.158
-   ],
-   [
-    0.17,
-    0.644,
-    0.0,
-    0.186
-   ],
-   [
-    0.598,
-    0.087,
-    0.195,
-    0.12
-   ],
-   [
-    0.422,
-    0.019,
-    0.528,
-    0.032
-   ],
-   [
-    0.684,
-    0.037,
     0.236,
-    0.043
-   ],
-   [
-    0.207,
-    0.317,
-    0.023,
-    0.453
-   ],
-   [
-    0.099,
-    0.673,
-    0.0,
-    0.228
-   ],
-   [
-    0.528,
-    0.164,
-    0.004,
-    0.303
+    0.58,
+    0.18,
+    0.004
    ]
   ],
   "cols": [
@@ -765,7 +765,7 @@
    8
   ]
  },
- "ari": 0.19977576851247167,
+ "ari": 0.2061573906245478,
  "unassigned": {
   "matched": 0,
   "independent": 0

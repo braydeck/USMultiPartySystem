@@ -4,8 +4,8 @@ Data: ANES 2024 Time Series CSV (2025-08-08 release), post weight V240108a.
   - Matched clusters: the production chain on the 18 crosswalk items (matched_clustering.run_chain,
     DPGMM cap 9, seed 42), n = 3,796. Party labels come from outputs/clustering/anes_clusters.csv,
     which matched_clustering.py writes; this script asserts it reproduces those cluster shares.
-  - Independent clusters: read from outputs/clustering/independent_available/ (independent_clustering.py
-    --available: all 99 screened items, available-item scoring, residualized on one anchor, DPGMM cap
+  - Independent clusters: read from outputs/stage_c/ (stage_c.py and stage_c_export.py: the shared Stage C rule,
+    ten factors of which eight define the clustering, available-item scoring, one-anchor residualization, DPGMM cap
     chosen on stability).
 Factors in both sets are oriented so that high = the end that correlates with conservative
 self-placement (V241177); factors whose |r| with ideology is under 0.10 keep their top item's sign.
@@ -133,7 +133,7 @@ def matched(desc_all, keep_w):
 
 def independent(desc_all, keep_w):
     """Read the stable independent clustering written by independent_clustering.py."""
-    src = OUT / "independent_available"
+    src = me.OUT / "stage_c"
     lab = pd.read_csv(src / "independent_clusters.csv")
     fac = pd.read_csv(src / "factors.csv")
     fnames = list(fac.factor)

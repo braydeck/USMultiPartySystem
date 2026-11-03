@@ -1,21 +1,20 @@
 """Who is in each stable ANES segment: every independent cluster against the rest of the sample.
 
 Data: ANES 2024 Time Series CSV and codebook (2025-08-08 release), post weight V240108a. Segments from
-outputs/clustering/independent_available/independent_clusters.csv (independent_clustering.py --available,
-n = 4,673, 4 clusters).
+outputs/stage_c/independent_clusters.csv (stage_c.py, stage_c_export.py; n = 4,634, 4 clusters).
 Descriptors are variables the clustering never saw: demographics, religion, finances, engagement,
 emotions about the country, issue importance, group and candidate thermometers, news and social media,
-and the attitude-pool items the independent screen excluded (in the pool, not among the 99 factored items).
+the attitude-pool items Stage C left out of the factor analysis, and the two factors that failed the entry test.
 
 Each descriptor is a weighted share (binary) or weighted mean. Segment vs rest is compared by a
 respondent bootstrap (1,000 draws, seed 42): the difference, its 95% interval, and P(segment > rest),
 labeled with the research-statistics group-comparison table (>= 0.95 Strong, 0.90-0.95 Moderate,
 0.80-0.90 Directional, else Inconclusive; mirrored for "lower"). The bootstrap ignores the ANES PSU and
-strata, so intervals run somewhat narrow; ~120 descriptors x 4 segments are compared, so expect a few
+strata, so intervals run somewhat narrow; ~140 descriptors x 4 segments are compared, so expect a few
 Strong labels by chance among the small differences. Effect size for ranking: percentage points for
 shares, difference in weighted SDs for means.
 
-Writes outputs/clustering/independent_available/segment_descriptors.csv.
+Writes outputs/stage_c/segment_descriptors.csv.
 """
 import re
 
@@ -27,7 +26,7 @@ import independent_efa as ie
 import matched_efa as me
 import recode_matched as rm
 
-SRC = me.OUT / "clustering" / "independent_available"
+SRC = me.OUT / "stage_c"
 CODEBOOK = rm.ANES_CSV.parent / "anes_timeseries_2024_userguidecodebook_20250808.pdf"
 N_BOOT, SEED = 1000, 42
 
@@ -148,12 +147,12 @@ def main():
     D = build(raw)
     D.index = raw.V240001.values
 
-    # attitude-pool items the independent screen excluded from the 99 factored items
+    # attitude-pool items Stage C left out of the factor analysis
     CODE_LABELS = codebook_labels()
     items, w_pool, _, cw = ie.load_pool()
     desc_all, keep_w = dc.descriptors()
     items.index = desc_all.caseid[keep_w].values
-    factored = set(pd.read_csv(me.OUT / "independent_loadings.csv", index_col=0).index)
+    factored = set(pd.read_csv(SRC / "loadings_k10.csv", index_col=0).index)
     for c in items.columns:
         if c in factored or "|" in cw.loc[c, "anes_sources"]:
             continue
@@ -162,6 +161,16 @@ def main():
             continue
         x = items[c]
         D[("Views the clustering didn't use", f"{cw.label[c][:80]} (higher = toward '{top[:40]}')")] = x.reindex(D.index)
+
+    # factors that failed the entry test: weighted standardized score (high = the conservative-aligned end)
+    fac = pd.read_csv(SRC / "factors.csv")
+    full = pd.read_csv(SRC / "independent_clusters.csv").set_index("caseid")
+    ww = pd.to_numeric(raw.set_index("V240001").loc[full.index, rm.WEIGHT]).values
+    for f in fac.factor[~fac.clusters]:
+        x = full[f"F_{f}"].values
+        z = (x - np.average(x, weights=ww)) / np.sqrt(np.average((x - np.average(x, weights=ww)) ** 2, weights=ww))
+        D[("Factors the clustering didn't use", f"{f} (SD; higher = toward the conservative-aligned end)")] = \
+            pd.Series(z, index=full.index).reindex(D.index)
 
     D = D.loc[seg.caseid.values]
     w = pd.to_numeric(raw.set_index("V240001").loc[seg.caseid.values, rm.WEIGHT]).values

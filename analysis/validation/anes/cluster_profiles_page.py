@@ -140,7 +140,7 @@ table.items td.lab{{font-size:12px;max-width:320px}} .legend{{font-size:12px;col
 </style></head><body><main>
 <h1>ANES 2024 clusters, two ways</h1>
 <p>Matched clusters run the production CES chain on the 18 items ANES shares with the CES typology (n = {nM:,}).
-Independent clusters use ANES's own ten factors on all 99 screened items, each respondent scored on the items they answered (n = {nI:,}, respondents who answered at least half of each factor's items),
+Independent clusters use eight of ANES's own ten factors, the ones that pass the shared Stage C rule (docs/EFA_ITEM_SELECTION_ROBUSTNESS.md §3c), each respondent scored on the items they answered (n = {nI:,}, respondents who answered at least half of each clustering factor's items),
 with the cluster count chosen on seed and resample stability ({len(I["clusters"])} clusters). Matched clusters use the DPGMM capped at 9; respondents in components holding under 1% of the weight are left unassigned ({D["unassigned"]["matched"]:,} matched, {D["unassigned"]["independent"]:,} independent). Rows are ordered from most Democratic to most Republican party ID.</p>
 <div class="legend"><span><span class="sw" style="background:var(--d)"></span>Democrat / Harris</span>
 <span><span class="sw" style="background:var(--i)"></span>Independent / other candidate</span>
