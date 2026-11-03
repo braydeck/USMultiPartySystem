@@ -22,3 +22,8 @@
   item, under the 0.70 redundancy cut), `CC24_441a` and `CC24_441b` (racial-resentment thinning),
   `pew_bornagain` (r 0.61, modal share 67%, under the 85% cut). Mechanical Stage B drops are re-decided by
   the rule as it runs.
+- **Foreign policy gets its own arm of the larger-pool test, with and without the other re-tested items**
+  (researcher). Multi-select batteries enter as individual binaries with the exclusive "none" box dropped,
+  not as count scores: the intervention reasons split left/right among the 45,214 (oil supply NAT 30% vs
+  PRG 4%; UN law PRG 78% vs NAT 11%). Ukraine and Gaza included even though partisan-coded. Financial
+  fragility (`CC24_309d_8`) stays out as non-attitudinal.
