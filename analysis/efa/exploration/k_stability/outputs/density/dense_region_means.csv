@@ -1,0 +1,5 @@
+region,share_pct,F1 Security & Order,F2 Institutional Distrust,F3 Government Distrust,F4 Religious Traditionalism (resid),F5 Populist Conservatism (resid)
+no dense region,82.1,0.09,0.13,-0.02,0.08,0.01
+dense region 0,5.5,0.93,-0.19,0.44,0.47,0.98
+dense region 1,11.0,-1.25,-0.77,0.04,-0.66,-0.4
+dense region 2,1.4,0.89,-0.93,-0.79,-1.37,-1.56

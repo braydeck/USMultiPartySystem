@@ -1,0 +1,6 @@
+factor,skew,excess_kurtosis,bimodality_coef
+F1 Security & Order,-0.57,-0.92,0.635
+F2 Institutional Distrust,0.96,0.5,0.551
+F3 Government Distrust,-0.14,-0.16,0.359
+F4 Religious Traditionalism (resid),0.34,-0.34,0.419
+F5 Populist Conservatism (resid),0.35,-0.36,0.425
