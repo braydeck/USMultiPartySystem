@@ -17,8 +17,7 @@ Item sets, fixed before running:
                          |r| > 0.70 with any input (cross-typology comparison)
   strict, no-FP          same relative to the no-foreign-policy inputs only (cap curve); includes foreign policy
   foreign policy         the 14 foreign_policy_nation items (none is a no-foreign-policy input)
-  behavior and identity  2024 turnout (V242095x, self-report summary; ANES 2024 has no validated vote), Harris vs
-                         Trump (V242096x), party ID (V241227x), ideology (V241177, 1-7)
+Policy items only: vote, turnout, party ID and ideology are not a measure of cluster quality (§3c; researcher).
 Uncertainty: 200 respondent bootstrap resamples (seed 42) for each reported difference.
 Writes outputs/heldout/{curve.csv, compare.csv, items.csv, sets.csv}; the full-pool polychoric is cached in
 outputs/heldout/cache/ (not committed). Log via tee.
@@ -37,7 +36,6 @@ import dims_check as dk
 import independent_clustering as ic
 import independent_efa as ie
 import matched_efa as me
-import recode_matched as rm
 from common import clustering as cl
 from common import efa_math as em
 
@@ -131,20 +129,12 @@ def main():
     sets = {"strict, all inputs": strict(all_inp), "strict, no-FP": strict(inputs["no-FP"]),
             "foreign policy": [c for c in cw.index if cw.domain[c] == FP_DOMAIN]}
 
-    d = pd.read_csv(rm.ANES_CSV, usecols=["V240001", "V242095x", "V242096x", "V241227x", "V241177"],
-                    low_memory=False).set_index("V240001").loc[ids]
     V = {c: items.loc[ids, c].values.astype(float) for c in cw.index}
-    V["2024 turnout"] = d.V242095x.where(d.V242095x.isin([0, 1])).astype(float).values
-    V["Harris vs Trump"] = d.V242096x.map({1: 1.0, 2: 0.0}).astype(float).values
-    V["party ID"] = d.V241227x.where(d.V241227x.between(1, 7)).astype(float).values
-    V["ideology"] = d.V241177.where(d.V241177.between(1, 7)).astype(float).values
-    sets["behavior and identity"] = ["2024 turnout", "Harris vs Trump", "party ID", "ideology"]
 
     rows = []
     for s, cols in sets.items():
         for c in cols:
-            rows.append({"set": s, "item": c, "label": cw.label[c][:80] if c in cw.index else c,
-                         "domain": cw.domain[c] if c in cw.index else "", "answered": round(float(np.average(~np.isnan(V[c]), weights=w)), 3),
+            rows.append({"set": s, "item": c, "label": cw.label[c][:80], "domain": cw.domain[c], "answered": round(float(np.average(~np.isnan(V[c]), weights=w)), 3),
                          **{k: round(eta2(V[c], g, w), 4) for k, g in G.items()}, "continuous R2": round(wr2(V[c], X, w), 4)})
     items_out = pd.DataFrame(rows)
     items_out.to_csv(OUT / "items.csv", index=False)
@@ -155,7 +145,7 @@ def main():
     rng = np.random.default_rng(42)
     perms = [rng.permutation(len(ids)) for _ in range(N_PERM)]
     curve = []
-    for s in ("strict, no-FP", "foreign policy", "behavior and identity"):
+    for s in ("strict, no-FP", "foreign policy"):
         sub = items_out[items_out.set == s]
         ceil = sub["continuous R2"].mean()
         for K in ic.KS:
@@ -169,9 +159,9 @@ def main():
     with pd.option_context("display.width", 200):
         print("\ncap curve (no-foreign-policy space):\n" + curve.to_string(index=False), flush=True)
 
-    pairs = [("no-FP 5", "with FP 5"), ("no-FP 5", "production 4"), ("with FP 5", "production 4"),
-             ("no-FP 5", "no-FP 4"), ("no-FP 6", "no-FP 5")]
-    cmp_sets = {s: sets[s] for s in ("strict, all inputs", "behavior and identity")}
+    pairs = [("no-FP 5", "with FP 5"), ("no-FP 5", "production 4"), ("with FP 5", "production 4")] + \
+            [(f"no-FP {K}", f"no-FP {K - 1}") for K in range(3, 11)]
+    cmp_sets = {s: sets[s] for s in ("strict, all inputs",)}
     need = {x for p in pairs for x in p}
     boots = {(s, a, b): [] for s in cmp_sets for a, b in pairs}
     for _ in range(N_BOOT):

@@ -60,7 +60,3 @@ foreign policy,V242367,how much is mexico a threat to the united states,foreign_
 foreign policy,V242368,how much is iran a threat to the united states,foreign_policy_nation,0.996,0.012,0.0456,0.0452,0.0451,0.0623,0.0777,0.0852,0.086,0.084,0.1048,0.0768,0.1163
 foreign policy,V242369,how much is japan a threat to the united states,foreign_policy_nation,0.997,0.0781,0.1086,0.1192,0.1227,0.1287,0.1404,0.1448,0.1538,0.1567,0.1657,0.1269,0.1717
 foreign policy,V242370,how much is israel a threat to the united states,foreign_policy_nation,0.995,0.0003,0.0581,0.056,0.0665,0.0767,0.0778,0.0815,0.0851,0.0807,0.0908,0.09,0.1142
-behavior and identity,2024 turnout,2024 turnout,,0.999,0.0505,0.0824,0.105,0.0955,0.104,0.105,0.1083,0.1059,0.1028,0.1232,0.1434,0.1664
-behavior and identity,Harris vs Trump,Harris vs Trump,,0.759,0.4065,0.6033,0.6543,0.656,0.6565,0.6083,0.6272,0.6057,0.6239,0.6224,0.5887,0.6503
-behavior and identity,party ID,party ID,,0.998,0.2948,0.4873,0.5136,0.5146,0.5126,0.4837,0.4955,0.4794,0.4832,0.4934,0.4685,0.5717
-behavior and identity,ideology,ideology,,0.851,0.3938,0.5019,0.5351,0.5312,0.5445,0.5324,0.5615,0.5361,0.5334,0.553,0.5126,0.6476
