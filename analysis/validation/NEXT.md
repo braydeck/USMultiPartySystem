@@ -8,6 +8,7 @@
 - The culled segmentation (3777ff7) is archived to `_ARCHIVE (superseded, do not cite)/anes/outputs/clustering/independent/`. `AGENTS.md` here holds the sources-of-truth table.
 - Why ANES stops at 4 clusters (`anes/n_check.py`, `anes/dims_check.py`): sample size, not factor count. CES's five production factors cut to ANES's 4,673 keep caps 5, 6 and 9 across three draws, 8 at 2x and 9 at 4x. ANES's own 99 items refit at 3, 5, 7 and 10 factors keep caps 4, 5, 4 and 4. All 10 resamples of the production ANES scores keep cap 4.
 - Without the 10 foreign-policy items (`anes/nofp_check.py`): parallel analysis still picks 10 factors, the cap rule still keeps 4 (all 4 stable, resample ARI 0.74 vs 0.68), ARI 0.61 vs production. Religious conservatives 98%, secular progressives 88% and young disaffected 85% land in one new cluster; center-left moderates split 63/19/17. Trust items: CSES institutional trust and efficacy items have party-ID R2 <= 0.01; media and scientists 0.13-0.17.
+- Density (`anes/density_profile.py`; CES twin `analysis/efa/exploration/k_stability/density_profile.py`): all ten ANES factors are single-peaked (bimodality 0.29-0.46). HDBSCAN at CES's settings scaled to n finds no dense region; at a looser setting, one (10%, 95% secular progressives) plus a 0.6% pocket of religious conservatives. CES: 82% in no dense region; Security & Order is its one two-humped factor.
 - CES side: the listwise-deletion check moved to its own workstream, `analysis/efa/exploration/listwise_check/NEXT.md`.
 
 ## Waiting on the researcher

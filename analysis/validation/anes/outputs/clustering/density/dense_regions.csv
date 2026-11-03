@@ -1,0 +1,6 @@
+min_cluster_size,region,share_pct,segments,Immigration and diversity,Trust in institutions (CSES),Democratic norms,"Iran, Russia, China as threats",No say in government; gender attitudes,Religion and social traditionalism,Israel and Ukraine aid,Government waste and big interests,Government role in the economy,Gun policy
+25,none,89.4,"center-left moderates 38, religious conservatives 30, young disaffected 19, secular progressives 13",0.11,-0.0,0.11,0.0,0.07,0.08,0.06,0.07,0.03,0.04
+25,0,0.6,religious conservatives 100,0.97,-0.38,0.01,0.33,-0.2,0.04,-0.53,0.57,0.51,0.16
+25,1,10.0,secular progressives 95,-1.03,0.06,-0.94,-0.05,-0.59,-0.73,-0.48,-0.67,-0.29,-0.36
+50,none,100.0,"center-left moderates 34, religious conservatives 28, secular progressives 21, young disaffected 17",0.0,-0.0,0.0,-0.0,-0.0,0.0,-0.0,0.0,-0.0,0.0
+100,none,100.0,"center-left moderates 34, religious conservatives 28, secular progressives 21, young disaffected 17",0.0,-0.0,0.0,-0.0,-0.0,0.0,-0.0,0.0,-0.0,0.0
