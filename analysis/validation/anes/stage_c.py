@@ -31,6 +31,12 @@ Choices fixed before running (§3c):
            and cap rule (n_check.sweep); the modal solution across 20 seeds, best lower bound within it. Compared with
            the production four segments (outputs/clustering/independent_available/) by ARI and crosswalk.
 
+Sensitivity: --no-foreign-policy drops the foreign_policy_nation domain (14 items: threat ratings, Israel/Ukraine/
+Palestinian aid, Gaza protests, "better off if we stayed home", force, US vs other countries) after the missing/modal
+screen and reruns everything else unchanged, writing to outputs/stage_c_nofp/ and comparing with the main run. Defense
+spending and terrorism worry stay (other domains). Resample matrices are the main run's, subset (a pairwise matrix's
+submatrix is the subset's matrix).
+
 Writes outputs/stage_c/{screen_log.csv, retention.csv, loadings_k<k>.csv, entry_test.csv, caps.csv, clusters.csv,
 crosswalk.csv}; log via tee. Resample matrices are cached in outputs/stage_c/cache/ (not committed).
 """
@@ -54,8 +60,9 @@ import n_check as nc
 from common import clustering as cl
 from common import efa_math as em
 
-OUT = me.OUT / "stage_c"
-CACHE = OUT / "cache"
+NOFP = "--no-foreign-policy" in sys.argv
+OUT = me.OUT / ("stage_c_nofp" if NOFP else "stage_c")
+CACHE = me.OUT / "stage_c" / "cache"
 MIN_LOAD, MIN_H2, HEYWOOD = 0.30, 0.20, 0.995
 CLEAN, CROSS, MIN_CLEAN, MIN_BATTERIES = 0.40, 0.30, 2, 2
 K_MIN, K_MAX = 3, 7
@@ -139,16 +146,19 @@ def resample_matrix(b, idx, items, w, ids):
     return R
 
 
-def one_resample(b, idx, items, w, ids, k):
-    R = resample_matrix(b, idx, items, w, ids)
+def subset(R, ids_full, ids):
+    i = [ids_full.index(c) for c in ids]
+    return R[np.ix_(i, i)]
+
+
+def one_resample(b, idx, items, w, ids_full, ids, k):
+    R = subset(resample_matrix(b, idx, items, w, ids_full), ids_full, ids)
     pool = redundancy(R, ids)
     return b, weak_screen(R, ids, pool, k)
 
 
-def resample_entry(b, ids, retained, k, L_full, cw):
-    R = np.load(cache_path(b, ids))
-    idx = [ids.index(c) for c in retained]
-    L, _, _ = me.fit(R[np.ix_(idx, idx)], k)
+def resample_entry(b, ids_full, retained, k, L_full, cw):
+    L, _, _ = me.fit(subset(np.load(cache_path(b, ids_full)), ids_full, retained), k)
     P = (L_full.T @ L) / np.sqrt(np.outer((L_full ** 2).sum(0), (L ** 2).sum(0)))
     ri, ci = linear_sum_assignment(-np.abs(P))
     et = entry(L, retained, cw)
@@ -163,8 +173,15 @@ def main():
     CACHE.mkdir(exist_ok=True)
     items, w, _, cw = ie.load_pool()
     log = []
-    ids = stage_b_univariate(items, w, log)
-    R_all = em.regularize_corr(em.polychoric_matrix(items[ids], ids, w, progress=False))
+    ids_full = stage_b_univariate(items, w, log)
+    R_full = em.regularize_corr(em.polychoric_matrix(items[ids_full], ids_full, w, progress=False))
+    excluded = [c for c in ids_full if NOFP and cw.domain[c] == "foreign_policy_nation"]
+    for c in excluded:
+        log.append((c, "A excluded (foreign-policy sensitivity)", np.nan))
+    ids = [c for c in ids_full if c not in excluded]
+    R_all = subset(R_full, ids_full, ids)
+    if excluded:
+        print(f"foreign-policy sensitivity: {len(excluded)} items excluded", flush=True)
     pool = redundancy(R_all, ids, log)
     print(f"Stage B: {len(ids)} of {items.shape[1]} pass missing/modal; {len(pool)} after redundancy", flush=True)
     idx = [ids.index(c) for c in pool]
@@ -177,7 +194,7 @@ def main():
 
     rng = np.random.default_rng(42)
     draws = [rng.integers(0, len(items), len(items)) for _ in range(N_RESAMPLES)]
-    res = Parallel(n_jobs=5)(delayed(one_resample)(b, draws[b], items, w, ids, k) for b in range(N_RESAMPLES))
+    res = Parallel(n_jobs=5)(delayed(one_resample)(b, draws[b], items, w, ids_full, ids, k) for b in range(N_RESAMPLES))
     surv = pd.Series(0, index=ids)
     for _, alive_b in res:
         surv[alive_b] += 1
@@ -206,7 +223,7 @@ def main():
     ld.to_csv(OUT / f"loadings_k{k}.csv")
 
     et = entry(L, retained, cw)
-    rs = Parallel(n_jobs=5)(delayed(resample_entry)(b, ids, retained, k, L, cw) for b in range(N_RESAMPLES))
+    rs = Parallel(n_jobs=5)(delayed(resample_entry)(b, ids_full, retained, k, L, cw) for b in range(N_RESAMPLES))
     et["resample_pass"] = [sum(r[j][1] for r in rs) for j in range(k)]
     et["resample_matched"] = [sum(r[j][0] >= PHI for r in rs) for j in range(k)]
     et["median_phi"] = [round(float(np.median([r[j][0] for r in rs])), 3) for j in range(k)]
@@ -260,6 +277,14 @@ def main():
     ct = pd.crosstab(m.cluster_prod.map(SEGMENTS), m.cluster_new, values=wm, aggfunc="sum", normalize="index").round(2)
     ct.to_csv(OUT / "crosswalk.csv")
     print(ct.to_string())
+    if NOFP:
+        main_run = pd.read_csv(me.OUT / "stage_c" / "clusters.csv")[["caseid", "cluster"]]
+        m2 = out[["caseid", "cluster"]].merge(main_run, on="caseid", suffixes=("_nofp", "_main"))
+        wm2 = pd.Series(w[keep], index=caseid).loc[m2.caseid].values
+        print(f"\noverlap with the main Stage C run: n = {len(m2):,}, ARI {cl.ari(m2.cluster_main.values, m2.cluster_nofp.values):.2f}")
+        ct2 = pd.crosstab(m2.cluster_main, m2.cluster_nofp, values=wm2, aggfunc="sum", normalize="index").round(2)
+        ct2.to_csv(OUT / "crosswalk_main.csv")
+        print(ct2.to_string())
 
 
 if __name__ == "__main__":

@@ -1,0 +1,34 @@
+item_id,dropped_at,value,label
+V241409x,B1 missing,0.39121877885037637,does r side more with israelis or palestinians
+V241312x,A excluded (foreign-policy sensitivity),,country would be better off if we just stayed home
+V241313,A excluded (foreign-policy sensitivity),,force to solve international problems
+V241400x,A excluded (foreign-policy sensitivity),,favor/oppose u.s. giving weapons to help ukraine fight russia
+V241403x,A excluded (foreign-policy sensitivity),,favor/oppose u.s. giving military assistance to israel
+V241406x,A excluded (foreign-policy sensitivity),,favor/oppose u.s. giving humanitarian aid to palestinians
+V241412x,A excluded (foreign-policy sensitivity),,approve/disapprove of protests against war in gaza
+V242266x,A excluded (foreign-policy sensitivity),,us better or worse than most other countries
+V242365,A excluded (foreign-policy sensitivity),,how much is china a threat to the united states
+V242366,A excluded (foreign-policy sensitivity),,how much is russia a threat to the united states
+V242367,A excluded (foreign-policy sensitivity),,how much is mexico a threat to the united states
+V242368,A excluded (foreign-policy sensitivity),,how much is iran a threat to the united states
+V242369,A excluded (foreign-policy sensitivity),,how much is japan a threat to the united states
+V242370,A excluded (foreign-policy sensitivity),,how much is israel a threat to the united states
+V242210,B4 redundant with V242208 (mean |r| 0.258 vs 0.252),0.91821943206598,how important that more asians get elected to political office
+V242209,B4 redundant with V242208 (mean |r| 0.263 vs 0.247),0.889140584425099,how important that more blacks get elected to political office
+V241248,B4 redundant with V241302 (mean |r| 0.290 vs 0.286),0.8386822647732588,7pt scale abortion: self-placement
+V241381x,B4 redundant with gay_marriage (mean |r| 0.278 vs 0.264),0.8060284431466973,summary should gay/lesbian couples be allowed to adopt children or not
+V242212,B4 redundant with V242208 (mean |r| 0.279 vs 0.242),0.7965617379565474,how important that more women get elected to political office
+V242211,B4 redundant with V242208 (mean |r| 0.297 vs 0.239),0.7858295697135185,how important that more lgbt people get elected to political office
+V242528,B4 redundant with V242529 (mean |r| 0.261 vs 0.232),0.7830049269363856,how much influence do hispanics have in us politics
+V242301,B4 redundant with V242302 (mean |r| 0.311 vs 0.309),0.7726202320516734,agree/disagree: past slavery & discrimination make it difficult for
+V241366x,B4 redundant with V241284x (mean |r| 0.320 vs 0.299),0.7550952139179808,government action about rising temperatures
+V241258,B4 redundant with V241284x (mean |r| 0.319 vs 0.296),0.7533957893973113,7pt scale environment-business tradeoff: self-placement
+V241421,B4 redundant with V241420 (mean |r| 0.233 vs 0.184),0.7531530709011729,is bible word of god or men
+V241420,B4 redundant with church (mean |r| 0.180 vs 0.125),0.7519997534668121,is religion important part of r life [revised]
+V242453,B4 redundant with V242231x (mean |r| 0.318 vs 0.305),0.7469372366973218,cses6- q05c: out-group attitudes: immigrants increase crime
+V242300,B4 redundant with V242303 (mean |r| 0.305 vs 0.302),0.7454706312697689,agree/disagree: blacks should work their way up without special favors
+V242281,B4 redundant with V242280 (mean |r| 0.247 vs 0.227),0.7398365436942247,do women complaining about discrimination cause more problems
+V241275x,B4 redundant with V241281x (mean |r| 0.264 vs 0.238),0.7390785741486381,federal spending on welfare programs
+V242357x,B4 redundant with V242319x (mean |r| 0.261 vs 0.233),0.7218990027907612,health benefits of vaccinations outweigh risks
+V242525x,B4 redundant with V242522x (mean |r| 0.291 vs 0.269),0.7215319192600661,police treat blacks or whites better
+V241314,B4 redundant with V241315 (mean |r| 0.266 vs 0.222),0.7004842884283529,votes counted accurately

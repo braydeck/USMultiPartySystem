@@ -1,0 +1,110 @@
+,label,battery_id,N1,N2,N3,N4,N5,N6,N7,h2
+V241229,how often trust government in washington to do what is right [revised],V241229..V241230,-0.098,0.018,0.31,0.066,-0.066,-0.535,0.006,0.488
+V241230,how often can you trust the court system to do what is right,V241229..V241230,0.16,-0.08,0.381,-0.041,-0.009,-0.345,0.01,0.336
+V241231,government run by a few big interests or for benefit of all,V241231,-0.028,-0.069,-0.192,0.117,0.118,0.645,-0.041,0.497
+V241232,does government waste much tax money,V241232,0.149,-0.077,-0.114,0.096,0.031,0.576,0.095,0.488
+V241233,how many in government are corrupt,V241233,-0.093,-0.007,-0.254,0.019,0.048,0.526,0.187,0.445
+V241235,elections make government pay attention,V241235,-0.032,-0.166,0.25,0.043,-0.107,-0.334,-0.102,0.287
+V241239,7pt scale spending & services: self- placement,V241239,0.577,-0.147,0.104,-0.214,-0.13,0.157,0.02,0.583
+V241242,7pt scale defense spending: self- placement,V241242,-0.234,-0.07,-0.107,-0.229,0.332,0.004,0.07,0.327
+V241245,7pt scale gov-private medical insurance scale: self-placement,V241245,-0.501,-0.021,-0.097,0.094,0.212,-0.103,0.08,0.466
+V241252,7pt scale guaranteed job-income scale: self-placement,V241252,-0.599,0.137,-0.124,0.149,0.12,-0.138,0.038,0.559
+V241255,7pt scale gov assistance to blacks scale: self-placement,V241255,-0.72,0.071,-0.026,-0.046,0.087,-0.064,-0.056,0.643
+V241263x,federal spending on social security,V241263x..V241284x,-0.338,0.072,-0.012,0.393,-0.101,0.12,-0.008,0.272
+V241266x,federal spending on public schools,V241263x..V241284x,-0.526,0.043,0.061,0.261,0.164,0.077,-0.045,0.435
+V241269x,federal spending on tightening border security,V241263x..V241284x,0.458,-0.002,0.153,0.333,-0.239,0.077,-0.037,0.558
+V241272x,federal spending on dealing with crime,V241263x..V241284x,0.071,0.062,0.163,0.378,-0.261,0.166,-0.014,0.363
+V241281x,federal spending on aid to the poor,V241263x..V241284x,-0.667,0.008,-0.012,0.177,-0.051,-0.044,0.002,0.485
+V241284x,federal spending on protecting the environment,V241263x..V241284x,-0.505,-0.005,0.017,0.204,0.217,-0.188,0.008,0.573
+V241290x,"summary approve/disapprove diversity, equity, and inclusion (dei)",V241290x,-0.625,0.065,0.011,0.092,0.097,-0.178,-0.065,0.609
+V241302,std abortion: self-placement,V241302,0.141,-0.041,0.068,-0.137,-0.575,0.126,0.098,0.544
+V241308x,r favor/oppose death penalty,V241308x,0.402,0.125,0.067,0.24,0.029,0.159,0.109,0.358
+V241315,trust election officials,V241315,-0.043,0.291,-0.143,-0.069,-0.046,0.457,0.188,0.492
+V241319x,favor/oppose requiring id when voting,V241319x,0.281,0.013,0.248,0.174,-0.15,0.388,0.034,0.504
+V241324,how important that news organizations free to criticize,V241324..V241327,-0.109,0.636,0.143,0.137,-0.074,0.193,-0.064,0.454
+V241325,how important branches of government keep one another from too,V241324..V241327,-0.087,0.742,0.04,-0.002,-0.013,-0.077,0.111,0.615
+V241326,how important elected officials face serious consequences for miscondu,V241324..V241327,0.047,0.668,0.091,-0.145,0.01,-0.087,0.116,0.548
+V241327,how important that people agree on basic facts,V241324..V241327,0.03,0.61,-0.0,-0.001,-0.018,0.005,-0.011,0.381
+V241330x,helpful/harmful if pres didn’t have to worry about,V241330x,-0.121,0.288,-0.009,0.114,0.09,0.079,0.304,0.245
+V241333x,favor or oppose restricting journalist access,V241333x,0.008,0.445,0.045,0.091,-0.032,-0.039,0.084,0.253
+V241334,how concerned government might undermine media,V241334,0.019,0.524,0.099,-0.047,0.075,-0.016,-0.019,0.257
+V241335,how much trust in news media,V241335,0.14,0.081,-0.058,-0.122,-0.052,0.575,-0.063,0.459
+V241369x,require employers to offer paid leave to parents of new children,V241369x,-0.512,-0.098,0.111,0.153,0.056,0.199,-0.075,0.331
+V241372x,approve/disapprove transgender people use bathroom that,V241372x..V241375x,-0.343,-0.057,-0.028,-0.088,0.418,-0.213,-0.028,0.637
+V241378x,favor/oppose laws protect gays/lesbians against job discrimination,V241378x,-0.232,-0.161,0.152,0.069,0.365,0.096,-0.159,0.412
+gay_marriage,gay marriage (form 1A/1B splice),gay_marriage,-0.083,-0.081,0.142,0.061,0.72,0.095,-0.045,0.603
+V241386,us government policy toward unauthorized immigrants,V241386,0.477,0.1,-0.026,0.13,-0.172,0.065,0.078,0.458
+V241389x,favor or oppose ending birthright citizenship,V241389x,0.479,0.152,-0.042,0.158,-0.045,0.03,0.032,0.342
+V241392x,should children brought illegally be sent back or allowed to stay,V241392x,0.532,0.24,-0.09,0.032,-0.042,-0.024,0.081,0.441
+V241396,how important to speak english in us,V241396,0.31,-0.048,0.056,0.382,-0.24,0.017,0.096,0.426
+V241397,best way to deal with urban unrest,V241397,-0.64,0.02,-0.073,-0.063,0.111,-0.063,-0.134,0.612
+V241421,is bible word of god or men,V241421,-0.137,0.038,0.06,0.031,-0.812,0.026,0.051,0.643
+church,religious attendance (spliced),church,0.137,0.078,-0.053,0.089,0.723,0.075,0.094,0.397
+V241577,need to be more sensitive talking or people too easily offended,V241577,-0.409,0.041,-0.052,0.008,0.002,-0.238,-0.098,0.329
+V241579,is it justified for people to use violence to pursue political goals,V241579,0.171,-0.134,0.115,0.105,0.014,0.205,-0.539,0.393
+V241608,women seek to gain power by getting control over men,V241607..V241608,0.127,0.103,0.059,0.031,-0.164,0.11,0.391,0.39
+V242200,[std] public officials don’t care what people think,V242200..V242201,-0.104,-0.155,-0.324,0.225,0.035,0.265,0.164,0.311
+V242201,[std] have no say about what government does,V242200..V242201,-0.065,-0.035,-0.276,0.272,0.103,0.21,0.217,0.283
+V242207,how often are votes counted fairly,V242207,0.102,-0.29,0.193,0.055,0.18,-0.349,-0.117,0.415
+V242208,how important that more hispanics get elected to political office,V242208..V242212,-0.63,-0.098,0.154,-0.072,-0.003,0.011,0.075,0.394
+V242214,limits on campaign spending,V242214,0.193,-0.392,-0.08,0.069,0.181,-0.045,-0.182,0.303
+V242217,congress change votes because of donation to campaign,V242217,-0.067,-0.345,-0.228,0.209,0.05,0.156,0.097,0.245
+V242227,what should immigration levels be,V242227,-0.4,-0.175,0.069,-0.296,0.066,-0.086,0.111,0.324
+V242231x,effect of illegal immigration on crime rate,V242231x,0.362,0.104,0.112,0.207,-0.201,0.332,0.019,0.588
+V242235,are immigrants generally good or bad for america’s economy,V242235,-0.388,-0.431,0.114,-0.209,0.046,-0.113,0.049,0.49
+V242236,how important is it for immigrants to adapt to customs/traditions of t,V242236,-0.365,0.079,0.026,-0.385,0.234,0.012,-0.083,0.43
+V242241x,favor/oppose preferential hiring/promotion of blacks,V242241x,-0.745,0.137,-0.076,-0.171,-0.087,-0.163,0.06,0.618
+V242245x,does r favor/oppose affirmative action in universities,V242245x,-0.569,-0.014,-0.038,-0.056,-0.029,-0.197,0.027,0.425
+V242249,would it be good for society to have more or less government regulatio,V242249,-0.408,0.106,0.014,0.161,0.127,-0.322,0.073,0.449
+V242253x,summary favor or oppose government trying to reduce income inequality,V242253x,-0.35,-0.076,-0.095,0.161,0.268,-0.211,-0.034,0.487
+V242254,society should make sure everyone has equal opportunity,V242254..V242259,-0.506,-0.244,0.091,0.219,-0.148,-0.033,0.031,0.361
+V242255,we’d be better off if worried less about equality,V242254..V242259,0.451,0.05,0.088,-0.041,-0.091,0.104,0.33,0.551
+V242256,not a big problem if some have more chance in life,V242254..V242259,0.415,0.043,0.139,-0.087,0.038,0.053,0.303,0.374
+V242257,if people were treated more fairly we would have fewer problems,V242254..V242259,-0.61,-0.13,0.07,0.178,-0.043,-0.054,0.075,0.437
+V242258,the world is changing & we should adjust view of moral behavior,V242254..V242259,-0.356,0.002,0.039,0.069,0.397,-0.079,0.312,0.417
+V242259,fewer problems if there was more emphasis on traditional family values,V242254..V242259,0.204,-0.136,0.153,0.147,-0.477,0.176,0.159,0.591
+V242260,which child trait more important: independence or respect,V242260,-0.127,-0.074,-0.032,-0.23,0.545,0.025,-0.01,0.489
+V242261,which child trait more important: curiosity or good manners,V242261,0.042,-0.296,0.004,-0.236,0.455,-0.015,-0.155,0.541
+V242262,which child trait more important: obedience or self-reliance,V242262,-0.126,0.117,-0.02,0.212,-0.589,-0.076,0.158,0.486
+V242263,which child trait more important: considerate or well-behaved,V242263,0.063,-0.094,0.009,-0.112,0.317,0.123,-0.396,0.365
+V242272x,people in rural areas have too much/too little influence,V242272x,-0.061,-0.123,-0.071,-0.067,0.159,-0.37,0.063,0.245
+V242275x,people in rural areas get too much/too little respect,V242275x,0.006,0.065,-0.104,-0.002,0.112,-0.413,0.084,0.191
+V242280,do women demanding equality seek special favors,V242280..V242281,0.183,-0.054,0.015,-0.029,-0.15,0.037,0.52,0.436
+V242302,agree/disagree: blacks have gotten less than they deserve,V242300..V242303,-0.721,-0.001,-0.053,-0.089,0.019,-0.074,-0.068,0.622
+V242303,agree/disagree: if blacks tried harder they’d be as well off as whites,V242300..V242303,0.518,0.056,0.064,0.18,-0.055,0.027,0.352,0.611
+V242308x,does r think they get more or less than their fair share in life,V242308x,0.282,-0.235,0.122,-0.251,0.034,-0.203,-0.063,0.251
+V242311,how much opportunity in america for average person to get ahead,V242311,0.397,-0.223,0.169,-0.044,-0.194,-0.135,0.045,0.31
+V242316a,favor or oppose tax on millionaires,V242316a,-0.25,-0.105,-0.027,0.348,0.297,-0.173,-0.088,0.498
+V242319x,favor/oppose requiring vaccines in schools,V242319x,-0.053,-0.183,0.038,0.269,0.26,-0.348,-0.062,0.426
+V242324x,favor/oppose increased regulation on greenhouse emissions,V242324x,-0.31,-0.22,0.044,0.257,0.264,-0.21,-0.082,0.587
+V242325,should federal government make it more difficult or easier to buy a gu,V242325,-0.326,-0.038,-0.006,0.263,0.115,-0.296,-0.242,0.547
+V242328x,favor/oppose background checks for gun purchases,V242328x,-0.256,-0.231,0.13,0.4,0.042,-0.076,-0.204,0.482
+V242331x,favor/oppose banning ‘assault-style’ rifles,V242331x,-0.24,-0.007,-0.007,0.265,0.115,-0.278,-0.265,0.445
+V242335x,summary should government do more/less about opioid drug addiction,V242335x,-0.229,-0.216,0.124,0.296,-0.182,0.224,0.001,0.24
+V242336,how often do police officers use more force than necessary,V242336,0.563,-0.042,0.164,-0.051,0.014,-0.076,-0.171,0.338
+V242346x,favor/oppose free trade agreements,V242346x,0.033,-0.407,0.112,-0.014,0.092,-0.108,0.044,0.218
+V242349x,increasing diversity made us better/worse place to live,V242349x,-0.407,-0.31,0.166,-0.209,0.089,0.045,-0.153,0.492
+V242350,"should the minimum wage be raised, kept the same, or lowered",V242350,-0.518,0.004,-0.011,0.271,0.148,-0.121,-0.006,0.515
+V242353x,increase/decrease government spending to help pay for,V242353x,-0.474,-0.073,-0.038,0.189,0.104,-0.074,0.021,0.377
+V242361x,attention to sexual harassment as gone too far/not far,V242361x,0.45,-0.016,-0.02,-0.0,-0.052,-0.029,0.166,0.281
+V242364x,favor/oppose transgender people serve in military,V242364x,-0.389,-0.049,0.081,-0.046,0.412,-0.031,-0.107,0.577
+V242409,cses6-q04a: prefer democracy,V242409..V242415,0.139,-0.334,0.21,0.16,0.003,0.012,-0.228,0.307
+V242410,cses6-q04b: courts’ authority,V242409..V242415,-0.096,-0.417,0.092,0.044,-0.016,0.125,-0.048,0.221
+V242411,cses6-q04e: attitudes about elites: strong leader in government is goo,V242409..V242415,0.146,0.136,0.205,0.064,0.058,0.28,0.37,0.381
+V242412,cses6-q04d: policies to increase women representation,V242409..V242415,0.391,0.112,0.021,-0.012,-0.134,0.092,0.307,0.518
+V242413,cses6-q05a: political decisions should be left to business leaders,V242409..V242415,0.098,0.25,0.093,-0.046,-0.0,0.088,0.42,0.389
+V242414,cses6-q05b: political decisions should be left to independent experts,V242409..V242415,-0.186,0.053,-0.031,-0.065,0.234,0.0,0.4,0.215
+V242417,cses6-q07a: trust congress,V242417..V242423,-0.053,0.106,0.791,0.008,-0.004,-0.006,0.02,0.619
+V242418,cses6-q07b: trust government,V242417..V242423,0.01,0.015,0.694,0.026,0.057,-0.292,0.038,0.657
+V242419,cses6-q07c: trust judiciary,V242417..V242423,0.116,-0.076,0.689,-0.064,0.06,0.053,-0.017,0.497
+V242420,cses6-q07d: trust scientists,V242417..V242423,-0.166,-0.276,0.27,0.072,0.395,-0.133,-0.061,0.581
+V242421,cses6-q07e: trust political parties,V242417..V242423,-0.108,0.115,0.694,0.05,-0.062,0.003,0.028,0.492
+V242422,cses6-q07f: trust traditional media,V242417..V242423,-0.134,0.015,0.287,0.096,0.106,-0.419,-0.038,0.427
+V242454,cses6- q06a: national identity: to have been born in country,V242454..V242455,0.102,0.227,0.022,0.304,-0.198,0.039,0.152,0.351
+V242455,cses6- q06c: national identity: to be able to speak english,V242454..V242455,0.32,0.007,0.067,0.44,-0.256,0.052,0.084,0.528
+V242456,cses6- q07: how widespread is corruption,V242456,-0.162,-0.217,-0.283,0.25,0.006,0.337,0.113,0.352
+V242519,how likely whites unable to find jobs because employers hiring minorit,V242519,0.38,0.124,0.023,0.088,-0.049,0.08,0.217,0.362
+V242522x,federal government treats blacks or whites better,V242522x..V242525x,-0.75,0.008,-0.022,-0.022,-0.004,0.049,-0.059,0.56
+V242526,how much influence do whites have in us politics,V242526..V242529,-0.623,-0.153,-0.01,-0.052,0.081,0.036,-0.068,0.521
+V242527,how much influence do blacks have in us politics,V242526..V242529,0.667,0.061,-0.05,0.023,-0.037,-0.097,0.173,0.534
+V242529,how much influence do asians have in us politics,V242526..V242529,0.497,0.094,-0.096,0.044,-0.095,-0.161,0.167,0.36
