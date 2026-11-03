@@ -17,10 +17,11 @@ and segmentation on ANES's own attitude items. A CES-to-ANES classifier is next.
 | ANES independent segments (who is in which segment) | `anes/outputs/stage_c/clusters.csv`, `entry_test.csv`, `caps.csv` (named export `independent_clusters.csv`, `factors.csv` pending rebuild, 2026-11-03) | Built by `anes/stage_c.py` then `anes/stage_c_export.py` (shared Stage C rule, `docs/EFA_ITEM_SELECTION_ROBUSTNESS.md` §3c) |
 | What each ANES segment looks like | Pending rebuild on the corrected pool (2026-11-03); the four-segment page is archived |  Built by `anes/segment_portraits_page.py` from `segment_descriptors.csv` (`anes/describe_segments.py`) |
 | Matched vs independent ANES clusters side by side | Pending rebuild (2026-11-03) | `anes/describe_clusters.py` writes the JSON, `anes/cluster_profiles_page.py` renders it |
-| ANES's own factor structure | `anes/outputs/stage_c/loadings_k10.csv` | Built by `anes/stage_c.py` |
+| ANES's own factor structure | `anes/outputs/stage_c/loadings_k17.csv` | Built by `anes/stage_c.py` |
 | Whether the CES factors replicate on matched items | `anes/outputs/matched_loadings_anes_k5.csv`, `anes/outputs/bootstrap_phi_summary.csv` | `anes/matched_efa.py`, `anes/bootstrap_phi.py` |
 | Whether CES parties survive in ANES-sized samples | `anes/outputs/clustering/benchmark_summary.csv` | Built by `anes/matched_clustering.py` |
 | Which CES 2024 team-module items could profile clusters | `ces_team_modules_scan.md` | Scanned 2026-10-27 |
+| How often each ANES factor forms across resamples | `anes/outputs/stage_c_resample/formation.csv`, `per_resample.csv` | Built by `anes/stage_c_resample.py` (2026-11-03) |
 | How each ANES pool item is coded | `anes/outputs/item_audit/audit.txt`, `flags.csv` | Built by `anes/item_audit.py` (2026-11-03) |
 | Rulings and definitions | `DECISIONS.md` | |
 

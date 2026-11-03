@@ -1,38 +1,45 @@
 Stage B: 136 of 155 items remain
-k: parallel analysis 10, MAP 17 (n for parallel analysis = 4,671)
+k: parallel analysis 19, MAP 17 (n for parallel analysis = 4,671)
 
-k = 10 (lower of the two): 81 items after reduction; recheck on final pool: parallel analysis 10, MAP 11
+k = 17 (lower of the two): 86 items after reduction; recheck on final pool: parallel analysis 14, MAP 14
  factor  n_clean  n_batteries  passes                                                                                                                                                                                                                  top_items
-      0       13           11    True are immigrants generally good or bad for amer (+0.57); how important that more asians get elected to (+0.55); how much influence do whites have in us polit (+0.52); federal government treats blacks or whites be (+0.51)
-      1        4            1   False                                                                 cses6-q07a: trust congress (-0.83); cses6-q07e: trust political parties (-0.74); cses6-q07b: trust government (-0.73); cses6-q07c: trust judiciary (-0.66)
-      2        6            3    True how important branches of government keep one (+0.79); how important elected officials face serious  (+0.73); how important that news organizations free to (+0.67); how important that people agree on basic fact (+0.65)
-      3        1            1   False cses6-q05a: political decisions should be lef (-0.47); which child trait more important: considerate (+0.38); cses6-q05b: political decisions should be lef (-0.38); cses6-q04e: attitudes about elites: strong le (-0.38)
-      4        4            2    True how much is russia a threat to the united sta (-0.78); how much is iran a threat to the united state (-0.78); how much is china a threat to the united stat (-0.70); dhs: how worried about terrorist attack in ne (+0.45)
-      5       10           10    True                                              gay marriage (form 1A/1B splice) (+0.76); religious attendance (spliced) (+0.67); which child trait more important: obedience o (-0.58); std abortion: self-placement (-0.56)
-      6        3            3    True people in rural areas have too much/too littl (+0.76); people in rural areas get more/less from gove (+0.70); people in rural areas get too much/too little (+0.69); does r think they get more or less than their (+0.19)
-      7        5            5    True             favor/oppose background checks for gun purcha (-0.72); should federal government make it more diffic (-0.59); favor/oppose banning ‘assault-style’ rifles (-0.55); favor or oppose tax on millionaires (-0.49)
-      8        9            9    True 7pt scale guaranteed job-income scale: self-p (+0.66); 7pt scale spending & services: self- placemen (-0.60); how much opportunity in america for average p (-0.49); should the minimum wage be raised, kept the s (+0.49)
-      9        5            4    True                     government run by a few big interests or for  (-0.69); how often trust government in washington to d (+0.63); how many in government are corrupt (-0.58); does government waste much tax money (-0.57)
+      0        8            5    True federal government treats blacks or whites be (+0.60); favor/oppose preferential hiring/promotion of (+0.59); how much influence do blacks have in us polit (-0.57); agree/disagree: if blacks tried harder they’d (-0.51)
+      1        4            1   False                                                                 cses6-q07a: trust congress (-0.80); cses6-q07e: trust political parties (-0.75); cses6-q07b: trust government (-0.74); cses6-q07c: trust judiciary (-0.64)
+      2        6            3    True how important branches of government keep one (-0.75); how important that news organizations free to (-0.73); how important elected officials face serious  (-0.71); how important that people agree on basic fact (-0.64)
+      3        4            3    True          cses6- q06c: national identity: to be able to (+0.90); how important to speak english in us (+0.64); how important is it for immigrants to adapt t (-0.51); cses6- q06a: national identity: to have been  (+0.42)
+      4        3            1   False   how much is russia a threat to the united sta (+0.85); how much is iran a threat to the united state (+0.75); how much is china a threat to the united stat (+0.74); 7pt scale defense spending: self- placement (+0.16)
+      5        3            3    True         people in rural areas get more/less from gove (+0.74); people in rural areas have too much/too littl (+0.73); people in rural areas get too much/too little (+0.68); favor/oppose requiring id when voting (-0.18)
+      6        5            5    True                                              gay marriage (form 1A/1B splice) (+0.80); religious attendance (spliced) (+0.67); std abortion: self-placement (-0.61); favor/oppose laws protect gays/lesbians again (+0.42)
+      7        2            1   False congress pass laws that benefit contributor o (+0.80); congress pass laws that benefit contributor i (+0.68); congress change votes because of donation to  (+0.35); how important that more asians get elected to (+0.15)
+      8        3            1   False cses6-q05b: political decisions should be lef (-0.76); cses6-q05a: political decisions should be lef (-0.59); cses6-q05bc: political decisions should be le (-0.55); the world is changing & we should adjust view (-0.18)
+      9        4            3    True         favor/oppose u.s. giving weapons to help ukra (+0.63); favor/oppose u.s. giving military assistance  (+0.56); country would be better off if we just stayed (-0.54); force to solve international problems (+0.46)
+     10        6            6    True 7pt scale spending & services: self- placemen (+0.62); 7pt scale guaranteed job-income scale: self-p (-0.58); 7pt scale gov-private medical insurance scale (-0.54); should the minimum wage be raised, kept the s (-0.49)
+     11        4            3    True            how often can you trust the court system to d (+0.77); how often trust government in washington to d (+0.75); government run by a few big interests or for  (-0.57); how many in government are corrupt (-0.42)
+     12        2            1   False  [std] public officials don’t care what people (-0.82); [std] have no say about what government does (-0.75); government run by a few big interests or for  (-0.20); congress change votes because of donation to  (-0.18)
+     13        2            2    True                   which child trait more important: considerate (+0.58); which child trait more important: curiosity o (+0.48); limits on campaign spending (+0.38); agree/disagree: if blacks tried harder they’d (-0.25)
+     14        5            5    True             should children brought illegally be sent bac (-0.55); us government policy toward unauthorized immi (-0.53); are immigrants generally good or bad for amer (+0.45); what should immigration levels be (+0.45)
+     15        3            3    True   should federal government make it more diffic (+0.84); favor/oppose background checks for gun purcha (+0.76); favor/oppose banning ‘assault-style’ rifles (+0.64); favor/oppose increased regulation on greenhou (+0.37)
+     16        1            1   False         favor/oppose requiring id when voting (-0.47); favor or oppose building a wall on border wit (-0.26); how important that news organizations free to (-0.26); require employers to offer paid leave to pare (-0.25)
 
-clustering factors: [0, 2, 4, 5, 6, 7, 8, 9] of 10
-respondents scored: 4,640 of 5,276
+clustering factors: [0, 2, 3, 5, 6, 9, 10, 11, 13, 14, 15] of 17
+respondents scored: 4,596 of 5,276
 
-kept cap 5
+kept cap 6
  K  effective_clusters_median  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
- 2                          2            1                  1.00              0.912         2            0
- 3                          3            1                  1.00              0.811         3            0
- 4                          4            1                  1.00              0.743         4            0
- 5                          5            1                  1.00              0.602         2            0
- 6                          6            4                  0.55              0.554         2            2
- 7                          7            3                  0.90              0.458         0            4
- 8                          8           16                  0.15              0.436         0            5
- 9                          9           14                  0.20              0.361         0            6
-10                         10           15                  0.20              0.355         0            7
+ 2                          2            1                  1.00              0.932         2            0
+ 3                          3            1                  1.00              0.817         3            0
+ 4                          4            1                  1.00              0.634         2            0
+ 5                          5            1                  1.00              0.593         1            0
+ 6                          6            1                  1.00              0.608         1            0
+ 7                          7            3                  0.65              0.535         1            1
+ 8                          8            6                  0.30              0.476         1            3
+ 9                          9           15                  0.15              0.440         1            4
+10                         10           16                  0.15              0.429         0            5
 
-overlap with production segments: n = 4,633, ARI 0.51
-cluster_new                 0     1     2     3     4
-cluster_prod                                         
-center-left moderates    0.06  0.50  0.34  0.03  0.07
-religious conservatives  0.82  0.05  0.09  0.00  0.04
-secular progressives     0.00  0.17  0.00  0.83  0.00
-young disaffected        0.03  0.05  0.37  0.00  0.54
+overlap with production segments: n = 4,582, ARI 0.36
+cluster_new                 0     1     2     3     4     5
+cluster_prod                                               
+center-left moderates    0.04  0.23  0.39  0.03  0.11  0.20
+religious conservatives  0.56  0.29  0.04  0.00  0.04  0.07
+secular progressives     0.00  0.00  0.13  0.78  0.00  0.09
+young disaffected        0.03  0.24  0.04  0.00  0.66  0.02

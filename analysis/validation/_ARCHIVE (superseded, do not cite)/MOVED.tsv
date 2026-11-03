@@ -6,3 +6,4 @@ anes/outputs/stage_c/factors.csv	2026-11-03: superseded: built on the pre-audit 
 anes/outputs/stage_c/segment_descriptors.csv	2026-11-03: superseded: built on the pre-audit pool (V242250 three-option inequality item); the corrected pool gives cap 5 (2026-11-03)
 anes/outputs/stage_c/segment_portraits.html	2026-11-03: superseded: built on the pre-audit pool (V242250 three-option inequality item); the corrected pool gives cap 5 (2026-11-03)
 anes/outputs/clustering/cluster_profiles.html	2026-11-03: superseded: built on the pre-audit pool (V242250 three-option inequality item); the corrected pool gives cap 5 (2026-11-03)
+anes/outputs/stage_c/loadings_k10.csv	2026-11-03: superseded: k = 10 came from parallel analysis capped at 10 (efa_math n_max default); uncapped PA 19, MAP 17, k = 17 (2026-11-03)

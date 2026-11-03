@@ -9,7 +9,8 @@ Choices fixed before running:
   Matrix   one pairwise weighted polychoric over the post-Stage-B pool on every post-weighted respondent
            (available-item ruling, analysis/validation/DECISIONS.md 2026-11-02), regularized, subset as items leave.
            Parallel analysis takes n = the median pairwise-complete count across item pairs.
-  k        parallel analysis (95th percentile) and Velicer's MAP (efa_math.velicer_map). If they disagree, the
+  k        parallel analysis (95th percentile, every eigenvalue counted; efa_math's default n_max=10 stopped at 10
+           until 2026-11-03) and Velicer's MAP (efa_math.velicer_map). If they disagree, the
            lower k is fit (§3c as revised 2026-11-02; the first ANES run, under the both-fits rule, is archived).
   Reduce   PAF + oblimin at fixed k. Each pass: items with max |loading| < 0.30, h^2 < 0.20 or h^2 >= 0.995 drop
            together and the model refits; once none are weak, the cross-loader (|loading| >= 0.30 on 2+ factors)
@@ -117,7 +118,7 @@ def main():
     ok = (~items[pool].isna()).values.astype(float)
     pair_n = ok.T @ ok
     n_obs = int(np.median(pair_n[np.triu_indices(len(pool), 1)]))
-    k_pa, _, _ = em.parallel_analysis(R_all, n_obs=n_obs)
+    k_pa, _, _ = em.parallel_analysis(R_all, n_obs=n_obs, n_max=len(pool))
     k_map, _ = em.velicer_map(R_all)
     print(f"k: parallel analysis {k_pa}, MAP {k_map} (n for parallel analysis = {n_obs:,})", flush=True)
 
@@ -125,7 +126,7 @@ def main():
     alive, L, Phi, h2 = reduce(R_all, pool, k, log, k)
     idx = [pool.index(c) for c in alive]
     R = R_all[np.ix_(idx, idx)]
-    k_pa2, _, _ = em.parallel_analysis(R, n_obs=n_obs)
+    k_pa2, _, _ = em.parallel_analysis(R, n_obs=n_obs, n_max=len(alive))
     k_map2, _ = em.velicer_map(R)
     et = entry(L, alive, cw)
     ld = pd.DataFrame(L, index=alive, columns=[f"N{j + 1}" for j in range(k)]).round(3)

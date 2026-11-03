@@ -1,0 +1,20 @@
+reference,forms,clusters,of
+full F0: federal government treats bl / favor/oppose preferential hi,17,17,20
+full F1: cses6-q07a: trust congress / cses6-q07e: trust political ,20,0,20
+full F2: how important branches of go / how important that news orga,20,20,20
+full F3: cses6- q06c: national identi / how important to speak engli,11,11,20
+full F4: how much is russia a threat  / how much is iran a threat to,20,5,20
+full F5: people in rural areas get mo / people in rural areas have t,19,19,20
+full F6: gay marriage (form 1A/1B spl / religious attendance (splice,20,20,20
+full F7: congress pass laws that bene / congress pass laws that bene,20,0,20
+full F8: cses6-q05b: political decisi / cses6-q05a: political decisi,20,0,20
+full F9: favor/oppose u.s. giving wea / favor/oppose u.s. giving mil,19,19,20
+full F10: 7pt scale spending & service / 7pt scale guaranteed job-inc,15,15,20
+full F11: how often can you trust the  / how often trust government i,17,14,20
+full F12: [std] public officials don’t / [std] have no say about what,11,0,20
+full F13: which child trait more impor / which child trait more impor,10,10,20
+full F14: should children brought ille / us government policy toward ,12,12,20
+full F15: should federal government ma / favor/oppose background chec,15,15,20
+full F16: favor/oppose requiring id wh / favor or oppose building a w,0,0,20
+k10 fit: aid (pre-audit),18,18,20
+k10 fit: govt distrust (post-audit),14,14,20

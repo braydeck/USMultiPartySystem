@@ -18,58 +18,53 @@ V242319x,B4 redundant with V242357x,0.7218990027907612,favor/oppose requiring va
 V242525x,B4 redundant with V242522x,0.7215319192600661,police treat blacks or whites better
 V241366x,B4 redundant with V242324x,0.7086230331402883,government action about rising temperatures
 V241314,B4 redundant with V241315,0.7004842884283529,votes counted accurately
-V241234,"C10 weak (max |l| 0.25, h2 0.25)",0.2501089251659582,how often can people be trusted
-V241313,"C10 weak (max |l| 0.27, h2 0.18)",0.26865592956366274,force to solve international problems
-V241315,"C10 weak (max |l| 0.29, h2 0.48)",0.2858194462295634,trust election officials
-V241316,"C10 weak (max |l| 0.22, h2 0.18)",0.21634253122365704,how often people denied right to vote
-V241322x,"C10 weak (max |l| 0.22, h2 0.17)",0.21954500219085826,favor/oppose allowing felons to vote
-V241330x,"C10 weak (max |l| 0.29, h2 0.25)",0.29295746013104657,helpful/harmful if pres didn’t have to worry about
-V241338x,"C10 weak (max |l| 0.30, h2 0.18)",0.29966963533945057,prefer gov official who compromises/sticks to principles
-V241369x,"C10 weak (max |l| 0.24, h2 0.33)",0.24273028368970367,require employers to offer paid leave to parents of new children
-V241375x,"C10 weak (max |l| 0.24, h2 0.40)",0.24418676884487428,favor/oppose banning transgender girls from k-12 girls sports
-V241396,"C10 weak (max |l| 0.29, h2 0.43)",0.2938628155086025,how important to speak english in us
-V241412x,"C10 weak (max |l| 0.23, h2 0.50)",0.23422726464724294,approve/disapprove of protests against war in gaza
-V241577,"C10 weak (max |l| 0.28, h2 0.34)",0.27876187552630655,need to be more sensitive talking or people too easily offended
-V242207,"C10 weak (max |l| 0.28, h2 0.46)",0.2838006340309758,how often are votes counted fairly
-V242214,"C10 weak (max |l| 0.29, h2 0.33)",0.2870581936944198,limits on campaign spending
-V242216,"C10 weak (max |l| 0.28, h2 0.16)",0.2794974472107712,congress pass laws that benefit contributor individuals
-V242226x,"C10 weak (max |l| 0.23, h2 0.38)",0.23235214534586685,favor/oppose new limits on imports
-V242248x,"C10 weak (max |l| 0.20, h2 0.13)",0.1976409852970781,less or more government
-V242266x,"C10 weak (max |l| 0.24, h2 0.27)",0.2398086415570269,us better or worse than most other countries
-V242314x,"C10 weak (max |l| 0.29, h2 0.17)",0.28688976616334416,economic mobility
-V242335x,"C10 weak (max |l| 0.27, h2 0.23)",0.2657892464940842,summary should government do more/less about opioid drug addiction
-V242346x,"C10 weak (max |l| 0.25, h2 0.25)",0.2508356662611121,favor/oppose free trade agreements
-V242357x,"C10 weak (max |l| 0.27, h2 0.50)",0.27171130566892965,health benefits of vaccinations outweigh risks
-V242361x,"C10 weak (max |l| 0.24, h2 0.29)",0.2422697948569574,attention to sexual harassment as gone too far/not far
-V242409,"C10 weak (max |l| 0.24, h2 0.34)",0.24110913938076112,cses6-q04a: prefer democracy
-V242415,"C10 weak (max |l| 0.35, h2 0.16)",0.35174992919645426,cses6-q05bc: political decisions should be left to citizen referendums
-V242430,"C10 weak (max |l| 0.23, h2 0.27)",0.2318680178898223,cses6-q13: fairness of election
-V242431,"C10 weak (max |l| 0.24, h2 0.28)",0.24234322614161016,cses6-q14b: who people vote for makes a big difference
-V242454,"C10 weak (max |l| 0.24, h2 0.36)",0.23839752641231882,cses6- q06a: national identity: to have been born in country
-V242519,"C10 weak (max |l| 0.27, h2 0.39)",0.2673707510000088,how likely whites unable to find jobs because employers hiring minorities
-V241235,"C10 weak (max |l| 0.29, h2 0.30)",0.2940823311169029,elections make government pay attention
-V241242,"C10 weak (max |l| 0.30, h2 0.40)",0.2957333283325053,7pt scale defense spending: self- placement
-V241335,"C10 weak (max |l| 0.29, h2 0.44)",0.29236390855134176,how much trust in news media
-V241607,"C10 weak (max |l| 0.30, h2 0.24)",0.2994595744704467,agree/disagree - women interpret innocent remarks as sexist
-V242215,"C10 weak (max |l| 0.20, h2 0.10)",0.19767644404577384,congress pass laws that benefit contributor organization
-V242217,"C10 weak (max |l| 0.29, h2 0.30)",0.29240298904952533,congress change votes because of donation to campaign
-V242249,"C10 weak (max |l| 0.30, h2 0.46)",0.2960437889666788,would it be good for society to have more or less government regulation
-V242412,"C10 weak (max |l| 0.30, h2 0.52)",0.2953086885188433,cses6-q04d: policies to increase women representation
-V241319x,"C10 weak (max |l| 0.28, h2 0.51)",0.27853656184285136,favor/oppose requiring id when voting
-V242201,"C10 weak (max |l| 0.30, h2 0.32)",0.29737690941666944,[std] have no say about what government does
-V242200,"C10 weak (max |l| 0.29, h2 0.26)",0.29047176855151036,[std] public officials don’t care what people think
-V242303,C10 cross-loader (second |l| 0.38),0.38116984560592193,agree/disagree: if blacks tried harder they’d be as well off as whites
-V241255,C10 cross-loader (second |l| 0.38),0.3753945967902049,7pt scale gov assistance to blacks scale: self-placement
-V241397,C10 cross-loader (second |l| 0.38),0.3816970884903082,best way to deal with urban unrest
-V242369,C10 cross-loader (second |l| 0.37),0.3732689860161894,how much is japan a threat to the united states
-V241451,"C10 weak (max |l| 0.29, h2 0.23)",0.2933592340426601,r how much better or worse off financially than 1 year ago
-V242370,"C10 weak (max |l| 0.27, h2 0.35)",0.2723289293424283,how much is israel a threat to the united states
-V241403x,"C10 weak (max |l| 0.28, h2 0.41)",0.28276459500822465,favor/oppose u.s. giving military assistance to israel
-V241406x,"C10 weak (max |l| 0.30, h2 0.48)",0.2980356374143261,favor/oppose u.s. giving humanitarian aid to palestinians
-V241312x,"C10 weak (max |l| 0.30, h2 0.35)",0.29673199086824203,country would be better off if we just stayed home
-V242258,C10 cross-loader (second |l| 0.36),0.35637037202201594,the world is changing & we should adjust view of moral behavior
-V242255,C10 cross-loader (second |l| 0.36),0.3632477767591189,we’d be better off if worried less about equality
-V242241x,C10 cross-loader (second |l| 0.35),0.3532816690859699,favor/oppose preferential hiring/promotion of blacks
-V241579,C10 cross-loader (second |l| 0.32),0.3192715979091293,is it justified for people to use violence to pursue political goals
-V241608,"C10 weak (max |l| 0.29, h2 0.36)",0.289975459561067,women seek to gain power by getting control over men
-V242420,"C10 weak (max |l| 0.30, h2 0.58)",0.29574689197569753,cses6-q07d: trust scientists
+V241290x,"C17 weak (max |l| 0.29, h2 0.62)",0.29276783840721143,"summary approve/disapprove diversity, equity, and inclusion (dei)"
+V241308x,"C17 weak (max |l| 0.26, h2 0.43)",0.26060850737220465,r favor/oppose death penalty
+V241315,"C17 weak (max |l| 0.28, h2 0.50)",0.2841946561525942,trust election officials
+V241316,"C17 weak (max |l| 0.18, h2 0.19)",0.17755084957712222,how often people denied right to vote
+V241322x,"C17 weak (max |l| 0.21, h2 0.24)",0.2141120426584001,favor/oppose allowing felons to vote
+V241330x,"C17 weak (max |l| 0.26, h2 0.27)",0.2636461885823864,helpful/harmful if pres didn’t have to worry about
+V241338x,"C17 weak (max |l| 0.26, h2 0.18)",0.26222368271604996,prefer gov official who compromises/sticks to principles
+V241375x,"C17 weak (max |l| 0.22, h2 0.42)",0.21585590716071762,favor/oppose banning transgender girls from k-12 girls sports
+V241406x,"C17 weak (max |l| 0.25, h2 0.50)",0.24794976768516339,favor/oppose u.s. giving humanitarian aid to palestinians
+V241412x,"C17 weak (max |l| 0.24, h2 0.52)",0.238169722521869,approve/disapprove of protests against war in gaza
+V241451,"C17 weak (max |l| 0.25, h2 0.28)",0.25286919677325004,r how much better or worse off financially than 1 year ago
+V241577,"C17 weak (max |l| 0.22, h2 0.35)",0.2227728804145505,need to be more sensitive talking or people too easily offended
+V241579,"C17 weak (max |l| 0.25, h2 0.41)",0.24746855266137305,is it justified for people to use violence to pursue political goals
+V241607,"C17 weak (max |l| 0.24, h2 0.29)",0.23730413730556543,agree/disagree - women interpret innocent remarks as sexist
+V241608,"C17 weak (max |l| 0.28, h2 0.45)",0.2765575057312628,women seek to gain power by getting control over men
+V242207,"C17 weak (max |l| 0.24, h2 0.50)",0.24122783047452145,how often are votes counted fairly
+V242226x,"C17 weak (max |l| 0.28, h2 0.42)",0.2785927698561575,favor/oppose new limits on imports
+V242248x,"C17 weak (max |l| 0.18, h2 0.14)",0.17883700344129522,less or more government
+V242266x,"C17 weak (max |l| 0.29, h2 0.32)",0.29186397103903644,us better or worse than most other countries
+V242308x,"C17 weak (max |l| 0.29, h2 0.33)",0.2850599876123183,does r think they get more or less than their fair share in life
+V242335x,"C17 weak (max |l| 0.20, h2 0.24)",0.1977378708377564,summary should government do more/less about opioid drug addiction
+V242336,"C17 weak (max |l| 0.27, h2 0.39)",0.2672072773475043,how often do police officers use more force than necessary
+V242346x,"C17 weak (max |l| 0.24, h2 0.26)",0.23683068116387038,favor/oppose free trade agreements
+V242357x,"C17 weak (max |l| 0.24, h2 0.50)",0.24223089095259537,health benefits of vaccinations outweigh risks
+V242361x,"C17 weak (max |l| 0.21, h2 0.31)",0.20935045080032563,attention to sexual harassment as gone too far/not far
+V242409,"C17 weak (max |l| 0.20, h2 0.36)",0.2019095858747378,cses6-q04a: prefer democracy
+V242410,"C17 weak (max |l| 0.23, h2 0.25)",0.23202071560340684,cses6-q04b: courts’ authority
+V242411,"C17 weak (max |l| 0.23, h2 0.40)",0.22786873898654908,cses6-q04e: attitudes about elites: strong leader in government is good
+V242412,"C17 weak (max |l| 0.23, h2 0.53)",0.23378370397941983,cses6-q04d: policies to increase women representation
+V242430,"C17 weak (max |l| 0.24, h2 0.30)",0.24129831725667958,cses6-q13: fairness of election
+V242431,"C17 weak (max |l| 0.22, h2 0.32)",0.21537585684882002,cses6-q14b: who people vote for makes a big difference
+V242456,"C17 weak (max |l| 0.22, h2 0.41)",0.21893229404187892,cses6- q07: how widespread is corruption
+V242519,"C17 weak (max |l| 0.29, h2 0.44)",0.29487240213481186,how likely whites unable to find jobs because employers hiring minorities
+V242280,"C17 weak (max |l| 0.26, h2 0.39)",0.2628096850740507,do women demanding equality seek special favors
+V242314x,"C17 weak (max |l| 0.29, h2 0.17)",0.2939051692789318,economic mobility
+V241335,"C17 weak (max |l| 0.30, h2 0.48)",0.2965584903427619,how much trust in news media
+V242249,"C17 weak (max |l| 0.30, h2 0.48)",0.29605831925540005,would it be good for society to have more or less government regulation
+V242262,C17 cross-loader (second |l| 0.35),0.35111031566132356,which child trait more important: obedience or self-reliance
+V242367,C17 cross-loader (second |l| 0.35),0.3481549030692965,how much is mexico a threat to the united states
+V242316a,C17 cross-loader (second |l| 0.32),0.32213631132320386,favor or oppose tax on millionaires
+V241255,C17 cross-loader (second |l| 0.31),0.31478927045586186,7pt scale gov assistance to blacks scale: self-placement
+V241232,C17 cross-loader (second |l| 0.31),0.31107970375970984,does government waste much tax money
+V242349x,"C17 weak (max |l| 0.30, h2 0.50)",0.29632801188089547,increasing diversity made us better/worse place to live
+V242370,C17 cross-loader (second |l| 0.31),0.314250944689576,how much is israel a threat to the united states
+V241234,"C17 weak (max |l| 0.30, h2 0.30)",0.295468462970045,how often can people be trusted
+V242257,C17 cross-loader (second |l| 0.31),0.30815063563851985,if people were treated more fairly we would have fewer problems
+V242369,C17 cross-loader (second |l| 0.30),0.30074275413325635,how much is japan a threat to the united states
+V242422,C17 cross-loader (second |l| 0.31),0.3123295461916645,cses6-q07f: trust traditional media
+V242343,C17 cross-loader (second |l| 0.30),0.30365125277204197,dhs: how worried about terrorist attack in near future
+V242260,C17 cross-loader (second |l| 0.31),0.3076810424872218,which child trait more important: independence or respect

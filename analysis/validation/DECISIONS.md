@@ -118,4 +118,9 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   §3c rule the corrected pool gives a different tenth factor (government distrust from ANES's trust items in place of
   Ukraine/Israel aid, whose items fell to |λ| 0.28-0.30) and cap 5. The four-segment portraits are archived pending
   a rebuild. A data correction found by the audit, not a threshold change.
+- **2026-11-03: parallel analysis counts every eigenvalue.** `efa_math.parallel_analysis` stops counting at
+  `n_max=10` by default, so every ANES "parallel analysis 10" (independent EFA, Stage C, the no-foreign-policy check)
+  meant 10 or more. Uncapped on the corrected Stage C pool it is 19; MAP is 17, so §3c's lower-k rule fits k = 17.
+  `stage_c.py` now passes `n_max=len(pool)`. A code fix, not a threshold change. Result: 86 items, 11 clustering
+  factors, cap 6 on 4,596 respondents (1 of 6 clusters stable at >= 0.75, none dissolve), ARI 0.36 vs production.
 
