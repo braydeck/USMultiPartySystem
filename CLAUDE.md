@@ -101,6 +101,12 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
 
 ## The traps
 
+0. **Approval of actors never enters an item pool.** Presidential, Congress, SCOTUS, governor and
+   legislator approval (`CC24_312*`, and ANES equivalents) measure who holds power and how they are
+   doing, not ideology. Don't propose them back, including Congress approval on the grounds that its
+   party-ID R² is low or that available-item scoring removes its missingness cost. Institutional
+   *trust* items are a different category and stay in (`docs/EFA_ITEM_SELECTION_ROBUSTNESS.md` Stage A).
+
 1. **Ballot depth counts CANDIDATES, not parties.** Every party fields at least one candidate
    per district and strong parties field 2 to 4, so a depth-7 ballot reaches roughly **3
    parties**, never 7. Sizing is `n_candidates_for_district()` in

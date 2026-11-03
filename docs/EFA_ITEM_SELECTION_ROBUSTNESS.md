@@ -34,7 +34,7 @@ The 84→55 step (Stage A) was previously undocumented; it is specified below. S
 
 | Excluded category | Examples | Why |
 |---|---|---|
-| Evaluations / approvals | `CC24_312*` (Biden/Harris/SCOTUS/Congress approval) | Measure *approval of actors*, not policy attitudes; also near-pure partisan proxies (party-ID R² 0.57–0.63). |
+| Evaluations / approvals | `CC24_312*` (Biden/Harris/SCOTUS/Congress approval) | Measure *approval of actors*, not policy attitudes. Approval tracks who holds power and how they are doing, a horse-race measure, so it never enters any typology pool (CES or ANES) whatever its party-ID R², missingness, or loadings. Most are near-pure partisan proxies (party-ID R² 0.57–0.63); Congress approval (`CC24_312b`) is not (R² 0.001) and is excluded on the same category grounds. Institutional *trust* items (`CC24_423`/`424`, ANES trust batteries) are a different category and stay in. |
 | Ideology ratings / self-placement | `CC24_330*` (rate Biden/Trump/parties; self-placement) | Partisan proxies (self-placement ideology R²=0.82). |
 | Retrospective economic sentiment | `CC24_301` (national economy better/worse) | A Biden-approval proxy in 2024 (party-ID R²=0.34). |
 | Multi-select / compositional | `CC24_309d*` (emergency-expense options), `CC24_420*` (military-force checklist), `CC24_308*` (Ukraine/Gaza) | Mutually-exclusive checkboxes create structurally invalid polychoric correlations. |

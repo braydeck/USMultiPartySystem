@@ -9,8 +9,10 @@
   dissolve in 45%, 41% and 31% of resamples (`findings.md`). The rescored cap 9's ninth party dissolves in
   52% of resamples. Adoption is a production rebuild, handed to `analysis/efa/rebuild_eight_parties/`.
 - **No items added.** The 24-item curation rests on construct reasons (`docs/EFA_ITEM_SELECTION_ROBUSTNESS.md`
-  Stages A/B, `analysis/efa/efa_variable_list.csv`). The only exclusion whose stated reason was sample size
-  is Congress approval `CC24_312b` ("drag down N"), which Stage A excludes anyway as an approval of actors.
+  Stages A/B, `analysis/efa/efa_variable_list.csv`).
+- **Congress approval (`CC24_312b`) is never eligible** (researcher). It is a horse-race measure of who
+  holds power, not ideology. Its old drop reason in `efa_variable_list.csv` ("drag down N") was wrong and
+  now gives the category reason; the rule is CLAUDE.md trap 0.
   A larger-pool test stays a separate later check (`NEXT.md`).
 - **Loading-draw test is not a gate.** Production was never tested against loading draws either; cap 8
   beats production on the stability measures both were tested on.

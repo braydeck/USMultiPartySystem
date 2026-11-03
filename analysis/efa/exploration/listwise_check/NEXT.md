@@ -10,7 +10,7 @@
 
 ## Next steps (optional, after the rebuild)
 1. Loading-draw test: the 50 draws in `outputs/loadings_bootstrap.csv` (rebuild each with seed-42 resampling as in `reestimate_loadings.py`), score, run the 20-seed DPGMM at cap 8, record each party's kept share. Not a gate (`DECISIONS.md`).
-2. Larger CES item pool as its own check. Rule proposed by the ANES session: curate for construct reasons, never cull for missingness, handle missing answers at scoring. An earlier uncurated CES pool gave an unstable factor solution. Judge party changes against the step-1 noise floor; report per-party kept share and Jaccard, not just factor φ. Only exclusion whose reason was sample size: `CC24_312b` (Congress approval), which Stage A excludes anyway.
+2. Larger CES item pool as its own check. Rule proposed by the ANES session: curate for construct reasons, never cull for missingness, handle missing answers at scoring. An earlier uncurated CES pool gave an unstable factor solution. This is the test that squares CES with ANES: ANES got the Stage A/B screen only (99 items, 10 clean factors); CES got the screen plus a discretionary domain-coverage trim, justified because the screened ~63-item CES pool was numerically degenerate (Heywood cases, non-positive-definite, k ≈ 2–3, dominated by the `CC24_444` state-culture battery; `docs/EFA_ITEM_SELECTION_ROBUSTNESS.md` §6). Run the screened pool with one battery-dominance fix and no other trim. Judge party changes against the step-1 noise floor; report per-party kept share and Jaccard, not just factor φ.
 3. Cap rule: count a party dissolved by its failure share across resamples, not mean Jaccard < 0.5 (a party that vanishes in half the resamples passes the mean rule). Researcher hasn't ruled.
 
 ## Don't redo

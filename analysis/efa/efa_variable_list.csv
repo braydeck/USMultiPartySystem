@@ -46,7 +46,7 @@ CC24_421_2,Disagree: state/local election in 2024 was fair [high=distrust],post,
 CC24_423,Low trust: federal government [4-pt; high=less trust],post,49347,17.8,0.6182,47.2,0.0265,0.0154,KEEP,
 CC24_424,Low trust: state government [4-pt; high=less trust],post,49340,17.8,0.771,42.5,0.0072,0.0032,KEEP,
 CC24_312a,Approve Biden [partisan proxy],pre,58405,2.7,1.3453,47.2,0.5682,0.3558,DROP,Partisan proxy: Biden approval (PID R²=0.568); r=0.977 with CC24_312i
-CC24_312b,Approve U.S. Congress [11.9% Not sure],pre,52863,11.9,0.6448,43.3,0.0007,0.0008,DROP,"Dropped by user: 11.9% missing (4,947 ""Not sure"" post-completers drag down N)"
+CC24_312b,Approve U.S. Congress [11.9% Not sure],pre,52863,11.9,0.6448,43.3,0.0007,0.0008,DROP,"Never eligible (Stage A): approval of an actor tracks who holds power, not ideology. Not a missingness drop"
 CC24_312c,Approve U.S. Supreme Court,pre,54121,9.8,1.1288,37.7,0.2787,0.2873,DROP,"Dropped by user: SCOTUS approval loaded on partisan axis, not cross-cutting"
 CC24_312d,Approve Governor [direction varies by state],pre,55126,8.1,1.2897,31.6,0.0084,0.004,DROP,Direction inconsistent: partisan valence varies by state governor party
 CC24_312e,Approve State legislature [direction varies by state],pre,47684,20.5,0.9806,39.8,0.0003,0.0003,DROP,Direction inconsistent: partisan valence varies by state legislature; 20.5% missing
