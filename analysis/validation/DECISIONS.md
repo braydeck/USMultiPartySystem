@@ -107,3 +107,8 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
 - **ANES Stage C uses a 3-clean-item minimum**, not the shared doc's 2. The researcher lowered the CES minimum to 2
   because CES has few trust items; ANES has no such constraint. Set before the ANES Stage C run
   (`anes/stage_c.py`). Battery tags: `anes/config/anes_independent_pool.csv`, committed in c0e525c before the run.
+- **ANES Stage C follows the shared doc as revised the same day**: when parallel analysis and MAP disagree, fit the
+  lower k; entry minimum 2 clean items. This replaces the 3-item ANES setting above. The ANES run is not a blind
+  test of the lower-k rule: the first ANES run (both-fits rule, archived to
+  `_ARCHIVE (superseded, do not cite)/anes/outputs/stage_c/`) had already shown the lower-k fit (k = 10) and its
+  entry test. The doc's sentence that ANES "had not yet run under §3c" is inaccurate for that reason.

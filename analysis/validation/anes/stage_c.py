@@ -9,16 +9,14 @@ Choices fixed before running:
   Matrix   one pairwise weighted polychoric over the post-Stage-B pool on every post-weighted respondent
            (available-item ruling, analysis/validation/DECISIONS.md 2026-11-02), regularized, subset as items leave.
            Parallel analysis takes n = the median pairwise-complete count across item pairs.
-  k        parallel analysis (95th percentile) and Velicer's MAP (efa_math.velicer_map, shared with CES). If they
-           disagree both are fit; a factor enters clustering only if it passes in both fits, matched at Tucker phi
-           >= 0.85 on the items common to both final pools. Scores then come from the parallel-analysis fit.
+  k        parallel analysis (95th percentile) and Velicer's MAP (efa_math.velicer_map). If they disagree, the
+           lower k is fit (§3c as revised 2026-11-02; the first ANES run, under the both-fits rule, is archived).
   Reduce   PAF + oblimin at fixed k. Each pass: items with max |loading| < 0.30, h^2 < 0.20 or h^2 >= 0.995 drop
            together and the model refits; once none are weak, the cross-loader (|loading| >= 0.30 on 2+ factors)
            with the largest second-highest |loading| is removed and the model refits. Stop when neither remains.
            Parallel analysis and MAP rerun once on the final pool and are reported, not looped.
-  Entry    a factor clusters if it has >= MIN_CLEAN clean items (|loading| >= 0.40 on it, < 0.30 on every other)
-           from >= 2 batteries. MIN_CLEAN = 3 for ANES (researcher, 2026-11-02; the shared doc's 2 was set for
-           CES's trust items). Factors that fail stay in the fit and are profiled, not clustered.
+  Entry    a factor clusters if it has >= 2 clean items (|loading| >= 0.40 on it, < 0.30 on every other) from
+           >= 2 batteries, per §3c. Factors that fail stay in the fit and are profiled, not clustered.
   Cluster  available-item Thomson scores from the full final fit; respondents answering >= half of each passing
            factor's items (items assigned by primary loading); the anchor residualization rule; the stability sweep
            and cap rule of independent_clustering.py (n_check.sweep); the modal solution across 20 seeds, best lower
@@ -46,7 +44,7 @@ from common import efa_math as em
 
 OUT = me.OUT / "stage_c"
 MIN_LOAD, MIN_H2, HEYWOOD = 0.30, 0.20, 0.995
-CLEAN, CROSS, MIN_CLEAN, MIN_BATTERIES, MATCH_PHI = 0.40, 0.30, 3, 2, 0.85
+CLEAN, CROSS, MIN_CLEAN, MIN_BATTERIES = 0.40, 0.30, 2, 2
 SEGMENTS = {0: "center-left moderates", 1: "religious conservatives", 2: "secular progressives", 3: "young disaffected"}
 
 
@@ -123,38 +121,23 @@ def main():
     k_map, _ = em.velicer_map(R_all)
     print(f"k: parallel analysis {k_pa}, MAP {k_map} (n for parallel analysis = {n_obs:,})", flush=True)
 
-    fits = {}
-    for k in sorted({k_pa, k_map}):
-        alive, L, Phi, h2 = reduce(R_all, pool, k, log, k)
-        idx = [pool.index(c) for c in alive]
-        R = R_all[np.ix_(idx, idx)]
-        k_pa2, _, _ = em.parallel_analysis(R, n_obs=n_obs)
-        k_map2, _ = em.velicer_map(R)
-        et = entry(L, alive, cw)
-        fits[k] = (alive, L, Phi, et)
-        ld = pd.DataFrame(L, index=alive, columns=[f"N{j + 1}" for j in range(k)]).round(3)
-        ld.insert(0, "label", [cw.label[c][:70] for c in alive])
-        ld.insert(1, "battery_id", [cw.battery_id[c] for c in alive])
-        ld["h2"] = h2.round(3)
-        ld.to_csv(OUT / f"loadings_k{k}.csv")
-        print(f"\nk = {k}: {len(alive)} items after reduction; recheck on final pool: parallel analysis {k_pa2}, "
-              f"MAP {k_map2}", flush=True)
-        with pd.option_context("display.width", 250, "display.max_colwidth", 120):
-            print(et[["factor", "n_clean", "n_batteries", "passes", "top_items"]].to_string(index=False), flush=True)
-
-    alive, L, Phi, et = fits[k_pa]
+    k = min(k_pa, k_map)
+    alive, L, Phi, h2 = reduce(R_all, pool, k, log, k)
+    idx = [pool.index(c) for c in alive]
+    R = R_all[np.ix_(idx, idx)]
+    k_pa2, _, _ = em.parallel_analysis(R, n_obs=n_obs)
+    k_map2, _ = em.velicer_map(R)
+    et = entry(L, alive, cw)
+    ld = pd.DataFrame(L, index=alive, columns=[f"N{j + 1}" for j in range(k)]).round(3)
+    ld.insert(0, "label", [cw.label[c][:70] for c in alive])
+    ld.insert(1, "battery_id", [cw.battery_id[c] for c in alive])
+    ld["h2"] = h2.round(3)
+    ld.to_csv(OUT / f"loadings_k{k}.csv")
+    print(f"\nk = {k} (lower of the two): {len(alive)} items after reduction; recheck on final pool: "
+          f"parallel analysis {k_pa2}, MAP {k_map2}", flush=True)
+    with pd.option_context("display.width", 250, "display.max_colwidth", 120):
+        print(et[["factor", "n_clean", "n_batteries", "passes", "top_items"]].to_string(index=False), flush=True)
     passing = set(et.factor[et.passes])
-    if k_map != k_pa:
-        a2, L2, _, et2 = fits[k_map]
-        common = [c for c in alive if c in a2]
-        Lc = L[[alive.index(c) for c in common]]
-        L2c = L2[[a2.index(c) for c in common]]
-        both = set()
-        for m in me.cg.match_factors(Lc, L2c):
-            if abs(m["phi"]) >= MATCH_PHI and m["factor_1"] in passing and et2.passes[m["factor_2"]]:
-                both.add(m["factor_1"])
-        print(f"\nfactors passing in both fits (phi >= {MATCH_PHI}): {sorted(both)} of {sorted(passing)}")
-        passing = both
     et["clusters"] = et.factor.isin(passing)
     et.to_csv(OUT / "entry_test.csv", index=False)
     pd.DataFrame(log, columns=["item_id", "dropped_at", "value"]).assign(
