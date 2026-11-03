@@ -1,0 +1,28 @@
+set,n_items,K,mean_eta2,chance_eta2,share_of_continuous,continuous_R2
+"strict, no-FP",35,2,0.0728,0.0005,0.423,0.1721
+"strict, no-FP",35,3,0.0999,0.0009,0.58,0.1721
+"strict, no-FP",35,4,0.1086,0.0015,0.631,0.1721
+"strict, no-FP",35,5,0.1114,0.002,0.647,0.1721
+"strict, no-FP",35,6,0.12,0.0024,0.697,0.1721
+"strict, no-FP",35,7,0.1202,0.0029,0.699,0.1721
+"strict, no-FP",35,8,0.1255,0.0033,0.729,0.1721
+"strict, no-FP",35,9,0.1262,0.0038,0.733,0.1721
+"strict, no-FP",35,10,0.1258,0.0042,0.731,0.1721
+foreign policy,14,2,0.0884,0.0005,0.411,0.2151
+foreign policy,14,3,0.1191,0.001,0.553,0.2151
+foreign policy,14,4,0.1315,0.0015,0.611,0.2151
+foreign policy,14,5,0.1351,0.002,0.628,0.2151
+foreign policy,14,6,0.1483,0.0025,0.689,0.2151
+foreign policy,14,7,0.1486,0.003,0.691,0.2151
+foreign policy,14,8,0.1539,0.0036,0.715,0.2151
+foreign policy,14,9,0.1562,0.004,0.726,0.2151
+foreign policy,14,10,0.1554,0.0043,0.722,0.2151
+behavior and identity,4,2,0.2864,0.0007,0.563,0.509
+behavior and identity,4,3,0.4187,0.001,0.823,0.509
+behavior and identity,4,4,0.452,0.0016,0.888,0.509
+behavior and identity,4,5,0.4493,0.0021,0.883,0.509
+behavior and identity,4,6,0.4544,0.0024,0.893,0.509
+behavior and identity,4,7,0.4324,0.0028,0.849,0.509
+behavior and identity,4,8,0.4481,0.0036,0.88,0.509
+behavior and identity,4,9,0.4318,0.0039,0.848,0.509
+behavior and identity,4,10,0.4358,0.0042,0.856,0.509

@@ -138,3 +138,11 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   its own spending grid (`CC24_443`) on the same terms. Reason: ANES's closest analogs to CES's Security & Order
   items (border-patrol and police spending) sit in this battery. Chosen before the rerun. Retagging also corrected
   `V242253x`'s stale battery tag (it carried the replaced `V242250`'s id).
+- **2026-11-03: the no-foreign-policy Stage C run is the primary ANES segmentation** (researcher, after both runs were
+  seen). `anes/stage_c.py --no-foreign-policy` (`anes/outputs/stage_c_nofp/`) replaces the main run as primary; the
+  main run (`anes/outputs/stage_c/`) stays as the with-foreign-policy sensitivity. Reason, from first principles:
+  foreign-policy views are more loosely held than domestic ones, and domestic policy drives electoral outcomes unless
+  a war or its costs reach headlines or household budgets. It also matches CES, where foreign policy is a separate
+  arm of the larger-pool test and sits outside the main pool. Foreign-policy items are profiled against the segments
+  afterward, outside the clustering. Disclosed: this is a Stage A domain choice made after results were seen, so the
+  no-foreign-policy run is not a blind test of §3c.

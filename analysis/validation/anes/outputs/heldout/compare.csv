@@ -1,0 +1,11 @@
+set,n_items,a,b,a_eta2,b_eta2,diff,lo,hi,p_a_higher
+"strict, all inputs",12,no-FP 5,with FP 5,0.0403,0.0451,-0.0048,-0.0086,-0.0015,0.005
+"strict, all inputs",12,no-FP 5,production 4,0.0403,0.0384,0.0019,-0.0012,0.0058,0.89
+"strict, all inputs",12,with FP 5,production 4,0.0451,0.0384,0.0067,0.0037,0.0108,1.0
+"strict, all inputs",12,no-FP 5,no-FP 4,0.0403,0.0398,0.0004,-0.001,0.0029,0.86
+"strict, all inputs",12,no-FP 6,no-FP 5,0.0482,0.0403,0.0079,0.0057,0.0107,1.0
+behavior and identity,4,no-FP 5,with FP 5,0.4493,0.448,0.0013,-0.0148,0.0181,0.54
+behavior and identity,4,no-FP 5,production 4,0.4493,0.4283,0.021,0.0014,0.0401,0.98
+behavior and identity,4,with FP 5,production 4,0.448,0.4283,0.0197,0.0002,0.0369,0.975
+behavior and identity,4,no-FP 5,no-FP 4,0.4493,0.452,-0.0027,-0.0113,0.0057,0.24
+behavior and identity,4,no-FP 6,no-FP 5,0.4544,0.4493,0.0051,-0.0008,0.0128,0.955
