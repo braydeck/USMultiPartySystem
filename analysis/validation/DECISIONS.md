@@ -112,3 +112,10 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   test of the lower-k rule: the first ANES run (both-fits rule, archived to
   `_ARCHIVE (superseded, do not cite)/anes/outputs/stage_c/`) had already shown the lower-k fit (k = 10) and its
   entry test. The doc's sentence that ANES "had not yet run under §3c" is inaccurate for that reason.
+- **2026-11-03: the income-inequality item uses its 7-point version.** The coding audit (`anes/item_audit.py`) found
+  the pool used V242250 (favor / neither / oppose) where ANES also has V242253x, the same question with strength,
+  answered by the same respondents. V242253x replaces it; every other item's coding checked out. Under the unchanged
+  §3c rule the corrected pool gives a different tenth factor (government distrust from ANES's trust items in place of
+  Ukraine/Israel aid, whose items fell to |λ| 0.28-0.30) and cap 5. The four-segment portraits are archived pending
+  a rebuild. A data correction found by the audit, not a threshold change.
+

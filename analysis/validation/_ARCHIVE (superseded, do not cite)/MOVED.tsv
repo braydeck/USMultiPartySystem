@@ -1,3 +1,8 @@
 original_path	reason
 anes/outputs/clustering/independent	2026-11-02: superseded by available-item scoring (DECISIONS 2026-11-02)
 anes/outputs/stage_c	2026-11-02: superseded: §3c tie rule changed to fit the lower k (2026-11-02)
+anes/outputs/stage_c/independent_clusters.csv	2026-11-03: superseded: built on the pre-audit pool (V242250 three-option inequality item); the corrected pool gives cap 5 (2026-11-03)
+anes/outputs/stage_c/factors.csv	2026-11-03: superseded: built on the pre-audit pool (V242250 three-option inequality item); the corrected pool gives cap 5 (2026-11-03)
+anes/outputs/stage_c/segment_descriptors.csv	2026-11-03: superseded: built on the pre-audit pool (V242250 three-option inequality item); the corrected pool gives cap 5 (2026-11-03)
+anes/outputs/stage_c/segment_portraits.html	2026-11-03: superseded: built on the pre-audit pool (V242250 three-option inequality item); the corrected pool gives cap 5 (2026-11-03)
+anes/outputs/clustering/cluster_profiles.html	2026-11-03: superseded: built on the pre-audit pool (V242250 three-option inequality item); the corrected pool gives cap 5 (2026-11-03)

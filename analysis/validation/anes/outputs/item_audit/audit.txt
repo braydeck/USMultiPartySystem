@@ -1,0 +1,467 @@
+
+V241229  [FIT]  how often trust government in washington to do what is right [revised]
+   V241229: 1:??→1.0 (1%) | 2:most of the time→2.0 (13%) | 3:about half the time→3.0 (29%) | 4:some of the time→4.0 (42%) | 5:never→5.0 (14%)
+
+V241230  [out]  how often can you trust the court system to do what is right
+   V241230: 1:??→1.0 (1%) | 2:most of the time→2.0 (24%) | 3:about half the time→3.0 (27%) | 4:some of the time→4.0 (39%) | 5:never→5.0 (9%)
+
+V241231  [out]  government run by a few big interests or for benefit of all
+   V241231: 1:run by a few big interests→1.0 (83%) | 2:for the benefit of all the people→2.0 (17%)
+
+V241232  [out]  does government waste much tax money
+   V241232: 1:waste a lot→1.0 (69%) | 2:waste some→2.0 (29%) | 3:don’t waste very much→3.0 (3%)
+
+V241233  [out]  how many in government are corrupt
+   V241233: 1:??→1.0 (5%) | 2:most→2.0 (31%) | 3:about half→3.0 (35%) | 4:a few→4.0 (29%) | 5:none→5.0 (1%)
+
+V241234  [out]  how often can people be trusted
+   V241234: 1:??→1.0 (1%) | 2:most of the time→2.0 (41%) | 3:about half the time→3.0 (30%) | 4:some of the time→4.0 (24%) | 5:never→5.0 (4%)
+
+V241235  [out]  elections make government pay attention
+   V241235: 1:a good deal→1.0 (29%) | 2:some→2.0 (50%) | 3:not much→3.0 (21%)
+
+V241239  [FIT]  7pt scale spending & services: self- placement
+   V241239: 1:government should provide many fewer s→1.0 (6%) | 2:??→2.0 (5%) | 3:??→3.0 (11%) | 4:??→4.0 (17%) | 5:??→5.0 (17%) | 6:??→6.0 (11%) | 7:government should provide many more se→7.0 (18%) | 99:haven’t thought much about this→NaN (14%)
+
+V241242  [out]  7pt scale defense spending: self- placement
+   V241242: 1:greatly decrease defense spending→1.0 (7%) | 2:??→2.0 (5%) | 3:??→3.0 (9%) | 4:??→4.0 (22%) | 5:??→5.0 (17%) | 6:??→6.0 (12%) | 7:greatly increase defense spending→7.0 (13%) | 99:haven’t thought much about this→NaN (15%)
+
+V241245  [FIT]  7pt scale gov-private medical insurance scale: self-placement
+   V241245: 1:government insurance plan→1.0 (21%) | 2:??→2.0 (12%) | 3:??→3.0 (12%) | 4:??→4.0 (16%) | 5:??→5.0 (10%) | 6:??→6.0 (8%) | 7:private insurance plan→7.0 (11%) | 99:haven’t thought much about this→NaN (10%)
+
+V241248  [out]  7pt scale abortion: self-placement
+   V241248: 1:abortion should always be permitted wi→1.0 (26%) | 2:??→2.0 (17%) | 3:??→3.0 (11%) | 4:??→4.0 (12%) | 5:??→5.0 (10%) | 6:??→6.0 (11%) | 7:abortion should never be permitted→7.0 (8%) | 99:haven’t thought much about this→NaN (6%)
+
+V241252  [FIT]  7pt scale guaranteed job-income scale: self-placement
+   V241252: 1:government should see to jobs and stan→1.0 (14%) | 2:??→2.0 (9%) | 3:??→3.0 (14%) | 4:??→4.0 (18%) | 5:??→5.0 (13%) | 6:??→6.0 (11%) | 7:government should let each person get →7.0 (12%) | 99:haven’t thought much about this→NaN (11%)
+
+V241255  [out]  7pt scale gov assistance to blacks scale: self-placement
+   V241255: 1:government should help blacks→1.0 (15%) | 2:??→2.0 (10%) | 3:??→3.0 (12%) | 4:??→4.0 (21%) | 5:??→5.0 (9%) | 6:??→6.0 (8%) | 7:blacks should help themselves→7.0 (12%) | 99:haven’t thought much about this→NaN (13%)
+
+V241258  [out]  7pt scale environment-business tradeoff: self-placement
+   V241258: 1:??→1.0 (24%) | 2:??→2.0 (13%) | 3:??→3.0 (13%) | 4:??→4.0 (15%) | 5:??→5.0 (8%) | 6:??→6.0 (5%) | 7:regulations to protect environment alr→7.0 (7%) | 99:haven’t thought much about this→NaN (16%)
+
+V241290x  [out]  summary approve/disapprove diversity, equity, and inclusion (dei)
+   V241290x: 1:favor a great deal→1.0 (14%) | 2:favor a moderate amount→2.0 (15%) | 3:favor a little→3.0 (5%) | 4:neither favor nor oppose→4.0 (39%) | 5:oppose a little→5.0 (3%) | 6:oppose a moderate amount→6.0 (9%) | 7:oppose a great deal→7.0 (16%)
+
+V241302  [FIT]  std abortion: self-placement
+   V241302: 1:??→1.0 (6%) | 2:??→2.0 (23%) | 3:the law should permit abortion other t→3.0 (20%) | 4:by law, a woman should always be able →4.0 (48%) | 5:other {specify}→NaN (3%)
+
+V241308x  [FIT]  r favor/oppose death penalty
+   V241308x: 1:favor strongly→1.0 (39%) | 2:favor not strongly→2.0 (24%) | 3:oppose not strongly→3.0 (20%) | 4:oppose strongly→4.0 (18%)
+
+V241312x  [FIT]  country would be better off if we just stayed home
+   V241312x: 1:??→1.0 (15%) | 2:agree somewhat→2.0 (17%) | 3:disagree somewhat→3.0 (31%) | 4:disagree strongly→4.0 (38%)
+
+V241313  [out]  force to solve international problems
+   V241313: 1:??→1.0 (4%) | 2:very willing→2.0 (11%) | 3:moderately willing→3.0 (50%) | 4:a little willing→4.0 (28%) | 5:not at all willing→5.0 (7%)
+
+V241314  [out]  votes counted accurately
+   V241314: 1:not at all accurately→1.0 (10%) | 2:a little accurately→2.0 (11%) | 3:moderately accurately→3.0 (29%) | 4:very accurately→4.0 (33%) | 5:completely accurately→5.0 (17%)
+
+V241315  [out]  trust election officials
+   V241315: 1:??→1.0 (10%) | 2:a little→2.0 (13%) | 3:a moderate amount→3.0 (29%) | 4:a lot→4.0 (23%) | 5:a great deal→5.0 (26%)
+
+V241316  [out]  how often people denied right to vote
+   V241316: 1:??→1.0 (15%) | 2:rarely→2.0 (37%) | 3:occasionally→3.0 (35%) | 4:fairly often→4.0 (10%) | 5:very often→5.0 (3%)
+
+V241319x  [out]  favor/oppose requiring id when voting
+   V241319x: 1:favor a great deal→1.0 (54%) | 2:favor moderately→2.0 (15%) | 3:favor a little→3.0 (5%) | 4:neither favor nor oppose→4.0 (16%) | 5:oppose a little→5.0 (1%) | 6:oppose moderately→6.0 (5%) | 7:oppose a great deal→7.0 (4%)
+
+V241322x  [out]  favor/oppose allowing felons to vote
+   V241322x: 1:??→1.0 (30%) | 2:??→2.0 (24%) | 3:favor a little→3.0 (8%) | 4:neither favor nor oppose→4.0 (24%) | 5:oppose a little→5.0 (2%) | 6:oppose moderately→6.0 (6%) | 7:oppose a great deal→7.0 (7%)
+
+V241324  [FIT]  how important that news organizations free to criticize
+   V241324: 1:??→1.0 (9%) | 2:a little important→2.0 (8%) | 3:moderately important→3.0 (25%) | 4:very important→4.0 (21%) | 5:extremely important→5.0 (37%)
+
+V241325  [FIT]  how important branches of government keep one another from too
+   V241325: 1:??→1.0 (2%) | 2:a little important→2.0 (3%) | 3:moderately important→3.0 (15%) | 4:very important→4.0 (26%) | 5:extremely important→5.0 (54%)
+
+V241326  [FIT]  how important elected officials face serious consequences for misconduct
+   V241326: 1:??→1.0 (1%) | 2:a little important→2.0 (2%) | 3:moderately important→3.0 (9%) | 4:very important→4.0 (25%) | 5:extremely important→5.0 (63%)
+
+V241327  [FIT]  how important that people agree on basic facts
+   V241327: 1:??→1.0 (3%) | 2:a little important→2.0 (4%) | 3:moderately important→3.0 (21%) | 4:very important→4.0 (36%) | 5:extremely important→5.0 (36%)
+
+V241330x  [out]  helpful/harmful if pres didn’t have to worry about
+   V241330x: 1:extremely helpful→1.0 (6%) | 2:moderately helpful→2.0 (10%) | 3:a little helpful→3.0 (2%) | 4:neither helpful nor harmful→4.0 (25%) | 5:a little harmful→5.0 (4%) | 6:moderately harmful→6.0 (21%) | 7:extremely harmful→7.0 (33%)
+
+V241333x  [FIT]  favor or oppose restricting journalist access
+   V241333x: 1:favor a great deal→1.0 (4%) | 2:favor moderately→2.0 (7%) | 3:favor a little→3.0 (2%) | 4:neither favor nor oppose→4.0 (28%) | 5:oppose a little→5.0 (5%) | 6:oppose moderately→6.0 (20%) | 7:oppose a great deal→7.0 (34%)
+
+V241334  [FIT]  how concerned government might undermine media
+   V241334: 1:??→1.0 (7%) | 2:a little concerned→2.0 (12%) | 3:moderately concerned→3.0 (30%) | 4:very concerned→4.0 (27%) | 5:extremely concerned→5.0 (24%)
+
+V241335  [out]  how much trust in news media
+   V241335: 1:??→1.0 (22%) | 2:a little→2.0 (32%) | 3:a moderate amount→3.0 (32%) | 4:a lot→4.0 (10%) | 5:a great deal→5.0 (4%)
+
+V241338x  [out]  prefer gov official who compromises/sticks to principles
+   V241338x: 1:prefers gov oﬃcial who compromises ver→1.0 (20%) | 2:prefers gov oﬃcial who compromises mod→2.0 (31%) | 3:prefers gov oﬃcial who compromises sli→3.0 (9%) | 4:prefers gov oﬃcial who sticks to princ→4.0 (6%) | 5:prefers gov oﬃcial who sticks to princ→5.0 (17%) | 6:prefers gov oﬃcial who sticks to princ→6.0 (18%)
+
+V241366x  [out]  government action about rising temperatures
+   V241366x: 1:should be doing a great deal more→1.0 (34%) | 2:should be doing a moderate amount more→2.0 (17%) | 3:should be doing a little more→3.0 (4%) | 4:currently doing the right amount→4.0 (29%) | 5:should be doing a little less→5.0 (3%) | 6:should be doing a moderate amount less→6.0 (7%) | 7:should be doing a great deal less→7.0 (6%)
+
+V241369x  [out]  require employers to offer paid leave to parents of new children
+   V241369x: 1:favor a great deal→1.0 (52%) | 2:favor moderately→2.0 (21%) | 3:favor a little→3.0 (3%) | 4:neither favor nor oppose→4.0 (16%) | 5:oppose a little→5.0 (1%) | 6:oppose moderately→6.0 (4%) | 7:oppose a great deal→7.0 (2%)
+
+V241372x  [FIT]  approve/disapprove transgender people use bathroom that
+   V241372x: 1:favor a great deal→1.0 (15%) | 2:favor a moderate amount→2.0 (9%) | 3:favor a little→3.0 (3%) | 4:neither favor nor oppose→4.0 (24%) | 5:oppose a little→5.0 (2%) | 6:oppose a moderate amount→6.0 (7%) | 7:oppose a great deal→7.0 (39%)
+
+V241375x  [out]  favor/oppose banning transgender girls from k-12 girls sports
+   V241375x: 1:favor a great deal→1.0 (38%) | 2:favor a moderate amount→2.0 (9%) | 3:favor a little→3.0 (3%) | 4:neither favor nor oppose→4.0 (26%) | 5:oppose a little→5.0 (2%) | 6:oppose a moderate amount→6.0 (8%) | 7:oppose a great deal→7.0 (14%)
+
+V241378x  [FIT]  favor/oppose laws protect gays/lesbians against job discrimination
+   V241378x: 1:favor strongly→1.0 (67%) | 2:favor not strongly→2.0 (16%) | 3:oppose not strongly→3.0 (7%) | 4:oppose strongly→4.0 (10%)
+
+V241381x  [out]  summary should gay/lesbian couples be allowed to adopt children or not
+   V241381x: 1:??→1.0 (50%) | 2:??→2.0 (22%) | 3:??→3.0 (8%) | 4:feels not strongly gay/lesbian couples→4.0 (2%) | 5:feels somewhat strongly gay/lesbian co→5.0 (6%) | 6:feels very strongly gay/lesbian couple→6.0 (12%)
+
+gay_marriage  [FIT]  gay marriage (form 1A/1B splice)
+   V241382: 1:??→1.0 (66%) | 2:gay and lesbian couples should be allo→2.0 (19%) | 3:there should be no legal recognition o→3.0 (15%)
+   V241383: 1:favor→1.0 (62%) | 2:oppose→3.0 (18%) | 3:neither favor nor oppose→2.0 (19%)
+
+V241386  [FIT]  us government policy toward unauthorized immigrants
+   V241386: 1:??→1.0 (24%) | 2:??→2.0 (16%) | 3:allow unauthorized immigrants to remai→3.0 (47%) | 4:allow unauthorized immigrants to remai→4.0 (13%)
+
+V241389x  [FIT]  favor or oppose ending birthright citizenship
+   V241389x: 1:favor a great deal→1.0 (14%) | 2:favor moderately→2.0 (9%) | 3:favor a little→3.0 (3%) | 4:neither favor nor oppose→4.0 (29%) | 5:oppose a little→5.0 (3%) | 6:oppose moderately→6.0 (14%) | 7:oppose a great deal→7.0 (28%)
+
+V241392x  [FIT]  should children brought illegally be sent back or allowed to stay
+   V241392x: 1:believes a great deal immigrants shoul→1.0 (6%) | 2:believes a moderate amount immigrants →2.0 (6%) | 3:believes a little immigrants should be→3.0 (2%) | 4:believes a little immigrants should be→4.0 (10%) | 5:believes a moderate amount immigrants →5.0 (30%) | 6:believes a great deal immigrants shoul→6.0 (47%)
+
+V241395x  [FIT]  favor or oppose building a wall on border with mexico
+   V241395x: 1:favor a great deal→1.0 (31%) | 2:favor moderately→2.0 (10%) | 3:favor a little→3.0 (3%) | 4:neither favor nor oppose→4.0 (23%) | 5:oppose a little→5.0 (3%) | 6:oppose moderately→6.0 (10%) | 7:oppose a great deal→7.0 (21%)
+
+V241396  [out]  how important to speak english in us
+   V241396: 1:??→1.0 (50%) | 2:somewhat important→2.0 (33%) | 3:not very important→3.0 (11%) | 4:not at all important→4.0 (7%)
+
+V241397  [out]  best way to deal with urban unrest
+   V241397: 1:solve problems of racism and police vi→1.0 (25%) | 2:??→2.0 (9%) | 3:??→3.0 (9%) | 4:??→4.0 (16%) | 5:??→5.0 (11%) | 6:??→6.0 (8%) | 7:use all available force to maintain la→7.0 (12%) | 99:haven’t thought much about this→NaN (10%)
+
+V241400x  [FIT]  favor/oppose u.s. giving weapons to help ukraine fight russia
+   V241400x: 1:favor a great deal→1.0 (23%) | 2:favor moderately→2.0 (18%) | 3:favor a little→3.0 (6%) | 4:neither favor nor oppose→4.0 (26%) | 5:oppose a little→5.0 (3%) | 6:oppose moderately→6.0 (10%) | 7:oppose a great deal→7.0 (14%)
+
+V241403x  [FIT]  favor/oppose u.s. giving military assistance to israel
+   V241403x: 1:favor a great deal→1.0 (20%) | 2:favor moderately→2.0 (15%) | 3:favor a little→3.0 (5%) | 4:neither favor nor oppose→4.0 (30%) | 5:oppose a little→5.0 (3%) | 6:oppose moderately→6.0 (10%) | 7:oppose a great deal→7.0 (17%)
+
+V241406x  [FIT]  favor/oppose u.s. giving humanitarian aid to palestinians
+   V241406x: 1:favor a great deal→1.0 (30%) | 2:favor moderately→2.0 (19%) | 3:favor a little→3.0 (6%) | 4:neither favor nor oppose→4.0 (30%) | 5:oppose a little→5.0 (2%) | 6:oppose moderately→6.0 (5%) | 7:oppose a great deal→7.0 (8%)
+
+V241409x  [out]  does r side more with israelis or palestinians
+   V241409x: 1:??→1.0 (17%) | 2:??→2.0 (9%) | 3:??→3.0 (3%) | 4:side with both equally→4.0 (20%) | 5:side a little with palestinians→5.0 (1%) | 6:side a moderate amount with palestinia→6.0 (5%) | 7:side a lot with palestinians→7.0 (7%) | 8:side with neither→NaN (38%)
+
+V241412x  [out]  approve/disapprove of protests against war in gaza
+   V241412x: 1:approve a lot of protests→1.0 (9%) | 2:approve a moderate amount of protests→2.0 (9%) | 3:approve a little of protests→3.0 (4%) | 4:neither approve nor disapprove of prot→4.0 (38%) | 5:disapprove a little of protests→5.0 (4%) | 6:disapprove a moderate amount of protes→6.0 (12%) | 7:disapprove a lot of protests→7.0 (23%)
+
+V241420  [out]  is religion important part of r life [revised]
+   V241420: 1:??→1.0 (27%) | 2:very important→2.0 (19%) | 3:moderately important→3.0 (20%) | 4:a little important→4.0 (14%) | 5:not important at all→5.0 (20%)
+
+V241421  [out]  is bible word of god or men
+   V241421: 1:??→1.0 (26%) | 2:the bible is the word of god but not e→2.0 (43%) | 3:the bible is a book written by men and→3.0 (27%) | 5:other {specify}→NaN (4%)
+
+church  [FIT]  religious attendance (spliced)
+   V241440: 1:??→5.0 (30%) | 2:almost every week→4.0 (19%) | 3:once or twice a month→3.0 (18%) | 4:a few times a year→2.0 (31%) | 5:never→1.0 (2%)
+   V241439: 1:yes→NaN (51%) | 2:no→1.0 (49%)
+
+V241451  [out]  r how much better or worse off financially than 1 year ago
+   V241451: 1:??→1.0 (9%) | 2:somewhat better oﬀ→2.0 (19%) | 3:about the same→3.0 (40%) | 4:somewhat worse oﬀ→4.0 (22%) | 5:much worse oﬀ→5.0 (10%)
+
+V241577  [out]  need to be more sensitive talking or people too easily offended
+   V241577: 1:the way people talk needs to change a →1.0 (16%) | 2:the way people talk needs to change a →2.0 (28%) | 3:people are a little too easily oﬀended→3.0 (30%) | 4:people are much too easily oﬀended→4.0 (26%)
+
+V241579  [out]  is it justified for people to use violence to pursue political goals
+   V241579: 1:??→1.0 (83%) | 2:a little→2.0 (6%) | 3:a moderate amount→3.0 (6%) | 4:a lot→4.0 (2%) | 5:a great deal→5.0 (3%)
+
+V241607  [out]  agree/disagree - women interpret innocent remarks as sexist
+   V241607: 1:??→1.0 (5%) | 2:agree somewhat→2.0 (23%) | 3:neither agree nor disagree→3.0 (39%) | 4:disagree somewhat→4.0 (16%) | 5:disagree strongly→5.0 (17%)
+
+V241608  [out]  women seek to gain power by getting control over men
+   V241608: 1:??→1.0 (4%) | 2:agree somewhat→2.0 (14%) | 3:neither agree nor disagree→3.0 (38%) | 4:disagree somewhat→4.0 (13%) | 5:disagree strongly→5.0 (30%)
+
+V242200  [out]  [std] public officials don’t care what people think
+   V242200: 1:agree strongly→1.0 (30%) | 2:agree somewhat→2.0 (41%) | 3:neither agree nor disagree→3.0 (15%) | 4:disagree somewhat→4.0 (11%) | 5:disagree strongly→5.0 (2%)
+
+V242201  [out]  [std] have no say about what government does
+   V242201: 1:agree strongly→1.0 (28%) | 2:agree somewhat→2.0 (36%) | 3:neither agree nor disagree→3.0 (14%) | 4:disagree somewhat→4.0 (18%) | 5:disagree strongly→5.0 (5%)
+
+V242207  [out]  how often are votes counted fairly
+   V242207: 1:all of the time→1.0 (25%) | 2:most of the time→2.0 (49%) | 3:about half of the time→3.0 (10%) | 4:some of the time→4.0 (11%) | 5:never→5.0 (5%)
+
+V242208  [out]  how important that more hispanics get elected to political office
+   V242208: 1:extremely important→1.0 (8%) | 2:very important→2.0 (18%) | 3:moderately important→3.0 (36%) | 4:a little important→4.0 (15%) | 5:not at all important→5.0 (23%)
+
+V242209  [out]  how important that more blacks get elected to political office
+   V242209: 1:extremely important→1.0 (11%) | 2:very important→2.0 (20%) | 3:moderately important→3.0 (36%) | 4:a little important→4.0 (12%) | 5:not at all important→5.0 (20%)
+
+V242210  [FIT]  how important that more asians get elected to political office
+   V242210: 1:extremely important→1.0 (8%) | 2:very important→2.0 (16%) | 3:moderately important→3.0 (37%) | 4:a little important→4.0 (16%) | 5:not at all important→5.0 (22%)
+
+V242211  [out]  how important that more lgbt people get elected to political office
+   V242211: 1:extremely important→1.0 (8%) | 2:very important→2.0 (13%) | 3:moderately important→3.0 (29%) | 4:a little important→4.0 (14%) | 5:not at all important→5.0 (36%)
+
+V242212  [out]  how important that more women get elected to political office
+   V242212: 1:extremely important→1.0 (17%) | 2:very important→2.0 (24%) | 3:moderately important→3.0 (31%) | 4:a little important→4.0 (10%) | 5:not at all important→5.0 (18%)
+
+V242214  [out]  limits on campaign spending
+   V242214: 1:favor→1.0 (67%) | 2:oppose→3.0 (6%) | 3:neither favor nor oppose→2.0 (27%)
+
+V242215  [out]  congress pass laws that benefit contributor organization
+   V242215: 1:a great deal→1.0 (17%) | 2:a lot→2.0 (21%) | 3:a moderate amount→3.0 (32%) | 4:a little→4.0 (20%) | 5:not at all→5.0 (10%)
+
+V242216  [out]  congress pass laws that benefit contributor individuals
+   V242216: 1:a great deal→1.0 (8%) | 2:a lot→2.0 (11%) | 3:a moderate amount→3.0 (26%) | 4:a little→4.0 (30%) | 5:not at all→5.0 (25%)
+
+V242217  [out]  congress change votes because of donation to campaign
+   V242217: 1:all the time→1.0 (15%) | 2:very often→2.0 (34%) | 3:a moderate amount of time→3.0 (38%) | 4:rarely→4.0 (10%) | 5:never→5.0 (2%)
+
+V242226x  [out]  favor/oppose new limits on imports
+   V242226x: 1:favor strongly→1.0 (26%) | 2:favor not strongly→2.0 (23%) | 3:oppose not strongly→3.0 (25%) | 4:oppose strongly→4.0 (26%)
+
+V242227  [FIT]  what should immigration levels be
+   V242227: 1:increased a lot→1.0 (8%) | 2:increased a little→2.0 (11%) | 3:left the same as it is now→3.0 (39%) | 4:decreased a little→4.0 (19%) | 5:decreased a lot→5.0 (23%)
+
+V242231x  [out]  effect of illegal immigration on crime rate
+   V242231x: 1:??→1.0 (27%) | 2:increase a moderate amount→2.0 (22%) | 3:increase a little→3.0 (11%) | 4:have no eﬀect→4.0 (37%) | 5:decrease a little→5.0 (1%) | 6:decrease a moderate amount→6.0 (1%) | 7:decrease a lot→7.0 (0%)
+
+V242234x  [FIT]  favor/oppose providing path to citizenship
+   V242234x: 1:favor a great deal→1.0 (21%) | 2:favor a moderate amount→2.0 (27%) | 3:favor a little→3.0 (18%) | 4:neither favor nor oppose→4.0 (17%) | 5:oppose a little→5.0 (6%) | 6:oppose a moderate amount→6.0 (6%) | 7:oppose a great deal→7.0 (6%)
+
+V242235  [FIT]  are immigrants generally good or bad for america’s economy
+   V242235: 1:extremely good→1.0 (19%) | 2:moderately good→2.0 (30%) | 3:slightly good→3.0 (14%) | 4:neither good nor bad→4.0 (19%) | 5:slightly bad→5.0 (6%) | 6:moderately bad→6.0 (6%) | 7:extremely bad→7.0 (5%)
+
+V242236  [FIT]  how important is it for immigrants to adapt to customs/traditions of the us
+   V242236: 1:not at all important→1.0 (7%) | 2:a little important→2.0 (15%) | 3:moderately important→3.0 (27%) | 4:very important→4.0 (25%) | 5:extremely important→5.0 (26%)
+
+V242241x  [out]  favor/oppose preferential hiring/promotion of blacks
+   V242241x: 1:strongly for preferential hiring and p→1.0 (20%) | 2:not strongly for preferential hiring a→2.0 (14%) | 3:not strongly against preferential hiri→3.0 (25%) | 4:strongly against preferential hiring a→4.0 (41%)
+
+V242245x  [out]  does r favor/oppose affirmative action in universities
+   V242245x: 1:favor a great deal→1.0 (10%) | 2:favor a moderate amount→2.0 (14%) | 3:favor a little→3.0 (8%) | 4:neither favor nor oppose→4.0 (29%) | 5:oppose a little→5.0 (13%) | 6:oppose a moderate amount→6.0 (13%) | 7:oppose a great deal→7.0 (13%)
+
+V242248x  [out]  less or more government
+   V242248x: 1:feels very strongly the less gov the b→1.0 (13%) | 2:feels somewhat strongly the less gov t→2.0 (22%) | 3:feels not strongly the less gov the be→3.0 (14%) | 4:feels not strongly there is more gov s→4.0 (13%) | 5:feels somewhat strongly there is more →5.0 (24%) | 6:feels very strongly there is more gov →6.0 (15%)
+
+V242249  [out]  would it be good for society to have more or less government regulation
+   V242249: 1:much more→1.0 (5%) | 2:somewhat more→2.0 (10%) | 3:a little more→3.0 (11%) | 4:about the same amount→4.0 (33%) | 5:a little less→5.0 (16%) | 6:somewhat less→6.0 (11%) | 7:much less→7.0 (14%)
+
+V242250  [FIT]  favor or oppose government trying to reduce income inequality
+   V242250: 1:favor→1.0 (47%) | 2:oppose→3.0 (27%) | 3:neither favor nor oppose→2.0 (26%)
+
+V242254  [out]  society should make sure everyone has equal opportunity
+   V242254: 1:agree strongly→1.0 (51%) | 2:agree somewhat→2.0 (28%) | 3:neither agree nor disagree→3.0 (12%) | 4:disagree somewhat→4.0 (6%) | 5:disagree strongly→5.0 (3%)
+
+V242255  [out]  we’d be better off if worried less about equality
+   V242255: 1:agree strongly→1.0 (15%) | 2:agree somewhat→2.0 (21%) | 3:neither agree nor disagree→3.0 (20%) | 4:disagree somewhat→4.0 (17%) | 5:disagree strongly→5.0 (27%)
+
+V242256  [FIT]  not a big problem if some have more chance in life
+   V242256: 1:agree strongly→1.0 (6%) | 2:agree somewhat→2.0 (15%) | 3:neither agree nor disagree→3.0 (24%) | 4:disagree somewhat→4.0 (25%) | 5:disagree strongly→5.0 (31%)
+
+V242257  [FIT]  if people were treated more fairly we would have fewer problems
+   V242257: 1:agree strongly→1.0 (35%) | 2:agree somewhat→2.0 (31%) | 3:neither agree nor disagree→3.0 (18%) | 4:disagree somewhat→4.0 (10%) | 5:disagree strongly→5.0 (6%)
+
+V242258  [out]  the world is changing & we should adjust view of moral behavior
+   V242258: 1:agree strongly→1.0 (15%) | 2:agree somewhat→2.0 (26%) | 3:neither agree nor disagree→3.0 (22%) | 4:disagree somewhat→4.0 (17%) | 5:disagree strongly→5.0 (21%)
+
+V242259  [FIT]  fewer problems if there was more emphasis on traditional family values
+   V242259: 1:agree strongly→1.0 (30%) | 2:agree somewhat→2.0 (26%) | 3:neither agree nor disagree→3.0 (22%) | 4:disagree somewhat→4.0 (11%) | 5:disagree strongly→5.0 (11%)
+
+V242260  [FIT]  which child trait more important: independence or respect
+   V242260: 1:independence→1.0 (33%) | 2:respect for elders→2.0 (66%) | 3:both {vol}→NaN (2%) | 4:neither {vol}→NaN (0%)
+
+V242261  [FIT]  which child trait more important: curiosity or good manners
+   V242261: 1:curiosity→1.0 (41%) | 2:good manners→2.0 (57%) | 3:both {vol}→NaN (2%) | 4:neither {vol}→NaN (0%)
+
+V242262  [FIT]  which child trait more important: obedience or self-reliance
+   V242262: 1:obedience→1.0 (40%) | 2:self-reliance→2.0 (58%) | 3:both {vol}→NaN (2%) | 4:neither {vol}→NaN (0%)
+
+V242263  [out]  which child trait more important: considerate or well-behaved
+   V242263: 1:being considerate→1.0 (68%) | 2:well behaved→2.0 (29%) | 3:both {vol}→NaN (3%) | 4:neither {vol}→NaN (0%)
+
+V242266x  [out]  us better or worse than most other countries
+   V242266x: 1:a lot better→1.0 (27%) | 2:somewhat better→2.0 (24%) | 3:the same→3.0 (25%) | 4:somewhat worse→4.0 (15%) | 5:a lot worse→5.0 (9%)
+
+V242269x  [FIT]  people in rural areas get more/less from government
+   V242269x: 1:a great deal more→1.0 (2%) | 2:moderately more→2.0 (4%) | 3:a little more→3.0 (2%) | 4:the same→4.0 (46%) | 5:a little less→5.0 (9%) | 6:moderately less→6.0 (27%) | 7:a great deal less→7.0 (11%)
+
+V242272x  [FIT]  people in rural areas have too much/too little influence
+   V242272x: 1:??→1.0 (5%) | 2:somewhat too much→2.0 (7%) | 3:a bit too much→3.0 (4%) | 4:about the right amount→4.0 (42%) | 5:a bit too little→5.0 (7%) | 6:somewhat too little→6.0 (24%) | 7:much too little→7.0 (12%)
+
+V242275x  [FIT]  people in rural areas get too much/too little respect
+   V242275x: 1:much too much→1.0 (1%) | 2:somewhat too much→2.0 (2%) | 3:a bit too much→3.0 (0%) | 4:about the right amount→4.0 (46%) | 5:a bit too little→5.0 (8%) | 6:somewhat too little→6.0 (28%) | 7:much too little→7.0 (15%)
+
+V242279x  [FIT]  better/worse if man works and woman takes care of home
+   V242279x: 1:much better→1.0 (14%) | 2:somewhat better→2.0 (10%) | 3:slightly better→3.0 (3%) | 4:makes no diﬀerence→4.0 (66%) | 5:slightly worse→5.0 (1%) | 6:somewhat worse→6.0 (4%) | 7:much worse→7.0 (2%)
+
+V242280  [FIT]  do women demanding equality seek special favors
+   V242280: 1:always→1.0 (3%) | 2:most of the time→2.0 (11%) | 3:about half the time→3.0 (16%) | 4:some of the time→4.0 (34%) | 5:never→5.0 (36%)
+
+V242281  [out]  do women complaining about discrimination cause more problems
+   V242281: 1:always→1.0 (3%) | 2:most of the time→2.0 (11%) | 3:about half the time→3.0 (16%) | 4:some of the time→4.0 (42%) | 5:never→5.0 (29%)
+
+V242300  [out]  agree/disagree: blacks should work their way up without special favors
+   V242300: 1:agree strongly→1.0 (21%) | 2:agree somewhat→2.0 (21%) | 3:neither agree nor disagree→3.0 (23%) | 4:disagree somewhat→4.0 (14%) | 5:disagree strongly→5.0 (20%)
+
+V242301  [FIT]  agree/disagree: past slavery & discrimination make it difficult for
+   V242301: 1:agree strongly→1.0 (25%) | 2:agree somewhat→2.0 (25%) | 3:neither agree nor disagree→3.0 (16%) | 4:disagree somewhat→4.0 (17%) | 5:disagree strongly→5.0 (17%)
+
+V242302  [out]  agree/disagree: blacks have gotten less than they deserve
+   V242302: 1:agree strongly→1.0 (16%) | 2:agree somewhat→2.0 (22%) | 3:neither agree nor disagree→3.0 (25%) | 4:disagree somewhat→4.0 (17%) | 5:disagree strongly→5.0 (20%)
+
+V242303  [out]  agree/disagree: if blacks tried harder they’d be as well off as whites
+   V242303: 1:agree strongly→1.0 (12%) | 2:agree somewhat→2.0 (18%) | 3:neither agree nor disagree→3.0 (22%) | 4:disagree somewhat→4.0 (19%) | 5:disagree strongly→5.0 (28%)
+
+V242308x  [FIT]  does r think they get more or less than their fair share in life
+   V242308x: 1:a great deal more→1.0 (3%) | 2:a moderate amount more→2.0 (5%) | 3:a little more→3.0 (2%) | 4:about right→4.0 (63%) | 5:a little less→5.0 (6%) | 6:a moderate amount less→6.0 (13%) | 7:a great deal less→7.0 (7%)
+
+V242311  [FIT]  how much opportunity in america for average person to get ahead
+   V242311: 1:a great deal→1.0 (12%) | 2:a lot→2.0 (20%) | 3:a moderate amount→3.0 (41%) | 4:a little→4.0 (24%) | 5:none→5.0 (3%)
+
+V242314x  [out]  economic mobility
+   V242314x: 1:a great deal easier→1.0 (3%) | 2:a moderate amount easier→2.0 (6%) | 3:a little easier→3.0 (3%) | 4:the same→4.0 (14%) | 5:a little harder→5.0 (6%) | 6:a moderate amount harder→6.0 (28%) | 7:a great deal harder→7.0 (41%)
+
+V242316a  [out]  favor or oppose tax on millionaires
+   V242316a: 1:favor→1.0 (64%) | 2:oppose→3.0 (15%) | 3:neither favor nor oppose→2.0 (20%)
+
+V242319x  [out]  favor/oppose requiring vaccines in schools
+   V242319x: 1:favor a great deal→1.0 (45%) | 2:favor a moderate amount→2.0 (14%) | 3:favor a little→3.0 (3%) | 4:neither favor nor oppose→4.0 (20%) | 5:oppose a little→5.0 (3%) | 6:oppose a moderate amount→6.0 (7%) | 7:oppose a great deal→7.0 (9%)
+
+V242324x  [out]  favor/oppose increased regulation on greenhouse emissions
+   V242324x: 1:favor a great deal→1.0 (36%) | 2:favor a moderate amount→2.0 (20%) | 3:favor a little→3.0 (5%) | 4:neither favor nor oppose→4.0 (25%) | 5:oppose a little→5.0 (3%) | 6:oppose a moderate amount→6.0 (5%) | 7:oppose a great deal→7.0 (6%)
+
+V242325  [FIT]  should federal government make it more difficult or easier to buy a gun
+   V242325: 1:more diﬃcult→1.0 (57%) | 2:easier→3.0 (6%) | 3:keep these rules about the same→2.0 (37%)
+
+V242328x  [FIT]  favor/oppose background checks for gun purchases
+   V242328x: 1:??→1.0 (69%) | 2:favor a moderate amount→2.0 (15%) | 3:favor a little→3.0 (3%) | 4:neither favor nor oppose→4.0 (8%) | 5:oppose a little→5.0 (1%) | 6:oppose a moderate amount→6.0 (2%) | 7:oppose a great deal→7.0 (2%)
+
+V242331x  [FIT]  favor/oppose banning ‘assault-style’ rifles
+   V242331x: 1:favor a great deal→1.0 (45%) | 2:favor a moderate amount→2.0 (7%) | 3:favor a little→3.0 (2%) | 4:neither favor nor oppose→4.0 (18%) | 5:oppose a little→5.0 (3%) | 6:oppose a moderate amount→6.0 (8%) | 7:oppose a great deal→7.0 (17%)
+
+V242335x  [out]  summary should government do more/less about opioid drug addiction
+   V242335x: 1:should be doing a great deal more→1.0 (54%) | 2:should be doing a moderate amount more→2.0 (18%) | 3:should be doing a little more→3.0 (3%) | 4:currently doing the right amount→4.0 (20%) | 5:should be doing a little less→5.0 (0%) | 6:should be doing a moderate amount less→6.0 (2%) | 7:should be doing a great deal less→7.0 (2%)
+
+V242336  [FIT]  how often do police officers use more force than necessary
+   V242336: 1:never→1.0 (2%) | 2:rarely→2.0 (39%) | 3:about half the time→3.0 (38%) | 4:most of the time→4.0 (15%) | 5:all the time→5.0 (5%)
+
+V242343  [FIT]  dhs: how worried about terrorist attack in near future
+   V242343: 1:extremely worried→1.0 (12%) | 2:very worried→2.0 (14%) | 3:moderately worried→3.0 (30%) | 4:slightly worried→4.0 (30%) | 5:not at all worried→5.0 (14%)
+
+V242346x  [out]  favor/oppose free trade agreements
+   V242346x: 1:??→1.0 (13%) | 2:favor a moderate amount→2.0 (24%) | 3:favor a little→3.0 (7%) | 4:neither favor nor oppose→4.0 (48%) | 5:oppose a little→5.0 (1%) | 6:oppose a moderate amount→6.0 (3%) | 7:oppose a great deal→7.0 (3%)
+
+V242349x  [FIT]  increasing diversity made us better/worse place to live
+   V242349x: 1:a lot better→1.0 (32%) | 2:a little better→2.0 (16%) | 3:makes no diﬀerence→3.0 (43%) | 4:a little worse→4.0 (4%) | 5:a lot worse→5.0 (5%)
+
+V242350  [FIT]  should the minimum wage be raised, kept the same, or lowered
+   V242350: 1:raised→1.0 (62%) | 2:kept the same→2.0 (28%) | 3:lowered→3.0 (4%) | 4:eliminated→4.0 (6%)
+
+V242353x  [FIT]  increase/decrease government spending to help pay for
+   V242353x: 1:increase a great deal→1.0 (25%) | 2:increase a moderate amount→2.0 (26%) | 3:increase a little→3.0 (7%) | 4:no change→4.0 (26%) | 5:decrease a little→5.0 (2%) | 6:decrease a moderate amount→6.0 (7%) | 7:decrease a lot→7.0 (5%)
+
+V242357x  [out]  health benefits of vaccinations outweigh risks
+   V242357x: 1:benefits greatly outweigh risks→1.0 (40%) | 2:benefits moderately outweigh risks→2.0 (17%) | 3:benefits slightly outweigh risks→3.0 (6%) | 4:no diﬀerence→4.0 (21%) | 5:risks slightly outweigh benefits→5.0 (3%) | 6:risks moderately outweigh benefits→6.0 (7%) | 7:risks greatly outweigh benefits→7.0 (6%)
+
+V242361x  [out]  attention to sexual harassment as gone too far/not far
+   V242361x: 1:much too far→1.0 (11%) | 2:a little too far→2.0 (10%) | 3:has been about right→3.0 (42%) | 4:not quite far enough→4.0 (17%) | 5:not nearly far enough→5.0 (20%)
+
+V242364x  [out]  favor/oppose transgender people serve in military
+   V242364x: 1:favor a great deal→1.0 (20%) | 2:favor a moderate amount→2.0 (13%) | 3:favor a little→3.0 (4%) | 4:neither favor nor oppose→4.0 (40%) | 5:oppose a little→5.0 (2%) | 6:oppose a moderate amount→6.0 (6%) | 7:oppose a great deal→7.0 (15%)
+
+V242365  [FIT]  how much is china a threat to the united states
+   V242365: 1:not at all→1.0 (4%) | 2:a little→2.0 (12%) | 3:a moderate amount→3.0 (28%) | 4:a lot→4.0 (23%) | 5:a great deal→5.0 (33%)
+
+V242366  [FIT]  how much is russia a threat to the united states
+   V242366: 1:not at all→1.0 (4%) | 2:a little→2.0 (10%) | 3:a moderate amount→3.0 (27%) | 4:a lot→4.0 (23%) | 5:a great deal→5.0 (37%)
+
+V242367  [FIT]  how much is mexico a threat to the united states
+   V242367: 1:not at all→1.0 (40%) | 2:a little→2.0 (30%) | 3:a moderate amount→3.0 (20%) | 4:a lot→4.0 (7%) | 5:a great deal→5.0 (4%)
+
+V242368  [FIT]  how much is iran a threat to the united states
+   V242368: 1:not at all→1.0 (7%) | 2:a little→2.0 (16%) | 3:a moderate amount→3.0 (30%) | 4:a lot→4.0 (21%) | 5:a great deal→5.0 (25%)
+
+V242369  [out]  how much is japan a threat to the united states
+   V242369: 1:not at all→1.0 (53%) | 2:a little→2.0 (21%) | 3:a moderate amount→3.0 (17%) | 4:a lot→4.0 (5%) | 5:a great deal→5.0 (4%)
+
+V242370  [out]  how much is israel a threat to the united states
+   V242370: 1:not at all→1.0 (43%) | 2:a little→2.0 (23%) | 3:a moderate amount→3.0 (23%) | 4:a lot→4.0 (6%) | 5:a great deal→5.0 (5%)
+
+V242409  [out]  cses6-q04a: prefer democracy
+   V242409: 1:strongly agree→1.0 (49%) | 2:somewhat agree→2.0 (23%) | 3:neither agree nor disagree→3.0 (20%) | 4:somewhat disagree→4.0 (5%) | 5:strongly disagree→5.0 (3%)
+
+V242410  [FIT]  cses6-q04b: courts’ authority
+   V242410: 1:strongly agree→1.0 (48%) | 2:somewhat agree→2.0 (30%) | 3:neither agree nor disagree→3.0 (15%) | 4:somewhat disagree→4.0 (4%) | 5:strongly disagree→5.0 (3%)
+
+V242411  [FIT]  cses6-q04e: attitudes about elites: strong leader in government is good
+   V242411: 1:strongly agree→1.0 (11%) | 2:somewhat agree→2.0 (22%) | 3:neither agree nor disagree→3.0 (19%) | 4:somewhat disagree→4.0 (20%) | 5:strongly disagree→5.0 (28%)
+
+V242412  [out]  cses6-q04d: policies to increase women representation
+   V242412: 1:strongly agree→1.0 (6%) | 2:somewhat agree→2.0 (14%) | 3:neither agree nor disagree→3.0 (38%) | 4:somewhat disagree→4.0 (16%) | 5:strongly disagree→5.0 (27%)
+
+V242413  [FIT]  cses6-q05a: political decisions should be left to business leaders
+   V242413: 1:strongly agree→1.0 (2%) | 2:somewhat agree→2.0 (10%) | 3:neither agree nor disagree→3.0 (19%) | 4:somewhat disagree→4.0 (19%) | 5:strongly disagree→5.0 (50%)
+
+V242414  [FIT]  cses6-q05b: political decisions should be left to independent experts
+   V242414: 1:strongly agree→1.0 (5%) | 2:somewhat agree→2.0 (15%) | 3:neither agree nor disagree→3.0 (25%) | 4:somewhat disagree→4.0 (20%) | 5:strongly disagree→5.0 (35%)
+
+V242415  [out]  cses6-q05bc: political decisions should be left to citizen referendums
+   V242415: 1:strongly agree→1.0 (6%) | 2:somewhat agree→2.0 (20%) | 3:neither agree nor disagree→3.0 (31%) | 4:somewhat disagree→4.0 (21%) | 5:strongly disagree→5.0 (23%)
+
+V242417  [FIT]  cses6-q07a: trust congress
+   V242417: 1:trust a lot→1.0 (2%) | 2:trust somewhat→2.0 (44%) | 3:do not trust very much→3.0 (40%) | 4:do not trust at all→4.0 (14%)
+
+V242418  [FIT]  cses6-q07b: trust government
+   V242418: 1:trust a lot→1.0 (2%) | 2:trust somewhat→2.0 (47%) | 3:do not trust very much→3.0 (36%) | 4:do not trust at all→4.0 (15%)
+
+V242419  [FIT]  cses6-q07c: trust judiciary
+   V242419: 1:trust a lot→1.0 (7%) | 2:trust somewhat→2.0 (58%) | 3:do not trust very much→3.0 (26%) | 4:do not trust at all→4.0 (9%)
+
+V242420  [FIT]  cses6-q07d: trust scientists
+   V242420: 1:trust a lot→1.0 (35%) | 2:trust somewhat→2.0 (49%) | 3:do not trust very much→3.0 (12%) | 4:do not trust at all→4.0 (4%)
+
+V242421  [FIT]  cses6-q07e: trust political parties
+   V242421: 1:trust a lot→1.0 (1%) | 2:trust somewhat→2.0 (37%) | 3:do not trust very much→3.0 (45%) | 4:do not trust at all→4.0 (18%)
+
+V242422  [FIT]  cses6-q07f: trust traditional media
+   V242422: 1:trust a lot→1.0 (5%) | 2:trust somewhat→2.0 (42%) | 3:do not trust very much→3.0 (31%) | 4:do not trust at all→4.0 (21%)
+
+V242423  [out]  cses6-q07g: trust social media
+   V242423: 1:trust a lot→1.0 (1%) | 2:trust somewhat→2.0 (20%) | 3:do not trust very much→3.0 (41%) | 4:do not trust at all→4.0 (39%)
+
+V242430  [out]  cses6-q13: fairness of election
+   V242430: 1:election was conducted fairly→1.0 (43%) | 2:??→2.0 (24%) | 3:??→3.0 (18%) | 4:??→4.0 (8%) | 5:election was conducted unfairly→5.0 (7%)
+
+V242431  [out]  cses6-q14b: who people vote for makes a big difference
+   V242431: 1:who people vote for won’t make any diﬀ→1.0 (5%) | 2:??→2.0 (7%) | 3:??→3.0 (20%) | 4:??→4.0 (25%) | 5:who people vote for can make a big diﬀ→5.0 (43%)
+
+V242453  [FIT]  cses6- q05c: out-group attitudes: immigrants increase crime
+   V242453: 1:agree strongly→1.0 (18%) | 2:agree somewhat→2.0 (26%) | 3:neither agree nor disagree→3.0 (19%) | 4:disagree somewhat→4.0 (15%) | 5:disagree strongly→5.0 (21%)
+
+V242454  [out]  cses6- q06a: national identity: to have been born in country
+   V242454: 1:very important→1.0 (22%) | 2:fairly important→2.0 (28%) | 3:not very important→3.0 (28%) | 4:not important at all→4.0 (22%)
+
+V242455  [FIT]  cses6- q06c: national identity: to be able to speak english
+   V242455: 1:very important→1.0 (46%) | 2:fairly important→2.0 (36%) | 3:not very important→3.0 (13%) | 4:not important at all→4.0 (6%)
+
+V242456  [FIT]  cses6- q07: how widespread is corruption
+   V242456: 1:very widespread→1.0 (32%) | 2:quite widespread→2.0 (47%) | 3:not very widespread→3.0 (19%) | 4:hardly happens at all→4.0 (3%)
+
+V242519  [out]  how likely whites unable to find jobs because employers hiring minorities
+   V242519: 1:extremely likely→1.0 (4%) | 2:very likely→2.0 (7%) | 3:moderately likely→3.0 (20%) | 4:slightly likely→4.0 (30%) | 5:not at all likely→5.0 (40%)
+
+V242522x  [out]  federal government treats blacks or whites better
+   V242522x: 1:treat whites much better→1.0 (20%) | 2:treat whites moderately better→2.0 (17%) | 3:treats whites a little better→3.0 (8%) | 4:treats both the same→4.0 (41%) | 5:treat blacks a little better→5.0 (4%) | 6:treat blacks moderately better→6.0 (6%) | 7:treat blacks much better→7.0 (3%)
+
+V242525x  [out]  police treat blacks or whites better
+   V242525x: 1:treat whites much better→1.0 (35%) | 2:treat whites moderately better→2.0 (21%) | 3:treats whites a little better→3.0 (10%) | 4:treats both the same→4.0 (33%) | 5:treat blacks a little better→5.0 (1%) | 6:treat blacks moderately better→6.0 (1%) | 7:treat blacks much better→7.0 (0%)
+
+V242526  [FIT]  how much influence do whites have in us politics
+   V242526: 1:too much influence→1.0 (44%) | 2:just about the right amount of influen→2.0 (52%) | 3:too little influence→3.0 (4%)
+
+V242527  [out]  how much influence do blacks have in us politics
+   V242527: 1:too much influence→1.0 (6%) | 2:just about the right amount of influen→2.0 (44%) | 3:too little influence→3.0 (50%)
+
+V242528  [out]  how much influence do hispanics have in us politics
+   V242528: 1:too much influence→1.0 (4%) | 2:just about the right amount of influen→2.0 (46%) | 3:too little influence→3.0 (49%)
+
+V242529  [FIT]  how much influence do asians have in us politics
+   V242529: 1:too much influence→1.0 (3%) | 2:just about the right amount of influen→2.0 (49%) | 3:too little influence→3.0 (49%)
