@@ -1,0 +1,10 @@
+arm,n,dims,kept_cap,n_stable_at_kept,resample_ari_at_kept
+CES at ANES n #1,4596,4,6,3,0.656
+CES at ANES n #2,4596,4,4,2,0.677
+CES at ANES n #3,4596,4,4,2,0.68
+CES at 2x ANES n,9192,4,4,4,0.823
+CES at 4x ANES n,18384,4,7,2,0.53
+ANES refit at k = 4,4596,4,4,2,0.637
+ANES refit at k = 5,4596,5,4,4,0.703
+ANES refit at k = 8,4596,8,4,2,0.623
+ANES refit at k = 11,4596,11,4,2,0.619

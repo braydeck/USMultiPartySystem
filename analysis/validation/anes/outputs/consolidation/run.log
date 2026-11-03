@@ -1,0 +1,104 @@
+136 items after Stage B
+
+CES-ANES item pairs in both fits: 9
+    ces_var anes_item fidelity  sign    r                                                        label
+pew_churatd    church    close     1  1.0                               religious attendance (spliced)
+  CC24_321e   V241397    close     1  1.0                           best way to deal with urban unrest
+  CC24_323d  V241392x    exact    -1 -1.0 should children brought illegally be sent back or allowed to
+  CC24_324b   V241302    close    -1 -1.0                                 std abortion: self-placement
+  CC24_341c  V242316a    close     1  1.0                          favor or oppose tax on millionaires
+ CC24_421_2   V241315    close    -1 -1.0                                     trust election officials
+   CC24_423   V241229    close     1  1.0 how often trust government in washington to do what is right
+  CC24_440b   V242301    close     1  1.0 agree/disagree: past slavery & discrimination make it diffic
+  CC24_440c   V241608    exact    -1 -1.0         women seek to gain power by getting control over men
+
+===== k = 4 =====
+factor correlations:
+      A1    A2    A3    A4
+A1  1.00 -0.22  0.15  0.35
+A2 -0.22  1.00 -0.17 -0.13
+A3  0.15 -0.17  1.00  0.06
+A4  0.35 -0.13  0.06  1.00
+
+A1 top items: 7pt scale spending & services: self- p (-0.78); 7pt scale guaranteed job-income scale: (+0.78); summary approve/disapprove diversity,  (+0.77); 7pt scale gov assistance to blacks sca (+0.76); federal government treats blacks or wh (+0.73); should the minimum wage be raised, kep (+0.73); best way to deal with urban unrest (+0.71); favor/oppose preferential hiring/promo (+0.70)
+
+A2 top items: how important branches of government k (+0.76); how important elected officials face s (+0.68); limits on campaign spending (-0.55); how important that people agree on bas (+0.53); is it justified for people to use viol (-0.52); cses6-q04a: prefer democracy (-0.51); how important that news organizations  (+0.50); cses6-q05a: political decisions should (+0.48)
+
+A3 top items: cses6-q07b: trust government (+0.75); government run by a few big interests  (-0.64); how often trust government in washingt (+0.63); how many in government are corrupt (-0.63); cses6-q07a: trust congress (+0.61); how often can you trust the court syst (+0.57); cses6- q07: how widespread is corrupti (-0.55); cses6-q07e: trust political parties (+0.54)
+
+A4 top items: cses6- q06c: national identity: to be  (-0.57); which child trait more important: inde (+0.50); how important to speak english in us (-0.50); how important is it for immigrants to  (+0.49); which child trait more important: obed (-0.47); how much is iran a threat to the unite (+0.47); which child trait more important: curi (+0.46); fewer problems if there was more empha (-0.46)
+
+where each k = 17 factor's clean items land at k = 4:
+k17_factor                                            name  clusters_at_k17  n_clean  A1  A2  A3  A4
+        F0 federal government tre / favor/oppose preferent             True        8   8   0   0   0
+        F1 cses6-q07a: trust cong / cses6-q07e: trust poli            False        4   0   0   4   0
+        F2 how important branches / how important that new             True        6   0   6   0   0
+        F3 cses6- q06c: national  / how important to speak             True        4   0   0   0   4
+        F4 how much is russia a t / how much is iran a thr            False        3   0   2   0   1
+        F5 people in rural areas  / people in rural areas              True        3   0   0   2   1
+        F6 gay marriage (form 1A/ / religious attendance (             True        5   4   0   0   1
+        F7 congress pass laws tha / congress pass laws tha            False        2   1   1   0   0
+        F8 cses6-q05b: political  / cses6-q05a: political             False        3   0   2   1   0
+        F9 favor/oppose u.s. givi / favor/oppose u.s. givi             True        4   1   2   0   1
+       F10 7pt scale spending & s / 7pt scale guaranteed j             True        6   6   0   0   0
+       F11 how often can you trus / how often trust govern             True        4   0   0   4   0
+       F12 [std] public officials / [std] have no say abou            False        2   0   0   2   0
+       F13 which child trait more / which child trait more             True        2   0   1   0   1
+       F14 should children brough / us government policy t             True        5   4   0   0   1
+       F15 should federal governm / favor/oppose backgroun             True        3   3   0   0   0
+       F16 favor/oppose requiring / favor or oppose buildi            False        1   1   0   0   0
+
+Tucker phi, CES factor x forced ANES factor, over the 9 paired items (blank = fewer than 2 loading items on a side):
+                                                      A1    A2    A3  A4
+Populist Conservatism                               0.87  0.54  0.19 NaN
+Institutional Distrust                              0.25  0.39  0.96 NaN
+Religious Traditionalism                            0.60  0.71  0.01 NaN
+[fails entry] new: CC24_340a, CC24_340b, CC24_444d   NaN   NaN   NaN NaN
+Security & Order                                     NaN   NaN   NaN NaN
+
+===== k = 5 =====
+factor correlations:
+      A1    A2    A3    A4    A5
+A1  1.00 -0.24  0.12  0.36 -0.06
+A2 -0.24  1.00 -0.13 -0.20 -0.16
+A3  0.12 -0.13  1.00  0.09  0.09
+A4  0.36 -0.20  0.09  1.00 -0.14
+A5 -0.06 -0.16  0.09 -0.14  1.00
+
+A1 top items: 7pt scale guaranteed job-income scale: (+0.77); summary approve/disapprove diversity,  (+0.77); 7pt scale spending & services: self- p (-0.77); 7pt scale gov assistance to blacks sca (+0.75); federal government treats blacks or wh (+0.74); should the minimum wage be raised, kep (+0.74); best way to deal with urban unrest (+0.70); if people were treated more fairly we  (+0.69)
+
+A2 top items: how important branches of government k (+0.73); how important elected officials face s (+0.64); how much is japan a threat to the unit (-0.56); how important that people agree on bas (+0.53); how important that news organizations  (+0.50); limits on campaign spending (-0.49); which child trait more important: curi (-0.48); favor or oppose restricting journalist (+0.47)
+
+A3 top items: cses6-q07b: trust government (+0.78); cses6-q07a: trust congress (+0.66); how often trust government in washingt (+0.62); government run by a few big interests  (-0.61); how many in government are corrupt (-0.60); cses6-q07e: trust political parties (+0.58); how often can you trust the court syst (+0.57); cses6-q07c: trust judiciary (+0.53)
+
+A4 top items: cses6- q06c: national identity: to be  (-0.50); fewer problems if there was more empha (-0.49); how important to speak english in us (-0.44); favor/oppose requiring id when voting (-0.44); summary should government do more/less (-0.43); which child trait more important: obed (-0.41); which child trait more important: curi (+0.40); which child trait more important: inde (+0.39)
+
+A5 top items: how much is russia a threat to the uni (-0.70); how much is iran a threat to the unite (-0.69); how much is china a threat to the unit (-0.63); dhs: how worried about terrorist attac (+0.41); favor/oppose u.s. giving weapons to he (+0.38); 7pt scale defense spending: self- plac (-0.37); country would be better off if we just (-0.35); favor/oppose u.s. giving military assi (+0.34)
+
+where each k = 17 factor's clean items land at k = 5:
+k17_factor                                            name  clusters_at_k17  n_clean  A1  A2  A3  A4  A5
+        F0 federal government tre / favor/oppose preferent             True        8   8   0   0   0   0
+        F1 cses6-q07a: trust cong / cses6-q07e: trust poli            False        4   0   0   4   0   0
+        F2 how important branches / how important that new             True        6   0   6   0   0   0
+        F3 cses6- q06c: national  / how important to speak             True        4   0   0   0   4   0
+        F4 how much is russia a t / how much is iran a thr            False        3   0   0   0   0   3
+        F5 people in rural areas  / people in rural areas              True        3   0   0   1   2   0
+        F6 gay marriage (form 1A/ / religious attendance (             True        5   4   0   0   1   0
+        F7 congress pass laws tha / congress pass laws tha            False        2   0   1   0   1   0
+        F8 cses6-q05b: political  / cses6-q05a: political             False        3   0   1   0   0   2
+        F9 favor/oppose u.s. givi / favor/oppose u.s. givi             True        4   1   0   0   0   3
+       F10 7pt scale spending & s / 7pt scale guaranteed j             True        6   6   0   0   0   0
+       F11 how often can you trus / how often trust govern             True        4   0   0   4   0   0
+       F12 [std] public officials / [std] have no say abou            False        2   0   0   2   0   0
+       F13 which child trait more / which child trait more             True        2   0   2   0   0   0
+       F14 should children brough / us government policy t             True        5   4   1   0   0   0
+       F15 should federal governm / favor/oppose backgroun             True        3   3   0   0   0   0
+       F16 favor/oppose requiring / favor or oppose buildi            False        1   0   0   0   1   0
+
+Tucker phi, CES factor x forced ANES factor, over the 9 paired items (blank = fewer than 2 loading items on a side):
+                                                      A1  A2    A3  A4  A5
+Populist Conservatism                               0.87 NaN  0.19 NaN NaN
+Institutional Distrust                              0.26 NaN  0.96 NaN NaN
+Religious Traditionalism                            0.59 NaN  0.03 NaN NaN
+[fails entry] new: CC24_340a, CC24_340b, CC24_444d   NaN NaN   NaN NaN NaN
+Security & Order                                     NaN NaN   NaN NaN NaN

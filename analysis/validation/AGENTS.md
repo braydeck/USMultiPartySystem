@@ -22,6 +22,8 @@ and segmentation on ANES's own attitude items. A CES-to-ANES classifier is next.
 | Whether CES parties survive in ANES-sized samples | `anes/outputs/clustering/benchmark_summary.csv` | Built by `anes/matched_clustering.py` |
 | Which CES 2024 team-module items could profile clusters | `ces_team_modules_scan.md` | Scanned 2026-10-27 |
 | How often each ANES factor forms across resamples | `anes/outputs/stage_c_resample/formation.csv`, `per_resample.csv` | Built by `anes/stage_c_resample.py` (2026-11-03) |
+| Whether ANES's segment count is limited by sample size or factor count | `anes/outputs/clustering/size_dims_recheck/summary.csv` | Built by `anes/size_dims_recheck.py` (2026-11-03) |
+| What ANES's factors merge into at CES's factor count | `anes/outputs/consolidation/merging_k4.csv`, `phi_k4.csv` (and k5) | Built by `anes/consolidation_check.py` (2026-11-03) |
 | How each ANES pool item is coded | `anes/outputs/item_audit/audit.txt`, `flags.csv` | Built by `anes/item_audit.py` (2026-11-03) |
 | Rulings and definitions | `DECISIONS.md` | |
 

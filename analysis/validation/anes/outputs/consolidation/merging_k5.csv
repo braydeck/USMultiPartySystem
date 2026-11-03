@@ -1,0 +1,18 @@
+k17_factor,name,clusters_at_k17,n_clean,A1,A2,A3,A4,A5
+F0,federal government tre / favor/oppose preferent,True,8,8,0,0,0,0
+F1,cses6-q07a: trust cong / cses6-q07e: trust poli,False,4,0,0,4,0,0
+F2,how important branches / how important that new,True,6,0,6,0,0,0
+F3,cses6- q06c: national  / how important to speak,True,4,0,0,0,4,0
+F4,how much is russia a t / how much is iran a thr,False,3,0,0,0,0,3
+F5,people in rural areas  / people in rural areas ,True,3,0,0,1,2,0
+F6,gay marriage (form 1A/ / religious attendance (,True,5,4,0,0,1,0
+F7,congress pass laws tha / congress pass laws tha,False,2,0,1,0,1,0
+F8,cses6-q05b: political  / cses6-q05a: political ,False,3,0,1,0,0,2
+F9,favor/oppose u.s. givi / favor/oppose u.s. givi,True,4,1,0,0,0,3
+F10,7pt scale spending & s / 7pt scale guaranteed j,True,6,6,0,0,0,0
+F11,how often can you trus / how often trust govern,True,4,0,0,4,0,0
+F12,[std] public officials / [std] have no say abou,False,2,0,0,2,0,0
+F13,which child trait more / which child trait more,True,2,0,2,0,0,0
+F14,should children brough / us government policy t,True,5,4,1,0,0,0
+F15,should federal governm / favor/oppose backgroun,True,3,3,0,0,0,0
+F16,favor/oppose requiring / favor or oppose buildi,False,1,0,0,0,1,0
