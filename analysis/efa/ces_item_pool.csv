@@ -1,0 +1,70 @@
+item_id,label,questionnaire_position,scale,battery_id,production_24,hand_drop_retested
+CC24_302,Household income,56,Increased a lot / Increased somewhat / Stayed about the same / Decreased somewhat / Decreased a lot,CC24_302..CC24_303,True,False
+CC24_303,Price change in past year,57,Increased a lot / Increased somewhat / Stayed about the same / Decreased somewhat / Decreased a lot,CC24_302..CC24_303,True,False
+CC24_321a,Gun control -- Ban assault rifles,118,Support / Oppose,CC24_321a..CC24_324d,False,False
+CC24_321b,Gun control -- Make it easier for people to obtain concealed-carry permit,119,Support / Oppose,CC24_321a..CC24_324d,True,False
+CC24_321c,Gun control -- Require criminal background checks on all gun sales,120,Support / Oppose,CC24_321a..CC24_324d,False,False
+CC24_321d,"Gun control -- Increase the number of police on the street by 10 percent, even if it means fewer funds for other public services",121,Support / Oppose,CC24_321a..CC24_324d,True,False
+CC24_321e,"Gun control -- Decrease the number of police on the street by 10 percent, and increase funding for other public services",122,Support / Oppose,CC24_321a..CC24_324d,True,False
+CC24_321f,Gun control -- Increase spending on mental health and school safety Allow police to confiscate guns from people deemed to be dangerous by a judge Prohibit people convicted of domestic violence from owning guns; enhance background checks on minors Increase,123,Support / Oppose,CC24_321a..CC24_324d,False,False
+CC24_323a,"Immigration -- Grant legal status to all illegal immigrants who have held jobs and paid taxes for at least 3 years, and not been convicted of any felony crimes",124,Support / Oppose,CC24_321a..CC24_324d,True,False
+CC24_323b,Immigration -- Increase the number of border patrols on the US-Mexican border,125,Support / Oppose,CC24_321a..CC24_324d,True,False
+CC24_323c,Immigration -- Build a wall between the U.S. and Mexico,126,Support / Oppose,CC24_321a..CC24_324d,False,False
+CC24_323d,Immigration -- Provide permanent resident status to children of immigrants who were brought to the United States by their parents (also known as Dreamers). Provide these immigrants a pathway to citizenship if they meet the citizenship requirements and have,127,Support / Oppose,CC24_321a..CC24_324d,True,False
+CC24_324a,Abortion -- Always allow a woman the right to obtain an abortion as a matter of choice,128,Support / Oppose,CC24_321a..CC24_324d,False,False
+CC24_324b,"Abortion -- Permit abortion only in case of rape, incest or when the woman's life is in danger",129,Support / Oppose,CC24_321a..CC24_324d,True,False
+CC24_324c,Abortion -- Make abortions illegal in all circumstances,130,Support / Oppose,CC24_321a..CC24_324d,False,False
+CC24_324d,"Abortion -- Expand access to abortion, including making it more affordable, broadening the types of providers who can offer care, and protecting access to abortion clinics",131,Support / Oppose,CC24_321a..CC24_324d,False,False
+CC24_325,Abortion Month,132,numeric 0-40 weeks,CC24_325,True,False
+CC24_326a,Environment -- Give the Environmental Protection Agency power to regulate carbon dioxide emissions,133,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_326b,"Environment -- Require that at least 20 percent of electricity be generated with renewable sources such as wind, solar, or hydroelectric power",134,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_326c,Environment -- Strengthen the Environmental Protection Agency enforcement of the Clean Air Act and Clean Water Act even if it costs U.S. jobs,135,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_326d,Environment -- Increase fossil fuel production in the U.S.,136,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_326e,Environment -- Halt new oil and gas leases on federal lands,137,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_326f,Environment -- Prevent the government from banning gas stoves,138,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_328a,Tax policies -- Relax local zoning laws in your state to allow for construction of more apartments and condos.,139,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_328b,Tax policies -- Expand federal tax incentives to encourage developers to build homes for people who make less than half of the average income in your area,140,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_328c,Tax policies -- Require able-bodied adults under 64 years of age who do not have dependents to have a job in order to receive Medicaid.,141,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_328d,Tax policies -- Repeal the Affordable Care Act,142,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_328e,"Tax policies -- Expand Medicaid to cover individuals making less than $25,000 and families making less than $40,000 a year.",143,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_323f,"Tax policies -- Forgive up to $20,000 of student loan debt for each person",144,Support / Oppose,CC24_326a..CC24_323f,False,False
+CC24_340a,"Congress Bills -- Prohibit government restrictions on the provision of, and access to, contraceptives",156,Support / Oppose,CC24_340a..CC24_341d,False,False
+CC24_340b,"Congress Bills -- Prohibit government restrictions on the provision of, and access to, abortion services",157,Support / Oppose,CC24_340a..CC24_341d,True,False
+CC24_340c,Congress Bills -- Require that all federal agencies recognize same-sex marriages and interracial marriages,158,Support / Oppose,CC24_340a..CC24_341d,True,False
+CC24_340d,Congress Bills -- Ban TikTok unless China sells it to a US company,159,Support / Oppose,CC24_340a..CC24_341d,False,False
+CC24_340e,Congress Bills -- Renew the federal surveillance programs that were adopted after 9/11 which allow the government to search private electronic data without a search warrant,160,Support / Oppose,CC24_340a..CC24_341d,True,False
+CC24_340f,Congress Bills -- Deny access to asylum for immigrants who cross the US-Mexico border illegally,161,Support / Oppose,CC24_340a..CC24_341d,True,False
+CC24_341a,"Tax rates -- Extend the tax cuts enacted in 2017, which reduced individual and corporate income tax rates and limited deductions on mortgage interest and state and local taxes",162,Support / Oppose,CC24_340a..CC24_341d,True,False
+CC24_341b,Tax rates -- Raise the corporate income tax rate from 21 percent to 28 percent,163,Support / Oppose,CC24_340a..CC24_341d,False,False
+CC24_341c,"Tax rates -- Allow tax rates on those earning $400,000 or more a year to rise to 35 percent",164,Support / Oppose,CC24_340a..CC24_341d,True,False
+CC24_341d,"Tax rates -- Spend $150 billion a year for 8 years on construction and repair of roads and bridges, rail, public transit, airports, water systems, broadband internet, and electric grid",165,Support / Oppose,CC24_340a..CC24_341d,True,False
+pew_bornagain,Born Again (Pew version),207,Yes / No,pew_bornagain,False,True
+pew_religimp,Importance of religion (Pew version),208,Very important / Somewhat important / Not too important / Not at all important,pew_religimp,False,False
+pew_churatd,Church attendance (Pew version),209,More than once a week / Once a week / Once or twice a month / A few times a year / Seldom / Never,pew_churatd,True,False
+pew_prayer,Frequency of Prayer (Pew version),210,Several times a day / Once a day / A few times a week / Once a week / A few times a month / Seldom / Never,pew_prayer,False,False
+CC24_421_1,Election fair -- Elections in the U.S. are fair,512,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_421_1..CC24_421_2,True,False
+CC24_421_2,Election fair -- Your state or local government conducted a fair and accurate election in 2024,513,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_421_1..CC24_421_2,True,False
+CC24_423,trustfed,514,A great deal / A fair amount / Not very much / None at all,CC24_423..CC24_424,True,False
+CC24_424,truststate,515,A great deal / A fair amount / Not very much / None at all,CC24_423..CC24_424,True,False
+CC24_440a,Racial/Sexual agreement -- White people in the U.S. have certain advantages because of the color of their skin.,554,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,False,True
+CC24_440b,"Racial/Sexual agreement -- Racial problems in the U.S. are rare, isolated situations.",555,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,True,False
+CC24_440c,Racial/Sexual agreement -- Women seek to gain power by getting control over men.,556,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,True,False
+CC24_440d,Racial/Sexual agreement -- Women are too easily offended.,557,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,False,False
+CC24_441a,"Racial Resentment -- Irish, Italians, Jewish and many other minorities overcame prejudice and worked their way up. Blacks should do the same without any special favors.",558,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,False,True
+CC24_441b,Racial Resentment -- Generations of slavery and discrimination have created conditions that make it difficult for Blacks to work their way out of the lower class.,559,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,False,True
+CC24_441e,Racial Resentment -- I resent when Whites deny the existence of racial discrimination.,560,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,False,False
+CC24_441f,Racial Resentment -- Whites get away with offenses that African Americans would never get away with.,561,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,False,False
+CC24_441g,Racial Resentment -- Whites do not go to great lengths to understand the problems African Americans face.,562,Strongly agree / Somewhat agree / Neither agree nor disagree / Somewhat disagree / Strongly disagree,CC24_440a..CC24_441g,False,False
+CC24_443_1,State legislature spending -- Welfare,563,Greatly increase / Slightly increase / Maintain / Slightly decrease / Greatly decrease,CC24_443_1..CC24_443_5,False,False
+CC24_443_2,State legislature spending -- Health Care,564,Greatly increase / Slightly increase / Maintain / Slightly decrease / Greatly decrease,CC24_443_1..CC24_443_5,False,False
+CC24_443_3,State legislature spending -- Education,565,Greatly increase / Slightly increase / Maintain / Slightly decrease / Greatly decrease,CC24_443_1..CC24_443_5,False,False
+CC24_443_4,State legislature spending -- Law Enforcement,566,Greatly increase / Slightly increase / Maintain / Slightly decrease / Greatly decrease,CC24_443_1..CC24_443_5,False,False
+CC24_443_5,State legislature spending -- Transportation/Infrastructure,567,Greatly increase / Slightly increase / Maintain / Slightly decrease / Greatly decrease,CC24_443_1..CC24_443_5,False,False
+CC24_444a,State policies -- Preventing gender transition surgery for minors experiencing gender dysphoria.,568,Support / Oppose,CC24_444a..CC24_444f,False,False
+CC24_444b,State policies -- Requiring parental consent before teachers could address their child using a name or pronoun other than the name or gender under which they are enrolled in school.,569,Support / Oppose,CC24_444a..CC24_444f,False,False
+CC24_444c,State policies -- Prohibiting receiving abortion-inducing drugs through the mail.,570,Support / Oppose,CC24_444a..CC24_444f,False,False
+CC24_444d,State policies -- Prohibiting women from traveling to another state to receive an abortion when such services are not legal in their state.,571,Support / Oppose,CC24_444a..CC24_444f,False,False
+CC24_444e,"State policies -- Instituting age verification laws that require users to verify their age to access adult content on the web, particularly pornography.",572,Support / Oppose,CC24_444a..CC24_444f,False,False
+CC24_444f,State policies -- School voucher subsidies for families to send their children to private or charter schools other than their local public school.,573,Support / Oppose,CC24_444a..CC24_444f,False,False
+CC24_445a,Supreme Court decisions -- The use of race in university admissions violates Equal Protection under the Constitution and is illegal.,574,Agree / Disagree,CC24_445a..CC24_445b,False,False
+CC24_445b,"Supreme Court decisions -- The United States Constitution does not protect a woman’s right to have an abortion.  Roe v. Wade is overruled, and individual states can make their own laws governing abortion, including outlawing abortion.",575,Agree / Disagree,CC24_445a..CC24_445b,False,False
