@@ -1,3 +1,9 @@
+n = 4,673, 89 items (10 foreign-policy items dropped); parallel analysis k = 10
+production factors matched (Tucker phi): {'Immigration and diversity': 0.75, 'Trust in institutions (CSES)': 0.95, 'Democratic norms': 0.99, 'Iran, Russia, China as threats': 0.58, 'Religion and social traditionalism': 0.96, 'No say in government; gender attitudes': 0.75, 'Government waste and big interests': 0.86, 'Israel and Ukraine aid': 0.59, 'Government role in the economy': 0.98, 'Gun policy': 0.92}
+
+kept cap 4
+ K  effective_clusters_median  n_solutions  modal_solution_share  resample_ari_mean  n_stable  n_dissolved
+ 2                          2            1                  1.00              0.916         2            0
  3                          3            1                  1.00              0.808         3            0
  4                          4            1                  1.00              0.744         4            0
  5                          5            4                  0.65              0.591         2            1
@@ -15,3 +21,4 @@ center-left moderates    0.19  0.63  0.02  0.17
 religious conservatives  0.98  0.01  0.00  0.01
 secular progressives     0.00  0.12  0.88  0.00
 young disaffected        0.14  0.01  0.00  0.85
+
