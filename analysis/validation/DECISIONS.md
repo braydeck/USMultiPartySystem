@@ -104,3 +104,6 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   cross-loaders (|λ| ≥ 0.30 on two factors) are removed worst first. Failing factors profile, they don't cluster.
   Ruled by the researcher. Replaces the content-based flags and the single-grid r ≥ 0.40 exception proposed the
   same day, which were set after seeing results.
+- **ANES Stage C uses a 3-clean-item minimum**, not the shared doc's 2. The researcher lowered the CES minimum to 2
+  because CES has few trust items; ANES has no such constraint. Set before the ANES Stage C run
+  (`anes/stage_c.py`). Battery tags: `anes/config/anes_independent_pool.csv`, committed in c0e525c before the run.
