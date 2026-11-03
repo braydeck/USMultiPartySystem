@@ -50,6 +50,13 @@ def main():
     matches = {dc.INDEPENDENT_NAMES[f"N{m['factor_1'] + 1}"]: round(abs(m["phi"]), 2) for m in me.cg.match_factors(full, L)}
     print(f"n = {len(D):,}, {len(ids)} items (10 foreign-policy items dropped); parallel analysis k = {k}")
     print(f"production factors matched (Tucker phi): {matches}", flush=True)
+    pair = {m["factor_2"]: (dc.INDEPENDENT_NAMES[f"N{m['factor_1'] + 1}"], abs(m["phi"])) for m in me.cg.match_factors(full, L)}
+    ld = pd.DataFrame(L, index=ids, columns=[f"M{j + 1}" for j in range(k)])
+    ld.insert(0, "label", load.label[ids].str[:90])
+    ld.to_csv(OUT / "loadings.csv")
+    for j in range(k):
+        top = ld[f"M{j + 1}"].abs().sort_values(ascending=False).index[:6]
+        print(f"  M{j + 1} ~ {pair[j][0]} (phi {pair[j][1]:.2f}): " + "; ".join(f"{ld.label[c][:60]} ({ld.loc[c, f'M{j + 1}']:+.2f})" for c in top))
 
     F, _ = ic.available_scores(D, wD, R, L, Phi)
     X = dk.residualize(F, wD)

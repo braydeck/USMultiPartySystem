@@ -15,7 +15,7 @@
 - Party copy rewrite (main app): drafts in `analysis/efa/exploration/k9_profiles/proposed_copy.json`.
 
 ## Next steps
-1. Classifier (workstream 2 of `UNTRACKED/plans/ces_anes_gss_validation_plan.md`): CES→ANES on `exact`/`close` crosswalk items, nine-party posterior target, recall gate 0.5, shrinkage on held-out CES. Writes `classifier_report_anes.md`. Re-measure which parties fail recall.
+1. Classifier, **on hold until the eight-party CES rebuild lands** (researcher, 2026-11-02; `analysis/efa/rebuild_eight_parties/`). Don't ask again; start it when the rebuild is committed. (Workstream 2 of `UNTRACKED/plans/ces_anes_gss_validation_plan.md`): CES→ANES on `exact`/`close` crosswalk items, party posterior target (eight parties after the rebuild), recall gate 0.5, shrinkage on held-out CES. Writes `classifier_report_anes.md`. Re-measure which parties fail recall.
 
 ## Handed off in parallel
 - `analysis/efa/exploration/listwise_check/` (CES): tests whether CES loadings and parties survive re-estimation on all 49,432 post-weight respondents. This workstream waits on nothing from it. Same tree and branch: commit with explicit paths.

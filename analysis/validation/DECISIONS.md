@@ -96,3 +96,5 @@ Plan: `UNTRACKED/plans/anes_replication_plan.md` (ANES design), `UNTRACKED/plans
   4,673 of 5,276, against 3,132 under the 7-item cull. Same anchor rule and the same cap rule, which
   keeps cap 4 (20 of 20 seeds reach one solution, resample ARI 0.68 vs 0.62 under the cull). The
   culled output in `anes/outputs/clustering/independent/` is superseded.
+- **The CES-to-ANES classifier waits for the eight-party CES rebuild** and targets the eight parties, not the
+  nine-party typology. Ruled by the researcher.
