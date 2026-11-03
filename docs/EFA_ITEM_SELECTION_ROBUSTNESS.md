@@ -91,7 +91,9 @@ are separate decisions. Every threshold below is fixed before results are seen. 
 everything downstream, not adjusting a single factor's verdict.
 
 **Stages A and B, as they apply to both surveys.** The pool holds policy and attitude items only (Stage A). Approval
-of actors, thermometers, self-placement, vote choice and select-all checkbox items are excluded by category. Stage B
+of actors, thermometers, self-placement and vote choice are excluded by category. Whether select-all checkbox items
+(scored as one yes/no item per box) may enter is an open ruling for the researcher. Stage A excludes them, and the
+CES item-pool test (`listwise_check/item_pool.py`, arms `fp24` and `fpmain`) is measuring what including them does. Stage B
 drops items over 30% missing and items whose modal category holds over 85% of weighted respondents. For pairs with
 weighted polychoric |r| > 0.70 it keeps the member with lower party-ID R². No item is dropped for its party-ID R²
 alone, and no factor is validated against party ID: the aim is cross-cutting structure, and a party-ID test would
