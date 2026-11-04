@@ -2,7 +2,7 @@
 
 run_house_canonical.py reads density_tier positionally from data/outputs/canonical/ballots_checkpoint.parquet, which
 held one row per respondent of the old 45,214-row typology. The 45,214 keep their old tier by caseid (old row i =
-old typology row i, git HEAD:data/processed/typology_cluster_assignments.csv). The 4,217 respondents new to the nine
+old typology row i at f263fae, the last commit before the nine). The 4,217 respondents new to the nine
 get a tier the way pipeline/archive/stv_step2.assign_density_tiers_respondents made them: CES urbancity (city URBAN,
 suburb and town SUBURBAN, rural RURAL), otherwise a draw from the state's Census urban share (rng seed 42).
 Writes the checkpoint with density_tier in the new typology order; district_id is rewritten by run_house_canonical.
@@ -21,9 +21,9 @@ from stv_config import DTA_PATH, STATE_URBAN_PCT, URBANCITY_TO_TIER  # noqa: E40
 
 CKPT = ROOT / "data/outputs/canonical/ballots_checkpoint.parquet"
 old_ids = pd.read_csv(io.BytesIO(subprocess.check_output(
-    ["git", "show", "HEAD:data/processed/typology_cluster_assignments.csv"], cwd=ROOT)), usecols=["caseid"]).caseid.values
+    ["git", "show", "f263fae:data/processed/typology_cluster_assignments.csv"], cwd=ROOT)), usecols=["caseid"]).caseid.values
 old = pd.read_parquet(io.BytesIO(subprocess.check_output(
-    ["git", "show", "HEAD:data/outputs/canonical/ballots_checkpoint.parquet"], cwd=ROOT)))
+    ["git", "show", "f263fae:data/outputs/canonical/ballots_checkpoint.parquet"], cwd=ROOT)))
 assert len(old) == len(old_ids)
 tier = pd.Series(old.density_tier.values, index=old_ids)
 
