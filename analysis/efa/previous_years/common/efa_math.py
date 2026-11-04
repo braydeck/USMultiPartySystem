@@ -81,6 +81,25 @@ def parallel_analysis(R, n_obs, n_max=10, n_sim=200, pct=95, seed=2024):
     return n_factors, obs_evals, threshold
 
 
+def velicer_map(R, power=2):
+    """Velicer's (1976) minimum average partial test, as O'Connor (2000) implements it.
+
+    Partial the first m principal components out of R for m = 0..p-2; k is the m that minimizes the
+    mean squared (power=2, the original test) off-diagonal partial correlation. Returns k and the curve."""
+    evals, evecs = np.linalg.eigh(R)
+    idx = np.argsort(evals)[::-1]
+    A = evecs[:, idx] * np.sqrt(np.clip(evals[idx], 0, None))
+    p = R.shape[0]
+    off = ~np.eye(p, dtype=bool)
+    curve = [np.mean(np.abs(R[off]) ** power)]
+    for m in range(1, p - 1):
+        C = R - A[:, :m] @ A[:, :m].T
+        d = np.sqrt(np.clip(np.diag(C), 1e-12, None))
+        P = C / np.outer(d, d)
+        curve.append(np.mean(np.abs(P[off]) ** power))
+    return int(np.argmin(curve)), np.array(curve)
+
+
 # ── Weighted statistics ─────────────────────────────────────────────────────
 def weighted_mean(x, w):
     mask = ~np.isnan(x)

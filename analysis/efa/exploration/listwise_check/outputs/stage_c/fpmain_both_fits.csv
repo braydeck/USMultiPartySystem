@@ -1,0 +1,8 @@
+factor_k7,factor_k10,phi,passes_k7,passes_k10,enters_clustering
+Security & Order (r 0.82),Security & Order (r 0.83),0.935,True,True,True
+"new: CC24_308a_3, CC24_308b_5, CC24_308a_5 (closest Institutional Distrust r 0.39)","new: CC24_308b_6, CC24_308a_5, CC24_308b_5 (closest Institutional Distrust r 0.21)",0.863,False,False,False
+Populist Conservatism (r 0.73),"new: CC24_443_2, CC24_443_3, CC24_443_1 (closest Populist Conservatism r 0.62)",0.958,True,False,False
+"new: CC24_424, CC24_423, CC24_421_2 (closest Institutional Distrust r 0.74)",Institutional Distrust (r 0.72),0.982,True,True,True
+"new: CC24_340a, CC24_340b, CC24_340c (closest Religious Traditionalism r 0.41)","new: CC24_444d, CC24_444c, CC24_325 (closest Religious Traditionalism r 0.60)",0.472,False,False,False
+"new: CC24_420_4, CC24_420_1, CC24_420_3 (closest Government Distrust r 0.16)","new: CC24_420_3, CC24_420_6, CC24_420_2 (closest Institutional Distrust r 0.27)",0.953,False,False,False
+Religious Traditionalism (r 0.87),Religious Traditionalism (r 0.75),0.774,True,True,False

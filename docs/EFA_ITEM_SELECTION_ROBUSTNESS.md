@@ -36,7 +36,7 @@ The 84→55 step (Stage A) was previously undocumented; it is specified below. S
 |---|---|---|
 | Evaluations / approvals | `CC24_312*` (Biden/Harris/SCOTUS/Congress approval) | Measure *approval of actors*, not policy attitudes. Approval tracks who holds power and how they are doing, a horse-race measure, so it never enters any typology pool (CES or ANES) whatever its party-ID R², missingness, or loadings. Most are near-pure partisan proxies (party-ID R² 0.57–0.63); Congress approval (`CC24_312b`) is not (R² 0.001) and is excluded on the same category grounds. Institutional *trust* items (`CC24_423`/`424`, ANES trust batteries) are a different category and stay in. |
 | Ideology ratings / self-placement | `CC24_330*` (rate Biden/Trump/parties; self-placement) | Partisan proxies (self-placement ideology R²=0.82). |
-| Retrospective economic sentiment | `CC24_301` (national economy better/worse) | A Biden-approval proxy in 2024 (party-ID R²=0.34). |
+| Economic sentiment | `CC24_301` (national economy), `CC24_302` (household income change), `CC24_303` (price change); ANES economy retrospectives | Report circumstances or perceptions, not policy or cultural views (researcher, 2026-11-03). `CC24_301` is also a Biden-approval proxy in 2024 (party-ID R²=0.34). |
 | Multi-select / compositional | `CC24_309d*` (emergency-expense options), `CC24_420*` (military-force checklist), `CC24_308*` (Ukraine/Gaza) | Mutually-exclusive checkboxes create structurally invalid polychoric correlations. |
 | Non-attitudinal | media use, vote choice, participation, political knowledge, party-ID strength | Not policy attitudes. |
 
@@ -51,7 +51,7 @@ Applied to every eligible item, all at the **factor layer** (no clustering requi
 1. **Missingness** — drop if > ~30% missing.
 2. **Variance / valence** — drop ceiling/floor items (modal-category share > ~85%): e.g. background-checks (93% support), abortion-illegal-always (89% oppose).
 3. **Partisan collinearity** — flag items with high party-ID R²; drop pure partisan proxies (handled largely by Stage A).
-4. **Redundancy** — for any pair with weighted **polychoric** |r| > 0.70, drop the higher-party-ID-R² member (keep the less-partisan twin).
+4. **Redundancy** — for any pair with weighted **polychoric** |r| > 0.70, keep the member with the lower mean |r| with the rest of the pool (party-blind since 2026-11-03; it formerly kept the lower-party-ID-R² twin). See §3c.
 5. **Loading / communality** — after extraction, drop items that fail to load (max |λ| < 0.30 or communality h² < 0.20).
 
 ### 3a. Redundancy screening was recomputed (a bug fix)
@@ -79,25 +79,32 @@ Regenerated artifacts: `analysis/efa/redundant_pairs.csv` (canonical), plus `ana
 
 ### 3b. Weak retained items: CC24_302 / CC24_303
 
+**Superseded 2026-11-03:** both items are now excluded by category at Stage A as economic sentiment. The note below describes production, which retains them.
+
 Two economic-*perception* items (household-income change, price change) are retained despite loading below the 0.30 bar (λ=0.17/0.22, h²=0.15/0.24) — they are the only sub-threshold items in the set. A confirmation re-fit dropping them changes the factor structure negligibly (loadings ±0.02, Φ within 0.01, the F2/F3 trust split intact, CUP if anything sharper). So they are **weak but harmless**: their inclusion is a discretionary domain-coverage choice, their removal is structurally null. They are documented here rather than removed, to keep the published typology stable. (Removing them tightens F2 to a thin 2-item factor — `CC24_421_2` rises to λ≈0.95 — a minor cost.)
 
 ---
 
-## 3c. Stage C — which factors define the clustering (shared rule, adopted 2026-11-02)
+## 3c. Stage C — which factors define the clustering (shared rule, adopted 2026-11-02, revised 2026-11-03)
 
 One rule governs both the CES typology and the ANES independent segmentation, so a difference between the two
 surveys reflects the electorates, not two methods. Choosing items (Stages A and B) and choosing clustering dimensions
-are separate decisions. Every threshold below is fixed before results are seen. Changing one means rerunning
-everything downstream, not adjusting a single factor's verdict.
+are separate decisions. Every threshold below is fixed before the revised rule runs. Changing one means rerunning
+everything downstream, not adjusting a single factor's verdict. CES 2022 is held back, unexamined under this rule,
+and runs once on the settled rule as the confirmation.
 
 **Stages A and B, as they apply to both surveys.** The pool holds policy and attitude items only (Stage A). Approval
-of actors, thermometers, self-placement and vote choice are excluded by category. Whether select-all checkbox items
-(scored as one yes/no item per box) may enter is an open ruling for the researcher. Stage A excludes them, and the
-CES item-pool test (`listwise_check/item_pool.py`, arms `fp24` and `fpmain`) is measuring what including them does. Stage B
-drops items over 30% missing and items whose modal category holds over 85% of weighted respondents. For pairs with
-weighted polychoric |r| > 0.70 it keeps the member with lower party-ID R². No item is dropped for its party-ID R²
-alone, and no factor is validated against party ID: the aim is cross-cutting structure, and a party-ID test would
-build the two-party axis into what counts as real.
+of actors, thermometers, self-placement, vote choice and economic sentiment (national economy, household income and
+price change, and their ANES equivalents) are excluded by category. Whether select-all checkbox items (scored as one
+yes/no item per box) may enter is an open ruling for the researcher. Stage A excludes them. Stage B drops items over
+30% missing and items whose modal category holds over 85% of weighted respondents. For pairs with weighted
+polychoric |r| > 0.70, taken from the highest |r| down, it keeps the member with the lower mean |r| with the rest of
+the pool (the pair itself excluded): the item carrying more information the pool does not already hold. Keeping the
+higher-mean member instead, as first written on 2026-11-03, let one central item absorb distinct topics in a chain
+(the border wall removed 11 items, from Roe to student debt, at 0.71-0.74) and was reversed before any result beyond
+Stage B was seen. Party ID plays no part: no item is dropped or
+kept for its party-ID R², and no factor is validated against party ID. The aim is cross-cutting structure, and a
+party-ID test would build the two-party axis into what counts as real.
 
 **1. Battery.** Every item in the pool is tagged with a battery before the rule runs. A battery is a set of items that
 share one response scale and are asked consecutively in the questionnaire, with no other question between them.
@@ -107,31 +114,82 @@ identical scales asked back to back count as one battery even if their stems dif
 the same scale within one questionnaire section form one battery, checked against the questionnaire. The tags live in
 each survey's item list (`battery_id` column) and are committed before Stage C runs.
 
-**2. Number of factors.** Parallel analysis (Horn, polychoric, 95th percentile) and Velicer's MAP each pick k on the
-screened pool. If they agree, that k is fit. If they disagree, both are fit. A factor can enter the clustering space
-only if it passes the entry test (step 4) in both fits, matched across the two fits at Tucker φ ≥ 0.85. That is the
-threshold this project already uses for "recognizably the same factor" (`analysis/validation/DECISIONS.md`,
-2026-11-02). k is not set by interpretability.
+**2. Number of factors.** Parallel analysis (Horn, polychoric, 95th percentile, every eigenvalue counted, no cap) and
+Velicer's MAP each pick k on the Stage B pool. The lower of the two is fit, bounded to 3–7: below 3 fit 3, above 7
+fit 7, and report the unbounded counts. k is not set by interpretability. The purpose is general attitudes: political
+attitude structure has a few broad dimensions, and past about 7 the extra factors restate item sets (one battery,
+one wording family) rather than measure attitudes. Parallel analysis is known to retain small extra factors in large
+samples, and with many topical batteries both statistics keep finding residual structure.
 
-**3. Cross-loaders.** Fit PAF with oblimin. An item cross-loads if it has |λ| ≥ 0.30 on two or more factors. Remove
-the cross-loader with the largest second-highest |λ|, refit at the same k, and repeat until none remain. Then rerun
-parallel analysis and MAP once on the final pool and report the result. If k would change, disclose it rather than
-loop. Removed items leave the factor analysis and remain available for profiling. Items with max |λ| < 0.30 or
-h² < 0.20 are dropped as in Stage B.
+History: the tie rule was first "fit both; a factor enters only if it passes in both, matched at Tucker φ ≥ 0.85."
+The researcher replaced it with the lower k on 2026-11-02, after the first CES run, where the higher k split the broad
+factors into single-battery pieces. The 3–7 bound was added on 2026-11-03, after ANES fit 17 factors (parallel
+analysis 19, MAP 17) under the lower-k rule.
 
-**4. Entry test.** A factor defines the clustering only if it has:
-- at least **3 clean items**, meaning |λ| ≥ 0.40 on this factor and |λ| < 0.30 on every other factor; and
-- clean items from **at least 2 batteries**, so the factor can be told apart from one battery's shared format.
+**3. Weak items, resampled.** Fit PAF with oblimin at k. Drop every weak item together (max |λ| < 0.30,
+h² < 0.20, or h² ≥ 0.995), refit, and repeat until none is weak. Cross-loaders stay in: an item loading on two
+factors carries information about both, and its score contribution is weighted by both loadings. Cross-loading
+matters only for the entry test's clean-item count. To keep a near-threshold decision from settling an item's fate,
+Stage B's redundancy screen and this weak-item step run on 50 respondent bootstrap resamples (seed 42) at the k from
+step 2. An item is retained if it survives in more than half of them. The retained items are fit on the full sample at
+k. Parallel analysis and MAP are rerun once on that pool and reported; if k would change, disclose it rather than
+loop. Dropped items leave the factor analysis and remain available for profiling.
 
-These are conventional minimums: Costello and Osborne (2005) treat a factor with fewer than three items as weak, and
-two batteries is the fewest that separates an attitude from a format. Interpretability is not a criterion. Naming
-happens after a factor passes.
+History: until 2026-11-03 the rule removed cross-loaders one at a time, worst first. At k = 5 in CES it removed 10
+items, and its order made 8 items flip on correlation changes under 0.06.
+
+**4. Entry test, resampled.** A factor defines the clustering only if it has:
+- at least **2 clean items**, meaning |λ| ≥ 0.40 on this factor and |λ| < 0.30 on every other factor; and
+- clean items from **at least 2 batteries**, so the factor can be told apart from one battery's shared format;
+
+in the full-sample fit **and** in more than half of the 50 resamples, refit on the retained items and matched to the
+full-sample factor at Tucker φ ≥ 0.85 (an unmatched factor counts as a fail). Each factor's pass rate is reported.
+
+Two batteries is the fewest that separates an attitude from a format, and it means a two-item factor draws its two
+items from different batteries, so it cannot pass on two wordings of one question. The item minimum was 3 when the
+rule was adopted and was lowered to 2 by the researcher the same day (2026-11-02), after the first CES run left
+production's trust factor with 2 clean items. Costello and Osborne (2005) treat a factor with fewer than three items as
+weak, so a two-item factor that passes is labeled as such wherever it is reported. Interpretability is not a
+criterion. Naming happens after a factor passes.
 
 **5. Factors that fail.** Their items stay in the factor analysis, so the remaining factors are estimated on the full
 pool. The failing factors leave the clustering input and are used afterward to describe the groups.
 
-**Unchanged downstream.** Available-item scoring, the anchor residualization rule and the DPGMM cap rule (the largest
-cap from 2 to 10 at which no cluster dissolves under resampling) apply as before, to the factors that pass.
+**6. Outcome tests, reported for every candidate space.** Any space or typology compared against another is reported
+on the same three tests, defined here before the comparison:
+- **Held-out items:** weighted η² (the share of an item's variance between groups), averaged over policy items in
+  no compared typology's clustering input, excluding any item with polychoric |r| > 0.70 with an input; 200 bootstrap
+  resamples (seed 42) of the difference.
+- **Stability:** 30 resample refits; mean pairwise ARI, clusters stable (Jaccard ≥ 0.75) and dissolved (< 0.5).
+- **Replication:** Tucker φ between CES and ANES factors on the matched crosswalk items.
+Outcome tests at the other factor count (the higher of parallel analysis and MAP, within 3–7) are reported alongside.
+
+**7. In-power effects.** Answers about a specific government move with whether the respondent's party runs it, a
+circumstance rather than a view. In CES 2024, Trump voters who distrust their state government run from 30% where
+Harris lost by 10+ points to 75% where she won by 10+, while their federal distrust holds at 67-70%. Such items stay
+in (dropping CES's two state items leaves no distrust factor at k = 5), and the in-power part is removed from the
+scores before clustering:
+- **Alignment.** Partisans (pid7, leaners counted as partisans) are *aligned* when their party holds the governorship
+  and both legislative chambers, *opposed* when it holds none, *split* otherwise (a coalition chamber counts half).
+  Pure independents and others are *nonpartisan*. Control as of the 2024 election:
+  `analysis/efa/state_control_2024.csv`.
+- **Adjustment.** Each clustering score is regressed (weighted OLS) on the alignment groups, aligned as the base. Only
+  the opposed and split contrasts are subtracted, so the nonpartisan difference, which is a view rather than a
+  circumstance, stays in the score. The adjustment runs on every clustering score; it matters only for factors
+  carrying state-government items (in CES 2024 it removes 10% of the distrust score's variance and under 1% of
+  the others').
+- **Federal alignment** is not adjusted. In one cross-section, in or out of federal power is the same thing as party
+  ID, so it cannot be separated from views. Items about the federal government are read with that limit.
+- **ANES** applies the same adjustment to any item about the respondent's state government, where the file identifies
+  the state.
+
+**Unchanged downstream.** Available-item scoring and the DPGMM cap rule (the largest cap from 2 to 10 at which no
+cluster dissolves under resampling) apply as before, to the factors that pass.
+
+**No anchor residualization (CES, 2026-11-04).** Regressing one clustering score on another is an affine map of the
+clustering columns with determinant 1, and the full-covariance DPGMM with its data-derived priors fits the same models
+either way; only the k-means starting points differ. Dropped after seeing that it decides ANES cap 4 vs 5. On CES the
+cap-10 and cap-5 solutions are the same with and without it (ARI 0.989).
 
 ---
 

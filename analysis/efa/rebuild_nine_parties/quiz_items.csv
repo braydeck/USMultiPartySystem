@@ -1,0 +1,42 @@
+step,item,label,r2_RT,r2_TR,r2_SO,r2_PC,r2_mean,party_agreement
+1,CC24_323f,"Forgive up to $20,000 of student debt",0.176,0.068,0.443,0.442,0.282,0.344
+2,CC24_423,Little or no trust in the federal government,0.176,0.834,0.456,0.446,0.478,0.342
+3,CC24_443_4,Law enforcement,0.293,0.835,0.777,0.452,0.589,0.381
+4,CC24_443_2,Health care,0.345,0.835,0.779,0.792,0.688,0.475
+5,CC24_444b,Parental consent before teachers use a new name or pronoun,0.565,0.835,0.798,0.794,0.748,0.528
+6,CC24_445b,Agree Roe was rightly overturned,0.692,0.838,0.798,0.803,0.783,0.587
+7,CC24_323b,More border patrols on the US-Mexico border,0.692,0.843,0.883,0.803,0.805,0.599
+8,CC24_444c,State: ban abortion pills by mail,0.775,0.843,0.884,0.804,0.827,0.615
+9,CC24_421_1,Agree US elections are fair,0.781,0.897,0.894,0.805,0.844,0.636
+10,CC24_341a,Extend the 2017 tax cuts,0.838,0.897,0.895,0.807,0.859,0.668
+11,CC24_328b,Tax incentives for low-income housing,0.843,0.909,0.9,0.844,0.874,0.671
+12,CC24_443_3,Education,0.845,0.909,0.904,0.89,0.887,0.688
+13,CC24_326d,Increase US fossil fuel production,0.876,0.91,0.912,0.892,0.898,0.706
+14,CC24_341d,$150B a year on infrastructure for 8 years,0.876,0.913,0.926,0.914,0.907,0.711
+15,CC24_321e,"10% fewer police, more for other services",0.878,0.917,0.955,0.916,0.916,0.722
+16,CC24_323a,"Legal status for undocumented workers (3+ years, taxes, no felonies)",0.878,0.931,0.962,0.928,0.925,0.736
+17,CC24_444f,School vouchers for private or charter schools,0.907,0.932,0.964,0.928,0.933,0.752
+18,CC24_424,Little or no trust in the state government,0.907,0.963,0.964,0.928,0.94,0.755
+19,CC24_328e,Expand Medicaid to low-income adults and families,0.909,0.966,0.966,0.948,0.947,0.764
+20,CC24_441b,Slavery and discrimination make it hard for Blacks to rise,0.913,0.969,0.973,0.959,0.953,0.781
+21,CC24_328d,Repeal the Affordable Care Act,0.927,0.974,0.974,0.96,0.959,0.798
+22,pew_bornagain,Born-again or evangelical,0.937,0.977,0.975,0.964,0.963,0.8
+23,CC24_445a,Agree race in college admissions is unconstitutional,0.952,0.977,0.975,0.964,0.967,0.816
+24,CC24_340a,Bar government restrictions on contraceptives,0.965,0.978,0.975,0.964,0.971,0.817
+25,CC24_341c,Raise taxes on $400k+ earners to 35%,0.966,0.982,0.975,0.973,0.974,0.834
+26,CC24_443_1,Welfare,0.966,0.982,0.978,0.982,0.977,0.841
+27,CC24_321b,Make concealed-carry permits easier to get,0.974,0.984,0.978,0.983,0.98,0.853
+28,CC24_443_5,Transportation and infrastructure,0.974,0.985,0.983,0.987,0.982,0.859
+29,CC24_340d,Ban TikTok unless sold to a US company,0.974,0.986,0.99,0.987,0.984,0.862
+30,CC24_444d,State: bar travel out of state for an abortion,0.976,0.986,0.994,0.988,0.986,0.864
+31,CC24_440b,"Racial problems are rare, isolated situations",0.978,0.987,0.994,0.993,0.988,0.868
+32,CC24_444e,Age verification for adult websites,0.98,0.988,0.995,0.995,0.989,0.871
+33,CC24_444a,Ban gender-transition surgery for minors,0.985,0.988,0.995,0.995,0.991,0.882
+34,CC24_326e,Halt new oil and gas leases on federal land,0.985,0.989,0.997,0.996,0.992,0.891
+35,CC24_325,Week limit: none (40 weeks),0.989,0.989,0.997,0.997,0.993,0.891
+36,CC24_440c,Women seek power by getting control over men,0.991,0.99,0.998,0.997,0.994,0.895
+37,CC24_326f,Prevent bans on gas stoves,0.995,0.99,0.999,0.997,0.995,0.905
+38,pew_churatd,Attend services weekly or more,0.996,0.991,0.999,0.998,0.996,0.907
+39,CC24_340b,Bar government restrictions on abortion services,0.998,0.992,0.999,0.998,0.996,0.909
+40,CC24_324b,"Abortion only for rape, incest or the woman's life",0.999,0.992,0.999,0.998,0.997,0.914
+41,CC24_340c,Federal recognition of same-sex and interracial marriage,1.0,0.992,0.999,0.998,0.997,0.913

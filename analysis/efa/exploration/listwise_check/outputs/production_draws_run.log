@@ -1,0 +1,14 @@
+full-sample rescoring vs production FS_F1..F5, r per factor: [1.0, 1.0, 1.0, 1.0, 1.0]
+draw 1/50: ARI 0.616, 9 solutions, modal 0.25, worst kept 0.58
+draw 2/50: ARI 0.494, 7 solutions, modal 0.25, worst kept 0.00
+draw 3/50: ARI 0.517, 2 solutions, modal 0.90, worst kept 0.12
+draw 4/50: ARI 0.532, 3 solutions, modal 0.75, worst kept 0.00
+draw 5/50: ARI 0.282, 5 solutions, modal 0.35, worst kept 0.24
+draw 6/50: ARI 0.580, 3 solutions, modal 0.45, worst kept 0.51
+draw 7/50: ARI 0.320, 4 solutions, modal 0.70, worst kept 0.12
+draw 8/50: ARI 0.649, 3 solutions, modal 0.60, worst kept 0.22
+draw 9/50: ARI 0.740, 3 solutions, modal 0.90, worst kept 0.57
+draw 10/50: ARI 0.596, 2 solutions, modal 0.85, worst kept 0.22
+draw 11/50: ARI 0.315, 5 solutions, modal 0.45, worst kept 0.12
+draw 12/50: ARI 0.339, 4 solutions, modal 0.50, worst kept 0.14
+draw 13/50: ARI 0.601, 3 solutions, modal 0.80, worst kept 0.00

@@ -1,0 +1,21 @@
+items,classifier,party_agreement,mean_top_prob
+10,"party gaussians, flat",0.668,0.833
+10,"components, flat",0.658,0.718
+10,"components, weighted",0.676,0.737
+10,components + key error,0.673,0.583
+15,"party gaussians, flat",0.722,0.825
+15,"components, flat",0.708,0.716
+15,"components, weighted",0.733,0.732
+15,components + key error,0.725,0.635
+20,"party gaussians, flat",0.781,0.825
+20,"components, flat",0.775,0.715
+20,"components, weighted",0.795,0.733
+20,components + key error,0.79,0.671
+25,"party gaussians, flat",0.834,0.829
+25,"components, flat",0.82,0.718
+25,"components, weighted",0.852,0.735
+25,components + key error,0.851,0.703
+41,"party gaussians, flat",0.913,0.83
+41,"components, flat",0.896,0.721
+41,"components, weighted",0.966,0.737
+41,components + key error,0.966,0.735

@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typology Comparison</title>
+<style>
+/* ── Plaid research design tokens — Foundations-backed ───────────────────────
+   Canonical visual system for HTML research artifacts. AUTHORING SOURCE, not a
+   shipped file:
+     • Local iteration: link it — <link rel="stylesheet" href="lib/tokens.css">
+     • Shipped Claude artifact: inline this file inside the artifact <style>
+       (artifacts must be one self-contained file; CDN is the only external src).
+
+   LAYER 1 (Foundations primitives) is lifted verbatim from @plaid/design-tokens
+   → node/lib/design-tokens/src/css/foundation.css, generated from the canonical
+   Foundations Figma source. To refresh, re-pull that file and replace Layer 1;
+   the alias layer below keeps resolving automatically. Do NOT hand-tune Layer 1
+   values — Foundations is the source of truth.
+
+   LAYER 3 (alias layer) is YOUR public interface. Components + research-viz.js
+   reference these friendly names; they map onto Foundations so a brand refresh
+   flows through without touching component code.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 1 — PLAID DESIGN FOUNDATIONS PRIMITIVES  (verbatim, do not edit)
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Neutrals — cool / blue-tinted (this is the real Plaid "black" ramp) */
+  --color-white: #ffffff;
+  --color-black-100: #f7fafd;  --color-black-200: #ebf0f4;  --color-black-300: #dde3e9;
+  --color-black-400: #c5ccd3;  --color-black-450: #a6b0bc;  --color-black-500: #8c95a1;
+  --color-black-600: #6b7785;  --color-black-700: #4f5c69;  --color-black-800: #2c3a49;
+  --color-black-900: #1b242d;  --color-black-1000: #08131e;
+
+  /* Blue — interactive / link blue */
+  --color-blue-100: #f7faff;  --color-blue-200: #e5effe;  --color-blue-300: #d3e4fd;
+  --color-blue-400: #b0cefc;  --color-blue-450: #83b2fb;  --color-blue-500: #5294f8;
+  --color-blue-600: #156ef5;  --color-blue-700: #0a54c4;  --color-blue-800: #06347a;
+  --color-blue-900: #04224f;  --color-blue-1000: #021127;
+
+  /* Sky — your signature "Plaid blue" lives here */
+  --color-sky-100: #e5fcff;  --color-sky-200: #ccf8ff;  --color-sky-300: #9aedfe;
+  --color-sky-400: #51d2fb;  --color-sky-450: #0dadf2;  --color-sky-500: #0e94d8;
+  --color-sky-600: #0b7bbc;  --color-sky-700: #07578d;  --color-sky-800: #043c67;
+  --color-sky-900: #02294b;  --color-sky-1000: #00172e;
+
+  /* Minted — your "teal" lives here */
+  --color-minted-100: #effffa;  --color-minted-200: #d8fef3;  --color-minted-300: #b6fbe9;
+  --color-minted-400: #42f0cd;  --color-minted-450: #10d1b7;  --color-minted-500: #0ba299;
+  --color-minted-600: #088181;  --color-minted-700: #05565c;  --color-minted-800: #034049;
+  --color-minted-900: #012e37;  --color-minted-1000: #001d24;
+
+  /* Purple */
+  --color-purple-100: #f5f5ff;  --color-purple-200: #e6e6ff;  --color-purple-300: #ccccff;
+  --color-purple-400: #a3a3ff;  --color-purple-450: #8b8bf9;  --color-purple-500: #7373ed;
+  --color-purple-600: #5e5ed9;  --color-purple-700: #4444a7;  --color-purple-800: #2b2b82;
+  --color-purple-900: #1c1c69;  --color-purple-1000: #0d0d3f;
+
+  /* Pink */
+  --color-pink-100: #fcf0ff;  --color-pink-200: #f9dbff;  --color-pink-300: #f5c2ff;
+  --color-pink-400: #ee99ff;  --color-pink-450: #e574fb;  --color-pink-500: #d45aed;
+  --color-pink-600: #bb33d7;  --color-pink-700: #8f29a3;  --color-pink-800: #671877;
+  --color-pink-900: #3f0849;  --color-pink-1000: #2a0132;
+
+  /* Red */
+  --color-red-100: #fff0f0;  --color-red-200: #ffd9d9;  --color-red-300: #ffc2c2;
+  --color-red-400: #ff9999;  --color-red-450: #fb7474;  --color-red-500: #ed5a5a;
+  --color-red-600: #ce3b3b;  --color-red-700: #a32929;  --color-red-800: #771818;
+  --color-red-900: #490808;  --color-red-1000: #320101;
+
+  /* Orange */
+  --color-orange-100: #fffaf5;  --color-orange-200: #fff0e0;  --color-orange-300: #ffe3c7;
+  --color-orange-400: #ffbf80;  --color-orange-450: #fb942d;  --color-orange-500: #e57300;
+  --color-orange-600: #b85e05;  --color-orange-700: #944a00;  --color-orange-800: #613605;
+  --color-orange-900: #442804;  --color-orange-1000: #2c1a02;
+
+  /* Yellow */
+  --color-yellow-100: #fffbf0;  --color-yellow-200: #fff6d8;  --color-yellow-300: #ffeda3;
+  --color-yellow-400: #fbde51;  --color-yellow-450: #ebcb00;  --color-yellow-500: #a39300;
+  --color-yellow-600: #807700;  --color-yellow-700: #615e00;  --color-yellow-800: #4d4d00;
+  --color-yellow-900: #363800;  --color-yellow-1000: #212400;
+
+  /* Lime */
+  --color-lime-100: #f7fff0;  --color-lime-200: #e8fed7;  --color-lime-300: #d2fbb6;
+  --color-lime-400: #7cf042;  --color-lime-450: #46da10;  --color-lime-500: #29a20b;
+  --color-lime-600: #188108;  --color-lime-700: #0b5c05;  --color-lime-800: #034903;
+  --color-lime-900: #013703;  --color-lime-1000: #002402;
+
+  /* Green */
+  --color-green-100: #f0fdf8;  --color-green-200: #cdf7e7;  --color-green-300: #a9f1d5;
+  --color-green-400: #57e4ab;  --color-green-500: #21a96f;  --color-green-600: #1b8657;
+  --color-green-700: #156843;  --color-green-800: #0d4029;  --color-green-900: #07291a;
+  --color-green-1000: #03140d;
+
+  /* Radii (numeric scale) */
+  --radius-0: 0px;   --radius-2: 2px;   --radius-4: 4px;   --radius-6: 6px;
+  --radius-8: 8px;   --radius-12: 12px; --radius-16: 16px; --radius-24: 24px;
+  --radius-30: 30px; --radius-full: 9999px;
+
+  /* Spacing (4-pt grid) */
+  --spacing-0: 0px;     --spacing-2: 2px;    --spacing-4: 4px;    --spacing-6: 6px;
+  --spacing-8: 8px;     --spacing-12: 12px;  --spacing-16: 16px;  --spacing-20: 20px;
+  --spacing-24: 24px;   --spacing-32: 32px;  --spacing-40: 40px;  --spacing-48: 48px;
+  --spacing-56: 56px;   --spacing-64: 64px;  --spacing-80: 80px;  --spacing-96: 96px;
+  --spacing-120: 120px; --spacing-160: 160px; --spacing-200: 200px;
+
+  /* Font families (real Plaid faces — see Layer 3 note before using directly) */
+  --font-cern: Cern;
+  --font-plaid-sans: 'Plaid Sans';
+  --font-inconsolata: Inconsolata;
+  --font-bowery-lane: 'Bowery Lane';
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 2 — BRAND GRADIENTS  (curated from Foundations gradient sets)
+     Named themes: benjamin (teal/mint), elizabeth (blue/violet),
+     euro (violet/pink/gold), lincoln (mint/lime/gold), viola (pink/violet).
+     ═══════════════════════════════════════════════════════════════════════ */
+  --gradient-background-stark-benjamin:  linear-gradient(to top right, #ccf8ff 0%, #d8fef3 50%, #e8fed7 100%);
+  --gradient-background-stark-elizabeth: linear-gradient(to top right, #e6e6ff 0%, #e5effe 50%, #ccf8ff 100%);
+  --gradient-background-stark-euro:      linear-gradient(to top right, #e6e6ff 0%, #f9dbff 50%, #fff6d8 100%);
+  --gradient-background-stark-lincoln:   linear-gradient(to top right, #d8fef3 0%, #e8fed7 50%, #fff6d8 100%);
+  --gradient-background-stark-viola:     linear-gradient(to top right, #f9dbff 0%, #e6e6ff 50%, #ccf8ff 100%);
+  --gradient-background-subtle-benjamin:  linear-gradient(to top right, #e5fcff 0%, #effffa 50%, #f7fff0 100%);
+  --gradient-background-subtle-elizabeth: linear-gradient(to top right, #f5f5ff 0%, #f7faff 50%, #e5fcff 100%);
+  --gradient-background-subtle-euro:      linear-gradient(to top right, #f5f5ff 0%, #fcf0ff 50%, #fffbf0 100%);
+  --gradient-background-subtle-lincoln:   linear-gradient(to top right, #effffa 0%, #f7fff0 50%, #fffbf0 100%);
+  --gradient-background-subtle-viola:     linear-gradient(to top right, #fcf0ff 0%, #f5f5ff 50%, #e5fcff 100%);
+  --gradient-background-vibrant-benjamin:  linear-gradient(to top right, #42f0cd 0%, #0dadf2 100%);
+  --gradient-background-vibrant-elizabeth: linear-gradient(to top right, #51d2fb 0%, #8b8bf9 100%);
+  --gradient-background-vibrant-euro:      linear-gradient(to top right, #ff9999 0%, #e574fb 100%);
+  --gradient-background-vibrant-lincoln:   linear-gradient(to top right, #10d1b7 0%, #7cf042 100%);
+  --gradient-background-vibrant-viola:     linear-gradient(to top right, #ee99ff 0%, #8b8bf9 100%);
+  --gradient-graphic-stark-benjamin:  linear-gradient(to top right, #0b7bbc 0%, #088181 100%);
+  --gradient-graphic-stark-elizabeth: linear-gradient(to top right, #5e5ed9 0%, #156ef5 100%);
+  --gradient-graphic-stark-euro:      linear-gradient(to top right, #bb33d7 0%, #ce3b3b 100%);
+  --gradient-graphic-stark-lincoln:   linear-gradient(to top right, #088181 0%, #188108 100%);
+  --gradient-graphic-stark-viola:     linear-gradient(to top right, #0b7bbc 0%, #5e5ed9 100%);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 3 — RESEARCH ALIAS LAYER  (your friendly names → Foundations)
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Type families.
+     NOTE: the real Plaid faces (Cern body, Plaid Sans display, Inconsolata mono)
+     are NOT web-available without hosting the font files, so portable artifacts
+     fall back to native stacks. If you self-host the fonts, prepend the real
+     family, e.g. --font-display: var(--font-plaid-sans), <stack>.
+     CORRECTION: Plaid Sans is a geometric SANS (not a serif) — the display
+     fallback below is now a sans stack to match the brand, not the old serif. */
+  --font-display: var(--font-plaid-sans), "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --font-sans:    var(--font-cern), -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono:    var(--font-inconsolata), "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* Core neutrals → real (cool) Plaid black ramp. NOTE: slightly bluer than before. */
+  --plaid-black: var(--color-black-1000);
+  --plaid-white: var(--color-white);
+  --gray-950: var(--color-black-1000);
+  --gray-900: var(--color-black-900);
+  --gray-800: var(--color-black-800);
+  --gray-700: var(--color-black-700);
+  --gray-500: var(--color-black-600);
+  --gray-400: var(--color-black-450);
+  --gray-300: var(--color-black-400);
+  --gray-200: var(--color-black-300);
+  --gray-100: var(--color-black-200);
+  --gray-50:  var(--color-black-100);
+
+  /* Brand blues = Foundations SKY ramp (600/700/ink are exact matches).
+     500/400 shift slightly cyaner vs your old true-blues. To keep them truer
+     blue instead, point them at --color-blue-500 / --color-blue-450. */
+  --plaid-ink-900:  var(--color-sky-900);
+  --plaid-ink-800:  var(--color-sky-800);
+  --plaid-blue-700: var(--color-sky-700);   /* exact */
+  --plaid-blue-600: var(--color-sky-600);   /* exact — your signature */
+  --plaid-blue-500: var(--color-sky-500);
+  --plaid-blue-400: var(--color-sky-400);
+
+  /* Mint = Foundations MINTED ramp (600/500 are exact matches). */
+  --plaid-teal-600: var(--color-minted-700); /* exact */
+  --plaid-teal-500: var(--color-minted-400); /* exact */
+  --plaid-teal-400: var(--color-minted-300);
+
+  /* Holo pastels. Soft set = exact Foundations 200 tints. Brights = custom
+     (no Foundations equivalent) — kept literal and flagged. */
+  --holo-lilac:       var(--color-purple-200);  /* exact */
+  --holo-mint:        var(--color-minted-200);  /* exact */
+  --holo-buttercream: var(--color-yellow-200);  /* exact */
+  --holo-pink-soft:   var(--color-pink-200);    /* exact */
+  --holo-magenta:     var(--color-pink-450);    /* ~exact */
+  --holo-aqua:        var(--color-minted-300);  /* near */
+  --holo-pink:        var(--color-pink-300);    /* near */
+  --holo-cyan:        #8BFFFF;   /* CUSTOM — no Foundations match */
+  --holo-yellow:      #FFFFC7;   /* CUSTOM — no Foundations match */
+  --holo-periwinkle:  #98A5FF;   /* CUSTOM — no Foundations match */
+
+  /* Canonical gradients — rebuilt FROM Foundations tokens where they map. */
+  --gradient-holo-soft: linear-gradient(135deg, var(--color-purple-200) 0%, var(--color-minted-200) 50%, var(--color-yellow-200) 100%);
+  --gradient-holo-deep: linear-gradient(180deg, var(--color-sky-700) 0%, var(--color-sky-600) 33%, var(--color-minted-400) 100%);
+  --gradient-dark:      linear-gradient(180deg, var(--color-sky-800) 2%, var(--color-sky-900) 64%);
+
+  /* ── Heatmap / colorscale ramps ──────────────────────────────────────────
+     Cividis (unipolar/sequential) — perceptually uniform, colorblind-safe.
+     Vik (diverging, Crameri) — warm-cool diverging, neutral midpoint.
+     Signal purple (discrete) — 3-step ramp for Strong / Moderate / Directional.
+     Same values on light and dark surfaces. Inconclusive = neutral gray (no
+     purple); render as hollow ring / dashed whisker so it stays distinct from
+     Directional on dark backgrounds.
+     ─────────────────────────────────────────────────────────────────────── */
+
+  /* OKLCH H305 C0.12, |ΔL| 0.52 / 0.34 / 0.15 from the light surface.
+     Contrast on a #ffffff card: 6.91:1 / 3.27:1 / 1.66:1. Directional is
+     faint on purpose and carries a grey ring so it stays locatable. */
+  --signal-directional: #e0baff;
+  --signal-moderate:    #a37ecd;
+  --signal-strong:      #6e4993;
+  --signal-inconclusive: #566271;
+
+  /* --evidence-* is the name html-research-artifacts/SKILL.md uses for this
+     ramp; --signal-* is the name tokens.css has always used and what
+     research-viz.js resolves. Aliased so both spellings resolve to one value.
+     NOTE: SKILL.md documents the LIGHT ramp as #6e4993 / #a37ecd / #e0baff,
+     which are the OKLCH-derived values that meet its stated 7:1 / 1.7:1
+     contrast targets. The values below are the older, brighter ramp. The dark
+     ramp in .on-dark already matches SKILL.md. Reconciling the light ramp
+     changes every published artifact's evidence pips, so it is deliberately
+     not done here. */
+  --evidence-strong:      var(--signal-strong);
+  --evidence-moderate:    var(--signal-moderate);
+  --evidence-directional: var(--signal-directional);
+
+  /* Cividis 9-stop sequential (dark→light, 0%→100% of range) */
+  /* Categorical (unordered groups such as use cases or segments). Validated for separation:
+     min ΔE 93 normal vision, 59 deuteranopia, 60 protanopia, 27 tritanopia. Kept off the
+     reserved hues: sky blue (interactive/favorable), the evidence purple ramp, pink (highlight). */
+  --cat-1: var(--color-orange-500, #e57300);
+  --cat-2: var(--color-minted-500, #0ba299);
+  --cat-3: var(--color-purple-600, #5e5ed9);
+  --cividis-0: #00204d;  --cividis-12: #1b3b6f;  --cividis-25: #41577b;
+  --cividis-38: #697386;  --cividis-50: #8f8f8c;  --cividis-62: #b3a960;
+  --cividis-75: #d6c92f;  --cividis-88: #f4e801;  --cividis-100: #ffe945;
+  --gradient-cividis: linear-gradient(to right,
+    #00204d 0%, #1b3b6f 12%, #41577b 25%, #697386 38%, #8f8f8c 50%,
+    #b3a960 62%, #d6c92f 75%, #f4e801 88%, #ffe945 100%);
+
+  /* Vik 9-stop diverging (Crameri — cold-blue → neutral → warm-red) */
+  --vik-0: #001160;  --vik-12: #024380;  --vik-25: #307ca6;
+  --vik-38: #93bdd2;  --vik-50: #ece4e0;  --vik-62: #dba98d;
+  --vik-75: #c27040;  --vik-88: #912c05;  --vik-100: #590007;
+  --gradient-vik: linear-gradient(to right,
+    #001160 0%, #024380 12%, #307ca6 25%, #93bdd2 38%, #ece4e0 50%,
+    #dba98d 62%, #c27040 75%, #912c05 88%, #590007 100%);
+
+  /* Text on colored backgrounds — palette-agnostic luminance switch.
+     Aligned to the cool neutral ramp: on-dark = black-200, on-light = black-1000.
+     Keep textColorForBg() in research-viz.js returning these same two values. */
+  --text-on-dark: #ebf0f4;
+  --text-on-light: #08131e;
+  --luminance-threshold: 0.179;
+
+  /* Semantic colors → Foundations (exact where noted). */
+  --success-fg:    var(--color-minted-700); /* exact */
+  --success-bg:    var(--color-minted-200); /* exact */
+  --success-solid: var(--color-minted-400); /* exact */
+  --warning-fg:    var(--color-yellow-600);
+  --warning-bg:    var(--color-yellow-200); /* exact */
+  --error-fg:      var(--color-red-700);
+  --error-bg:      var(--color-red-200);
+  --error-solid:   var(--color-red-600);
+  --info-fg:       var(--color-sky-700);    /* exact */
+  --info-bg:       var(--color-blue-200);
+
+  /* Foreground / background aliases — mode-aware. Light defaults here; the
+     .on-dark scope below re-points the same names for dark cards.
+     Halation guard: pure white (--color-white) is MAX-EMPHASIS text only on
+     dark — never the default dark body color (that is --fg-1 = #ebf0f4).
+     Elevation: cards sit one luminance step *brighter* than their canvas in
+     both modes — light card #ffffff > canvas #fdffff; dark card #1b242d >
+     canvas #08131e. Same principle, inverted. */
+  --fg-1: var(--gray-950);             /* primary   #08131e */
+  --fg-2: var(--gray-700);             /* secondary #4f5c69 */
+  --fg-3: var(--gray-500);             /* tertiary  #6b7785 */
+  --fg-inverse: var(--plaid-white);
+  --bg-1: #fdffff;                     /* page / canvas (bespoke literal, not a ramp stop) */
+  --bg-2: var(--color-white);          /* raised card #ffffff */
+  --bg-3: var(--gray-100);             /* sunken      #ebf0f4 */
+  --surface-2: var(--color-black-100); /* subtle fill #f7fafd */
+  --bg-inverse: var(--plaid-black);
+  --border-subtle:  var(--color-black-200); /* internal  #ebf0f4 */
+  --border-default: var(--color-black-300); /* section   #dde3e9 */
+  --border-strong:  var(--gray-300);
+
+  /* Product-accent colors — custom, NO Foundations token. Surface-aware pairs.
+     Bright/base split by contrast: gold reads on dark (~8:1) but fails on light
+     (~1.9:1, light mode uses dark-gold --warning-fg instead); coral reads on
+     light (~5:1) but is weak on dark (~3:1) so it gets a brightened dark variant
+     (~5.2:1). Use the *-dark token on dark surfaces; the base on light. */
+  --accent-payments:      #E2B53A;     /* gold  — dark surfaces */
+  --accent-payments-dark: #E2B53A;     /* already clears ~8:1 on #1b242d; no brightening needed */
+  --accent-credit:        #C5411E;     /* coral — light surfaces (~5:1 on #fdffff) */
+  --accent-credit-dark:   #ee6d4a;     /* brightened for #1b242d (~5.2:1 AA) */
+
+  /* Spacing scale → Foundations (--space-32 has no Foundations step; literal). */
+  --space-1:  var(--spacing-4);   --space-2:  var(--spacing-8);   --space-3:  var(--spacing-12);
+  --space-4:  var(--spacing-16);  --space-5:  var(--spacing-20);  --space-6:  var(--spacing-24);
+  --space-8:  var(--spacing-32);  --space-10: var(--spacing-40);  --space-12: var(--spacing-48);
+  --space-16: var(--spacing-64);  --space-20: var(--spacing-80);  --space-24: var(--spacing-96);
+  --space-32: 128px;              --space-40: var(--spacing-160);
+
+  /* Radii → Foundations */
+  --radius-none: var(--radius-0);
+  --radius-sm:   var(--radius-4);
+  --radius-md:   var(--radius-8);
+  --radius-lg:   var(--radius-16);
+  --radius-xl:   var(--radius-24);
+  --radius-pill: var(--radius-full);
+
+  /* Shadows — custom (Foundations shadow tokens are still in flux). */
+  --shadow-sm: 0 1px 2px rgba(8,19,30,0.04), 0 1px 1px rgba(8,19,30,0.06);
+  --shadow-md: 0 4px 12px rgba(8,19,30,0.06), 0 2px 4px rgba(8,19,30,0.04);
+  --shadow-lg: 0 16px 40px rgba(8,19,30,0.08), 0 4px 12px rgba(8,19,30,0.04);
+  --shadow-xl: 0 32px 80px rgba(2,41,75,0.14), 0 8px 24px rgba(2,41,75,0.08);
+  --shadow-focus: 0 0 0 3px rgba(14,148,216,0.30);
+
+  /* Motion — custom */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-micro: 150ms; --dur-small: 250ms; --dur-page: 400ms; --dur-hero: 800ms;
+
+  /* Layout — custom */
+  --container-marketing: 1200px;
+  --container-dashboard: 1440px;
+
+  /* Type scale — custom (Foundations has --text-* tokens if you ever want them) */
+  --display-xl-size: 120px; --display-xl-lh: 0.9;  --display-xl-weight: 700;
+  --display-lg-size: 88px;  --display-lg-lh: 0.95; --display-lg-weight: 700;
+  --display-md-size: 64px;  --display-md-lh: 1.0;  --display-md-weight: 500;
+  --display-sm-size: 44px;  --display-sm-lh: 1.05; --display-sm-weight: 500;
+  --h1-size: 48px; --h1-lh: 1.1; --h1-weight: 600;
+  --h2-size: 32px; --h2-lh: 1.2; --h2-weight: 600;
+  --h3-size: 22px; --h3-lh: 1.3; --h3-weight: 600;
+  --h4-size: 18px; --h4-lh: 1.4; --h4-weight: 600;
+  --body-lg-size: 18px; --body-lg-lh: 1.55;
+  --body-size: 16px;    --body-lh: 1.5;
+  --body-sm-size: 14px; --body-sm-lh: 1.45;
+  --caption-size: 12px; --caption-lh: 1.3;
+  --eyebrow-size: 12px; --eyebrow-lh: 1.0; --eyebrow-tracking: 0.12em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK SCOPE — wrap any element in class="on-dark" to flip the surface/text
+   aliases to the dark neutral ramp. Lets a single light page host a dark chart
+   card without touching component CSS (the dark-card-on-light-page pattern).
+   Charts and prose default to light (researcher preference, 2026-11-02); use .on-dark only by choice. Uses a class, not a media query.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.on-dark {
+  --bg-1: var(--color-black-1000);  /* canvas #08131e */
+  --bg-2: var(--color-black-900);   /* card   #1b242d */
+  --bg-3: var(--color-black-800);   /* raised #2c3a49 */
+  --surface-2: var(--color-black-800);
+
+  --fg-1: var(--color-black-200);   /* primary off-white #ebf0f4 */
+  --fg-2: var(--color-black-400);   /* secondary         #c5ccd3 */
+  --fg-3: var(--color-black-500);   /* tertiary          #8c95a1 */
+
+  --border-subtle:  var(--color-black-900); /* #1b242d */
+  --border-default: var(--color-black-800); /* #2c3a49 */
+
+  /* Accent + semantic foregrounds → brightened Foundations stops so links,
+     eyebrows, and status text read on dark (light-mode inks fail here: e.g.
+     success #05565c = 1.9:1, error #a32929 = 2.2:1 on #1b242d). */
+  --plaid-blue-600: var(--color-sky-400);   /* link/accent #51d2fb (~9:1) */
+  --success-fg:     var(--color-minted-400); /* #42f0cd (~11:1) */
+  --warning-fg:     var(--color-yellow-400); /* #fbde51 (~12:1) */
+  --error-fg:       var(--color-red-450);    /* #fb7474 (~5.9:1) */
+  --info-fg:        var(--color-sky-400);    /* #51d2fb (~9:1) */
+
+  /* Evidence ramp — the purple encodes tier as luminance distance FROM the surface, so on
+     dark it has to invert: dark→pale on light becomes bright→dim on dark. Without this the
+     light-mode inks sit on #1b242d at ~3:1 (strong #9b30e8 measured 2.98:1 as chip text).
+     Keeps strong ~7:1 and directional intentionally faint in both modes. */
+  --signal-strong:      #cca7f8;
+  --signal-moderate:    #946fbd;
+  --signal-directional: #5d3881;
+  --evidence-strong:      var(--signal-strong);
+  --evidence-moderate:    var(--signal-moderate);
+  --evidence-directional: var(--signal-directional);
+
+  /* Product accents flip to their brightened dark variants for CSS chips/pills.
+     (research-viz.js charts read the flat *-dark tokens directly — see note there.) */
+  --accent-payments: var(--accent-payments-dark);
+  --accent-credit:   var(--accent-credit-dark);
+}
+
+/* ── Signal tier utilities (discrete evidence encoding) ────────────────────
+   Purple fill ramp for Strong / Moderate / Directional. Inconclusive is always
+   hollow neutral gray — never a lighter purple. Chart marks: research-viz.js
+   signalMarkStyle() (dashed whisker + hollow dot). HTML: classes below.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.signal-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.signal-dot.strong      { background: var(--signal-strong);      border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.moderate    { background: var(--signal-moderate);    border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.directional { background: var(--signal-directional); border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.inconclusive {
+  background: transparent;
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+.signal-whisker {
+  display: inline-block;
+  width: 18px;
+  border-top-width: 2.5px;
+  border-top-style: solid;
+  flex-shrink: 0;
+}
+.signal-whisker.inconclusive {
+  border-top-style: dashed;
+  border-top-color: var(--signal-inconclusive);
+  opacity: 0.7;
+}
+
+.ev-pill.inconclusive {
+  background: transparent;
+  color: var(--signal-inconclusive);
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+/* Confidence chip — inconclusive tier on ::before pseudo (alias of .signal-dot.inconclusive) */
+.conf-chip.thin::before {
+  background: transparent;
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+:root { --gap-pos: #c27040; --gap-neg: #307ca6; }
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1600px; margin: 0 auto; padding: 32px 16px 64px; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+h2 { font-family: var(--font-display); font-size: 21px; letter-spacing: -0.01em; margin: 0 0 6px; }
+.sub { color: var(--fg-2); margin: 0 0 20px; max-width: 900px; }
+section { margin: 40px 0 0; }
+.callout { background: var(--bg-inverse); color: var(--fg-inverse); border-radius: var(--radius-md); padding: 14px 18px; margin: 0 0 14px; max-width: 900px; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 8px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.seg { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-pill); overflow: hidden; }
+.seg button { background: var(--bg-2); color: var(--fg-2); border: 0; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+input[type=search], select { font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--fg-1); }
+label.chk { font-size: 13px; color: var(--fg-2); display: inline-flex; gap: 6px; align-items: center; }
+.wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); max-height: 80vh; }
+table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 7px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+thead th { position: sticky; top: 0; background: var(--bg-2); z-index: 2; vertical-align: bottom; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-default); }
+th.lbl, td.lbl { position: sticky; left: 0; background: var(--bg-2); z-index: 1; text-align: left; white-space: normal; min-width: 260px; max-width: 360px; }
+thead th.lbl { z-index: 3; }
+td.v { text-align: center; min-width: 46px; }
+td.sep, th.sep { border-left: 2px solid var(--border-strong); }
+tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); font-size: 12px; position: static; }
+tr.topic td.lbl { background: var(--bg-3); }
+.gh { font-size: 12.5px; }
+.gs { display: block; font-weight: 400; color: var(--fg-3); font-size: 11px; }
+.gl { display: block; font-weight: 400; color: var(--fg-3); font-size: 10.5px; white-space: normal; max-width: 78px; margin: 0 auto; line-height: 1.2; }
+.typ { display: block; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--plaid-blue-600); }
+.mk { font-size: 10px; color: var(--fg-3); margin-left: 4px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--fg-2); margin: 0 0 10px; }
+.ramp { width: 160px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, var(--vik-0), var(--vik-25), var(--vik-50), var(--vik-75), var(--vik-100)); }
+.ramp.c { background: linear-gradient(90deg, var(--cividis-0), var(--cividis-50), var(--cividis-100)); }
+.grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; } .grid2 > div { min-width: 0; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0,1fr); } th.lbl, td.lbl { min-width: 180px; } }
+@media print { .wrap { max-height: none; overflow: visible; } .controls { display: none; } .callout { background: var(--bg-3); color: var(--fg-1); border: 1px solid var(--border-default); } }
+.filt { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+.filt button { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: var(--radius-pill); border: 1px solid var(--border-default); background: var(--fg-1); color: var(--bg-1); cursor: pointer; }
+.filt button[aria-pressed="false"] { background: var(--bg-2); color: var(--fg-3); text-decoration: line-through; }
+.filt .fl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); margin-right: 2px; }
+.hint { font-size: 12px; color: var(--fg-3); }
+body[data-color="level"] .lg-gap, body[data-color="gap"] .lg-level { display: none; }
+th.csort { cursor: pointer; } th.csort:hover { color: var(--plaid-blue-600); }
+.carr { display: block; font-size: 10px; font-weight: 400; color: var(--fg-3); } .carr.on { color: var(--plaid-blue-600); font-weight: 600; }
+th.csorted { box-shadow: inset 0 -3px 0 var(--plaid-blue-600); }
+td.sortable .arr { color: var(--fg-3); }
+td.sorted .arr { color: var(--plaid-blue-600); }
+.sticky-ctl { position: sticky; top: 0; z-index: 5; background: var(--bg-1); padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.ctl-l { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); margin-left: 6px; }
+.tp { display: block; font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; }
+th.gh.prod .typ { color: var(--fg-3); }
+th.gh.new { background: var(--bg-3); }
+td.sortable { cursor: pointer; } td.sortable:hover { color: var(--plaid-blue-600); }
+td.sorted { color: var(--plaid-blue-600); font-weight: 600; } .arr { font-size: 10px; }
+.sortinfo { font-size: 13px; color: var(--fg-2); margin-left: 8px; }
+.reset { font: inherit; font-size: 13px; padding: 5px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-pill); background: var(--bg-2); color: var(--fg-1); cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow" id="eyebrow">CES 2024 · production typology vs four-dimension clusters</p>
+  <h1>Typology Comparison</h1>
+  <p class="sub" id="sub"></p>
+  <div class="controls sticky-ctl">
+    <span class="ctl-l">Columns</span><span class="seg" data-ctl="cols"></span>
+    <span class="ctl-l">Rows</span><span class="seg" data-ctl="rows"></span>
+    <span class="ctl-l">Show</span><span class="seg" data-ctl="view"></span>
+    <span class="sortinfo" id="sortinfo"></span><button id="reset" class="reset" hidden>Reset column order</button>
+    <div class="filt" id="filt"></div>
+  </div>
+
+  <section id="s-factors">
+    <p class="eyebrow">Factor positions</p>
+    <h2>Where each group sits on both factor systems</h2>
+    <div class="legend"><span>Below everyone</span><span class="ramp"></span><span>Above everyone</span><span>· group mean in SD units, color spans ±1.5 SD</span></div>
+    <div class="wrap"><table id="t-factors"></table></div>
+    <p class="caption">P = production five factors; N = the four rule-picked dimensions, as clustered (no residualization). Each factor oriented so higher = more of its name; for the new distrust dimension (CES trust items), higher = more distrust.</p>
+  </section>
+
+  <section id="s-policy">
+    <p class="eyebrow">Policy views</p>
+    <h2>Share of each group giving the stated answer</h2>
+    <div class="legend"><span class="lg-level">0%</span><span class="ramp c lg-level"></span><span class="lg-level">100%</span><span class="lg-gap">Below everyone</span><span class="ramp lg-gap"></span><span class="lg-gap">Above everyone · ±40 points</span><span class="seg" data-ctl="color"></span><span id="setlegend">● in production's 24 items · ◆ in the new 30-item set</span></div>
+    <div class="controls">
+      <select id="topic"><option value="">All topics</option></select>
+      <input type="search" id="q" placeholder="Filter items">
+      <label class="chk"><input type="checkbox" id="sets"> Only items in either item set</label>
+      <span class="hint">Click a column header (⇅) to sort items by that group’s support: highest first, again for lowest, again to reset. Click an item name to sort the columns instead.</span></div>
+    <div class="wrap"><table id="t-policy"></table></div>
+    <p class="caption">Weighted (commonpostweight), share of members who answered the item. Foreign-policy and troop items are checkboxes: share selecting each option.</p>
+  </section>
+
+  <section id="s-demo">
+    <p class="eyebrow">Demographics</p>
+    <h2>Who is in each group</h2>
+    <div class="legend"><span class="lg-level">0%</span><span class="ramp c lg-level"></span><span class="lg-level">100% (median age 30 to 70)</span><span class="lg-gap">Below everyone</span><span class="ramp lg-gap"></span><span class="lg-gap">Above everyone · ±30 points (median age ±15 years)</span></div>
+    <div class="wrap"><table id="t-demo"></table></div>
+    <p class="caption">Party ID, ideology and 2024 vote sit last as context and stay out of the row sort. Age is 2024 minus birth year; median age is unweighted.</p>
+  </section>
+
+  <section id="s-cousins">
+    <p class="eyebrow">Closest cousins</p>
+    <h2>Each new cluster's three nearest production parties by policy views</h2>
+    <div class="wrap"><table id="t-cousins"></table></div>
+    <p class="caption">Policy distance: root-mean-square gap across all items after z-scoring each item across groups (0 = identical). Factor distance: Euclidean, SD units, on the four new dimensions. "Members from" = share of the new cluster's members that production placed in that party.</p>
+  </section>
+
+  <section id="s-cross">
+    <p class="eyebrow">Crosswalk</p>
+    <h2>Where the new clusters' members sat in production</h2>
+    <div class="legend"><span>0%</span><span class="ramp c"></span><span>100%</span></div>
+    <div class="grid2">
+      <div><p class="sub" style="margin:0 0 6px">Row %: each new cluster's members by production party</p><div class="wrap"><table id="t-xr"></table></div></div>
+      <div><p class="sub" style="margin:0 0 6px">Column %: each production party's members by new cluster</p><div class="wrap"><table id="t-xc"></table></div></div>
+    </div>
+    <p class="caption" id="xcap"></p>
+  </section>
+</main>
+<script>
+const DATA = {"col_order": ["NAT", "NAT (B)", "CUP (F)", "OAO (G)", "STY", "STY (D)", "CUP", "CON", "CON (A)", "POP", "POP (C)", "DAL", "LBR", "LBR (E)", "PRG (H)", "PRG", "DSA", "DSA (I)"], "row_order": {"policy": [86, 22, 89, 5, 81, 3, 2, 38, 41, 40, 30, 33, 9, 6, 37, 0, 23, 24, 36, 57, 58, 59, 27, 56, 51, 25, 14, 11, 44, 15, 29, 34, 39, 16, 91, 83, 90, 84, 77, 73, 76, 80, 79, 78, 43, 82, 87, 75, 48, 47, 74, 46, 63, 42, 45, 7, 72, 88, 85, 4, 71, 31, 10, 28, 64, 35, 62, 12, 21, 61, 60, 8, 55, 26, 19, 17, 68, 66, 65, 67, 18, 13, 52, 20, 32, 1, 54, 53, 70, 69, 50, 49], "demo": [32, 12, 35, 36, 28, 34, 3, 0, 21, 4, 24, 18, 31, 7, 27, 26, 13, 15, 16, 33, 23, 37, 30, 6, 39, 20, 11, 22, 40, 1, 19, 2, 17, 25, 38, 9, 8, 29, 14, 5, 10, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50], "factors": [5, 0, 3, 7, 4, 8, 1, 6, 2]}, "groups": [{"key": "prod", "id": "CON", "share": 20.5, "n": 9234, "lead": ""}, {"key": "prod", "id": "CUP", "share": 11.1, "n": 4608, "lead": ""}, {"key": "prod", "id": "NAT", "share": 9.4, "n": 3984, "lead": ""}, {"key": "prod", "id": "POP", "share": 11.0, "n": 4202, "lead": ""}, {"key": "prod", "id": "STY", "share": 17.4, "n": 6224, "lead": ""}, {"key": "prod", "id": "LBR", "share": 10.7, "n": 5757, "lead": ""}, {"key": "prod", "id": "DAL", "share": 8.2, "n": 5277, "lead": ""}, {"key": "prod", "id": "PRG", "share": 5.9, "n": 3225, "lead": ""}, {"key": "prod", "id": "DSA", "share": 5.9, "n": 2703, "lead": ""}, {"key": "new", "id": "CON (A)", "share": 17.6, "n": 8703, "lead": "CON 46%, CUP 20%, POP 16%", "near": [{"id": "CON", "dist": 0.23, "from": 46.4}, {"id": "CUP", "dist": 0.96, "from": 20.4}, {"id": "POP", "dist": 1.08, "from": 16.2}], "near_pol": "CON", "cousins": [{"id": "CON", "pol": 0.19, "fac": 0.23, "from": 46.4}, {"id": "CUP", "pol": 0.56, "fac": 0.96, "from": 20.4}, {"id": "POP", "pol": 0.64, "fac": 1.08, "from": 16.2}]}, {"key": "new", "id": "NAT (B)", "share": 18.0, "n": 8360, "lead": "NAT 43%, CON 33%, POP 16%", "near": [{"id": "NAT", "dist": 0.29, "from": 43.4}, {"id": "POP", "dist": 1.26, "from": 15.6}, {"id": "CON", "dist": 1.29, "from": 32.8}], "near_pol": "NAT", "cousins": [{"id": "NAT", "pol": 0.25, "fac": 0.29, "from": 43.4}, {"id": "CON", "pol": 0.83, "fac": 1.29, "from": 32.8}, {"id": "POP", "pol": 0.91, "fac": 1.26, "from": 15.6}]}, {"key": "new", "id": "POP (C)", "share": 2.9, "n": 1050, "lead": "POP 52%, STY 25%", "near": [{"id": "POP", "dist": 1.43, "from": 51.9}, {"id": "NAT", "dist": 2.11, "from": 7.0}, {"id": "STY", "dist": 2.18, "from": 24.6}], "near_pol": "POP", "cousins": [{"id": "POP", "pol": 0.66, "fac": 1.43, "from": 51.9}, {"id": "STY", "pol": 1.07, "fac": 2.18, "from": 24.6}, {"id": "CON", "pol": 1.22, "fac": 2.35, "from": 5.8}]}, {"key": "new", "id": "STY (D)", "share": 22.1, "n": 8414, "lead": "STY 47%, CON 15%", "near": [{"id": "STY", "dist": 0.32, "from": 46.9}, {"id": "LBR", "dist": 1.3, "from": 7.9}, {"id": "CUP", "dist": 1.34, "from": 10.6}], "near_pol": "STY", "cousins": [{"id": "STY", "pol": 0.25, "fac": 0.32, "from": 46.9}, {"id": "CUP", "pol": 0.71, "fac": 1.34, "from": 10.6}, {"id": "POP", "pol": 0.8, "fac": 1.5, "from": 14.8}]}, {"key": "new", "id": "LBR (E)", "share": 11.7, "n": 6643, "lead": "LBR 30%, DSA 19%, STY 17%, DAL 17%", "near": [{"id": "PRG", "dist": 0.49, "from": 14.0}, {"id": "LBR", "dist": 0.62, "from": 30.4}, {"id": "DSA", "dist": 0.96, "from": 18.7}], "near_pol": "LBR", "cousins": [{"id": "LBR", "pol": 0.29, "fac": 0.62, "from": 30.4}, {"id": "PRG", "pol": 0.52, "fac": 0.49, "from": 14.0}, {"id": "DSA", "pol": 0.56, "fac": 0.96, "from": 18.7}]}, {"key": "new", "id": "CUP (F)", "share": 10.8, "n": 6365, "lead": "LBR 22%, CUP 21%, DAL 21%, CON 17%", "near": [{"id": "DAL", "dist": 0.93, "from": 20.9}, {"id": "LBR", "dist": 1.06, "from": 22.1}, {"id": "CUP", "dist": 1.13, "from": 21.1}], "near_pol": "LBR", "cousins": [{"id": "LBR", "pol": 0.59, "fac": 1.06, "from": 22.1}, {"id": "DAL", "pol": 0.66, "fac": 0.93, "from": 20.9}, {"id": "CUP", "pol": 0.74, "fac": 1.13, "from": 21.1}]}, {"key": "new", "id": "OAO (G)", "share": 7.5, "n": 4104, "lead": "DAL 22%, STY 22%, CON 19%, CUP 18%", "near": [{"id": "DAL", "dist": 1.11, "from": 22.5}, {"id": "CUP", "dist": 1.38, "from": 18.3}, {"id": "STY", "dist": 1.44, "from": 22.2}], "near_pol": "STY", "cousins": [{"id": "STY", "pol": 0.73, "fac": 1.44, "from": 22.2}, {"id": "CUP", "pol": 0.75, "fac": 1.38, "from": 18.3}, {"id": "DAL", "pol": 0.75, "fac": 1.11, "from": 22.5}]}, {"key": "new", "id": "PRG (H)", "share": 6.1, "n": 4124, "lead": "PRG 37%, DAL 23%, LBR 19%, DSA 18%", "near": [{"id": "PRG", "dist": 0.48, "from": 36.8}, {"id": "LBR", "dist": 0.96, "from": 19.3}, {"id": "DAL", "dist": 1.22, "from": 22.6}], "near_pol": "PRG", "cousins": [{"id": "PRG", "pol": 0.3, "fac": 0.48, "from": 36.8}, {"id": "LBR", "pol": 0.62, "fac": 0.96, "from": 19.3}, {"id": "DAL", "pol": 0.69, "fac": 1.22, "from": 22.6}]}, {"key": "new", "id": "DSA (I)", "share": 3.3, "n": 1668, "lead": "DSA 55%, PRG 38%", "near": [{"id": "DSA", "dist": 0.49, "from": 54.6}, {"id": "PRG", "dist": 1.25, "from": 37.6}, {"id": "LBR", "dist": 1.94, "from": 5.0}], "near_pol": "DSA", "cousins": [{"id": "DSA", "pol": 0.38, "fac": 0.49, "from": 54.6}, {"id": "PRG", "pol": 0.73, "fac": 1.25, "from": 37.6}, {"id": "LBR", "pol": 1.03, "fac": 1.94, "from": 5.0}]}, {"key": "all", "id": "Everyone", "share": 100, "n": 49431, "lead": ""}], "factors": [{"label": "P: Security & Order", "values": {"CON": 0.97, "CUP": 0.66, "NAT": 0.9, "POP": 0.09, "STY": -0.59, "LBR": -0.61, "DAL": -0.06, "PRG": -1.55, "DSA": -1.75, "CON (A)": 0.75, "NAT (B)": 0.8, "POP (C)": -0.42, "STY (D)": -0.17, "LBR (E)": -1.03, "CUP (F)": 0.25, "OAO (G)": 0.27, "PRG (H)": -1.1, "DSA (I)": -1.93, "Everyone": -0.0}}, {"label": "P: Institutional Distrust (elections)", "values": {"CON": 0.06, "CUP": -0.9, "NAT": 0.46, "POP": 0.86, "STY": 0.67, "LBR": -0.51, "DAL": -1.04, "PRG": -0.96, "DSA": 0.51, "CON (A)": 0.03, "NAT (B)": 0.25, "POP (C)": 0.84, "STY (D)": 0.39, "LBR (E)": -0.2, "CUP (F)": -0.57, "OAO (G)": -0.38, "PRG (H)": -0.67, "DSA (I)": 0.02, "Everyone": 0.0}}, {"label": "P: Government Distrust", "values": {"CON": -0.12, "CUP": -0.54, "NAT": 0.93, "POP": 0.81, "STY": -0.42, "LBR": -0.01, "DAL": -0.67, "PRG": 0.1, "DSA": 0.51, "CON (A)": 0.08, "NAT (B)": 0.54, "POP (C)": 0.93, "STY (D)": -0.31, "LBR (E)": 0.04, "CUP (F)": -0.35, "OAO (G)": -0.76, "PRG (H)": 0.01, "DSA (I)": 0.67, "Everyone": -0.0}}, {"label": "P: Religious Traditionalism", "values": {"CON": 0.58, "CUP": 0.37, "NAT": 1.02, "POP": 0.44, "STY": 0.08, "LBR": -0.9, "DAL": -0.83, "PRG": -1.33, "DSA": -1.29, "CON (A)": 0.52, "NAT (B)": 1.0, "POP (C)": 0.17, "STY (D)": 0.14, "LBR (E)": -0.96, "CUP (F)": -0.4, "OAO (G)": -0.07, "PRG (H)": -1.26, "DSA (I)": -1.4, "Everyone": 0.0}}, {"label": "P: Populist Conservatism", "values": {"CON": 0.32, "CUP": 0.21, "NAT": 1.73, "POP": 0.89, "STY": -0.43, "LBR": -0.68, "DAL": -1.04, "PRG": -0.95, "DSA": -1.03, "CON (A)": 0.47, "NAT (B)": 1.34, "POP (C)": 0.74, "STY (D)": -0.18, "LBR (E)": -0.83, "CUP (F)": -0.38, "OAO (G)": -0.71, "PRG (H)": -0.99, "DSA (I)": -0.98, "Everyone": 0.0}}, {"label": "N: Security & Order", "values": {"CON": 0.72, "CUP": 0.57, "NAT": 0.84, "POP": 0.07, "STY": -0.61, "LBR": -0.43, "DAL": 0.03, "PRG": -1.16, "DSA": -1.67, "CON (A)": 0.88, "NAT (B)": 0.9, "POP (C)": -0.83, "STY (D)": -0.6, "LBR (E)": -0.99, "CUP (F)": 0.43, "OAO (G)": 0.28, "PRG (H)": -0.75, "DSA (I)": -2.02, "Everyone": 0.0}}, {"label": "N: Distrust of government", "values": {"CON": 0.05, "CUP": -0.65, "NAT": 0.92, "POP": 0.85, "STY": -0.1, "LBR": -0.25, "DAL": -0.98, "PRG": -0.41, "DSA": 0.41, "CON (A)": 0.18, "NAT (B)": 0.67, "POP (C)": 1.12, "STY (D)": -0.13, "LBR (E)": -0.22, "CUP (F)": -0.51, "OAO (G)": -0.85, "PRG (H)": -0.44, "DSA (I)": 0.47, "Everyone": 0.0}}, {"label": "N: Cultural conservatism", "values": {"CON": 0.57, "CUP": 0.31, "NAT": 0.96, "POP": 0.44, "STY": 0.06, "LBR": -0.88, "DAL": -0.93, "PRG": -1.51, "DSA": -1.26, "CON (A)": 0.56, "NAT (B)": 1.07, "POP (C)": -0.31, "STY (D)": 0.38, "LBR (E)": -1.13, "CUP (F)": -0.79, "OAO (G)": 0.03, "PRG (H)": -1.59, "DSA (I)": -1.56, "Everyone": -0.0}}, {"label": "N: Economic right", "values": {"CON": 0.3, "CUP": 0.1, "NAT": 1.38, "POP": 0.61, "STY": -0.37, "LBR": -0.59, "DAL": -0.72, "PRG": -0.88, "DSA": -0.9, "CON (A)": 0.39, "NAT (B)": 1.3, "POP (C)": 1.38, "STY (D)": -0.29, "LBR (E)": -0.71, "CUP (F)": -0.03, "OAO (G)": -1.21, "PRG (H)": -1.12, "DSA (I)": -1.07, "Everyone": -0.0}}], "policy": [{"topic": "Guns and police", "item": "CC24_321a", "label": "Ban assault rifles", "prod24": false, "new30": false, "CON": 44.9, "CUP": 57.2, "NAT": 4.8, "POP": 31.7, "STY": 69.8, "LBR": 86.3, "DAL": 94.9, "PRG": 96.0, "DSA": 93.4, "CON (A)": 40.5, "NAT (B)": 8.6, "POP (C)": 38.2, "STY (D)": 65.5, "LBR (E)": 91.6, "CUP (F)": 78.6, "OAO (G)": 83.1, "PRG (H)": 96.8, "DSA (I)": 93.1, "Everyone": 58.6}, {"topic": "Guns and police", "item": "CC24_321b", "label": "Make concealed-carry permits easier to get", "prod24": true, "new30": true, "CON": 51.7, "CUP": 42.2, "NAT": 92.3, "POP": 64.7, "STY": 32.3, "LBR": 14.6, "DAL": 4.6, "PRG": 0.2, "DSA": 2.4, "CON (A)": 54.8, "NAT (B)": 84.6, "POP (C)": 52.2, "STY (D)": 38.3, "LBR (E)": 7.7, "CUP (F)": 17.2, "OAO (G)": 23.2, "PRG (H)": 2.8, "DSA (I)": 3.4, "Everyone": 39.7}, {"topic": "Guns and police", "item": "CC24_321c", "label": "Background checks on all gun sales", "prod24": false, "new30": false, "CON": 94.7, "CUP": 95.6, "NAT": 75.5, "POP": 80.3, "STY": 93.1, "LBR": 98.9, "DAL": 99.7, "PRG": 99.7, "DSA": 99.6, "CON (A)": 94.3, "NAT (B)": 79.8, "POP (C)": 72.2, "STY (D)": 93.4, "LBR (E)": 99.2, "CUP (F)": 97.8, "OAO (G)": 96.8, "PRG (H)": 99.8, "DSA (I)": 99.7, "Everyone": 92.5}, {"topic": "Guns and police", "item": "CC24_321f", "label": "Mental health and school safety, red-flag and domestic-violence gun rules", "prod24": false, "new30": false, "CON": 88.3, "CUP": 90.4, "NAT": 52.6, "POP": 68.5, "STY": 90.7, "LBR": 96.7, "DAL": 99.5, "PRG": 99.5, "DSA": 98.9, "CON (A)": 86.7, "NAT (B)": 59.1, "POP (C)": 64.4, "STY (D)": 89.9, "LBR (E)": 97.8, "CUP (F)": 96.0, "OAO (G)": 97.9, "PRG (H)": 99.7, "DSA (I)": 99.3, "Everyone": 86.1}, {"topic": "Guns and police", "item": "CC24_321d", "label": "10% more police, even with fewer other services", "prod24": true, "new30": false, "CON": 99.4, "CUP": 77.7, "NAT": 100.0, "POP": 40.9, "STY": 35.5, "LBR": 27.6, "DAL": 56.4, "PRG": 0.5, "DSA": 0.2, "CON (A)": 83.5, "NAT (B)": 90.8, "POP (C)": 40.1, "STY (D)": 49.5, "LBR (E)": 17.0, "CUP (F)": 62.2, "OAO (G)": 68.0, "PRG (H)": 14.8, "DSA (I)": 0.2, "Everyone": 57.9}, {"topic": "Guns and police", "item": "CC24_321e", "label": "10% fewer police, more for other services", "prod24": true, "new30": true, "CON": 1.5, "CUP": 8.0, "NAT": 0.1, "POP": 24.6, "STY": 44.5, "LBR": 39.4, "DAL": 16.8, "PRG": 74.7, "DSA": 89.5, "CON (A)": 4.3, "NAT (B)": 1.1, "POP (C)": 39.0, "STY (D)": 38.9, "LBR (E)": 55.7, "CUP (F)": 8.5, "OAO (G)": 16.6, "PRG (H)": 58.7, "DSA (I)": 100.0, "Everyone": 26.2}, {"topic": "Immigration", "item": "CC24_323a", "label": "Legal status for undocumented workers (3+ years, taxes, no felonies)", "prod24": true, "new30": true, "CON": 39.9, "CUP": 45.9, "NAT": 0.4, "POP": 23.3, "STY": 87.7, "LBR": 78.9, "DAL": 97.6, "PRG": 99.9, "DSA": 99.8, "CON (A)": 36.0, "NAT (B)": 12.3, "POP (C)": 33.7, "STY (D)": 72.8, "LBR (E)": 88.7, "CUP (F)": 65.2, "OAO (G)": 85.6, "PRG (H)": 95.2, "DSA (I)": 99.3, "Everyone": 58.5}, {"topic": "Immigration", "item": "CC24_323b", "label": "More border patrols on the US-Mexico border", "prod24": true, "new30": true, "CON": 99.7, "CUP": 97.4, "NAT": 100.0, "POP": 86.4, "STY": 62.3, "LBR": 71.4, "DAL": 89.3, "PRG": 43.7, "DSA": 19.0, "CON (A)": 98.4, "NAT (B)": 98.7, "POP (C)": 59.3, "STY (D)": 71.8, "LBR (E)": 52.0, "CUP (F)": 93.4, "OAO (G)": 95.7, "PRG (H)": 66.9, "DSA (I)": 0.9, "Everyone": 80.1}, {"topic": "Immigration", "item": "CC24_323c", "label": "Build a wall on the US-Mexico border", "prod24": false, "new30": false, "CON": 89.6, "CUP": 74.7, "NAT": 99.3, "POP": 80.3, "STY": 34.1, "LBR": 14.2, "DAL": 15.4, "PRG": 1.0, "DSA": 1.0, "CON (A)": 92.9, "NAT (B)": 98.7, "POP (C)": 53.2, "STY (D)": 49.9, "LBR (E)": 4.9, "CUP (F)": 39.7, "OAO (G)": 42.2, "PRG (H)": 2.1, "DSA (I)": 0.0, "Everyone": 54.9}, {"topic": "Immigration", "item": "CC24_323d", "label": "Permanent residency and a citizenship path for Dreamers", "prod24": true, "new30": false, "CON": 58.9, "CUP": 68.6, "NAT": 0.3, "POP": 35.6, "STY": 94.4, "LBR": 98.7, "DAL": 100.0, "PRG": 100.0, "DSA": 100.0, "CON (A)": 53.2, "NAT (B)": 30.4, "POP (C)": 44.3, "STY (D)": 80.1, "LBR (E)": 97.5, "CUP (F)": 79.3, "OAO (G)": 90.6, "PRG (H)": 99.8, "DSA (I)": 100.0, "Everyone": 69.9}, {"topic": "Immigration", "item": "CC24_340f", "label": "Deny asylum to people who cross the border illegally", "prod24": true, "new30": false, "CON": 99.9, "CUP": 89.1, "NAT": 100.0, "POP": 82.0, "STY": 37.5, "LBR": 37.9, "DAL": 46.6, "PRG": 0.6, "DSA": 0.1, "CON (A)": 92.3, "NAT (B)": 97.7, "POP (C)": 56.9, "STY (D)": 59.1, "LBR (E)": 22.3, "CUP (F)": 67.3, "OAO (G)": 59.9, "PRG (H)": 15.3, "DSA (I)": 1.0, "Everyone": 63.9}, {"topic": "Abortion and contraception", "item": "CC24_324a", "label": "Always allow abortion as a matter of choice", "prod24": false, "new30": false, "CON": 38.4, "CUP": 49.5, "NAT": 12.9, "POP": 42.2, "STY": 72.3, "LBR": 94.0, "DAL": 94.6, "PRG": 98.6, "DSA": 99.5, "CON (A)": 35.5, "NAT (B)": 10.5, "POP (C)": 59.0, "STY (D)": 66.5, "LBR (E)": 95.7, "CUP (F)": 81.7, "OAO (G)": 76.5, "PRG (H)": 97.9, "DSA (I)": 99.8, "Everyone": 59.6}, {"topic": "Abortion and contraception", "item": "CC24_324b", "label": "Abortion only for rape, incest or the woman's life", "prod24": true, "new30": true, "CON": 72.8, "CUP": 63.8, "NAT": 72.2, "POP": 61.1, "STY": 58.3, "LBR": 23.3, "DAL": 24.9, "PRG": 5.5, "DSA": 10.0, "CON (A)": 68.5, "NAT (B)": 72.9, "POP (C)": 42.5, "STY (D)": 60.5, "LBR (E)": 19.9, "CUP (F)": 39.0, "OAO (G)": 58.3, "PRG (H)": 10.6, "DSA (I)": 6.4, "Everyone": 51.6}, {"topic": "Abortion and contraception", "item": "CC24_324c", "label": "Make abortion illegal in all circumstances", "prod24": false, "new30": false, "CON": 13.2, "CUP": 15.2, "NAT": 21.4, "POP": 16.7, "STY": 15.0, "LBR": 2.1, "DAL": 3.3, "PRG": 0.7, "DSA": 2.3, "CON (A)": 13.7, "NAT (B)": 21.8, "POP (C)": 22.3, "STY (D)": 17.1, "LBR (E)": 1.8, "CUP (F)": 6.3, "OAO (G)": 10.4, "PRG (H)": 1.5, "DSA (I)": 2.0, "Everyone": 12.6}, {"topic": "Abortion and contraception", "item": "CC24_324d", "label": "Expand abortion access and affordability", "prod24": false, "new30": false, "CON": 37.4, "CUP": 49.9, "NAT": 9.6, "POP": 39.3, "STY": 71.9, "LBR": 94.2, "DAL": 94.3, "PRG": 98.2, "DSA": 99.2, "CON (A)": 33.3, "NAT (B)": 8.2, "POP (C)": 49.4, "STY (D)": 66.9, "LBR (E)": 95.6, "CUP (F)": 79.7, "OAO (G)": 79.3, "PRG (H)": 98.5, "DSA (I)": 99.8, "Everyone": 58.6}, {"topic": "Abortion and contraception", "item": "CC24_340b", "label": "Bar government restrictions on abortion services", "prod24": true, "new30": true, "CON": 50.3, "CUP": 53.9, "NAT": 31.5, "POP": 47.5, "STY": 61.5, "LBR": 89.4, "DAL": 88.9, "PRG": 95.9, "DSA": 96.5, "CON (A)": 47.6, "NAT (B)": 34.6, "POP (C)": 48.1, "STY (D)": 63.9, "LBR (E)": 88.5, "CUP (F)": 68.0, "OAO (G)": 71.5, "PRG (H)": 91.5, "DSA (I)": 97.4, "Everyone": 62.0}, {"topic": "Abortion and contraception", "item": "CC24_340a", "label": "Bar government restrictions on contraceptives", "prod24": false, "new30": true, "CON": 63.8, "CUP": 66.8, "NAT": 62.1, "POP": 64.1, "STY": 65.1, "LBR": 89.7, "DAL": 87.9, "PRG": 94.7, "DSA": 95.8, "CON (A)": 63.7, "NAT (B)": 66.8, "POP (C)": 50.7, "STY (D)": 68.4, "LBR (E)": 87.7, "CUP (F)": 67.8, "OAO (G)": 72.5, "PRG (H)": 90.2, "DSA (I)": 96.0, "Everyone": 71.5}, {"topic": "Abortion and contraception", "item": "CC24_444c", "label": "State: ban abortion pills by mail", "prod24": false, "new30": true, "CON": 63.5, "CUP": 54.0, "NAT": 75.5, "POP": 55.1, "STY": 39.3, "LBR": 9.4, "DAL": 11.4, "PRG": 1.1, "DSA": 2.1, "CON (A)": 61.0, "NAT (B)": 82.2, "POP (C)": 36.0, "STY (D)": 50.5, "LBR (E)": 2.9, "CUP (F)": 15.9, "OAO (G)": 40.5, "PRG (H)": 0.6, "DSA (I)": 0.2, "Everyone": 42.9}, {"topic": "Abortion and contraception", "item": "CC24_444d", "label": "State: bar travel out of state for an abortion", "prod24": false, "new30": true, "CON": 27.5, "CUP": 25.7, "NAT": 25.9, "POP": 25.7, "STY": 23.6, "LBR": 2.4, "DAL": 2.6, "PRG": 0.2, "DSA": 0.5, "CON (A)": 27.9, "NAT (B)": 25.1, "POP (C)": 24.9, "STY (D)": 31.6, "LBR (E)": 1.3, "CUP (F)": 8.4, "OAO (G)": 21.2, "PRG (H)": 0.2, "DSA (I)": 0.2, "Everyone": 19.8}, {"topic": "Abortion and contraception", "item": "CC24_445b", "label": "Agree Roe was rightly overturned", "prod24": false, "new30": true, "CON": 76.6, "CUP": 67.5, "NAT": 96.0, "POP": 71.8, "STY": 49.7, "LBR": 19.6, "DAL": 17.1, "PRG": 5.3, "DSA": 8.6, "CON (A)": 82.2, "NAT (B)": 98.8, "POP (C)": 53.8, "STY (D)": 60.5, "LBR (E)": 9.9, "CUP (F)": 25.3, "OAO (G)": 41.5, "PRG (H)": 1.4, "DSA (I)": 1.5, "Everyone": 54.3}, {"topic": "Abortion and contraception", "item": "CC24_325", "label": "Week limit: abortion legal at no point (0 weeks)", "prod24": true, "new30": true, "CON": 17.2, "CUP": 14.6, "NAT": 27.1, "POP": 17.8, "STY": 9.0, "LBR": 0.2, "DAL": 0.8, "PRG": 0.2, "DSA": 0.4, "CON (A)": 15.6, "NAT (B)": 28.5, "POP (C)": 14.5, "STY (D)": 10.7, "LBR (E)": 0.9, "CUP (F)": 2.9, "OAO (G)": 6.4, "PRG (H)": 0.2, "DSA (I)": 0.6, "Everyone": 11.4}, {"topic": "Abortion and contraception", "item": "CC24_325", "label": "Week limit: 15 weeks or earlier (includes 0)", "prod24": true, "new30": true, "CON": 79.3, "CUP": 67.2, "NAT": 86.2, "POP": 73.1, "STY": 60.9, "LBR": 18.9, "DAL": 21.5, "PRG": 2.6, "DSA": 7.8, "CON (A)": 76.0, "NAT (B)": 87.4, "POP (C)": 57.0, "STY (D)": 64.8, "LBR (E)": 16.3, "CUP (F)": 38.8, "OAO (G)": 55.7, "PRG (H)": 4.7, "DSA (I)": 3.3, "Everyone": 55.2}, {"topic": "Abortion and contraception", "item": "CC24_325", "label": "Week limit: none (40 weeks)", "prod24": true, "new30": true, "CON": 1.8, "CUP": 4.2, "NAT": 0.5, "POP": 3.4, "STY": 6.7, "LBR": 20.6, "DAL": 18.1, "PRG": 43.2, "DSA": 43.0, "CON (A)": 1.9, "NAT (B)": 0.5, "POP (C)": 7.4, "STY (D)": 5.7, "LBR (E)": 25.2, "CUP (F)": 11.9, "OAO (G)": 7.0, "PRG (H)": 37.8, "DSA (I)": 54.5, "Everyone": 11.0}, {"topic": "Environment and energy", "item": "CC24_326a", "label": "EPA power to regulate carbon dioxide", "prod24": false, "new30": false, "CON": 44.8, "CUP": 58.7, "NAT": 4.0, "POP": 34.0, "STY": 77.0, "LBR": 93.7, "DAL": 96.0, "PRG": 98.5, "DSA": 97.6, "CON (A)": 37.5, "NAT (B)": 6.3, "POP (C)": 32.5, "STY (D)": 73.1, "LBR (E)": 96.4, "CUP (F)": 83.6, "OAO (G)": 92.4, "PRG (H)": 99.5, "DSA (I)": 99.5, "Everyone": 61.4}, {"topic": "Environment and energy", "item": "CC24_326b", "label": "Require 20% renewable electricity", "prod24": false, "new30": false, "CON": 49.4, "CUP": 63.8, "NAT": 8.0, "POP": 44.3, "STY": 82.6, "LBR": 91.6, "DAL": 94.8, "PRG": 97.6, "DSA": 97.4, "CON (A)": 43.6, "NAT (B)": 9.7, "POP (C)": 44.8, "STY (D)": 82.9, "LBR (E)": 96.0, "CUP (F)": 82.1, "OAO (G)": 91.5, "PRG (H)": 98.6, "DSA (I)": 99.4, "Everyone": 65.3}, {"topic": "Environment and energy", "item": "CC24_326c", "label": "Stronger Clean Air and Water Act enforcement, even at a cost in jobs", "prod24": false, "new30": false, "CON": 33.3, "CUP": 49.1, "NAT": 4.4, "POP": 28.6, "STY": 67.3, "LBR": 86.1, "DAL": 88.3, "PRG": 97.3, "DSA": 94.8, "CON (A)": 25.0, "NAT (B)": 4.0, "POP (C)": 39.6, "STY (D)": 64.6, "LBR (E)": 90.6, "CUP (F)": 72.3, "OAO (G)": 80.0, "PRG (H)": 98.0, "DSA (I)": 98.8, "Everyone": 54.2}, {"topic": "Environment and energy", "item": "CC24_326d", "label": "Increase US fossil fuel production", "prod24": false, "new30": true, "CON": 83.5, "CUP": 71.6, "NAT": 97.2, "POP": 72.3, "STY": 49.1, "LBR": 26.4, "DAL": 30.3, "PRG": 7.7, "DSA": 8.3, "CON (A)": 89.6, "NAT (B)": 98.7, "POP (C)": 45.8, "STY (D)": 57.6, "LBR (E)": 12.8, "CUP (F)": 40.8, "OAO (G)": 54.4, "PRG (H)": 4.1, "DSA (I)": 0.7, "Everyone": 57.9}, {"topic": "Environment and energy", "item": "CC24_326e", "label": "Halt new oil and gas leases on federal land", "prod24": false, "new30": true, "CON": 21.1, "CUP": 34.4, "NAT": 2.8, "POP": 26.1, "STY": 56.4, "LBR": 71.5, "DAL": 69.7, "PRG": 88.4, "DSA": 89.4, "CON (A)": 14.0, "NAT (B)": 1.5, "POP (C)": 29.8, "STY (D)": 53.8, "LBR (E)": 81.1, "CUP (F)": 49.5, "OAO (G)": 59.4, "PRG (H)": 92.8, "DSA (I)": 99.1, "Everyone": 43.7}, {"topic": "Environment and energy", "item": "CC24_326f", "label": "Prevent bans on gas stoves", "prod24": false, "new30": true, "CON": 77.5, "CUP": 71.5, "NAT": 91.2, "POP": 76.3, "STY": 64.4, "LBR": 58.2, "DAL": 58.5, "PRG": 37.8, "DSA": 41.2, "CON (A)": 80.8, "NAT (B)": 94.2, "POP (C)": 56.9, "STY (D)": 67.0, "LBR (E)": 52.6, "CUP (F)": 57.8, "OAO (G)": 62.2, "PRG (H)": 34.2, "DSA (I)": 27.7, "Everyone": 67.7}, {"topic": "Housing, health care, student debt", "item": "CC24_328a", "label": "Relax local zoning to allow more apartments", "prod24": false, "new30": false, "CON": 42.7, "CUP": 51.1, "NAT": 34.8, "POP": 40.9, "STY": 55.0, "LBR": 55.7, "DAL": 62.8, "PRG": 71.2, "DSA": 54.8, "CON (A)": 38.5, "NAT (B)": 36.5, "POP (C)": 43.2, "STY (D)": 55.6, "LBR (E)": 55.9, "CUP (F)": 50.6, "OAO (G)": 63.0, "PRG (H)": 68.1, "DSA (I)": 64.7, "Everyone": 49.9}, {"topic": "Housing, health care, student debt", "item": "CC24_328b", "label": "Tax incentives for low-income housing", "prod24": false, "new30": true, "CON": 62.1, "CUP": 70.1, "NAT": 32.9, "POP": 55.9, "STY": 83.9, "LBR": 87.9, "DAL": 92.4, "PRG": 96.0, "DSA": 96.5, "CON (A)": 58.5, "NAT (B)": 35.9, "POP (C)": 39.4, "STY (D)": 85.8, "LBR (E)": 93.1, "CUP (F)": 71.6, "OAO (G)": 94.4, "PRG (H)": 98.1, "DSA (I)": 98.1, "Everyone": 71.8}, {"topic": "Housing, health care, student debt", "item": "CC24_328c", "label": "Medicaid work requirement for childless adults", "prod24": false, "new30": false, "CON": 68.0, "CUP": 62.1, "NAT": 74.0, "POP": 53.8, "STY": 50.9, "LBR": 42.2, "DAL": 47.8, "PRG": 16.8, "DSA": 20.4, "CON (A)": 65.8, "NAT (B)": 77.5, "POP (C)": 43.5, "STY (D)": 51.9, "LBR (E)": 33.6, "CUP (F)": 55.7, "OAO (G)": 52.9, "PRG (H)": 23.0, "DSA (I)": 9.9, "Everyone": 53.9}, {"topic": "Housing, health care, student debt", "item": "CC24_328d", "label": "Repeal the Affordable Care Act", "prod24": false, "new30": true, "CON": 59.4, "CUP": 40.9, "NAT": 86.1, "POP": 61.5, "STY": 31.4, "LBR": 6.4, "DAL": 4.4, "PRG": 1.0, "DSA": 2.2, "CON (A)": 56.4, "NAT (B)": 91.2, "POP (C)": 53.6, "STY (D)": 39.4, "LBR (E)": 2.0, "CUP (F)": 11.0, "OAO (G)": 19.4, "PRG (H)": 0.3, "DSA (I)": 1.3, "Everyone": 39.6}, {"topic": "Housing, health care, student debt", "item": "CC24_328e", "label": "Expand Medicaid to low-income adults and families", "prod24": false, "new30": true, "CON": 70.5, "CUP": 76.1, "NAT": 38.2, "POP": 66.9, "STY": 88.6, "LBR": 92.8, "DAL": 95.5, "PRG": 99.4, "DSA": 99.2, "CON (A)": 69.8, "NAT (B)": 37.9, "POP (C)": 47.0, "STY (D)": 92.0, "LBR (E)": 98.4, "CUP (F)": 80.9, "OAO (G)": 99.3, "PRG (H)": 99.9, "DSA (I)": 99.9, "Everyone": 77.9}, {"topic": "Housing, health care, student debt", "item": "CC24_323f", "label": "Forgive up to $20,000 of student debt", "prod24": false, "new30": true, "CON": 29.0, "CUP": 40.0, "NAT": 4.7, "POP": 35.0, "STY": 76.5, "LBR": 80.9, "DAL": 78.7, "PRG": 93.2, "DSA": 95.9, "CON (A)": 11.7, "NAT (B)": 1.0, "POP (C)": 31.5, "STY (D)": 84.6, "LBR (E)": 94.0, "CUP (F)": 37.0, "OAO (G)": 95.1, "PRG (H)": 98.3, "DSA (I)": 100.0, "Everyone": 53.2}, {"topic": "Taxes and federal spending", "item": "CC24_341a", "label": "Extend the 2017 tax cuts", "prod24": true, "new30": true, "CON": 85.0, "CUP": 73.3, "NAT": 94.2, "POP": 73.2, "STY": 67.3, "LBR": 36.1, "DAL": 31.1, "PRG": 11.4, "DSA": 28.0, "CON (A)": 81.3, "NAT (B)": 96.0, "POP (C)": 53.4, "STY (D)": 75.1, "LBR (E)": 33.4, "CUP (F)": 42.0, "OAO (G)": 60.3, "PRG (H)": 7.0, "DSA (I)": 13.9, "Everyone": 63.6}, {"topic": "Taxes and federal spending", "item": "CC24_341b", "label": "Raise the corporate tax rate to 28%", "prod24": false, "new30": false, "CON": 43.0, "CUP": 53.5, "NAT": 6.2, "POP": 36.7, "STY": 61.2, "LBR": 88.4, "DAL": 92.3, "PRG": 97.5, "DSA": 91.2, "CON (A)": 40.5, "NAT (B)": 8.2, "POP (C)": 31.1, "STY (D)": 60.3, "LBR (E)": 88.6, "CUP (F)": 76.4, "OAO (G)": 79.3, "PRG (H)": 98.4, "DSA (I)": 98.2, "Everyone": 56.6}, {"topic": "Taxes and federal spending", "item": "CC24_341c", "label": "Raise taxes on $400k+ earners to 35%", "prod24": true, "new30": true, "CON": 58.8, "CUP": 61.4, "NAT": 7.0, "POP": 39.2, "STY": 73.4, "LBR": 86.8, "DAL": 98.2, "PRG": 99.6, "DSA": 99.5, "CON (A)": 54.0, "NAT (B)": 12.9, "POP (C)": 37.8, "STY (D)": 73.1, "LBR (E)": 91.8, "CUP (F)": 79.8, "OAO (G)": 90.4, "PRG (H)": 97.5, "DSA (I)": 98.7, "Everyone": 64.4}, {"topic": "Taxes and federal spending", "item": "CC24_341d", "label": "$150B a year on infrastructure for 8 years", "prod24": true, "new30": true, "CON": 79.8, "CUP": 80.9, "NAT": 54.9, "POP": 62.1, "STY": 77.4, "LBR": 95.7, "DAL": 98.4, "PRG": 98.8, "DSA": 96.6, "CON (A)": 76.8, "NAT (B)": 62.5, "POP (C)": 37.7, "STY (D)": 75.2, "LBR (E)": 95.5, "CUP (F)": 88.7, "OAO (G)": 96.9, "PRG (H)": 99.4, "DSA (I)": 99.1, "Everyone": 79.8}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_1", "label": "Welfare", "prod24": false, "new30": true, "CON": 18.3, "CUP": 26.2, "NAT": 4.4, "POP": 20.3, "STY": 43.8, "LBR": 46.6, "DAL": 43.2, "PRG": 72.2, "DSA": 75.6, "CON (A)": 14.7, "NAT (B)": 1.5, "POP (C)": 10.6, "STY (D)": 38.5, "LBR (E)": 54.9, "CUP (F)": 19.5, "OAO (G)": 68.2, "PRG (H)": 81.4, "DSA (I)": 93.8, "Everyone": 33.3}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_2", "label": "Health care", "prod24": false, "new30": true, "CON": 54.0, "CUP": 62.0, "NAT": 20.7, "POP": 49.1, "STY": 75.0, "LBR": 83.7, "DAL": 85.0, "PRG": 91.5, "DSA": 94.5, "CON (A)": 57.3, "NAT (B)": 18.3, "POP (C)": 18.4, "STY (D)": 69.1, "LBR (E)": 89.2, "CUP (F)": 71.1, "OAO (G)": 99.8, "PRG (H)": 99.5, "DSA (I)": 99.8, "Everyone": 64.1}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_3", "label": "Education", "prod24": false, "new30": true, "CON": 56.5, "CUP": 62.6, "NAT": 25.9, "POP": 48.3, "STY": 72.8, "LBR": 83.7, "DAL": 82.9, "PRG": 92.7, "DSA": 92.2, "CON (A)": 58.7, "NAT (B)": 29.4, "POP (C)": 17.1, "STY (D)": 63.8, "LBR (E)": 88.1, "CUP (F)": 70.3, "OAO (G)": 98.1, "PRG (H)": 98.7, "DSA (I)": 99.7, "Everyone": 64.8}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_4", "label": "Law enforcement", "prod24": false, "new30": true, "CON": 82.4, "CUP": 71.7, "NAT": 83.0, "POP": 47.9, "STY": 40.8, "LBR": 33.3, "DAL": 53.4, "PRG": 8.5, "DSA": 4.4, "CON (A)": 82.8, "NAT (B)": 84.0, "POP (C)": 11.1, "STY (D)": 36.9, "LBR (E)": 16.4, "CUP (F)": 60.1, "OAO (G)": 88.0, "PRG (H)": 23.8, "DSA (I)": 0.0, "Everyone": 54.7}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_5", "label": "Transportation and infrastructure", "prod24": false, "new30": true, "CON": 62.4, "CUP": 68.2, "NAT": 55.8, "POP": 53.0, "STY": 58.9, "LBR": 76.6, "DAL": 81.5, "PRG": 88.5, "DSA": 82.4, "CON (A)": 63.4, "NAT (B)": 59.2, "POP (C)": 20.0, "STY (D)": 50.7, "LBR (E)": 78.5, "CUP (F)": 68.6, "OAO (G)": 92.2, "PRG (H)": 93.4, "DSA (I)": 94.1, "Everyone": 65.9}, {"topic": "Other bills in Congress", "item": "CC24_340c", "label": "Federal recognition of same-sex and interracial marriage", "prod24": true, "new30": true, "CON": 48.6, "CUP": 57.5, "NAT": 26.3, "POP": 46.1, "STY": 68.7, "LBR": 99.2, "DAL": 98.3, "PRG": 100.0, "DSA": 99.9, "CON (A)": 48.0, "NAT (B)": 30.8, "POP (C)": 49.7, "STY (D)": 63.5, "LBR (E)": 97.0, "CUP (F)": 82.5, "OAO (G)": 72.8, "PRG (H)": 99.0, "DSA (I)": 100.0, "Everyone": 64.6}, {"topic": "Other bills in Congress", "item": "CC24_340d", "label": "Ban TikTok unless sold to a US company", "prod24": false, "new30": true, "CON": 73.3, "CUP": 66.5, "NAT": 76.6, "POP": 52.6, "STY": 40.5, "LBR": 46.9, "DAL": 60.6, "PRG": 33.2, "DSA": 20.0, "CON (A)": 73.5, "NAT (B)": 76.7, "POP (C)": 31.7, "STY (D)": 44.1, "LBR (E)": 36.7, "CUP (F)": 61.6, "OAO (G)": 62.8, "PRG (H)": 45.6, "DSA (I)": 11.2, "Everyone": 56.2}, {"topic": "Other bills in Congress", "item": "CC24_340e", "label": "Renew warrantless surveillance programs", "prod24": true, "new30": false, "CON": 50.5, "CUP": 44.1, "NAT": 7.2, "POP": 21.1, "STY": 40.4, "LBR": 30.5, "DAL": 53.1, "PRG": 1.2, "DSA": 18.4, "CON (A)": 40.0, "NAT (B)": 19.7, "POP (C)": 22.3, "STY (D)": 44.0, "LBR (E)": 24.9, "CUP (F)": 46.7, "OAO (G)": 50.6, "PRG (H)": 19.8, "DSA (I)": 7.7, "Everyone": 34.2}, {"topic": "Elections and trust in government", "item": "CC24_421_1", "label": "Agree US elections are fair", "prod24": true, "new30": true, "CON": 64.6, "CUP": 96.8, "NAT": 47.8, "POP": 34.7, "STY": 39.6, "LBR": 78.9, "DAL": 96.8, "PRG": 96.3, "DSA": 34.1, "CON (A)": 65.0, "NAT (B)": 57.5, "POP (C)": 27.5, "STY (D)": 49.6, "LBR (E)": 64.0, "CUP (F)": 82.2, "OAO (G)": 77.7, "PRG (H)": 81.5, "DSA (I)": 54.6, "Everyone": 62.5}, {"topic": "Elections and trust in government", "item": "CC24_421_2", "label": "Agree my state ran a fair, accurate 2024 election", "prod24": true, "new30": false, "CON": 80.3, "CUP": 100.0, "NAT": 64.4, "POP": 44.8, "STY": 46.9, "LBR": 98.8, "DAL": 100.0, "PRG": 100.0, "DSA": 64.0, "CON (A)": 77.6, "NAT (B)": 74.1, "POP (C)": 39.1, "STY (D)": 58.6, "LBR (E)": 80.1, "CUP (F)": 88.0, "OAO (G)": 83.7, "PRG (H)": 92.7, "DSA (I)": 79.2, "Everyone": 74.5}, {"topic": "Elections and trust in government", "item": "CC24_423", "label": "Little or no trust in the federal government", "prod24": true, "new30": true, "CON": 63.6, "CUP": 37.9, "NAT": 91.1, "POP": 86.0, "STY": 52.7, "LBR": 59.6, "DAL": 34.7, "PRG": 59.0, "DSA": 82.4, "CON (A)": 66.5, "NAT (B)": 85.2, "POP (C)": 87.5, "STY (D)": 54.2, "LBR (E)": 59.9, "CUP (F)": 43.4, "OAO (G)": 35.0, "PRG (H)": 53.6, "DSA (I)": 85.6, "Everyone": 62.0}, {"topic": "Elections and trust in government", "item": "CC24_424", "label": "Little or no trust in the state government", "prod24": true, "new30": true, "CON": 43.1, "CUP": 24.0, "NAT": 58.4, "POP": 71.0, "STY": 46.7, "LBR": 40.2, "DAL": 22.2, "PRG": 33.1, "DSA": 62.5, "CON (A)": 45.9, "NAT (B)": 52.5, "POP (C)": 78.6, "STY (D)": 46.3, "LBR (E)": 41.6, "CUP (F)": 31.3, "OAO (G)": 28.8, "PRG (H)": 37.8, "DSA (I)": 58.1, "Everyone": 44.7}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_440a", "label": "White people have advantages because of their skin color", "prod24": false, "new30": false, "CON": 25.0, "CUP": 39.2, "NAT": 4.7, "POP": 25.5, "STY": 67.5, "LBR": 86.5, "DAL": 86.8, "PRG": 97.9, "DSA": 97.8, "CON (A)": 19.4, "NAT (B)": 4.5, "POP (C)": 32.8, "STY (D)": 59.1, "LBR (E)": 94.4, "CUP (F)": 61.6, "OAO (G)": 76.2, "PRG (H)": 97.5, "DSA (I)": 99.5, "Everyone": 50.9}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_440b", "label": "Racial problems are rare, isolated situations", "prod24": true, "new30": true, "CON": 37.2, "CUP": 34.4, "NAT": 73.0, "POP": 40.1, "STY": 19.9, "LBR": 5.0, "DAL": 1.7, "PRG": 0.0, "DSA": 0.0, "CON (A)": 37.5, "NAT (B)": 69.4, "POP (C)": 33.8, "STY (D)": 21.2, "LBR (E)": 2.1, "CUP (F)": 14.3, "OAO (G)": 10.8, "PRG (H)": 0.4, "DSA (I)": 0.0, "Everyone": 27.4}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_440c", "label": "Women seek power by getting control over men", "prod24": true, "new30": true, "CON": 29.2, "CUP": 22.3, "NAT": 49.5, "POP": 40.2, "STY": 24.9, "LBR": 5.5, "DAL": 2.1, "PRG": 0.2, "DSA": 0.5, "CON (A)": 30.1, "NAT (B)": 44.4, "POP (C)": 33.0, "STY (D)": 27.6, "LBR (E)": 3.4, "CUP (F)": 11.7, "OAO (G)": 14.1, "PRG (H)": 0.4, "DSA (I)": 0.8, "Everyone": 23.1}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_440d", "label": "Women are too easily offended", "prod24": false, "new30": false, "CON": 50.0, "CUP": 40.5, "NAT": 69.5, "POP": 52.6, "STY": 32.1, "LBR": 10.9, "DAL": 9.7, "PRG": 1.3, "DSA": 3.0, "CON (A)": 50.1, "NAT (B)": 67.0, "POP (C)": 43.5, "STY (D)": 37.5, "LBR (E)": 6.3, "CUP (F)": 22.3, "OAO (G)": 23.5, "PRG (H)": 1.7, "DSA (I)": 0.8, "Everyone": 35.5}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441a", "label": "Blacks should work their way up without special favors", "prod24": false, "new30": false, "CON": 74.7, "CUP": 68.5, "NAT": 88.2, "POP": 65.0, "STY": 37.3, "LBR": 16.8, "DAL": 20.3, "PRG": 2.3, "DSA": 2.8, "CON (A)": 77.4, "NAT (B)": 89.7, "POP (C)": 47.5, "STY (D)": 43.7, "LBR (E)": 6.2, "CUP (F)": 43.6, "OAO (G)": 37.0, "PRG (H)": 2.6, "DSA (I)": 0.1, "Everyone": 49.2}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441b", "label": "Slavery and discrimination make it hard for Blacks to rise", "prod24": false, "new30": true, "CON": 19.0, "CUP": 34.6, "NAT": 4.3, "POP": 22.4, "STY": 55.3, "LBR": 79.3, "DAL": 78.7, "PRG": 97.3, "DSA": 96.5, "CON (A)": 13.4, "NAT (B)": 3.4, "POP (C)": 27.6, "STY (D)": 49.5, "LBR (E)": 91.0, "CUP (F)": 49.2, "OAO (G)": 69.3, "PRG (H)": 97.7, "DSA (I)": 99.7, "Everyone": 45.1}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441e", "label": "I resent when Whites deny racial discrimination exists", "prod24": false, "new30": false, "CON": 43.3, "CUP": 61.3, "NAT": 9.9, "POP": 39.7, "STY": 67.0, "LBR": 86.1, "DAL": 89.7, "PRG": 96.2, "DSA": 95.8, "CON (A)": 31.8, "NAT (B)": 8.1, "POP (C)": 34.7, "STY (D)": 63.1, "LBR (E)": 88.9, "CUP (F)": 65.2, "OAO (G)": 82.0, "PRG (H)": 94.9, "DSA (I)": 97.1, "Everyone": 61.5}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441f", "label": "Whites get away with offenses Blacks would not", "prod24": false, "new30": false, "CON": 42.7, "CUP": 59.8, "NAT": 9.7, "POP": 43.2, "STY": 71.8, "LBR": 85.3, "DAL": 88.1, "PRG": 98.3, "DSA": 97.8, "CON (A)": 27.3, "NAT (B)": 5.0, "POP (C)": 41.1, "STY (D)": 67.6, "LBR (E)": 92.8, "CUP (F)": 65.9, "OAO (G)": 86.5, "PRG (H)": 95.7, "DSA (I)": 99.9, "Everyone": 63.8}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441g", "label": "Whites don't try hard to understand Black Americans' problems", "prod24": false, "new30": false, "CON": 38.6, "CUP": 54.6, "NAT": 8.7, "POP": 37.5, "STY": 61.1, "LBR": 68.5, "DAL": 77.8, "PRG": 90.3, "DSA": 91.3, "CON (A)": 24.4, "NAT (B)": 7.5, "POP (C)": 35.0, "STY (D)": 58.0, "LBR (E)": 81.5, "CUP (F)": 49.5, "OAO (G)": 74.1, "PRG (H)": 87.5, "DSA (I)": 96.5, "Everyone": 55.1}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_445a", "label": "Agree race in college admissions is unconstitutional", "prod24": false, "new30": true, "CON": 84.6, "CUP": 80.5, "NAT": 92.5, "POP": 81.9, "STY": 69.8, "LBR": 49.8, "DAL": 43.8, "PRG": 15.0, "DSA": 26.1, "CON (A)": 87.0, "NAT (B)": 95.8, "POP (C)": 63.6, "STY (D)": 78.1, "LBR (E)": 35.0, "CUP (F)": 60.3, "OAO (G)": 64.3, "PRG (H)": 9.4, "DSA (I)": 8.9, "Everyone": 68.0}, {"topic": "State culture and schooling policies", "item": "CC24_444a", "label": "Ban gender-transition surgery for minors", "prod24": false, "new30": true, "CON": 76.3, "CUP": 74.0, "NAT": 89.6, "POP": 77.0, "STY": 59.1, "LBR": 39.7, "DAL": 35.3, "PRG": 15.0, "DSA": 18.9, "CON (A)": 82.3, "NAT (B)": 92.3, "POP (C)": 56.8, "STY (D)": 66.5, "LBR (E)": 29.0, "CUP (F)": 46.8, "OAO (G)": 53.0, "PRG (H)": 10.4, "DSA (I)": 7.4, "Everyone": 60.7}, {"topic": "State culture and schooling policies", "item": "CC24_444b", "label": "Parental consent before teachers use a new name or pronoun", "prod24": false, "new30": true, "CON": 84.3, "CUP": 79.0, "NAT": 95.3, "POP": 80.9, "STY": 62.3, "LBR": 34.7, "DAL": 41.5, "PRG": 7.6, "DSA": 6.7, "CON (A)": 88.9, "NAT (B)": 98.7, "POP (C)": 53.3, "STY (D)": 71.3, "LBR (E)": 15.2, "CUP (F)": 48.4, "OAO (G)": 75.2, "PRG (H)": 3.8, "DSA (I)": 0.4, "Everyone": 63.6}, {"topic": "State culture and schooling policies", "item": "CC24_444e", "label": "Age verification for adult websites", "prod24": false, "new30": true, "CON": 89.9, "CUP": 84.7, "NAT": 87.3, "POP": 77.8, "STY": 80.1, "LBR": 70.8, "DAL": 79.8, "PRG": 50.1, "DSA": 55.8, "CON (A)": 89.2, "NAT (B)": 90.0, "POP (C)": 53.0, "STY (D)": 81.9, "LBR (E)": 65.4, "CUP (F)": 76.6, "OAO (G)": 92.2, "PRG (H)": 61.9, "DSA (I)": 36.6, "Everyone": 79.4}, {"topic": "State culture and schooling policies", "item": "CC24_444f", "label": "School vouchers for private or charter schools", "prod24": false, "new30": true, "CON": 69.1, "CUP": 64.9, "NAT": 87.7, "POP": 69.3, "STY": 61.9, "LBR": 31.6, "DAL": 27.8, "PRG": 10.4, "DSA": 29.6, "CON (A)": 64.1, "NAT (B)": 91.0, "POP (C)": 50.7, "STY (D)": 73.1, "LBR (E)": 29.8, "CUP (F)": 26.4, "OAO (G)": 60.7, "PRG (H)": 3.4, "DSA (I)": 12.6, "Everyone": 56.8}, {"topic": "Religion", "item": "pew_churatd", "label": "Attend services weekly or more", "prod24": true, "new30": true, "CON": 31.5, "CUP": 34.1, "NAT": 34.5, "POP": 25.1, "STY": 27.3, "LBR": 9.7, "DAL": 15.2, "PRG": 6.0, "DSA": 2.2, "CON (A)": 30.1, "NAT (B)": 41.5, "POP (C)": 19.7, "STY (D)": 26.1, "LBR (E)": 10.4, "CUP (F)": 15.0, "OAO (G)": 30.0, "PRG (H)": 8.1, "DSA (I)": 3.4, "Everyone": 24.8}, {"topic": "Religion", "item": "pew_religimp", "label": "Religion very important", "prod24": false, "new30": false, "CON": 49.5, "CUP": 49.7, "NAT": 53.5, "POP": 39.9, "STY": 39.2, "LBR": 13.8, "DAL": 22.4, "PRG": 9.4, "DSA": 5.0, "CON (A)": 47.0, "NAT (B)": 60.2, "POP (C)": 29.1, "STY (D)": 41.6, "LBR (E)": 12.9, "CUP (F)": 24.2, "OAO (G)": 47.3, "PRG (H)": 10.2, "DSA (I)": 6.5, "Everyone": 37.6}, {"topic": "Religion", "item": "pew_prayer", "label": "Pray daily or more", "prod24": false, "new30": false, "CON": 53.7, "CUP": 51.4, "NAT": 55.0, "POP": 45.0, "STY": 42.2, "LBR": 21.6, "DAL": 29.8, "PRG": 11.3, "DSA": 8.9, "CON (A)": 51.8, "NAT (B)": 60.9, "POP (C)": 33.8, "STY (D)": 43.4, "LBR (E)": 19.2, "CUP (F)": 30.0, "OAO (G)": 54.7, "PRG (H)": 16.1, "DSA (I)": 6.0, "Everyone": 41.4}, {"topic": "Religion", "item": "pew_bornagain", "label": "Born-again or evangelical", "prod24": false, "new30": true, "CON": 43.5, "CUP": 41.7, "NAT": 47.5, "POP": 35.8, "STY": 35.4, "LBR": 14.0, "DAL": 14.9, "PRG": 3.6, "DSA": 2.6, "CON (A)": 41.0, "NAT (B)": 52.3, "POP (C)": 22.9, "STY (D)": 40.2, "LBR (E)": 9.4, "CUP (F)": 17.0, "OAO (G)": 42.8, "PRG (H)": 4.1, "DSA (I)": 1.8, "Everyone": 32.6}, {"topic": "Personal economy, past year", "item": "CC24_302", "label": "Household income decreased", "prod24": true, "new30": false, "CON": 32.5, "CUP": 22.5, "NAT": 45.0, "POP": 40.2, "STY": 28.8, "LBR": 14.7, "DAL": 7.2, "PRG": 11.6, "DSA": 18.9, "CON (A)": 34.8, "NAT (B)": 38.2, "POP (C)": 37.3, "STY (D)": 29.4, "LBR (E)": 16.0, "CUP (F)": 18.4, "OAO (G)": 19.0, "PRG (H)": 9.6, "DSA (I)": 22.0, "Everyone": 27.2}, {"topic": "Personal economy, past year", "item": "CC24_303", "label": "Prices increased a lot", "prod24": true, "new30": false, "CON": 73.5, "CUP": 58.7, "NAT": 84.1, "POP": 72.1, "STY": 50.1, "LBR": 32.8, "DAL": 23.3, "PRG": 20.6, "DSA": 40.5, "CON (A)": 75.8, "NAT (B)": 82.3, "POP (C)": 53.8, "STY (D)": 52.5, "LBR (E)": 33.6, "CUP (F)": 37.4, "OAO (G)": 50.5, "PRG (H)": 19.8, "DSA (I)": 39.5, "Everyone": 55.6}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_1", "label": "To ensure the oil supply", "prod24": false, "new30": false, "CON": 29.6, "CUP": 26.6, "NAT": 30.4, "POP": 19.7, "STY": 17.3, "LBR": 10.6, "DAL": 14.8, "PRG": 4.0, "DSA": 4.3, "CON (A)": 30.1, "NAT (B)": 30.4, "POP (C)": 11.2, "STY (D)": 18.9, "LBR (E)": 7.4, "CUP (F)": 17.3, "OAO (G)": 21.8, "PRG (H)": 5.9, "DSA (I)": 1.9, "Everyone": 20.1}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_2", "label": "To destroy a terrorist camp", "prod24": false, "new30": false, "CON": 64.8, "CUP": 62.5, "NAT": 72.4, "POP": 49.6, "STY": 38.8, "LBR": 52.9, "DAL": 62.7, "PRG": 43.9, "DSA": 25.4, "CON (A)": 66.0, "NAT (B)": 75.3, "POP (C)": 26.8, "STY (D)": 38.8, "LBR (E)": 45.2, "CUP (F)": 56.6, "OAO (G)": 53.9, "PRG (H)": 48.7, "DSA (I)": 19.1, "Everyone": 53.6}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_3", "label": "To intervene in genocide or civil war", "prod24": false, "new30": false, "CON": 29.5, "CUP": 34.7, "NAT": 18.4, "POP": 20.7, "STY": 33.2, "LBR": 48.9, "DAL": 51.0, "PRG": 64.0, "DSA": 58.5, "CON (A)": 29.8, "NAT (B)": 21.9, "POP (C)": 12.6, "STY (D)": 30.5, "LBR (E)": 53.3, "CUP (F)": 39.2, "OAO (G)": 41.3, "PRG (H)": 62.7, "DSA (I)": 61.0, "Everyone": 35.7}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_4", "label": "To spread democracy", "prod24": false, "new30": false, "CON": 17.5, "CUP": 18.7, "NAT": 8.2, "POP": 9.7, "STY": 19.6, "LBR": 19.6, "DAL": 30.2, "PRG": 16.7, "DSA": 12.0, "CON (A)": 15.9, "NAT (B)": 8.7, "POP (C)": 7.8, "STY (D)": 18.1, "LBR (E)": 18.7, "CUP (F)": 21.3, "OAO (G)": 29.9, "PRG (H)": 21.4, "DSA (I)": 8.5, "Everyone": 16.9}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_5", "label": "To protect allies under attack", "prod24": false, "new30": false, "CON": 70.0, "CUP": 71.4, "NAT": 64.7, "POP": 53.2, "STY": 57.3, "LBR": 76.6, "DAL": 84.7, "PRG": 78.8, "DSA": 62.2, "CON (A)": 68.3, "NAT (B)": 69.0, "POP (C)": 39.1, "STY (D)": 56.0, "LBR (E)": 75.8, "CUP (F)": 71.8, "OAO (G)": 73.8, "PRG (H)": 83.6, "DSA (I)": 53.8, "Everyone": 67.0}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_6", "label": "To help the UN uphold international law", "prod24": false, "new30": false, "CON": 31.9, "CUP": 42.2, "NAT": 10.6, "POP": 22.4, "STY": 41.5, "LBR": 64.2, "DAL": 70.8, "PRG": 77.9, "DSA": 65.4, "CON (A)": 31.6, "NAT (B)": 14.2, "POP (C)": 23.1, "STY (D)": 37.4, "LBR (E)": 65.7, "CUP (F)": 54.1, "OAO (G)": 57.8, "PRG (H)": 80.7, "DSA (I)": 67.1, "Everyone": 42.0}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_2", "label": "Humanitarian aid", "prod24": false, "new30": false, "CON": 41.9, "CUP": 52.2, "NAT": 31.7, "POP": 28.2, "STY": 46.9, "LBR": 75.0, "DAL": 81.3, "PRG": 91.4, "DSA": 83.0, "CON (A)": 41.0, "NAT (B)": 35.8, "POP (C)": 24.7, "STY (D)": 40.3, "LBR (E)": 76.9, "CUP (F)": 63.5, "OAO (G)": 63.8, "PRG (H)": 90.7, "DSA (I)": 88.8, "Everyone": 52.4}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_3", "label": "Sanctions on Russia", "prod24": false, "new30": false, "CON": 34.7, "CUP": 41.8, "NAT": 33.7, "POP": 18.7, "STY": 23.6, "LBR": 64.8, "DAL": 74.3, "PRG": 84.5, "DSA": 58.4, "CON (A)": 33.3, "NAT (B)": 37.8, "POP (C)": 15.2, "STY (D)": 20.0, "LBR (E)": 62.8, "CUP (F)": 53.3, "OAO (G)": 42.2, "PRG (H)": 86.7, "DSA (I)": 66.8, "Everyone": 41.3}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_4", "label": "Arms to Ukraine", "prod24": false, "new30": false, "CON": 22.9, "CUP": 35.2, "NAT": 17.8, "POP": 10.8, "STY": 21.7, "LBR": 57.4, "DAL": 75.1, "PRG": 75.1, "DSA": 47.8, "CON (A)": 22.7, "NAT (B)": 20.8, "POP (C)": 11.6, "STY (D)": 16.4, "LBR (E)": 56.1, "CUP (F)": 50.2, "OAO (G)": 43.5, "PRG (H)": 82.1, "DSA (I)": 50.8, "Everyone": 33.6}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_5", "label": "Non-combat military staff", "prod24": false, "new30": false, "CON": 13.1, "CUP": 18.4, "NAT": 6.7, "POP": 7.8, "STY": 19.1, "LBR": 39.3, "DAL": 47.0, "PRG": 54.7, "DSA": 40.8, "CON (A)": 12.4, "NAT (B)": 9.0, "POP (C)": 6.7, "STY (D)": 14.2, "LBR (E)": 41.7, "CUP (F)": 30.0, "OAO (G)": 29.5, "PRG (H)": 59.9, "DSA (I)": 38.5, "Everyone": 22.4}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_6", "label": "Significant force to fight Russia", "prod24": false, "new30": false, "CON": 3.8, "CUP": 7.5, "NAT": 1.7, "POP": 1.9, "STY": 6.3, "LBR": 7.1, "DAL": 8.0, "PRG": 7.2, "DSA": 7.2, "CON (A)": 3.4, "NAT (B)": 2.0, "POP (C)": 1.7, "STY (D)": 5.7, "LBR (E)": 7.3, "CUP (F)": 5.8, "OAO (G)": 8.8, "PRG (H)": 8.8, "DSA (I)": 8.2, "Everyone": 5.2}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_7", "label": "Negotiate a peace accord", "prod24": false, "new30": false, "CON": 42.1, "CUP": 43.0, "NAT": 45.8, "POP": 32.5, "STY": 34.0, "LBR": 47.9, "DAL": 49.9, "PRG": 51.7, "DSA": 51.6, "CON (A)": 39.7, "NAT (B)": 48.3, "POP (C)": 23.0, "STY (D)": 31.6, "LBR (E)": 47.6, "CUP (F)": 41.9, "OAO (G)": 44.9, "PRG (H)": 53.2, "DSA (I)": 53.7, "Everyone": 41.8}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_8", "label": "Rebuilding aid after the war", "prod24": false, "new30": false, "CON": 22.8, "CUP": 32.2, "NAT": 13.4, "POP": 17.7, "STY": 37.5, "LBR": 60.3, "DAL": 63.3, "PRG": 83.3, "DSA": 71.5, "CON (A)": 22.4, "NAT (B)": 17.0, "POP (C)": 16.0, "STY (D)": 30.8, "LBR (E)": 65.3, "CUP (F)": 43.3, "OAO (G)": 49.6, "PRG (H)": 81.5, "DSA (I)": 80.9, "Everyone": 37.9}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_2", "label": "Food, medicine and aid to affected communities", "prod24": false, "new30": false, "CON": 36.6, "CUP": 46.3, "NAT": 25.0, "POP": 25.1, "STY": 43.6, "LBR": 68.7, "DAL": 75.2, "PRG": 88.6, "DSA": 77.3, "CON (A)": 35.9, "NAT (B)": 29.8, "POP (C)": 19.8, "STY (D)": 37.8, "LBR (E)": 72.4, "CUP (F)": 55.6, "OAO (G)": 57.0, "PRG (H)": 88.0, "DSA (I)": 84.5, "Everyone": 47.5}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_3", "label": "Arms to Israel", "prod24": false, "new30": false, "CON": 41.7, "CUP": 36.5, "NAT": 62.5, "POP": 25.1, "STY": 10.7, "LBR": 14.1, "DAL": 23.6, "PRG": 10.1, "DSA": 2.9, "CON (A)": 40.5, "NAT (B)": 64.9, "POP (C)": 11.2, "STY (D)": 11.7, "LBR (E)": 9.0, "CUP (F)": 22.1, "OAO (G)": 22.0, "PRG (H)": 12.2, "DSA (I)": 2.2, "Everyone": 27.6}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_4", "label": "Arms to Hamas", "prod24": false, "new30": false, "CON": 0.3, "CUP": 1.3, "NAT": 0.2, "POP": 1.4, "STY": 2.5, "LBR": 1.4, "DAL": 0.3, "PRG": 1.8, "DSA": 8.1, "CON (A)": 0.3, "NAT (B)": 0.2, "POP (C)": 1.2, "STY (D)": 2.5, "LBR (E)": 2.3, "CUP (F)": 0.4, "OAO (G)": 0.9, "PRG (H)": 1.4, "DSA (I)": 11.6, "Everyone": 1.5}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_5", "label": "Navy and troops to prevent escalation", "prod24": false, "new30": false, "CON": 24.0, "CUP": 23.8, "NAT": 25.9, "POP": 13.4, "STY": 15.1, "LBR": 28.8, "DAL": 35.5, "PRG": 32.6, "DSA": 26.2, "CON (A)": 22.3, "NAT (B)": 28.1, "POP (C)": 6.5, "STY (D)": 13.7, "LBR (E)": 26.4, "CUP (F)": 25.1, "OAO (G)": 25.1, "PRG (H)": 38.1, "DSA (I)": 27.1, "Everyone": 23.1}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_6", "label": "Non-combat military staff to Israel", "prod24": false, "new30": false, "CON": 24.2, "CUP": 23.0, "NAT": 28.6, "POP": 13.0, "STY": 9.9, "LBR": 14.3, "DAL": 20.1, "PRG": 12.6, "DSA": 5.3, "CON (A)": 21.8, "NAT (B)": 31.2, "POP (C)": 4.4, "STY (D)": 11.3, "LBR (E)": 11.6, "CUP (F)": 15.8, "OAO (G)": 17.4, "PRG (H)": 16.1, "DSA (I)": 4.0, "Everyone": 17.6}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_7", "label": "Non-combat military staff to Gaza", "prod24": false, "new30": false, "CON": 3.3, "CUP": 3.4, "NAT": 1.4, "POP": 3.5, "STY": 9.0, "LBR": 12.8, "DAL": 9.6, "PRG": 19.1, "DSA": 35.8, "CON (A)": 2.8, "NAT (B)": 1.7, "POP (C)": 4.7, "STY (D)": 6.6, "LBR (E)": 17.5, "CUP (F)": 4.9, "OAO (G)": 7.1, "PRG (H)": 20.3, "DSA (I)": 42.7, "Everyone": 8.1}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_8", "label": "Negotiate a peace settlement", "prod24": false, "new30": false, "CON": 37.7, "CUP": 44.9, "NAT": 27.4, "POP": 28.9, "STY": 40.8, "LBR": 69.5, "DAL": 77.1, "PRG": 86.6, "DSA": 74.5, "CON (A)": 37.1, "NAT (B)": 30.6, "POP (C)": 22.1, "STY (D)": 35.9, "LBR (E)": 71.9, "CUP (F)": 57.4, "OAO (G)": 58.0, "PRG (H)": 86.7, "DSA (I)": 84.3, "Everyone": 47.6}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_9", "label": "Rebuilding aid after the war", "prod24": false, "new30": false, "CON": 24.6, "CUP": 31.8, "NAT": 13.7, "POP": 19.7, "STY": 38.5, "LBR": 59.3, "DAL": 62.8, "PRG": 87.2, "DSA": 78.7, "CON (A)": 23.2, "NAT (B)": 18.9, "POP (C)": 14.8, "STY (D)": 30.8, "LBR (E)": 68.3, "CUP (F)": 41.6, "OAO (G)": 48.0, "PRG (H)": 83.7, "DSA (I)": 89.9, "Everyone": 38.9}], "demo": [{"section": "Age and gender", "label": "Median age", "median": true, "CON": 62.0, "CUP": 61.0, "NAT": 62.0, "POP": 54.0, "STY": 47.0, "LBR": 56.0, "DAL": 65.0, "PRG": 50.0, "DSA": 41.0, "CON (A)": 62.0, "NAT (B)": 63.0, "POP (C)": 46.0, "STY (D)": 48.0, "LBR (E)": 53.0, "CUP (F)": 62.0, "OAO (G)": 62.0, "PRG (H)": 58.0, "DSA (I)": 37.0, "Everyone": 58.0}, {"section": "Age and gender", "label": "Under 30", "median": null, "CON": 8.8, "CUP": 16.2, "NAT": 6.5, "POP": 19.3, "STY": 34.9, "LBR": 22.1, "DAL": 7.1, "PRG": 22.6, "DSA": 43.7, "CON (A)": 10.3, "NAT (B)": 7.9, "POP (C)": 27.5, "STY (D)": 29.4, "LBR (E)": 30.8, "CUP (F)": 14.9, "OAO (G)": 13.1, "PRG (H)": 15.2, "DSA (I)": 44.6, "Everyone": 19.1}, {"section": "Age and gender", "label": "30 to 44", "median": null, "CON": 17.5, "CUP": 20.1, "NAT": 18.2, "POP": 30.7, "STY": 33.2, "LBR": 26.8, "DAL": 16.9, "PRG": 36.9, "DSA": 34.0, "CON (A)": 17.9, "NAT (B)": 18.0, "POP (C)": 35.2, "STY (D)": 33.5, "LBR (E)": 28.5, "CUP (F)": 19.1, "OAO (G)": 19.6, "PRG (H)": 27.5, "DSA (I)": 42.5, "Everyone": 24.7}, {"section": "Age and gender", "label": "45 to 64", "median": null, "CON": 39.3, "CUP": 35.4, "NAT": 44.3, "POP": 34.7, "STY": 21.6, "LBR": 30.4, "DAL": 34.0, "PRG": 25.1, "DSA": 16.5, "CON (A)": 39.1, "NAT (B)": 39.4, "POP (C)": 29.4, "STY (D)": 26.1, "LBR (E)": 23.1, "CUP (F)": 34.2, "OAO (G)": 38.9, "PRG (H)": 33.0, "DSA (I)": 10.4, "Everyone": 32.3}, {"section": "Age and gender", "label": "65 and over", "median": null, "CON": 34.4, "CUP": 28.3, "NAT": 31.0, "POP": 15.4, "STY": 10.3, "LBR": 20.7, "DAL": 42.0, "PRG": 15.5, "DSA": 5.7, "CON (A)": 32.6, "NAT (B)": 34.8, "POP (C)": 7.9, "STY (D)": 11.1, "LBR (E)": 17.6, "CUP (F)": 31.9, "OAO (G)": 28.4, "PRG (H)": 24.3, "DSA (I)": 2.5, "Everyone": 23.9}, {"section": "Age and gender", "label": "Women", "median": null, "CON": 54.1, "CUP": 47.5, "NAT": 35.4, "POP": 47.9, "STY": 60.3, "LBR": 47.9, "DAL": 48.9, "PRG": 42.9, "DSA": 60.6, "CON (A)": 53.5, "NAT (B)": 39.2, "POP (C)": 50.0, "STY (D)": 59.6, "LBR (E)": 53.1, "CUP (F)": 50.8, "OAO (G)": 56.0, "PRG (H)": 46.4, "DSA (I)": 46.9, "Everyone": 51.4}, {"section": "Age and gender", "label": "LGBT (of those answering)", "median": null, "CON": 2.9, "CUP": 5.1, "NAT": 3.2, "POP": 7.4, "STY": 13.9, "LBR": 17.3, "DAL": 11.6, "PRG": 27.7, "DSA": 40.7, "CON (A)": 3.8, "NAT (B)": 2.8, "POP (C)": 12.2, "STY (D)": 9.9, "LBR (E)": 25.5, "CUP (F)": 8.7, "OAO (G)": 7.2, "PRG (H)": 21.8, "DSA (I)": 46.4, "Everyone": 11.0}, {"section": "Race", "label": "White", "median": null, "CON": 76.0, "CUP": 70.1, "NAT": 82.4, "POP": 68.2, "STY": 43.4, "LBR": 64.2, "DAL": 69.8, "PRG": 79.7, "DSA": 69.9, "CON (A)": 82.1, "NAT (B)": 83.5, "POP (C)": 54.7, "STY (D)": 48.3, "LBR (E)": 65.1, "CUP (F)": 67.5, "OAO (G)": 48.4, "PRG (H)": 77.2, "DSA (I)": 73.1, "Everyone": 67.4}, {"section": "Race", "label": "Black", "median": null, "CON": 6.8, "CUP": 11.5, "NAT": 1.0, "POP": 11.9, "STY": 24.6, "LBR": 12.9, "DAL": 12.8, "PRG": 4.8, "DSA": 7.8, "CON (A)": 2.0, "NAT (B)": 1.0, "POP (C)": 16.1, "STY (D)": 23.9, "LBR (E)": 12.5, "CUP (F)": 9.3, "OAO (G)": 31.2, "PRG (H)": 5.9, "DSA (I)": 5.9, "Everyone": 11.6}, {"section": "Race", "label": "Hispanic", "median": null, "CON": 7.8, "CUP": 8.5, "NAT": 4.6, "POP": 7.0, "STY": 17.1, "LBR": 10.3, "DAL": 9.0, "PRG": 6.4, "DSA": 8.6, "CON (A)": 6.8, "NAT (B)": 5.0, "POP (C)": 12.8, "STY (D)": 14.4, "LBR (E)": 9.4, "CUP (F)": 12.1, "OAO (G)": 11.3, "PRG (H)": 6.6, "DSA (I)": 7.2, "Everyone": 9.5}, {"section": "Race", "label": "Asian", "median": null, "CON": 4.5, "CUP": 3.8, "NAT": 1.8, "POP": 3.1, "STY": 5.6, "LBR": 5.9, "DAL": 4.6, "PRG": 3.2, "DSA": 4.6, "CON (A)": 3.7, "NAT (B)": 2.1, "POP (C)": 4.9, "STY (D)": 5.0, "LBR (E)": 5.1, "CUP (F)": 7.1, "OAO (G)": 3.7, "PRG (H)": 3.6, "DSA (I)": 3.8, "Everyone": 4.3}, {"section": "Race", "label": "Other or multiracial", "median": null, "CON": 4.9, "CUP": 6.0, "NAT": 10.1, "POP": 9.8, "STY": 9.2, "LBR": 6.7, "DAL": 3.9, "PRG": 5.9, "DSA": 9.1, "CON (A)": 5.4, "NAT (B)": 8.4, "POP (C)": 11.5, "STY (D)": 8.4, "LBR (E)": 7.8, "CUP (F)": 4.0, "OAO (G)": 5.4, "PRG (H)": 6.7, "DSA (I)": 9.9, "Everyone": 7.1}, {"section": "Education and income", "label": "High school or less", "median": null, "CON": 42.2, "CUP": 41.9, "NAT": 29.6, "POP": 42.1, "STY": 44.0, "LBR": 24.4, "DAL": 25.8, "PRG": 12.1, "DSA": 22.0, "CON (A)": 40.4, "NAT (B)": 28.2, "POP (C)": 45.2, "STY (D)": 49.4, "LBR (E)": 21.6, "CUP (F)": 35.7, "OAO (G)": 44.3, "PRG (H)": 13.4, "DSA (I)": 16.5, "Everyone": 35.5}, {"section": "Education and income", "label": "Bachelor's degree or more", "median": null, "CON": 28.7, "CUP": 31.6, "NAT": 40.5, "POP": 25.3, "STY": 23.7, "LBR": 42.9, "DAL": 46.6, "PRG": 62.9, "DSA": 46.6, "CON (A)": 30.4, "NAT (B)": 40.7, "POP (C)": 29.1, "STY (D)": 19.8, "LBR (E)": 46.4, "CUP (F)": 36.7, "OAO (G)": 23.8, "PRG (H)": 59.1, "DSA (I)": 53.0, "Everyone": 34.4}, {"section": "Education and income", "label": "Family income under $50k", "median": null, "CON": 40.8, "CUP": 41.1, "NAT": 30.0, "POP": 46.8, "STY": 53.5, "LBR": 35.6, "DAL": 31.7, "PRG": 26.5, "DSA": 37.7, "CON (A)": 40.5, "NAT (B)": 27.3, "POP (C)": 48.5, "STY (D)": 55.8, "LBR (E)": 35.2, "CUP (F)": 36.6, "OAO (G)": 53.6, "PRG (H)": 28.5, "DSA (I)": 37.0, "Everyone": 41.0}, {"section": "Education and income", "label": "Family income $100k or more", "median": null, "CON": 24.5, "CUP": 25.9, "NAT": 36.7, "POP": 20.9, "STY": 16.7, "LBR": 32.9, "DAL": 34.4, "PRG": 42.8, "DSA": 31.5, "CON (A)": 25.7, "NAT (B)": 35.0, "POP (C)": 20.2, "STY (D)": 14.9, "LBR (E)": 34.4, "CUP (F)": 30.1, "OAO (G)": 16.7, "PRG (H)": 41.1, "DSA (I)": 32.5, "Everyone": 26.7}, {"section": "Education and income", "label": "Owns stock", "median": null, "CON": 43.3, "CUP": 44.4, "NAT": 54.9, "POP": 35.1, "STY": 27.2, "LBR": 50.2, "DAL": 57.5, "PRG": 60.3, "DSA": 39.1, "CON (A)": 44.6, "NAT (B)": 57.3, "POP (C)": 32.9, "STY (D)": 24.2, "LBR (E)": 47.1, "CUP (F)": 50.9, "OAO (G)": 32.0, "PRG (H)": 58.6, "DSA (I)": 44.1, "Everyone": 42.9}, {"section": "Household and work", "label": "Children under 18 at home", "median": null, "CON": 19.9, "CUP": 20.5, "NAT": 18.7, "POP": 28.7, "STY": 30.5, "LBR": 19.2, "DAL": 14.4, "PRG": 18.3, "DSA": 18.1, "CON (A)": 18.4, "NAT (B)": 20.0, "POP (C)": 27.8, "STY (D)": 32.6, "LBR (E)": 19.0, "CUP (F)": 17.2, "OAO (G)": 20.6, "PRG (H)": 16.9, "DSA (I)": 16.8, "Everyone": 22.1}, {"section": "Household and work", "label": "Married or partnered", "median": null, "CON": 60.4, "CUP": 54.7, "NAT": 67.4, "POP": 49.5, "STY": 41.3, "LBR": 47.6, "DAL": 55.4, "PRG": 51.6, "DSA": 39.3, "CON (A)": 59.2, "NAT (B)": 69.2, "POP (C)": 45.1, "STY (D)": 42.1, "LBR (E)": 43.9, "CUP (F)": 52.6, "OAO (G)": 47.1, "PRG (H)": 54.1, "DSA (I)": 38.7, "Everyone": 52.4}, {"section": "Household and work", "label": "Never married", "median": null, "CON": 18.5, "CUP": 25.7, "NAT": 16.3, "POP": 31.2, "STY": 43.7, "LBR": 35.3, "DAL": 24.1, "PRG": 38.3, "DSA": 51.7, "CON (A)": 19.2, "NAT (B)": 14.6, "POP (C)": 41.8, "STY (D)": 39.9, "LBR (E)": 43.6, "CUP (F)": 28.1, "OAO (G)": 28.3, "PRG (H)": 29.5, "DSA (I)": 55.3, "Everyone": 29.9}, {"section": "Household and work", "label": "Works full-time", "median": null, "CON": 33.9, "CUP": 36.8, "NAT": 42.1, "POP": 37.4, "STY": 38.0, "LBR": 40.4, "DAL": 34.1, "PRG": 50.7, "DSA": 44.6, "CON (A)": 35.1, "NAT (B)": 40.3, "POP (C)": 42.5, "STY (D)": 35.3, "LBR (E)": 41.0, "CUP (F)": 36.2, "OAO (G)": 30.2, "PRG (H)": 45.3, "DSA (I)": 49.4, "Everyone": 37.8}, {"section": "Household and work", "label": "Retired", "median": null, "CON": 32.5, "CUP": 28.0, "NAT": 28.6, "POP": 16.6, "STY": 10.8, "LBR": 20.6, "DAL": 40.1, "PRG": 14.6, "DSA": 5.5, "CON (A)": 31.7, "NAT (B)": 32.6, "POP (C)": 9.4, "STY (D)": 11.9, "LBR (E)": 17.0, "CUP (F)": 30.8, "OAO (G)": 26.7, "PRG (H)": 23.0, "DSA (I)": 2.0, "Everyone": 23.2}, {"section": "Household and work", "label": "Unemployed or laid off", "median": null, "CON": 6.3, "CUP": 6.4, "NAT": 6.1, "POP": 10.7, "STY": 14.4, "LBR": 8.4, "DAL": 4.1, "PRG": 7.3, "DSA": 12.9, "CON (A)": 5.3, "NAT (B)": 4.0, "POP (C)": 16.1, "STY (D)": 14.5, "LBR (E)": 9.9, "CUP (F)": 7.0, "OAO (G)": 10.0, "PRG (H)": 6.7, "DSA (I)": 12.2, "Everyone": 8.8}, {"section": "Household and work", "label": "Union member now", "median": null, "CON": 4.3, "CUP": 5.0, "NAT": 5.6, "POP": 4.8, "STY": 4.9, "LBR": 7.3, "DAL": 8.0, "PRG": 9.9, "DSA": 7.3, "CON (A)": 4.9, "NAT (B)": 4.5, "POP (C)": 6.7, "STY (D)": 4.8, "LBR (E)": 6.7, "CUP (F)": 6.6, "OAO (G)": 4.8, "PRG (H)": 10.0, "DSA (I)": 7.7, "Everyone": 5.7}, {"section": "Household and work", "label": "Owns home", "median": null, "CON": 76.4, "CUP": 70.5, "NAT": 84.1, "POP": 64.2, "STY": 52.3, "LBR": 63.9, "DAL": 75.0, "PRG": 69.0, "DSA": 50.3, "CON (A)": 78.4, "NAT (B)": 84.6, "POP (C)": 55.3, "STY (D)": 52.3, "LBR (E)": 60.2, "CUP (F)": 72.9, "OAO (G)": 59.8, "PRG (H)": 69.4, "DSA (I)": 50.0, "Everyone": 67.5}, {"section": "Place", "label": "City", "median": null, "CON": 21.0, "CUP": 26.7, "NAT": 15.6, "POP": 24.2, "STY": 35.9, "LBR": 29.5, "DAL": 27.7, "PRG": 31.5, "DSA": 30.1, "CON (A)": 18.2, "NAT (B)": 14.9, "POP (C)": 34.0, "STY (D)": 35.9, "LBR (E)": 28.1, "CUP (F)": 26.1, "OAO (G)": 39.4, "PRG (H)": 30.3, "DSA (I)": 34.4, "Everyone": 26.8}, {"section": "Place", "label": "Suburb", "median": null, "CON": 40.3, "CUP": 39.3, "NAT": 41.3, "POP": 34.3, "STY": 35.7, "LBR": 42.9, "DAL": 45.0, "PRG": 43.7, "DSA": 46.1, "CON (A)": 39.6, "NAT (B)": 41.3, "POP (C)": 32.9, "STY (D)": 34.2, "LBR (E)": 45.5, "CUP (F)": 45.2, "OAO (G)": 32.5, "PRG (H)": 42.9, "DSA (I)": 43.2, "Everyone": 39.6}, {"section": "Place", "label": "Town", "median": null, "CON": 12.7, "CUP": 12.5, "NAT": 12.8, "POP": 14.8, "STY": 11.0, "LBR": 13.8, "DAL": 12.0, "PRG": 12.7, "DSA": 10.8, "CON (A)": 14.3, "NAT (B)": 14.0, "POP (C)": 11.5, "STY (D)": 11.0, "LBR (E)": 13.6, "CUP (F)": 11.1, "OAO (G)": 10.1, "PRG (H)": 13.4, "DSA (I)": 10.5, "Everyone": 12.5}, {"section": "Place", "label": "Rural area", "median": null, "CON": 25.7, "CUP": 21.0, "NAT": 29.9, "POP": 26.0, "STY": 16.6, "LBR": 13.0, "DAL": 14.9, "PRG": 11.8, "DSA": 12.7, "CON (A)": 27.6, "NAT (B)": 29.4, "POP (C)": 21.5, "STY (D)": 17.9, "LBR (E)": 12.3, "CUP (F)": 17.0, "OAO (G)": 17.3, "PRG (H)": 13.0, "DSA (I)": 11.8, "Everyone": 20.5}, {"section": "Place", "label": "City, family income under $50k", "median": null, "CON": 10.9, "CUP": 14.0, "NAT": 5.6, "POP": 15.0, "STY": 20.8, "LBR": 12.1, "DAL": 10.7, "PRG": 8.3, "DSA": 13.4, "CON (A)": 8.9, "NAT (B)": 4.7, "POP (C)": 19.4, "STY (D)": 21.8, "LBR (E)": 11.3, "CUP (F)": 12.8, "OAO (G)": 22.8, "PRG (H)": 9.2, "DSA (I)": 13.8, "Everyone": 13.3}, {"section": "Place", "label": "Northeast", "median": null, "CON": 15.9, "CUP": 15.9, "NAT": 13.7, "POP": 14.6, "STY": 14.2, "LBR": 19.9, "DAL": 22.4, "PRG": 23.8, "DSA": 19.5, "CON (A)": 16.1, "NAT (B)": 12.7, "POP (C)": 15.2, "STY (D)": 15.6, "LBR (E)": 19.2, "CUP (F)": 20.0, "OAO (G)": 17.5, "PRG (H)": 20.4, "DSA (I)": 23.3, "Everyone": 16.7}, {"section": "Place", "label": "Midwest", "median": null, "CON": 22.4, "CUP": 22.3, "NAT": 22.6, "POP": 21.9, "STY": 17.1, "LBR": 19.5, "DAL": 20.7, "PRG": 22.1, "DSA": 22.9, "CON (A)": 22.7, "NAT (B)": 23.6, "POP (C)": 16.8, "STY (D)": 18.7, "LBR (E)": 21.3, "CUP (F)": 21.4, "OAO (G)": 19.2, "PRG (H)": 20.6, "DSA (I)": 18.7, "Everyone": 21.0}, {"section": "Place", "label": "South", "median": null, "CON": 42.3, "CUP": 43.4, "NAT": 39.2, "POP": 39.7, "STY": 45.6, "LBR": 32.6, "DAL": 28.2, "PRG": 25.2, "DSA": 33.5, "CON (A)": 41.7, "NAT (B)": 40.3, "POP (C)": 42.9, "STY (D)": 44.9, "LBR (E)": 31.5, "CUP (F)": 33.6, "OAO (G)": 44.3, "PRG (H)": 29.3, "DSA (I)": 28.6, "Everyone": 39.1}, {"section": "Place", "label": "West", "median": null, "CON": 19.4, "CUP": 18.4, "NAT": 24.5, "POP": 23.8, "STY": 23.1, "LBR": 28.0, "DAL": 28.6, "PRG": 29.0, "DSA": 24.0, "CON (A)": 19.6, "NAT (B)": 23.4, "POP (C)": 25.0, "STY (D)": 20.8, "LBR (E)": 28.0, "CUP (F)": 25.0, "OAO (G)": 19.1, "PRG (H)": 29.7, "DSA (I)": 29.3, "Everyone": 23.2}, {"section": "Religious tradition", "label": "Protestant", "median": null, "CON": 45.5, "CUP": 44.1, "NAT": 49.8, "POP": 35.1, "STY": 27.8, "LBR": 21.2, "DAL": 26.8, "PRG": 13.6, "DSA": 8.1, "CON (A)": 43.8, "NAT (B)": 53.6, "POP (C)": 23.4, "STY (D)": 32.3, "LBR (E)": 17.6, "CUP (F)": 26.8, "OAO (G)": 38.3, "PRG (H)": 15.0, "DSA (I)": 6.8, "Everyone": 34.1}, {"section": "Religious tradition", "label": "Catholic", "median": null, "CON": 21.9, "CUP": 21.7, "NAT": 19.3, "POP": 15.8, "STY": 19.8, "LBR": 13.2, "DAL": 21.2, "PRG": 8.4, "DSA": 6.5, "CON (A)": 21.4, "NAT (B)": 19.2, "POP (C)": 17.6, "STY (D)": 18.6, "LBR (E)": 11.7, "CUP (F)": 21.5, "OAO (G)": 22.1, "PRG (H)": 9.6, "DSA (I)": 5.4, "Everyone": 18.0}, {"section": "Religious tradition", "label": "Mormon", "median": null, "CON": 1.4, "CUP": 1.6, "NAT": 1.4, "POP": 1.6, "STY": 1.1, "LBR": 1.0, "DAL": 0.8, "PRG": 0.5, "DSA": 0.2, "CON (A)": 1.6, "NAT (B)": 1.9, "POP (C)": 0.9, "STY (D)": 1.1, "LBR (E)": 0.6, "CUP (F)": 1.3, "OAO (G)": 0.3, "PRG (H)": 0.6, "DSA (I)": 0.2, "Everyone": 1.2}, {"section": "Religious tradition", "label": "Jewish", "median": null, "CON": 2.0, "CUP": 1.8, "NAT": 1.4, "POP": 1.6, "STY": 1.2, "LBR": 2.8, "DAL": 4.5, "PRG": 6.1, "DSA": 3.0, "CON (A)": 2.0, "NAT (B)": 1.5, "POP (C)": 0.9, "STY (D)": 1.1, "LBR (E)": 3.3, "CUP (F)": 3.2, "OAO (G)": 2.9, "PRG (H)": 4.6, "DSA (I)": 3.7, "Everyone": 2.2}, {"section": "Religious tradition", "label": "Muslim, Buddhist or Hindu", "median": null, "CON": 1.3, "CUP": 2.0, "NAT": 0.5, "POP": 1.3, "STY": 3.3, "LBR": 2.3, "DAL": 1.9, "PRG": 1.5, "DSA": 2.6, "CON (A)": 1.0, "NAT (B)": 0.4, "POP (C)": 3.9, "STY (D)": 2.7, "LBR (E)": 2.7, "CUP (F)": 2.3, "OAO (G)": 2.4, "PRG (H)": 2.1, "DSA (I)": 2.2, "Everyone": 1.9}, {"section": "Religious tradition", "label": "Atheist or agnostic", "median": null, "CON": 4.7, "CUP": 6.6, "NAT": 5.5, "POP": 8.5, "STY": 8.8, "LBR": 28.3, "DAL": 19.8, "PRG": 44.7, "DSA": 47.2, "CON (A)": 6.1, "NAT (B)": 3.9, "POP (C)": 13.5, "STY (D)": 6.7, "LBR (E)": 32.2, "CUP (F)": 16.2, "OAO (G)": 6.8, "PRG (H)": 41.6, "DSA (I)": 50.1, "Everyone": 13.9}, {"section": "Religious tradition", "label": "Nothing in particular", "median": null, "CON": 13.6, "CUP": 12.9, "NAT": 13.5, "POP": 26.1, "STY": 26.3, "LBR": 23.6, "DAL": 19.0, "PRG": 18.9, "DSA": 26.9, "CON (A)": 15.2, "NAT (B)": 10.6, "POP (C)": 32.5, "STY (D)": 25.4, "LBR (E)": 24.8, "CUP (F)": 20.8, "OAO (G)": 16.8, "PRG (H)": 20.0, "DSA (I)": 26.2, "Everyone": 19.6}, {"section": "Party and vote (context)", "label": "Democrat", "median": null, "CON": 13.3, "CUP": 24.7, "NAT": 0.7, "POP": 12.3, "STY": 46.0, "LBR": 63.8, "DAL": 72.6, "PRG": 73.9, "DSA": 66.6, "CON (A)": 4.8, "NAT (B)": 0.7, "POP (C)": 22.2, "STY (D)": 39.8, "LBR (E)": 69.4, "CUP (F)": 46.4, "OAO (G)": 64.3, "PRG (H)": 76.1, "DSA (I)": 62.2, "Everyone": 34.9}, {"section": "Party and vote (context)", "label": "Republican", "median": null, "CON": 58.6, "CUP": 43.9, "NAT": 61.3, "POP": 43.4, "STY": 18.4, "LBR": 3.1, "DAL": 4.1, "PRG": 0.2, "DSA": 0.0, "CON (A)": 64.5, "NAT (B)": 62.5, "POP (C)": 31.0, "STY (D)": 26.1, "LBR (E)": 0.8, "CUP (F)": 17.7, "OAO (G)": 13.3, "PRG (H)": 0.2, "DSA (I)": 0.0, "Everyone": 32.6}, {"section": "Party and vote (context)", "label": "Independent or other", "median": null, "CON": 28.1, "CUP": 31.4, "NAT": 38.0, "POP": 44.4, "STY": 35.6, "LBR": 33.2, "DAL": 23.3, "PRG": 25.9, "DSA": 33.4, "CON (A)": 30.6, "NAT (B)": 36.9, "POP (C)": 46.8, "STY (D)": 34.1, "LBR (E)": 29.7, "CUP (F)": 35.9, "OAO (G)": 22.3, "PRG (H)": 23.7, "DSA (I)": 37.8, "Everyone": 32.6}, {"section": "Party and vote (context)", "label": "Liberal or very liberal", "median": null, "CON": 5.8, "CUP": 11.5, "NAT": 0.9, "POP": 7.7, "STY": 30.9, "LBR": 57.2, "DAL": 58.2, "PRG": 87.6, "DSA": 90.2, "CON (A)": 3.0, "NAT (B)": 0.5, "POP (C)": 17.4, "STY (D)": 23.8, "LBR (E)": 73.2, "CUP (F)": 29.1, "OAO (G)": 38.3, "PRG (H)": 86.5, "DSA (I)": 95.9, "Everyone": 29.6}, {"section": "Party and vote (context)", "label": "Moderate", "median": null, "CON": 33.2, "CUP": 43.1, "NAT": 18.0, "POP": 39.4, "STY": 49.0, "LBR": 39.8, "DAL": 38.5, "PRG": 12.2, "DSA": 9.6, "CON (A)": 32.0, "NAT (B)": 16.9, "POP (C)": 44.6, "STY (D)": 50.6, "LBR (E)": 25.9, "CUP (F)": 55.8, "OAO (G)": 46.1, "PRG (H)": 13.2, "DSA (I)": 4.1, "Everyone": 33.8}, {"section": "Party and vote (context)", "label": "Conservative or very conservative", "median": null, "CON": 60.9, "CUP": 45.3, "NAT": 81.2, "POP": 52.9, "STY": 20.0, "LBR": 3.1, "DAL": 3.3, "PRG": 0.3, "DSA": 0.2, "CON (A)": 65.0, "NAT (B)": 82.6, "POP (C)": 38.0, "STY (D)": 25.6, "LBR (E)": 0.9, "CUP (F)": 15.1, "OAO (G)": 15.6, "PRG (H)": 0.2, "DSA (I)": 0.0, "Everyone": 36.6}, {"section": "Party and vote (context)", "label": "Voted Harris", "median": null, "CON": 13.0, "CUP": 31.5, "NAT": 0.1, "POP": 13.5, "STY": 46.2, "LBR": 84.3, "DAL": 93.0, "PRG": 95.0, "DSA": 86.5, "CON (A)": 6.7, "NAT (B)": 0.1, "POP (C)": 24.4, "STY (D)": 37.3, "LBR (E)": 86.5, "CUP (F)": 66.4, "OAO (G)": 69.3, "PRG (H)": 95.6, "DSA (I)": 90.0, "Everyone": 41.4}, {"section": "Party and vote (context)", "label": "Voted Trump", "median": null, "CON": 75.1, "CUP": 57.2, "NAT": 97.1, "POP": 62.1, "STY": 21.2, "LBR": 4.6, "DAL": 2.3, "PRG": 0.3, "DSA": 0.1, "CON (A)": 83.1, "NAT (B)": 96.7, "POP (C)": 37.1, "STY (D)": 30.2, "LBR (E)": 1.1, "CUP (F)": 19.2, "OAO (G)": 15.0, "PRG (H)": 0.0, "DSA (I)": 0.0, "Everyone": 43.2}, {"section": "Party and vote (context)", "label": "Voted third party", "median": null, "CON": 1.5, "CUP": 2.2, "NAT": 0.8, "POP": 2.3, "STY": 2.1, "LBR": 1.6, "DAL": 0.8, "PRG": 1.7, "DSA": 2.6, "CON (A)": 2.2, "NAT (B)": 0.9, "POP (C)": 4.1, "STY (D)": 2.0, "LBR (E)": 1.3, "CUP (F)": 1.3, "OAO (G)": 1.1, "PRG (H)": 0.8, "DSA (I)": 5.4, "Everyone": 1.7}, {"section": "Party and vote (context)", "label": "Did not vote for president", "median": null, "CON": 0.1, "CUP": 0.3, "NAT": 0.2, "POP": 0.2, "STY": 0.3, "LBR": 0.0, "DAL": 0.0, "PRG": 0.0, "DSA": 0.1, "CON (A)": 0.3, "NAT (B)": 0.0, "POP (C)": 1.0, "STY (D)": 0.1, "LBR (E)": 0.0, "CUP (F)": 0.2, "OAO (G)": 0.1, "PRG (H)": 0.0, "DSA (I)": 0.1, "Everyone": 0.2}], "xrows": {"rows": ["CON (A)", "NAT (B)", "POP (C)", "STY (D)", "LBR (E)", "CUP (F)", "OAO (G)", "PRG (H)", "DSA (I)"], "cols": ["CON", "CUP", "NAT", "POP", "STY", "LBR", "DAL", "PRG", "DSA"], "v": [[46.4, 20.4, 9.1, 16.2, 5.9, 1.1, 0.9, 0.0, 0.0], [32.8, 8.0, 43.4, 15.6, 0.3, 0.0, 0.0, 0.0, 0.0], [5.8, 3.2, 7.0, 51.9, 24.6, 3.9, 0.1, 1.6, 1.8], [15.1, 10.6, 0.4, 14.8, 46.9, 7.9, 2.0, 0.4, 1.8], [0.7, 0.6, 0.0, 1.2, 17.2, 30.4, 17.2, 14.0, 18.7], [16.5, 21.1, 0.0, 4.8, 12.3, 22.1, 20.9, 1.9, 0.3], [18.6, 18.3, 0.4, 2.0, 22.2, 14.7, 22.5, 1.1, 0.3], [0.1, 0.6, 0.0, 0.0, 2.8, 19.3, 22.6, 36.8, 17.7], [0.0, 0.0, 0.0, 0.0, 2.6, 5.0, 0.2, 37.6, 54.6]], "outside": [11.2, 12.2, 12.8, 10.1, 4.6, 7.8, 8.9, 3.9, 2.2]}, "xcols": {"rows": ["CON (A)", "NAT (B)", "POP (C)", "STY (D)", "LBR (E)", "CUP (F)", "OAO (G)", "PRG (H)", "DSA (I)"], "cols": ["CON", "CUP", "NAT", "POP", "STY", "LBR", "DAL", "PRG", "DSA"], "v": [[39.1, 31.7, 16.5, 25.4, 5.8, 1.8, 2.0, 0.0, 0.0], [27.9, 12.5, 80.1, 24.7, 0.3, 0.0, 0.0, 0.0, 0.0], [0.8, 0.8, 2.0, 13.1, 3.9, 1.0, 0.0, 0.8, 0.9], [16.1, 20.8, 1.0, 29.4, 58.9, 16.2, 5.5, 1.5, 6.8], [0.4, 0.7, 0.0, 1.3, 12.2, 34.8, 25.9, 29.4, 38.9], [8.9, 20.9, 0.0, 4.8, 7.8, 22.7, 28.2, 3.6, 0.6], [6.8, 12.3, 0.3, 1.4, 9.6, 10.3, 20.6, 1.4, 0.4], [0.0, 0.4, 0.0, 0.0, 1.0, 11.6, 17.8, 40.4, 19.2], [0.0, 0.0, 0.0, 0.0, 0.5, 1.7, 0.1, 23.0, 33.2]]}, "meta": {"new_n": 9, "word": "nine", "n_items": 41, "v2": true}, "n": {"union": 49431, "prod": 45214, "new": 49431, "both": 45214}};
+const VIK = ["#001160","#024380","#307ca6","#93bdd2","#ece4e0","#dba98d","#c27040","#912c05","#590007"];
+const CIV = ["#00204d","#1b3b6f","#41577b","#697386","#8f8f8c","#b3a960","#d6c92f","#f4e801","#ffe945"];
+function ramp(stops, t) {
+  t = Math.max(0, Math.min(1, t)); const x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
+  const a = stops[i].match(/\w\w/g).map(h => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map(h => parseInt(h, 16));
+  return "#" + a.map((v, k) => Math.round(v + (b[k] - v) * f).toString(16).padStart(2, "0")).join("");
+}
+function ink(hex) {
+  const c = hex.match(/\w\w/g).map(h => parseInt(h, 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) <= 0.179 ? "#ebf0f4" : "#08131e";
+}
+const G = DATA.groups, BY = Object.fromEntries(G.map(g => [g.id, g])), ALL = G.find(g => g.key === "all").id;
+const S = { cols: "similar", rows: "similar", view: "both", sort: null, hide: new Set(), color: "level", rsort: { policy: null, demo: null } };
+const ROWS = {};
+function visible() {
+  let ids = S.cols === "similar" ? DATA.col_order : G.filter(g => g.key !== "all").map(g => g.id);
+  if (S.sort) {
+    const v = ROWS[S.sort.k], val = id => (v[id] === null || v[id] === undefined) ? null : v[id];
+    ids = [...ids].sort((a, b) => val(a) === null ? 1 : val(b) === null ? -1 : S.sort.dir * (val(a) - val(b)));
+  }
+  return ids.map(id => BY[id]).filter(g => (S.view === "both" || g.key === S.view) && !S.hide.has(g.id)).concat([BY[ALL]]);
+}
+const sepAt = (g, prev) => prev && (S.cols === "typology" && !S.sort ? prev.key !== g.key : g.key === "all");
+function head(lbl, tbl) {
+  let prev = null;
+  return `<thead><tr><th class="lbl">${lbl}</th>` + visible().map(g => {
+    const sep = sepAt(g, prev) ? " sep" : ""; prev = g;
+    const typ = g.key === "prod" ? "Prod" : g.key === "new" ? "New" : "";
+    const near = g.near_pol ? `closest: ${g.near_pol}` : "";
+    const rs = tbl && S.rsort[tbl], on = rs && rs.g === g.id;
+    const arrow = tbl ? `<span class="carr${on ? " on" : ""}">${on ? (rs.dir < 0 ? "▼ highest" : "▲ lowest") : "⇅"}</span>` : "";
+    return `<th class="gh ${g.key}${sep}${tbl ? " csort" : ""}${on ? " csorted" : ""}" ${tbl ? `data-g="${g.id}" data-t="${tbl}"` : ""} title="${tbl ? "Click to sort items by this group's share" : ""}${g.lead ? (tbl ? ". " : "") + "Members from: " + g.lead : ""}">${arrow}<span class="typ">${typ}</span>${g.id}<span class="gs">${g.key === "all" ? "n " + g.n.toLocaleString() : g.share + "%"}</span>${near ? `<span class="gl">${near}</span>` : ""}</th>`;
+  }).join("") + "</tr></thead>";
+}
+// Shares (0-100%) are unipolar: cividis by level, 0% dark to 100% light. Factor scores are bipolar: vik centered on
+// everyone (0 SD). The "gap" color mode restores vik around everyone's value for the share tables.
+function cells(vals, span, fmt, seq) {
+  let prev = null;
+  return visible().map(g => {
+    const sep = sepAt(g, prev) ? " sep" : ""; prev = g;
+    const v = vals[g.id];
+    if (v === null || v === undefined) return `<td class="v${sep}">–</td>`;
+    if (g.key === "all") return `<td class="v${sep}"><strong>${fmt(v)}</strong></td>`;
+    const bg = seq && S.color === "level" ? ramp(CIV, (v - seq[0]) / (seq[1] - seq[0])) : ramp(VIK, 0.5 + (v - vals[ALL]) / (2 * span));
+    return `<td class="v ${g.key}${sep}" style="background:${bg};color:${ink(bg)}">${fmt(v)}</td>`;
+  }).join("");
+}
+const pct = v => Math.round(v), sd = v => (v > 0 ? "+" : "") + v.toFixed(2);
+function lbl(k, vals, inner) {
+  ROWS[k] = vals;
+  const on = S.sort && S.sort.k === k, arrow = on ? (S.sort.dir > 0 ? " ▲ lowest first" : " ▼ highest first") : " ⇅";
+  return `<td class="lbl sortable${on ? " sorted" : ""}" data-k="${k}" title="Click to sort columns by this row">${inner}<span class="arr">${arrow}</span></td>`;
+}
+const ordered = (arr, key) => S.rows === "similar" ? DATA.row_order[key].map(i => arr[i]) : arr;
+function renderFactors() {
+  document.getElementById("t-factors").innerHTML = head("Factor") + "<tbody>" +
+    ordered(DATA.factors, "factors").map(f => `<tr>${lbl("f:" + f.label, f.values, f.label)}${cells(f.values, 1.5, sd)}</tr>`).join("") + "</tbody>";
+}
+function renderPolicy() {
+  const t = document.getElementById("topic").value, q = document.getElementById("q").value.toLowerCase(), sets = document.getElementById("sets").checked;
+  let html = head("Item", "policy") + "<tbody>", last = null;
+  const rs = S.rsort.policy;
+  let rows = ordered(DATA.policy, "policy");
+  if (rs) { const key = r => r[rs.g] ?? (rs.dir < 0 ? -1e9 : 1e9); rows = [...rows].sort((a, b) => rs.dir * (key(a) - key(b))); }
+  for (const r of rows) {
+    if (t && r.topic !== t) continue;
+    if (q && !(r.label + " " + r.item + " " + r.topic).toLowerCase().includes(q)) continue;
+    if (sets && !(r.prod24 || r.new30)) continue;
+    if (S.rows === "topic" && !rs && r.topic !== last) { html += `<tr class="topic"><td class="lbl">${r.topic}</td><td colspan="${visible().length}"></td></tr>`; last = r.topic; }
+    const mk = (r.prod24 ? "●" : "") + (r.new30 ? "◆" : "");
+    const tag = S.rows === "similar" || rs ? `<span class="tp">${r.topic}</span>` : "";
+    html += `<tr>${lbl("p:" + r.label, r, `${tag}${r.label}<span class="mk">${mk}</span>`)}${cells(r, 40, pct, [0, 100])}</tr>`;
+  }
+  document.getElementById("t-policy").innerHTML = html + "</tbody>";
+}
+function renderDemo() {
+  let html = head("Measure", "demo") + "<tbody>", last = null;
+  const rs = S.rsort.demo, isCtx = r => r.section === "Party and vote (context)";
+  let rows = ordered(DATA.demo, "demo");
+  if (rs) { const key = r => r[rs.g] ?? (rs.dir < 0 ? -1e9 : 1e9);
+    rows = [...rows.filter(r => !isCtx(r) && !r.median)].sort((a, b) => rs.dir * (key(a) - key(b))).concat(rows.filter(r => r.median), rows.filter(isCtx)); }
+  for (const r of rows) {
+    const ctx = isCtx(r);
+    if (((S.rows === "topic" && !rs) || ctx) && r.section !== last) { html += `<tr class="topic"><td class="lbl">${r.section}</td><td colspan="${visible().length}"></td></tr>`; last = r.section; }
+    const tag = (S.rows === "similar" || rs) && !ctx ? `<span class="tp">${r.section}</span>` : "";
+    html += `<tr>${lbl("d:" + r.label, r, `${tag}${r.label}`)}${cells(r, r.median ? 15 : 30, pct, r.median ? [30, 70] : [0, 100])}</tr>`;
+  }
+  document.getElementById("t-demo").innerHTML = html + "</tbody>";
+}
+function renderCross() {
+  const mk = (X, extra) => `<thead><tr><th class="lbl" style="min-width:90px">New \\ Prod</th>${X.cols.map(c => `<th>${c}</th>`).join("")}${extra ? "<th class='sep'>Not in prod</th>" : ""}</tr></thead><tbody>` +
+    X.rows.map((r, i) => `<tr><td class="lbl" style="min-width:90px"><strong>${r}</strong></td>${X.v[i].map(v => { const bg = ramp(CIV, v / 100); return `<td class="v" style="background:${bg};color:${ink(bg)}">${Math.round(v)}</td>`; }).join("")}${extra ? `<td class="v sep">${Math.round(X.outside[i])}</td>` : ""}</tr>`).join("") + "</tbody>";
+  const sub = X => { const ri = X.rows.map((r, i) => i).filter(i => !S.hide.has(X.rows[i])), ci = X.cols.map((c, j) => j).filter(j => !S.hide.has(X.cols[j]));
+    return { rows: ri.map(i => X.rows[i]), cols: ci.map(j => X.cols[j]), v: ri.map(i => ci.map(j => X.v[i][j])), outside: X.outside ? ri.map(i => X.outside[i]) : null }; };
+  document.getElementById("t-xr").innerHTML = mk(sub(DATA.xrows), true);
+  document.getElementById("t-xc").innerHTML = mk(sub(DATA.xcols), false);
+  document.getElementById("xcap").textContent = `Weighted, on the ${DATA.n.both.toLocaleString()} respondents in both samples. "Not in prod" = share of the new cluster outside production's listwise sample.`;
+}
+function renderCousins() {
+  const rows = G.filter(g => g.key === "new" && !S.hide.has(g.id));
+  document.getElementById("t-cousins").innerHTML = `<thead><tr><th class="lbl" style="min-width:90px">New cluster</th>${[1, 2, 3].map(i => `<th class="${i > 1 ? "sep" : ""}">Cousin ${i}</th><th>Policy dist.</th><th>Factor dist.</th><th>Members from</th>`).join("")}</tr></thead><tbody>` +
+    rows.map(g => `<tr><td class="lbl" style="min-width:90px"><strong>${g.id}</strong><span class="gs">${g.share}%</span></td>${(g.cousins || []).map((c, i) => { const bg = ramp(CIV, c.from / 100); return `<td class="v${i ? " sep" : ""}"><strong>${c.id}</strong></td><td class="v">${c.pol.toFixed(2)}</td><td class="v">${c.fac.toFixed(2)}</td><td class="v" style="background:${bg};color:${ink(bg)}">${Math.round(c.from)}%</td>`; }).join("")}</tr>`).join("") + "</tbody>";
+}
+function renderAll() { renderFactors(); renderPolicy(); renderDemo(); renderCross(); renderCousins(); }
+function renderFilter() {
+  const pill = g => `<button data-g="${g.id}" aria-pressed="${!S.hide.has(g.id)}">${g.id}</button>`;
+  const prod = G.filter(g => g.key === "prod"), nw = G.filter(g => g.key === "new");
+  document.getElementById("filt").innerHTML = `<span class="fl">Show</span>${prod.map(pill).join("")}<span class="fl" style="margin-left:10px">New</span>${nw.map(pill).join("")}` +
+    `<button data-g="__all" aria-pressed="true" style="margin-left:10px;background:var(--bg-2);color:var(--fg-1)">Show all</button>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("#filt button"); if (!b) return;
+  const g = b.dataset.g;
+  if (g === "__all") S.hide.clear(); else if (S.hide.has(g)) S.hide.delete(g); else S.hide.add(g);
+  renderFilter(); renderAll();
+});
+renderFilter();
+document.getElementById("sub").textContent =
+  `Production: nine parties, ${DATA.n.prod.toLocaleString()} respondents. New: ${DATA.meta.word} clusters on the four rule-picked dimensions, ${DATA.n.new.toLocaleString()} respondents. Similar columns: groups ordered by how alike their policy views are; each new cluster's header names the production party whose policy views are closest. Similar rows: measures ordered so items with the same pattern across groups sit together. Click any row name to sort the columns by it (highest first, click again for lowest first, a third time to reset).`;
+const topics = [...new Set(DATA.policy.map(r => r.topic))];
+document.getElementById("topic").innerHTML += topics.map(t => `<option>${t}</option>`).join("");
+const CTL = { cols: [["similar", "By similarity"], ["typology", "Prod, then new"]], rows: [["similar", "By similarity"], ["topic", "By topic"]],
+              view: [["both", "Both"], ["prod", "Production 9"], ["new", "New " + DATA.meta.new_n]],
+              color: [["level", "Color by share"], ["gap", "Color by gap from everyone"]] };
+document.querySelectorAll("[data-ctl]").forEach(el => {
+  const k = el.dataset.ctl;
+  el.innerHTML = CTL[k].map(([v, l]) => `<button data-v="${v}" aria-pressed="${S[k] === v}">${l}</button>`).join("");
+});
+function sortStatus() {
+  const el = document.getElementById("sortinfo"), btn = document.getElementById("reset");
+  if (!S.sort) { el.textContent = ""; btn.hidden = true; return; }
+  el.textContent = `Columns sorted by “${S.sort.k.slice(2)}”, ${S.sort.dir > 0 ? "lowest" : "highest"} first`; btn.hidden = false;
+}
+document.addEventListener("click", e => {
+  const th = e.target.closest("th.csort");
+  if (th) {
+    const tb = th.dataset.t, g = th.dataset.g, cur = S.rsort[tb];
+    S.rsort[tb] = !cur || cur.g !== g ? { g, dir: -1 } : cur.dir < 0 ? { g, dir: 1 } : null;
+    tb === "policy" ? renderPolicy() : renderDemo(); return;
+  }
+  const c = e.target.closest("td.sortable");
+  if (c) {
+    const k = c.dataset.k;
+    S.sort = !S.sort || S.sort.k !== k ? { k, dir: -1 } : S.sort.dir < 0 ? { k, dir: 1 } : null;
+    renderAll(); sortStatus(); return;
+  }
+  if (e.target.id === "reset") { S.sort = null; renderAll(); sortStatus(); return; }
+  const b = e.target.closest("[data-ctl] button"); if (!b) return;
+  const k = b.parentElement.dataset.ctl; S[k] = b.dataset.v;
+  b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === S[k]));
+  document.body.dataset.color = S.color;
+  renderAll();
+});
+document.body.dataset.color = S.color;
+["topic", "q", "sets"].forEach(id => document.getElementById(id).addEventListener("input", renderPolicy));
+renderAll(); renderCross();
+if (DATA.meta.v2) {
+  document.getElementById("eyebrow").textContent = `CES 2024 · production typology vs the revised rule's ${DATA.meta.word} clusters`;
+  document.getElementById("setlegend").textContent = `● in production's 24 items · ◆ in the new ${DATA.meta.n_items}-item set`;
+}
+renderCousins();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+factor_k5,factor_k8,phi,passes_k5,passes_k8,enters_clustering
+Populist Conservatism (r 0.78),"new: CC24_443_2, CC24_443_3, CC24_443_1 (closest Populist Conservatism r 0.62)",0.912,True,False,False
+Institutional Distrust (r 0.74),"new: CC24_424, CC24_423, CC24_421_2 (closest Institutional Distrust r 0.67)",0.978,True,True,True
+Religious Traditionalism (r 0.84),Religious Traditionalism (r 0.73),0.623,True,True,False
+"new: CC24_340a, CC24_340b, CC24_444d (closest Religious Traditionalism r 0.50)","new: CC24_444d, CC24_444c, CC24_325 (closest Religious Traditionalism r 0.62)",0.578,False,False,False
+Security & Order (r 0.85),Security & Order (r 0.84),0.978,True,True,True

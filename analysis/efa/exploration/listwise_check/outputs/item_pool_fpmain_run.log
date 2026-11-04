@@ -1,0 +1,51 @@
+post-weighted respondents: 49,432; pool 69 items, FP 21 binaries
+after stages 1-4: 58 items
+  step 5: listwise n 44,986, 58 items, PA k 10, weak 7
+  step 5: listwise n 45,126, 51 items, PA k 9, weak 0
+(b) check: Heywood none, min eigenvalue 0.1673, PA k 9 vs fitted 9: PASS
+
+screen drops by stage: {'1': 3, '2': 6, '4': 23, '5': 7}
+final: 51 items, k = 9; first eigenvalues [15.58, 4.732, 2.983, 1.841, 1.733, 1.531, 1.423, 1.265, 1.219, 1.016, 0.948]
+production items surviving: ['CC24_321b', 'CC24_321e', 'CC24_323b', 'CC24_323d', 'CC24_325', 'CC24_340b', 'CC24_340c', 'CC24_340e', 'CC24_341a', 'CC24_341c', 'CC24_341d', 'CC24_421_2', 'CC24_423', 'CC24_424', 'CC24_440b', 'CC24_440c', 'pew_churatd'] (17 of 24)
+re-entered hand drops surviving: ['CC24_441a', 'pew_bornagain']
+
+score correlations with the rescored production factors (n 49,390):
+                          N1 (Populist Conservatism)  N2 (new)  N3 (Government Distrust)  N4 (new)  N5 (Institutional Distrust)  N6 (new)  N7 (Security & Order)  N8 (Religious Traditionalism)  N9 (new)
+Security & Order                                0.48     -0.14                      0.30     -0.32                         0.05      0.09                   0.84                           0.48     -0.44
+Institutional Distrust                          0.24     -0.33                     -0.01     -0.17                         0.79     -0.18                  -0.01                           0.18     -0.20
+Government Distrust                             0.07     -0.00                      0.46      0.00                         0.64     -0.14                  -0.15                          -0.09     -0.14
+Religious Traditionalism                        0.61     -0.23                      0.42     -0.60                         0.19     -0.06                   0.43                           0.84     -0.55
+Populist Conservatism                           0.83     -0.23                      0.58     -0.40                         0.30     -0.10                   0.36                           0.46     -0.62
+
+N1 (Populist Conservatism): CC24_321b +0.61, CC24_440b +0.47, CC24_440c +0.42, CC24_445b +0.39, CC24_326d +0.38, CC24_441a +0.37, CC24_444f +0.37, CC24_445a +0.36, CC24_341a +0.33
+
+N2 (new): CC24_308b_6 +0.74, CC24_308a_3 +0.71, CC24_308b_5 +0.69, CC24_308a_5 +0.69, CC24_308b_2 +0.53
+
+N3 (Government Distrust): CC24_328b -0.57, CC24_328e -0.46, CC24_323f -0.44, CC24_328a -0.39, CC24_341c +0.36, CC24_323d +0.36
+
+N4 (new): CC24_340a -0.89, CC24_340b -0.60
+
+N5 (Institutional Distrust): CC24_424 +0.86, CC24_423 +0.67, CC24_421_2 +0.61
+
+N6 (new): CC24_420_4 +0.64, CC24_420_1 +0.63, CC24_420_3 +0.61, CC24_420_2 +0.58, CC24_420_6 +0.53, CC24_420_5 +0.50
+
+N7 (Security & Order): CC24_443_4 +0.69, CC24_323b +0.58, CC24_321e +0.54, CC24_340e +0.46, CC24_340d +0.44, CC24_328c +0.36
+
+N8 (Religious Traditionalism): pew_bornagain +0.74, pew_churatd +0.69, CC24_444c +0.62, CC24_444d +0.55, CC24_325 +0.53, CC24_340c +0.50, CC24_444e +0.49, CC24_444b +0.37, CC24_444a +0.33
+
+N9 (new): CC24_443_2 +0.76, CC24_443_3 +0.76, CC24_443_5 +0.68, CC24_443_1 +0.52, CC24_341d -0.34
+
+Tucker phi with the rescored loadings on the 17 shared items: {'Security & Order': 0.975, 'Institutional Distrust': 0.874, 'Government Distrust': 0.615, 'Religious Traditionalism': 0.929, 'Populist Conservatism': 0.943}
+
+cap-8 DPGMM on 49,393 eligible (209 missing-data patterns): 2 solutions, modal share 0.80
+ARI vs the reference cap-8 parties on 49,390: 0.126
+        kept  jaccard
+party                
+CON    0.202    0.154
+STY    0.292    0.186
+LBR    0.557    0.281
+POP    0.196    0.125
+NAT    0.483    0.288
+PRG    0.000    0.000
+DAL    0.112    0.046
+DSA    0.584    0.313

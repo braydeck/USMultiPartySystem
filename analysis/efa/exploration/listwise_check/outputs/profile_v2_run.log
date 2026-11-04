@@ -1,0 +1,9 @@
+cap 5: 1 solutions (modal 1.00); per-cluster mean Jaccard [0.974, 0.888, 0.818, 0.795, 0.65]
+cap 10: 2 solutions (modal 0.95); per-cluster mean Jaccard [0.753, 0.64, 0.67, 0.879, 0.793, 0.83, 0.818, 0.66, 0.644, 0.905]
+Cultural conservatism (RT slot): r with CC24_445b +0.60 -> kept
+Distrust: r with CC24_423 +0.78 -> kept
+Security & Order: r with CC24_323b -0.65 -> flipped
+Economic right (PC slot): r with CC24_328e -0.54 -> flipped
+cap 5 largest swaps: [('E', 'D', np.float64(49.6)), ('B', 'C', np.float64(8.0)), ('C', 'B', np.float64(3.2)), ('B', 'D', np.float64(3.0)), ('C', 'D', np.float64(2.6)), ('D', 'E', np.float64(1.5))]
+cap 10 largest swaps: [('A.2', 'A.1', np.float64(24.3)), ('B.2', 'B.1', np.float64(19.9)), ('A.1', 'A.2', np.float64(12.2)), ('C.1', 'A.1', np.float64(11.8)), ('A.1', 'C.1', np.float64(9.3)), ('C.1', 'B.1', np.float64(8.3))]
+wrote /Users/bdecker/Local Projects/Personal/STV/analysis/efa/exploration/listwise_check/outputs/profile_v2/index.html

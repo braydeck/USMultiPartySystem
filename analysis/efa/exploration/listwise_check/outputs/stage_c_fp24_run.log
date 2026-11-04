@@ -1,0 +1,11 @@
+fp24: 36 items after Stages A/B; dropped [('CC24_308a_6', 'B modal share'), ('CC24_308b_4', 'B modal share'), ('CC24_308b_7', 'B modal share'), ('CC24_308a_8', 'B redundant with CC24_308b_9'), ('CC24_308a_2', 'B redundant with CC24_308b_2'), ('CC24_308a_4', 'B redundant with CC24_308a_3'), ('CC24_308b_9', 'B redundant with CC24_308b_2'), ('CC24_308b_8', 'B redundant with CC24_308a_7'), ('CC24_308b_3', 'B redundant with CC24_308b_6')]
+listwise n 45,214; parallel analysis k = 6, MAP k = 6
+
+[k6] 20 items after removing 16 (9 cross-loaders); rerun on the final items: parallel analysis k = 5, MAP k = 2  (differs from the fitted k; disclosed, not looped)
+                                                                              name  clean_items  batteries  two_item_factor  passes                                                       clean                                   battery_ids
+                                                         Security & Order (r 0.88)            3          1            False   False                               CC24_323b CC24_321d CC24_321e                          CC24_321a..CC24_324d
+new: CC24_308b_6, CC24_308b_5, CC24_308a_5 (closest Institutional Distrust r 0.28)            5          1            False   False CC24_308a_3 CC24_308a_5 CC24_308b_2 CC24_308b_5 CC24_308b_6                      CC24_308a_1..CC24_308b_9
+                                                   Institutional Distrust (r 0.86)            2          2             True    True                                         CC24_421_1 CC24_424   CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+         new: CC24_420_1, CC24_420_4, CC24_420_5 (closest Security & Order r 0.28)            2          1             True   False                                       CC24_420_1 CC24_420_4                        CC24_420_1..CC24_420_7
+                                                 Religious Traditionalism (r 0.96)            4          3            False    True                    pew_churatd CC24_325 CC24_340b CC24_340c CC24_325 | CC24_340a..CC24_341d | pew_churatd
+                                                    Populist Conservatism (r 0.83)            2          2             True    True                                         CC24_321b CC24_440b   CC24_321a..CC24_324d | CC24_440a..CC24_441g

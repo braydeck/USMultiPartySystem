@@ -112,10 +112,9 @@ LOADVARS=sorted(set([v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[v for v,_,_,
 EMITVARS=[v for v,_,_ in NEW]+[v for v,_,_ in NEW_INCR]+[sk for _,sk,_,_,_,_ in NEW_CAT]+VOTE24+TURNOUT+['pew_religimp','pew_prayer','newsint','numkids']+[d[0] for d in DENOM]
 
 def main():
-    df=pd.read_stata(DTA, columns=ITEMS+LOADVARS+['commonpostweight'], convert_categoricals=False)
-    mask=df[ITEMS+['commonpostweight']].notna().all(axis=1) & df['pew_churatd'].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
-    dc=df[mask].reset_index(drop=True)
+    df=pd.read_stata(DTA, columns=['caseid']+ITEMS+LOADVARS+['commonpostweight'], convert_categoricals=False)
     typo=pd.read_csv(TYPO)
+    dc=df.set_index('caseid').loc[typo.caseid.values].reset_index()  # CLAUDE.md trap 4: rows join the typology by caseid, in typology order
     assert len(dc)==len(typo), f"row mismatch {len(dc)} vs {len(typo)}"
     cl=typo['cluster'].values; w=dc['commonpostweight'].values.astype(float)
     def wpct(binvals, m):

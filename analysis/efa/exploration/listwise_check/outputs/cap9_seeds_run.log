@@ -1,0 +1,11 @@
+[Parallel(n_jobs=11)]: Using backend LokyBackend with 11 concurrent workers.
+[Parallel(n_jobs=11)]: Done  19 tasks      | elapsed:  4.4min
+[Parallel(n_jobs=11)]: Done  81 out of  81 | elapsed: 19.1min finished
+seed 42 refit vs stored: ARI 1.0000
+100 seeds, 5 solutions; best bound overall -22676.3 (seed 123)
+  solution  seeds  seeds_in_first_20  best_bound  mean_bound  is_20seed_most_common  is_20seed_best_fit  ari_vs_ten
+        1     36                  7    -22761.2    -22765.2                   True               False       0.646
+        2     25                  5    -22676.3    -22679.9                  False                True       0.703
+        3     24                  3    -22839.1    -22841.1                  False               False       0.656
+        4     14                  5    -22690.3    -22695.4                  False               False       0.613
+        5      1                  0    -22724.3    -22724.3                  False               False       0.588

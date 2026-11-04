@@ -1,0 +1,93 @@
+topic,item,label,input,A,A.1,A.2,B,B.1,B.2,C,C.1,C.2,C.3,D,D.1,D.2,E,E.1,Everyone
+Guns and police,CC24_321a,Ban assault rifles,False,16.0,24.2,3.7,61.7,66.5,43.0,71.0,47.2,82.2,83.5,93.0,91.9,96.8,93.6,93.1,58.6
+Guns and police,CC24_321b,Make concealed-carry permits easier to get,True,76.5,67.9,91.6,40.7,37.2,44.8,29.6,49.4,13.9,22.6,6.2,8.0,3.0,3.4,3.4,39.7
+Guns and police,CC24_321c,Background checks on all gun sales,False,83.8,92.4,71.2,90.0,93.5,73.0,97.2,93.1,98.2,96.8,99.3,99.1,99.8,99.7,99.7,92.5
+Guns and police,CC24_321f,"Mental health and school safety, red-flag and domestic-violence gun rules",False,66.9,80.9,46.0,85.5,90.2,65.1,95.3,86.2,96.8,97.9,98.5,97.7,99.6,99.4,99.3,86.1
+Guns and police,CC24_321d,"10% more police, even with fewer other services",False,88.7,92.9,87.6,42.6,48.7,38.6,69.9,76.3,57.2,68.4,19.7,15.1,14.7,0.2,0.2,57.9
+Guns and police,CC24_321e,"10% fewer police, more for other services",True,2.1,1.2,1.8,46.5,39.3,42.9,10.7,7.7,8.9,16.0,51.2,59.0,58.4,98.5,100.0,26.2
+Immigration,CC24_323a,"Legal status for undocumented workers (3+ years, taxes, no felonies)",True,17.7,24.0,7.5,70.0,73.5,38.0,64.6,41.6,69.8,85.8,89.9,89.3,95.1,99.1,99.3,58.5
+Immigration,CC24_323b,More border patrols on the US-Mexico border,True,98.4,99.6,97.6,62.4,70.7,53.3,95.8,97.2,93.1,95.7,62.0,49.0,67.9,5.2,0.9,80.1
+Immigration,CC24_323c,Build a wall on the US-Mexico border,False,97.7,97.7,98.4,45.4,48.0,43.5,58.6,86.4,30.8,41.8,5.0,4.5,2.2,0.0,0.0,54.9
+Immigration,CC24_323d,Permanent residency and a citizenship path for Dreamers,False,35.9,44.1,23.0,76.7,80.5,47.7,76.2,56.3,85.0,91.1,98.1,97.8,99.8,99.9,100.0,69.9
+Immigration,CC24_340f,Deny asylum to people who cross the border illegally,False,96.9,96.7,97.8,53.8,57.8,47.3,73.0,88.0,62.7,59.8,22.5,20.8,15.1,1.3,1.0,63.9
+Abortion and contraception,CC24_324a,Always allow abortion as a matter of choice,False,17.0,20.6,7.4,67.7,67.9,61.3,66.3,45.3,86.2,76.8,96.4,96.0,98.3,99.5,99.8,59.6
+Abortion and contraception,CC24_324b,"Abortion only for rape, incest or the woman's life",True,72.1,76.3,69.0,56.0,59.8,40.3,56.2,62.4,33.4,57.5,17.2,20.1,10.2,6.7,6.3,51.6
+Abortion and contraception,CC24_324c,Make abortion illegal in all circumstances,False,19.1,14.4,26.0,18.4,16.3,23.3,10.7,15.2,5.1,10.4,1.9,1.9,1.5,1.3,2.0,12.6
+Abortion and contraception,CC24_324d,Expand abortion access and affordability,False,14.5,19.5,4.7,66.8,68.7,50.1,65.9,42.1,83.8,79.6,96.7,95.6,98.9,99.7,99.8,58.6
+Abortion and contraception,CC24_340b,Bar government restrictions on abortion services,True,38.1,43.6,29.2,62.4,64.2,44.8,63.2,51.2,71.7,72.2,88.8,88.5,91.5,96.8,97.6,62.0
+Abortion and contraception,CC24_340a,Bar government restrictions on contraceptives,True,65.9,67.6,66.0,66.1,68.5,45.0,67.2,61.6,71.2,72.2,88.0,87.8,90.7,95.1,95.9,71.5
+Abortion and contraception,CC24_444c,State: ban abortion pills by mail,True,75.0,71.5,85.8,45.7,48.4,33.3,41.4,55.5,11.2,39.7,2.1,3.0,0.6,0.2,0.2,42.9
+Abortion and contraception,CC24_444d,State: bar travel out of state for an abortion,True,25.5,25.2,26.0,31.2,31.0,24.0,20.8,27.9,5.1,20.4,1.1,1.3,0.2,0.2,0.2,19.8
+Abortion and contraception,CC24_445b,Agree Roe was rightly overturned,True,95.6,94.5,99.1,58.3,58.8,48.9,48.9,71.1,19.8,40.6,7.0,10.3,1.4,1.0,1.5,54.3
+Abortion and contraception,CC24_325,Week limit: abortion legal at no point (0 weeks),True,24.4,19.2,33.4,11.0,9.8,14.3,7.9,15.3,1.4,6.5,0.8,0.8,0.2,0.5,0.6,11.4
+Abortion and contraception,CC24_325,Week limit: 15 weeks or earlier (includes 0),True,84.1,81.9,89.6,62.0,63.8,55.8,57.9,71.4,31.5,55.2,12.9,16.4,4.4,3.0,3.2,55.2
+Abortion and contraception,CC24_325,Week limit: none (40 weeks),True,0.7,0.8,0.2,6.8,6.0,8.9,6.6,3.3,14.4,7.2,28.0,25.3,37.5,53.9,54.7,11.0
+Environment and energy,CC24_326a,EPA power to regulate carbon dioxide,False,12.9,20.3,2.2,67.4,73.9,37.0,76.0,47.3,86.7,92.7,97.2,96.7,99.5,99.5,99.5,61.4
+Environment and energy,CC24_326b,Require 20% renewable electricity,False,16.9,24.3,5.0,77.0,83.4,49.1,79.4,53.9,86.0,91.5,96.5,96.0,98.5,99.3,99.4,65.3
+Environment and energy,CC24_326c,"Stronger Clean Air and Water Act enforcement, even at a cost in jobs",False,8.0,11.8,2.4,62.9,66.5,46.0,62.2,34.1,76.8,80.3,93.0,90.2,97.9,98.6,98.8,54.2
+Environment and energy,CC24_326d,Increase US fossil fuel production,True,97.0,97.7,98.5,53.1,56.4,35.4,60.2,81.7,32.4,53.5,11.5,12.5,4.2,0.9,0.7,57.9
+Environment and energy,CC24_326e,Halt new oil and gas leases on federal land,True,3.5,4.6,1.1,52.7,55.2,31.9,44.2,21.1,55.4,59.5,83.2,81.7,93.1,98.8,99.0,43.7
+Environment and energy,CC24_326f,Prevent bans on gas stoves,True,90.9,88.7,95.8,64.6,65.7,48.1,65.3,75.8,58.2,62.2,48.6,52.1,34.7,25.7,27.0,67.7
+"Housing, health care, student debt",CC24_328a,Relax local zoning to allow more apartments,False,36.3,36.4,36.7,54.7,55.8,44.0,51.5,41.1,52.5,63.5,59.4,55.9,68.0,66.1,64.9,49.9
+"Housing, health care, student debt",CC24_328b,Tax incentives for low-income housing,True,41.5,49.6,29.3,79.8,86.0,36.1,77.4,61.1,74.9,94.4,94.7,93.6,98.3,98.5,98.0,71.8
+"Housing, health care, student debt",CC24_328c,Medicaid work requirement for childless adults,False,74.1,72.8,80.1,49.5,51.8,41.8,57.1,61.7,52.4,52.9,32.0,33.1,22.9,9.3,9.3,53.9
+"Housing, health care, student debt",CC24_328d,Repeal the Affordable Care Act,True,82.4,74.5,96.5,41.5,37.8,47.5,26.4,49.0,7.4,18.7,1.5,2.2,0.3,1.1,1.3,39.6
+"Housing, health care, student debt",CC24_328e,Expand Medicaid to low-income adults and families,True,46.8,59.3,25.5,86.1,92.1,43.8,85.8,72.7,83.7,99.2,99.0,98.5,99.9,99.9,99.9,77.9
+"Housing, health care, student debt",CC24_323f,"Forgive up to $20,000 of student debt",True,2.6,1.9,1.1,80.4,86.1,35.8,50.9,19.9,42.8,95.1,95.1,95.0,98.3,100.0,100.0,53.2
+Taxes and federal spending,CC24_341a,Extend the 2017 tax cuts,True,92.0,90.2,97.5,70.7,73.5,43.5,62.8,76.6,36.5,59.7,25.0,34.2,7.0,10.4,13.2,63.6
+Taxes and federal spending,CC24_341b,Raise the corporate tax rate to 28%,False,16.3,24.2,3.6,55.5,60.7,31.8,68.4,47.3,80.1,79.9,91.6,88.6,98.8,98.6,98.3,56.6
+Taxes and federal spending,CC24_341c,Raise taxes on $400k+ earners to 35%,True,23.4,34.3,6.4,67.8,74.1,36.6,78.2,58.4,82.2,91.0,93.6,92.2,97.5,98.8,98.7,64.4
+Taxes and federal spending,CC24_341d,$150B a year on infrastructure for 8 years,True,66.2,82.1,48.4,67.5,75.3,35.1,87.9,72.2,91.1,97.1,96.8,95.4,99.5,99.0,99.2,79.8
+State spending (share wanting an increase),CC24_443_1,Welfare,True,4.1,6.7,0.4,36.1,38.6,10.5,33.3,18.1,19.7,68.9,62.2,56.9,81.5,93.9,93.4,33.3
+State spending (share wanting an increase),CC24_443_2,Health care,True,28.9,45.9,5.3,57.7,69.4,15.5,79.0,57.4,72.4,99.8,93.1,89.7,99.7,99.9,99.8,64.1
+State spending (share wanting an increase),CC24_443_3,Education,True,37.7,55.8,13.4,54.3,64.4,14.1,75.8,55.3,72.8,98.1,92.1,88.6,98.7,99.8,99.8,64.8
+State spending (share wanting an increase),CC24_443_4,Law enforcement,True,83.1,95.3,74.5,24.4,36.7,9.1,73.6,70.2,55.4,88.0,24.5,14.9,23.8,0.0,0.0,54.7
+State spending (share wanting an increase),CC24_443_5,Transportation and infrastructure,True,60.1,72.1,48.1,43.5,50.5,16.2,71.5,57.8,70.4,92.7,83.9,78.8,93.8,94.0,94.0,65.9
+Other bills in Congress,CC24_340c,Federal recognition of same-sex and interracial marriage,True,36.6,41.8,27.0,63.4,64.4,49.3,66.6,50.5,87.3,73.3,97.5,97.1,99.4,100.0,100.0,64.6
+Other bills in Congress,CC24_340d,Ban TikTok unless sold to a US company,True,75.9,83.3,71.0,37.9,44.3,26.0,63.7,65.6,59.7,62.3,42.5,34.9,46.3,14.6,11.3,56.2
+Other bills in Congress,CC24_340e,Renew warrantless surveillance programs,False,25.0,33.4,13.1,39.5,44.0,25.0,48.3,40.5,45.3,50.8,24.8,24.3,19.7,8.9,7.6,34.2
+Elections and trust in government,CC24_421_1,Agree US elections are fair,True,58.7,66.9,51.2,41.9,49.8,27.9,75.2,62.8,84.1,77.2,70.6,63.0,81.4,60.0,55.4,62.5
+Elections and trust in government,CC24_421_2,"Agree my state ran a fair, accurate 2024 election",False,74.3,79.8,68.3,51.6,58.2,38.2,82.7,77.1,88.9,83.3,84.5,79.7,92.6,82.4,79.5,74.5
+Elections and trust in government,CC24_423,Little or no trust in the federal government,True,82.7,73.3,91.0,62.9,53.9,82.2,42.5,62.6,43.1,35.9,57.1,61.2,54.0,81.1,85.0,62.0
+Elections and trust in government,CC24_424,Little or no trust in the state government,True,52.2,45.6,57.1,54.9,46.6,77.8,32.2,45.6,30.2,29.4,40.3,42.0,38.0,54.8,58.2,44.7
+Race and gender attitudes (share agreeing),CC24_440a,White people have advantages because of their skin color,False,7.5,10.3,2.7,58.3,60.2,37.3,53.3,26.0,69.2,76.5,94.9,94.9,97.4,99.5,99.5,50.9
+Race and gender attitudes (share agreeing),CC24_440b,"Racial problems are rare, isolated situations",True,60.5,53.1,75.7,22.4,20.5,29.0,19.1,33.0,11.1,10.2,1.6,2.0,0.4,0.0,0.0,27.4
+Race and gender attitudes (share agreeing),CC24_440c,Women seek power by getting control over men,True,40.6,35.6,49.3,27.6,27.1,27.7,19.3,28.3,9.7,13.9,2.6,3.1,0.4,0.1,0.2,23.1
+Race and gender attitudes (share agreeing),CC24_440d,Women are too easily offended,False,62.8,59.7,69.7,36.5,36.6,39.4,32.2,45.6,17.8,23.3,5.2,6.1,1.7,0.7,0.8,35.5
+Race and gender attitudes (share agreeing),CC24_441a,Blacks should work their way up without special favors,False,86.8,86.3,90.8,38.9,42.5,38.6,53.5,71.5,36.7,36.8,6.0,5.6,2.2,0.2,0.1,49.2
+Race and gender attitudes (share agreeing),CC24_441b,Slavery and discrimination make it hard for Blacks to rise,True,5.7,6.6,2.6,49.7,50.9,30.5,42.9,18.7,56.3,69.4,92.5,92.1,97.5,99.8,99.7,45.1
+Race and gender attitudes (share agreeing),CC24_441e,I resent when Whites deny racial discrimination exists,False,10.9,13.8,8.3,59.6,63.4,34.6,67.5,41.9,69.1,81.8,90.7,90.3,94.8,96.6,97.1,61.5
+Race and gender attitudes (share agreeing),CC24_441f,Whites get away with offenses Blacks would not,False,7.9,11.6,5.4,65.7,68.5,42.1,68.0,36.8,70.5,86.6,93.8,93.2,95.6,99.7,99.9,63.8
+Race and gender attitudes (share agreeing),CC24_441g,Whites don't try hard to understand Black Americans' problems,False,10.2,13.8,6.3,56.0,58.5,35.8,56.0,31.3,52.0,73.8,83.0,83.2,87.2,95.1,96.4,55.1
+Race and gender attitudes (share agreeing),CC24_445a,Agree race in college admissions is unconstitutional,True,93.7,92.5,97.0,74.0,77.3,56.1,72.8,83.3,55.3,64.0,27.0,34.6,8.9,7.4,8.9,68.0
+State culture and schooling policies,CC24_444a,Ban gender-transition surgery for minors,True,90.2,88.9,93.9,62.8,64.8,48.7,61.5,76.7,42.7,52.6,23.7,29.0,10.6,6.6,6.8,60.7
+State culture and schooling policies,CC24_444b,Parental consent before teachers use a new name or pronoun,True,96.5,96.6,98.8,63.6,69.0,43.6,71.5,83.7,42.1,74.8,13.7,14.6,3.8,0.3,0.4,63.6
+State culture and schooling policies,CC24_444e,Age verification for adult websites,True,89.5,92.8,87.3,76.6,81.2,47.9,85.4,86.0,74.9,92.0,65.6,64.9,62.1,39.2,36.5,79.4
+State culture and schooling policies,CC24_444f,School vouchers for private or charter schools,True,83.4,77.8,94.6,69.6,72.0,46.0,51.3,59.4,22.3,59.8,21.3,30.6,3.5,8.9,12.2,56.8
+Religion,pew_churatd,Attend services weekly or more,True,37.8,34.6,44.0,23.9,25.6,21.6,25.1,28.2,13.2,29.7,9.7,10.1,7.8,3.9,3.3,24.8
+Religion,pew_religimp,Religion very important,False,55.8,54.8,60.9,38.4,40.6,28.8,39.5,44.0,20.4,47.1,12.4,12.6,9.9,7.0,6.5,37.6
+Religion,pew_prayer,Pray daily or more,False,58.0,57.4,61.2,39.4,42.2,31.2,45.3,49.5,27.0,54.3,19.1,19.1,16.0,7.3,5.9,41.4
+Religion,pew_bornagain,Born-again or evangelical,True,47.9,46.6,52.7,36.8,39.5,20.5,34.7,39.1,13.8,42.3,8.0,9.5,3.7,1.8,1.8,32.6
+"Personal economy, past year",CC24_302,Household income decreased,False,37.8,36.9,39.4,31.0,29.4,35.5,24.0,31.7,15.9,19.0,13.8,16.7,9.6,19.4,21.9,27.2
+"Personal economy, past year",CC24_303,Prices increased a lot,False,81.1,81.6,81.3,51.4,51.4,46.8,53.4,69.6,33.8,50.5,28.9,34.2,19.1,35.3,39.1,55.6
+Use of US troops (share selecting),CC24_420_1,To ensure the oil supply,False,30.7,33.1,29.1,16.9,18.7,9.2,22.1,25.2,16.4,21.5,7.8,7.2,6.0,1.9,1.9,20.1
+Use of US troops (share selecting),CC24_420_2,To destroy a terrorist camp,False,73.2,76.2,72.2,33.9,38.0,20.8,55.6,59.1,58.5,54.2,48.1,43.8,49.2,23.0,19.2,53.6
+Use of US troops (share selecting),CC24_420_3,To intervene in genocide or civil war,False,24.1,28.6,17.5,26.8,30.6,10.5,36.3,29.5,42.1,41.5,56.4,53.6,62.6,62.6,61.4,35.7
+Use of US troops (share selecting),CC24_420_4,To spread democracy,False,10.8,13.9,6.1,16.2,18.2,7.1,21.7,15.8,22.0,29.7,20.6,18.5,22.0,9.6,8.5,16.9
+Use of US troops (share selecting),CC24_420_5,To protect allies under attack,False,68.3,72.5,65.1,51.6,56.0,36.0,69.8,65.0,74.2,73.6,78.7,75.6,83.7,59.1,54.2,67.0
+Use of US troops (share selecting),CC24_420_6,To help the UN uphold international law,False,18.6,24.8,9.3,34.4,37.8,25.5,48.2,33.4,58.7,57.7,70.1,65.6,80.7,71.0,67.6,42.0
+Ukraine (share selecting),CC24_308a_2,Humanitarian aid,False,37.0,40.7,32.5,37.1,40.9,25.6,54.5,40.8,68.7,64.5,80.9,76.3,90.5,89.9,88.9,52.4
+Ukraine (share selecting),CC24_308a_3,Sanctions on Russia,False,36.8,39.2,35.6,18.4,20.5,14.8,38.8,30.0,59.4,43.1,70.9,61.8,87.2,70.7,66.8,41.3
+Ukraine (share selecting),CC24_308a_4,Arms to Ukraine,False,21.3,24.2,18.0,15.2,17.0,12.6,34.9,23.1,56.0,43.5,65.7,54.9,82.7,55.7,50.8,33.6
+Ukraine (share selecting),CC24_308a_5,Non-combat military staff,False,10.1,12.1,6.8,13.3,14.7,6.7,21.5,13.1,34.7,29.4,48.1,41.4,59.8,42.9,38.1,22.4
+Ukraine (share selecting),CC24_308a_6,Significant force to fight Russia,False,2.2,2.7,1.5,5.5,5.6,1.5,5.9,4.2,5.9,8.6,7.8,7.6,8.8,7.5,7.5,5.2
+Ukraine (share selecting),CC24_308a_7,Negotiate a peace accord,False,46.3,47.7,47.1,29.2,31.3,20.6,39.7,36.1,43.7,45.4,49.3,47.4,53.4,53.9,53.3,41.8
+Ukraine (share selecting),CC24_308a_8,Rebuilding aid after the war,False,18.2,21.3,13.7,29.1,31.2,17.3,36.9,23.8,48.4,49.2,70.1,66.1,81.1,82.0,80.8,37.9
+Israel and Gaza (share selecting),CC24_308b_2,"Food, medicine and aid to affected communities",False,32.0,37.1,25.3,34.8,37.4,20.6,47.3,35.1,60.3,57.6,77.2,72.9,88.0,85.9,84.3,47.5
+Israel and Gaza (share selecting),CC24_308b_3,Arms to Israel,False,58.9,59.1,63.9,10.1,11.1,9.2,23.1,30.9,21.9,21.5,11.3,8.0,12.4,2.9,2.3,27.6
+Israel and Gaza (share selecting),CC24_308b_4,Arms to Hamas,False,0.3,0.3,0.1,2.6,2.4,1.1,0.7,0.6,0.4,0.9,2.1,2.7,1.4,8.7,10.9,1.5
+Israel and Gaza (share selecting),CC24_308b_5,Navy and troops to prevent escalation,False,26.8,29.8,24.9,12.5,13.8,6.8,21.5,17.7,27.6,25.3,30.7,26.2,38.2,27.7,26.9,23.1
+Israel and Gaza (share selecting),CC24_308b_6,Non-combat military staff to Israel,False,28.8,30.1,29.8,9.9,10.9,3.2,16.2,17.5,16.4,17.2,13.5,11.2,16.3,5.7,4.1,17.6
+Israel and Gaza (share selecting),CC24_308b_7,Non-combat military staff to Gaza,False,2.1,2.5,1.5,7.4,6.8,4.6,4.4,2.6,5.5,7.2,17.6,18.5,20.3,39.1,41.9,8.1
+Israel and Gaza (share selecting),CC24_308b_8,Negotiate a peace settlement,False,32.7,36.6,27.7,32.6,36.0,20.1,48.6,36.5,63.1,58.3,77.1,71.7,86.7,85.2,84.1,47.6
+Israel and Gaza (share selecting),CC24_308b_9,Rebuilding aid after the war,False,20.1,23.6,15.2,28.9,31.1,15.5,35.7,23.6,46.1,47.7,72.7,69.5,84.2,90.6,89.7,38.9

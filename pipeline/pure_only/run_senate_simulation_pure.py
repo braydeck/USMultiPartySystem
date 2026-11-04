@@ -60,7 +60,7 @@ STV_SURVIVORS        = 5      # STV primary winnows to this many finalists
 MIN_RESPONDENTS      = 10     # skip state if fewer than this many CES respondents
 
 # ── Factor columns (needed for centroid computation) ─────────────────────────
-FACTOR_COLS    = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+FACTOR_COLS    = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -70,13 +70,13 @@ FACTOR_COLS    = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
 def compute_cluster_centroids(efa_df: pd.DataFrame,
                                typology_df: pd.DataFrame) -> np.ndarray:
     """
-    Weighted mean of FS_F1–FS_F5 per cluster (0–9).
-    Returns (10, 5) float64 array.
+    Weighted mean of the four factor scores per cluster (0–9).
+    Returns (10, 4) float64 array.
     """
-    factor_cols = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+    factor_cols = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
     weights  = efa_df["commonpostweight"].values
     clusters = typology_df["cluster"].values.astype(int)
-    centroids = np.zeros((10, 5), dtype=np.float64)
+    centroids = np.zeros((10, 4), dtype=np.float64)
     for k in range(10):
         mask = clusters == k
         w_k  = weights[mask]
@@ -641,7 +641,7 @@ def main():
     cluster_centroids = compute_cluster_centroids(efa, typology)
     print("  Cluster | F1_sec  F2_eskep F3_gdis  F4_rtrad F5_pcon")
     for k in ACTIVE_CLUSTERS:
-        vals = "  ".join(f"{cluster_centroids[k, f]:+.3f}" for f in range(5))
+        vals = "  ".join(f"{cluster_centroids[k, f]:+.3f}" for f in range(4))
         print(f"  C{k} {PARTY_ABBR[k]:<5}| {vals}")
 
     # ── State loop ────────────────────────────────────────────────────────────

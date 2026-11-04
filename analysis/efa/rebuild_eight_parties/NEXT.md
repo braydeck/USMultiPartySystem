@@ -1,5 +1,7 @@
 # NEXT: Rebuild production on the rescored cap-8 typology   (brief written 2026-11-02 by the listwise_check session)
 
+> **Superseded 2026-11-04** by `analysis/efa/rebuild_nine_parties/NEXT.md` (the nine-party ruling). Not started.
+
 ## Goal
 Replace the nine-party production typology with the eight-party one the listwise check found more stable: same
 24 items, loadings re-estimated on all 49,432 post-weighted respondents, each respondent scored on the items

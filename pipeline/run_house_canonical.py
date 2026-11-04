@@ -41,9 +41,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT, POP_PER_SEAT_TRIPLE, STATE_URBAN_PCT
 from party_codes import CLUSTER_TO_PARTY
 
-FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+FACTOR_COLS      = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
+FACTOR_WEIGHTS   = np.ones(4)  # uniform — centroid geometry handles discrimination
 MIN_RESPONDENTS  = 5
 
 CANDIDATES = [{"name": p, "cluster": k} for k, p in CLUSTER_TO_PARTY.items()]
@@ -402,10 +402,10 @@ def assign_voters_to_districts_geo(voter_counties: np.ndarray,
 
 def compute_cluster_centroids(efa_df: pd.DataFrame,
                               typology_df: pd.DataFrame) -> np.ndarray:
-    """Weighted mean of FS_F1–FS_F5 per cluster (0–9). Returns (10, 5)."""
+    """Weighted mean of the four factor scores per cluster (0–9). Returns (10, 4)."""
     weights  = efa_df["commonpostweight"].values
     clusters = typology_df["cluster"].values.astype(int)
-    centroids = np.zeros((10, 5), dtype=np.float64)
+    centroids = np.zeros((10, 4), dtype=np.float64)
     for k in range(10):
         mask = clusters == k
         w_k  = weights[mask]

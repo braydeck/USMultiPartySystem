@@ -1,0 +1,6 @@
+factor,name,clean_items,batteries,two_item_factor,passes,clean,battery_ids,draw_pass_rate,median_phi,enters
+0,"new: CC24_444f, CC24_341a, CC24_444c (closest Religious Traditionalism r 0.81)",13,6,False,True,CC24_321b CC24_324b CC24_326d CC24_328d CC24_341a CC24_440c CC24_444a CC24_444b CC24_444c CC24_444e CC24_444f CC24_445a CC24_445b,CC24_321a..CC24_324d | CC24_326a..CC24_323f | CC24_340a..CC24_341d | CC24_440a..CC24_441g | CC24_444a..CC24_444f | CC24_445a..CC24_445b,1.0,0.984,True
+1,Government Distrust (r 0.75),3,2,False,True,CC24_421_1 CC24_423 CC24_424,CC24_421_1..CC24_421_2 | CC24_423..CC24_424,1.0,0.997,True
+2,Security & Order (r 0.81),4,3,False,True,CC24_321e CC24_323b CC24_340d CC24_443_4,CC24_321a..CC24_324d | CC24_340a..CC24_341d | CC24_443_1..CC24_443_5,1.0,0.996,True
+3,Populist Conservatism (r 0.75),8,3,False,True,CC24_328b CC24_328e CC24_341c CC24_341d CC24_443_1 CC24_443_2 CC24_443_3 CC24_443_5,CC24_326a..CC24_323f | CC24_340a..CC24_341d | CC24_443_1..CC24_443_5,1.0,0.998,True
+4,Religious Traditionalism (r 0.72),2,1,True,False,CC24_340a CC24_340b,CC24_340a..CC24_341d,0.54,0.971,False

@@ -15,7 +15,7 @@ from pathlib import Path
 BASE_DIR      = Path(__file__).parent.parent
 TYPOLOGY_PATH = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 EFA_PATH      = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
-FACTOR_COLS   = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+FACTOR_COLS   = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
 
 POSITIONAL_SIGMA = 0.35
 

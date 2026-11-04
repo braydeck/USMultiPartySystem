@@ -1,0 +1,27 @@
+n = 45,214; foreign-policy boxes per question: [6, 7, 8]
+        grouping  domestic  foreign_policy_by_question
+      revised 2    0.1180                      0.0389
+      revised 3    0.1404                      0.0781
+      revised 4    0.1438                      0.0852
+      revised 5    0.1444                      0.0906
+      revised 6    0.1500                      0.0921
+      revised 7    0.1591                      0.0920
+      revised 8    0.1593                      0.1002
+      revised 9    0.1610                      0.1008
+     revised 10    0.1695                      0.1014
+    current ten    0.1331                      0.0963
+production nine    0.1302                      0.0974
+
+                        set           a               b    diff      lo     hi  p_a_higher
+                  domestic  revised 10     current ten  0.0364  0.0292 0.0441       1.000
+                  domestic  revised 10 production nine  0.0393  0.0317 0.0467       1.000
+                  domestic   revised 9 production nine  0.0308  0.0232 0.0381       1.000
+                  domestic current ten production nine  0.0029 -0.0040 0.0107       0.775
+                  domestic  revised 10       revised 5  0.0251  0.0208 0.0316       1.000
+                  domestic   revised 5       revised 4  0.0006 -0.0025 0.0034       0.710
+foreign policy by question  revised 10     current ten  0.0052  0.0025 0.0083       1.000
+foreign policy by question  revised 10 production nine  0.0041  0.0005 0.0071       0.990
+foreign policy by question   revised 9 production nine  0.0034  0.0001 0.0063       0.980
+foreign policy by question current ten production nine -0.0011 -0.0046 0.0016       0.190
+foreign policy by question  revised 10       revised 5  0.0108  0.0091 0.0135       1.000
+foreign policy by question   revised 5       revised 4  0.0054  0.0033 0.0077       1.000

@@ -1,0 +1,14 @@
+fit,factor,name,clean_items,batteries,two_item_factor,passes,clean,battery_ids
+k5,0,Populist Conservatism (r 0.78),10,5,False,True,CC24_323d CC24_326e CC24_328b CC24_328e CC24_341c CC24_341d CC24_440b CC24_443_1 CC24_443_2 CC24_443_3,CC24_321a..CC24_324d | CC24_326a..CC24_323f | CC24_340a..CC24_341d | CC24_440a..CC24_441g | CC24_443_1..CC24_443_5
+k5,1,Institutional Distrust (r 0.74),3,2,False,True,CC24_421_2 CC24_423 CC24_424,CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+k5,2,Religious Traditionalism (r 0.84),11,8,False,True,pew_churatd pew_bornagain CC24_324b CC24_325 CC24_341a CC24_440c CC24_444a CC24_444c CC24_444d CC24_444f CC24_445a,CC24_321a..CC24_324d | CC24_325 | CC24_340a..CC24_341d | CC24_440a..CC24_441g | CC24_444a..CC24_444f | CC24_445a..CC24_445b | pew_bornagain | pew_churatd
+k5,3,"new: CC24_340a, CC24_340b, CC24_444d (closest Religious Traditionalism r 0.50)",2,1,True,False,CC24_340a CC24_340b,CC24_340a..CC24_341d
+k5,4,Security & Order (r 0.85),4,3,False,True,CC24_321e CC24_323b CC24_340d CC24_443_4,CC24_321a..CC24_324d | CC24_340a..CC24_341d | CC24_443_1..CC24_443_5
+k8,0,Populist Conservatism (r 0.80),3,2,False,True,CC24_321b CC24_440b CC24_441a,CC24_321a..CC24_324d | CC24_440a..CC24_441g
+k8,1,"new: CC24_424, CC24_423, CC24_421_2 (closest Institutional Distrust r 0.67)",3,2,False,True,CC24_421_2 CC24_423 CC24_424,CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+k8,2,Religious Traditionalism (r 0.73),2,2,True,True,pew_churatd pew_bornagain,pew_bornagain | pew_churatd
+k8,3,Security & Order (r 0.84),3,2,False,True,CC24_321e CC24_323b CC24_443_4,CC24_321a..CC24_324d | CC24_443_1..CC24_443_5
+k8,4,"new: CC24_328a, CC24_328b, CC24_323f (closest Populist Conservatism r 0.47)",2,1,True,False,CC24_328a CC24_328b,CC24_326a..CC24_323f
+k8,5,"new: CC24_444f, CC24_341a, CC24_445a (closest Religious Traditionalism r 0.64)",2,2,True,True,CC24_341a CC24_444f,CC24_340a..CC24_341d | CC24_444a..CC24_444f
+k8,6,"new: CC24_444d, CC24_444c, CC24_325 (closest Religious Traditionalism r 0.62)",2,1,True,False,CC24_444c CC24_444d,CC24_444a..CC24_444f
+k8,7,"new: CC24_443_2, CC24_443_3, CC24_443_1 (closest Populist Conservatism r 0.62)",3,1,False,False,CC24_443_1 CC24_443_2 CC24_443_3,CC24_443_1..CC24_443_5

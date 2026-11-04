@@ -1,0 +1,6 @@
+Step 4: per-respondent geography and turnout  [2 chain(s)]
+  ok in 8s
+Step 6: ballots  [2 chain(s)]
+  ok in 4s
+Step 7: canonical district checkpoints  [2 chain(s)]
+  FAILED: pipeline/run_house_canonical.py (+0 more; see /Users/bdecker/Local Projects/Personal/STV/data/outputs/rebuild_from_typology.log)

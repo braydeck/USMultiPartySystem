@@ -1,0 +1,11 @@
+item,battery,stage,value,h2
+CC24_308a_6,CC24_308a,2 modal share,0.948,
+CC24_308b_4,CC24_308b,2 modal share,0.985,
+CC24_308b_7,CC24_308b,2 modal share,0.919,
+CC24_308a_8,CC24_308a,4 redundant with CC24_308b_9,0.876,
+CC24_308a_2,CC24_308a,4 redundant with CC24_308b_2,0.833,
+CC24_308a_4,CC24_308a,4 redundant with CC24_308a_3,0.801,
+CC24_308b_9,CC24_308b,4 redundant with CC24_308b_2,0.754,
+CC24_308b_8,CC24_308b,4 redundant with CC24_308a_7,0.732,
+CC24_308b_3,CC24_308b,4 redundant with CC24_308b_6,0.701,
+CC24_308a_7,CC24_308a,5 weak loading/communality,0.365,0.154

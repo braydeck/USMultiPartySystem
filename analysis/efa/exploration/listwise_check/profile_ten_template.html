@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clusters Profile</title>
+<style>
+/*TOKENS*/
+:root { --gap-pos: #c27040; --gap-neg: #307ca6; }
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1500px; margin: 0 auto; padding: 32px 16px 64px; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+h2 { font-family: var(--font-display); font-size: 21px; letter-spacing: -0.01em; margin: 0 0 6px; }
+h3 { font-family: var(--font-display); font-size: 18px; letter-spacing: -0.01em; margin: 0; }
+.sub { color: var(--fg-2); margin: 0 0 20px; max-width: 900px; }
+section { margin: 44px 0 0; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 8px 0 0; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--fg-2); margin: 0 0 10px; }
+.ramp { width: 160px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, var(--vik-0), var(--vik-25), var(--vik-50), var(--vik-75), var(--vik-100)); }
+.ramp.c { background: linear-gradient(90deg, var(--cividis-0), var(--cividis-50), var(--cividis-100)); }
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: var(--radius-pill); }
+.badge.u { background: var(--gap-pos); color: #fff; }
+.badge.s { background: var(--bg-3); color: var(--fg-2); border: 1px solid var(--border-default); }
+.um { color: var(--gap-pos); font-weight: 700; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+.card { background: var(--bg-2); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 16px; min-width: 0; }
+.card.unstable { border-color: var(--gap-pos); }
+.ch { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.share { font-size: 22px; font-weight: 600; font-family: var(--font-display); letter-spacing: -0.02em; }
+.meta { font-size: 12px; color: var(--fg-3); margin: 2px 0 10px; }
+.stab { font-size: 12px; color: var(--fg-2); margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.k { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); font-weight: 600; margin: 10px 0 4px; }
+.fb { display: grid; grid-template-columns: 132px 1fr 44px; gap: 6px; align-items: center; font-size: 12px; margin: 2px 0; }
+.track { position: relative; height: 10px; background: var(--bg-3); border-radius: 2px; }
+.track .mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--border-strong); }
+.track .bar { position: absolute; top: 0; bottom: 0; border-radius: 2px; }
+.fb .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg-2); }
+ul.d { list-style: none; padding: 0; margin: 0; font-size: 12.5px; }
+ul.d li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; border-bottom: 1px solid var(--border-subtle); }
+ul.d .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+ul.d .ev { color: var(--fg-3); font-size: 11px; }
+.hi { color: var(--gap-pos); font-weight: 600; } .lo { color: var(--gap-neg); font-weight: 600; }
+.party { font-size: 12px; color: var(--fg-2); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-default); }
+
+.wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); max-height: 80vh; }
+table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 7px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+thead th { position: sticky; top: 0; background: var(--bg-2); z-index: 2; vertical-align: bottom; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-default); }
+th.lbl, td.lbl { position: sticky; left: 0; background: var(--bg-2); z-index: 1; text-align: left; white-space: normal; min-width: 260px; max-width: 360px; }
+thead th.lbl { z-index: 3; }
+td.v { text-align: center; min-width: 50px; }
+td.sep, th.sep { border-left: 2px solid var(--border-strong); }
+tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); font-size: 12px; }
+tr.topic td.lbl { background: var(--bg-3); }
+.gs { display: block; font-weight: 400; color: var(--fg-3); font-size: 11px; }
+.tp { display: block; font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; }
+.mk { font-size: 10px; color: var(--fg-3); margin-left: 4px; }
+td.diag { outline: 2px solid var(--fg-1); outline-offset: -2px; }
+td.sortable { cursor: pointer; } td.sortable:hover { color: var(--plaid-blue-600); }
+td.sorted { color: var(--plaid-blue-600); font-weight: 600; } .arr { font-size: 10px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.seg { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-pill); overflow: hidden; }
+.seg button { background: var(--bg-2); color: var(--fg-2); border: 0; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+input[type=search], select { font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--fg-1); }
+label.chk { font-size: 13px; color: var(--fg-2); display: inline-flex; gap: 6px; align-items: center; }
+.reset { font: inherit; font-size: 13px; padding: 5px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-pill); background: var(--bg-2); color: var(--fg-1); cursor: pointer; }
+.sortinfo { font-size: 13px; color: var(--fg-2); }
+.grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; } .grid2 > div { min-width: 0; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0,1fr); } th.lbl, td.lbl { min-width: 180px; } .fb { grid-template-columns: 110px 1fr 40px; } }
+@media print { .wrap { max-height: none; overflow: visible; } .controls { display: none; } .card { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow" id="eyebrow"></p>
+  <h1 id="h1"></h1>
+  <p class="sub" id="sub"></p>
+
+  <section id="s-cards" style="margin-top:20px">
+    <p class="eyebrow">Cluster profiles</p>
+    <h2>Each cluster's factor positions and most distinctive views</h2>
+    <div class="legend"><span><span class="badge u">◌ unstable</span> resample overlap below 0.75</span><span>Bars: cluster mean in SD units from everyone, scale ±2 SD</span><span><span class="hi">higher</span> / <span class="lo">lower</span> than everyone</span></div>
+    <div class="cards" id="cards"></div>
+    <p class="caption">Distinctive rows are the policy items and demographic rows with the largest gap from everyone, in points. Party ID and vote are context and never select a row.</p>
+  </section>
+
+  <section id="s-factors">
+    <p class="eyebrow">Factor positions</p>
+    <h2>Where each cluster sits on the four clustering dimensions</h2>
+    <div class="legend"><span>Below everyone</span><span class="ramp"></span><span>Above everyone</span><span>· cluster mean in SD units, color spans ±1.5 SD</span></div>
+    <div class="wrap"><table id="t-factors"></table></div>
+    <p class="caption">Scores as clustered: all four adjusted for in-power alignment. Oriented so higher = more of the name.</p>
+  </section>
+
+  <section id="s-policy">
+    <p class="eyebrow">Policy views</p>
+    <h2>Share of each cluster giving the stated answer</h2>
+    <div class="legend"><span>Below everyone</span><span class="ramp"></span><span>Above everyone</span><span>· color spans ±40 points from everyone</span><span>◆ clustering input (41 items)</span></div>
+    <div class="controls">
+      <span class="seg" data-ctl="rows"></span>
+      <select id="topic"><option value="">All topics</option></select>
+      <input type="search" id="q" placeholder="Filter items">
+      <label class="chk"><input type="checkbox" id="sets"> Only clustering inputs</label>
+      <span class="sortinfo" id="sortinfo"></span><button id="reset" class="reset" hidden>Reset column order</button></div>
+    <div class="wrap"><table id="t-policy"></table></div>
+    <p class="caption">Weighted (commonpostweight), share of members who answered the item. Foreign-policy and troop items are checkboxes: share selecting each option. Click any row name to sort the columns by it.</p>
+  </section>
+
+  <section id="s-demo">
+    <p class="eyebrow">Demographics</p>
+    <h2>Who is in each cluster</h2>
+    <div class="legend"><span>Below everyone</span><span class="ramp"></span><span>Above everyone</span><span>· color spans ±30 points from everyone (median age ±15 years)</span></div>
+    <div class="wrap"><table id="t-demo"></table></div>
+    <p class="caption">Party ID, ideology and 2024 vote sit last as context. Median age is unweighted.</p>
+  </section>
+
+  <section id="s-swap">
+    <p class="eyebrow">Overlap</p>
+    <h2>Where each cluster's members land when the clusters are refit</h2>
+    <div class="legend"><span>0%</span><span class="ramp c"></span><span>100%</span><span>· outlined = members staying in their own cluster</span></div>
+    <div class="grid2">
+      <div><p class="sub" style="margin:0 0 6px">Resampled respondents (30 refits)</p><div class="wrap"><table id="t-sr"></table></div></div>
+      <div><p class="sub" style="margin:0 0 6px" id="redraw-h"></p><div class="wrap"><table id="t-sd"></table></div></div>
+    </div>
+    <p class="caption">Row = the cluster members come from, column = where they land, averaged over refits. Each refit's clusters are matched to the cluster they overlap most. Redrawn factors: loadings refit on a bootstrap sample, everyone rescored, then reclustered.</p>
+  </section>
+</main>
+<script>
+const DATA = /*DATA*/;
+const VIK = ["#001160","#024380","#307ca6","#93bdd2","#ece4e0","#dba98d","#c27040","#912c05","#590007"];
+const CIV = ["#00204d","#1b3b6f","#41577b","#697386","#8f8f8c","#b3a960","#d6c92f","#f4e801","#ffe945"];
+function ramp(stops, t) {
+  t = Math.max(0, Math.min(1, t)); const x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
+  const a = stops[i].match(/\w\w/g).map(h => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map(h => parseInt(h, 16));
+  return "#" + a.map((v, k) => Math.round(v + (b[k] - v) * f).toString(16).padStart(2, "0")).join("");
+}
+function ink(hex) {
+  const c = hex.match(/\w\w/g).map(h => parseInt(h, 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) <= 0.179 ? "#ebf0f4" : "#08131e";
+}
+const G = DATA.groups, BY = Object.fromEntries(G.map(g => [g.id, g])), ALL = "Everyone", TEN = G.filter(g => g.id !== ALL).map(g => g.id);
+const nm = id => BY[id] && BY[id].unstable ? `${id} <span class="um" title="Unstable: resample overlap ${BY[id].jac}">◌</span>` : id;
+const badge = g => g.unstable ? `<span class="badge u">◌ unstable ${g.jac.toFixed(2)}</span>` : `<span class="badge s">stable ${g.jac.toFixed(2)}</span>`;
+const S = { rows: "similar", sort: null };
+const ROWS = {};
+
+function renderCards() {
+  const f = DATA.factors;
+  document.getElementById("cards").innerHTML = TEN.map(id => {
+    const g = BY[id], d = DATA.distinct[id];
+    const bars = f.map(x => {
+      const v = x.values[id], c = Math.max(-2, Math.min(2, v)), L = c < 0 ? 50 + c * 25 : 50, W = Math.abs(c) * 25;
+      return `<div class="fb"><span>${x.label}</span><span class="track"><span class="mid"></span><span class="bar" style="left:${L}%;width:${W}%;background:${v >= 0 ? "var(--gap-pos)" : "var(--gap-neg)"}"></span></span><span class="n">${(v > 0 ? "+" : "") + v.toFixed(2)}</span></div>`;
+    }).join("");
+    const li = r => { const up = r.value >= r.everyone; return `<li><span><span class="tp">${r.topic}</span>${r.label}</span><span class="num"><span class="${up ? "hi" : "lo"}">${Math.round(r.value)}%</span> <span class="ev">vs ${Math.round(r.everyone)}</span></span></li>`; };
+    const p = d.party, pv = k => p[k] === null || p[k] === undefined ? "–" : Math.round(p[k]) + "%";
+    return `<div class="card${g.unstable ? " unstable" : ""}">
+      <div class="ch"><h3>${id}</h3><span class="share">${g.share}%</span></div>
+      <div class="meta">n ${g.n.toLocaleString()} · median age ${d.median_age}${g.from ? " · of the five: " + g.from : ""}</div>
+      <div class="stab">${badge(g)}<span>${g.stay_resample}% stay put under resampling</span>${DATA.n_draws ? `<span>${g.stay_redraw}% under factor redraws; under half kept in ${g.under} of ${DATA.n_draws}</span>` : ""}</div>
+      <div class="k">Factor positions</div>${bars}
+      <div class="k">Most distinctive policy views</div><ul class="d">${d.policy.map(li).join("")}</ul>
+      <div class="k">Most distinctive demographics</div><ul class="d">${d.demo.map(li).join("")}</ul>
+      <div class="party">Democrat ${pv("Democrat")} · Republican ${pv("Republican")} · Independent or other ${pv("Independent or other")}<br>Voted Harris ${pv("Voted Harris")} · Voted Trump ${pv("Voted Trump")}</div>
+    </div>`;
+  }).join("");
+}
+
+function visible() {
+  let ids = [...TEN];
+  if (S.sort) {
+    const v = ROWS[S.sort.k], val = id => (v[id] === null || v[id] === undefined) ? null : v[id];
+    ids.sort((a, b) => val(a) === null ? 1 : val(b) === null ? -1 : S.sort.dir * (val(a) - val(b)));
+  }
+  return ids.concat([ALL]).map(id => BY[id]);
+}
+function head(lbl) {
+  return `<thead><tr><th class="lbl">${lbl}</th>` + visible().map(g => {
+    const sep = g.id === ALL ? " sep" : "";
+    const b = g.id === ALL ? "" : `<span class="gs">${g.unstable ? '<span class="um">◌ unstable</span>' : "stable"}</span>`;
+    return `<th class="${sep.trim()}">${g.id}<span class="gs">${g.id === ALL ? "n " + g.n.toLocaleString() : g.share + "%"}</span>${b}</th>`;
+  }).join("") + "</tr></thead>";
+}
+function cells(vals, span, fmt) {
+  return visible().map(g => {
+    const sep = g.id === ALL ? " sep" : "", v = vals[g.id];
+    if (v === null || v === undefined) return `<td class="v${sep}">–</td>`;
+    if (g.id === ALL) return `<td class="v${sep}"><strong>${fmt(v)}</strong></td>`;
+    const bg = ramp(VIK, 0.5 + (v - vals[ALL]) / (2 * span));
+    return `<td class="v${sep}" style="background:${bg};color:${ink(bg)}">${fmt(v)}</td>`;
+  }).join("");
+}
+const pct = v => Math.round(v), sd = v => (v > 0 ? "+" : "") + v.toFixed(2);
+function lbl(k, vals, inner) {
+  ROWS[k] = vals;
+  const on = S.sort && S.sort.k === k, arrow = on ? (S.sort.dir > 0 ? " ▲" : " ▼") : "";
+  return `<td class="lbl sortable${on ? " sorted" : ""}" data-k="${k}" title="Click to sort columns by this row">${inner}<span class="arr">${arrow}</span></td>`;
+}
+function renderFactors() {
+  document.getElementById("t-factors").innerHTML = head("Dimension") + "<tbody>" +
+    DATA.factors.map(f => `<tr>${lbl("f:" + f.label, f.values, f.label)}${cells(f.values, 1.5, sd)}</tr>`).join("") + "</tbody>";
+}
+function renderPolicy() {
+  const t = document.getElementById("topic").value, q = document.getElementById("q").value.toLowerCase(), sets = document.getElementById("sets").checked;
+  const rows = S.rows === "similar" ? DATA.row_order.policy.map(i => DATA.policy[i]) : DATA.policy;
+  let html = head("Item") + "<tbody>", last = null;
+  for (const r of rows) {
+    if (t && r.topic !== t) continue;
+    if (q && !(r.label + " " + r.item + " " + r.topic).toLowerCase().includes(q)) continue;
+    if (sets && !r.input) continue;
+    if (S.rows === "topic" && r.topic !== last) { html += `<tr class="topic"><td class="lbl">${r.topic}</td><td colspan="${visible().length}"></td></tr>`; last = r.topic; }
+    const tag = S.rows === "similar" ? `<span class="tp">${r.topic}</span>` : "";
+    html += `<tr>${lbl("p:" + r.label, r, `${tag}${r.label}<span class="mk">${r.input ? "◆" : ""}</span>`)}${cells(r, 40, pct)}</tr>`;
+  }
+  document.getElementById("t-policy").innerHTML = html + "</tbody>";
+}
+function renderDemo() {
+  let html = head("Measure") + "<tbody>", last = null;
+  for (const r of DATA.demo) {
+    if (r.section !== last) { html += `<tr class="topic"><td class="lbl">${r.section}</td><td colspan="${visible().length}"></td></tr>`; last = r.section; }
+    html += `<tr>${lbl("d:" + r.label, r, r.label)}${cells(r, r.median ? 15 : 30, pct)}</tr>`;
+  }
+  document.getElementById("t-demo").innerHTML = html + "</tbody>";
+}
+function mat(names, V) {
+  return `<thead><tr><th class="lbl" style="min-width:90px">from \\ to</th>${names.map(c => `<th>${nm(c)}</th>`).join("")}</tr></thead><tbody>` +
+    names.map((r, i) => `<tr><td class="lbl" style="min-width:90px"><strong>${nm(r)}</strong></td>${V[i].map((v, j) => { const bg = ramp(CIV, v / 100); return `<td class="v${i === j ? " diag" : ""}" style="background:${bg};color:${ink(bg)}">${Math.round(v)}</td>`; }).join("")}</tr>`).join("") + "</tbody>";
+}
+function sortStatus() {
+  const el = document.getElementById("sortinfo"), btn = document.getElementById("reset");
+  if (!S.sort) { el.textContent = ""; btn.hidden = true; return; }
+  el.textContent = `Columns sorted by “${S.sort.k.slice(2)}”, ${S.sort.dir > 0 ? "lowest" : "highest"} first`; btn.hidden = false;
+}
+function renderTables() { renderFactors(); renderPolicy(); renderDemo(); }
+
+const u = G.filter(g => g.unstable).length;
+document.getElementById("sub").innerHTML = `${DATA.n.toLocaleString()} respondents in ${DATA.word} clusters on four dimensions, ${u} of them unstable. ${DATA.word === "ten" ? "Names group each cluster with its family in the five-cluster solution (A.1 and A.2 sit mostly in A). " : "Each cluster carries its party name and its working letter. "}<span class="badge u">◌ unstable</span> marks a cluster whose members overlap their best match by less than 0.75 on average across 30 refits on resampled respondents.`;
+document.getElementById("redraw-h").textContent = `Redrawn factors (${DATA.n_draws} redraws)`;
+const W = DATA.word[0].toUpperCase() + DATA.word.slice(1);
+document.getElementById("h1").textContent = `${W} Clusters`; document.title = `${W} Clusters Profile`;
+document.getElementById("eyebrow").textContent = `CES 2024 · revised §3c rule · ${DATA.word} clusters`;
+if (!DATA.n_draws) document.getElementById("t-sd").closest(".grid2 > div").hidden = true;
+document.getElementById("topic").innerHTML += [...new Set(DATA.policy.map(r => r.topic))].map(t => `<option>${t}</option>`).join("");
+document.querySelector('[data-ctl="rows"]').innerHTML = [["similar", "Rows by similarity"], ["topic", "Rows by topic"]].map(([v, l]) => `<button data-v="${v}" aria-pressed="${S.rows === v}">${l}</button>`).join("");
+document.addEventListener("click", e => {
+  const c = e.target.closest("td.sortable");
+  if (c) { const k = c.dataset.k; S.sort = !S.sort || S.sort.k !== k ? { k, dir: -1 } : S.sort.dir < 0 ? { k, dir: 1 } : null; renderTables(); sortStatus(); return; }
+  if (e.target.id === "reset") { S.sort = null; renderTables(); sortStatus(); return; }
+  const b = e.target.closest("[data-ctl] button"); if (!b) return;
+  S.rows = b.dataset.v; b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === S.rows));
+  renderPolicy();
+});
+["topic", "q", "sets"].forEach(id => document.getElementById(id).addEventListener("input", renderPolicy));
+renderCards(); renderTables();
+document.getElementById("t-sr").innerHTML = mat(DATA.swaps.names, DATA.swaps.resample);
+if (DATA.swaps.redraw) document.getElementById("t-sd").innerHTML = mat(DATA.swaps.names, DATA.swaps.redraw);
+</script>
+</body>
+</html>

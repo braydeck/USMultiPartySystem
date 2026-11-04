@@ -1,0 +1,40 @@
+item,battery,stage,value,h2
+CC24_321c,CC24_321,2 modal share,0.925,
+CC24_321f,CC24_321,2 modal share,0.861,
+CC24_324c,CC24_324,2 modal share,0.874,
+CC24_441e,CC24_441,1 missing,0.669,
+CC24_441f,CC24_441,1 missing,0.669,
+CC24_441g,CC24_441,1 missing,0.669,
+CC24_308a_6,CC24_308a,2 modal share,0.948,
+CC24_308b_4,CC24_308b,2 modal share,0.985,
+CC24_308b_7,CC24_308b,2 modal share,0.919,
+CC24_324d,CC24_324,4 redundant with CC24_324a,0.921,
+CC24_308a_8,CC24_308a,4 redundant with CC24_308b_9,0.876,
+CC24_326a,CC24_326,4 redundant with CC24_326b,0.847,
+CC24_326c,CC24_326,4 redundant with CC24_326b,0.84,
+pew_religimp,pew,4 redundant with pew_prayer,0.839,
+CC24_308a_2,CC24_308a,4 redundant with CC24_308b_2,0.833,
+CC24_323a,CC24_323,4 redundant with CC24_323d,0.812,
+CC24_308a_4,CC24_308a,4 redundant with CC24_308a_3,0.801,
+CC24_440a,CC24_440,4 redundant with CC24_441b,0.8,
+CC24_341b,CC24_341,4 redundant with CC24_341c,0.797,
+CC24_323c,CC24_323,4 redundant with CC24_340f,0.787,
+CC24_441b,CC24_441,4 redundant with CC24_441a,0.768,
+CC24_321d,CC24_321,4 redundant with CC24_321e,0.761,
+CC24_326b,CC24_326,4 redundant with CC24_326e,0.755,
+CC24_308b_9,CC24_308b,4 redundant with CC24_308b_2,0.754,
+CC24_440d,CC24_440,4 redundant with CC24_440c,0.748,
+CC24_421_1,CC24_421,4 redundant with CC24_421_2,0.742,
+CC24_324a,CC24_324,4 redundant with CC24_444c,0.733,
+CC24_308b_8,CC24_308b,4 redundant with CC24_308a_7,0.732,
+pew_prayer,pew,4 redundant with pew_churatd,0.723,
+CC24_321a,CC24_321,4 redundant with CC24_321b,0.705,
+CC24_340f,CC24_340,4 redundant with CC24_323b,0.703,
+CC24_308b_3,CC24_308b,4 redundant with CC24_308b_6,0.701,
+CC24_302,CC24_302,5 weak loading/communality,0.262,0.167
+CC24_303,CC24_303,5 weak loading/communality,0.263,0.331
+CC24_324b,CC24_324,5 weak loading/communality,0.279,0.374
+CC24_326e,CC24_326,5 weak loading/communality,0.257,0.608
+CC24_326f,CC24_326,5 weak loading/communality,0.29,0.29
+CC24_328d,CC24_328,5 weak loading/communality,0.255,0.644
+CC24_308a_7,CC24_308a,5 weak loading/communality,0.367,0.197

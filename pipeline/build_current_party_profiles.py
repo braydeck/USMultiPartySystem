@@ -185,9 +185,8 @@ def load_aligned():
     # Call value_labels() first to populate _varlist/_lbllist internal state.
     reader.value_labels()
     df = pd.read_stata(DTA, convert_categoricals=False)
-    mask = df[ANCHOR + ['commonpostweight']].notna().all(axis=1) & df['pew_churatd'].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
-    dc = df[mask].reset_index(drop=True)
     typo = pd.read_csv(TYPO)
+    dc = df.set_index('caseid').loc[typo.caseid.values].reset_index()  # CLAUDE.md trap 4: rows join the typology by caseid, in typology order
     assert len(dc) == len(typo), f"row mismatch {len(dc)} vs {len(typo)}"
     pid = pd.to_numeric(typo['pid3'], errors='coerce').values
     w = dc['commonpostweight'].values.astype(float)

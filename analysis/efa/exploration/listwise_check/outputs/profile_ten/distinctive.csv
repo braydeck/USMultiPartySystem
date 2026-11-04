@@ -1,0 +1,101 @@
+cluster,kind,label,topic,value,everyone
+A.1,policy,Whites get away with offenses Blacks would not,Race and gender attitudes (share agreeing),11.6,63.8
+A.1,policy,"Forgive up to $20,000 of student debt","Housing, health care, student debt",1.9,53.2
+A.1,policy,I resent when Whites deny racial discrimination exists,Race and gender attitudes (share agreeing),13.8,61.5
+A.1,policy,Build a wall on the US-Mexico border,Immigration,97.7,54.9
+A.1,policy,"Stronger Clean Air and Water Act enforcement, even at a cost in jobs",Environment and energy,11.8,54.2
+A.1,policy,Whites don't try hard to understand Black Americans' problems,Race and gender attitudes (share agreeing),13.8,55.1
+A.1,demo,65 and over,Age and gender,41.4,23.9
+A.1,demo,White,Race,84.4,67.4
+A.1,demo,Retired,Household and work,39.1,23.2
+A.1,demo,Never married,Household and work,14.2,29.9
+A.2,policy,Require 20% renewable electricity,Environment and energy,5.0,65.3
+A.2,policy,EPA power to regulate carbon dioxide,Environment and energy,2.2,61.4
+A.2,policy,Health care,State spending (share wanting an increase),5.3,64.1
+A.2,policy,Whites get away with offenses Blacks would not,Race and gender attitudes (share agreeing),5.4,63.8
+A.2,policy,Raise taxes on $400k+ earners to 35%,Taxes and federal spending,6.4,64.4
+A.2,policy,Repeal the Affordable Care Act,"Housing, health care, student debt",96.5,39.6
+A.2,demo,Protestant,Religious tradition,54.4,34.1
+A.2,demo,Married or partnered,Household and work,69.8,52.4
+A.2,demo,Family income under $50k,Education and income,23.9,41.0
+A.2,demo,Owns home,Household and work,84.5,67.5
+B.1,policy,"Forgive up to $20,000 of student debt","Housing, health care, student debt",86.1,53.2
+B.1,policy,Sanctions on Russia,Ukraine (share selecting),20.5,41.3
+B.1,policy,Require 20% renewable electricity,Environment and energy,83.4,65.3
+B.1,policy,Law enforcement,State spending (share wanting an increase),36.7,54.7
+B.1,policy,Arms to Ukraine,Ukraine (share selecting),17.0,33.6
+B.1,policy,Arms to Israel,Israel and Gaza (share selecting),11.1,27.6
+B.1,demo,White,Race,47.9,67.4
+B.1,demo,Owns stock,Education and income,24.5,42.9
+B.1,demo,Owns home,Household and work,52.3,67.5
+B.1,demo,Family income under $50k,Education and income,56.2,41.0
+B.2,policy,Education,State spending (share wanting an increase),14.1,64.8
+B.2,policy,Transportation and infrastructure,State spending (share wanting an increase),16.2,65.9
+B.2,policy,Health care,State spending (share wanting an increase),15.5,64.1
+B.2,policy,Law enforcement,State spending (share wanting an increase),9.1,54.7
+B.2,policy,$150B a year on infrastructure for 8 years,Taxes and federal spending,35.1,79.8
+B.2,policy,"Agree my state ran a fair, accurate 2024 election",Elections and trust in government,38.2,74.5
+B.2,demo,65 and over,Age and gender,5.8,23.9
+B.2,demo,White,Race,50.1,67.4
+B.2,demo,Retired,Household and work,7.4,23.2
+B.2,demo,Nothing in particular,Religious tradition,35.4,19.6
+C.1,policy,"Forgive up to $20,000 of student debt","Housing, health care, student debt",19.9,53.2
+C.1,policy,Build a wall on the US-Mexico border,Immigration,86.4,54.9
+C.1,policy,Whites get away with offenses Blacks would not,Race and gender attitudes (share agreeing),36.8,63.8
+C.1,policy,Slavery and discrimination make it hard for Blacks to rise,Race and gender attitudes (share agreeing),18.7,45.1
+C.1,policy,White people have advantages because of their skin color,Race and gender attitudes (share agreeing),26.0,50.9
+C.1,policy,Deny asylum to people who cross the border illegally,Immigration,88.0,63.9
+C.1,demo,White,Race,77.2,67.4
+C.1,demo,Owns home,Household and work,75.4,67.5
+C.1,demo,High school or less,Education and income,43.2,35.5
+C.1,demo,Atheist or agnostic,Religious tradition,6.5,13.9
+C.2,policy,School vouchers for private or charter schools,State culture and schooling policies,22.3,56.8
+C.2,policy,Agree Roe was rightly overturned,Abortion and contraception,19.8,54.3
+C.2,policy,Repeal the Affordable Care Act,"Housing, health care, student debt",7.4,39.6
+C.2,policy,State: ban abortion pills by mail,Abortion and contraception,11.2,42.9
+C.2,policy,Extend the 2017 tax cuts,Taxes and federal spending,36.5,63.6
+C.2,policy,Always allow abortion as a matter of choice,Abortion and contraception,86.2,59.6
+C.2,demo,Owns stock,Education and income,52.9,42.9
+C.2,demo,Protestant,Religious tradition,24.6,34.1
+C.2,demo,South,Place,31.2,39.1
+C.2,demo,Retired,Household and work,30.9,23.2
+C.3,policy,"Forgive up to $20,000 of student debt","Housing, health care, student debt",95.1,53.2
+C.3,policy,Health care,State spending (share wanting an increase),99.8,64.1
+C.3,policy,Welfare,State spending (share wanting an increase),68.9,33.3
+C.3,policy,Education,State spending (share wanting an increase),98.1,64.8
+C.3,policy,Law enforcement,State spending (share wanting an increase),88.0,54.7
+C.3,policy,EPA power to regulate carbon dioxide,Environment and energy,92.7,61.4
+C.3,demo,Black,Race,31.1,11.6
+C.3,demo,White,Race,48.0,67.4
+C.3,demo,City,Place,39.5,26.8
+C.3,demo,Family income under $50k,Education and income,53.3,41.0
+D.1,policy,Build a wall on the US-Mexico border,Immigration,4.5,54.9
+D.1,policy,Parental consent before teachers use a new name or pronoun,State culture and schooling policies,14.6,63.6
+D.1,policy,Slavery and discrimination make it hard for Blacks to rise,Race and gender attitudes (share agreeing),92.1,45.1
+D.1,policy,Increase US fossil fuel production,Environment and energy,12.5,57.9
+D.1,policy,White people have advantages because of their skin color,Race and gender attitudes (share agreeing),94.9,50.9
+D.1,policy,Agree Roe was rightly overturned,Abortion and contraception,10.3,54.3
+D.1,demo,Atheist or agnostic,Religious tradition,32.6,13.9
+D.1,demo,Protestant,Religious tradition,17.2,34.1
+D.1,demo,LGBT (of those answering),Age and gender,26.5,11.0
+D.1,demo,Never married,Household and work,44.8,29.9
+D.2,policy,Parental consent before teachers use a new name or pronoun,State culture and schooling policies,3.8,63.6
+D.2,policy,Agree race in college admissions is unconstitutional,Race and gender attitudes (share agreeing),8.9,68.0
+D.2,policy,Extend the 2017 tax cuts,Taxes and federal spending,7.0,63.6
+D.2,policy,Increase US fossil fuel production,Environment and energy,4.2,57.9
+D.2,policy,School vouchers for private or charter schools,State culture and schooling policies,3.5,56.8
+D.2,policy,Agree Roe was rightly overturned,Abortion and contraception,1.4,54.3
+D.2,demo,Atheist or agnostic,Religious tradition,41.4,13.9
+D.2,demo,Bachelor's degree or more,Education and income,59.2,34.4
+D.2,demo,High school or less,Education and income,13.4,35.5
+D.2,demo,Protestant,Religious tradition,14.9,34.1
+E.1,policy,More border patrols on the US-Mexico border,Immigration,0.9,80.1
+E.1,policy,"10% fewer police, more for other services",Guns and police,100.0,26.2
+E.1,policy,Parental consent before teachers use a new name or pronoun,State culture and schooling policies,0.4,63.6
+E.1,policy,Deny asylum to people who cross the border illegally,Immigration,1.0,63.9
+E.1,policy,Welfare,State spending (share wanting an increase),93.4,33.3
+E.1,policy,Agree race in college admissions is unconstitutional,Race and gender attitudes (share agreeing),8.9,68.0
+E.1,demo,Atheist or agnostic,Religious tradition,50.5,13.9
+E.1,demo,LGBT (of those answering),Age and gender,46.3,11.0
+E.1,demo,Protestant,Religious tradition,6.8,34.1
+E.1,demo,Under 30,Age and gender,44.0,19.1

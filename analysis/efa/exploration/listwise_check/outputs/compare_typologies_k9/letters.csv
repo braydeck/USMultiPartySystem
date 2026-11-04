@@ -1,0 +1,10 @@
+letter,label,cluster
+A,CON (A),1
+B,NAT (B),6
+C,POP (C),7
+D,STY (D),3
+E,LBR (E),0
+F,CUP (F),2
+G,OAO (G),5
+H,PRG (H),4
+I,DSA (I),8

@@ -1,0 +1,7 @@
+fit,factor,name,clean_items,batteries,two_item_factor,passes,clean,battery_ids
+k2,0,Religious Traditionalism (r 0.89),14,5,False,True,CC24_303 CC24_341a CC24_341c CC24_341d CC24_323b CC24_323d CC24_321b CC24_321e CC24_325 CC24_324b CC24_340b CC24_340c CC24_440b CC24_440c,CC24_302..CC24_303 | CC24_321a..CC24_324d | CC24_325 | CC24_340a..CC24_341d | CC24_440a..CC24_441g
+k2,1,Institutional Distrust (r 0.76),3,2,False,True,CC24_421_2 CC24_423 CC24_424,CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+k4,0,Populist Conservatism (r 0.88),5,2,False,True,CC24_323b CC24_323d CC24_321b CC24_321e CC24_440b,CC24_321a..CC24_324d | CC24_440a..CC24_441g
+k4,1,Institutional Distrust (r 0.73),3,2,False,True,CC24_421_2 CC24_423 CC24_424,CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+k4,2,Religious Traditionalism (r 0.98),4,3,False,True,pew_churatd CC24_325 CC24_340b CC24_340c,CC24_325 | CC24_340a..CC24_341d | pew_churatd
+k4,3,"new: CC24_340e, CC24_323b, CC24_321e (closest Government Distrust r 0.63)",1,1,False,False,CC24_340e,CC24_340a..CC24_341d

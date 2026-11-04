@@ -46,13 +46,11 @@ ITEMS_24 = [it for it in ITEMS_25 if it != "CC24_340a"]
 
 def main():
     print("Reading validated-vote + join keys from the CES .dta …")
-    cols = ITEMS_24 + ["caseid", "pid3", "inputstate", "commonpostweight", "TS_g2024"]
+    cols = ["caseid", "pid3", "inputstate", "commonpostweight", "TS_g2024"]
     df = pd.read_stata(CES_PATH, columns=cols, convert_categoricals=False)
     print(f"  raw rows: {len(df):,}")
 
-    # Replicate efa_update.py listwise deletion (24 items + weight), preserve order
-    mask = df[ITEMS_24 + ["commonpostweight"]].notna().all(axis=1) & df["pew_churatd"].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
-    dfc = df[mask].copy().reset_index(drop=True)
+    dfc = df.set_index("caseid").loc[pd.read_csv(CL_PATH, usecols=["caseid"]).caseid.values].reset_index()  # CLAUDE.md trap 4: rows join the typology by caseid, in typology order
     print(f"  after listwise deletion: {len(dfc):,}")
 
     fs = pd.read_csv(FS_PATH)

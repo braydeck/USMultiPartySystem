@@ -1,0 +1,5 @@
+fit,factor,name,clean_items,batteries,two_item_factor,passes,clean,battery_ids
+k4,0,Security & Order (r 0.97),4,2,False,True,CC24_323b CC24_321d CC24_321e CC24_340f,CC24_321a..CC24_324d | CC24_340a..CC24_341d
+k4,1,Institutional Distrust (r 0.85),2,2,True,True,CC24_421_1 CC24_424,CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+k4,2,Religious Traditionalism (r 0.97),3,3,False,True,pew_churatd CC24_325 CC24_340c,CC24_325 | CC24_340a..CC24_341d | pew_churatd
+k4,3,Populist Conservatism (r 0.86),4,3,False,True,CC24_341c CC24_341d CC24_321b CC24_440b,CC24_321a..CC24_324d | CC24_340a..CC24_341d | CC24_440a..CC24_441g

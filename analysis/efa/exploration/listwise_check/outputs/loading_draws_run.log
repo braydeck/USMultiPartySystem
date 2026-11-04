@@ -1,0 +1,67 @@
+reference cap 8: 2 solutions, modal share 0.95
+reference parties (weighted share): {'CON': np.float64(0.256), 'STY': np.float64(0.204), 'POP': np.float64(0.135), 'LBR': np.float64(0.112), 'NAT': np.float64(0.109), 'DSA': np.float64(0.074), 'DAL': np.float64(0.058), 'PRG': np.float64(0.051)}
+draw 1/50: ARI 0.439, 1 solutions, modal 1.00, worst kept 0.24
+draw 2/50: ARI 0.786, 4 solutions, modal 0.70, worst kept 0.61
+draw 3/50: ARI 0.823, 3 solutions, modal 0.85, worst kept 0.85
+draw 4/50: ARI 0.467, 1 solutions, modal 1.00, worst kept 0.00
+draw 5/50: ARI 0.328, 3 solutions, modal 0.80, worst kept 0.14
+draw 6/50: ARI 0.436, 4 solutions, modal 0.70, worst kept 0.24
+draw 7/50: ARI 0.443, 1 solutions, modal 1.00, worst kept 0.24
+draw 8/50: ARI 0.489, 1 solutions, modal 1.00, worst kept 0.23
+draw 9/50: ARI 0.697, 1 solutions, modal 1.00, worst kept 0.35
+draw 10/50: ARI 0.716, 3 solutions, modal 0.70, worst kept 0.57
+draw 11/50: ARI 0.394, 3 solutions, modal 0.55, worst kept 0.28
+draw 12/50: ARI 0.486, 2 solutions, modal 0.60, worst kept 0.29
+draw 13/50: ARI 0.532, 2 solutions, modal 0.95, worst kept 0.45
+draw 14/50: ARI 0.419, 4 solutions, modal 0.65, worst kept 0.25
+draw 15/50: ARI 0.446, 2 solutions, modal 0.95, worst kept 0.16
+draw 16/50: ARI 0.729, 1 solutions, modal 1.00, worst kept 0.58
+draw 17/50: ARI 0.643, 7 solutions, modal 0.45, worst kept 0.29
+draw 18/50: ARI 0.424, 1 solutions, modal 1.00, worst kept 0.23
+draw 19/50: ARI 0.863, 1 solutions, modal 1.00, worst kept 0.91
+draw 20/50: ARI 0.535, 3 solutions, modal 0.60, worst kept 0.35
+draw 21/50: ARI 0.480, 5 solutions, modal 0.40, worst kept 0.28
+draw 22/50: ARI 0.437, 2 solutions, modal 0.90, worst kept 0.22
+draw 23/50: ARI 0.516, 1 solutions, modal 1.00, worst kept 0.24
+draw 24/50: ARI 0.511, 3 solutions, modal 0.90, worst kept 0.29
+draw 25/50: ARI 0.490, 3 solutions, modal 0.80, worst kept 0.26
+draw 26/50: ARI 0.386, 3 solutions, modal 0.65, worst kept 0.14
+draw 27/50: ARI 0.573, 3 solutions, modal 0.50, worst kept 0.25
+draw 28/50: ARI 0.515, 2 solutions, modal 0.50, worst kept 0.00
+draw 29/50: ARI 0.471, 2 solutions, modal 0.95, worst kept 0.24
+draw 30/50: ARI 0.500, 3 solutions, modal 0.70, worst kept 0.32
+draw 31/50: ARI 0.469, 5 solutions, modal 0.55, worst kept 0.00
+draw 32/50: ARI 0.572, 3 solutions, modal 0.75, worst kept 0.25
+draw 33/50: ARI 0.417, 4 solutions, modal 0.50, worst kept 0.28
+draw 34/50: ARI 0.434, 4 solutions, modal 0.70, worst kept 0.31
+draw 35/50: ARI 0.368, 3 solutions, modal 0.50, worst kept 0.00
+draw 36/50: ARI 0.592, 3 solutions, modal 0.55, worst kept 0.16
+draw 37/50: ARI 0.773, 2 solutions, modal 0.90, worst kept 0.76
+draw 38/50: ARI 0.580, 2 solutions, modal 0.95, worst kept 0.24
+draw 39/50: ARI 0.424, 4 solutions, modal 0.60, worst kept 0.24
+draw 40/50: ARI 0.348, 4 solutions, modal 0.40, worst kept 0.22
+draw 41/50: ARI 0.531, 3 solutions, modal 0.80, worst kept 0.42
+draw 42/50: ARI 0.750, 2 solutions, modal 0.85, worst kept 0.43
+draw 43/50: ARI 0.577, 5 solutions, modal 0.45, worst kept 0.15
+draw 44/50: ARI 0.550, 5 solutions, modal 0.55, worst kept 0.13
+draw 45/50: ARI 0.436, 3 solutions, modal 0.75, worst kept 0.22
+draw 46/50: ARI 0.369, 5 solutions, modal 0.30, worst kept 0.00
+draw 47/50: ARI 0.476, 2 solutions, modal 0.95, worst kept 0.00
+draw 48/50: ARI 0.621, 1 solutions, modal 1.00, worst kept 0.40
+draw 49/50: ARI 0.420, 4 solutions, modal 0.75, worst kept 0.00
+draw 50/50: ARI 0.834, 1 solutions, modal 1.00, worst kept 0.79
+
+ARI vs reference across 50 draws: median 0.490, 5th pct 0.368, min 0.328
+solutions per draw: {1: 11, 2: 10, 3: 15, 4: 8, 5: 5, 7: 1}; modal share median 0.75
+
+Per reference party across draws:
+        kept_median  kept_q05  kept_min  jaccard_median  jaccard_q05  share_draws_kept_below_half  reference_share
+party                                                                                                            
+CON          0.691     0.488     0.402           0.593        0.398                         0.08            0.256
+STY          0.771     0.389     0.304           0.665        0.308                         0.26            0.204
+POP          0.705     0.232     0.226           0.617        0.140                         0.16            0.135
+LBR          0.496     0.230     0.141           0.365        0.116                         0.54            0.112
+NAT          0.893     0.550     0.243           0.810        0.238                         0.04            0.109
+DSA          0.747     0.403     0.212           0.539        0.256                         0.16            0.074
+DAL          0.493     0.153     0.128           0.312        0.047                         0.56            0.058
+PRG          0.625     0.000     0.000           0.301        0.000                         0.44            0.051

@@ -7,7 +7,7 @@ Precompute voter-level data for the Single Race Simulator (viz app).
 Each CES respondent (post listwise deletion, N=45,707) is placed in their
 real current congressional district (cdid119) and emitted with:
   - commonpostweight
-  - the 5 EFA factor scores (FS_F1..FS_F5)
+  - the 4 factor scores (FS_RT, FS_TR, FS_SO, FS_PC)
 
 The head-to-head model is the app's canonical ballot model
 (generate_factor_deviation_ballots.compute_candidate_scores_hybrid — the scorer
@@ -49,7 +49,7 @@ import pandas as pd
 
 BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
-from stv_config import DTA_PATH, ITEMS_24  # noqa: E402
+from stv_config import DTA_PATH  # noqa: E402
 from party_codes import PARTY_TO_CLUSTER  # noqa: E402
 
 EFA_PATH   = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
@@ -58,12 +58,12 @@ CAND_PATH  = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_fac
 OUT_DIR    = BASE_DIR / "viz" / "src" / "data"          # small meta (imported, typed)
 PUBLIC_DIR = BASE_DIR / "viz" / "public" / "data"       # large voters file (fetched at runtime)
 
-FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+FACTOR_COLS      = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
 CAND_FACTOR_COLS = ["F1_security_order", "F2_electoral_skepticism", "F3_government_distrust",
                     "F4_religious_traditionalism", "F5_populist_conservatism"]
 PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
 POSITIONAL_SIGMA = 0.35            # matches generate_factor_deviation_ballots.py
-EXPECTED_N       = 45_214
+EXPECTED_N       = len(pd.read_csv(TYPO_PATH, usecols=["caseid"]))
 DEC              = 4
 LOGPROB_FLOOR    = -700.0          # only replaces log(0)=-inf; preserves full ranking (100% ballots.csv match)
 
@@ -150,10 +150,9 @@ def main():
     except ImportError:
         print("ERROR: pyreadstat not installed. Run: pip install pyreadstat")
         sys.exit(1)
-    read_cols = ["caseid", "inputstate", "cdid119", "commonpostweight"] + ITEMS_24
+    read_cols = ["caseid", "inputstate", "cdid119", "commonpostweight"]
     dta, _ = pyreadstat.read_dta(str(DTA_PATH), usecols=read_cols)
-    mask = dta[ITEMS_24 + ["commonpostweight"]].notna().all(axis=1) & dta["pew_churatd"].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
-    dta = dta.loc[mask].reset_index(drop=True)
+    dta = dta.set_index("caseid").loc[efa.caseid.values].reset_index()  # CLAUDE.md trap 4: rows join the typology by caseid, in typology order
     assert len(dta) == EXPECTED_N, f"post-deletion rows {len(dta)} != {EXPECTED_N}"
     assert (dta["inputstate"].astype(int).values == efa["inputstate"].astype(int).values).all(), \
         "CES/efa inputstate misalignment — row order changed"

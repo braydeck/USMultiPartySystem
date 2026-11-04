@@ -1,0 +1,70 @@
+30 items; pairwise vs Stage C listwise loadings, Tucker phi per factor: [1.0, 1.0, 1.0, 0.998, 1.0]
+reference cap 10: 2 seed solutions, modal share 0.95; cluster shares C0 21.4%, C1 6.0%, C2 15.8%, C3 7.2%, C4 19.5%, C5 12.4%, C6 7.1%, C7 3.1%, C8 3.7%, C9 4.0%
+bootstrap base: 45,392 respondents complete on the 30 items
+draw 1/50: ARI 0.882, 2 solutions, modal 0.95, worst factor phi 0.997, worst kept 0.87
+draw 2/50: ARI 0.881, 1 solutions, modal 1.00, worst factor phi 0.984, worst kept 0.86
+draw 3/50: ARI 0.541, 5 solutions, modal 0.55, worst factor phi 0.986, worst kept 0.42
+draw 4/50: ARI 0.834, 2 solutions, modal 0.95, worst factor phi 0.992, worst kept 0.86
+draw 5/50: ARI 0.870, 6 solutions, modal 0.50, worst factor phi 0.994, worst kept 0.90
+draw 6/50: ARI 0.556, 6 solutions, modal 0.40, worst factor phi 0.983, worst kept 0.45
+draw 7/50: ARI 0.901, 3 solutions, modal 0.85, worst factor phi 0.994, worst kept 0.90
+draw 8/50: ARI 0.837, 7 solutions, modal 0.45, worst factor phi 0.996, worst kept 0.83
+draw 9/50: ARI 0.803, 5 solutions, modal 0.50, worst factor phi 0.997, worst kept 0.84
+draw 10/50: ARI 0.862, 2 solutions, modal 0.90, worst factor phi 0.990, worst kept 0.85
+draw 11/50: ARI 0.871, 5 solutions, modal 0.45, worst factor phi 0.994, worst kept 0.84
+draw 12/50: ARI 0.879, 2 solutions, modal 0.95, worst factor phi 0.993, worst kept 0.83
+draw 13/50: ARI 0.793, 3 solutions, modal 0.40, worst factor phi 0.995, worst kept 0.81
+draw 14/50: ARI 0.820, 1 solutions, modal 1.00, worst factor phi 0.996, worst kept 0.84
+draw 15/50: ARI 0.866, 1 solutions, modal 1.00, worst factor phi 0.995, worst kept 0.89
+draw 16/50: ARI 0.877, 1 solutions, modal 1.00, worst factor phi 0.993, worst kept 0.84
+draw 17/50: ARI 0.830, 2 solutions, modal 0.95, worst factor phi 0.990, worst kept 0.85
+draw 18/50: ARI 0.554, 4 solutions, modal 0.60, worst factor phi 0.996, worst kept 0.42
+draw 19/50: ARI 0.817, 1 solutions, modal 1.00, worst factor phi 0.993, worst kept 0.85
+draw 20/50: ARI 0.353, 9 solutions, modal 0.15, worst factor phi 0.989, worst kept 0.00
+draw 21/50: ARI 0.855, 5 solutions, modal 0.55, worst factor phi 0.993, worst kept 0.88
+draw 22/50: ARI 0.909, 2 solutions, modal 0.95, worst factor phi 0.989, worst kept 0.91
+draw 23/50: ARI 0.781, 4 solutions, modal 0.80, worst factor phi 0.969, worst kept 0.82
+draw 24/50: ARI 0.823, 6 solutions, modal 0.45, worst factor phi 0.992, worst kept 0.74
+draw 25/50: ARI 0.543, 6 solutions, modal 0.45, worst factor phi 0.993, worst kept 0.42
+draw 26/50: ARI 0.713, 5 solutions, modal 0.60, worst factor phi 0.993, worst kept 0.65
+draw 27/50: ARI 0.879, 3 solutions, modal 0.90, worst factor phi 0.995, worst kept 0.90
+draw 28/50: ARI 0.898, 1 solutions, modal 1.00, worst factor phi 0.984, worst kept 0.89
+draw 29/50: ARI 0.879, 4 solutions, modal 0.70, worst factor phi 0.992, worst kept 0.91
+draw 30/50: ARI 0.874, 3 solutions, modal 0.90, worst factor phi 0.995, worst kept 0.84
+draw 31/50: ARI 0.755, 2 solutions, modal 0.55, worst factor phi 0.990, worst kept 0.71
+draw 32/50: ARI 0.851, 5 solutions, modal 0.70, worst factor phi 0.994, worst kept 0.81
+draw 33/50: ARI 0.865, 4 solutions, modal 0.80, worst factor phi 0.986, worst kept 0.88
+draw 34/50: ARI 0.882, 1 solutions, modal 1.00, worst factor phi 0.995, worst kept 0.87
+draw 35/50: ARI 0.913, 4 solutions, modal 0.70, worst factor phi 0.993, worst kept 0.93
+draw 36/50: ARI 0.881, 1 solutions, modal 1.00, worst factor phi 0.997, worst kept 0.85
+draw 37/50: ARI 0.877, 2 solutions, modal 0.95, worst factor phi 0.991, worst kept 0.90
+draw 38/50: ARI 0.752, 3 solutions, modal 0.65, worst factor phi 0.994, worst kept 0.75
+draw 39/50: ARI 0.903, 4 solutions, modal 0.70, worst factor phi 0.997, worst kept 0.93
+draw 40/50: ARI 0.757, 6 solutions, modal 0.45, worst factor phi 0.996, worst kept 0.75
+draw 41/50: ARI 0.827, 5 solutions, modal 0.75, worst factor phi 0.994, worst kept 0.86
+draw 42/50: ARI 0.818, 1 solutions, modal 1.00, worst factor phi 0.996, worst kept 0.80
+draw 43/50: ARI 0.805, 5 solutions, modal 0.30, worst factor phi 0.993, worst kept 0.84
+draw 44/50: ARI 0.853, 7 solutions, modal 0.45, worst factor phi 0.988, worst kept 0.89
+draw 45/50: ARI 0.838, 3 solutions, modal 0.80, worst factor phi 0.995, worst kept 0.84
+draw 46/50: ARI 0.854, 2 solutions, modal 0.95, worst factor phi 0.995, worst kept 0.88
+draw 47/50: ARI 0.852, 1 solutions, modal 1.00, worst factor phi 0.996, worst kept 0.67
+draw 48/50: ARI 0.318, 8 solutions, modal 0.35, worst factor phi 0.994, worst kept 0.00
+draw 49/50: ARI 0.862, 4 solutions, modal 0.75, worst factor phi 0.992, worst kept 0.85
+draw 50/50: ARI 0.801, 3 solutions, modal 0.85, worst factor phi 0.994, worst kept 0.83
+
+ARI vs reference across 50 draws: median 0.852, 5th pct 0.542, min 0.318 (eight-party typology under the same test: median 0.490, 5th pct 0.368)
+draws where some cluster keeps under half its members: 0.12 (eight-party: 0.86)
+
+Per reference cluster across draws:
+        kept_median  kept_q05  jaccard_median  share_draws_kept_below_half  reference_share
+party                                                                                     
+C0           0.952     0.794           0.919                         0.02            0.214
+C4           0.930     0.686           0.865                         0.04            0.195
+C2           0.909     0.419           0.834                         0.12            0.158
+C5           0.933     0.897           0.897                         0.00            0.124
+C3           0.938     0.681           0.871                         0.00            0.072
+C6           0.878     0.753           0.777                         0.04            0.071
+C1           0.950     0.839           0.876                         0.00            0.060
+C9           0.969     0.912           0.905                         0.00            0.040
+C8           0.939     0.514           0.832                         0.06            0.037
+C7           0.973     0.763           0.924                         0.04            0.031

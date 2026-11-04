@@ -1,0 +1,64 @@
+30 items; pairwise vs Stage C listwise loadings, Tucker phi per factor: [1.0, 1.0, 1.0, 0.998, 1.0]
+eligible 49,431 of 49,432 (161 missing-data patterns); clustering columns SO, TR, RT_resid, PC_resid
+
+Cap scan on the four-dimension space:
+  K  n_solutions  modal_solution_share  resample_ari_mean  n_clusters  n_stable  n_dissolved
+ 2            1                  1.00              0.974           2         2            0
+ 3            1                  1.00              0.901           3         3            0
+ 4            1                  1.00              0.932           4         4            0
+ 5            2                  0.75              0.667           5         3            0
+ 6            2                  0.90              0.546           6         1            0
+ 7            8                  0.20              0.563           7         2            0
+ 8            5                  0.40              0.621           8         4            0
+ 9            4                  0.45              0.588           9         3            1
+10            2                  0.95              0.706          10         7            0
+
+Cap rule (largest cap with no dissolved cluster): 10
+
+cap 8: 5 seed solutions, modal share 0.40; ARI vs the reference eight parties 0.196
+reference parties' kept share / Jaccard:
+         kept  jaccard
+party                
+CON    0.362    0.268
+STY    0.582    0.381
+LBR    0.302    0.207
+POP    0.145    0.123
+NAT    0.561    0.227
+PRG    0.526    0.276
+DAL    0.000    0.000
+DSA    0.519    0.242
+clusters (composition = reference party):
+  cluster  share                    composition    SO    TR  RT_resid  PC_resid
+       1   22.6  STY 52, CON 17, POP 17, LBR 9  0.18  0.00      0.30     -0.22
+       0   22.3         CON 49, NAT 28, POP 16 -0.63 -0.10      0.65      0.34
+       3   18.3 CON 51, POP 14, NAT 11, STY 10 -0.63 -0.19     -0.40      0.06
+       5   12.4 DSA 31, LBR 29, STY 22, PRG 13  1.02 -0.02     -0.29     -0.24
+       2    8.5          LBR 40, DAL 36, PRG 9 -0.17 -0.57     -1.09     -0.61
+       6    7.3         DSA 42, PRG 37, LBR 14  1.26 -0.05     -0.62     -0.51
+       7    4.4                 POP 45, STY 41  0.95  0.91      0.65      1.19
+       4    4.3         NAT 57, POP 27, CON 15 -0.67  1.67      0.21      0.71
+
+cap 10: 2 seed solutions, modal share 0.95; ARI vs the reference eight parties 0.178
+reference parties' kept share / Jaccard:
+         kept  jaccard
+party                
+CON    0.304    0.232
+STY    0.535    0.377
+LBR    0.314    0.176
+POP    0.129    0.113
+NAT    0.555    0.231
+PRG    0.394    0.221
+DAL    0.475    0.268
+DSA    0.260    0.225
+clusters (composition = reference party):
+  cluster  share                           composition    SO    TR  RT_resid  PC_resid
+       0   21.4                CON 48, NAT 28, POP 16 -0.62 -0.12      0.66      0.39
+       4   19.5                STY 56, POP 18, CON 14  0.29 -0.02      0.42     -0.13
+       2   15.8        CON 49, POP 17, NAT 13, STY 10 -0.56 -0.10     -0.41      0.28
+       5   12.4        DSA 29, LBR 29, STY 25, PRG 11  0.97 -0.01     -0.27     -0.24
+       3    7.2                 LBR 40, DAL 38, PRG 8 -0.15 -0.65     -1.08     -0.53
+       6    7.1 CON 48, STY 18, POP 11, DAL 11, LBR 9 -0.77 -0.02     -0.24     -0.98
+       1    6.0        PRG 34, LBR 26, DSA 25, DAL 10  0.69 -0.22     -0.88     -0.71
+       9    4.0                NAT 60, POP 25, CON 14 -0.66  1.67      0.21      0.86
+       8    3.7                        POP 48, STY 40  0.96  0.88      0.65      1.33
+       7    3.1                        DSA 63, PRG 35  1.94  0.23     -0.27     -0.21

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Party Signatures</title>
+<style>
+/*TOKENS*/
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1500px; margin: 0 auto; padding: 28px 16px 64px; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+h2 { font-family: var(--font-display); font-size: 20px; letter-spacing: -0.01em; margin: 0 0 6px; }
+.sub { color: var(--fg-2); margin: 0 0 16px; max-width: 980px; }
+section { margin: 32px 0 0; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 8px 0 0; }
+.bar { position: sticky; top: 0; z-index: 20; background: var(--bg-1); border-bottom: 1px solid var(--border-subtle); padding: 10px 0; display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 12px; color: var(--fg-2); }
+.lab { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); font-weight: 600; }
+.chip { font: inherit; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 4px; cursor: pointer; border: 2px solid var(--pc); background: var(--bg-2); color: var(--fg-3); }
+.chip.on { background: var(--pc); color: var(--pt); }
+.chip.prod { border-style: dashed; }
+.chip.prod.on { background: color-mix(in srgb, var(--pc) 22%, var(--bg-2)); color: var(--fg-1); border-style: dashed; }
+.btn { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: var(--radius-pill); border: 1px solid var(--border-default); background: var(--bg-2); color: var(--fg-1); cursor: pointer; }
+.ax { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.ax input[type=range] { width: 80px; }
+.ax .val { font-family: var(--font-mono, ui-monospace, monospace); font-weight: 700; min-width: 34px; color: var(--fg-1); }
+input[type=search], select { font: inherit; font-size: 12px; padding: 4px 8px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--fg-1); }
+.tag { display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; line-height: 1; border-radius: 3px; border: 1px solid; padding: 1.5px 3px; background: rgba(255,255,255,.92); }
+.tag.C { color: #4f46e5; border-color: #c7d2fe; } .tag.M { color: #475569; border-color: #cbd5e1; } .tag.D { color: #b45309; border-color: #fde68a; }
+.dia { color: #f59e0b; font-weight: 700; }
+.wrap { overflow: auto; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); max-height: 78vh; }
+table { border-collapse: separate; border-spacing: 2px; font-size: 12px; font-variant-numeric: tabular-nums; }
+th, td { padding: 0; }
+thead th { position: sticky; top: 0; z-index: 3; background: var(--bg-2); vertical-align: bottom; padding: 6px 2px 4px; font-weight: 600; }
+th.lbl, td.lbl { position: sticky; left: 0; z-index: 2; background: var(--bg-2); text-align: left; min-width: 280px; max-width: 380px; padding: 4px 10px 4px 8px; white-space: normal; }
+thead th.lbl { z-index: 4; }
+.pc { display: inline-block; border-radius: 3px; padding: 1px 4px; font-size: 11px; font-weight: 700; line-height: 1.2; }
+.pc.prod { background: transparent !important; border: 1.5px dashed; }
+.psub { display: block; font-size: 10px; font-weight: 400; color: var(--fg-3); margin-top: 2px; }
+th.cs { cursor: pointer; } th.cs:hover .pc { outline: 2px solid var(--plaid-blue-500); outline-offset: 1px; }
+.sarr { display: block; font-size: 10px; color: var(--fg-3); font-weight: 400; } .sarr.on { color: var(--plaid-blue-600); font-weight: 700; }
+td.c { position: relative; width: 58px; min-width: 52px; height: 38px; border-radius: 2px; text-align: center; vertical-align: top; padding-top: 4px; font-weight: 600; }
+td.c .tl { position: absolute; left: 2px; bottom: 2px; } td.c .tr { position: absolute; right: 2px; bottom: 2px; }
+td.us { box-shadow: inset 0 0 0 1px rgba(71,85,105,.55); }
+td.na { background: var(--bg-3); }
+tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); font-size: 11px; padding: 4px 8px; }
+.tp { display: block; font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; }
+.mk { font-size: 10px; color: var(--fg-3); margin-left: 3px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 12px; color: var(--fg-2); margin: 0 0 8px; }
+.sw { display: inline-flex; } .sw span { width: 14px; height: 10px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.card { background: var(--bg-2); border: 1px solid var(--border-default); border-top: 4px solid var(--pc); border-radius: var(--radius-lg); padding: 14px; min-width: 0; }
+.card h3 { margin: 0; font-size: 17px; font-family: var(--font-display); }
+.card .tagline { font-size: 13px; color: var(--fg-1); font-weight: 600; margin: 6px 0 4px; }
+.card .para { font-size: 12.5px; color: var(--fg-2); margin: 0 0 8px; }
+.card .k { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); font-weight: 600; margin: 8px 0 3px; }
+.card ul { list-style: none; margin: 0; padding: 0; font-size: 12px; }
+.card li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 2px 0; border-bottom: 1px solid var(--border-subtle); }
+.counts { font-size: 11px; color: var(--fg-3); }
+.hi { color: #c27040; font-weight: 700; } .lo { color: #307ca6; font-weight: 700; }
+@media (max-width: 760px) { th.lbl, td.lbl { min-width: 170px; } }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">CES 2024 · the nine parties · temporary review page</p>
+  <h1>Party Signatures</h1>
+  <p class="sub" id="sub"></p>
+
+  <div class="bar">
+    <div class="row"><span class="lab">Nine</span><span id="chips-new"></span><span class="lab">Production</span><span id="chips-prod"></span>
+      <button class="btn" data-act="new">Nine only</button><button class="btn" data-act="all">All</button><button class="btn" data-act="none">None</button></div>
+    <div class="row" id="axes"></div>
+  </div>
+
+  <section id="s-cards">
+    <p class="eyebrow">Signatures</p>
+    <h2>Each selected party's draft description and signature positions</h2>
+    <div class="cards" id="cards"></div>
+    <p class="caption">Signature positions: items the party holds cohesively and far from everyone (C and D), furthest first. Descriptions are read from party_descriptions.md; edit the file and rerun signature_app.py.</p>
+  </section>
+
+  <section id="s-factors">
+    <p class="eyebrow">Factor positions</p>
+    <h2>Where the selected parties sit</h2>
+    <div class="legend"><span class="sw" id="vik-sw"></span><span>below everyone · 0 = everyone · above everyone, ±1.5 SD</span></div>
+    <div class="wrap"><table id="t-factors"></table></div>
+    <p class="caption">N = the four new dimensions; P = production's five factors. Higher = more of the name.</p>
+  </section>
+
+  <section id="s-policy">
+    <p class="eyebrow">Policy views</p>
+    <h2>Share giving the stated answer, with signature tags</h2>
+    <div class="legend"><span class="sw" id="civ-sw"></span><span>shade = % support</span>
+      <span><span class="tag C">C</span> cohesive (party united)</span><span><span class="tag M">M</span> mainstream (near everyone)</span>
+      <span><span class="tag D">D</span> deviant (far from everyone)</span><span><span class="dia">◆</span> selected parties diverge</span></div>
+    <div class="row" style="margin-bottom:8px"><select id="topic"><option value="">All topics</option></select><input type="search" id="q" placeholder="Filter items">
+      <label><input type="checkbox" id="inputs"> Only clustering inputs ◆</label>
+      <span class="counts" id="pcount"></span><span class="counts">Click a party header to sort items by its share (highest, lowest, reset).</span></div>
+    <div class="wrap"><table id="t-policy"></table></div>
+  </section>
+
+  <section id="s-demo">
+    <p class="eyebrow">Demographics</p>
+    <h2>Who is in each selected party</h2>
+    <div class="wrap"><table id="t-demo"></table></div>
+    <p class="caption">Party ID, ideology and 2024 vote sit last as context. Median age shades from 30 to 70.</p>
+  </section>
+</main>
+<script>
+const DATA = /*DATA*/;
+const VIK = ["#001160","#024380","#307ca6","#93bdd2","#ece4e0","#dba98d","#c27040","#912c05","#590007"];
+const CIV = ['#00204d','#00336f','#39486b','#575d6d','#707173','#8a8779','#a69d75','#c4b56c','#e4cf5b','#ffea46'];
+function ramp(stops, t) {
+  t = Math.max(0, Math.min(1, t)); const x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
+  const a = stops[i].match(/\w\w/g).map(h => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map(h => parseInt(h, 16));
+  return "#" + a.map((v, k) => Math.round(v + (b[k] - v) * f).toString(16).padStart(2, "0")).join("");
+}
+function ink(hex) {
+  const c = hex.match(/\w\w/g).map(h => parseInt(h, 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) > 0.4 ? "#334155" : "#ffffff";
+}
+const P = Object.fromEntries(DATA.parties.map(p => [p.key, p]));
+const S = { sel: new Set(DATA.parties.filter(p => p.set === "new").map(p => p.key)),
+            cons: 70, dev: 25, main: 10, gap: 15, fC: false, fD: false, fM: false, fG: false, sort: null };
+const pcode = (k, sub) => { const p = P[k]; return `<span class="pc ${p.set}" style="background:${p.color};color:${ink(p.color)};border-color:${p.color};${p.set === "prod" ? "color:" + p.color : ""}">${p.code}</span>${sub ? `<span class="psub">${p.set === "prod" ? "prod · " : ""}${p.share ?? ""}%</span>` : ""}`; };
+const sel = () => DATA.parties.filter(p => S.sel.has(p.key)).map(p => p.key);
+function marks(r, k) {
+  const v = r[k]; if (v == null || r.us == null) return { C: false, mk: null };
+  const C = v >= S.cons || v <= 100 - S.cons, d = Math.abs(v - r.us);
+  return { C, mk: d >= S.dev ? "D" : d <= S.main ? "M" : null, d };
+}
+function diverge(r, ks) { const v = ks.map(k => r[k]).filter(x => x != null); return v.length > 1 && Math.max(...v) - Math.min(...v) >= S.gap; }
+
+function renderBar() {
+  const chip = p => `<button class="chip ${p.set}${S.sel.has(p.key) ? " on" : ""}" data-k="${p.key}" style="--pc:${p.color};--pt:${ink(p.color)}">${p.code}</button>`;
+  document.getElementById("chips-new").innerHTML = DATA.parties.filter(p => p.set === "new").map(chip).join(" ");
+  document.getElementById("chips-prod").innerHTML = DATA.parties.filter(p => p.set === "prod").map(chip).join(" ");
+  const ax = (id, label, cmp, min, max, f) => `<span class="ax"><span class="tag ${label[0]}">${label[0]}</span><b>${label.slice(2)}</b><input type="range" min="${min}" max="${max}" step="5" value="${S[id]}" data-ax="${id}"><span class="val">${cmp}${S[id]}${id === "cons" ? "%" : ""}</span><label><input type="checkbox" data-f="${f}" ${S[f] ? "checked" : ""}> filter</label></span>`;
+  document.getElementById("axes").innerHTML = ax("cons", "C Cohesion", "≥", 50, 100, "fC") + ax("dev", "D Deviance", "≥", 0, 50, "fD") + ax("main", "M Mainstream", "≤", 0, 50, "fM") +
+    `<span class="ax"><span class="dia">◆</span><b>Divergence</b><input type="range" min="5" max="60" step="5" value="${S.gap}" data-ax="gap"><span class="val">≥${S.gap}</span><label><input type="checkbox" data-f="fG" ${S.fG ? "checked" : ""}> diverging only</label></span>`;
+}
+function head(lbl, sortable) {
+  return `<thead><tr><th class="lbl">${lbl}</th><th><span class="pc" style="background:#64748b;color:#fff">US</span><span class="psub">everyone</span></th>` +
+    sel().map(k => { const on = S.sort && S.sort.k === k; return `<th class="${sortable ? "cs" : ""}" data-k="${k}">${sortable ? `<span class="sarr${on ? " on" : ""}">${on ? (S.sort.dir < 0 ? "▼ highest" : "▲ lowest") : "⇅"}</span>` : ""}${pcode(k, true)}</th>`; }).join("") + "</tr></thead>";
+}
+function cell(r, k, range, tags) {
+  const v = r[k]; if (v == null) return `<td class="c na">–</td>`;
+  const bg = ramp(CIV, (v - range[0]) / (range[1] - range[0])), m = tags ? marks(r, k) : { C: false, mk: null };
+  return `<td class="c" style="background:${bg};color:${ink(bg)}" title="${P[k].code}${P[k].set === "prod" ? " (production)" : ""}: ${Math.round(v)}%${m.C ? " · cohesive" : ""}${m.mk ? " · " + (m.mk === "D" ? "deviant" : "mainstream") : ""}">${Math.round(v)}${m.C ? `<span class="tl"><span class="tag C">C</span></span>` : ""}${m.mk ? `<span class="tr"><span class="tag ${m.mk}">${m.mk}</span></span>` : ""}</td>`;
+}
+function usCell(r, range) { const bg = ramp(CIV, (r.us - range[0]) / (range[1] - range[0])); return `<td class="c us" style="background:${bg};color:${ink(bg)}">${Math.round(r.us)}</td>`; }
+
+function renderFactors() {
+  const ks = sel();
+  document.getElementById("t-factors").innerHTML = head("Factor", false) + "<tbody>" + DATA.factors.map(f =>
+    `<tr><td class="lbl">${f.label}</td><td class="c us">0.00</td>${ks.map(k => { const v = f[k], bg = ramp(VIK, 0.5 + v / 3); return `<td class="c" style="background:${bg};color:${ink(bg)}">${(v > 0 ? "+" : "") + v.toFixed(2)}</td>`; }).join("")}</tr>`).join("") + "</tbody>";
+}
+function renderPolicy() {
+  const ks = sel(), t = document.getElementById("topic").value, q = document.getElementById("q").value.toLowerCase(), inp = document.getElementById("inputs").checked;
+  let rows = DATA.policy.filter(r => (!t || r.topic === t) && (!q || (r.label + " " + r.topic + " " + r.item).toLowerCase().includes(q)) && (!inp || r.input));
+  rows = rows.filter(r => {
+    const ms = ks.map(k => marks(r, k));
+    if (S.fC && !ms.some(m => m.C)) return false;
+    if (S.fD && !ms.some(m => m.mk === "D")) return false;
+    if (S.fM && !ms.some(m => m.mk === "M")) return false;
+    if (S.fG && !diverge(r, ks)) return false;
+    return true;
+  });
+  if (S.sort && ks.includes(S.sort.k)) { const key = r => r[S.sort.k] ?? (S.sort.dir < 0 ? -1e9 : 1e9); rows = [...rows].sort((a, b) => S.sort.dir * (key(a) - key(b))); }
+  let html = head("Position", true) + "<tbody>", last = null;
+  for (const r of rows) {
+    if (!S.sort && r.topic !== last) { html += `<tr class="topic"><td class="lbl" colspan="1">${r.topic}</td><td colspan="${ks.length + 1}"></td></tr>`; last = r.topic; }
+    html += `<tr><td class="lbl">${S.sort ? `<span class="tp">${r.topic}</span>` : ""}${diverge(r, ks) ? '<span class="dia" title="Selected parties diverge">◆ </span>' : ""}${r.label}${r.input ? '<span class="mk">◆input</span>' : ""}</td>${usCell(r, [0, 100])}${ks.map(k => cell(r, k, [0, 100], true)).join("")}</tr>`;
+  }
+  document.getElementById("t-policy").innerHTML = html + "</tbody>";
+  document.getElementById("pcount").textContent = `${rows.length} of ${DATA.policy.length} items`;
+}
+function renderDemo() {
+  const ks = sel(); let html = head("Measure", false) + "<tbody>", last = null;
+  for (const r of DATA.demo) {
+    if (r.section !== last) { html += `<tr class="topic"><td class="lbl">${r.section}</td><td colspan="${ks.length + 1}"></td></tr>`; last = r.section; }
+    const range = r.median ? [30, 70] : [0, 100];
+    html += `<tr><td class="lbl">${r.label}</td>${usCell(r, range)}${ks.map(k => cell(r, k, range, false)).join("")}</tr>`;
+  }
+  document.getElementById("t-demo").innerHTML = html + "</tbody>";
+}
+function renderCards() {
+  const ks = sel();
+  document.getElementById("cards").innerHTML = ks.map(k => {
+    const p = P[k], d = p.set === "new" ? (DATA.desc[p.code] || {}) : {};
+    const ms = DATA.policy.map(r => ({ r, m: marks(r, k) }));
+    const nC = ms.filter(x => x.m.C).length, nD = ms.filter(x => x.m.mk === "D").length, nM = ms.filter(x => x.m.mk === "M").length;
+    const sig = ms.filter(x => x.m.C && x.m.mk === "D").sort((a, b) => b.m.d - a.m.d).slice(0, 8);
+    const li = x => { const v = x.r[k], up = v >= x.r.us; return `<li><span><span class="tp">${x.r.topic}</span>${x.r.label}</span><span><span class="${up ? "hi" : "lo"}">${Math.round(v)}%</span> <span class="counts">vs ${Math.round(x.r.us)}</span></span></li>`; };
+    return `<div class="card" style="--pc:${p.color}"><h3>${pcode(k, false)} ${d.name || (p.set === "prod" ? "production party" : "")} <span class="counts">${p.share ?? ""}%${d.letter ? " · cluster " + d.letter : ""}</span></h3>
+      ${d.tagline ? `<p class="tagline">${d.tagline}</p>` : ""}${d.paragraph ? `<p class="para">${d.paragraph}</p>` : ""}
+      <div class="counts"><span class="tag C">C</span> ${nC} cohesive · <span class="tag D">D</span> ${nD} deviant · <span class="tag M">M</span> ${nM} mainstream, of ${DATA.policy.length} items</div>
+      <div class="k">Signature positions (C and D)</div><ul>${sig.map(li).join("") || '<li><span class="counts">none at these thresholds</span></li>'}</ul></div>`;
+  }).join("");
+}
+function renderAll() { renderBar(); renderCards(); renderFactors(); renderPolicy(); renderDemo(); }
+
+document.getElementById("vik-sw").innerHTML = [0, .25, .5, .75, 1].map(t => `<span style="background:${ramp(VIK, t)}"></span>`).join("");
+document.getElementById("civ-sw").innerHTML = [0, .25, .5, .75, 1].map(t => `<span style="background:${ramp(CIV, t)}"></span>`).join("");
+document.getElementById("sub").textContent = "The nine parties' positions with the Parties-tab signature tags. Pick parties to compare (production's nine are dashed). Thresholds match the app's defaults; slide them and every tag, count and card updates.";
+document.getElementById("topic").innerHTML += [...new Set(DATA.policy.map(r => r.topic))].map(t => `<option>${t}</option>`).join("");
+document.addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (c) { const k = c.dataset.k; S.sel.has(k) ? S.sel.delete(k) : S.sel.add(k); renderAll(); return; }
+  const a = e.target.closest("[data-act]");
+  if (a) { const v = a.dataset.act; S.sel = new Set(DATA.parties.filter(p => v === "all" || (v === "new" && p.set === "new")).map(p => p.key)); renderAll(); return; }
+  const th = e.target.closest("#t-policy th.cs");
+  if (th) { const k = th.dataset.k; S.sort = !S.sort || S.sort.k !== k ? { k, dir: -1 } : S.sort.dir < 0 ? { k, dir: 1 } : null; renderPolicy(); }
+});
+document.addEventListener("input", e => {
+  if (e.target.dataset.ax) { S[e.target.dataset.ax] = +e.target.value; e.target.nextElementSibling.textContent = (e.target.dataset.ax === "main" ? "≤" : "≥") + e.target.value + (e.target.dataset.ax === "cons" ? "%" : ""); renderCards(); renderPolicy(); return; }
+  if (e.target.dataset.f) { S[e.target.dataset.f] = e.target.checked; renderPolicy(); return; }
+  if (["topic", "q", "inputs"].includes(e.target.id)) renderPolicy();
+});
+renderAll();
+</script>
+</body>
+</html>

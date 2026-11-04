@@ -1,0 +1,23 @@
+residualized rescoring vs stored, r: [1.0, 1.0, 1.0, 1.0]
+plain vs residualized, r: [0.879, 1.0, 1.0, 0.925]
+residualized columns as affine functions of plain columns, R2: [1.0, 1.0, 1.0, 1.0]
+[Parallel(n_jobs=11)]: Using backend LokyBackend with 11 concurrent workers.
+[Parallel(n_jobs=11)]: Done  19 tasks      | elapsed:   39.4s
+[Parallel(n_jobs=11)]: Done 100 out of 100 | elapsed: 12.7min finished
+cap 5: plain jaccard [0.56, 0.74, 0.78, 0.86, 0.97]; residualized [0.65, 0.8, 0.82, 0.89, 0.97]
+cap 10: plain jaccard [0.67, 0.68, 0.7, 0.71, 0.71, 0.79, 0.8, 0.82, 0.88, 0.91]; residualized [0.64, 0.64, 0.66, 0.67, 0.75, 0.79, 0.82, 0.83, 0.88, 0.9]
+                                      0          1
+cap                               5.000     10.000
+plain_vs_resid_ari                0.989      0.989
+resid_n_solutions                 1.000      2.000
+resid_modal_share                 1.000      0.950
+plain_n_solutions                 1.000      2.000
+plain_modal_share                 1.000      0.950
+resid_unstable                    1.000      4.000
+resid_dissolved                   0.000      0.000
+plain_unstable                    2.000      5.000
+plain_dissolved                   0.000      0.000
+resid_best_bound             -24881.800 -22455.200
+plain_best_bound             -24881.500 -22355.900
+same_partition_seed_pairs         2.000      0.000
+max_bound_gap_same_partition      0.678        NaN

@@ -1,20 +1,35 @@
-# NEXT: CES listwise check   (written 2026-11-02 by the session that re-estimated the loadings, refit, and scanned caps)
+# NEXT: CES typology (revised §3c rule)   (written 2026-11-04 by the session that ran the revised rule and chose the nine)
 
 ## Where it stands
-- Done and ruled (`DECISIONS.md` 2026-11-02): replace production with the rescored cap-8 typology; no items added.
-- Evidence in `findings.md`: loadings hold (φ ≥ 0.964; changes within bootstrap noise); the new loadings dissolve CUP with or without the 4,218 added respondents; cap 8 is the most reproducible cap (`outputs/kscan/`).
-- Per-party survival numbers behind the ruling (production cap 9 vs rescored caps 8 and 9) were computed inline from `k_stability/outputs/fair/labels.npz` and `outputs/kscan/labels.npz`; they're in `DECISIONS.md`, not in a script.
+- Ruled (`DECISIONS.md` 2026-11-04): the parties are the revised rule's cap-9 clusters on plain scores; residualization
+  dropped for CES; the ten and the cap-8 rebuild are superseded.
+- Revised rule run: `stage_c_v2.py` -> `outputs/stage_c_v2/` (41 items, factors RT/TR/SO/PC, labels for caps 2-10).
+  Residualized run kept in `outputs/stage_c_v2_residualized/`.
+- Profiles: `outputs/profile_nine/index.html` (`profile_ten.py 9`), `outputs/profile_v2_k9/` (`profile_v2.py 9`);
+  the ten's pages are `outputs/profile_ten/`, `outputs/profile_v2/`.
+- Held-out domestic items (`heldout_domestic.py`, `heldout_merge_a.py`): ten 0.169, nine 0.162, production 0.130.
+- Unverified: the ten's page still shows redraw figures from the residualized run (`outputs/v2_draws/`).
 
 ## Handed off in parallel
-- `analysis/efa/rebuild_eight_parties/NEXT.md`: the production rebuild. Not waiting on anything from here.
+- `analysis/efa/rebuild_nine_parties/NEXT.md`: the production rebuild. Waits on the researcher for party names and
+  quiz design, not on anything here.
 
-## Next steps (optional, after the rebuild)
-1. Loading-draw test: the 50 draws in `outputs/loadings_bootstrap.csv` (rebuild each with seed-42 resampling as in `reestimate_loadings.py`), score, run the 20-seed DPGMM at cap 8, record each party's kept share. Not a gate (`DECISIONS.md`).
-2. Larger CES item pool as its own check. Rule proposed by the ANES session: curate for construct reasons, never cull for missingness, handle missing answers at scoring. An earlier uncurated CES pool gave an unstable factor solution. This is the test that squares CES with ANES: ANES got the Stage A/B screen only (99 items, 10 clean factors); CES got the screen plus a discretionary domain-coverage trim, justified because the screened ~63-item CES pool was numerically degenerate (Heywood cases, non-positive-definite, k ≈ 2–3, dominated by the `CC24_444` state-culture battery; `docs/EFA_ITEM_SELECTION_ROBUSTNESS.md` §6). CES only; the ANES pool doesn't change. Rule, fixed before running: (a) the Stage A/B screen; (b) numerical check: no Heywood case, positive-definite matrix, parallel-analysis k matching the fitted factors; (c) if it fails, drop items one at a time from the dominating battery, most partisan first (Stage B tie-break), until (b) passes; nothing else is trimmed. ANES passes at (b). Hand drops re-enter and face the rule (`DECISIONS.md` 2026-11-02): `CC24_440a`, `CC24_441a`, `CC24_441b`, `pew_bornagain`. Stage A exclusions stay out: `CC24_312*` approvals, `CC24_330a` self-placement, `CC24_301` economy retrospective, the `CC24_420_*` and `CC24_309d_8` multi-selects. Judge party changes against the step-1 noise floor; report per-party kept share and Jaccard, not just factor φ.
-3. Foreign-policy arm (researcher, 2026-11-02), run as two fits: (a) the 24 production items plus the foreign-policy items; (b) the step-2 rule-based pool plus the foreign-policy items. Compare each to production and (b) to step 2, so the foreign-policy effect separates from the hand-trim effect. Items enter as individual binaries with the exclusive "none" box dropped (none = zero of the others; it is what forces the negative correlations; checked exclusive in all three batteries): military intervention `CC24_420_1`–`_6` (post-election, n 49,432), Ukraine `CC24_308a_2`–`_8`, Israel/Gaza `CC24_308b_2`–`_9` (pre-election). Then the same Stage B screen; it should drop arms to Hamas (`308b_4`, 1.6% selected) and send force to fight Russia (`308a_6`, 5.3%) on modal share. No party-ID cap on policy items (`analysis/validation/DECISIONS.md` 2026-10-31), so partisan-coded Ukraine/Gaza items stay unless the redundancy rule removes the more partisan twin. Don't use a count score: intervention reasons split left/right (oil and terrorist camps run with Security & Order, genocide and UN law against Populist Conservatism), so a count cancels the direction. Supersedes the pre-rescore overlay decision in `docs/EFA_FACTORS.md` only if the researcher rules on the result.
-4. Cap rule: count a party dissolved by its failure share across resamples, not mean Jaccard < 0.5 (a party that vanishes in half the resamples passes the mean rule). Researcher hasn't ruled.
+## Running
+- Factor-redraw test on the nine, detached (survives VS Code restarts): `v2_draws.py 9` -> `outputs/v2_draws_k9/`,
+  log `outputs/v2_draws_k9_run.log`, started 2026-11-04, ~5 h. Rerun the same way if it died:
+  `caffeinate -i .venv/bin/python -u v2_draws.py 9` from this folder (it resumes from `draw_labels.npz`).
+
+## Next steps
+1. When the redraw finishes: report per-cluster kept median and draws with a cluster under half against the ten
+   (`outputs/v2_draws/summary.csv`, residualized) and the current ten (`outputs/four_dim_draws/`). Add it to
+   `profile_nine` (`profile_ten.py` reads redraws only for cap 10; point `REDRAWS` at `v2_draws_k9` for cap 9).
+2. Open, researcher's call: rename RT/PC to "Cultural Conservatism" / "Economic Right"; whether two immigration
+   items are enough; checkbox items stay out; optional leave-one-battery-out held-out test.
+3. Nothing here is committed. Commit with explicit paths when the researcher asks.
 
 ## Don't redo
-- Caches in `outputs/` (three polychoric matrices, bootstrap draws, refit and scan labels). `rescore_scores*.csv` are uncommitted; `rescore_refit.py` rebuilds them in seconds.
-- `.venv/bin/python` only (scipy 1.17 exact polychoric).
-- `docs/EFA_ITEM_SELECTION_ROBUSTNESS.md` predates the 2026-10 rescore: its factor-layer verdicts stand (the polychoric was always label-coded), its party-layer columns and the "F3 is a near-null residual" limitation are stale.
+- Cap choice: caps 7, 8 and 10 lose to 9 on stability or convergence; the 100-seed cap-9 run (`cap9_seeds.py`) was
+  on residualized starts and is superseded by the plain-score run.
+- Seed 48's better-bound cap-10 solution was checked and rejected (`resid_check_ces.py`, `DECISIONS.md`).
+- ANES residualization is the researcher's to handle; don't message the ANES session about it.
+- `.venv/bin/python` only; kill only this session's own processes (the ANES session runs jobs here too).

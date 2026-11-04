@@ -1,0 +1,3 @@
+cap,plain_vs_resid_ari,resid_n_solutions,resid_modal_share,plain_n_solutions,plain_modal_share,resid_unstable,resid_dissolved,plain_unstable,plain_dissolved,resid_best_bound,plain_best_bound,same_partition_seed_pairs,max_bound_gap_same_partition
+5,0.989,1,1.0,1,1.0,1,0,2,0,-24881.8,-24881.5,2,0.678
+10,0.989,2,0.95,2,0.95,4,0,5,0,-22455.2,-22355.9,0,

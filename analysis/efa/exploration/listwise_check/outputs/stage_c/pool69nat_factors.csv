@@ -1,0 +1,13 @@
+fit,factor,name,clean_items,batteries,two_item_factor,passes,clean,battery_ids
+k5,0,Populist Conservatism (r 0.84),12,7,False,True,CC24_303 CC24_321b CC24_323d CC24_326d CC24_328d CC24_341a CC24_341c CC24_440b CC24_444a CC24_444f CC24_445a CC24_445b,CC24_302..CC24_303 | CC24_321a..CC24_324d | CC24_326a..CC24_323f | CC24_340a..CC24_341d | CC24_440a..CC24_441g | CC24_444a..CC24_444f | CC24_445a..CC24_445b
+k5,1,Religious Traditionalism (r 0.83),6,5,False,True,pew_churatd pew_bornagain CC24_325 CC24_340c CC24_444c CC24_444d,CC24_325 | CC24_340a..CC24_341d | CC24_444a..CC24_444f | pew_bornagain | pew_churatd
+k5,2,Security & Order (r 0.84),4,3,False,True,CC24_321e CC24_323b CC24_340d CC24_443_4,CC24_321a..CC24_324d | CC24_340a..CC24_341d | CC24_443_1..CC24_443_5
+k5,3,"new: CC24_340a, CC24_340b, CC24_340c (closest Religious Traditionalism r 0.47)",2,1,True,False,CC24_340a CC24_340b,CC24_340a..CC24_341d
+k5,4,"new: CC24_443_2, CC24_443_3, CC24_443_5 (closest Populist Conservatism r 0.64)",4,1,False,False,CC24_443_1 CC24_443_2 CC24_443_3 CC24_443_5,CC24_443_1..CC24_443_5
+k7,0,Security & Order (r 0.71),13,6,False,True,CC24_321b CC24_323b CC24_324b CC24_326d CC24_328d CC24_341a CC24_440b CC24_440c CC24_441a CC24_444b CC24_444f CC24_445a CC24_445b,CC24_321a..CC24_324d | CC24_326a..CC24_323f | CC24_340a..CC24_341d | CC24_440a..CC24_441g | CC24_444a..CC24_444f | CC24_445a..CC24_445b
+k7,1,"new: CC24_444e, CC24_340e, CC24_321b (closest Populist Conservatism r 0.36)",1,1,False,False,CC24_444e,CC24_444a..CC24_444f
+k7,2,"new: CC24_340a, CC24_340b, CC24_444d (closest Religious Traditionalism r 0.53)",2,1,True,False,CC24_340a CC24_340b,CC24_340a..CC24_341d
+k7,3,Institutional Distrust (r 0.78),2,2,True,True,CC24_421_1 CC24_423,CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+k7,4,"new: CC24_328b, CC24_328a, CC24_328e (closest Populist Conservatism r 0.49)",3,1,False,False,CC24_328a CC24_328b CC24_328e,CC24_326a..CC24_323f
+k7,5,"new: CC24_443_5, CC24_443_3, CC24_443_2 (closest Populist Conservatism r 0.58)",4,2,False,True,CC24_341d CC24_443_2 CC24_443_3 CC24_443_5,CC24_340a..CC24_341d | CC24_443_1..CC24_443_5
+k7,6,Religious Traditionalism (r 0.82),4,4,False,True,pew_churatd pew_bornagain CC24_325 CC24_340c,CC24_325 | CC24_340a..CC24_341d | pew_bornagain | pew_churatd

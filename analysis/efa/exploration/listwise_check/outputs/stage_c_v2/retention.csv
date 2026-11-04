@@ -1,0 +1,62 @@
+item,survived,dropped_as,in_stage_b_full_sample,retained
+CC24_440a,0,B redundant 50,False,False
+CC24_341b,0,B redundant 50,False,False
+CC24_326c,0,B redundant 50,False,False
+CC24_326b,0,B redundant 50,False,False
+CC24_326a,0,B redundant 50,False,False
+CC24_440d,0,B redundant 50,False,False
+CC24_324a,0,B redundant 50,False,False
+CC24_323c,0,B redundant 50,False,False
+CC24_324d,0,B redundant 50,False,False
+pew_religimp,0,B redundant 50,False,False
+CC24_321d,0,B redundant 50,False,False
+pew_prayer,0,B redundant 50,False,False
+CC24_340e,1,weak 49,True,False
+CC24_421_2,1,B redundant 49,False,False
+CC24_328c,3,weak 47,True,False
+CC24_441a,15,B redundant 35,False,False
+CC24_340f,17,B redundant 33,False,False
+CC24_321a,17,B redundant 33,False,False
+CC24_328a,18,weak 32,True,False
+CC24_323d,19,"B redundant 27, weak 4",False,False
+CC24_323a,26,"B redundant 23, weak 1",True,True
+CC24_340b,35,B redundant 15,True,True
+CC24_441b,35,B redundant 15,True,True
+CC24_444e,36,weak 14,True,True
+CC24_443_2,38,B redundant 12,True,True
+CC24_326e,43,weak 7,True,True
+CC24_323f,43,B redundant 7,True,True
+CC24_443_5,44,weak 6,True,True
+CC24_324b,45,weak 5,True,True
+CC24_440c,47,weak 3,True,True
+CC24_421_1,49,B redundant 1,True,True
+CC24_326f,49,weak 1,True,True
+pew_churatd,50,,True,True
+CC24_443_3,50,,True,True
+CC24_443_4,50,,True,True
+CC24_440b,50,,True,True
+CC24_444b,50,,True,True
+CC24_444c,50,,True,True
+CC24_444d,50,,True,True
+CC24_444f,50,,True,True
+CC24_443_1,50,,True,True
+CC24_444a,50,,True,True
+CC24_340c,50,,True,True
+CC24_423,50,,True,True
+pew_bornagain,50,,True,True
+CC24_321b,50,,True,True
+CC24_321e,50,,True,True
+CC24_323b,50,,True,True
+CC24_325,50,,True,True
+CC24_326d,50,,True,True
+CC24_328b,50,,True,True
+CC24_328d,50,,True,True
+CC24_328e,50,,True,True
+CC24_340a,50,,True,True
+CC24_445a,50,,True,True
+CC24_340d,50,,True,True
+CC24_341a,50,,True,True
+CC24_341c,50,,True,True
+CC24_341d,50,,True,True
+CC24_424,50,,True,True
+CC24_445b,50,,True,True

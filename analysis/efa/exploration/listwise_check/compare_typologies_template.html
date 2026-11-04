@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typology Comparison</title>
+<style>
+/*TOKENS*/
+:root { --gap-pos: #c27040; --gap-neg: #307ca6; }
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1600px; margin: 0 auto; padding: 32px 16px 64px; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+h2 { font-family: var(--font-display); font-size: 21px; letter-spacing: -0.01em; margin: 0 0 6px; }
+.sub { color: var(--fg-2); margin: 0 0 20px; max-width: 900px; }
+section { margin: 40px 0 0; }
+.callout { background: var(--bg-inverse); color: var(--fg-inverse); border-radius: var(--radius-md); padding: 14px 18px; margin: 0 0 14px; max-width: 900px; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 8px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.seg { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-pill); overflow: hidden; }
+.seg button { background: var(--bg-2); color: var(--fg-2); border: 0; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+input[type=search], select { font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--fg-1); }
+label.chk { font-size: 13px; color: var(--fg-2); display: inline-flex; gap: 6px; align-items: center; }
+.wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); max-height: 80vh; }
+table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 7px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+thead th { position: sticky; top: 0; background: var(--bg-2); z-index: 2; vertical-align: bottom; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-default); }
+th.lbl, td.lbl { position: sticky; left: 0; background: var(--bg-2); z-index: 1; text-align: left; white-space: normal; min-width: 260px; max-width: 360px; }
+thead th.lbl { z-index: 3; }
+td.v { text-align: center; min-width: 46px; }
+td.sep, th.sep { border-left: 2px solid var(--border-strong); }
+tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); font-size: 12px; position: static; }
+tr.topic td.lbl { background: var(--bg-3); }
+.gh { font-size: 12.5px; }
+.gs { display: block; font-weight: 400; color: var(--fg-3); font-size: 11px; }
+.gl { display: block; font-weight: 400; color: var(--fg-3); font-size: 10.5px; white-space: normal; max-width: 78px; margin: 0 auto; line-height: 1.2; }
+.typ { display: block; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--plaid-blue-600); }
+.mk { font-size: 10px; color: var(--fg-3); margin-left: 4px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--fg-2); margin: 0 0 10px; }
+.ramp { width: 160px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, var(--vik-0), var(--vik-25), var(--vik-50), var(--vik-75), var(--vik-100)); }
+.ramp.c { background: linear-gradient(90deg, var(--cividis-0), var(--cividis-50), var(--cividis-100)); }
+.grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; } .grid2 > div { min-width: 0; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0,1fr); } th.lbl, td.lbl { min-width: 180px; } }
+@media print { .wrap { max-height: none; overflow: visible; } .controls { display: none; } .callout { background: var(--bg-3); color: var(--fg-1); border: 1px solid var(--border-default); } }
+.filt { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+.filt button { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: var(--radius-pill); border: 1px solid var(--border-default); background: var(--fg-1); color: var(--bg-1); cursor: pointer; }
+.filt button[aria-pressed="false"] { background: var(--bg-2); color: var(--fg-3); text-decoration: line-through; }
+.filt .fl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); margin-right: 2px; }
+.hint { font-size: 12px; color: var(--fg-3); }
+body[data-color="level"] .lg-gap, body[data-color="gap"] .lg-level { display: none; }
+th.csort { cursor: pointer; } th.csort:hover { color: var(--plaid-blue-600); }
+.carr { display: block; font-size: 10px; font-weight: 400; color: var(--fg-3); } .carr.on { color: var(--plaid-blue-600); font-weight: 600; }
+th.csorted { box-shadow: inset 0 -3px 0 var(--plaid-blue-600); }
+td.sortable .arr { color: var(--fg-3); }
+td.sorted .arr { color: var(--plaid-blue-600); }
+.sticky-ctl { position: sticky; top: 0; z-index: 5; background: var(--bg-1); padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.ctl-l { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); margin-left: 6px; }
+.tp { display: block; font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; }
+th.gh.prod .typ { color: var(--fg-3); }
+th.gh.new { background: var(--bg-3); }
+td.sortable { cursor: pointer; } td.sortable:hover { color: var(--plaid-blue-600); }
+td.sorted { color: var(--plaid-blue-600); font-weight: 600; } .arr { font-size: 10px; }
+.sortinfo { font-size: 13px; color: var(--fg-2); margin-left: 8px; }
+.reset { font: inherit; font-size: 13px; padding: 5px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-pill); background: var(--bg-2); color: var(--fg-1); cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow" id="eyebrow">CES 2024 · production typology vs four-dimension clusters</p>
+  <h1>Typology Comparison</h1>
+  <p class="sub" id="sub"></p>
+  <div class="controls sticky-ctl">
+    <span class="ctl-l">Columns</span><span class="seg" data-ctl="cols"></span>
+    <span class="ctl-l">Rows</span><span class="seg" data-ctl="rows"></span>
+    <span class="ctl-l">Show</span><span class="seg" data-ctl="view"></span>
+    <span class="sortinfo" id="sortinfo"></span><button id="reset" class="reset" hidden>Reset column order</button>
+    <div class="filt" id="filt"></div>
+  </div>
+
+  <section id="s-factors">
+    <p class="eyebrow">Factor positions</p>
+    <h2>Where each group sits on both factor systems</h2>
+    <div class="legend"><span>Below everyone</span><span class="ramp"></span><span>Above everyone</span><span>· group mean in SD units, color spans ±1.5 SD</span></div>
+    <div class="wrap"><table id="t-factors"></table></div>
+    <p class="caption">P = production five factors; N = the four rule-picked dimensions, as clustered (no residualization). Each factor oriented so higher = more of its name; for the new distrust dimension (CES trust items), higher = more distrust.</p>
+  </section>
+
+  <section id="s-policy">
+    <p class="eyebrow">Policy views</p>
+    <h2>Share of each group giving the stated answer</h2>
+    <div class="legend"><span class="lg-level">0%</span><span class="ramp c lg-level"></span><span class="lg-level">100%</span><span class="lg-gap">Below everyone</span><span class="ramp lg-gap"></span><span class="lg-gap">Above everyone · ±40 points</span><span class="seg" data-ctl="color"></span><span id="setlegend">● in production's 24 items · ◆ in the new 30-item set</span></div>
+    <div class="controls">
+      <select id="topic"><option value="">All topics</option></select>
+      <input type="search" id="q" placeholder="Filter items">
+      <label class="chk"><input type="checkbox" id="sets"> Only items in either item set</label>
+      <span class="hint">Click a column header (⇅) to sort items by that group’s support: highest first, again for lowest, again to reset. Click an item name to sort the columns instead.</span></div>
+    <div class="wrap"><table id="t-policy"></table></div>
+    <p class="caption">Weighted (commonpostweight), share of members who answered the item. Foreign-policy and troop items are checkboxes: share selecting each option.</p>
+  </section>
+
+  <section id="s-demo">
+    <p class="eyebrow">Demographics</p>
+    <h2>Who is in each group</h2>
+    <div class="legend"><span class="lg-level">0%</span><span class="ramp c lg-level"></span><span class="lg-level">100% (median age 30 to 70)</span><span class="lg-gap">Below everyone</span><span class="ramp lg-gap"></span><span class="lg-gap">Above everyone · ±30 points (median age ±15 years)</span></div>
+    <div class="wrap"><table id="t-demo"></table></div>
+    <p class="caption">Party ID, ideology and 2024 vote sit last as context and stay out of the row sort. Age is 2024 minus birth year; median age is unweighted.</p>
+  </section>
+
+  <section id="s-cousins">
+    <p class="eyebrow">Closest cousins</p>
+    <h2>Each new cluster's three nearest production parties by policy views</h2>
+    <div class="wrap"><table id="t-cousins"></table></div>
+    <p class="caption">Policy distance: root-mean-square gap across all items after z-scoring each item across groups (0 = identical). Factor distance: Euclidean, SD units, on the four new dimensions. "Members from" = share of the new cluster's members that production placed in that party.</p>
+  </section>
+
+  <section id="s-cross">
+    <p class="eyebrow">Crosswalk</p>
+    <h2>Where the new clusters' members sat in production</h2>
+    <div class="legend"><span>0%</span><span class="ramp c"></span><span>100%</span></div>
+    <div class="grid2">
+      <div><p class="sub" style="margin:0 0 6px">Row %: each new cluster's members by production party</p><div class="wrap"><table id="t-xr"></table></div></div>
+      <div><p class="sub" style="margin:0 0 6px">Column %: each production party's members by new cluster</p><div class="wrap"><table id="t-xc"></table></div></div>
+    </div>
+    <p class="caption" id="xcap"></p>
+  </section>
+</main>
+<script>
+const DATA = /*DATA*/;
+const VIK = ["#001160","#024380","#307ca6","#93bdd2","#ece4e0","#dba98d","#c27040","#912c05","#590007"];
+const CIV = ["#00204d","#1b3b6f","#41577b","#697386","#8f8f8c","#b3a960","#d6c92f","#f4e801","#ffe945"];
+function ramp(stops, t) {
+  t = Math.max(0, Math.min(1, t)); const x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
+  const a = stops[i].match(/\w\w/g).map(h => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map(h => parseInt(h, 16));
+  return "#" + a.map((v, k) => Math.round(v + (b[k] - v) * f).toString(16).padStart(2, "0")).join("");
+}
+function ink(hex) {
+  const c = hex.match(/\w\w/g).map(h => parseInt(h, 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) <= 0.179 ? "#ebf0f4" : "#08131e";
+}
+const G = DATA.groups, BY = Object.fromEntries(G.map(g => [g.id, g])), ALL = G.find(g => g.key === "all").id;
+const S = { cols: "similar", rows: "similar", view: "both", sort: null, hide: new Set(), color: "level", rsort: { policy: null, demo: null } };
+const ROWS = {};
+function visible() {
+  let ids = S.cols === "similar" ? DATA.col_order : G.filter(g => g.key !== "all").map(g => g.id);
+  if (S.sort) {
+    const v = ROWS[S.sort.k], val = id => (v[id] === null || v[id] === undefined) ? null : v[id];
+    ids = [...ids].sort((a, b) => val(a) === null ? 1 : val(b) === null ? -1 : S.sort.dir * (val(a) - val(b)));
+  }
+  return ids.map(id => BY[id]).filter(g => (S.view === "both" || g.key === S.view) && !S.hide.has(g.id)).concat([BY[ALL]]);
+}
+const sepAt = (g, prev) => prev && (S.cols === "typology" && !S.sort ? prev.key !== g.key : g.key === "all");
+function head(lbl, tbl) {
+  let prev = null;
+  return `<thead><tr><th class="lbl">${lbl}</th>` + visible().map(g => {
+    const sep = sepAt(g, prev) ? " sep" : ""; prev = g;
+    const typ = g.key === "prod" ? "Prod" : g.key === "new" ? "New" : "";
+    const near = g.near_pol ? `closest: ${g.near_pol}` : "";
+    const rs = tbl && S.rsort[tbl], on = rs && rs.g === g.id;
+    const arrow = tbl ? `<span class="carr${on ? " on" : ""}">${on ? (rs.dir < 0 ? "▼ highest" : "▲ lowest") : "⇅"}</span>` : "";
+    return `<th class="gh ${g.key}${sep}${tbl ? " csort" : ""}${on ? " csorted" : ""}" ${tbl ? `data-g="${g.id}" data-t="${tbl}"` : ""} title="${tbl ? "Click to sort items by this group's share" : ""}${g.lead ? (tbl ? ". " : "") + "Members from: " + g.lead : ""}">${arrow}<span class="typ">${typ}</span>${g.id}<span class="gs">${g.key === "all" ? "n " + g.n.toLocaleString() : g.share + "%"}</span>${near ? `<span class="gl">${near}</span>` : ""}</th>`;
+  }).join("") + "</tr></thead>";
+}
+// Shares (0-100%) are unipolar: cividis by level, 0% dark to 100% light. Factor scores are bipolar: vik centered on
+// everyone (0 SD). The "gap" color mode restores vik around everyone's value for the share tables.
+function cells(vals, span, fmt, seq) {
+  let prev = null;
+  return visible().map(g => {
+    const sep = sepAt(g, prev) ? " sep" : ""; prev = g;
+    const v = vals[g.id];
+    if (v === null || v === undefined) return `<td class="v${sep}">–</td>`;
+    if (g.key === "all") return `<td class="v${sep}"><strong>${fmt(v)}</strong></td>`;
+    const bg = seq && S.color === "level" ? ramp(CIV, (v - seq[0]) / (seq[1] - seq[0])) : ramp(VIK, 0.5 + (v - vals[ALL]) / (2 * span));
+    return `<td class="v ${g.key}${sep}" style="background:${bg};color:${ink(bg)}">${fmt(v)}</td>`;
+  }).join("");
+}
+const pct = v => Math.round(v), sd = v => (v > 0 ? "+" : "") + v.toFixed(2);
+function lbl(k, vals, inner) {
+  ROWS[k] = vals;
+  const on = S.sort && S.sort.k === k, arrow = on ? (S.sort.dir > 0 ? " ▲ lowest first" : " ▼ highest first") : " ⇅";
+  return `<td class="lbl sortable${on ? " sorted" : ""}" data-k="${k}" title="Click to sort columns by this row">${inner}<span class="arr">${arrow}</span></td>`;
+}
+const ordered = (arr, key) => S.rows === "similar" ? DATA.row_order[key].map(i => arr[i]) : arr;
+function renderFactors() {
+  document.getElementById("t-factors").innerHTML = head("Factor") + "<tbody>" +
+    ordered(DATA.factors, "factors").map(f => `<tr>${lbl("f:" + f.label, f.values, f.label)}${cells(f.values, 1.5, sd)}</tr>`).join("") + "</tbody>";
+}
+function renderPolicy() {
+  const t = document.getElementById("topic").value, q = document.getElementById("q").value.toLowerCase(), sets = document.getElementById("sets").checked;
+  let html = head("Item", "policy") + "<tbody>", last = null;
+  const rs = S.rsort.policy;
+  let rows = ordered(DATA.policy, "policy");
+  if (rs) { const key = r => r[rs.g] ?? (rs.dir < 0 ? -1e9 : 1e9); rows = [...rows].sort((a, b) => rs.dir * (key(a) - key(b))); }
+  for (const r of rows) {
+    if (t && r.topic !== t) continue;
+    if (q && !(r.label + " " + r.item + " " + r.topic).toLowerCase().includes(q)) continue;
+    if (sets && !(r.prod24 || r.new30)) continue;
+    if (S.rows === "topic" && !rs && r.topic !== last) { html += `<tr class="topic"><td class="lbl">${r.topic}</td><td colspan="${visible().length}"></td></tr>`; last = r.topic; }
+    const mk = (r.prod24 ? "●" : "") + (r.new30 ? "◆" : "");
+    const tag = S.rows === "similar" || rs ? `<span class="tp">${r.topic}</span>` : "";
+    html += `<tr>${lbl("p:" + r.label, r, `${tag}${r.label}<span class="mk">${mk}</span>`)}${cells(r, 40, pct, [0, 100])}</tr>`;
+  }
+  document.getElementById("t-policy").innerHTML = html + "</tbody>";
+}
+function renderDemo() {
+  let html = head("Measure", "demo") + "<tbody>", last = null;
+  const rs = S.rsort.demo, isCtx = r => r.section === "Party and vote (context)";
+  let rows = ordered(DATA.demo, "demo");
+  if (rs) { const key = r => r[rs.g] ?? (rs.dir < 0 ? -1e9 : 1e9);
+    rows = [...rows.filter(r => !isCtx(r) && !r.median)].sort((a, b) => rs.dir * (key(a) - key(b))).concat(rows.filter(r => r.median), rows.filter(isCtx)); }
+  for (const r of rows) {
+    const ctx = isCtx(r);
+    if (((S.rows === "topic" && !rs) || ctx) && r.section !== last) { html += `<tr class="topic"><td class="lbl">${r.section}</td><td colspan="${visible().length}"></td></tr>`; last = r.section; }
+    const tag = (S.rows === "similar" || rs) && !ctx ? `<span class="tp">${r.section}</span>` : "";
+    html += `<tr>${lbl("d:" + r.label, r, `${tag}${r.label}`)}${cells(r, r.median ? 15 : 30, pct, r.median ? [30, 70] : [0, 100])}</tr>`;
+  }
+  document.getElementById("t-demo").innerHTML = html + "</tbody>";
+}
+function renderCross() {
+  const mk = (X, extra) => `<thead><tr><th class="lbl" style="min-width:90px">New \\ Prod</th>${X.cols.map(c => `<th>${c}</th>`).join("")}${extra ? "<th class='sep'>Not in prod</th>" : ""}</tr></thead><tbody>` +
+    X.rows.map((r, i) => `<tr><td class="lbl" style="min-width:90px"><strong>${r}</strong></td>${X.v[i].map(v => { const bg = ramp(CIV, v / 100); return `<td class="v" style="background:${bg};color:${ink(bg)}">${Math.round(v)}</td>`; }).join("")}${extra ? `<td class="v sep">${Math.round(X.outside[i])}</td>` : ""}</tr>`).join("") + "</tbody>";
+  const sub = X => { const ri = X.rows.map((r, i) => i).filter(i => !S.hide.has(X.rows[i])), ci = X.cols.map((c, j) => j).filter(j => !S.hide.has(X.cols[j]));
+    return { rows: ri.map(i => X.rows[i]), cols: ci.map(j => X.cols[j]), v: ri.map(i => ci.map(j => X.v[i][j])), outside: X.outside ? ri.map(i => X.outside[i]) : null }; };
+  document.getElementById("t-xr").innerHTML = mk(sub(DATA.xrows), true);
+  document.getElementById("t-xc").innerHTML = mk(sub(DATA.xcols), false);
+  document.getElementById("xcap").textContent = `Weighted, on the ${DATA.n.both.toLocaleString()} respondents in both samples. "Not in prod" = share of the new cluster outside production's listwise sample.`;
+}
+function renderCousins() {
+  const rows = G.filter(g => g.key === "new" && !S.hide.has(g.id));
+  document.getElementById("t-cousins").innerHTML = `<thead><tr><th class="lbl" style="min-width:90px">New cluster</th>${[1, 2, 3].map(i => `<th class="${i > 1 ? "sep" : ""}">Cousin ${i}</th><th>Policy dist.</th><th>Factor dist.</th><th>Members from</th>`).join("")}</tr></thead><tbody>` +
+    rows.map(g => `<tr><td class="lbl" style="min-width:90px"><strong>${g.id}</strong><span class="gs">${g.share}%</span></td>${(g.cousins || []).map((c, i) => { const bg = ramp(CIV, c.from / 100); return `<td class="v${i ? " sep" : ""}"><strong>${c.id}</strong></td><td class="v">${c.pol.toFixed(2)}</td><td class="v">${c.fac.toFixed(2)}</td><td class="v" style="background:${bg};color:${ink(bg)}">${Math.round(c.from)}%</td>`; }).join("")}</tr>`).join("") + "</tbody>";
+}
+function renderAll() { renderFactors(); renderPolicy(); renderDemo(); renderCross(); renderCousins(); }
+function renderFilter() {
+  const pill = g => `<button data-g="${g.id}" aria-pressed="${!S.hide.has(g.id)}">${g.id}</button>`;
+  const prod = G.filter(g => g.key === "prod"), nw = G.filter(g => g.key === "new");
+  document.getElementById("filt").innerHTML = `<span class="fl">Show</span>${prod.map(pill).join("")}<span class="fl" style="margin-left:10px">New</span>${nw.map(pill).join("")}` +
+    `<button data-g="__all" aria-pressed="true" style="margin-left:10px;background:var(--bg-2);color:var(--fg-1)">Show all</button>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("#filt button"); if (!b) return;
+  const g = b.dataset.g;
+  if (g === "__all") S.hide.clear(); else if (S.hide.has(g)) S.hide.delete(g); else S.hide.add(g);
+  renderFilter(); renderAll();
+});
+renderFilter();
+document.getElementById("sub").textContent =
+  `Production: nine parties, ${DATA.n.prod.toLocaleString()} respondents. New: ${DATA.meta.word} clusters on the four rule-picked dimensions, ${DATA.n.new.toLocaleString()} respondents. Similar columns: groups ordered by how alike their policy views are; each new cluster's header names the production party whose policy views are closest. Similar rows: measures ordered so items with the same pattern across groups sit together. Click any row name to sort the columns by it (highest first, click again for lowest first, a third time to reset).`;
+const topics = [...new Set(DATA.policy.map(r => r.topic))];
+document.getElementById("topic").innerHTML += topics.map(t => `<option>${t}</option>`).join("");
+const CTL = { cols: [["similar", "By similarity"], ["typology", "Prod, then new"]], rows: [["similar", "By similarity"], ["topic", "By topic"]],
+              view: [["both", "Both"], ["prod", "Production 9"], ["new", "New " + DATA.meta.new_n]],
+              color: [["level", "Color by share"], ["gap", "Color by gap from everyone"]] };
+document.querySelectorAll("[data-ctl]").forEach(el => {
+  const k = el.dataset.ctl;
+  el.innerHTML = CTL[k].map(([v, l]) => `<button data-v="${v}" aria-pressed="${S[k] === v}">${l}</button>`).join("");
+});
+function sortStatus() {
+  const el = document.getElementById("sortinfo"), btn = document.getElementById("reset");
+  if (!S.sort) { el.textContent = ""; btn.hidden = true; return; }
+  el.textContent = `Columns sorted by “${S.sort.k.slice(2)}”, ${S.sort.dir > 0 ? "lowest" : "highest"} first`; btn.hidden = false;
+}
+document.addEventListener("click", e => {
+  const th = e.target.closest("th.csort");
+  if (th) {
+    const tb = th.dataset.t, g = th.dataset.g, cur = S.rsort[tb];
+    S.rsort[tb] = !cur || cur.g !== g ? { g, dir: -1 } : cur.dir < 0 ? { g, dir: 1 } : null;
+    tb === "policy" ? renderPolicy() : renderDemo(); return;
+  }
+  const c = e.target.closest("td.sortable");
+  if (c) {
+    const k = c.dataset.k;
+    S.sort = !S.sort || S.sort.k !== k ? { k, dir: -1 } : S.sort.dir < 0 ? { k, dir: 1 } : null;
+    renderAll(); sortStatus(); return;
+  }
+  if (e.target.id === "reset") { S.sort = null; renderAll(); sortStatus(); return; }
+  const b = e.target.closest("[data-ctl] button"); if (!b) return;
+  const k = b.parentElement.dataset.ctl; S[k] = b.dataset.v;
+  b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === S[k]));
+  document.body.dataset.color = S.color;
+  renderAll();
+});
+document.body.dataset.color = S.color;
+["topic", "q", "sets"].forEach(id => document.getElementById(id).addEventListener("input", renderPolicy));
+renderAll(); renderCross();
+if (DATA.meta.v2) {
+  document.getElementById("eyebrow").textContent = `CES 2024 · production typology vs the revised rule's ${DATA.meta.word} clusters`;
+  document.getElementById("setlegend").textContent = `● in production's 24 items · ◆ in the new ${DATA.meta.n_items}-item set`;
+}
+renderCousins();
+</script>
+</body>
+</html>

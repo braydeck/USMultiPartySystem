@@ -108,12 +108,10 @@ def main():
     print(f"Bills: {len(bill_vars)}")
 
     # ── Aligned respondent frame ─────────────────────────────────────────────
-    load = list(dict.fromkeys(ANCHORS + bill_vars + ["commonpostweight"]))
+    load = list(dict.fromkeys(["caseid"] + bill_vars + ["commonpostweight"]))
     df = pd.read_stata(DTA, columns=load, convert_categoricals=False)
-    mask = df[ANCHORS + ["commonpostweight"]].notna().all(axis=1) & df["pew_churatd"].ne(7)  # church "Don't know" (raw 7) is outside the typology sample; see efa_update.py
-    dc = df[mask].reset_index(drop=True)
-
     typo = pd.read_csv(TYPO)
+    dc = df.set_index("caseid").loc[typo.caseid.values].reset_index()  # CLAUDE.md trap 4: rows join the typology by caseid, in typology order
     efa = pd.read_csv(EFA)
     assert len(dc) == len(typo) == len(efa), \
         f"row mismatch dc={len(dc)} typo={len(typo)} efa={len(efa)}"

@@ -1,0 +1,24 @@
+item,stage,value,mean_r_kept,mean_r_dropped
+CC24_321c,B modal share,0.925,,
+CC24_321f,B modal share,0.861,,
+CC24_324c,B modal share,0.874,,
+CC24_441e,B missing,0.669,,
+CC24_441f,B missing,0.669,,
+CC24_441g,B missing,0.669,,
+CC24_324d,B redundant with CC24_324a,0.921,0.499,0.509
+CC24_326a,B redundant with CC24_326b,0.847,0.48,0.498
+CC24_326c,B redundant with CC24_326b,0.84,0.474,0.476
+pew_religimp,B redundant with pew_prayer,0.839,0.293,0.331
+CC24_323d,B redundant with CC24_323a,0.812,0.42,0.421
+CC24_440a,B redundant with CC24_441b,0.8,0.444,0.449
+CC24_341b,B redundant with CC24_341c,0.797,0.403,0.428
+CC24_323c,B redundant with CC24_340f,0.787,0.441,0.513
+CC24_441a,B redundant with CC24_441b,0.768,0.431,0.433
+CC24_321d,B redundant with CC24_321e,0.761,0.37,0.386
+CC24_326b,B redundant with CC24_326e,0.755,0.415,0.451
+CC24_440d,B redundant with CC24_440c,0.748,0.312,0.361
+CC24_421_2,B redundant with CC24_421_1,0.742,0.116,0.124
+CC24_324a,B redundant with CC24_444c,0.733,0.42,0.475
+pew_prayer,B redundant with pew_churatd,0.723,0.241,0.28
+CC24_321a,B redundant with CC24_321b,0.705,0.368,0.413
+CC24_340f,B redundant with CC24_323b,0.703,0.347,0.426

@@ -1,0 +1,14 @@
+national: 29 items, passing factors ['PC', 'RT', 'SO'], phi vs listwise [1.0, 1.0, 1.0, 0.999, 1.0]
+
+== national: ARI vs reference 0.262, 5 seed solutions (modal 0.50), resample ARI 0.676, stable 5, dissolved 1
+party       C0     C1     C2     C3     C4     C5     C6     C7     C8     C9
+kept     0.362  0.546  0.203  0.628  0.482  0.431  0.711  0.766  0.243  0.659
+jaccard  0.325  0.375  0.173  0.453  0.393  0.341  0.219  0.584  0.082  0.154
+C9's best match: 15.8% of respondents; state index 0.090 (reference C9 0.377)
+governor: distrust on pid3 + alignment, betas aligned +0.201, opposed +0.740 (distrust SD 0.869)
+
+== governor: ARI vs reference 0.586, 5 seed solutions (modal 0.45), resample ARI 0.677, stable 6, dissolved 0
+party       C0     C1     C2     C3     C4     C5     C6     C7     C8     C9
+kept     0.778  0.953  0.578  0.844  0.641  0.933  0.853  0.969  0.503  0.460
+jaccard  0.691  0.928  0.369  0.807  0.570  0.904  0.801  0.967  0.460  0.131
+C9's best match: 19.3% of respondents; state index 0.133 (reference C9 0.377)

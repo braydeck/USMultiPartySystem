@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revised Clusters 5 and 10</title>
+<style>
+/* ── Plaid research design tokens — Foundations-backed ───────────────────────
+   Canonical visual system for HTML research artifacts. AUTHORING SOURCE, not a
+   shipped file:
+     • Local iteration: link it — <link rel="stylesheet" href="lib/tokens.css">
+     • Shipped Claude artifact: inline this file inside the artifact <style>
+       (artifacts must be one self-contained file; CDN is the only external src).
+
+   LAYER 1 (Foundations primitives) is lifted verbatim from @plaid/design-tokens
+   → node/lib/design-tokens/src/css/foundation.css, generated from the canonical
+   Foundations Figma source. To refresh, re-pull that file and replace Layer 1;
+   the alias layer below keeps resolving automatically. Do NOT hand-tune Layer 1
+   values — Foundations is the source of truth.
+
+   LAYER 3 (alias layer) is YOUR public interface. Components + research-viz.js
+   reference these friendly names; they map onto Foundations so a brand refresh
+   flows through without touching component code.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 1 — PLAID DESIGN FOUNDATIONS PRIMITIVES  (verbatim, do not edit)
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Neutrals — cool / blue-tinted (this is the real Plaid "black" ramp) */
+  --color-white: #ffffff;
+  --color-black-100: #f7fafd;  --color-black-200: #ebf0f4;  --color-black-300: #dde3e9;
+  --color-black-400: #c5ccd3;  --color-black-450: #a6b0bc;  --color-black-500: #8c95a1;
+  --color-black-600: #6b7785;  --color-black-700: #4f5c69;  --color-black-800: #2c3a49;
+  --color-black-900: #1b242d;  --color-black-1000: #08131e;
+
+  /* Blue — interactive / link blue */
+  --color-blue-100: #f7faff;  --color-blue-200: #e5effe;  --color-blue-300: #d3e4fd;
+  --color-blue-400: #b0cefc;  --color-blue-450: #83b2fb;  --color-blue-500: #5294f8;
+  --color-blue-600: #156ef5;  --color-blue-700: #0a54c4;  --color-blue-800: #06347a;
+  --color-blue-900: #04224f;  --color-blue-1000: #021127;
+
+  /* Sky — your signature "Plaid blue" lives here */
+  --color-sky-100: #e5fcff;  --color-sky-200: #ccf8ff;  --color-sky-300: #9aedfe;
+  --color-sky-400: #51d2fb;  --color-sky-450: #0dadf2;  --color-sky-500: #0e94d8;
+  --color-sky-600: #0b7bbc;  --color-sky-700: #07578d;  --color-sky-800: #043c67;
+  --color-sky-900: #02294b;  --color-sky-1000: #00172e;
+
+  /* Minted — your "teal" lives here */
+  --color-minted-100: #effffa;  --color-minted-200: #d8fef3;  --color-minted-300: #b6fbe9;
+  --color-minted-400: #42f0cd;  --color-minted-450: #10d1b7;  --color-minted-500: #0ba299;
+  --color-minted-600: #088181;  --color-minted-700: #05565c;  --color-minted-800: #034049;
+  --color-minted-900: #012e37;  --color-minted-1000: #001d24;
+
+  /* Purple */
+  --color-purple-100: #f5f5ff;  --color-purple-200: #e6e6ff;  --color-purple-300: #ccccff;
+  --color-purple-400: #a3a3ff;  --color-purple-450: #8b8bf9;  --color-purple-500: #7373ed;
+  --color-purple-600: #5e5ed9;  --color-purple-700: #4444a7;  --color-purple-800: #2b2b82;
+  --color-purple-900: #1c1c69;  --color-purple-1000: #0d0d3f;
+
+  /* Pink */
+  --color-pink-100: #fcf0ff;  --color-pink-200: #f9dbff;  --color-pink-300: #f5c2ff;
+  --color-pink-400: #ee99ff;  --color-pink-450: #e574fb;  --color-pink-500: #d45aed;
+  --color-pink-600: #bb33d7;  --color-pink-700: #8f29a3;  --color-pink-800: #671877;
+  --color-pink-900: #3f0849;  --color-pink-1000: #2a0132;
+
+  /* Red */
+  --color-red-100: #fff0f0;  --color-red-200: #ffd9d9;  --color-red-300: #ffc2c2;
+  --color-red-400: #ff9999;  --color-red-450: #fb7474;  --color-red-500: #ed5a5a;
+  --color-red-600: #ce3b3b;  --color-red-700: #a32929;  --color-red-800: #771818;
+  --color-red-900: #490808;  --color-red-1000: #320101;
+
+  /* Orange */
+  --color-orange-100: #fffaf5;  --color-orange-200: #fff0e0;  --color-orange-300: #ffe3c7;
+  --color-orange-400: #ffbf80;  --color-orange-450: #fb942d;  --color-orange-500: #e57300;
+  --color-orange-600: #b85e05;  --color-orange-700: #944a00;  --color-orange-800: #613605;
+  --color-orange-900: #442804;  --color-orange-1000: #2c1a02;
+
+  /* Yellow */
+  --color-yellow-100: #fffbf0;  --color-yellow-200: #fff6d8;  --color-yellow-300: #ffeda3;
+  --color-yellow-400: #fbde51;  --color-yellow-450: #ebcb00;  --color-yellow-500: #a39300;
+  --color-yellow-600: #807700;  --color-yellow-700: #615e00;  --color-yellow-800: #4d4d00;
+  --color-yellow-900: #363800;  --color-yellow-1000: #212400;
+
+  /* Lime */
+  --color-lime-100: #f7fff0;  --color-lime-200: #e8fed7;  --color-lime-300: #d2fbb6;
+  --color-lime-400: #7cf042;  --color-lime-450: #46da10;  --color-lime-500: #29a20b;
+  --color-lime-600: #188108;  --color-lime-700: #0b5c05;  --color-lime-800: #034903;
+  --color-lime-900: #013703;  --color-lime-1000: #002402;
+
+  /* Green */
+  --color-green-100: #f0fdf8;  --color-green-200: #cdf7e7;  --color-green-300: #a9f1d5;
+  --color-green-400: #57e4ab;  --color-green-500: #21a96f;  --color-green-600: #1b8657;
+  --color-green-700: #156843;  --color-green-800: #0d4029;  --color-green-900: #07291a;
+  --color-green-1000: #03140d;
+
+  /* Radii (numeric scale) */
+  --radius-0: 0px;   --radius-2: 2px;   --radius-4: 4px;   --radius-6: 6px;
+  --radius-8: 8px;   --radius-12: 12px; --radius-16: 16px; --radius-24: 24px;
+  --radius-30: 30px; --radius-full: 9999px;
+
+  /* Spacing (4-pt grid) */
+  --spacing-0: 0px;     --spacing-2: 2px;    --spacing-4: 4px;    --spacing-6: 6px;
+  --spacing-8: 8px;     --spacing-12: 12px;  --spacing-16: 16px;  --spacing-20: 20px;
+  --spacing-24: 24px;   --spacing-32: 32px;  --spacing-40: 40px;  --spacing-48: 48px;
+  --spacing-56: 56px;   --spacing-64: 64px;  --spacing-80: 80px;  --spacing-96: 96px;
+  --spacing-120: 120px; --spacing-160: 160px; --spacing-200: 200px;
+
+  /* Font families (real Plaid faces — see Layer 3 note before using directly) */
+  --font-cern: Cern;
+  --font-plaid-sans: 'Plaid Sans';
+  --font-inconsolata: Inconsolata;
+  --font-bowery-lane: 'Bowery Lane';
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 2 — BRAND GRADIENTS  (curated from Foundations gradient sets)
+     Named themes: benjamin (teal/mint), elizabeth (blue/violet),
+     euro (violet/pink/gold), lincoln (mint/lime/gold), viola (pink/violet).
+     ═══════════════════════════════════════════════════════════════════════ */
+  --gradient-background-stark-benjamin:  linear-gradient(to top right, #ccf8ff 0%, #d8fef3 50%, #e8fed7 100%);
+  --gradient-background-stark-elizabeth: linear-gradient(to top right, #e6e6ff 0%, #e5effe 50%, #ccf8ff 100%);
+  --gradient-background-stark-euro:      linear-gradient(to top right, #e6e6ff 0%, #f9dbff 50%, #fff6d8 100%);
+  --gradient-background-stark-lincoln:   linear-gradient(to top right, #d8fef3 0%, #e8fed7 50%, #fff6d8 100%);
+  --gradient-background-stark-viola:     linear-gradient(to top right, #f9dbff 0%, #e6e6ff 50%, #ccf8ff 100%);
+  --gradient-background-subtle-benjamin:  linear-gradient(to top right, #e5fcff 0%, #effffa 50%, #f7fff0 100%);
+  --gradient-background-subtle-elizabeth: linear-gradient(to top right, #f5f5ff 0%, #f7faff 50%, #e5fcff 100%);
+  --gradient-background-subtle-euro:      linear-gradient(to top right, #f5f5ff 0%, #fcf0ff 50%, #fffbf0 100%);
+  --gradient-background-subtle-lincoln:   linear-gradient(to top right, #effffa 0%, #f7fff0 50%, #fffbf0 100%);
+  --gradient-background-subtle-viola:     linear-gradient(to top right, #fcf0ff 0%, #f5f5ff 50%, #e5fcff 100%);
+  --gradient-background-vibrant-benjamin:  linear-gradient(to top right, #42f0cd 0%, #0dadf2 100%);
+  --gradient-background-vibrant-elizabeth: linear-gradient(to top right, #51d2fb 0%, #8b8bf9 100%);
+  --gradient-background-vibrant-euro:      linear-gradient(to top right, #ff9999 0%, #e574fb 100%);
+  --gradient-background-vibrant-lincoln:   linear-gradient(to top right, #10d1b7 0%, #7cf042 100%);
+  --gradient-background-vibrant-viola:     linear-gradient(to top right, #ee99ff 0%, #8b8bf9 100%);
+  --gradient-graphic-stark-benjamin:  linear-gradient(to top right, #0b7bbc 0%, #088181 100%);
+  --gradient-graphic-stark-elizabeth: linear-gradient(to top right, #5e5ed9 0%, #156ef5 100%);
+  --gradient-graphic-stark-euro:      linear-gradient(to top right, #bb33d7 0%, #ce3b3b 100%);
+  --gradient-graphic-stark-lincoln:   linear-gradient(to top right, #088181 0%, #188108 100%);
+  --gradient-graphic-stark-viola:     linear-gradient(to top right, #0b7bbc 0%, #5e5ed9 100%);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 3 — RESEARCH ALIAS LAYER  (your friendly names → Foundations)
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Type families.
+     NOTE: the real Plaid faces (Cern body, Plaid Sans display, Inconsolata mono)
+     are NOT web-available without hosting the font files, so portable artifacts
+     fall back to native stacks. If you self-host the fonts, prepend the real
+     family, e.g. --font-display: var(--font-plaid-sans), <stack>.
+     CORRECTION: Plaid Sans is a geometric SANS (not a serif) — the display
+     fallback below is now a sans stack to match the brand, not the old serif. */
+  --font-display: var(--font-plaid-sans), "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --font-sans:    var(--font-cern), -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono:    var(--font-inconsolata), "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* Core neutrals → real (cool) Plaid black ramp. NOTE: slightly bluer than before. */
+  --plaid-black: var(--color-black-1000);
+  --plaid-white: var(--color-white);
+  --gray-950: var(--color-black-1000);
+  --gray-900: var(--color-black-900);
+  --gray-800: var(--color-black-800);
+  --gray-700: var(--color-black-700);
+  --gray-500: var(--color-black-600);
+  --gray-400: var(--color-black-450);
+  --gray-300: var(--color-black-400);
+  --gray-200: var(--color-black-300);
+  --gray-100: var(--color-black-200);
+  --gray-50:  var(--color-black-100);
+
+  /* Brand blues = Foundations SKY ramp (600/700/ink are exact matches).
+     500/400 shift slightly cyaner vs your old true-blues. To keep them truer
+     blue instead, point them at --color-blue-500 / --color-blue-450. */
+  --plaid-ink-900:  var(--color-sky-900);
+  --plaid-ink-800:  var(--color-sky-800);
+  --plaid-blue-700: var(--color-sky-700);   /* exact */
+  --plaid-blue-600: var(--color-sky-600);   /* exact — your signature */
+  --plaid-blue-500: var(--color-sky-500);
+  --plaid-blue-400: var(--color-sky-400);
+
+  /* Mint = Foundations MINTED ramp (600/500 are exact matches). */
+  --plaid-teal-600: var(--color-minted-700); /* exact */
+  --plaid-teal-500: var(--color-minted-400); /* exact */
+  --plaid-teal-400: var(--color-minted-300);
+
+  /* Holo pastels. Soft set = exact Foundations 200 tints. Brights = custom
+     (no Foundations equivalent) — kept literal and flagged. */
+  --holo-lilac:       var(--color-purple-200);  /* exact */
+  --holo-mint:        var(--color-minted-200);  /* exact */
+  --holo-buttercream: var(--color-yellow-200);  /* exact */
+  --holo-pink-soft:   var(--color-pink-200);    /* exact */
+  --holo-magenta:     var(--color-pink-450);    /* ~exact */
+  --holo-aqua:        var(--color-minted-300);  /* near */
+  --holo-pink:        var(--color-pink-300);    /* near */
+  --holo-cyan:        #8BFFFF;   /* CUSTOM — no Foundations match */
+  --holo-yellow:      #FFFFC7;   /* CUSTOM — no Foundations match */
+  --holo-periwinkle:  #98A5FF;   /* CUSTOM — no Foundations match */
+
+  /* Canonical gradients — rebuilt FROM Foundations tokens where they map. */
+  --gradient-holo-soft: linear-gradient(135deg, var(--color-purple-200) 0%, var(--color-minted-200) 50%, var(--color-yellow-200) 100%);
+  --gradient-holo-deep: linear-gradient(180deg, var(--color-sky-700) 0%, var(--color-sky-600) 33%, var(--color-minted-400) 100%);
+  --gradient-dark:      linear-gradient(180deg, var(--color-sky-800) 2%, var(--color-sky-900) 64%);
+
+  /* ── Heatmap / colorscale ramps ──────────────────────────────────────────
+     Cividis (unipolar/sequential) — perceptually uniform, colorblind-safe.
+     Vik (diverging, Crameri) — warm-cool diverging, neutral midpoint.
+     Signal purple (discrete) — 3-step ramp for Strong / Moderate / Directional.
+     Same values on light and dark surfaces. Inconclusive = neutral gray (no
+     purple); render as hollow ring / dashed whisker so it stays distinct from
+     Directional on dark backgrounds.
+     ─────────────────────────────────────────────────────────────────────── */
+
+  /* OKLCH H305 C0.12, |ΔL| 0.52 / 0.34 / 0.15 from the light surface.
+     Contrast on a #ffffff card: 6.91:1 / 3.27:1 / 1.66:1. Directional is
+     faint on purpose and carries a grey ring so it stays locatable. */
+  --signal-directional: #e0baff;
+  --signal-moderate:    #a37ecd;
+  --signal-strong:      #6e4993;
+  --signal-inconclusive: #566271;
+
+  /* --evidence-* is the name html-research-artifacts/SKILL.md uses for this
+     ramp; --signal-* is the name tokens.css has always used and what
+     research-viz.js resolves. Aliased so both spellings resolve to one value.
+     NOTE: SKILL.md documents the LIGHT ramp as #6e4993 / #a37ecd / #e0baff,
+     which are the OKLCH-derived values that meet its stated 7:1 / 1.7:1
+     contrast targets. The values below are the older, brighter ramp. The dark
+     ramp in .on-dark already matches SKILL.md. Reconciling the light ramp
+     changes every published artifact's evidence pips, so it is deliberately
+     not done here. */
+  --evidence-strong:      var(--signal-strong);
+  --evidence-moderate:    var(--signal-moderate);
+  --evidence-directional: var(--signal-directional);
+
+  /* Cividis 9-stop sequential (dark→light, 0%→100% of range) */
+  /* Categorical (unordered groups such as use cases or segments). Validated for separation:
+     min ΔE 93 normal vision, 59 deuteranopia, 60 protanopia, 27 tritanopia. Kept off the
+     reserved hues: sky blue (interactive/favorable), the evidence purple ramp, pink (highlight). */
+  --cat-1: var(--color-orange-500, #e57300);
+  --cat-2: var(--color-minted-500, #0ba299);
+  --cat-3: var(--color-purple-600, #5e5ed9);
+  --cividis-0: #00204d;  --cividis-12: #1b3b6f;  --cividis-25: #41577b;
+  --cividis-38: #697386;  --cividis-50: #8f8f8c;  --cividis-62: #b3a960;
+  --cividis-75: #d6c92f;  --cividis-88: #f4e801;  --cividis-100: #ffe945;
+  --gradient-cividis: linear-gradient(to right,
+    #00204d 0%, #1b3b6f 12%, #41577b 25%, #697386 38%, #8f8f8c 50%,
+    #b3a960 62%, #d6c92f 75%, #f4e801 88%, #ffe945 100%);
+
+  /* Vik 9-stop diverging (Crameri — cold-blue → neutral → warm-red) */
+  --vik-0: #001160;  --vik-12: #024380;  --vik-25: #307ca6;
+  --vik-38: #93bdd2;  --vik-50: #ece4e0;  --vik-62: #dba98d;
+  --vik-75: #c27040;  --vik-88: #912c05;  --vik-100: #590007;
+  --gradient-vik: linear-gradient(to right,
+    #001160 0%, #024380 12%, #307ca6 25%, #93bdd2 38%, #ece4e0 50%,
+    #dba98d 62%, #c27040 75%, #912c05 88%, #590007 100%);
+
+  /* Text on colored backgrounds — palette-agnostic luminance switch.
+     Aligned to the cool neutral ramp: on-dark = black-200, on-light = black-1000.
+     Keep textColorForBg() in research-viz.js returning these same two values. */
+  --text-on-dark: #ebf0f4;
+  --text-on-light: #08131e;
+  --luminance-threshold: 0.179;
+
+  /* Semantic colors → Foundations (exact where noted). */
+  --success-fg:    var(--color-minted-700); /* exact */
+  --success-bg:    var(--color-minted-200); /* exact */
+  --success-solid: var(--color-minted-400); /* exact */
+  --warning-fg:    var(--color-yellow-600);
+  --warning-bg:    var(--color-yellow-200); /* exact */
+  --error-fg:      var(--color-red-700);
+  --error-bg:      var(--color-red-200);
+  --error-solid:   var(--color-red-600);
+  --info-fg:       var(--color-sky-700);    /* exact */
+  --info-bg:       var(--color-blue-200);
+
+  /* Foreground / background aliases — mode-aware. Light defaults here; the
+     .on-dark scope below re-points the same names for dark cards.
+     Halation guard: pure white (--color-white) is MAX-EMPHASIS text only on
+     dark — never the default dark body color (that is --fg-1 = #ebf0f4).
+     Elevation: cards sit one luminance step *brighter* than their canvas in
+     both modes — light card #ffffff > canvas #fdffff; dark card #1b242d >
+     canvas #08131e. Same principle, inverted. */
+  --fg-1: var(--gray-950);             /* primary   #08131e */
+  --fg-2: var(--gray-700);             /* secondary #4f5c69 */
+  --fg-3: var(--gray-500);             /* tertiary  #6b7785 */
+  --fg-inverse: var(--plaid-white);
+  --bg-1: #fdffff;                     /* page / canvas (bespoke literal, not a ramp stop) */
+  --bg-2: var(--color-white);          /* raised card #ffffff */
+  --bg-3: var(--gray-100);             /* sunken      #ebf0f4 */
+  --surface-2: var(--color-black-100); /* subtle fill #f7fafd */
+  --bg-inverse: var(--plaid-black);
+  --border-subtle:  var(--color-black-200); /* internal  #ebf0f4 */
+  --border-default: var(--color-black-300); /* section   #dde3e9 */
+  --border-strong:  var(--gray-300);
+
+  /* Product-accent colors — custom, NO Foundations token. Surface-aware pairs.
+     Bright/base split by contrast: gold reads on dark (~8:1) but fails on light
+     (~1.9:1, light mode uses dark-gold --warning-fg instead); coral reads on
+     light (~5:1) but is weak on dark (~3:1) so it gets a brightened dark variant
+     (~5.2:1). Use the *-dark token on dark surfaces; the base on light. */
+  --accent-payments:      #E2B53A;     /* gold  — dark surfaces */
+  --accent-payments-dark: #E2B53A;     /* already clears ~8:1 on #1b242d; no brightening needed */
+  --accent-credit:        #C5411E;     /* coral — light surfaces (~5:1 on #fdffff) */
+  --accent-credit-dark:   #ee6d4a;     /* brightened for #1b242d (~5.2:1 AA) */
+
+  /* Spacing scale → Foundations (--space-32 has no Foundations step; literal). */
+  --space-1:  var(--spacing-4);   --space-2:  var(--spacing-8);   --space-3:  var(--spacing-12);
+  --space-4:  var(--spacing-16);  --space-5:  var(--spacing-20);  --space-6:  var(--spacing-24);
+  --space-8:  var(--spacing-32);  --space-10: var(--spacing-40);  --space-12: var(--spacing-48);
+  --space-16: var(--spacing-64);  --space-20: var(--spacing-80);  --space-24: var(--spacing-96);
+  --space-32: 128px;              --space-40: var(--spacing-160);
+
+  /* Radii → Foundations */
+  --radius-none: var(--radius-0);
+  --radius-sm:   var(--radius-4);
+  --radius-md:   var(--radius-8);
+  --radius-lg:   var(--radius-16);
+  --radius-xl:   var(--radius-24);
+  --radius-pill: var(--radius-full);
+
+  /* Shadows — custom (Foundations shadow tokens are still in flux). */
+  --shadow-sm: 0 1px 2px rgba(8,19,30,0.04), 0 1px 1px rgba(8,19,30,0.06);
+  --shadow-md: 0 4px 12px rgba(8,19,30,0.06), 0 2px 4px rgba(8,19,30,0.04);
+  --shadow-lg: 0 16px 40px rgba(8,19,30,0.08), 0 4px 12px rgba(8,19,30,0.04);
+  --shadow-xl: 0 32px 80px rgba(2,41,75,0.14), 0 8px 24px rgba(2,41,75,0.08);
+  --shadow-focus: 0 0 0 3px rgba(14,148,216,0.30);
+
+  /* Motion — custom */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-micro: 150ms; --dur-small: 250ms; --dur-page: 400ms; --dur-hero: 800ms;
+
+  /* Layout — custom */
+  --container-marketing: 1200px;
+  --container-dashboard: 1440px;
+
+  /* Type scale — custom (Foundations has --text-* tokens if you ever want them) */
+  --display-xl-size: 120px; --display-xl-lh: 0.9;  --display-xl-weight: 700;
+  --display-lg-size: 88px;  --display-lg-lh: 0.95; --display-lg-weight: 700;
+  --display-md-size: 64px;  --display-md-lh: 1.0;  --display-md-weight: 500;
+  --display-sm-size: 44px;  --display-sm-lh: 1.05; --display-sm-weight: 500;
+  --h1-size: 48px; --h1-lh: 1.1; --h1-weight: 600;
+  --h2-size: 32px; --h2-lh: 1.2; --h2-weight: 600;
+  --h3-size: 22px; --h3-lh: 1.3; --h3-weight: 600;
+  --h4-size: 18px; --h4-lh: 1.4; --h4-weight: 600;
+  --body-lg-size: 18px; --body-lg-lh: 1.55;
+  --body-size: 16px;    --body-lh: 1.5;
+  --body-sm-size: 14px; --body-sm-lh: 1.45;
+  --caption-size: 12px; --caption-lh: 1.3;
+  --eyebrow-size: 12px; --eyebrow-lh: 1.0; --eyebrow-tracking: 0.12em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK SCOPE — wrap any element in class="on-dark" to flip the surface/text
+   aliases to the dark neutral ramp. Lets a single light page host a dark chart
+   card without touching component CSS (the dark-card-on-light-page pattern).
+   Charts and prose default to light (researcher preference, 2026-11-02); use .on-dark only by choice. Uses a class, not a media query.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.on-dark {
+  --bg-1: var(--color-black-1000);  /* canvas #08131e */
+  --bg-2: var(--color-black-900);   /* card   #1b242d */
+  --bg-3: var(--color-black-800);   /* raised #2c3a49 */
+  --surface-2: var(--color-black-800);
+
+  --fg-1: var(--color-black-200);   /* primary off-white #ebf0f4 */
+  --fg-2: var(--color-black-400);   /* secondary         #c5ccd3 */
+  --fg-3: var(--color-black-500);   /* tertiary          #8c95a1 */
+
+  --border-subtle:  var(--color-black-900); /* #1b242d */
+  --border-default: var(--color-black-800); /* #2c3a49 */
+
+  /* Accent + semantic foregrounds → brightened Foundations stops so links,
+     eyebrows, and status text read on dark (light-mode inks fail here: e.g.
+     success #05565c = 1.9:1, error #a32929 = 2.2:1 on #1b242d). */
+  --plaid-blue-600: var(--color-sky-400);   /* link/accent #51d2fb (~9:1) */
+  --success-fg:     var(--color-minted-400); /* #42f0cd (~11:1) */
+  --warning-fg:     var(--color-yellow-400); /* #fbde51 (~12:1) */
+  --error-fg:       var(--color-red-450);    /* #fb7474 (~5.9:1) */
+  --info-fg:        var(--color-sky-400);    /* #51d2fb (~9:1) */
+
+  /* Evidence ramp — the purple encodes tier as luminance distance FROM the surface, so on
+     dark it has to invert: dark→pale on light becomes bright→dim on dark. Without this the
+     light-mode inks sit on #1b242d at ~3:1 (strong #9b30e8 measured 2.98:1 as chip text).
+     Keeps strong ~7:1 and directional intentionally faint in both modes. */
+  --signal-strong:      #cca7f8;
+  --signal-moderate:    #946fbd;
+  --signal-directional: #5d3881;
+  --evidence-strong:      var(--signal-strong);
+  --evidence-moderate:    var(--signal-moderate);
+  --evidence-directional: var(--signal-directional);
+
+  /* Product accents flip to their brightened dark variants for CSS chips/pills.
+     (research-viz.js charts read the flat *-dark tokens directly — see note there.) */
+  --accent-payments: var(--accent-payments-dark);
+  --accent-credit:   var(--accent-credit-dark);
+}
+
+/* ── Signal tier utilities (discrete evidence encoding) ────────────────────
+   Purple fill ramp for Strong / Moderate / Directional. Inconclusive is always
+   hollow neutral gray — never a lighter purple. Chart marks: research-viz.js
+   signalMarkStyle() (dashed whisker + hollow dot). HTML: classes below.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.signal-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.signal-dot.strong      { background: var(--signal-strong);      border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.moderate    { background: var(--signal-moderate);    border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.directional { background: var(--signal-directional); border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.inconclusive {
+  background: transparent;
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+.signal-whisker {
+  display: inline-block;
+  width: 18px;
+  border-top-width: 2.5px;
+  border-top-style: solid;
+  flex-shrink: 0;
+}
+.signal-whisker.inconclusive {
+  border-top-style: dashed;
+  border-top-color: var(--signal-inconclusive);
+  opacity: 0.7;
+}
+
+.ev-pill.inconclusive {
+  background: transparent;
+  color: var(--signal-inconclusive);
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+/* Confidence chip — inconclusive tier on ::before pseudo (alias of .signal-dot.inconclusive) */
+.conf-chip.thin::before {
+  background: transparent;
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+:root { --gap-pos: #c27040; --gap-neg: #307ca6; }
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1600px; margin: 0 auto; padding: 32px 16px 64px; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+h2 { font-family: var(--font-display); font-size: 21px; letter-spacing: -0.01em; margin: 0 0 6px; }
+.sub { color: var(--fg-2); margin: 0 0 20px; max-width: 900px; }
+section { margin: 40px 0 0; }
+.callout { background: var(--bg-inverse); color: var(--fg-inverse); border-radius: var(--radius-md); padding: 14px 18px; margin: 0 0 14px; max-width: 900px; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 8px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.seg { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-pill); overflow: hidden; }
+.seg button { background: var(--bg-2); color: var(--fg-2); border: 0; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+input[type=search], select { font: inherit; font-size: 13px; padding: 6px 10px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--fg-1); }
+label.chk { font-size: 13px; color: var(--fg-2); display: inline-flex; gap: 6px; align-items: center; }
+.wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); max-height: 80vh; }
+table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 7px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+thead th { position: sticky; top: 0; background: var(--bg-2); z-index: 2; vertical-align: bottom; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-default); }
+th.lbl, td.lbl { position: sticky; left: 0; background: var(--bg-2); z-index: 1; text-align: left; white-space: normal; min-width: 260px; max-width: 360px; }
+thead th.lbl { z-index: 3; }
+td.v { text-align: center; min-width: 46px; }
+td.sep, th.sep { border-left: 2px solid var(--border-strong); }
+tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); font-size: 12px; position: static; }
+tr.topic td.lbl { background: var(--bg-3); }
+.gh { font-size: 12.5px; }
+.gs { display: block; font-weight: 400; color: var(--fg-3); font-size: 11px; }
+.gl { display: block; font-weight: 400; color: var(--fg-3); font-size: 10.5px; white-space: normal; max-width: 78px; margin: 0 auto; line-height: 1.2; }
+.typ { display: block; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--plaid-blue-600); }
+.mk { font-size: 10px; color: var(--fg-3); margin-left: 4px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--fg-2); margin: 0 0 10px; }
+.ramp { width: 160px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, var(--vik-0), var(--vik-25), var(--vik-50), var(--vik-75), var(--vik-100)); }
+.ramp.c { background: linear-gradient(90deg, var(--cividis-0), var(--cividis-50), var(--cividis-100)); }
+.grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; } .grid2 > div { min-width: 0; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0,1fr); } th.lbl, td.lbl { min-width: 180px; } }
+@media print { .wrap { max-height: none; overflow: visible; } .controls { display: none; } .callout { background: var(--bg-3); color: var(--fg-1); border: 1px solid var(--border-default); } }
+.sticky-ctl { position: sticky; top: 0; z-index: 5; background: var(--bg-1); padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.ctl-l { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); margin-left: 6px; }
+.tp { display: block; font-size: 10px; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; }
+th.gh.prod .typ { color: var(--fg-3); }
+th.gh.new { background: var(--bg-3); }
+td.sortable { cursor: pointer; } td.sortable:hover { color: var(--plaid-blue-600); }
+td.sorted { color: var(--plaid-blue-600); font-weight: 600; } .arr { font-size: 10px; }
+.sortinfo { font-size: 13px; color: var(--fg-2); margin-left: 8px; }
+.reset { font: inherit; font-size: 13px; padding: 5px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-pill); background: var(--bg-2); color: var(--fg-1); cursor: pointer; }
+th.gh.five { background: var(--bg-3); }
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: var(--radius-pill); margin-top: 3px; }
+.badge.u { background: var(--gap-pos); color: #fff; }
+.badge.s { background: var(--bg-3); color: var(--fg-2); border: 1px solid var(--border-default); }
+.um { color: var(--gap-pos); font-weight: 700; }
+td.diag { outline: 2px solid var(--fg-1); outline-offset: -2px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">CES 2024 · revised §3c rule · clusters at 5 and 10</p>
+  <h1>Revised Clusters, 5 and 10</h1>
+  <p class="sub" id="sub"></p>
+  <div class="controls sticky-ctl">
+    <span class="ctl-l">Columns</span><span class="seg" data-ctl="cols"></span>
+    <span class="ctl-l">Rows</span><span class="seg" data-ctl="rows"></span>
+    <span class="ctl-l">Show</span><span class="seg" data-ctl="view"></span>
+    <span class="sortinfo" id="sortinfo"></span><button id="reset" class="reset" hidden>Reset column order</button>
+  </div>
+
+  <section id="s-factors">
+    <p class="eyebrow">Factor positions</p>
+    <h2>Where each cluster sits on the four clustering dimensions</h2>
+    <div class="legend"><span>Below everyone</span><span class="ramp"></span><span>Above everyone</span><span>· cluster mean in SD units, color spans ±1.5 SD</span><span><span class="badge u">◌ unstable</span> resample overlap below 0.75</span></div>
+    <div class="wrap"><table id="t-factors"></table></div>
+    <p class="caption">Scores as clustered: all four adjusted for in-power alignment. Oriented so higher = more of the name.</p>
+  </section>
+
+  <section id="s-policy">
+    <p class="eyebrow">Policy views</p>
+    <h2>Share of each cluster giving the stated answer</h2>
+    <div class="legend"><span>Below everyone</span><span class="ramp"></span><span>Above everyone</span><span>· color spans ±40 points from everyone</span><span>◆ clustering input (41 items)</span></div>
+    <div class="controls">
+      <select id="topic"><option value="">All topics</option></select>
+      <input type="search" id="q" placeholder="Filter items">
+      <label class="chk"><input type="checkbox" id="sets"> Only clustering inputs</label></div>
+    <div class="wrap"><table id="t-policy"></table></div>
+    <p class="caption">Weighted (commonpostweight), share of members who answered the item. Foreign-policy and troop items are checkboxes: share selecting each option.</p>
+  </section>
+
+  <section id="s-demo">
+    <p class="eyebrow">Demographics</p>
+    <h2>Who is in each cluster</h2>
+    <div class="legend"><span>Below everyone</span><span class="ramp"></span><span>Above everyone</span><span>· color spans ±30 points from everyone (median age ±15 years)</span></div>
+    <div class="wrap"><table id="t-demo"></table></div>
+    <p class="caption">Party ID, ideology and 2024 vote sit last as context and stay out of the row sort. Median age is unweighted.</p>
+  </section>
+
+  <section id="s-nest">
+    <p class="eyebrow">How the two solutions nest</p>
+    <h2>Where each of the ten sits among the five</h2>
+    <div class="legend"><span>0%</span><span class="ramp c"></span><span>100%</span></div>
+    <div class="grid2">
+      <div><p class="sub" style="margin:0 0 6px">Row %: each of the ten by five-cluster</p><div class="wrap"><table id="t-nr"></table></div></div>
+      <div><p class="sub" style="margin:0 0 6px">Column %: each of the five by ten-cluster</p><div class="wrap"><table id="t-nc"></table></div></div>
+    </div>
+  </section>
+
+  <section id="s-swap">
+    <p class="eyebrow">Overlap under resampling</p>
+    <h2>Which clusters trade members when the clusters are refit</h2>
+    <div class="legend"><span>0%</span><span class="ramp c"></span><span>100%</span><span>· outlined = members staying in their own cluster</span></div>
+    <div class="grid2">
+      <div><p class="sub" style="margin:0 0 6px">Five clusters</p><div class="wrap"><table id="t-s5"></table></div></div>
+      <div><p class="sub" style="margin:0 0 6px">Ten clusters</p><div class="wrap"><table id="t-s10"></table></div></div>
+    </div>
+    <p class="caption">Row = cluster members come from, column = where they land, averaged over 30 refits on resampled respondents. Each refit's clusters are matched to the cluster they overlap most.</p>
+  </section>
+</main>
+<script>
+const DATA = {"groups": [{"key": "five", "id": "A", "share": 28.1, "n": 13410, "jac": 0.97, "unstable": false, "into": "A.1 52%, A.2 35%, C.1 12%"}, {"key": "ten", "id": "A.1", "share": 15.4, "n": 7658, "jac": 0.71, "unstable": true, "from": "A 96%"}, {"key": "ten", "id": "A.2", "share": 9.9, "n": 4405, "jac": 0.7, "unstable": true, "from": "A 100%"}, {"key": "five", "id": "B", "share": 19.8, "n": 7160, "jac": 0.78, "unstable": false, "into": "B.1 79%"}, {"key": "ten", "id": "B.1", "share": 21.7, "n": 8343, "jac": 0.79, "unstable": false, "from": "B 72%, C 27%"}, {"key": "ten", "id": "B.2", "share": 2.2, "n": 764, "jac": 0.67, "unstable": true, "from": "B 90%"}, {"key": "five", "id": "C", "share": 30.0, "n": 15664, "jac": 0.86, "unstable": false, "into": "C.1 32%, C.2 25%, C.3 20%, B.1 20%"}, {"key": "ten", "id": "C.1", "share": 14.2, "n": 6890, "jac": 0.68, "unstable": true, "from": "C 67%, A 23%"}, {"key": "ten", "id": "C.2", "share": 8.8, "n": 5369, "jac": 0.71, "unstable": true, "from": "C 86%, D 11%"}, {"key": "ten", "id": "C.3", "share": 7.4, "n": 4063, "jac": 0.82, "unstable": false, "from": "C 83%, D 16%"}, {"key": "five", "id": "D", "share": 18.2, "n": 11038, "jac": 0.74, "unstable": true, "into": "D.1 59%, D.2 28%"}, {"key": "ten", "id": "D.1", "share": 11.1, "n": 6215, "jac": 0.8, "unstable": false, "from": "D 96%"}, {"key": "ten", "id": "D.2", "share": 5.9, "n": 4044, "jac": 0.88, "unstable": false, "from": "D 86%, E 14%"}, {"key": "five", "id": "E", "share": 4.0, "n": 2159, "jac": 0.56, "unstable": true, "into": "E.1 79%, D.2 21%"}, {"key": "ten", "id": "E.1", "share": 3.3, "n": 1680, "jac": 0.91, "unstable": false, "from": "E 96%"}, {"key": "all", "id": "Everyone", "share": 100.0, "n": 49431}], "sim_order": ["A.2", "A", "A.1", "C.2", "C", "C.3", "B", "B.1", "C.1", "B.2", "D.2", "D", "D.1", "E", "E.1"], "row_order": {"policy": [86, 22, 89, 5, 39, 34, 29, 59, 27, 56, 51, 15, 44, 36, 37, 57, 58, 6, 9, 0, 23, 24, 25, 14, 11, 76, 41, 40, 81, 30, 33, 3, 2, 38, 43, 16, 73, 84, 90, 77, 83, 91, 80, 79, 78, 82, 87, 48, 47, 75, 74, 46, 63, 7, 45, 42, 72, 88, 85, 28, 31, 10, 4, 71, 53, 54, 19, 17, 26, 8, 55, 65, 68, 66, 67, 62, 12, 21, 60, 61, 35, 64, 70, 20, 1, 32, 52, 69, 13, 18, 50, 49], "demo": [32, 12, 35, 36, 28, 34, 3, 0, 21, 4, 18, 24, 31, 27, 7, 16, 15, 26, 20, 33, 13, 30, 37, 23, 39, 6, 11, 2, 1, 19, 38, 40, 22, 25, 17, 9, 14, 29, 8, 5, 10, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]}, "factors": [{"label": "Cultural conservatism (RT slot)", "values": {"A": 0.92, "A.1": 0.87, "A.2": 1.11, "B": 0.23, "B.1": 0.33, "B.2": -0.55, "C": -0.04, "C.1": 0.38, "C.2": -0.95, "C.3": 0.0, "D": -1.26, "D.1": -1.12, "D.2": -1.58, "E": -1.59, "E.1": -1.57, "Everyone": -0.0}}, {"label": "Distrust", "values": {"A": 0.59, "A.1": 0.35, "A.2": 0.84, "B": 0.15, "B.1": -0.14, "B.2": 1.03, "C": -0.51, "C.1": 0.09, "C.2": -0.56, "C.3": -0.84, "D": -0.32, "D.1": -0.19, "D.2": -0.43, "E": 0.34, "E.1": 0.46, "Everyone": 0.0}}, {"label": "Security & Order", "values": {"A": 0.91, "A.1": 1.16, "A.2": 0.68, "B": -0.85, "B.1": -0.62, "B.2": -1.0, "C": 0.45, "C.1": 0.63, "C.2": 0.33, "C.3": 0.28, "D": -0.79, "D.1": -1.05, "D.2": -0.74, "E": -1.91, "E.1": -2.02, "Everyone": 0.0}}, {"label": "Economic right (PC slot)", "values": {"A": 1.07, "A.1": 0.63, "A.2": 1.7, "B": -0.04, "B.1": -0.3, "B.2": 1.42, "C": -0.31, "C.1": 0.36, "C.2": -0.1, "C.3": -1.22, "D": -0.85, "D.1": -0.72, "D.2": -1.12, "E": -1.08, "E.1": -1.06, "Everyone": -0.0}}], "policy": [{"topic": "Guns and police", "item": "CC24_321a", "label": "Ban assault rifles", "input": false, "A": 16.0, "A.1": 24.2, "A.2": 3.7, "B": 61.7, "B.1": 66.5, "B.2": 43.0, "C": 71.0, "C.1": 47.2, "C.2": 82.2, "C.3": 83.5, "D": 93.0, "D.1": 91.9, "D.2": 96.8, "E": 93.6, "E.1": 93.1, "Everyone": 58.6}, {"topic": "Guns and police", "item": "CC24_321b", "label": "Make concealed-carry permits easier to get", "input": true, "A": 76.5, "A.1": 67.9, "A.2": 91.6, "B": 40.7, "B.1": 37.2, "B.2": 44.8, "C": 29.6, "C.1": 49.4, "C.2": 13.9, "C.3": 22.6, "D": 6.2, "D.1": 8.0, "D.2": 3.0, "E": 3.4, "E.1": 3.4, "Everyone": 39.7}, {"topic": "Guns and police", "item": "CC24_321c", "label": "Background checks on all gun sales", "input": false, "A": 83.8, "A.1": 92.4, "A.2": 71.2, "B": 90.0, "B.1": 93.5, "B.2": 73.0, "C": 97.2, "C.1": 93.1, "C.2": 98.2, "C.3": 96.8, "D": 99.3, "D.1": 99.1, "D.2": 99.8, "E": 99.7, "E.1": 99.7, "Everyone": 92.5}, {"topic": "Guns and police", "item": "CC24_321f", "label": "Mental health and school safety, red-flag and domestic-violence gun rules", "input": false, "A": 66.9, "A.1": 80.9, "A.2": 46.0, "B": 85.5, "B.1": 90.2, "B.2": 65.1, "C": 95.3, "C.1": 86.2, "C.2": 96.8, "C.3": 97.9, "D": 98.5, "D.1": 97.7, "D.2": 99.6, "E": 99.4, "E.1": 99.3, "Everyone": 86.1}, {"topic": "Guns and police", "item": "CC24_321d", "label": "10% more police, even with fewer other services", "input": false, "A": 88.7, "A.1": 92.9, "A.2": 87.6, "B": 42.6, "B.1": 48.7, "B.2": 38.6, "C": 69.9, "C.1": 76.3, "C.2": 57.2, "C.3": 68.4, "D": 19.7, "D.1": 15.1, "D.2": 14.7, "E": 0.2, "E.1": 0.2, "Everyone": 57.9}, {"topic": "Guns and police", "item": "CC24_321e", "label": "10% fewer police, more for other services", "input": true, "A": 2.1, "A.1": 1.2, "A.2": 1.8, "B": 46.5, "B.1": 39.3, "B.2": 42.9, "C": 10.7, "C.1": 7.7, "C.2": 8.9, "C.3": 16.0, "D": 51.2, "D.1": 59.0, "D.2": 58.4, "E": 98.5, "E.1": 100.0, "Everyone": 26.2}, {"topic": "Immigration", "item": "CC24_323a", "label": "Legal status for undocumented workers (3+ years, taxes, no felonies)", "input": true, "A": 17.7, "A.1": 24.0, "A.2": 7.5, "B": 70.0, "B.1": 73.5, "B.2": 38.0, "C": 64.6, "C.1": 41.6, "C.2": 69.8, "C.3": 85.8, "D": 89.9, "D.1": 89.3, "D.2": 95.1, "E": 99.1, "E.1": 99.3, "Everyone": 58.5}, {"topic": "Immigration", "item": "CC24_323b", "label": "More border patrols on the US-Mexico border", "input": true, "A": 98.4, "A.1": 99.6, "A.2": 97.6, "B": 62.4, "B.1": 70.7, "B.2": 53.3, "C": 95.8, "C.1": 97.2, "C.2": 93.1, "C.3": 95.7, "D": 62.0, "D.1": 49.0, "D.2": 67.9, "E": 5.2, "E.1": 0.9, "Everyone": 80.1}, {"topic": "Immigration", "item": "CC24_323c", "label": "Build a wall on the US-Mexico border", "input": false, "A": 97.7, "A.1": 97.7, "A.2": 98.4, "B": 45.4, "B.1": 48.0, "B.2": 43.5, "C": 58.6, "C.1": 86.4, "C.2": 30.8, "C.3": 41.8, "D": 5.0, "D.1": 4.5, "D.2": 2.2, "E": 0.0, "E.1": 0.0, "Everyone": 54.9}, {"topic": "Immigration", "item": "CC24_323d", "label": "Permanent residency and a citizenship path for Dreamers", "input": false, "A": 35.9, "A.1": 44.1, "A.2": 23.0, "B": 76.7, "B.1": 80.5, "B.2": 47.7, "C": 76.2, "C.1": 56.3, "C.2": 85.0, "C.3": 91.1, "D": 98.1, "D.1": 97.8, "D.2": 99.8, "E": 99.9, "E.1": 100.0, "Everyone": 69.9}, {"topic": "Immigration", "item": "CC24_340f", "label": "Deny asylum to people who cross the border illegally", "input": false, "A": 96.9, "A.1": 96.7, "A.2": 97.8, "B": 53.8, "B.1": 57.8, "B.2": 47.3, "C": 73.0, "C.1": 88.0, "C.2": 62.7, "C.3": 59.8, "D": 22.5, "D.1": 20.8, "D.2": 15.1, "E": 1.3, "E.1": 1.0, "Everyone": 63.9}, {"topic": "Abortion and contraception", "item": "CC24_324a", "label": "Always allow abortion as a matter of choice", "input": false, "A": 17.0, "A.1": 20.6, "A.2": 7.4, "B": 67.7, "B.1": 67.9, "B.2": 61.3, "C": 66.3, "C.1": 45.3, "C.2": 86.2, "C.3": 76.8, "D": 96.4, "D.1": 96.0, "D.2": 98.3, "E": 99.5, "E.1": 99.8, "Everyone": 59.6}, {"topic": "Abortion and contraception", "item": "CC24_324b", "label": "Abortion only for rape, incest or the woman's life", "input": true, "A": 72.1, "A.1": 76.3, "A.2": 69.0, "B": 56.0, "B.1": 59.8, "B.2": 40.3, "C": 56.2, "C.1": 62.4, "C.2": 33.4, "C.3": 57.5, "D": 17.2, "D.1": 20.1, "D.2": 10.2, "E": 6.7, "E.1": 6.3, "Everyone": 51.6}, {"topic": "Abortion and contraception", "item": "CC24_324c", "label": "Make abortion illegal in all circumstances", "input": false, "A": 19.1, "A.1": 14.4, "A.2": 26.0, "B": 18.4, "B.1": 16.3, "B.2": 23.3, "C": 10.7, "C.1": 15.2, "C.2": 5.1, "C.3": 10.4, "D": 1.9, "D.1": 1.9, "D.2": 1.5, "E": 1.3, "E.1": 2.0, "Everyone": 12.6}, {"topic": "Abortion and contraception", "item": "CC24_324d", "label": "Expand abortion access and affordability", "input": false, "A": 14.5, "A.1": 19.5, "A.2": 4.7, "B": 66.8, "B.1": 68.7, "B.2": 50.1, "C": 65.9, "C.1": 42.1, "C.2": 83.8, "C.3": 79.6, "D": 96.7, "D.1": 95.6, "D.2": 98.9, "E": 99.7, "E.1": 99.8, "Everyone": 58.6}, {"topic": "Abortion and contraception", "item": "CC24_340b", "label": "Bar government restrictions on abortion services", "input": true, "A": 38.1, "A.1": 43.6, "A.2": 29.2, "B": 62.4, "B.1": 64.2, "B.2": 44.8, "C": 63.2, "C.1": 51.2, "C.2": 71.7, "C.3": 72.2, "D": 88.8, "D.1": 88.5, "D.2": 91.5, "E": 96.8, "E.1": 97.6, "Everyone": 62.0}, {"topic": "Abortion and contraception", "item": "CC24_340a", "label": "Bar government restrictions on contraceptives", "input": true, "A": 65.9, "A.1": 67.6, "A.2": 66.0, "B": 66.1, "B.1": 68.5, "B.2": 45.0, "C": 67.2, "C.1": 61.6, "C.2": 71.2, "C.3": 72.2, "D": 88.0, "D.1": 87.8, "D.2": 90.7, "E": 95.1, "E.1": 95.9, "Everyone": 71.5}, {"topic": "Abortion and contraception", "item": "CC24_444c", "label": "State: ban abortion pills by mail", "input": true, "A": 75.0, "A.1": 71.5, "A.2": 85.8, "B": 45.7, "B.1": 48.4, "B.2": 33.3, "C": 41.4, "C.1": 55.5, "C.2": 11.2, "C.3": 39.7, "D": 2.1, "D.1": 3.0, "D.2": 0.6, "E": 0.2, "E.1": 0.2, "Everyone": 42.9}, {"topic": "Abortion and contraception", "item": "CC24_444d", "label": "State: bar travel out of state for an abortion", "input": true, "A": 25.5, "A.1": 25.2, "A.2": 26.0, "B": 31.2, "B.1": 31.0, "B.2": 24.0, "C": 20.8, "C.1": 27.9, "C.2": 5.1, "C.3": 20.4, "D": 1.1, "D.1": 1.3, "D.2": 0.2, "E": 0.2, "E.1": 0.2, "Everyone": 19.8}, {"topic": "Abortion and contraception", "item": "CC24_445b", "label": "Agree Roe was rightly overturned", "input": true, "A": 95.6, "A.1": 94.5, "A.2": 99.1, "B": 58.3, "B.1": 58.8, "B.2": 48.9, "C": 48.9, "C.1": 71.1, "C.2": 19.8, "C.3": 40.6, "D": 7.0, "D.1": 10.3, "D.2": 1.4, "E": 1.0, "E.1": 1.5, "Everyone": 54.3}, {"topic": "Abortion and contraception", "item": "CC24_325", "label": "Week limit: abortion legal at no point (0 weeks)", "input": true, "A": 24.4, "A.1": 19.2, "A.2": 33.4, "B": 11.0, "B.1": 9.8, "B.2": 14.3, "C": 7.9, "C.1": 15.3, "C.2": 1.4, "C.3": 6.5, "D": 0.8, "D.1": 0.8, "D.2": 0.2, "E": 0.5, "E.1": 0.6, "Everyone": 11.4}, {"topic": "Abortion and contraception", "item": "CC24_325", "label": "Week limit: 15 weeks or earlier (includes 0)", "input": true, "A": 84.1, "A.1": 81.9, "A.2": 89.6, "B": 62.0, "B.1": 63.8, "B.2": 55.8, "C": 57.9, "C.1": 71.4, "C.2": 31.5, "C.3": 55.2, "D": 12.9, "D.1": 16.4, "D.2": 4.4, "E": 3.0, "E.1": 3.2, "Everyone": 55.2}, {"topic": "Abortion and contraception", "item": "CC24_325", "label": "Week limit: none (40 weeks)", "input": true, "A": 0.7, "A.1": 0.8, "A.2": 0.2, "B": 6.8, "B.1": 6.0, "B.2": 8.9, "C": 6.6, "C.1": 3.3, "C.2": 14.4, "C.3": 7.2, "D": 28.0, "D.1": 25.3, "D.2": 37.5, "E": 53.9, "E.1": 54.7, "Everyone": 11.0}, {"topic": "Environment and energy", "item": "CC24_326a", "label": "EPA power to regulate carbon dioxide", "input": false, "A": 12.9, "A.1": 20.3, "A.2": 2.2, "B": 67.4, "B.1": 73.9, "B.2": 37.0, "C": 76.0, "C.1": 47.3, "C.2": 86.7, "C.3": 92.7, "D": 97.2, "D.1": 96.7, "D.2": 99.5, "E": 99.5, "E.1": 99.5, "Everyone": 61.4}, {"topic": "Environment and energy", "item": "CC24_326b", "label": "Require 20% renewable electricity", "input": false, "A": 16.9, "A.1": 24.3, "A.2": 5.0, "B": 77.0, "B.1": 83.4, "B.2": 49.1, "C": 79.4, "C.1": 53.9, "C.2": 86.0, "C.3": 91.5, "D": 96.5, "D.1": 96.0, "D.2": 98.5, "E": 99.3, "E.1": 99.4, "Everyone": 65.3}, {"topic": "Environment and energy", "item": "CC24_326c", "label": "Stronger Clean Air and Water Act enforcement, even at a cost in jobs", "input": false, "A": 8.0, "A.1": 11.8, "A.2": 2.4, "B": 62.9, "B.1": 66.5, "B.2": 46.0, "C": 62.2, "C.1": 34.1, "C.2": 76.8, "C.3": 80.3, "D": 93.0, "D.1": 90.2, "D.2": 97.9, "E": 98.6, "E.1": 98.8, "Everyone": 54.2}, {"topic": "Environment and energy", "item": "CC24_326d", "label": "Increase US fossil fuel production", "input": true, "A": 97.0, "A.1": 97.7, "A.2": 98.5, "B": 53.1, "B.1": 56.4, "B.2": 35.4, "C": 60.2, "C.1": 81.7, "C.2": 32.4, "C.3": 53.5, "D": 11.5, "D.1": 12.5, "D.2": 4.2, "E": 0.9, "E.1": 0.7, "Everyone": 57.9}, {"topic": "Environment and energy", "item": "CC24_326e", "label": "Halt new oil and gas leases on federal land", "input": true, "A": 3.5, "A.1": 4.6, "A.2": 1.1, "B": 52.7, "B.1": 55.2, "B.2": 31.9, "C": 44.2, "C.1": 21.1, "C.2": 55.4, "C.3": 59.5, "D": 83.2, "D.1": 81.7, "D.2": 93.1, "E": 98.8, "E.1": 99.0, "Everyone": 43.7}, {"topic": "Environment and energy", "item": "CC24_326f", "label": "Prevent bans on gas stoves", "input": true, "A": 90.9, "A.1": 88.7, "A.2": 95.8, "B": 64.6, "B.1": 65.7, "B.2": 48.1, "C": 65.3, "C.1": 75.8, "C.2": 58.2, "C.3": 62.2, "D": 48.6, "D.1": 52.1, "D.2": 34.7, "E": 25.7, "E.1": 27.0, "Everyone": 67.7}, {"topic": "Housing, health care, student debt", "item": "CC24_328a", "label": "Relax local zoning to allow more apartments", "input": false, "A": 36.3, "A.1": 36.4, "A.2": 36.7, "B": 54.7, "B.1": 55.8, "B.2": 44.0, "C": 51.5, "C.1": 41.1, "C.2": 52.5, "C.3": 63.5, "D": 59.4, "D.1": 55.9, "D.2": 68.0, "E": 66.1, "E.1": 64.9, "Everyone": 49.9}, {"topic": "Housing, health care, student debt", "item": "CC24_328b", "label": "Tax incentives for low-income housing", "input": true, "A": 41.5, "A.1": 49.6, "A.2": 29.3, "B": 79.8, "B.1": 86.0, "B.2": 36.1, "C": 77.4, "C.1": 61.1, "C.2": 74.9, "C.3": 94.4, "D": 94.7, "D.1": 93.6, "D.2": 98.3, "E": 98.5, "E.1": 98.0, "Everyone": 71.8}, {"topic": "Housing, health care, student debt", "item": "CC24_328c", "label": "Medicaid work requirement for childless adults", "input": false, "A": 74.1, "A.1": 72.8, "A.2": 80.1, "B": 49.5, "B.1": 51.8, "B.2": 41.8, "C": 57.1, "C.1": 61.7, "C.2": 52.4, "C.3": 52.9, "D": 32.0, "D.1": 33.1, "D.2": 22.9, "E": 9.3, "E.1": 9.3, "Everyone": 53.9}, {"topic": "Housing, health care, student debt", "item": "CC24_328d", "label": "Repeal the Affordable Care Act", "input": true, "A": 82.4, "A.1": 74.5, "A.2": 96.5, "B": 41.5, "B.1": 37.8, "B.2": 47.5, "C": 26.4, "C.1": 49.0, "C.2": 7.4, "C.3": 18.7, "D": 1.5, "D.1": 2.2, "D.2": 0.3, "E": 1.1, "E.1": 1.3, "Everyone": 39.6}, {"topic": "Housing, health care, student debt", "item": "CC24_328e", "label": "Expand Medicaid to low-income adults and families", "input": true, "A": 46.8, "A.1": 59.3, "A.2": 25.5, "B": 86.1, "B.1": 92.1, "B.2": 43.8, "C": 85.8, "C.1": 72.7, "C.2": 83.7, "C.3": 99.2, "D": 99.0, "D.1": 98.5, "D.2": 99.9, "E": 99.9, "E.1": 99.9, "Everyone": 77.9}, {"topic": "Housing, health care, student debt", "item": "CC24_323f", "label": "Forgive up to $20,000 of student debt", "input": true, "A": 2.6, "A.1": 1.9, "A.2": 1.1, "B": 80.4, "B.1": 86.1, "B.2": 35.8, "C": 50.9, "C.1": 19.9, "C.2": 42.8, "C.3": 95.1, "D": 95.1, "D.1": 95.0, "D.2": 98.3, "E": 100.0, "E.1": 100.0, "Everyone": 53.2}, {"topic": "Taxes and federal spending", "item": "CC24_341a", "label": "Extend the 2017 tax cuts", "input": true, "A": 92.0, "A.1": 90.2, "A.2": 97.5, "B": 70.7, "B.1": 73.5, "B.2": 43.5, "C": 62.8, "C.1": 76.6, "C.2": 36.5, "C.3": 59.7, "D": 25.0, "D.1": 34.2, "D.2": 7.0, "E": 10.4, "E.1": 13.2, "Everyone": 63.6}, {"topic": "Taxes and federal spending", "item": "CC24_341b", "label": "Raise the corporate tax rate to 28%", "input": false, "A": 16.3, "A.1": 24.2, "A.2": 3.6, "B": 55.5, "B.1": 60.7, "B.2": 31.8, "C": 68.4, "C.1": 47.3, "C.2": 80.1, "C.3": 79.9, "D": 91.6, "D.1": 88.6, "D.2": 98.8, "E": 98.6, "E.1": 98.3, "Everyone": 56.6}, {"topic": "Taxes and federal spending", "item": "CC24_341c", "label": "Raise taxes on $400k+ earners to 35%", "input": true, "A": 23.4, "A.1": 34.3, "A.2": 6.4, "B": 67.8, "B.1": 74.1, "B.2": 36.6, "C": 78.2, "C.1": 58.4, "C.2": 82.2, "C.3": 91.0, "D": 93.6, "D.1": 92.2, "D.2": 97.5, "E": 98.8, "E.1": 98.7, "Everyone": 64.4}, {"topic": "Taxes and federal spending", "item": "CC24_341d", "label": "$150B a year on infrastructure for 8 years", "input": true, "A": 66.2, "A.1": 82.1, "A.2": 48.4, "B": 67.5, "B.1": 75.3, "B.2": 35.1, "C": 87.9, "C.1": 72.2, "C.2": 91.1, "C.3": 97.1, "D": 96.8, "D.1": 95.4, "D.2": 99.5, "E": 99.0, "E.1": 99.2, "Everyone": 79.8}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_1", "label": "Welfare", "input": true, "A": 4.1, "A.1": 6.7, "A.2": 0.4, "B": 36.1, "B.1": 38.6, "B.2": 10.5, "C": 33.3, "C.1": 18.1, "C.2": 19.7, "C.3": 68.9, "D": 62.2, "D.1": 56.9, "D.2": 81.5, "E": 93.9, "E.1": 93.4, "Everyone": 33.3}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_2", "label": "Health care", "input": true, "A": 28.9, "A.1": 45.9, "A.2": 5.3, "B": 57.7, "B.1": 69.4, "B.2": 15.5, "C": 79.0, "C.1": 57.4, "C.2": 72.4, "C.3": 99.8, "D": 93.1, "D.1": 89.7, "D.2": 99.7, "E": 99.9, "E.1": 99.8, "Everyone": 64.1}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_3", "label": "Education", "input": true, "A": 37.7, "A.1": 55.8, "A.2": 13.4, "B": 54.3, "B.1": 64.4, "B.2": 14.1, "C": 75.8, "C.1": 55.3, "C.2": 72.8, "C.3": 98.1, "D": 92.1, "D.1": 88.6, "D.2": 98.7, "E": 99.8, "E.1": 99.8, "Everyone": 64.8}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_4", "label": "Law enforcement", "input": true, "A": 83.1, "A.1": 95.3, "A.2": 74.5, "B": 24.4, "B.1": 36.7, "B.2": 9.1, "C": 73.6, "C.1": 70.2, "C.2": 55.4, "C.3": 88.0, "D": 24.5, "D.1": 14.9, "D.2": 23.8, "E": 0.0, "E.1": 0.0, "Everyone": 54.7}, {"topic": "State spending (share wanting an increase)", "item": "CC24_443_5", "label": "Transportation and infrastructure", "input": true, "A": 60.1, "A.1": 72.1, "A.2": 48.1, "B": 43.5, "B.1": 50.5, "B.2": 16.2, "C": 71.5, "C.1": 57.8, "C.2": 70.4, "C.3": 92.7, "D": 83.9, "D.1": 78.8, "D.2": 93.8, "E": 94.0, "E.1": 94.0, "Everyone": 65.9}, {"topic": "Other bills in Congress", "item": "CC24_340c", "label": "Federal recognition of same-sex and interracial marriage", "input": true, "A": 36.6, "A.1": 41.8, "A.2": 27.0, "B": 63.4, "B.1": 64.4, "B.2": 49.3, "C": 66.6, "C.1": 50.5, "C.2": 87.3, "C.3": 73.3, "D": 97.5, "D.1": 97.1, "D.2": 99.4, "E": 100.0, "E.1": 100.0, "Everyone": 64.6}, {"topic": "Other bills in Congress", "item": "CC24_340d", "label": "Ban TikTok unless sold to a US company", "input": true, "A": 75.9, "A.1": 83.3, "A.2": 71.0, "B": 37.9, "B.1": 44.3, "B.2": 26.0, "C": 63.7, "C.1": 65.6, "C.2": 59.7, "C.3": 62.3, "D": 42.5, "D.1": 34.9, "D.2": 46.3, "E": 14.6, "E.1": 11.3, "Everyone": 56.2}, {"topic": "Other bills in Congress", "item": "CC24_340e", "label": "Renew warrantless surveillance programs", "input": false, "A": 25.0, "A.1": 33.4, "A.2": 13.1, "B": 39.5, "B.1": 44.0, "B.2": 25.0, "C": 48.3, "C.1": 40.5, "C.2": 45.3, "C.3": 50.8, "D": 24.8, "D.1": 24.3, "D.2": 19.7, "E": 8.9, "E.1": 7.6, "Everyone": 34.2}, {"topic": "Elections and trust in government", "item": "CC24_421_1", "label": "Agree US elections are fair", "input": true, "A": 58.7, "A.1": 66.9, "A.2": 51.2, "B": 41.9, "B.1": 49.8, "B.2": 27.9, "C": 75.2, "C.1": 62.8, "C.2": 84.1, "C.3": 77.2, "D": 70.6, "D.1": 63.0, "D.2": 81.4, "E": 60.0, "E.1": 55.4, "Everyone": 62.5}, {"topic": "Elections and trust in government", "item": "CC24_421_2", "label": "Agree my state ran a fair, accurate 2024 election", "input": false, "A": 74.3, "A.1": 79.8, "A.2": 68.3, "B": 51.6, "B.1": 58.2, "B.2": 38.2, "C": 82.7, "C.1": 77.1, "C.2": 88.9, "C.3": 83.3, "D": 84.5, "D.1": 79.7, "D.2": 92.6, "E": 82.4, "E.1": 79.5, "Everyone": 74.5}, {"topic": "Elections and trust in government", "item": "CC24_423", "label": "Little or no trust in the federal government", "input": true, "A": 82.7, "A.1": 73.3, "A.2": 91.0, "B": 62.9, "B.1": 53.9, "B.2": 82.2, "C": 42.5, "C.1": 62.6, "C.2": 43.1, "C.3": 35.9, "D": 57.1, "D.1": 61.2, "D.2": 54.0, "E": 81.1, "E.1": 85.0, "Everyone": 62.0}, {"topic": "Elections and trust in government", "item": "CC24_424", "label": "Little or no trust in the state government", "input": true, "A": 52.2, "A.1": 45.6, "A.2": 57.1, "B": 54.9, "B.1": 46.6, "B.2": 77.8, "C": 32.2, "C.1": 45.6, "C.2": 30.2, "C.3": 29.4, "D": 40.3, "D.1": 42.0, "D.2": 38.0, "E": 54.8, "E.1": 58.2, "Everyone": 44.7}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_440a", "label": "White people have advantages because of their skin color", "input": false, "A": 7.5, "A.1": 10.3, "A.2": 2.7, "B": 58.3, "B.1": 60.2, "B.2": 37.3, "C": 53.3, "C.1": 26.0, "C.2": 69.2, "C.3": 76.5, "D": 94.9, "D.1": 94.9, "D.2": 97.4, "E": 99.5, "E.1": 99.5, "Everyone": 50.9}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_440b", "label": "Racial problems are rare, isolated situations", "input": true, "A": 60.5, "A.1": 53.1, "A.2": 75.7, "B": 22.4, "B.1": 20.5, "B.2": 29.0, "C": 19.1, "C.1": 33.0, "C.2": 11.1, "C.3": 10.2, "D": 1.6, "D.1": 2.0, "D.2": 0.4, "E": 0.0, "E.1": 0.0, "Everyone": 27.4}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_440c", "label": "Women seek power by getting control over men", "input": true, "A": 40.6, "A.1": 35.6, "A.2": 49.3, "B": 27.6, "B.1": 27.1, "B.2": 27.7, "C": 19.3, "C.1": 28.3, "C.2": 9.7, "C.3": 13.9, "D": 2.6, "D.1": 3.1, "D.2": 0.4, "E": 0.1, "E.1": 0.2, "Everyone": 23.1}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_440d", "label": "Women are too easily offended", "input": false, "A": 62.8, "A.1": 59.7, "A.2": 69.7, "B": 36.5, "B.1": 36.6, "B.2": 39.4, "C": 32.2, "C.1": 45.6, "C.2": 17.8, "C.3": 23.3, "D": 5.2, "D.1": 6.1, "D.2": 1.7, "E": 0.7, "E.1": 0.8, "Everyone": 35.5}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441a", "label": "Blacks should work their way up without special favors", "input": false, "A": 86.8, "A.1": 86.3, "A.2": 90.8, "B": 38.9, "B.1": 42.5, "B.2": 38.6, "C": 53.5, "C.1": 71.5, "C.2": 36.7, "C.3": 36.8, "D": 6.0, "D.1": 5.6, "D.2": 2.2, "E": 0.2, "E.1": 0.1, "Everyone": 49.2}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441b", "label": "Slavery and discrimination make it hard for Blacks to rise", "input": true, "A": 5.7, "A.1": 6.6, "A.2": 2.6, "B": 49.7, "B.1": 50.9, "B.2": 30.5, "C": 42.9, "C.1": 18.7, "C.2": 56.3, "C.3": 69.4, "D": 92.5, "D.1": 92.1, "D.2": 97.5, "E": 99.8, "E.1": 99.7, "Everyone": 45.1}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441e", "label": "I resent when Whites deny racial discrimination exists", "input": false, "A": 10.9, "A.1": 13.8, "A.2": 8.3, "B": 59.6, "B.1": 63.4, "B.2": 34.6, "C": 67.5, "C.1": 41.9, "C.2": 69.1, "C.3": 81.8, "D": 90.7, "D.1": 90.3, "D.2": 94.8, "E": 96.6, "E.1": 97.1, "Everyone": 61.5}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441f", "label": "Whites get away with offenses Blacks would not", "input": false, "A": 7.9, "A.1": 11.6, "A.2": 5.4, "B": 65.7, "B.1": 68.5, "B.2": 42.1, "C": 68.0, "C.1": 36.8, "C.2": 70.5, "C.3": 86.6, "D": 93.8, "D.1": 93.2, "D.2": 95.6, "E": 99.7, "E.1": 99.9, "Everyone": 63.8}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_441g", "label": "Whites don't try hard to understand Black Americans' problems", "input": false, "A": 10.2, "A.1": 13.8, "A.2": 6.3, "B": 56.0, "B.1": 58.5, "B.2": 35.8, "C": 56.0, "C.1": 31.3, "C.2": 52.0, "C.3": 73.8, "D": 83.0, "D.1": 83.2, "D.2": 87.2, "E": 95.1, "E.1": 96.4, "Everyone": 55.1}, {"topic": "Race and gender attitudes (share agreeing)", "item": "CC24_445a", "label": "Agree race in college admissions is unconstitutional", "input": true, "A": 93.7, "A.1": 92.5, "A.2": 97.0, "B": 74.0, "B.1": 77.3, "B.2": 56.1, "C": 72.8, "C.1": 83.3, "C.2": 55.3, "C.3": 64.0, "D": 27.0, "D.1": 34.6, "D.2": 8.9, "E": 7.4, "E.1": 8.9, "Everyone": 68.0}, {"topic": "State culture and schooling policies", "item": "CC24_444a", "label": "Ban gender-transition surgery for minors", "input": true, "A": 90.2, "A.1": 88.9, "A.2": 93.9, "B": 62.8, "B.1": 64.8, "B.2": 48.7, "C": 61.5, "C.1": 76.7, "C.2": 42.7, "C.3": 52.6, "D": 23.7, "D.1": 29.0, "D.2": 10.6, "E": 6.6, "E.1": 6.8, "Everyone": 60.7}, {"topic": "State culture and schooling policies", "item": "CC24_444b", "label": "Parental consent before teachers use a new name or pronoun", "input": true, "A": 96.5, "A.1": 96.6, "A.2": 98.8, "B": 63.6, "B.1": 69.0, "B.2": 43.6, "C": 71.5, "C.1": 83.7, "C.2": 42.1, "C.3": 74.8, "D": 13.7, "D.1": 14.6, "D.2": 3.8, "E": 0.3, "E.1": 0.4, "Everyone": 63.6}, {"topic": "State culture and schooling policies", "item": "CC24_444e", "label": "Age verification for adult websites", "input": true, "A": 89.5, "A.1": 92.8, "A.2": 87.3, "B": 76.6, "B.1": 81.2, "B.2": 47.9, "C": 85.4, "C.1": 86.0, "C.2": 74.9, "C.3": 92.0, "D": 65.6, "D.1": 64.9, "D.2": 62.1, "E": 39.2, "E.1": 36.5, "Everyone": 79.4}, {"topic": "State culture and schooling policies", "item": "CC24_444f", "label": "School vouchers for private or charter schools", "input": true, "A": 83.4, "A.1": 77.8, "A.2": 94.6, "B": 69.6, "B.1": 72.0, "B.2": 46.0, "C": 51.3, "C.1": 59.4, "C.2": 22.3, "C.3": 59.8, "D": 21.3, "D.1": 30.6, "D.2": 3.5, "E": 8.9, "E.1": 12.2, "Everyone": 56.8}, {"topic": "Religion", "item": "pew_churatd", "label": "Attend services weekly or more", "input": true, "A": 37.8, "A.1": 34.6, "A.2": 44.0, "B": 23.9, "B.1": 25.6, "B.2": 21.6, "C": 25.1, "C.1": 28.2, "C.2": 13.2, "C.3": 29.7, "D": 9.7, "D.1": 10.1, "D.2": 7.8, "E": 3.9, "E.1": 3.3, "Everyone": 24.8}, {"topic": "Religion", "item": "pew_religimp", "label": "Religion very important", "input": false, "A": 55.8, "A.1": 54.8, "A.2": 60.9, "B": 38.4, "B.1": 40.6, "B.2": 28.8, "C": 39.5, "C.1": 44.0, "C.2": 20.4, "C.3": 47.1, "D": 12.4, "D.1": 12.6, "D.2": 9.9, "E": 7.0, "E.1": 6.5, "Everyone": 37.6}, {"topic": "Religion", "item": "pew_prayer", "label": "Pray daily or more", "input": false, "A": 58.0, "A.1": 57.4, "A.2": 61.2, "B": 39.4, "B.1": 42.2, "B.2": 31.2, "C": 45.3, "C.1": 49.5, "C.2": 27.0, "C.3": 54.3, "D": 19.1, "D.1": 19.1, "D.2": 16.0, "E": 7.3, "E.1": 5.9, "Everyone": 41.4}, {"topic": "Religion", "item": "pew_bornagain", "label": "Born-again or evangelical", "input": true, "A": 47.9, "A.1": 46.6, "A.2": 52.7, "B": 36.8, "B.1": 39.5, "B.2": 20.5, "C": 34.7, "C.1": 39.1, "C.2": 13.8, "C.3": 42.3, "D": 8.0, "D.1": 9.5, "D.2": 3.7, "E": 1.8, "E.1": 1.8, "Everyone": 32.6}, {"topic": "Personal economy, past year", "item": "CC24_302", "label": "Household income decreased", "input": false, "A": 37.8, "A.1": 36.9, "A.2": 39.4, "B": 31.0, "B.1": 29.4, "B.2": 35.5, "C": 24.0, "C.1": 31.7, "C.2": 15.9, "C.3": 19.0, "D": 13.8, "D.1": 16.7, "D.2": 9.6, "E": 19.4, "E.1": 21.9, "Everyone": 27.2}, {"topic": "Personal economy, past year", "item": "CC24_303", "label": "Prices increased a lot", "input": false, "A": 81.1, "A.1": 81.6, "A.2": 81.3, "B": 51.4, "B.1": 51.4, "B.2": 46.8, "C": 53.4, "C.1": 69.6, "C.2": 33.8, "C.3": 50.5, "D": 28.9, "D.1": 34.2, "D.2": 19.1, "E": 35.3, "E.1": 39.1, "Everyone": 55.6}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_1", "label": "To ensure the oil supply", "input": false, "A": 30.7, "A.1": 33.1, "A.2": 29.1, "B": 16.9, "B.1": 18.7, "B.2": 9.2, "C": 22.1, "C.1": 25.2, "C.2": 16.4, "C.3": 21.5, "D": 7.8, "D.1": 7.2, "D.2": 6.0, "E": 1.9, "E.1": 1.9, "Everyone": 20.1}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_2", "label": "To destroy a terrorist camp", "input": false, "A": 73.2, "A.1": 76.2, "A.2": 72.2, "B": 33.9, "B.1": 38.0, "B.2": 20.8, "C": 55.6, "C.1": 59.1, "C.2": 58.5, "C.3": 54.2, "D": 48.1, "D.1": 43.8, "D.2": 49.2, "E": 23.0, "E.1": 19.2, "Everyone": 53.6}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_3", "label": "To intervene in genocide or civil war", "input": false, "A": 24.1, "A.1": 28.6, "A.2": 17.5, "B": 26.8, "B.1": 30.6, "B.2": 10.5, "C": 36.3, "C.1": 29.5, "C.2": 42.1, "C.3": 41.5, "D": 56.4, "D.1": 53.6, "D.2": 62.6, "E": 62.6, "E.1": 61.4, "Everyone": 35.7}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_4", "label": "To spread democracy", "input": false, "A": 10.8, "A.1": 13.9, "A.2": 6.1, "B": 16.2, "B.1": 18.2, "B.2": 7.1, "C": 21.7, "C.1": 15.8, "C.2": 22.0, "C.3": 29.7, "D": 20.6, "D.1": 18.5, "D.2": 22.0, "E": 9.6, "E.1": 8.5, "Everyone": 16.9}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_5", "label": "To protect allies under attack", "input": false, "A": 68.3, "A.1": 72.5, "A.2": 65.1, "B": 51.6, "B.1": 56.0, "B.2": 36.0, "C": 69.8, "C.1": 65.0, "C.2": 74.2, "C.3": 73.6, "D": 78.7, "D.1": 75.6, "D.2": 83.7, "E": 59.1, "E.1": 54.2, "Everyone": 67.0}, {"topic": "Use of US troops (share selecting)", "item": "CC24_420_6", "label": "To help the UN uphold international law", "input": false, "A": 18.6, "A.1": 24.8, "A.2": 9.3, "B": 34.4, "B.1": 37.8, "B.2": 25.5, "C": 48.2, "C.1": 33.4, "C.2": 58.7, "C.3": 57.7, "D": 70.1, "D.1": 65.6, "D.2": 80.7, "E": 71.0, "E.1": 67.6, "Everyone": 42.0}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_2", "label": "Humanitarian aid", "input": false, "A": 37.0, "A.1": 40.7, "A.2": 32.5, "B": 37.1, "B.1": 40.9, "B.2": 25.6, "C": 54.5, "C.1": 40.8, "C.2": 68.7, "C.3": 64.5, "D": 80.9, "D.1": 76.3, "D.2": 90.5, "E": 89.9, "E.1": 88.9, "Everyone": 52.4}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_3", "label": "Sanctions on Russia", "input": false, "A": 36.8, "A.1": 39.2, "A.2": 35.6, "B": 18.4, "B.1": 20.5, "B.2": 14.8, "C": 38.8, "C.1": 30.0, "C.2": 59.4, "C.3": 43.1, "D": 70.9, "D.1": 61.8, "D.2": 87.2, "E": 70.7, "E.1": 66.8, "Everyone": 41.3}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_4", "label": "Arms to Ukraine", "input": false, "A": 21.3, "A.1": 24.2, "A.2": 18.0, "B": 15.2, "B.1": 17.0, "B.2": 12.6, "C": 34.9, "C.1": 23.1, "C.2": 56.0, "C.3": 43.5, "D": 65.7, "D.1": 54.9, "D.2": 82.7, "E": 55.7, "E.1": 50.8, "Everyone": 33.6}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_5", "label": "Non-combat military staff", "input": false, "A": 10.1, "A.1": 12.1, "A.2": 6.8, "B": 13.3, "B.1": 14.7, "B.2": 6.7, "C": 21.5, "C.1": 13.1, "C.2": 34.7, "C.3": 29.4, "D": 48.1, "D.1": 41.4, "D.2": 59.8, "E": 42.9, "E.1": 38.1, "Everyone": 22.4}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_6", "label": "Significant force to fight Russia", "input": false, "A": 2.2, "A.1": 2.7, "A.2": 1.5, "B": 5.5, "B.1": 5.6, "B.2": 1.5, "C": 5.9, "C.1": 4.2, "C.2": 5.9, "C.3": 8.6, "D": 7.8, "D.1": 7.6, "D.2": 8.8, "E": 7.5, "E.1": 7.5, "Everyone": 5.2}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_7", "label": "Negotiate a peace accord", "input": false, "A": 46.3, "A.1": 47.7, "A.2": 47.1, "B": 29.2, "B.1": 31.3, "B.2": 20.6, "C": 39.7, "C.1": 36.1, "C.2": 43.7, "C.3": 45.4, "D": 49.3, "D.1": 47.4, "D.2": 53.4, "E": 53.9, "E.1": 53.3, "Everyone": 41.8}, {"topic": "Ukraine (share selecting)", "item": "CC24_308a_8", "label": "Rebuilding aid after the war", "input": false, "A": 18.2, "A.1": 21.3, "A.2": 13.7, "B": 29.1, "B.1": 31.2, "B.2": 17.3, "C": 36.9, "C.1": 23.8, "C.2": 48.4, "C.3": 49.2, "D": 70.1, "D.1": 66.1, "D.2": 81.1, "E": 82.0, "E.1": 80.8, "Everyone": 37.9}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_2", "label": "Food, medicine and aid to affected communities", "input": false, "A": 32.0, "A.1": 37.1, "A.2": 25.3, "B": 34.8, "B.1": 37.4, "B.2": 20.6, "C": 47.3, "C.1": 35.1, "C.2": 60.3, "C.3": 57.6, "D": 77.2, "D.1": 72.9, "D.2": 88.0, "E": 85.9, "E.1": 84.3, "Everyone": 47.5}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_3", "label": "Arms to Israel", "input": false, "A": 58.9, "A.1": 59.1, "A.2": 63.9, "B": 10.1, "B.1": 11.1, "B.2": 9.2, "C": 23.1, "C.1": 30.9, "C.2": 21.9, "C.3": 21.5, "D": 11.3, "D.1": 8.0, "D.2": 12.4, "E": 2.9, "E.1": 2.3, "Everyone": 27.6}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_4", "label": "Arms to Hamas", "input": false, "A": 0.3, "A.1": 0.3, "A.2": 0.1, "B": 2.6, "B.1": 2.4, "B.2": 1.1, "C": 0.7, "C.1": 0.6, "C.2": 0.4, "C.3": 0.9, "D": 2.1, "D.1": 2.7, "D.2": 1.4, "E": 8.7, "E.1": 10.9, "Everyone": 1.5}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_5", "label": "Navy and troops to prevent escalation", "input": false, "A": 26.8, "A.1": 29.8, "A.2": 24.9, "B": 12.5, "B.1": 13.8, "B.2": 6.8, "C": 21.5, "C.1": 17.7, "C.2": 27.6, "C.3": 25.3, "D": 30.7, "D.1": 26.2, "D.2": 38.2, "E": 27.7, "E.1": 26.9, "Everyone": 23.1}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_6", "label": "Non-combat military staff to Israel", "input": false, "A": 28.8, "A.1": 30.1, "A.2": 29.8, "B": 9.9, "B.1": 10.9, "B.2": 3.2, "C": 16.2, "C.1": 17.5, "C.2": 16.4, "C.3": 17.2, "D": 13.5, "D.1": 11.2, "D.2": 16.3, "E": 5.7, "E.1": 4.1, "Everyone": 17.6}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_7", "label": "Non-combat military staff to Gaza", "input": false, "A": 2.1, "A.1": 2.5, "A.2": 1.5, "B": 7.4, "B.1": 6.8, "B.2": 4.6, "C": 4.4, "C.1": 2.6, "C.2": 5.5, "C.3": 7.2, "D": 17.6, "D.1": 18.5, "D.2": 20.3, "E": 39.1, "E.1": 41.9, "Everyone": 8.1}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_8", "label": "Negotiate a peace settlement", "input": false, "A": 32.7, "A.1": 36.6, "A.2": 27.7, "B": 32.6, "B.1": 36.0, "B.2": 20.1, "C": 48.6, "C.1": 36.5, "C.2": 63.1, "C.3": 58.3, "D": 77.1, "D.1": 71.7, "D.2": 86.7, "E": 85.2, "E.1": 84.1, "Everyone": 47.6}, {"topic": "Israel and Gaza (share selecting)", "item": "CC24_308b_9", "label": "Rebuilding aid after the war", "input": false, "A": 20.1, "A.1": 23.6, "A.2": 15.2, "B": 28.9, "B.1": 31.1, "B.2": 15.5, "C": 35.7, "C.1": 23.6, "C.2": 46.1, "C.3": 47.7, "D": 72.7, "D.1": 69.5, "D.2": 84.2, "E": 90.6, "E.1": 89.7, "Everyone": 38.9}], "demo": [{"section": "Age and gender", "label": "Median age", "median": true, "A": 63.0, "A.1": 64.0, "A.2": 61.0, "B": 44.0, "B.1": 48.0, "B.2": 44.0, "C": 61.0, "C.1": 60.0, "C.2": 62.0, "C.3": 62.0, "D": 57.0, "D.1": 52.0, "D.2": 58.0, "E": 40.0, "E.1": 38.0, "Everyone": 58.0}, {"section": "Age and gender", "label": "Under 30", "median": null, "A": 8.2, "A.1": 6.7, "A.2": 9.0, "B": 33.0, "B.1": 30.1, "B.2": 32.6, "C": 14.3, "C.1": 12.8, "C.2": 14.2, "C.3": 12.6, "D": 24.2, "D.1": 32.1, "D.2": 14.9, "E": 39.1, "E.1": 44.0, "Everyone": 19.1}, {"section": "Age and gender", "label": "30 to 44", "median": null, "A": 17.3, "A.1": 13.5, "A.2": 20.7, "B": 36.3, "B.1": 33.8, "B.2": 36.4, "C": 20.4, "C.1": 21.5, "C.2": 19.3, "C.3": 19.3, "D": 27.0, "D.1": 29.3, "D.2": 27.3, "E": 41.9, "E.1": 42.9, "Everyone": 24.7}, {"section": "Age and gender", "label": "45 to 64", "median": null, "A": 39.4, "A.1": 38.4, "A.2": 41.1, "B": 22.8, "B.1": 25.5, "B.2": 25.2, "C": 37.3, "C.1": 38.1, "C.2": 35.1, "C.3": 38.8, "D": 27.1, "D.1": 22.4, "D.2": 33.4, "E": 14.9, "E.1": 10.6, "Everyone": 32.3}, {"section": "Age and gender", "label": "65 and over", "median": null, "A": 35.1, "A.1": 41.4, "A.2": 29.2, "B": 7.9, "B.1": 10.6, "B.2": 5.8, "C": 27.9, "C.1": 27.6, "C.2": 31.4, "C.3": 29.3, "D": 21.7, "D.1": 16.1, "D.2": 24.3, "E": 4.1, "E.1": 2.5, "Everyone": 23.9}, {"section": "Age and gender", "label": "Women", "median": null, "A": 42.8, "A.1": 47.3, "A.2": 35.8, "B": 59.0, "B.1": 59.5, "B.2": 53.3, "C": 55.5, "C.1": 54.1, "C.2": 49.1, "C.3": 56.1, "D": 50.4, "D.1": 53.8, "D.2": 46.1, "E": 47.3, "E.1": 47.0, "Everyone": 51.4}, {"section": "Age and gender", "label": "LGBT (of those answering)", "median": null, "A": 2.9, "A.1": 2.8, "A.2": 2.9, "B": 11.8, "B.1": 10.3, "B.2": 13.7, "C": 6.6, "C.1": 4.4, "C.2": 9.5, "C.3": 7.5, "D": 23.1, "D.1": 26.5, "D.2": 21.6, "E": 42.8, "E.1": 46.3, "Everyone": 11.0}, {"section": "Race", "label": "White", "median": null, "A": 83.8, "A.1": 84.4, "A.2": 82.9, "B": 46.3, "B.1": 47.9, "B.2": 50.1, "C": 64.0, "C.1": 77.2, "C.2": 67.5, "C.3": 48.0, "D": 69.1, "D.1": 65.0, "D.2": 77.3, "E": 74.6, "E.1": 73.2, "Everyone": 67.4}, {"section": "Race", "label": "Black", "median": null, "A": 1.0, "A.1": 1.1, "A.2": 0.9, "B": 24.1, "B.1": 24.2, "B.2": 19.4, "C": 14.6, "C.1": 4.4, "C.2": 9.7, "C.3": 31.1, "D": 10.9, "D.1": 12.8, "D.2": 5.5, "E": 5.2, "E.1": 5.7, "Everyone": 11.6}, {"section": "Race", "label": "Hispanic", "median": null, "A": 5.2, "A.1": 5.2, "A.2": 4.8, "B": 14.7, "B.1": 14.8, "B.2": 15.2, "C": 11.3, "C.1": 8.2, "C.2": 11.3, "C.3": 11.7, "D": 8.3, "D.1": 9.4, "D.2": 6.7, "E": 7.2, "E.1": 7.3, "Everyone": 9.5}, {"section": "Race", "label": "Asian", "median": null, "A": 2.6, "A.1": 3.0, "A.2": 1.6, "B": 5.1, "B.1": 4.9, "B.2": 5.0, "C": 5.2, "C.1": 4.4, "C.2": 7.4, "C.3": 3.7, "D": 4.5, "D.1": 5.1, "D.2": 3.6, "E": 3.6, "E.1": 3.8, "Everyone": 4.3}, {"section": "Race", "label": "Other or multiracial", "median": null, "A": 7.3, "A.1": 6.2, "A.2": 9.8, "B": 9.8, "B.1": 8.2, "B.2": 10.3, "C": 4.9, "C.1": 5.7, "C.2": 4.2, "C.3": 5.5, "D": 7.1, "D.1": 7.8, "D.2": 6.9, "E": 9.3, "E.1": 9.9, "Everyone": 7.1}, {"section": "Education and income", "label": "High school or less", "median": null, "A": 30.7, "A.1": 35.5, "A.2": 23.8, "B": 48.4, "B.1": 49.0, "B.2": 49.4, "C": 43.8, "C.1": 43.2, "C.2": 31.9, "C.3": 44.2, "D": 19.9, "D.1": 21.4, "D.2": 13.4, "E": 13.9, "E.1": 16.4, "Everyone": 35.5}, {"section": "Education and income", "label": "Bachelor's degree or more", "median": null, "A": 38.1, "A.1": 33.5, "A.2": 44.5, "B": 21.5, "B.1": 20.1, "B.2": 28.8, "C": 27.7, "C.1": 29.4, "C.2": 39.8, "C.3": 23.9, "D": 49.2, "D.1": 45.8, "D.2": 59.2, "E": 56.2, "E.1": 53.5, "Everyone": 34.4}, {"section": "Education and income", "label": "Family income under $50k", "median": null, "A": 30.7, "A.1": 34.8, "A.2": 23.9, "B": 56.1, "B.1": 56.2, "B.2": 50.1, "C": 45.6, "C.1": 41.7, "C.2": 35.0, "C.3": 53.3, "D": 33.2, "D.1": 35.6, "D.2": 28.4, "E": 35.9, "E.1": 36.8, "Everyone": 41.0}, {"section": "Education and income", "label": "Family income $100k or more", "median": null, "A": 32.7, "A.1": 28.7, "A.2": 38.5, "B": 15.2, "B.1": 15.2, "B.2": 19.6, "C": 22.1, "C.1": 24.5, "C.2": 32.5, "C.3": 16.6, "D": 36.5, "D.1": 33.9, "D.2": 41.1, "E": 33.9, "E.1": 32.6, "Everyone": 26.7}, {"section": "Education and income", "label": "Owns stock", "median": null, "A": 54.4, "A.1": 50.7, "A.2": 59.8, "B": 24.8, "B.1": 24.5, "B.2": 33.5, "C": 38.6, "C.1": 42.4, "C.2": 52.9, "C.3": 32.3, "D": 51.2, "D.1": 45.9, "D.2": 58.9, "E": 47.5, "E.1": 44.3, "Everyone": 42.9}, {"section": "Household and work", "label": "Children under 18 at home", "median": null, "A": 18.8, "A.1": 16.5, "A.2": 21.5, "B": 32.8, "B.1": 32.7, "B.2": 30.0, "C": 21.3, "C.1": 21.1, "C.2": 16.2, "C.3": 20.2, "D": 17.6, "D.1": 19.3, "D.2": 16.9, "E": 18.2, "E.1": 16.9, "Everyone": 22.1}, {"section": "Household and work", "label": "Married or partnered", "median": null, "A": 66.6, "A.1": 65.4, "A.2": 69.8, "B": 40.4, "B.1": 42.4, "B.2": 43.4, "C": 51.4, "C.1": 55.6, "C.2": 52.2, "C.3": 46.8, "D": 47.8, "D.1": 43.0, "D.2": 54.5, "E": 41.2, "E.1": 39.5, "Everyone": 52.4}, {"section": "Household and work", "label": "Never married", "median": null, "A": 15.5, "A.1": 14.2, "A.2": 15.2, "B": 43.7, "B.1": 40.2, "B.2": 44.8, "C": 26.7, "C.1": 23.6, "C.2": 29.4, "C.3": 27.9, "D": 37.6, "D.1": 44.8, "D.2": 29.4, "E": 51.9, "E.1": 54.6, "Everyone": 29.9}, {"section": "Household and work", "label": "Works full-time", "median": null, "A": 38.3, "A.1": 33.3, "A.2": 44.9, "B": 36.5, "B.1": 35.0, "B.2": 44.1, "C": 34.8, "C.1": 37.3, "C.2": 36.5, "C.3": 30.1, "D": 40.8, "D.1": 41.4, "D.2": 45.3, "E": 50.5, "E.1": 50.0, "Everyone": 37.8}, {"section": "Household and work", "label": "Retired", "median": null, "A": 33.6, "A.1": 39.1, "A.2": 27.5, "B": 8.7, "B.1": 11.7, "B.2": 7.4, "C": 26.9, "C.1": 26.5, "C.2": 30.9, "C.3": 27.5, "D": 20.9, "D.1": 15.7, "D.2": 22.9, "E": 3.8, "E.1": 2.1, "Everyone": 23.2}, {"section": "Household and work", "label": "Unemployed or laid off", "median": null, "A": 4.3, "A.1": 3.6, "A.2": 4.6, "B": 16.6, "B.1": 14.5, "B.2": 18.1, "C": 7.8, "C.1": 6.4, "C.2": 6.9, "C.3": 9.5, "D": 8.3, "D.1": 10.7, "D.2": 6.7, "E": 11.3, "E.1": 12.2, "Everyone": 8.8}, {"section": "Household and work", "label": "Union member now", "median": null, "A": 5.0, "A.1": 4.9, "A.2": 4.6, "B": 4.7, "B.1": 4.8, "B.2": 5.0, "C": 5.4, "C.1": 5.0, "C.2": 7.2, "C.3": 5.1, "D": 7.8, "D.1": 6.6, "D.2": 10.2, "E": 8.1, "E.1": 7.7, "Everyone": 5.7}, {"section": "Household and work", "label": "Owns home", "median": null, "A": 83.1, "A.1": 82.7, "A.2": 84.5, "B": 50.3, "B.1": 52.3, "B.2": 51.8, "C": 68.0, "C.1": 75.4, "C.2": 72.9, "C.3": 59.6, "D": 64.3, "D.1": 59.0, "D.2": 69.4, "E": 53.1, "E.1": 50.4, "Everyone": 67.5}, {"section": "Place", "label": "City", "median": null, "A": 15.5, "A.1": 16.6, "A.2": 14.4, "B": 37.3, "B.1": 36.5, "B.2": 39.5, "C": 28.7, "C.1": 19.8, "C.2": 25.6, "C.3": 39.5, "D": 28.1, "D.1": 28.1, "D.2": 30.8, "E": 35.3, "E.1": 34.4, "Everyone": 26.8}, {"section": "Place", "label": "Suburb", "median": null, "A": 41.1, "A.1": 40.4, "A.2": 41.4, "B": 33.8, "B.1": 34.4, "B.2": 30.9, "C": 38.6, "C.1": 39.5, "C.2": 46.9, "C.3": 32.7, "D": 45.0, "D.1": 45.0, "D.2": 42.8, "E": 41.0, "E.1": 43.1, "Everyone": 39.6}, {"section": "Place", "label": "Town", "median": null, "A": 13.9, "A.1": 13.9, "A.2": 14.1, "B": 11.3, "B.1": 11.0, "B.2": 10.0, "C": 11.6, "C.1": 13.7, "C.2": 11.6, "C.3": 9.9, "D": 13.6, "D.1": 13.7, "D.2": 13.5, "E": 11.6, "E.1": 10.7, "Everyone": 12.5}, {"section": "Place", "label": "Rural area", "median": null, "A": 29.2, "A.1": 28.8, "A.2": 29.7, "B": 16.5, "B.1": 17.1, "B.2": 19.5, "C": 20.7, "C.1": 26.8, "C.2": 15.3, "C.3": 17.3, "D": 12.8, "D.1": 12.6, "D.2": 12.6, "E": 12.1, "E.1": 11.8, "Everyone": 20.5}, {"section": "Place", "label": "City, family income under $50k", "median": null, "A": 5.6, "A.1": 6.0, "A.2": 5.2, "B": 23.0, "B.1": 22.3, "B.2": 22.5, "C": 15.4, "C.1": 9.8, "C.2": 12.1, "C.3": 23.0, "D": 10.6, "D.1": 11.6, "D.2": 9.5, "E": 13.8, "E.1": 13.5, "Everyone": 13.3}, {"section": "Place", "label": "Northeast", "median": null, "A": 13.7, "A.1": 14.2, "A.2": 12.7, "B": 15.0, "B.1": 15.7, "B.2": 12.0, "C": 18.0, "C.1": 16.5, "C.2": 20.6, "C.3": 17.7, "D": 19.7, "D.1": 19.3, "D.2": 20.3, "E": 22.5, "E.1": 23.8, "Everyone": 16.7}, {"section": "Place", "label": "Midwest", "median": null, "A": 23.0, "A.1": 22.8, "A.2": 24.0, "B": 18.1, "B.1": 18.2, "B.2": 17.1, "C": 21.3, "C.1": 22.7, "C.2": 21.5, "C.3": 19.3, "D": 20.7, "D.1": 21.2, "D.2": 20.8, "E": 20.1, "E.1": 18.8, "Everyone": 21.0}, {"section": "Place", "label": "South", "median": null, "A": 40.6, "A.1": 42.6, "A.2": 38.0, "B": 44.8, "B.1": 45.1, "B.2": 44.6, "C": 40.3, "C.1": 41.5, "C.2": 31.2, "C.3": 43.8, "D": 30.9, "D.1": 31.2, "D.2": 29.1, "E": 29.8, "E.1": 28.8, "Everyone": 39.1}, {"section": "Place", "label": "West", "median": null, "A": 22.7, "A.1": 20.3, "A.2": 25.4, "B": 22.0, "B.1": 21.0, "B.2": 26.2, "C": 20.4, "C.1": 19.3, "C.2": 26.8, "C.3": 19.1, "D": 28.7, "D.1": 28.3, "D.2": 29.8, "E": 27.6, "E.1": 28.6, "Everyone": 23.2}, {"section": "Religious tradition", "label": "Protestant", "median": null, "A": 50.5, "A.1": 49.2, "A.2": 54.4, "B": 28.8, "B.1": 31.5, "B.2": 22.0, "C": 35.8, "C.1": 41.1, "C.2": 24.6, "C.3": 38.2, "D": 17.7, "D.1": 17.2, "D.2": 14.9, "E": 7.6, "E.1": 6.8, "Everyone": 34.1}, {"section": "Religious tradition", "label": "Catholic", "median": null, "A": 19.8, "A.1": 21.2, "A.2": 18.5, "B": 16.6, "B.1": 18.8, "B.2": 16.0, "C": 22.6, "C.1": 21.4, "C.2": 20.0, "C.3": 22.3, "D": 11.9, "D.1": 11.2, "D.2": 9.8, "E": 4.9, "E.1": 5.3, "Everyone": 18.0}, {"section": "Religious tradition", "label": "Mormon", "median": null, "A": 1.9, "A.1": 1.6, "A.2": 1.9, "B": 1.1, "B.1": 1.0, "B.2": 0.9, "C": 1.0, "C.1": 1.7, "C.2": 1.4, "C.3": 0.3, "D": 0.5, "D.1": 0.6, "D.2": 0.6, "E": 0.3, "E.1": 0.2, "Everyone": 1.2}, {"section": "Religious tradition", "label": "Jewish", "median": null, "A": 1.6, "A.1": 1.4, "A.2": 1.5, "B": 1.2, "B.1": 1.2, "B.2": 0.7, "C": 2.3, "C.1": 2.4, "C.2": 3.5, "C.3": 2.7, "D": 3.9, "D.1": 3.2, "D.2": 4.7, "E": 4.3, "E.1": 3.7, "Everyone": 2.2}, {"section": "Religious tradition", "label": "Muslim, Buddhist or Hindu", "median": null, "A": 0.7, "A.1": 1.0, "A.2": 0.2, "B": 3.0, "B.1": 2.9, "B.2": 4.8, "C": 2.0, "C.1": 0.9, "C.2": 2.5, "C.3": 2.1, "D": 2.4, "D.1": 2.8, "D.2": 2.1, "E": 2.4, "E.1": 2.2, "Everyone": 1.9}, {"section": "Religious tradition", "label": "Atheist or agnostic", "median": null, "A": 4.8, "A.1": 4.0, "A.2": 4.8, "B": 8.5, "B.1": 7.2, "B.2": 13.2, "C": 9.0, "C.1": 6.5, "C.2": 19.4, "C.3": 7.3, "D": 33.8, "D.1": 32.6, "D.2": 41.4, "E": 50.3, "E.1": 50.5, "Everyone": 13.9}, {"section": "Religious tradition", "label": "Nothing in particular", "median": null, "A": 12.0, "A.1": 12.6, "A.2": 10.2, "B": 28.5, "B.1": 25.3, "B.2": 35.4, "C": 18.3, "C.1": 16.8, "C.2": 21.3, "C.3": 16.8, "D": 22.9, "D.1": 25.5, "D.2": 19.9, "E": 24.6, "E.1": 25.9, "Everyone": 19.6}, {"section": "Party and vote (context)", "label": "Democrat", "median": null, "A": 1.0, "A.1": 1.5, "A.2": 0.4, "B": 39.7, "B.1": 41.6, "B.2": 27.2, "C": 37.8, "C.1": 9.7, "C.2": 53.6, "C.3": 64.7, "D": 71.7, "D.1": 69.4, "D.2": 75.8, "E": 64.4, "E.1": 61.9, "Everyone": 34.9}, {"section": "Party and vote (context)", "label": "Republican", "median": null, "A": 63.4, "A.1": 67.9, "A.2": 58.7, "B": 24.0, "B.1": 24.5, "B.2": 27.3, "C": 32.0, "C.1": 56.7, "C.2": 11.1, "C.3": 13.2, "D": 0.8, "D.1": 0.7, "D.2": 0.2, "E": 0.0, "E.1": 0.0, "Everyone": 32.6}, {"section": "Party and vote (context)", "label": "Independent or other", "median": null, "A": 35.6, "A.1": 30.6, "A.2": 40.9, "B": 36.3, "B.1": 33.8, "B.2": 45.5, "C": 30.2, "C.1": 33.6, "C.2": 35.3, "C.3": 22.1, "D": 27.5, "D.1": 29.8, "D.2": 24.0, "E": 35.6, "E.1": 38.1, "Everyone": 32.6}, {"section": "Party and vote (context)", "label": "Liberal or very liberal", "median": null, "A": 0.8, "A.1": 0.9, "A.2": 0.6, "B": 26.5, "B.1": 25.3, "B.2": 18.4, "C": 21.8, "C.1": 5.9, "C.2": 34.4, "C.3": 38.6, "D": 75.1, "D.1": 74.6, "D.2": 86.3, "E": 95.5, "E.1": 95.9, "Everyone": 29.6}, {"section": "Party and vote (context)", "label": "Moderate", "median": null, "A": 21.4, "A.1": 22.6, "A.2": 16.4, "B": 47.5, "B.1": 50.3, "B.2": 49.1, "C": 48.8, "C.1": 38.7, "C.2": 55.9, "C.3": 46.2, "D": 24.0, "D.1": 24.5, "D.2": 13.5, "E": 4.4, "E.1": 4.1, "Everyone": 33.8}, {"section": "Party and vote (context)", "label": "Conservative or very conservative", "median": null, "A": 77.9, "A.1": 76.6, "A.2": 83.0, "B": 26.0, "B.1": 24.3, "B.2": 32.4, "C": 29.4, "C.1": 55.4, "C.2": 9.7, "C.3": 15.2, "D": 0.9, "D.1": 0.8, "D.2": 0.3, "E": 0.2, "E.1": 0.0, "Everyone": 36.6}, {"section": "Party and vote (context)", "label": "Voted Harris", "median": null, "A": 0.7, "A.1": 1.2, "A.2": 0.0, "B": 36.4, "B.1": 39.2, "B.2": 29.6, "C": 46.9, "C.1": 14.0, "C.2": 75.3, "C.3": 70.0, "D": 89.9, "D.1": 86.3, "D.2": 95.7, "E": 90.8, "E.1": 89.7, "Everyone": 41.4}, {"section": "Party and vote (context)", "label": "Voted Trump", "median": null, "A": 94.9, "A.1": 93.8, "A.2": 97.7, "B": 28.1, "B.1": 28.2, "B.2": 27.0, "C": 36.1, "C.1": 71.0, "C.2": 12.0, "C.3": 14.4, "D": 0.8, "D.1": 1.0, "D.2": 0.0, "E": 0.0, "E.1": 0.0, "Everyone": 43.2}, {"section": "Party and vote (context)", "label": "Voted third party", "median": null, "A": 1.4, "A.1": 1.1, "A.2": 1.1, "B": 2.5, "B.1": 1.9, "B.2": 4.7, "C": 1.5, "C.1": 2.8, "C.2": 0.9, "C.3": 1.1, "D": 1.0, "D.1": 1.4, "D.2": 0.8, "E": 4.9, "E.1": 5.5, "Everyone": 1.7}, {"section": "Party and vote (context)", "label": "Did not vote for president", "median": null, "A": 0.1, "A.1": 0.2, "A.2": 0.0, "B": 0.2, "B.1": 0.1, "B.2": 1.1, "C": 0.2, "C.1": 0.3, "C.2": 0.2, "C.3": 0.1, "D": 0.0, "D.1": 0.0, "D.2": 0.0, "E": 0.1, "E.1": 0.1, "Everyone": 0.2}], "nest": {"rows": ["A.1", "A.2", "B.1", "B.2", "C.1", "C.2", "C.3", "D.1", "D.2", "E.1"], "cols": ["A", "B", "C", "D", "E"], "r": [[95.6, 0.0, 4.4, 0.0, 0.0], [100.0, 0.0, 0.0, 0.0, 0.0], [0.0, 72.2, 27.2, 0.6, 0.0], [5.9, 90.4, 3.7, 0.0, 0.0], [23.4, 9.5, 67.1, 0.0, 0.0], [0.0, 3.4, 86.0, 10.6, 0.0], [0.0, 1.1, 83.0, 15.9, 0.0], [0.0, 3.6, 0.4, 95.9, 0.0], [0.0, 0.0, 0.0, 85.9, 14.1], [0.0, 0.0, 0.0, 4.4, 95.6]], "c": [[52.4, 0.0, 2.3, 0.0, 0.0], [35.3, 0.0, 0.0, 0.0, 0.0], [0.0, 79.2, 19.7, 0.7, 0.0], [0.5, 9.9, 0.3, 0.0, 0.0], [11.9, 6.8, 31.9, 0.0, 0.0], [0.0, 1.5, 25.4, 5.2, 0.0], [0.0, 0.4, 20.4, 6.4, 0.0], [0.0, 2.0, 0.2, 58.8, 0.0], [0.0, 0.0, 0.0, 28.1, 20.8], [0.0, 0.0, 0.0, 0.8, 79.2]]}, "swaps": {"5": {"names": ["A", "B", "C", "D", "E"], "v": [[98.0, 0.2, 1.8, 0.0, 0.0], [0.3, 85.0, 10.6, 4.1, 0.0], [0.9, 3.5, 92.1, 3.5, 0.0], [0.0, 0.5, 0.5, 97.8, 1.1], [0.0, 0.0, 0.0, 68.4, 31.6]]}, "10": {"names": ["A.1", "A.2", "B.1", "B.2", "C.1", "C.2", "C.3", "D.1", "D.2", "E.1"], "v": [[81.6, 10.4, 0.1, 0.0, 7.9, 0.0, 0.0, 0.0, 0.0, 0.0], [22.3, 76.4, 0.0, 0.2, 1.2, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 90.0, 0.6, 3.9, 1.0, 2.4, 2.0, 0.0, 0.0], [0.1, 1.8, 21.7, 71.3, 2.9, 1.9, 0.0, 0.2, 0.0, 0.0], [9.3, 1.9, 6.7, 0.5, 77.5, 3.6, 0.3, 0.0, 0.0, 0.0], [0.0, 0.0, 7.3, 0.2, 6.6, 80.4, 1.6, 3.8, 0.0, 0.0], [0.0, 0.0, 4.3, 0.0, 1.1, 2.9, 89.9, 1.2, 0.6, 0.0], [0.0, 0.0, 1.2, 0.0, 0.0, 4.1, 0.6, 89.4, 3.8, 0.9], [0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.3, 3.0, 95.6, 1.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.3, 3.7, 95.0]]}}, "stable": 0.75, "n": 49431, "solutions": {"5": {"n_sol": 1, "share": 1.0}, "10": {"n_sol": 2, "share": 0.95}}};
+const VIK = ["#001160","#024380","#307ca6","#93bdd2","#ece4e0","#dba98d","#c27040","#912c05","#590007"];
+const CIV = ["#00204d","#1b3b6f","#41577b","#697386","#8f8f8c","#b3a960","#d6c92f","#f4e801","#ffe945"];
+function ramp(stops, t) {
+  t = Math.max(0, Math.min(1, t)); const x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
+  const a = stops[i].match(/\w\w/g).map(h => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map(h => parseInt(h, 16));
+  return "#" + a.map((v, k) => Math.round(v + (b[k] - v) * f).toString(16).padStart(2, "0")).join("");
+}
+function ink(hex) {
+  const c = hex.match(/\w\w/g).map(h => parseInt(h, 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) <= 0.179 ? "#ebf0f4" : "#08131e";
+}
+const G = DATA.groups, BY = Object.fromEntries(G.map(g => [g.id, g])), ALL = "Everyone";
+const nm = id => BY[id] && BY[id].unstable ? `${id} <span class="um" title="Unstable: resample overlap ${BY[id].jac}">◌</span>` : id;
+const S = { cols: "nested", rows: "similar", view: "both", sort: null };
+const ROWS = {};
+function visible() {
+  let ids = S.cols === "similar" ? DATA.sim_order : S.cols === "split" ? G.filter(g => g.key === "five").map(g => g.id).concat(G.filter(g => g.key === "ten").map(g => g.id)) : G.filter(g => g.key !== "all").map(g => g.id);
+  if (S.sort) {
+    const v = ROWS[S.sort.k], val = id => (v[id] === null || v[id] === undefined) ? null : v[id];
+    ids = [...ids].sort((a, b) => val(a) === null ? 1 : val(b) === null ? -1 : S.sort.dir * (val(a) - val(b)));
+  }
+  return ids.map(id => BY[id]).filter(g => S.view === "both" || g.key === S.view).concat([BY[ALL]]);
+}
+const sepAt = (g, prev) => prev && (g.key === "all" || (!S.sort && S.cols === "nested" && g.key === "five") || (!S.sort && S.cols === "split" && prev.key !== g.key));
+function head(lbl) {
+  let prev = null;
+  return `<thead><tr><th class="lbl">${lbl}</th>` + visible().map(g => {
+    const sep = sepAt(g, prev) ? " sep" : ""; prev = g;
+    const typ = g.key === "five" ? "of 5" : g.key === "ten" ? "of 10" : "";
+    const badge = g.key === "all" ? "" : g.unstable ? `<span class="badge u">◌ unstable ${g.jac}</span>` : `<span class="badge s">stable ${g.jac}</span>`;
+    const tip = g.from ? "Members from: " + g.from : g.into ? "Splits into: " + g.into : "";
+    return `<th class="gh ${g.key}${sep}" title="${tip}"><span class="typ">${typ}</span>${g.id}<span class="gs">${g.key === "all" ? "n " + g.n.toLocaleString() : g.share + "%"}</span>${badge}${g.from ? `<span class="gl">${g.from}</span>` : ""}</th>`;
+  }).join("") + "</tr></thead>";
+}
+function cells(vals, span, fmt) {
+  let prev = null;
+  return visible().map(g => {
+    const sep = sepAt(g, prev) ? " sep" : ""; prev = g;
+    const v = vals[g.id];
+    if (v === null || v === undefined) return `<td class="v${sep}">–</td>`;
+    if (g.key === "all") return `<td class="v${sep}"><strong>${fmt(v)}</strong></td>`;
+    const bg = ramp(VIK, 0.5 + (v - vals[ALL]) / (2 * span));
+    return `<td class="v${sep}" style="background:${bg};color:${ink(bg)}">${fmt(v)}</td>`;
+  }).join("");
+}
+const pct = v => Math.round(v), sd = v => (v > 0 ? "+" : "") + v.toFixed(2);
+function lbl(k, vals, inner) {
+  ROWS[k] = vals;
+  const on = S.sort && S.sort.k === k, arrow = on ? (S.sort.dir > 0 ? " ▲" : " ▼") : "";
+  return `<td class="lbl sortable${on ? " sorted" : ""}" data-k="${k}" title="Click to sort columns by this row">${inner}<span class="arr">${arrow}</span></td>`;
+}
+const ordered = (arr, key) => S.rows === "similar" && DATA.row_order[key] ? DATA.row_order[key].map(i => arr[i]) : arr;
+function renderFactors() {
+  document.getElementById("t-factors").innerHTML = head("Dimension") + "<tbody>" +
+    DATA.factors.map(f => `<tr>${lbl("f:" + f.label, f.values, f.label)}${cells(f.values, 1.5, sd)}</tr>`).join("") + "</tbody>";
+}
+function renderPolicy() {
+  const t = document.getElementById("topic").value, q = document.getElementById("q").value.toLowerCase(), sets = document.getElementById("sets").checked;
+  let html = head("Item") + "<tbody>", last = null;
+  for (const r of ordered(DATA.policy, "policy")) {
+    if (t && r.topic !== t) continue;
+    if (q && !(r.label + " " + r.item + " " + r.topic).toLowerCase().includes(q)) continue;
+    if (sets && !r.input) continue;
+    if (S.rows === "topic" && r.topic !== last) { html += `<tr class="topic"><td class="lbl">${r.topic}</td><td colspan="${visible().length}"></td></tr>`; last = r.topic; }
+    const tag = S.rows === "similar" ? `<span class="tp">${r.topic}</span>` : "";
+    html += `<tr>${lbl("p:" + r.label, r, `${tag}${r.label}<span class="mk">${r.input ? "◆" : ""}</span>`)}${cells(r, 40, pct)}</tr>`;
+  }
+  document.getElementById("t-policy").innerHTML = html + "</tbody>";
+}
+function renderDemo() {
+  let html = head("Measure") + "<tbody>", last = null;
+  for (const r of ordered(DATA.demo, "demo")) {
+    const ctx = r.section === "Party and vote (context)";
+    if ((S.rows === "topic" || ctx) && r.section !== last) { html += `<tr class="topic"><td class="lbl">${r.section}</td><td colspan="${visible().length}"></td></tr>`; last = r.section; }
+    const tag = S.rows === "similar" && !ctx ? `<span class="tp">${r.section}</span>` : "";
+    html += `<tr>${lbl("d:" + r.label, r, `${tag}${r.label}`)}${cells(r, r.median ? 15 : 30, pct)}</tr>`;
+  }
+  document.getElementById("t-demo").innerHTML = html + "</tbody>";
+}
+function mat(rows, cols, V, corner, diag) {
+  return `<thead><tr><th class="lbl" style="min-width:90px">${corner}</th>${cols.map(c => `<th>${nm(c)}</th>`).join("")}</tr></thead><tbody>` +
+    rows.map((r, i) => `<tr><td class="lbl" style="min-width:90px"><strong>${nm(r)}</strong></td>${V[i].map((v, j) => { const bg = ramp(CIV, v / 100); return `<td class="v${diag && i === j ? " diag" : ""}" style="background:${bg};color:${ink(bg)}">${Math.round(v)}</td>`; }).join("")}</tr>`).join("") + "</tbody>";
+}
+function renderStatic() {
+  const N = DATA.nest;
+  document.getElementById("t-nr").innerHTML = mat(N.rows, N.cols, N.r, "10 \\ 5", false);
+  document.getElementById("t-nc").innerHTML = mat(N.rows, N.cols, N.c, "10 \\ 5", false);
+  document.getElementById("t-s5").innerHTML = mat(DATA.swaps["5"].names, DATA.swaps["5"].names, DATA.swaps["5"].v, "from \\ to", true);
+  document.getElementById("t-s10").innerHTML = mat(DATA.swaps["10"].names, DATA.swaps["10"].names, DATA.swaps["10"].v, "from \\ to", true);
+}
+function renderAll() { renderFactors(); renderPolicy(); renderDemo(); }
+const u5 = G.filter(g => g.key === "five" && g.unstable).length, u10 = G.filter(g => g.key === "ten" && g.unstable).length;
+document.getElementById("sub").innerHTML =
+  `${DATA.n.toLocaleString()} respondents. Five clusters (${u5} unstable) and ten clusters (${u10} unstable) from the same four dimensions; each of the ten is named for the five-cluster most of its members sit in. <span class="badge u">◌ unstable</span> marks a cluster whose members overlap their best match by less than 0.75 on average across 30 refits on resampled respondents; none falls below 0.5. Click any row name to sort the columns by it.`;
+const topics = [...new Set(DATA.policy.map(r => r.topic))];
+document.getElementById("topic").innerHTML += topics.map(t => `<option>${t}</option>`).join("");
+const CTL = { cols: [["nested", "Nested"], ["similar", "By similarity"], ["split", "5, then 10"]], rows: [["similar", "By similarity"], ["topic", "By topic"]],
+              view: [["both", "Both"], ["five", "5 clusters"], ["ten", "10 clusters"]] };
+document.querySelectorAll("[data-ctl]").forEach(el => {
+  const k = el.dataset.ctl;
+  el.innerHTML = CTL[k].map(([v, l]) => `<button data-v="${v}" aria-pressed="${S[k] === v}">${l}</button>`).join("");
+});
+function sortStatus() {
+  const el = document.getElementById("sortinfo"), btn = document.getElementById("reset");
+  if (!S.sort) { el.textContent = ""; btn.hidden = true; return; }
+  el.textContent = `Columns sorted by “${S.sort.k.slice(2)}”, ${S.sort.dir > 0 ? "lowest" : "highest"} first`; btn.hidden = false;
+}
+document.addEventListener("click", e => {
+  const c = e.target.closest("td.sortable");
+  if (c) { const k = c.dataset.k; S.sort = !S.sort || S.sort.k !== k ? { k, dir: -1 } : S.sort.dir < 0 ? { k, dir: 1 } : null; renderAll(); sortStatus(); return; }
+  if (e.target.id === "reset") { S.sort = null; renderAll(); sortStatus(); return; }
+  const b = e.target.closest("[data-ctl] button"); if (!b) return;
+  const k = b.parentElement.dataset.ctl; S[k] = b.dataset.v;
+  b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === S[k]));
+  renderAll();
+});
+["topic", "q", "sets"].forEach(id => document.getElementById(id).addEventListener("input", renderPolicy));
+renderAll(); renderStatic();
+</script>
+</body>
+</html>

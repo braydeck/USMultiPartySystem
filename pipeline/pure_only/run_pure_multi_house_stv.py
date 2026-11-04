@@ -54,8 +54,8 @@ COUNTY_DIST_PATH_TRIPLE = BASE_DIR / "data" / "processed" / "county_to_district_
 
 # ── Ballot-generation constants (must match generate_pure_multi_ballots.py) ───
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
-FACTOR_COLS      = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+FACTOR_WEIGHTS   = np.ones(4)  # uniform — centroid geometry handles discrimination
+FACTOR_COLS      = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
 PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
 
 # ── Droop-based candidate pool ────────────────────────────────────────────────
@@ -130,10 +130,10 @@ def build_district_candidates(cluster_shares: dict, n_seats: int) -> list:
 # ── Ballot generation ─────────────────────────────────────────────────────────
 
 def compute_cluster_centroids(efa_df: pd.DataFrame, typology_df: pd.DataFrame) -> np.ndarray:
-    """Weighted mean of FS_F1–FS_F5 per cluster (0–9). Returns (10, 5)."""
+    """Weighted mean of the four factor scores per cluster (0–9). Returns (10, 4)."""
     weights   = efa_df["commonpostweight"].values
     clusters  = typology_df["cluster"].values.astype(int)
-    centroids = np.zeros((10, 5), dtype=np.float64)
+    centroids = np.zeros((10, 4), dtype=np.float64)
     for k in range(10):
         mask = clusters == k
         w_k  = weights[mask]

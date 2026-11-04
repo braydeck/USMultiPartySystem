@@ -1,0 +1,63 @@
+n 49,431; strata (weighted %): aligned 39.8, opposed 27.3, split 17.4, nonpartisan 15.5
+distrust on alignment: opposed +0.637, split +0.324, nonpartisan +0.706 (kept); share of distrust variance removed 0.1007; r(TR, TR_aligned) 0.946
+[Parallel(n_jobs=11)]: Using backend LokyBackend with 11 concurrent workers.
+[Parallel(n_jobs=11)]: Done  28 out of 450 | elapsed:   10.4s
+[Parallel(n_jobs=11)]: Done 178 out of 450 | elapsed:  3.6min
+/Users/bdecker/Local Projects/Personal/STV/.venv/lib/python3.13/site-packages/sklearn/mixture/_base.py:293: ConvergenceWarning: Best performing initialization did not converge. Try different init parameters, or increase max_iter, tol, or check for degenerate data.
+  warnings.warn(
+[Parallel(n_jobs=11)]: Done 428 out of 450 | elapsed: 36.7min
+[Parallel(n_jobs=11)]: Done 450 out of 450 | elapsed: 41.5min finished
+
+cap scan, alignment-adjusted distrust:
+  K  n_solutions  modal_solution_share  resample_ari_mean  n_clusters  n_stable  n_dissolved
+ 2            1                  1.00              0.974           2         2            0
+ 3            1                  1.00              0.695           3         2            0
+ 4            1                  1.00              0.926           4         4            0
+ 5            1                  1.00              0.643           5         1            0
+ 6            2                  0.95              0.595           6         3            0
+ 7            2                  0.95              0.734           7         6            0
+ 8            2                  0.90              0.702           8         4            0
+ 9            4                  0.35              0.638           9         3            0
+10            4                  0.85              0.728          10         8            0
+
+cap scan, reference (unadjusted):
+  K  n_solutions  modal_solution_share  resample_ari_mean  n_clusters  n_stable  n_dissolved
+ 2            1                  1.00              0.974           2         2            0
+ 3            1                  1.00              0.901           3         3            0
+ 4            1                  1.00              0.932           4         4            0
+ 5            2                  0.75              0.667           5         3            0
+ 6            2                  0.90              0.546           6         1            0
+ 7            8                  0.20              0.563           7         2            0
+ 8            5                  0.40              0.621           8         4            0
+ 9            4                  0.45              0.588           9         3            1
+10            2                  0.95              0.706          10         7            0
+
+cap rule: 10
+
+cap 10: 4 seed solutions (modal 0.85); ARI vs reference ten 0.595; C9's best match is 19.5% of respondents, state index 0.141 (C9 0.377)
+party       C0     C1     C2     C3     C4     C5     C6     C7    C8     C9
+kept     0.799  0.951  0.464  0.887  0.669  0.953  0.793  0.942  0.74  0.400
+jaccard  0.719  0.877  0.297  0.844  0.589  0.896  0.757  0.935  0.69  0.117
+
+state concentration by cluster (chance for a 5% random group ~0.097):
+     solution  cluster  share  state_index      from_reference    SO  TR_aligned  RT_resid  PC_resid
+reference 10        0   21.4        0.167                 NaN   NaN         NaN       NaN       NaN
+reference 10        1    6.0        0.103                 NaN   NaN         NaN       NaN       NaN
+reference 10        2   15.8        0.071                 NaN   NaN         NaN       NaN       NaN
+reference 10        3    7.2        0.191                 NaN   NaN         NaN       NaN       NaN
+reference 10        4   19.5        0.099                 NaN   NaN         NaN       NaN       NaN
+reference 10        5   12.4        0.084                 NaN   NaN         NaN       NaN       NaN
+reference 10        6    7.1        0.114                 NaN   NaN         NaN       NaN       NaN
+reference 10        7    3.1        0.195                 NaN   NaN         NaN       NaN       NaN
+reference 10        8    3.7        0.149                 NaN   NaN         NaN       NaN       NaN
+reference 10        9    4.0        0.377                 NaN   NaN         NaN       NaN       NaN
+ adjusted 10        0   15.7        0.098               C4 83  0.40        0.04      0.45      0.11
+ adjusted 10        1    6.2        0.123               C1 92  0.76       -0.56     -0.85     -0.67
+ adjusted 10        2   12.6        0.086               C5 94  0.93       -0.25     -0.27     -0.24
+ adjusted 10        3   11.3        0.081 C2 65, C0 19, C9 14 -0.75        0.09     -0.29      0.72
+ adjusted 10        4    3.0        0.161               C8 91  0.96        1.12      0.61      1.36
+ adjusted 10        5   19.5        0.141        C0 88, C9 11 -0.61       -0.09      0.72      0.49
+ adjusted 10        6   16.1        0.074 C2 45, C4 36, C0 10 -0.33       -0.75     -0.06     -0.35
+ adjusted 10        7    5.9        0.123               C6 94 -0.78       -0.30     -0.29     -1.04
+ adjusted 10        8    6.8        0.161               C3 95 -0.15       -0.83     -1.11     -0.56
+ adjusted 10        9    2.9        0.184               C7 99  1.95        0.02     -0.26     -0.22

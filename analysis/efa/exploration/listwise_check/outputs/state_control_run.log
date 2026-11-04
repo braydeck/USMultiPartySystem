@@ -1,0 +1,57 @@
+strata (weighted %): {'aligned': np.float64(39.8), 'opposed': np.float64(27.3), 'split': np.float64(17.4), 'nonpartisan': np.float64(15.5)}
+46 items after Stages A/B; dropped [('CC24_321c', 'B modal share'), ('CC24_321f', 'B modal share'), ('CC24_324c', 'B modal share'), ('CC24_441e', 'B missing'), ('CC24_441f', 'B missing'), ('CC24_441g', 'B missing'), ('CC24_324d', 'B redundant with CC24_324a'), ('CC24_326a', 'B redundant with CC24_326b'), ('pew_religimp', 'B redundant with pew_prayer'), ('CC24_326c', 'B redundant with CC24_326b'), ('CC24_323a', 'B redundant with CC24_323d'), ('CC24_341b', 'B redundant with CC24_341c'), ('CC24_440a', 'B redundant with CC24_441b'), ('CC24_323c', 'B redundant with CC24_340f'), ('CC24_441b', 'B redundant with CC24_441a'), ('CC24_321d', 'B redundant with CC24_321e'), ('CC24_326b', 'B redundant with CC24_326e'), ('CC24_440d', 'B redundant with CC24_440c'), ('CC24_421_1', 'B redundant with CC24_421_2'), ('CC24_324a', 'B redundant with CC24_444c'), ('pew_prayer', 'B redundant with pew_churatd'), ('CC24_340f', 'B redundant with CC24_323b'), ('CC24_321a', 'B redundant with CC24_321b')]
+listwise n 44,986; parallel analysis k = 8, MAP k = 5
+
+[k5 (fitted, lower-k rule)] 36 items; rerun on the final items: PA 6, MAP 5
+                                                                          name  clean_items  batteries  two_item_factor  passes                                                                                                                                                                clean                                                                                                                                                                      battery_ids
+                                             Religious Traditionalism (r 0.82)           16          9            False    True pew_churatd pew_bornagain CC24_321b CC24_324b CC24_325 CC24_326d CC24_328d CC24_341a CC24_440c CC24_444a CC24_444b CC24_444c CC24_444e CC24_444f CC24_445a CC24_445b CC24_321a..CC24_324d | CC24_325 | CC24_326a..CC24_323f | CC24_340a..CC24_341d | CC24_440a..CC24_441g | CC24_444a..CC24_444f | CC24_445a..CC24_445b | pew_bornagain | pew_churatd
+   new: CC24_424, CC24_423, CC24_421_2 (closest Institutional Distrust r 0.73)            3          2            False    True                                                                                                                                         CC24_421_2 CC24_423 CC24_424                                                                                                                                      CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+                                                Populist Conservatism (r 0.76)            7          3            False    True                                                                                             CC24_328b CC24_328e CC24_341c CC24_341d CC24_443_1 CC24_443_2 CC24_443_3                                                                                                             CC24_326a..CC24_323f | CC24_340a..CC24_341d | CC24_443_1..CC24_443_5
+new: CC24_340a, CC24_340b, CC24_326f (closest Religious Traditionalism r 0.60)            2          1             True   False                                                                                                                                                  CC24_340a CC24_340b                                                                                                                                                             CC24_340a..CC24_341d
+                                                     Security & Order (r 0.85)            4          3            False    True                                                                                                                             CC24_321e CC24_323b CC24_340d CC24_443_4                                                                                                             CC24_321a..CC24_324d | CC24_340a..CC24_341d | CC24_443_1..CC24_443_5
+
+[k8 (higher k, for reference)] 34 items; rerun on the final items: PA 6, MAP 4
+                                                                          name  clean_items  batteries  two_item_factor  passes                                                                                              clean                                                                                                                                                  battery_ids
+                                                Populist Conservatism (r 0.78)           10          7            False    True CC24_303 CC24_321b CC24_326d CC24_328d CC24_341a CC24_440b CC24_444b CC24_444f CC24_445a CC24_445b CC24_302..CC24_303 | CC24_321a..CC24_324d | CC24_326a..CC24_323f | CC24_340a..CC24_341d | CC24_440a..CC24_441g | CC24_444a..CC24_444f | CC24_445a..CC24_445b
+   new: CC24_424, CC24_423, CC24_421_2 (closest Institutional Distrust r 0.69)            3          2            False    True                                                                       CC24_421_2 CC24_423 CC24_424                                                                                                                  CC24_421_1..CC24_421_2 | CC24_423..CC24_424
+new: CC24_340a, CC24_340b, CC24_326f (closest Religious Traditionalism r 0.44)            2          1             True   False                                                                                CC24_340a CC24_340b                                                                                                                                         CC24_340a..CC24_341d
+new: CC24_443_2, CC24_443_3, CC24_443_1 (closest Populist Conservatism r 0.61)            4          1            False   False                                                        CC24_443_1 CC24_443_2 CC24_443_3 CC24_443_5                                                                                                                                       CC24_443_1..CC24_443_5
+                                                     Security & Order (r 0.81)            4          3            False    True                                                           CC24_321e CC24_323b CC24_340d CC24_443_4                                                                                         CC24_321a..CC24_324d | CC24_340a..CC24_341d | CC24_443_1..CC24_443_5
+new: CC24_328a, CC24_328b, CC24_341d (closest Religious Traditionalism r 0.43)            2          1             True   False                                                                                CC24_328a CC24_328b                                                                                                                                         CC24_326a..CC24_323f
+                                             Religious Traditionalism (r 0.72)            2          2             True    True                                                                          pew_churatd pew_bornagain                                                                                                                                  pew_bornagain | pew_churatd
+new: CC24_444d, CC24_444c, CC24_444b (closest Religious Traditionalism r 0.58)            2          1             True   False                                                                                CC24_444c CC24_444d                                                                                                                                         CC24_444a..CC24_444f
+
+clustering factors at k = 5: {0: 'RT', 1: 'F1', 2: 'PC', 4: 'SO'}
+pairwise vs listwise loadings, Tucker phi per factor: [1.0, 1.0, 1.0, 0.998, 1.0]
+alignment effect removed from each clustering score (nonpartisan difference kept):
+ factor  alignment_r2  beta_opposed  beta_split  beta_nonpartisan_kept
+    RT        0.0000        -0.003       0.006                  0.137
+    F1        0.0702         0.520       0.269                  0.613
+    PC        0.0026         0.088      -0.007                 -0.070
+    SO        0.0006         0.044       0.003                  0.152
+eligible 49,431; clustering on ['RT', 'F1', 'PC', 'SO']
+[Parallel(n_jobs=11)]: Using backend LokyBackend with 11 concurrent workers.
+[Parallel(n_jobs=11)]: Done  28 out of 450 | elapsed:   23.6s
+[Parallel(n_jobs=11)]: Done 178 out of 450 | elapsed:  4.2min
+  warnings.warn(
+  warnings.warn(
+[Parallel(n_jobs=11)]: Done 428 out of 450 | elapsed: 35.4min
+[Parallel(n_jobs=11)]: Done 450 out of 450 | elapsed: 40.0min finished
+
+cap scan:
+  K  n_solutions  modal_solution_share  resample_ari_mean  n_clusters  n_stable  n_dissolved
+ 2            1                  1.00              0.716           2         2            0
+ 3            1                  1.00              0.962           3         3            0
+ 4            1                  1.00              0.907           4         4            0
+ 5            1                  1.00              0.901           5         5            0
+ 6            1                  1.00              0.675           6         1            0
+ 7            3                  0.75              0.623           7         1            0
+ 8            2                  0.80              0.638           8         4            1
+ 9            5                  0.50              0.601           9         2            1
+10            2                  0.55              0.724          10         8            0
+cap rule (largest cap with no dissolved cluster): 10
+
+cap 10: 2 seed solutions (modal 0.55); ARI vs reference ten 0.376; C9's best match 17.0% of respondents, state index 0.075
+party       C0     C1     C2     C3     C4     C5     C6     C7     C8     C9
+kept     0.528  0.720  0.401  0.700  0.541  0.705  0.750  0.929  0.397  0.483
+jaccard  0.457  0.631  0.233  0.603  0.441  0.611  0.528  0.769  0.349  0.102

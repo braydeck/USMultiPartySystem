@@ -3,18 +3,19 @@ dpgmm_clustering.py
 -------------------
 Dirichlet Process Gaussian Mixture Model clustering of CES 2024 factor scores.
 
-Input:  efa_factor_scores.csv  (N=45,214; five factor scores + weights + caseid)
-        party_id_reference.csv  (caseid -> party id from the ten-party seed-61 typology of
-                                 the 2026-10 rescore, so CON = 0 ... PRG = 9 keep their meaning)
+Input:  efa_factor_scores.csv  (N=49,431; four factor scores + weights + caseid; efa_revised.py)
+        party_id_reference.csv  (caseid -> party id for the nine ruled 2026-11-04, so the slots of
+                                 pipeline/party_codes.ALL_PARTIES keep their codes; slot 4 is empty;
+                                 analysis/efa/rebuild_nine_parties/pin_party_ids.py)
 Output: typology_cluster_assignments.csv  (hard + soft cluster assignments)
         dpgmm_seed_selection.csv  (per-seed fit diagnostics and agreement)
 
-Factor inputs:
-  FS_F1         - Enforcement Orientation (HIGH = enforcement-conservative)
-  FS_F2         - Election Distrust (HIGH = distrusts elections)
-  FS_F3         - Government Trust (HIGH = distrusts government)
-  FS_F4_resid   - Repro Rights / Religion, F1-residualized
-  FS_F5_resid   - Values Conservatism, F1-residualized
+Factor inputs (revised §3c rule, docs/EFA_ITEM_SELECTION_ROBUSTNESS.md; no residualization):
+  FS_RT  - cultural conservatism
+  FS_TR  - distrust of government
+  FS_SO  - security & order
+  FS_PC  - economic right
+The nine reproduce listwise_check/outputs/stage_c_v2/labels.npz cap 9 (17 of 20 seeds).
 
 DPGMM params:
   n_components=9  (a cap, not a discovery: the Dirichlet process fills every component it is
@@ -76,8 +77,8 @@ PRODUCTION_RUN = (ARGS.seed is None and ARGS.seeds is None and ARGS.n_components
                   and ARGS.reference == ap.get_default("reference") and ARGS.out == ap.get_default("out"))
 N_PARTIES = 10
 K = ARGS.n_components
-CLUSTER_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4_resid", "FS_F5_resid"]
-COL_LABELS = ["F1(Enf)", "F2(ElDis)", "F3(GovTru)", "F4r(RepRel)", "F5r(ValCon)"]
+CLUSTER_COLS = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
+COL_LABELS = ["RT(CulCon)", "TR(Distrust)", "SO(Order)", "PC(EconRight)"]
 
 # ---------------------------------------------------------------------------
 # 1. SETUP
@@ -188,7 +189,8 @@ assert not np.isnan(prev).any(), f"respondents missing from {ARGS.reference.name
 eff_components = [k for k in np.argsort(dpgmm.weights_)[::-1] if dpgmm.weights_[k] > 0.01]
 ct = pd.crosstab(raw_labels, prev, values=w, aggfunc="sum").reindex(
     index=eff_components, columns=range(N_PARTIES)).fillna(0)
-retention = ct.values / ct.values.sum(axis=0, keepdims=True)
+# a reference slot that holds nobody (DAL's slot 4 in the nine) has a zero column; it can't be matched
+retention = np.divide(ct.values, ct.values.sum(axis=0, keepdims=True), out=np.zeros_like(ct.values), where=ct.values.sum(axis=0, keepdims=True) > 0)
 ri, ci = linear_sum_assignment(-retention)
 remap = {int(ct.index[r]): int(c) for r, c in zip(ri, ci)}
 id_to_component = {v: k for k, v in remap.items()}
@@ -341,11 +343,11 @@ ideo_labels = {1.0: "VLib%", 2.0: "Lib%", 3.0: "Mod%", 4.0: "Con%", 5.0: "VCon%"
 ideo5_series = fs["ideo5"].round(0)
 weighted_pct_crosstab(ideo5_series, cluster, w, ideo_labels)
 
-# --- 8d. Mean FS_F2 and FS_F3 per cluster ---
-print("\n--- Mean FS_F2 (Election Distrust) and FS_F3 (Govt Trust) per cluster ---")
-f2_vals = fs["FS_F2"].values
-f3_vals = fs["FS_F3"].values
-print(f"\n  {'Cluster':>7}  {'Wtd N':>8}  {'Mean F2(ElDis)':>15}  {'Mean F3(GovTru)':>16}")
+# --- 8d. Mean distrust and economic right per cluster ---
+print("\n--- Mean FS_TR (distrust) and FS_PC (economic right) per cluster ---")
+f2_vals = fs["FS_TR"].values
+f3_vals = fs["FS_PC"].values
+print(f"\n  {'Cluster':>7}  {'Wtd N':>8}  {'Mean TR':>15}  {'Mean PC':>16}")
 print(f"  {'-'*7}  {'-'*8}  {'-'*15}  {'-'*16}")
 for new_k in present:
     mask = cluster == new_k

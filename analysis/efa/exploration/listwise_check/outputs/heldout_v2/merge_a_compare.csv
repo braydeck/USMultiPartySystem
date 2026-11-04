@@ -1,0 +1,4 @@
+a,b,a_eta2,b_eta2,diff,lo,hi,p_a_higher
+revised 10,"revised 10, A merged",0.1695,0.1535,0.016,0.0131,0.0188,1.0
+"revised 10, A merged",revised 9,0.1535,0.161,-0.0075,-0.0112,-0.0031,0.0
+"revised 10, A merged",current ten,0.1535,0.1331,0.0204,0.0141,0.0267,1.0
