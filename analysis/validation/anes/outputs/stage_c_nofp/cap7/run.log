@@ -1,0 +1,51 @@
+                                                                0         1         2          3         4         5          6
+segment                                                         0         3         6          2         1         5          4
+share                                                        23.9      17.9      14.5       13.0      10.9      10.4        9.4
+jaccard                                                      0.55      0.64      0.72       0.37      0.54      0.64        0.4
+status                                                   middling  middling  middling  dissolves  middling  middling  dissolves
+left-right (high = left)                                     0.35     -1.32      0.33      -0.28      0.53      1.37      -0.62
+democratic norms                                             0.41      0.31     -1.33      -0.97      0.91      0.82       -0.2
+religion                                                    -0.11      0.63      0.54      -0.29     -0.85      -1.5       1.28
+government trust                                             0.11     -1.07      0.56      -0.19      1.08      0.49      -0.63
+rejects violence / gender / business rule                    0.25     -0.13     -1.09      -0.19      1.15      0.78      -0.64
+Bible literal word of God                                    22.0      33.0      51.0       10.0       1.0       0.0       72.0
+church almost every week                                     18.0      19.0      20.0        2.0       6.0       1.0       40.0
+abortion never or only rape/incest/life                      19.0      55.0      37.0       18.0       3.0       0.0       79.0
+checks and balances very/extremely important                 94.0      96.0      36.0       53.0      99.0      98.0       81.0
+violence to achieve goals justified at least moderately       7.0       2.0      38.0        9.0       0.0       2.0       11.0
+trust federal government always/most of the time             19.0       1.0      25.0        8.0      31.0      11.0        7.0
+favor DEI                                                    43.0       2.0      30.0       25.0      57.0      85.0       12.0
+make all unauthorized immigrants felons and deport           10.0      48.0      26.0       29.0       1.0       0.0       45.0
+make buying a gun more difficult                             73.0      17.0      56.0       50.0      91.0      94.0       27.0
+favor weapons to Ukraine                                     55.0      35.0      28.0       25.0      90.0      79.0       28.0
+favor military aid to Israel                                 38.0      64.0      23.0       26.0      45.0      12.0       64.0
+
+cap 4 segments (share, factor means):
+   left-right (high = left)  democratic norms  religion  government trust  rejects violence / gender / business rule  share
+0                     -1.03             -0.03      0.63             -0.82                                      -0.23  0.343
+1                      0.45              0.36     -0.34              0.23                                       0.44  0.276
+2                      1.05              0.93     -1.23              0.84                                       1.02  0.173
+3                      0.22             -1.20      0.43              0.35                                      -1.04  0.208
+cap 4 -> cap 7 (row shares):
+          0     1     2     3     4     5     6
+row_0                                          
+0      0.07  0.00  0.19  0.52  0.23  0.00  0.00
+1      0.74  0.12  0.11  0.00  0.00  0.03  0.00
+2      0.01  0.44  0.00  0.00  0.00  0.55  0.00
+3      0.05  0.00  0.17  0.00  0.08  0.00  0.69
+
+cap 5 segments (share, factor means):
+   left-right (high = left)  democratic norms  religion  government trust  rejects violence / gender / business rule  share
+0                      0.45              0.36     -0.29              0.24                                       0.43  0.275
+1                     -1.03             -0.14      0.15             -0.83                                      -0.23  0.242
+2                      1.05              0.92     -1.23              0.84                                       1.02  0.174
+3                      0.25             -1.24      0.44              0.41                                      -1.02  0.195
+4                     -0.93              0.17      1.50             -0.81                                      -0.35  0.114
+cap 5 -> cap 7 (row shares):
+          0     1     2     3     4     5     6
+row_0                                          
+0      0.75  0.11  0.10  0.00  0.00  0.03  0.00
+1      0.07  0.01  0.29  0.57  0.05  0.00  0.00
+2      0.01  0.44  0.00  0.00  0.00  0.55  0.00
+3      0.03  0.00  0.16  0.00  0.07  0.00  0.74
+4      0.05  0.00  0.00  0.36  0.59  0.00  0.00
