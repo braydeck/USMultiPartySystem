@@ -24,7 +24,7 @@ and segmentation on ANES's own attitude items. A CES-to-ANES classifier is next.
 | How often each ANES factor passes the entry test across resamples | `anes/outputs/stage_c/entry_test.csv` (`resample_pass`, `resample_matched`) | Built by `anes/stage_c.py` |
 | Whether ANES's segment count is limited by sample size or factor count | `anes/outputs/clustering/size_dims_recheck/summary.csv` | Built by `anes/size_dims_recheck.py` (2026-11-03, on the archived k = 17 run's items and respondents) |
 | What ANES's factors merge into at CES's factor count | `anes/outputs/consolidation/merging_k4.csv`, `phi_k4.csv` (and k5) | Built by `anes/consolidation_check.py` (2026-11-03, pre-spending-battery pool, against the archived k = 17 factors) |
-| How well ANES segments describe items they weren't built from (§3c step 6) | `anes/outputs/heldout/curve.csv`, `compare.csv`, `items.csv` | Built by `anes/heldout_test.py` (2026-11-03) |
+| How well ANES segments describe items they weren't built from (§3c step 6) | `anes/outputs/heldout/curve.csv`, `compare.csv`, `items.csv` | Built by `anes/heldout_test.py` (2026-11-03); leave-one-battery-out version `anes/outputs/heldout_lobo/curve.csv`, `steps.csv`, `items.csv` by `anes/heldout_lobo.py` |
 | How each ANES pool item is coded | `anes/outputs/item_audit/audit.txt`, `flags.csv` | Built by `anes/item_audit.py` (2026-11-03) |
 | Rulings and definitions | `DECISIONS.md` | |
 
