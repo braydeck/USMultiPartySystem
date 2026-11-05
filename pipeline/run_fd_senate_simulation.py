@@ -30,6 +30,8 @@ from itertools import combinations
 BASE_DIR        = Path(__file__).parent.parent
 sys.path.insert(0, str(BASE_DIR / "pipeline" / "pure_only"))
 from turnout_weights import turnout_multiplier, output_tree  # noqa: E402
+sys.path.insert(0, str(BASE_DIR / "pipeline"))
+from factor_keys import CENTROID_COLS, SCORE_COLS  # noqa: E402
 
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
@@ -37,16 +39,13 @@ BALLOTS_PATH    = BASE_DIR / "data" / "outputs" / "factor_deviation" / "ballots.
 # Turnout compression → parallel factor_deviation_turnout[_lNN] tree; ballots unchanged.
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / output_tree("factor_deviation") / "senate"
 
-VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
-CAND_FACTOR_COLS  = [
-    "F1_security_order", "F2_electoral_skepticism", "F3_government_distrust",
-    "F4_religious_traditionalism", "F5_populist_conservatism",
-]
+VOTER_FACTOR_COLS = SCORE_COLS
+CAND_FACTOR_COLS  = list(CENTROID_COLS.values())
 
 STV_SURVIVORS    = 5
 MIN_RESPONDENTS  = 10
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
+FACTOR_WEIGHTS   = np.ones(4)  # uniform — centroid geometry handles discrimination
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",

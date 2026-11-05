@@ -40,7 +40,7 @@ DTA_PATH      = BASE_DIR / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUT
 TYPO_PATH     = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
 OUTPUT_DIR    = BASE_DIR / "data" / "outputs" / "profiles"
 
-# From stv_config — replicate ITEMS_24 inline to avoid import path issues
+# The five-factor typology's 24 items, still profiled (they are no longer a sample mask)
 ITEMS_24 = [
     "pew_churatd", "CC24_302",   "CC24_303",   "CC24_341a",  "CC24_341c",
     "CC24_341d",   "CC24_323a",  "CC24_323b",  "CC24_323d",  "CC24_321b",
@@ -51,13 +51,13 @@ ITEMS_24 = [
 
 CLUSTER_NAMES = {
     0: "Conservative",
-    1: "Social Democrat",
+    1: "Labor",
     2: "Solidarity",
     3: "Nationalist",
-    4: "Liberal",
-    5: "Reform",
-    6: "Center",
-    7: "Blue Dogs",
+    4: "Democratic Alliance",
+    5: "Populist",
+    6: "Civic Union",
+    7: "Order and Opportunity",
     8: "DSA",
     9: "Progressive",
 }
@@ -672,13 +672,12 @@ def load_data():
     df_dta, _ = pyreadstat.read_dta(DTA_PATH, usecols=read_cols, apply_value_formats=False)
     print(f"  DTA rows: {len(df_dta):,}")
 
-    # Apply listwise deletion (same as STV pipeline)
-    efa_present = [c for c in ITEMS_24 if c in df_dta.columns]
-    mask_cols = efa_present + ["commonpostweight"]
-    mask = df_dta[mask_cols].notna().all(axis=1) & df_dta["pew_churatd"].ne(7)  # church "Don't know" is outside the typology sample
-    df = df_dta.loc[mask].reset_index(drop=True)
-    print(f"  After listwise deletion: {len(df):,} rows")
-    assert len(df) == 45_214, f"Expected 45,214 rows, got {len(df)}"
+    # The typology's respondents, in its row order, joined by caseid (CLAUDE.md trap 4)
+    df_typo = pd.read_csv(TYPO_PATH)
+    caseids, _ = pyreadstat.read_dta(DTA_PATH, usecols=["caseid"], apply_value_formats=False)
+    df_dta.insert(0, "caseid", caseids["caseid"].values)
+    df = df_dta.set_index("caseid").loc[df_typo["caseid"].values].reset_index()
+    print(f"  Typology respondents: {len(df):,} rows")
 
     # Recode trust items: 8 (None at all) → 4
     for col in ["CC24_423", "CC24_424"]:
@@ -690,10 +689,7 @@ def load_data():
         df["age"] = (2024 - df["birthyr"]).astype(float)
         df.loc[(df["age"] < 18) | (df["age"] > 110), "age"] = np.nan
 
-    # Load cluster assignments
-    print("  Loading cluster assignments...")
-    df_typo = pd.read_csv(TYPO_PATH)
-    assert len(df_typo) == len(df), f"Cluster CSV length mismatch: {len(df_typo)} vs {len(df)}"
+    assert len(df_typo) == len(df)
 
     if "cluster_id" in df_typo.columns:
         df["cluster_id"] = df_typo["cluster_id"].values

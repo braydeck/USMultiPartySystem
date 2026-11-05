@@ -49,7 +49,7 @@ OUT_PATH = BASE_DIR / "viz" / "src" / "data" / "crossPartyAffinity.json"
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 PARTIES = list(ALL_PARTIES.values())  # indexed by cluster ID, like the posterior columns
-F5_ORDER = [p for p in ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"] if p in PARTY_TO_CLUSTER]
+F5_ORDER = [p for p in ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"] if p in PARTY_TO_CLUSTER]
 
 
 def main():

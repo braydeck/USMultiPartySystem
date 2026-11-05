@@ -180,7 +180,7 @@ const ASSUMPTIONS: {
     label: 'Institutional distrust is a floor',
     lede: 'The most distrustful voters are the least likely to have returned for the post-election wave the factor is built from.',
     bias: 'under', tag: 'Understates distrust',
-    body: 'Clustering requires a complete answer on all 24 items, which restricts the sample to the ~45,200 respondents who returned for the post-election wave. That attrition is not random: the returners run about eleven years older and more politically engaged than the full 60,000, and the post-election weights correct the demographic margins but not the engagement gap. Institutional distrust is the factor most exposed, because it is built entirely from post-wave items (election fairness, trust in federal and state government), and among voters who did answer, the least engaged are the most distrustful. Read the scores as a floor: the simulation more likely understates distrust than overstates it, especially toward elections and state government.',
+    body: 'Scoring requires answers to at least half of each factor\'s items, which restricts the sample to the 49,431 respondents who returned for the post-election wave. That attrition is not random: the returners run about eleven years older and more politically engaged than the full 60,000, and the post-election weights correct the demographic margins but not the engagement gap. Institutional distrust is the factor most exposed, because it is built entirely from post-wave items (election fairness, trust in federal and state government), and among voters who did answer, the least engaged are the most distrustful. Read the scores as a floor: the simulation more likely understates distrust than overstates it, especially toward elections and state government.',
   },
   {
     label: 'Sincere voting',
@@ -595,8 +595,8 @@ export function CaveatsSection() {
         <div className={`${MINOR_HEADING} mb-2`}>Data &amp; Methods</div>
         <div className="space-y-1 text-xs text-muted-foreground">
           <div><span className="font-medium text-muted-foreground">Survey:</span> Cooperative Election Study (CES) 2024, Harvard/YouGov</div>
-          <div><span className="font-medium text-muted-foreground">Factor analysis:</span> Polychoric EFA, 24 items → 5 factors, oblique (oblimin) rotation</div>
-          <div><span className="font-medium text-muted-foreground">Clustering:</span> Dirichlet Process Gaussian Mixture Model (DPGMM), 10 clusters</div>
+          <div><span className="font-medium text-muted-foreground">Factor analysis:</span> Polychoric EFA, 41 items → 4 factors, oblique (oblimin) rotation</div>
+          <div><span className="font-medium text-muted-foreground">Clustering:</span> Dirichlet Process Gaussian Mixture Model (DPGMM), 9 clusters</div>
           <div><span className="font-medium text-muted-foreground">Ballot scoring:</span> GMM cluster posterior{SHOW_CROSSOVER && ' (Party-Line); + Gaussian proximity σ=0.35, equal factor weights (Crossover variants)'}</div>
           <div><span className="font-medium text-muted-foreground">STV counting:</span> Droop quota, weighted inclusive Gregory surplus transfers</div>
           <div><span className="font-medium text-muted-foreground">Legislation model:</span> Normal approximation of chamber Bernoulli vote counts</div>

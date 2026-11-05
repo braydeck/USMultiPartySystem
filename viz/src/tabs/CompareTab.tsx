@@ -133,7 +133,25 @@ function distSigParts(meta: DistMeta, party: DistData, national: DistData, f: Si
   return { cohesive: (p.length ? Math.max(...p) : 0) >= f.consPct, distance };
 }
 
-const FACTORS = ['F1', 'F2', 'F3', 'F4', 'F5'] as const;
+/** How far apart the selected parties sit on a distribution item, on the same points scale the
+ *  scalar rows use for "diverge": the largest party-to-party spread in any one category's share,
+ *  or for a range item the spread of the party medians in national percentile points. */
+function distGap(meta: DistMeta, byCode: DistData[], national: DistData): number {
+  if (byCode.length < 2) return 0;
+  if (meta.viz === 'range') {
+    const p = byCode.map(d => nationalPercentileOf(d.median!, national));
+    return Math.max(...p) - Math.min(...p);
+  }
+  const n = Math.max(...byCode.map(d => d.pcts?.length ?? 0));
+  let gap = 0;
+  for (let i = 0; i < n; i++) {
+    const v = byCode.map(d => d.pcts?.[i] ?? 0);
+    gap = Math.max(gap, Math.max(...v) - Math.min(...v));
+  }
+  return gap;
+}
+
+const FACTORS = ['F1', 'F2', 'F4', 'F5'] as const;
 type FactorKey = typeof FACTORS[number];
 
 // Discriminatory value (η²): how strongly each factor sorts voters into parties.
@@ -141,11 +159,8 @@ type FactorKey = typeof FACTORS[number];
 const FACTOR_ETA: Record<string, number> = Object.fromEntries(
   (factorLoadingsData as { factor: string; eta: number }[]).map(f => [f.factor, f.eta])
 );
-// Factors shown, ordered by discriminatory value, strongest first (F5, F1, F2, F4).
-// F3 (Government Distrust) is dropped: it is a non-interpretable residual whose party scores
-// run opposite to real distrust — see docs/EFA_FACTORS.md.
+// Factors shown, ordered by discriminatory value, strongest first.
 const FACTORS_BY_DISCRIMINATION = ([...FACTORS] as FactorKey[])
-  .filter(f => f !== 'F3')
   .sort((a, b) => (FACTOR_ETA[b] ?? 0) - (FACTOR_ETA[a] ?? 0));
 
 interface VarEntry {
@@ -261,11 +276,11 @@ function getFactorScores(
   fdProfiles: Record<string, FDCandidateProfile>,
 ): Record<FactorKey, number> | null {
   const cluster = clusters.find(c => c.party === code);
-  if (cluster) return { F1: cluster.F1, F2: cluster.F2, F3: cluster.F3, F4: cluster.F4, F5: cluster.F5 };
+  if (cluster) return { F1: cluster.F1, F2: cluster.F2, F4: cluster.F4, F5: cluster.F5 };
   const fdp = fdProfiles[code];
-  if (fdp) return { F1: fdp.F1, F2: fdp.F2, F3: fdp.F3, F4: fdp.F4, F5: fdp.F5 };
+  if (fdp) return { F1: fdp.F1, F2: fdp.F2, F4: fdp.F4, F5: fdp.F5 };
   const cp = (currentPartyProfilesData as unknown as ClusterProfile[]).find(c => c.party === code);
-  if (cp) return { F1: cp.F1, F2: cp.F2, F3: cp.F3, F4: cp.F4, F5: cp.F5 };
+  if (cp) return { F1: cp.F1, F2: cp.F2, F4: cp.F4, F5: cp.F5 };
   return null;
 }
 
@@ -814,7 +829,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     const addZ = (c: string) => {
       const fs = getFactorScores(c, clusters, fdProfiles);
       if (!fs) return;
-      zByCode[c] = Object.fromEntries((['F1','F2','F3','F4','F5'] as const)
+      zByCode[c] = Object.fromEntries(FACTORS
         .map(f => [`z_${f}`, rawToZ(fs[f], f)]));
     };
     selectedFormulated.forEach(addZ);
@@ -1086,12 +1101,16 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                 // per-axis filter checkboxes optionally trim to rows matching the checked axes.
                 const vars = allVars.filter(v => (!divergeOnly || v.highlighted)
                   && passSigFilters(scalarMarks(v)));
+                const distDiverges = (k: string) => distGap(DIST.meta[k],
+                  effective.filter(c => DIST.parties[c]?.[k]).map(c => DIST.parties[c][k] as DistData),
+                  DIST.national[k] as DistData) >= minGap;
                 const distKeys = (distBySection[sectionKey] ?? []).filter(k =>
-                  effective.some(c => DIST.parties[c]?.[k]) && passSigFilters(distMarks(k)));
+                  effective.some(c => DIST.parties[c]?.[k]) && (!divergeOnly || distDiverges(k))
+                  && passSigFilters(distMarks(k)));
                 if (vars.length === 0 && distKeys.length === 0) return null;
                 const collapsed = collapsedSections.has(sectionKey);
                 // Count only diverging rows that survive the active filters (not the hidden ones).
-                const highlightCount = vars.filter(v => v.highlighted).length;
+                const highlightCount = vars.filter(v => v.highlighted).length + distKeys.filter(distDiverges).length;
 
                 return (
                   <Card key={sectionKey} className="overflow-hidden">
@@ -1131,12 +1150,12 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
                                   ].filter(Boolean).join(' ')}>
                                     {m.viz === 'range'
                                       ? <RangeBarCell meta={m as unknown as RangeMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} diverges={distDiverges(k)} />
                                       : m.viz === 'heatmap'
                                       ? <HeatmapCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} />
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} diverges={distDiverges(k)} />
                                       : <CompositionStackCell meta={m as unknown as CompMeta}
-                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} />}
+                                          national={DIST.national[k] as never} byCode={byCodeFor(k)} codes={orderedSelected} marks={marks} factors={distFactors(k)} diverges={distDiverges(k)} />}
                                   </div>
                                 );
                               })}

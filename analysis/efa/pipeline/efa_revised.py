@@ -15,7 +15,7 @@ Data: CES 2024 Common Content (efa_update.CES_PATH), weight commonpostweight.
 Check: the scores must match listwise_check/outputs/stage_c_v2/scores.csv (r = 1 on every factor); the script stops
 otherwise.
 Writes data/processed/efa_factor_scores.csv: pid3, ideo5, inputstate, commonpostweight, FS_RT, FS_TR, FS_SO, FS_PC,
-caseid (49,431 rows, one per eligible respondent).
+the app keys FS_F1, FS_F2, FS_F4, FS_F5 (pipeline/factor_keys.py), caseid (49,431 rows, one per eligible respondent).
 """
 import os
 import sys
@@ -34,6 +34,9 @@ import reestimate_loadings as rl  # noqa: E402
 import rescore_refit as rr  # noqa: E402
 import stage_c_v2 as v2  # noqa: E402
 import state_control as stc  # noqa: E402
+
+sys.path.insert(0, str(ROOT / "pipeline"))
+import factor_keys as fk  # noqa: E402
 
 em = rl.em
 V2 = LW / "outputs/stage_c_v2"
@@ -77,6 +80,8 @@ def main():
     out = out[["pid3", "ideo5", "inputstate"]].assign(commonpostweight=we)
     for c in ORDER:
         out[f"FS_{c}"] = S[c].values
+    out = fk.add_app_keys(out)
+    fk.check_orientation(out)
     out["caseid"] = caseid[elig]
     out.to_csv(OUT, index=False)
     print(f"wrote {OUT} ({len(out):,} rows): {list(out.columns)}")

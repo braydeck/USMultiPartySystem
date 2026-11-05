@@ -1,8 +1,10 @@
+import factorItems from '../data/factorItems.json';
+
 export const PARTY_COLORS: Record<string, string> = {
   // Cool left (green→blue), distinct center (violet, brown), warm right (orange→red)
   PRG: '#15803d',  // lively green, deep (leftmost)
   DSA: '#22c55e',  // lively green, bright
-  DAL: '#0284c7',  // rich azure
+  OAO: '#0284c7',  // rich azure (DAL's color, a placeholder; OAO's color is the researcher's call)
   LBR: '#38bdf8',  // vivid sky blue (Labor — formerly SD)
   STY: '#8a70b8',  // violet (center)
   CUP: '#825a27',  // brown (center)
@@ -15,9 +17,10 @@ export const PARTY_COLORS: Record<string, string> = {
   REP: '#a66b6b',
 };
 
-// Left→right order for the nine parties. Cluster ID 7 (formerly OAO) holds no voters; the
-// pipeline keeps the slot and pipeline/scrub_empty_parties.py drops it from every payload.
-export const F5_ORDER = ['PRG','DSA','DAL','LBR','STY','CUP','CON','POP','NAT'] as const;
+// Left→right order for the nine parties: weighted Economic Conservatism (F5) centroid, low to high
+// (ruled 2026-11-04). Mirrors LEFT_RIGHT in pipeline/party_codes.py; the hex cartograms read this copy.
+// Cluster ID 4 (DAL) holds no voters in the nine-party typology.
+export const F5_ORDER = ['OAO','PRG','DSA','LBR','STY','CUP','CON','NAT','POP'] as const;
 
 // Back-compat alias (previously toggled the 10th party); now identical to F5_ORDER.
 export const F5_ORDER_WFP = F5_ORDER;
@@ -36,45 +39,44 @@ export function isCurrentParty(code: string): boolean {
 }
 
 export const PARTY_NAMES: Record<string, string> = {
-  CON: 'Conservative',
-  LBR: 'Labor',                     // cluster 1 — working-class center-left (formerly SD)
-  STY: 'Solidarity',
-  POP: 'Populist',
-  CUP: 'Civic Union Party',
-  DAL: 'Democratic Alliance',       // cluster 4 — renamed from Liberal 2026-10 (institutionalist, security-minded left)
-  NAT: 'Nationalist',
-  DSA: 'Democratic Socialists',
+  OAO: 'Order and Opportunity',
   PRG: 'Progressive',
+  DSA: 'Democratic Socialists',
+  LBR: 'Labor',
+  STY: 'Solidarity',
+  CUP: 'Civic Union',
+  CON: 'Conservative',
+  NAT: 'Nationalist',
+  POP: 'Populist',
   DEM: 'Democratic',
   IND: 'Independent',
   REP: 'Republican',
 };
 
-// Condensed from PARTY_BLURBS — keep factual (positions), no editorial/comparative phrasing.
+// Copied from analysis/efa/rebuild_nine_parties/party_descriptions.md (the researcher's file); edit there, then copy.
 export const PARTY_TAGLINES: Record<string, string> = {
-  PRG: 'Progressive on taxes, climate, and civil liberties; trusts elections',
-  DAL: 'Progressive on economics and climate; backs border enforcement and police',
-  DSA: 'Progressive on economics and culture, secular, election-skeptic',
-  LBR: 'Safety net, clean energy, and a Dreamer pathway with border enforcement',
-  STY: 'Economically progressive and religiously traditional; election-skeptic',
-  CUP: 'Centrist on economics and culture; law-and-order institutionalists',
-  CON: 'Low-tax, law-and-order; trusts elections and backs background checks',
-  POP: 'Immigration-restrictionist and election-skeptic; backs Medicaid expansion',
-  NAT: 'Anti-immigration, religiously traditional, low-tax, and election-skeptic',
+  OAO: 'Left on economics, moderate on culture, pro-police, and trusts government',
+  PRG: 'Progressive across the board; backs arming Ukraine and trusts elections',
+  DSA: 'Socialist left: shift police funding, secular, and distrusts government',
+  LBR: 'Progressive on culture, climate and civil liberties; shift police funding',
+  STY: 'Backs student-debt relief and Medicaid, along with tax cuts and school vouchers',
+  CUP: 'Socially liberal, centrist on economics, pro-police, and trusts institutions',
+  CON: 'Pro-order and pro-border, low-tax, and backs Medicaid expansion',
+  NAT: 'Anti-immigration, culturally traditional, low-tax, and distrusts government',
+  POP: 'Distrusts elections and government; opposes more public spending',
 };
 
-// One-to-two sentence descriptions: who the cluster is and what it supports.
-// Keep these factual (positions, demographics) — no editorial commentary.
+// Paragraph descriptions, copied from analysis/efa/rebuild_nine_parties/party_descriptions.md.
 export const PARTY_BLURBS: Record<string, string> = {
-  PRG: 'The urban, college-educated left. Strongly progressive on taxes, climate, immigration, social justice, and civil liberties. Trusts elections and institutions.',
-  DSA: 'The young, urban, anti-establishment left. Strongly progressive on economics and culture, and secular. Strongly skeptical of elections and institutions.',
-  DAL: 'The older, professional-class left. Progressive on economics, climate, and civil liberties. Supports border enforcement and opposes cutting police.',
-  LBR: 'The working-class, racially diverse center-left. Backs the safety net, clean energy, and a Dreamer pathway, along with border enforcement. More moderate on social issues than other Left parties.',
-  STY: 'Young, majority non-white, lowest-income, and religiously traditional. Economically progressive on Medicaid and infrastructure, and skeptical of elections and institutions.',
-  CUP: 'The religious, mostly-white moderate. Centrist on economics and culture, but place emphasis on law-and-order. The most institutionalist party.',
-  CON: 'The pre-Trump, Reaganite right. Low-tax and law-and-order; trusts elections and backs universal background checks.',
-  POP: 'The populist right. Immigration-restrictionist, skeptical of elections, and religiously traditional. Support Medicaid expansion.',
-  NAT: 'The far right. Strongly anti-immigration, religiously traditional, low-tax, high racial and gender resentment, and skeptical of elections.',
+  OAO: 'The working-class left of order. Backs Medicaid expansion, student-debt relief, higher taxes on top earners and more police funding; supports school vouchers and parental consent on pronouns. The most trusting of the federal government. Older, urban, lower-income, and about a third Black.',
+  PRG: 'The college-educated progressive left. Backs abortion rights, a path to legal status, climate rules and an assault-weapons ban, and a majority would move police funding to other services. The strongest support for sending arms to Ukraine. Trusts elections. The most college-educated party.',
+  DSA: 'The socialist left. Near-unanimous for moving police funding to other services, abortion rights and a path to legal status. Distrusts the federal government. The youngest party, with the highest shares of LGBT and atheist or agnostic members.',
+  LBR: 'The civil-libertarian left. Backs abortion rights, a path to legal status, climate rules and higher taxes on top earners, and a majority would move police funding to other services. College-educated, secular and suburban.',
+  STY: 'The cross-pressured working class, and the largest party. Backs student-debt relief, Medicaid expansion and a path to legal status, along with extending the 2017 tax cuts, school vouchers and parental consent on pronouns. Younger, racially diverse and lower-income; members come from both major parties.',
+  CUP: 'The suburban moderate. Backs abortion rights, an assault-weapons ban and Medicaid expansion; splits on the 2017 tax cuts and mostly opposes student-debt relief. Supports more police funding and trusts elections and the federal government. Older homeowners, with the highest share of self-described moderates.',
+  CON: 'The mainstream right. Backs the border wall, more police funding, more fossil-fuel production and extending the 2017 tax cuts. Supports Medicaid expansion and splits on repealing the Affordable Care Act. Older, mostly white homeowners.',
+  NAT: 'The hard right. Backs the border wall, more fossil-fuel production, repealing the Affordable Care Act and parental consent before schools use a new name or pronoun. Opposes higher taxes on top earners. The most culturally conservative party, and distrusts the federal government. Older, white, married and Protestant.',
+  POP: 'The anti-government party. The most distrustful of elections and the federal government, and the most opposed to new spending on schools, health care, roads and police. Splits on the border wall and abortion. Younger, mostly independent, and often religiously unaffiliated.',
 };
 
 export const CLUSTER_TO_PARTY: Record<string, string> = {
@@ -82,9 +84,9 @@ export const CLUSTER_TO_PARTY: Record<string, string> = {
   '1': 'LBR',
   '2': 'STY',
   '3': 'NAT',
-  '4': 'DAL',
   '5': 'POP',
   '6': 'CUP',
+  '7': 'OAO',
   '8': 'DSA',
   '9': 'PRG',
 };
@@ -231,12 +233,12 @@ export function buildDisplayLabels(codes: Iterable<string>): Record<string, stri
   return labels;
 }
 
+// The four factors of the nine-party typology (pipeline/factor_keys.py). F3 retired with it.
 export const FACTOR_LABELS: Record<string, string> = {
   F1: 'Security & Order',
-  F2: 'Institutional Distrust',
-  F3: 'Government Distrust (residual)',
-  F4: 'Religious Traditionalism',
-  F5: 'Populist Conservatism',
+  F2: 'Government Distrust',
+  F4: 'Cultural Conservatism',
+  F5: 'Economic Conservatism',
 };
 
 /**
@@ -257,27 +259,24 @@ export const SYSTEM_COLORS: Record<string, string> = {
  * reader has no way to check the label against anything they hold an opinion about.
  */
 export const FACTOR_DOMAINS: Record<string, string> = {
-  F1: 'Policing and Border Security',
-  F2: 'Trust in Elections and Government',
-  F4: 'Abortion and Marriage Equality',
-  F5: 'Race, Immigration, and Economic Policy',
+  F1: 'Policing, Border Security, and Law-Enforcement Spending',
+  F2: 'Trust in Government and Elections',
+  F4: 'Abortion, Gender, Religion, and School Choice',
+  F5: 'State Social Spending, Medicaid, and Taxes',
 };
 
 export const FACTOR_SHORT: Record<string, string> = {
   F1: 'SO',
-  F2: 'ID',
-  F3: 'GD',
-  F4: 'RT',
-  F5: 'PC',
+  F2: 'GD',
+  F4: 'CC',
+  F5: 'EC',
 };
 
-// Factors shown in party-facing displays. F3 (Government Distrust) is a non-interpretable
-// residual whose party scores run OPPOSITE to real distrust (see docs/EFA_FACTORS.md); it is
-// excluded here and surfaced only in the About factor reference, flagged as a residual.
-// Strength order: how much each factor separates the parties. Everything that lists
-// factors — chamber composition, party cards, quiz results — reads this, so the reader
-// meets them in the same order and the strongest one first.
-export const DISPLAY_FACTORS = ['F1', 'F5', 'F2', 'F4'] as const;
+// Factors shown in party-facing displays, in strength order: how much each factor separates
+// the parties (eta-squared by party, viz/src/data/factorLoadings.json: F4 0.75, F1 0.69,
+// F5 0.69, F2 0.23). Everything that lists factors reads this, so the reader meets them in the
+// same order and the strongest one first.
+export const DISPLAY_FACTORS = ['F4', 'F1', 'F5', 'F2'] as const;
 
 /** Single-hue purple ramp for discriminatory strength (η², ~0–0.8): light = weak, dark = strong. */
 export function etaPurple(eta: number): string {
@@ -288,104 +287,16 @@ export function etaPurple(eta: number): string {
 
 export const FACTOR_POLES: Record<string, { low: string; high: string }> = {
   F1: { low: 'Civil Libertarian', high: 'Law & Order' },
-  F2: { low: 'Trusts Institutions', high: 'Distrusts Institutions' },
-  F3: { low: 'Pro-Establishment',   high: 'Anti-Establishment' },
-  F4: { low: 'Secular',           high: 'Faith-Guided' },
-  F5: { low: 'Progressive',       high: 'Conservative' },
+  F2: { low: 'Trusts Government', high: 'Distrusts Government' },
+  F4: { low: 'Culturally Progressive', high: 'Culturally Conservative' },
+  F5: { low: 'Economic Left', high: 'Economic Right' },
 };
 
-// Variable → primary EFA factor (highest absolute loading > 0.3, from efa_loadings_k5_final.csv)
-// Items marked * are content-based assignments (not in the 24-item EFA set)
-// Note: F3 primary items (CC24_423, CC24_424 — trust questions) are not in the policy dataset
-export const VAR_FACTOR: Record<string, string> = {
-  // F1 – Security & Order
-  CC24_321d:         'F1',  // loading +0.734
-  CC24_323b:         'F1',  // loading +0.705
-  CC24_340f:         'F1',  // loading +0.664
-  CC24_321e:         'F1',  // loading +0.653
-  CC24_340e:         'F1',  // loading +0.493
-  // F2 – Institutional Distrust (likert5 stored as _agree variants)
-  CC24_421_1_agree:  'F2',  // loading +0.726
-  CC24_421_2_agree:  'F2',  // loading +0.901
-  // F3 – Government Distrust
-  CC24_423:          'F3',  // loading +0.663 (low trust in federal government)
-  CC24_424:          'F3',  // loading +0.476 (low trust in state government)
-  // F4 – Religious Traditionalism
-  pew_churatd:       'F4',  // loading +0.688 (church attendance)
-  CC24_325_median:   'F4',  // loading +0.688 (abortion weeks — continuous)
-  CC24_340c:         'F4',  // loading +0.651 (same-sex marriage)
-  CC24_340b:         'F4',  // loading +0.489 (abortion access)
-  CC24_324b:         'F4',  // loading +0.297 F4 vs +0.268 F1
-  CC24_444a:         'F4',  // * gender transition surgery
-  CC24_444b:         'F4',  // * parental consent name/pronoun
-  CC24_444c:         'F4',  // * abortion-inducing drugs by mail
-  CC24_444d:         'F4',  // * travel for abortion
-  // F5 – Populist Conservatism (negative loadings mean high F5 → conservative response)
-  CC24_440b_agree:   'F5',  // loading −0.616 (racial problems are rare)
-  CC24_321b:         'F5',  // loading −0.557 (concealed carry)
-  CC24_323d:         'F5',  // loading −0.540 (Dreamers pathway)
-  CC24_341c:         'F5',  // loading −0.534 (allow $400k+ tax rates to rise)
-  CC24_323a:         'F5',  // loading −0.520 (legal status for undocumented)
-  CC24_440c_agree:   'F5',  // loading −0.437 (women seek power over men)
-  CC24_341d:         'F5',  // loading −0.365 (infrastructure spending)
-};
-
-// All EFA factor loadings (|loading| > 0.20), sorted by |loading| desc per factor.
-// Items intentionally repeat across factors when they cross-load.
-export const FACTOR_ITEMS: Record<string, { key: string; loading: number }[]> = {
-  F1: [
-    { key: 'CC24_321d', loading: +0.734 },
-    { key: 'CC24_323b', loading: +0.705 },
-    { key: 'CC24_340f', loading: +0.664 },
-    { key: 'CC24_321e', loading: +0.653 },
-    { key: 'CC24_340e', loading: +0.493 },
-    { key: 'CC24_323a', loading: +0.319 },
-    { key: 'CC24_323d', loading: +0.313 },
-    { key: 'CC24_324b', loading: +0.268 },
-    { key: 'CC24_341a', loading: +0.260 },
-  ],
-  F2: [
-    { key: 'CC24_421_2_agree', loading: +0.901 },
-    { key: 'CC24_421_1_agree', loading: +0.726 },
-    { key: 'CC24_424', loading: +0.380 },
-    { key: 'CC24_423', loading: +0.240 },
-    { key: 'CC24_440c_agree', loading: +0.209 },
-    { key: 'CC24_341a', loading: +0.202 },
-  ],
-  F3: [
-    { key: 'CC24_423', loading: +0.663 },
-    { key: 'CC24_424', loading: +0.476 },
-    { key: 'CC24_340e', loading: -0.319 },
-    { key: 'CC24_323a', loading: +0.270 },
-    { key: 'CC24_323d', loading: +0.225 },
-    { key: 'CC24_440c_agree', loading: -0.219 },
-    { key: 'CC24_440b_agree', loading: -0.208 },
-    { key: 'CC24_303', loading: +0.203 },
-  ],
-  F4: [
-    { key: 'pew_churatd', loading: +0.688 },
-    { key: 'CC24_325_median', loading: +0.688 },
-    { key: 'CC24_340c', loading: +0.651 },
-    { key: 'CC24_340b', loading: +0.489 },
-    { key: 'CC24_341d', loading: +0.300 },
-    { key: 'CC24_324b', loading: +0.297 },
-    { key: 'CC24_341c', loading: +0.285 },
-    { key: 'CC24_341a', loading: +0.240 },
-    { key: 'CC24_303', loading: +0.219 },
-  ],
-  F5: [
-    { key: 'CC24_440b_agree', loading: -0.616 },
-    { key: 'CC24_321b', loading: -0.557 },
-    { key: 'CC24_323d', loading: -0.540 },
-    { key: 'CC24_341c', loading: -0.534 },
-    { key: 'CC24_323a', loading: -0.520 },
-    { key: 'CC24_440c_agree', loading: -0.437 },
-    { key: 'CC24_341d', loading: -0.365 },
-    { key: 'CC24_340e', loading: +0.341 },
-    { key: 'CC24_340f', loading: -0.271 },
-    { key: 'CC24_341a', loading: -0.238 },
-  ],
-};
+// Variable → primary factor, and every item loading |λ| > 0.20 per factor, signed so a positive
+// loading means the item's keyed answer (support, agree, increase, low trust) goes with a high
+// score. Generated by viz/scripts/make_factor_reference.py from the four-factor loadings.
+export const VAR_FACTOR: Record<string, string> = factorItems.primary;
+export const FACTOR_ITEMS: Record<string, { key: string; loading: number }[]> = factorItems.items;
 
 // Reverse mapping: variable key → all factors it loads on
 export const VAR_ALL_FACTORS: Record<string, { factor: string; loading: number }[]> = {};

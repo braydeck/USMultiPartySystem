@@ -8,6 +8,8 @@ what visitors actually see. Colors and left->right order mirror
 src/constants/parties.ts — keep them in sync if either changes there.
 """
 import json
+import sys
+import re
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -17,18 +19,20 @@ from pathlib import Path
 W, H = 1200, 630
 
 # F5 left -> right (matches parties.ts F5_ORDER)
-ORDER = ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"]
-# Party colors (mirror src/constants/parties.ts PARTY_COLORS)
-COLORS = {
-    "PRG": "#15803d", "DSA": "#22c55e", "DAL": "#0284c7", "LBR": "#38bdf8",
-    "STY": "#8a70b8", "CUP": "#825a27", "CON": "#e68c2c",
-    "POP": "#d34812", "NAT": "#a01d2a",
-}
-# houseSeats party integer codes -> party code (parties.ts CLUSTER_TO_PARTY)
-CODE = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "DAL",
-        5: "POP", 6: "CUP", 8: "DSA", 9: "PRG"}
-
+ORDER = ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"]
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT.parent / "pipeline"))
+from party_codes import CLUSTER_TO_PARTY as CODE  # noqa: E402
+
+
+def _ts_map(name):
+    """{CODE: value} from a simple `export const NAME ... = { CODE: '...', ... }` block in parties.ts."""
+    src = (ROOT / "src" / "constants" / "parties.ts").read_text()
+    block = re.search(rf"export const {name}\b[^{{]*{{(.*?)\n}};", src, re.S).group(1)
+    return {k: v.replace("\\'", "'") for k, v in re.findall(r"^\s+([A-Z]{3}): '((?:[^'\\]|\\.)*)'", block, re.M)}
+
+
+COLORS = _ts_map("PARTY_COLORS")
 rows = json.loads((ROOT / "src" / "data" / "houseSeatsTurnout.json").read_text())
 SEATS = {CODE[r["party"]]: r["national"] for r in rows}
 TOTAL = sum(SEATS.values())

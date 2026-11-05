@@ -4,11 +4,9 @@ build_party_factor_ellipses.py
 ------------------------------
 Each party's spread across the four interpretable factors, for the Parties tab's factor-pair
 grid. Source: data/processed/efa_factor_scores.csv (raw FS_F1/F2/F4/F5 + commonpostweight)
-joined positionally to data/processed/typology_cluster_assignments.csv (hard `cluster`).
-Both files are 45,214 rows on the same listwise-deletion mask, asserted below. Raw F4/F5,
-not the resid columns, so the space matches the constellation's centroids.
-
-F3 is left out: it is a suppressor kept only to isolate CUP and runs opposite to real distrust.
+aligned row for row (asserted by caseid) with data/processed/typology_cluster_assignments.csv
+(hard `cluster`). F1/F2/F4/F5 are the app factor keys (pipeline/factor_keys.py); F3 retired with
+the four-factor typology.
 
 Units are standard deviations of the weighted electorate, the same scale as clusterProfiles
 z_F*. Per party: weighted mean vector and weighted 4x4 covariance of its first-choice members.
@@ -45,8 +43,7 @@ def wmean(x, w):
 def main():
     scores = pd.read_csv(PROCESSED / "efa_factor_scores.csv")
     typ = pd.read_csv(PROCESSED / "typology_cluster_assignments.csv")
-    assert len(scores) == len(typ) == 45214
-    assert np.allclose(scores.FS_F1, typ.FS_F1) and np.allclose(scores.commonpostweight, typ.commonpostweight)
+    assert len(scores) == len(typ) and (scores.caseid.values == typ.caseid.values).all(), "rows not aligned by caseid"
 
     w = scores.commonpostweight.to_numpy()
     X = scores[[f"FS_{f}" for f in FACTORS]].to_numpy()

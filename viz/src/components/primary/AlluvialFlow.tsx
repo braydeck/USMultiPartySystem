@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { getBlendColor } from '../../constants/parties';
+import { getBlendColor, F5_ORDER as PARTY_ORDER } from '../../constants/parties';
 import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
 
 interface AlluvialNode {
@@ -39,18 +39,8 @@ const BLOCK_W         = 28;
 const BLOCK_GAP       = 3;    // px gap between stacked blocks in a column
 const MIN_BLOCK_H     = 4;    // minimum visible block height
 
-// F5 ideological order — used to sort candidates within each column
-const F5_ORDER = [
-  'PRG', 'PRG_dsa',
-  'DAL', 'DAL_dsa', 'DAL_sd',
-  'DSA', 'DSA_prg', 'DSA_lib',
-  'LBR', 'LBR_lib', 'LBR_sty',
-  'STY', 'STY_sd', 'STY_ctr',
-  'CUP', 'CUP_sty', 'CUP_con',
-  'CON', 'CON_ctr', 'CON_ref',
-  'POP', 'POP_con', 'POP_nat',
-  'NAT', 'NAT_ref',
-];
+// Left-right party order (constants/parties F5_ORDER) — used to sort candidates within each column
+const F5_ORDER: readonly string[] = PARTY_ORDER;
 
 function f5Rank(label: string): number {
   const idx = F5_ORDER.indexOf(label);

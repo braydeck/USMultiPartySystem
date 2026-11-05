@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { SHIFT_AXES } from '../../lib/singleRace';
+import { SHIFT_AXES, zeroShift } from '../../lib/singleRace';
 import { FACTOR_POLES, FACTOR_LABELS } from '../../constants/parties';
 import { CARD_HEADING, GROUP_LABEL, CARD_HINT } from '../../constants/typography';
 
@@ -61,7 +61,7 @@ function Group({ title, blurb, sigma, setSigma, footer }: {
           <p className={CARD_HINT}>{blurb}</p>
         </div>
         {active && (
-          <button type="button" onClick={() => setSigma([0, 0, 0, 0, 0])}
+          <button type="button" onClick={() => setSigma(zeroShift())}
             className="text-2xs text-muted-foreground hover:text-foreground shrink-0">Reset</button>
         )}
       </div>

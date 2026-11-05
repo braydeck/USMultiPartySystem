@@ -55,10 +55,10 @@ describe('senate delegations', () => {
   it('splits the states the Condorcet resampling actually leaves contested', () => {
     const states = u5.senate.cond.states as unknown as Record<string, StateUncertainty>;
     // The contested set under the 1,000-draw nine-party re-clustering bootstrap at the
-    // default 5% stop, with the 18-point cutoff.
+    // default 5% stop, with the 21-point cutoff.
     const FIPS_TO_ABBR: Record<string, string> = {
-      '05': 'AR', '17': 'IL', '20': 'KS', '21': 'KY', '24': 'MD', '29': 'MO', '31': 'NE',
-      '35': 'NM', '37': 'NC', '45': 'SC', '46': 'SD', '54': 'WV', '56': 'WY',
+      '05': 'AR', '08': 'CO', '09': 'CT', '10': 'DE', '15': 'HI', '17': 'IL', '24': 'MD',
+      '25': 'MA', '34': 'NJ', '36': 'NY', '39': 'OH', '44': 'RI', '45': 'SC', '53': 'WA', '55': 'WI',
     };
     const split = delegations(states).filter(d => d.split).map(d => FIPS_TO_ABBR[d.fips] ?? d.fips);
     expect(split.sort()).toEqual(Object.values(FIPS_TO_ABBR).sort());

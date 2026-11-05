@@ -47,12 +47,13 @@ SCENARIO_A_DIR  = BASE_DIR / "data" / "outputs" / "scenario_a"
 PARTIES_9 = [0, 1, 2, 3, 4, 5, 6, 8, 9]   # C7 excluded
 PARTY_LABELS = {
     0: "Conservative",
-    1: "Social Democrat",
+    1: "Labor",
     2: "Solidarity",
     3: "Nationalist",
     4: "Democratic Alliance",
     5: "Populist",
     6: "Civic Union Party",
+    7: "Order and Opportunity Party",
     8: "DSA",
     9: "Progressive",
 }

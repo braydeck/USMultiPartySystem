@@ -25,15 +25,16 @@ import type { StateUncertainty } from './uncertainty';
  * can be in a photo finish. A rule on the leader's level splits the first and not the
  * second, which is backwards.
  *
- * Eighteen is a judgement, but not a free one. It was set on the 1,000 nine-party
+ * Twenty-one is a judgement, but not a free one. It was set on the 1,000 nine-party
  * re-clustering draws at the default 5% stop, where each draw refits the parties on a voter
- * resample and then runs its election on that resample. Sorted, the IRV gaps climb to 12.4
- * across ten states and then jump to 20.1; the Ranked Pairs gaps climb to 15.1 across
- * thirteen states and then jump to 23.0. Eighteen sits inside the stretch both rules leave
- * empty, so the split set does not turn on where exactly the line falls. The earlier cutoff
- * of 12 would have cut through both runs of gaps. Re-measure whenever the parties change.
+ * resample and then runs its election on that resample. Sorted, the IRV gaps climb to 15.7
+ * across fifteen states, then 19.9, then jump to 21.6; the Ranked Pairs gaps climb to 20.0
+ * across fifteen states and then jump to 23.6. Twenty-one sits inside the stretch both rules
+ * leave empty (20.0 to 21.6), so the split set does not turn on where exactly the line falls.
+ * The earlier cutoff of 18 sat between Ranked Pairs gaps of 17.8 and 18.2. Re-measure
+ * whenever the parties change.
  */
-export const SPLIT_THRESHOLD_PP = 18;
+export const SPLIT_THRESHOLD_PP = 21;
 
 /** Inclusive, with slack for float error: gaps come from subtracting two shares, so a
  *  state exactly on the line lands at 9.999999999999998 rather than 10. */

@@ -207,9 +207,9 @@ export function CompositionStackCell({ meta, national, byCode, codes, marks, fac
 
 /** Many-category nominal battery as a party × category heatmap — every real category shown
  *  (no "Other" merge), cell shaded by share with the exact % in the cell. */
-export function HeatmapCell({ meta, national, byCode, codes, marks, factors }: {
+export function HeatmapCell({ meta, national, byCode, codes, marks, factors, diverges }: {
   meta: CompMeta; national: CompVals; byCode: Record<string, CompVals>; codes: string[];
-  marks?: Record<string, RowMark>; factors?: string[];
+  marks?: Record<string, RowMark>; factors?: string[]; diverges?: boolean;
 }) {
   const shown = codes.filter(c => byCode[c]);
   const rows = [{ code: '__NAT__', isNat: true, pcts: national.pcts },
@@ -219,7 +219,9 @@ export function HeatmapCell({ meta, national, byCode, codes, marks, factors }: {
 
   return (
     <div className="px-3 py-3">
-      <div className="text-xs text-foreground leading-snug font-medium mb-2"><FactorTags shorts={factors} />{meta.question}</div>
+      <div className="text-xs text-foreground leading-snug font-medium mb-2">
+        {diverges && <span className="text-amber-500 mr-1 align-middle" title="Selected parties diverge here">◆</span>}
+        <FactorTags shorts={factors} />{meta.question}</div>
       <div className="grid gap-px" style={{ gridTemplateColumns: `56px repeat(${cols}, minmax(0, 1fr))` }}>
         <span />
         {meta.segLabels.map(l => (

@@ -14,7 +14,7 @@ import { StateSeatsTable } from './StateSeatsTable';
 import { FPTPvsSTV } from './FPTPvsSTV';
 import { useUrlState } from '../../hooks/useUrlState';
 import { usePartyHighlight } from '../../hooks/usePartyHighlight';
-import { F5_ORDER, PARTY_NAMES } from '../../constants/parties';
+import { F5_ORDER, PARTY_NAMES, PARTY_TO_CLUSTER } from '../../constants/parties';
 import { populationShares, voteSharesAt, partyListSharesAt } from '../../lib/uncertainty';
 import type { DistrictResult, HouseStateEntry, HouseSeat, ClusterProfile } from '../../types';
 import type { SeatInterval } from '../../lib/uncertainty';
@@ -70,7 +70,9 @@ interface Props {
   mmpNational?: { seats: SeatMap; totalSeats: number };
 }
 
-const CLUSTER_OF: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, DAL: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
+const CLUSTER_OF: Record<string, number> = Object.fromEntries(
+  Object.entries(PARTY_TO_CLUSTER).map(([p, k]) => [p, Number(k)]),
+);
 
 export function seatMapToHouseSeats(seatMap: SeatMap): HouseSeat[] {
   return F5_ORDER.map(p => ({

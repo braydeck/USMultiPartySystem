@@ -7,7 +7,7 @@ Precompute voter-level data for the Single Race Simulator (viz app).
 Each CES respondent (post listwise deletion, N=45,707) is placed in their
 real current congressional district (cdid119) and emitted with:
   - commonpostweight
-  - the 4 factor scores (FS_RT, FS_TR, FS_SO, FS_PC)
+  - the 4 app factor keys (FS_F1, FS_F2, FS_F4, FS_F5; pipeline/factor_keys.py)
 
 The head-to-head model is the app's canonical ballot model
 (generate_factor_deviation_ballots.compute_candidate_scores_hybrid — the scorer
@@ -51,6 +51,7 @@ BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import DTA_PATH  # noqa: E402
 from party_codes import PARTY_TO_CLUSTER  # noqa: E402
+from factor_keys import CENTROID_COLS, SCORE_COLS  # noqa: E402
 
 EFA_PATH   = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 TYPO_PATH  = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
@@ -58,9 +59,8 @@ CAND_PATH  = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_fac
 OUT_DIR    = BASE_DIR / "viz" / "src" / "data"          # small meta (imported, typed)
 PUBLIC_DIR = BASE_DIR / "viz" / "public" / "data"       # large voters file (fetched at runtime)
 
-FACTOR_COLS      = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
-CAND_FACTOR_COLS = ["F1_security_order", "F2_electoral_skepticism", "F3_government_distrust",
-                    "F4_religious_traditionalism", "F5_populist_conservatism"]
+FACTOR_COLS      = SCORE_COLS                       # app keys F1, F2, F4, F5 (pipeline/factor_keys.py)
+CAND_FACTOR_COLS = list(CENTROID_COLS.values())     # same order, so voter - candidate is aligned
 PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
 POSITIONAL_SIGMA = 0.35            # matches generate_factor_deviation_ballots.py
 EXPECTED_N       = len(pd.read_csv(TYPO_PATH, usecols=["caseid"]))
@@ -69,7 +69,7 @@ LOGPROB_FLOOR    = -700.0          # only replaces log(0)=-inf; preserves full r
 
 PARTY_CLUSTER = PARTY_TO_CLUSTER
 # Display order left->right (constants/parties.ts F5_ORDER)
-PARTY_ORDER = [p for p in ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"] if p in PARTY_CLUSTER]
+PARTY_ORDER = [p for p in ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"] if p in PARTY_CLUSTER]
 
 # Current Electoral College (2020 census apportionment, used 2024/2028) — 538 total.
 STATE_EV = {

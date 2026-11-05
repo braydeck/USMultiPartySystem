@@ -24,6 +24,7 @@ sys.path.insert(0, str(BASE_DIR / "pipeline" / "pure_only"))
 from turnout_weights import turnout_multiplier, output_tree  # noqa: E402
 sys.path.insert(0, str(BASE_DIR / "pipeline"))
 from party_codes import PARTY_TO_CLUSTER  # noqa: E402
+from factor_keys import CENTROID_COLS, SCORE_COLS  # noqa: E402
 
 CHECKPOINT_PATH = BASE_DIR / "data" / "outputs" / "canonical" / "ballots_checkpoint.parquet"
 APPORTIONMENT   = BASE_DIR / "data" / "outputs" / "canonical" / "district_apportionment.csv"
@@ -38,14 +39,11 @@ CHECKPOINT_PATH_TRIPLE = BASE_DIR / "data" / "outputs" / "canonical_triple" / "b
 APPORTIONMENT_TRIPLE   = BASE_DIR / "data" / "outputs" / "canonical_triple" / "district_apportionment.csv"
 OUTPUT_DIR_TRIPLE      = BASE_DIR / "data" / "outputs" / output_tree("factor_deviation_triple") / "house"
 
-VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
-CAND_FACTOR_COLS  = [
-    "F1_security_order", "F2_electoral_skepticism", "F3_government_distrust",
-    "F4_religious_traditionalism", "F5_populist_conservatism",
-]
+VOTER_FACTOR_COLS = SCORE_COLS
+CAND_FACTOR_COLS  = list(CENTROID_COLS.values())
 PROB_COLS        = [f"prob_cluster_{k}" for k in range(10)]
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
+FACTOR_WEIGHTS   = np.ones(4)  # uniform — centroid geometry handles discrimination
 MIN_RESPONDENTS  = 5
 
 PARTY_CLUSTER = PARTY_TO_CLUSTER

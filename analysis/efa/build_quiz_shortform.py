@@ -1,154 +1,136 @@
 #!/usr/bin/env python3
-"""Build a validated 21-item short-form scoring key for the quiz.
+"""Scoring keys and party classifier for the short (25-item) and long (41-item) quiz.
 
-Predicts the full-model EFA factor scores (raw F1/F2/F4/F5) from the 21 quiz
-items, recoded to the quiz's 0-1 answer scale, then classifies with a
-FULL-COVARIANCE Gaussian per cluster. Full covariance makes the classifier
-invariant to the F1-residualization of F4/F5 (raw space == resid space under an
-invertible linear map), so the residualized cluster definition is honored without
-having to score in resid space -- and it reproduces the DPGMM assignments better
-than a diagonal classifier in either space.
+Ruled 2026-11-04 (analysis/efa/exploration/listwise_check/DECISIONS.md, "Quiz: short = 25 items, model
+components"); method from analysis/efa/rebuild_nine_parties/quiz_classifier.py.
+
+Key, per version: weighted least squares of each app factor key (FS_F1, FS_F2, FS_F4, FS_F5;
+pipeline/factor_keys.py) on an intercept and the version's items, answers on the 0-1 scale of
+viz/src/data/quizQuestions.json (item_pool coding, min-max scaled; a skipped item sits at its weighted
+mean, which the key also carries so the app can do the same).
+
+Classifier, per version: the DPGMM's own nine components (dpgmm_clustering.py settings, seed 52 = the
+production run's seed, refit here; its labels must reproduce typology_cluster_assignments.csv), with
+their mixing weights, means and covariances carried into app-key space, and each covariance widened by
+the key's weighted residual covariance so a short quiz's estimation error enters the match. A party's
+probability is its component's posterior (no temperature).
 
 Ships viz/src/data/quizShortform.json:
-  variables  - the 21 items in order
-  weights    - per factor: intercept + item coefficients (raw 0-1 answer scale)
-  popSd      - per factor: population sd (to z-scale the display dots)
-  classify   - per cluster: 4-vector mean, 4x4 inverse covariance, logDet; + temp
-
-Run from repo root:  python3 analysis/efa/build_quiz_shortform.py
+  popSd     per factor: population SD, to put the respondent on the FactorBar z scale
+  versions  {short, long}: variables, itemMean, weights (factor -> intercept + item coefficients),
+            classify {factors, clusters: {id: {party, mean, invCov, logDet, logWeight}}}, placement
+Run from repo root: python3 analysis/efa/build_quiz_shortform.py (after viz/scripts/make_quiz_questions.py)
 """
 import json
+import os
 import sys
 from pathlib import Path
-import numpy as np
-import pandas as pd
 
+os.environ.setdefault("OMP_NUM_THREADS", "4")
 ROOT = Path(__file__).resolve().parents[2]
-CES = ROOT / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
+LW = ROOT / "analysis" / "efa" / "exploration" / "listwise_check"
+sys.path.insert(0, str(LW))
+sys.path.insert(0, str(ROOT / "pipeline"))
+
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+from scipy.special import logsumexp  # noqa: E402
+from sklearn.metrics import adjusted_rand_score as ari  # noqa: E402
+from sklearn.mixture import BayesianGaussianMixture  # noqa: E402
+
+import item_pool as ip  # noqa: E402
+import factor_keys as fk  # noqa: E402
+from party_codes import CLUSTER_TO_PARTY  # noqa: E402
+
 PROC = ROOT / "data" / "processed"
 VIZDATA = ROOT / "viz" / "src" / "data"
 OUT = VIZDATA / "quizShortform.json"
-
-# Predict + classify in the DPGMM's 5-D space (F3 is a hidden classification
-# dimension: fed to the match, never shown). DISPLAY is the subset with FactorBars.
-FACTORS = ["F1", "F2", "F3", "F4", "F5"]
-DISPLAY = ["F1", "F2", "F4", "F5"]
-TEMP = 3
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pipeline"))
-from party_codes import CLUSTER_TO_PARTY as C2P  # noqa: E402
-WING = {"CON": "R", "NAT": "R", "POP": "R", "LBR": "L", "STY": "L", "DAL": "L", "PRG": "L", "DSA": "L", "CUP": "C"}
-
-RAW = {"CC24_421_1_agree": "CC24_421_1", "CC24_421_2_agree": "CC24_421_2",
-       "CC24_440b_agree": "CC24_440b", "CC24_440c_agree": "CC24_440c", "CC24_325_median": "CC24_325"}
-AGREE = {1: 1.0, 2: 0.75, 3: 0.5, 4: 0.25, 5: 0.0}
-TRUST = {1: 0.0, 2: 0.33, 3: 0.67, 4: 1.0, 8: 1.0}          # "None at all" is code 8
-CHURCH = {1: 1.0, 2: 0.8, 3: 0.5, 4: 0.25, 5: 0.1, 6: 0.0}  # 7 = Don't know -> nan
+KEYS = fk.KEYS                                   # F1, F2, F4, F5
+SEED = 52
+# raw clustering space -> app keys: x_app = T @ x_raw
+T = np.zeros((len(KEYS), len(fk.RAW_COLS)))
+for i, k in enumerate(KEYS):
+    raw, sign = fk.SOURCE[k]
+    T[i, fk.RAW_COLS.index(raw)] = sign
 
 
-def recode(v, s):
-    if v in ("CC24_421_1_agree", "CC24_421_2_agree", "CC24_440b_agree", "CC24_440c_agree"):
-        return s.map(AGREE)
-    if v in ("CC24_423", "CC24_424"):
-        return s.map(TRUST)
-    if v == "pew_churatd":
-        return s.map(CHURCH)
-    if v == "CC24_325_median":
-        w = pd.to_numeric(s, errors="coerce"); return w.where((w >= 0) & (w <= 40)) / 40.0
-    return s.map({1: 1.0, 2: 0.0})
-
-
-def wstd(x, w):
-    mu = np.average(x, weights=w); return float(np.sqrt(np.average((x - mu) ** 2, weights=w)))
+def gauss_ll(P, means, covs, logw):
+    out = []
+    for m, c, lw in zip(means, covs, logw):
+        d = P - m
+        out.append(lw - 0.5 * np.einsum("ij,jk,ik->i", d, np.linalg.inv(c), d) - 0.5 * np.linalg.slogdet(c)[1])
+    return np.column_stack(out)
 
 
 def main():
-    qs = json.load(open(VIZDATA / "quizQuestions.json"))
-    variables = [q["variable"] for q in qs]
+    qs = json.loads((VIZDATA / "quizQuestions.json").read_text())
+    versions = {"short": [q["variable"] for q in qs if q["short"]], "long": [q["variable"] for q in qs]}
 
-    tp = pd.read_csv(PROC / "turnout_propensity.csv")
+    X, _, _, caseid = ip.load()
     fs = pd.read_csv(PROC / "efa_factor_scores.csv")
-    assert len(tp) == len(fs)
-    key = pd.DataFrame({"caseid": tp["caseid"].astype("int64"), "cluster": tp["cluster"].values,
-                        "w": fs["commonpostweight"].values,
-                        **{f: fs[f"FS_{f}"].values for f in FACTORS}})
-    raw_cols = [RAW.get(v, v) for v in variables]
-    ces = pd.read_stata(CES, columns=["caseid"] + raw_cols, convert_categoricals=False)  # raw codes, as recode() expects
-    ces["caseid"] = ces["caseid"].astype("int64")
-    m = key.merge(ces, on="caseid", how="inner")
-    w = m["w"].values
-    print(f"merged respondents: {len(m):,}")
+    typ = pd.read_csv(PROC / "typology_cluster_assignments.csv", usecols=["caseid", "cluster"])
+    assert (fs.caseid.values == typ.caseid.values).all()
+    party = typ.cluster.values
+    w = fs.commonpostweight.values
+    pos = pd.Series(np.arange(len(caseid)), index=caseid).loc[fs.caseid.values].values
+    items = versions["long"]
+    A = X[items].values.astype(float)[pos]
+    lo, hi = np.nanmin(A, axis=0), np.nanmax(A, axis=0)
+    A = (A - lo) / (hi - lo)
+    mu = np.array([np.average(A[~np.isnan(A[:, j]), j], weights=w[~np.isnan(A[:, j])]) for j in range(A.shape[1])])
+    A = np.where(np.isnan(A), mu, A)
+    Y = fs[[f"FS_{k}" for k in KEYS]].values
 
-    X = pd.DataFrame({v: recode(v, m[RAW.get(v, v)]) for v in variables})
-    for v in variables:
-        c = X[v].values.astype(float)
-        c[np.isnan(c)] = np.average(c[~np.isnan(c)], weights=w[~np.isnan(c)])
-        X[v] = c
-    Xv = X[variables].values
+    model = BayesianGaussianMixture(n_components=9, covariance_type="full",
+                                    weight_concentration_prior_type="dirichlet_process",
+                                    n_init=5, random_state=SEED, max_iter=2000).fit(fs[fk.RAW_COLS].values)
+    comp = model.predict(fs[fk.RAW_COLS].values)
+    print(f"refit seed {SEED}: ARI vs production {ari(comp, party):.4f}")
+    assert ari(comp, party) > 0.999
+    keep = [k for k in range(9) if model.weights_[k] > 1e-3]
+    to_party = {k: int(pd.Series(party[comp == k]).mode()[0]) for k in keep}
+    assert sorted(to_party.values()) == sorted(CLUSTER_TO_PARTY), to_party
+    cm = [T @ model.means_[k] for k in keep]
+    cc = [T @ model.covariances_[k] @ T.T for k in keep]
+    cw = [float(np.log(model.weights_[k])) for k in keep]
+    ids = np.array([to_party[k] for k in keep])
 
-    # WLS: each raw factor on the 21 items (0-1) + intercept
-    A = np.column_stack([np.ones(len(m)), Xv]); sw = np.sqrt(w)
-    coefs, r2 = {}, {}
-    for f in FACTORS:
-        y = m[f].values
-        beta, *_ = np.linalg.lstsq(A * sw[:, None], y * sw, rcond=None)
-        pred = A @ beta
-        r2[f] = 1 - np.average((y - pred) ** 2, weights=w) / np.average((y - np.average(y, weights=w)) ** 2, weights=w)
-        coefs[f] = beta
-    print("[fit] R2:  " + "  ".join(f"{f}={r2[f]:.3f}" for f in FACTORS))
-
-    popsd = {f: wstd(m[f].values, w) for f in DISPLAY}
-    SF = {f: coefs[f][0] + Xv @ coefs[f][1:] for f in FACTORS}  # short-form scores for everyone
-
-    # full-covariance cluster params (weighted) in raw {F1,F2,F4,F5}
-    clusters = {}
-    live = list(C2P)
-    for k in live:
-        sub = m[m.cluster == k]; wk = sub["w"].values
-        Xk = np.column_stack([sub[f].values for f in FACTORS])
-        mu = np.average(Xk, axis=0, weights=wk)
-        d = Xk - mu; cov = (d * wk[:, None]).T @ d / wk.sum()
-        ic = np.linalg.inv(cov); _, logdet = np.linalg.slogdet(cov)
-        clusters[str(k)] = {"party": C2P[k], "mean": [round(float(x), 6) for x in mu],
-                            "invCov": [[round(float(x), 6) for x in row] for row in ic],
-                            "logDet": round(float(logdet), 6)}
-
-    # validate: reproduce DPGMM cluster (full-cov, flat prior)
-    P = np.column_stack([SF[f] for f in FACTORS]); saved = m["cluster"].values
-    ll = np.zeros((len(m), len(live)))
-    for j, k in enumerate(live):
-        c = clusters[str(k)]; mu = np.array(c["mean"]); ic = np.array(c["invCov"])
-        dd = P - mu; ll[:, j] = -0.5 * np.einsum("ni,ij,nj->n", dd, ic, dd) - 0.5 * c["logDet"]
-    pred = np.array(live)[ll.argmax(1)]
-    ex = np.average(pred == saved, weights=w)
-    wg = np.average([WING[C2P[a]] == WING[C2P[b]] for a, b in zip(pred, saved)], weights=w)
-    print(f"[validate] full-cov reproduction of DPGMM: exact={ex:.3f}  same-wing={wg:.3f}")
-
-    out = {
-        "variables": variables,
-        "weights": {f: {"intercept": round(float(coefs[f][0]), 6),
-                        **{variables[i]: round(float(coefs[f][i + 1]), 6) for i in range(len(variables))}} for f in FACTORS},
-        "popSd": {f: round(popsd[f], 6) for f in DISPLAY},
-        "classify": {"factors": FACTORS, "temp": TEMP, "clusters": clusters},
-    }
+    out = {"popSd": {k: round(float(np.sqrt(np.average((Y[:, i] - np.average(Y[:, i], weights=w)) ** 2, weights=w))), 6)
+                     for i, k in enumerate(KEYS)},
+           "versions": {}}
+    sw = np.sqrt(w / w.mean())
+    for name, vars_ in versions.items():
+        idx = [items.index(v) for v in vars_]
+        M = np.column_stack([np.ones(len(w)), A[:, idx]])
+        B = np.linalg.lstsq(M * sw[:, None], Y * sw[:, None], rcond=None)[0]
+        P = M @ B
+        E = np.cov((Y - P).T, aweights=w)
+        r2 = 1 - np.average((Y - P) ** 2, axis=0, weights=w) / np.average((Y - np.average(Y, axis=0, weights=w)) ** 2, axis=0, weights=w)
+        covs = [c + E for c in cc]
+        ll = gauss_ll(P, cm, covs, cw)
+        place = float(np.average(ids[ll.argmax(1)] == party, weights=w))
+        post = np.exp(ll - logsumexp(ll, axis=1, keepdims=True))
+        conf = float(np.average(post.max(1), weights=w))
+        print(f"[{name}] {len(vars_)} items  R2 " + " ".join(f"{k}={r:.3f}" for k, r in zip(KEYS, r2))
+              + f"  placement {place:.3f}  mean top prob {conf:.3f}")
+        clusters = {}
+        for j, cid in enumerate(ids):
+            clusters[str(cid)] = {"party": CLUSTER_TO_PARTY[int(cid)],
+                                  "mean": [round(float(x), 6) for x in cm[j]],
+                                  "invCov": [[round(float(x), 6) for x in row] for row in np.linalg.inv(covs[j])],
+                                  "logDet": round(float(np.linalg.slogdet(covs[j])[1]), 6),
+                                  "logWeight": round(cw[j], 6)}
+        out["versions"][name] = {
+            "variables": vars_,
+            "itemMean": {v: round(float(mu[items.index(v)]), 6) for v in vars_},
+            "weights": {k: {"intercept": round(float(B[0, i]), 6),
+                            **{v: round(float(B[1 + n, i]), 6) for n, v in enumerate(vars_)}}
+                        for i, k in enumerate(KEYS)},
+            "classify": {"factors": KEYS, "clusters": clusters},
+            "placement": round(place, 4),
+        }
     OUT.write_text(json.dumps(out, indent=2) + "\n")
     print(f"wrote {OUT.relative_to(ROOT)}")
-
-    # the dad, through the new scorer
-    dad = {"CC24_321d": 1, "CC24_321e": 0, "CC24_321b": 0.75, "CC24_323b": 1, "CC24_340f": 1, "CC24_323a": 0.25,
-           "CC24_323d": 0.75, "CC24_340e": 0, "CC24_341a": 0.75, "CC24_341c": 0, "CC24_341d": 0.25, "CC24_340c": 1,
-           "CC24_340b": 0.25, "CC24_421_1_agree": 0.25, "CC24_421_2_agree": 0.25, "CC24_440b_agree": 0.75,
-           "CC24_440c_agree": 0.75, "CC24_423": 0.67, "CC24_424": 0.67, "pew_churatd": 0.5, "CC24_325_median": 0.15}
-    xd = np.array([dad[v] for v in variables])
-    fd = {f: float(coefs[f][0] + xd @ coefs[f][1:]) for f in FACTORS}
-    pv = np.array([fd[f] for f in FACTORS])
-    lg = {}
-    for k in live:
-        c = clusters[str(k)]; d = pv - np.array(c["mean"])
-        lg[C2P[k]] = (-0.5 * d @ np.array(c["invCov"]) @ d - 0.5 * c["logDet"]) / TEMP
-    mx = max(lg.values()); e = {p: np.exp(v - mx) for p, v in lg.items()}; Z = sum(e.values())
-    top = sorted(((p, e[p] / Z) for p in e), key=lambda x: -x[1])[:5]
-    print("[dad] raw F1={F1:+.2f} F2={F2:+.2f} F4={F4:+.2f} F5={F5:+.2f}  ->  ".format(**fd)
-          + "  ".join(f"{p}:{pr:.3f}" for p, pr in top))
 
 
 if __name__ == "__main__":

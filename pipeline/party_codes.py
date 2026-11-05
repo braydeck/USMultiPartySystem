@@ -4,7 +4,7 @@ party_codes.py
 Party codes for the typology's cluster IDs, and which IDs currently hold voters.
 
 Cluster IDs are stable across typologies (pinned through data/processed/party_id_reference.csv),
-so a typology with fewer parties leaves its slot empty: 7 (OAO) in the nine-party typology. A
+so a typology with fewer parties leaves its slot empty: 4 (DAL) in the nine-party typology of 2026-11-04. A
 slot is live when some respondent's first choice in data/processed/typology_cluster_assignments.csv
 is that cluster.
 
@@ -32,3 +32,9 @@ CLUSTER_TO_PARTY = {k: ALL_PARTIES[k] for k in LIVE_CLUSTERS}
 PARTY_TO_CLUSTER = {p: k for k, p in CLUSTER_TO_PARTY.items()}
 PARTIES = list(CLUSTER_TO_PARTY.values())
 EMPTY_PARTIES = [p for k, p in ALL_PARTIES.items() if k not in CLUSTER_TO_PARTY]
+
+# Left-to-right display order: weighted Economic Conservatism centroid (factor_keys F5 = -FS_PC),
+# low to high (ruled 2026-11-04). Mirrors F5_ORDER in viz/src/constants/parties.ts; the hex
+# cartograms read that copy.
+LEFT_RIGHT = [p for p in ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"]
+              if p in PARTY_TO_CLUSTER]

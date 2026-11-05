@@ -45,7 +45,7 @@ SUMMARY_PATH = BASE_DIR / "viz" / "src" / "data" / "houseReserveNational.json"
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 PARTIES = list(ALL_PARTIES.values())  # indexed by cluster ID, like the length-10 count vectors
-F5_ORDER = [p for p in ["PRG", "DSA", "DAL", "LBR", "STY", "CUP", "CON", "POP", "NAT"] if p in PARTY_TO_CLUSTER]
+F5_ORDER = [p for p in ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"] if p in PARTY_TO_CLUSTER]
 PARTS = [0, 5, 10, 15, 20, 25, 30]
 DEPTHS = {"full": 0, "top3": 3, "top5": 5, "top7": 7, "top10": 10}
 

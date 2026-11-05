@@ -7,7 +7,7 @@ import { RaceMap } from '../components/singleRace/RaceMap';
 import { ScenarioCard } from '../components/singleRace/ScenarioCard';
 import { ElectorateShift } from '../components/singleRace/ElectorateShift';
 import { PartyStackBar } from '../components/singleRace/PartyStackBar';
-import { createEngine, SHIFT_AXES } from '../lib/singleRace';
+import { createEngine, SHIFT_AXES, zeroShift } from '../lib/singleRace';
 import type { SRMeta, SRVoters, ECRule, SingleRaceEngine, SRCandidate, Shift } from '../lib/singleRace';
 import { getFDColor, darkenHex, lightenHex, CURRENT_PARTIES } from '../constants/parties';
 import currentPartyProfiles from '../data/currentPartyProfiles.json';
@@ -15,8 +15,8 @@ import { PAGE_TITLE, CARD_HEADING, FIELD_LABEL, CARD_HINT } from '../constants/t
 
 // Generic real-party candidates (Democratic / Independent / Republican) placed at their CES pid3
 // factor-space centroid, so a race can pit "generic Dem" vs "generic Rep" against the typology field.
-const CURRENT_CANDS: SRCandidate[] = (currentPartyProfiles as { party: string; F1: number; F2: number; F3: number; F4: number; F5: number }[])
-  .map(e => ({ code: e.party, party: e.party, axis: 'current', direction: 'base', pos: [e.F1, e.F2, e.F3, e.F4, e.F5] }));
+const CURRENT_CANDS: SRCandidate[] = (currentPartyProfiles as { party: string; F1: number; F2: number; F4: number; F5: number }[])
+  .map(e => ({ code: e.party, party: e.party, axis: 'current', direction: 'base', pos: [e.F1, e.F2, e.F4, e.F5] }));
 
 type Office = 'house' | 'senate' | 'presidency';
 const OFFICES: Office[] = ['house', 'senate', 'presidency'];
@@ -42,7 +42,7 @@ const serializeScenarios = (scs: Scenario[]) => scs.map(s => `${s.a}.${s.b}`).jo
 // Shift sliders encode as a sparse "factor:value" list (zeros omitted), e.g. "F5:0.2,F1:-0.15".
 const SHIFT_RANGE = 0.75;
 function parseShift(s: string): number[] {
-  const v = [0, 0, 0, 0, 0];
+  const v = zeroShift();
   if (!s) return v;
   const idxOf: Record<string, number> = {};
   for (const a of SHIFT_AXES) idxOf[a.factor] = a.idx;

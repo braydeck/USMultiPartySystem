@@ -33,7 +33,7 @@ import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import type { ParliamentSegment } from '../components/shared/ParliamentChart';
-import { CLUSTER_TO_PARTY, F5_ORDER, PARTY_NAMES, partyOrder, FACTOR_LABELS, DISPLAY_FACTORS } from '../constants/parties';
+import { CLUSTER_TO_PARTY, PARTY_TO_CLUSTER, F5_ORDER, PARTY_NAMES, partyOrder, FACTOR_LABELS, DISPLAY_FACTORS } from '../constants/parties';
 import depthNational from '../data/houseDepthNational.json';
 import mmpNational from '../data/houseMmpNational.json';
 import reserveNational from '../data/houseReserveNational.json';
@@ -331,10 +331,8 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
 
   const fdSeatsAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
-    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, DAL: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
-    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Democratic Alliance',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
     for (const s of fdSeatsGi) {
-      const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
+      const cluster = s.party in PARTY_TO_CLUSTER ? Number(PARTY_TO_CLUSTER[s.party]) : -1;
       if (cluster < 0) continue;
       if (!byCluster[cluster]) byCluster[cluster] = { urban: 0, suburban: 0, rural: 0, national: 0 };
       byCluster[cluster].urban += s.urban;
@@ -345,7 +343,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     const fdTotal = Object.values(byCluster).reduce((s, r) => s + r.national, 0) || 1;
     return Object.entries(byCluster).map(([k, v]) => ({
       party: Number(k),
-      partyName: CLUSTER_NAMES[Number(k)] ?? '',
+      partyName: PARTY_NAMES[CLUSTER_TO_PARTY[k]] ?? '',
       urban: v.urban, suburban: v.suburban, rural: v.rural,
       national: v.national,
       pctNational: v.national / fdTotal * 100,
@@ -356,10 +354,8 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   // FD aggregation for triple Wyoming
   const fdSeatsTripleAggregated: HouseSeat[] = useMemo(() => {
     const byCluster: Record<number, { urban: number; suburban: number; rural: number; national: number }> = {};
-    const CODE_TO_CLUSTER: Record<string, number> = { CON: 0, LBR: 1, STY: 2, NAT: 3, DAL: 4, POP: 5, CUP: 6, DSA: 8, PRG: 9 };
-    const CLUSTER_NAMES: Record<number, string> = { 0:'Conservative',1:'Labor',2:'Solidarity',3:'Nationalist',4:'Democratic Alliance',5:'Populist',6:'Civic Union Party',8:'DSA',9:'Progressive' };
     for (const s of fdSeatsTripleGi) {
-      const cluster = CODE_TO_CLUSTER[s.party] ?? -1;
+      const cluster = s.party in PARTY_TO_CLUSTER ? Number(PARTY_TO_CLUSTER[s.party]) : -1;
       if (cluster < 0) continue;
       if (!byCluster[cluster]) byCluster[cluster] = { urban: 0, suburban: 0, rural: 0, national: 0 };
       byCluster[cluster].urban += s.urban;
@@ -370,7 +366,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     const fdTotal = Object.values(byCluster).reduce((s, r) => s + r.national, 0) || 1;
     return Object.entries(byCluster).map(([k, v]) => ({
       party: Number(k),
-      partyName: CLUSTER_NAMES[Number(k)] ?? '',
+      partyName: PARTY_NAMES[CLUSTER_TO_PARTY[k]] ?? '',
       urban: v.urban, suburban: v.suburban, rural: v.rural,
       national: v.national,
       pctNational: v.national / fdTotal * 100,

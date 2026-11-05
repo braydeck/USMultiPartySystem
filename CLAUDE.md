@@ -12,7 +12,7 @@ described a two-worktree layout that no longer exists and held nothing the three
 ## What this is
 
 A simulation of American elections under proportional representation, built from 2024 CES
-survey data. A polychoric EFA reduces 24 policy items to 5 ideological factors; a Dirichlet
+survey data. A polychoric EFA reduces 41 policy items to 4 ideological factors; a Dirichlet
 Process Gaussian Mixture Model clusters respondents into 9 voter types, and each cluster
 becomes a party. Those parties then contest a House, a Senate, a presidency, and a legislative
 agenda under several counting rules. The point is that the counting rule changes the answer.
@@ -24,32 +24,34 @@ Cloudflare.
 
 | Fact | Value |
 |---|---|
-| Respondents after listwise deletion | **45,214** (church "Don't know" excluded since the 2026-10 rescore) |
-| Parties | **9** since the 2026-10 nine-party rebuild. The DPGMM fills every component it is given, so the count is a cap chosen on stability (`analysis/efa/exploration/k_stability/fair_compare.py`): at 9 DPGMM has fewer distinct solutions (3 vs 6 across 20 seeds) and no party dissolves under resampling. At 10, OAO is the one that dissolves (overlap 0.45), and it folds mostly into CON at 9. Most voters sit in one continuous mass (HDBSCAN finds only the hard right and the left as dense groups), so borders between neighboring parties are approximate; the re-clustering bootstrap carries that into every interval. No party is protected: a new typology may add, merge or drop parties on the evidence. |
+| Respondents | **49,431**: every post-weighted respondent who answered at least half of each factor's primary items (available-item scoring, nine-party typology of 2026-11-04). Not 45,214, the old listwise count. |
+| Parties | **9**, the cap-9 modal solution of the revised §3c rule on the four plain factor scores (ruled 2026-11-04, `analysis/efa/exploration/listwise_check/DECISIONS.md`): 17 of 20 seeds reach it, 8 of 9 clusters stable under resampling (POP at 0.75). The DPGMM fills every component it is given, so the count is a cap. Borders between neighboring parties are approximate; the re-clustering bootstrap carries that into every interval. No party is protected: a new typology may add, merge or drop parties on the evidence. |
 | House chamber | **873 seats** (double magnitude), 1,726 (triple). **Not 435.** |
 | House districts | 150 double, 243 triple. MMP and Single Race instead use the 436 real 119th-Congress districts. |
 | Senate | 51 seats, one per state plus DC |
 | Electoral college | 975 electors |
-| Cluster to party | 0 CON, 1 LBR, 2 STY, 3 NAT, 4 DAL (Democratic Alliance, renamed from LIB / Liberal 2026-10), 5 POP, 6 CUP, 8 DSA, 9 PRG. Slot 7 (formerly OAO) holds no voters. IDs stay stable across typologies; scripts get the live parties from `pipeline/party_codes.py`, which reads them off the typology, and keep length-10 arrays only where `prob_cluster_0..9` is positional. |
+| Cluster to party | 0 CON, 1 LBR (Labor), 2 STY, 3 NAT, 5 POP, 6 CUP (Civic Union), 7 OAO (Order and Opportunity), 8 DSA, 9 PRG. Slot 4 (DAL) holds no voters. Left-right order is Economic Conservatism, low to high: OAO PRG DSA LBR STY CUP CON NAT POP (`party_codes.LEFT_RIGHT`, `F5_ORDER`). IDs stay stable across typologies; scripts get the live parties from `pipeline/party_codes.py`, which reads them off the typology, and keep length-10 arrays only where `prob_cluster_0..9` is positional. |
 | App defaults | ballot depth `top7`, turnout gap `5%`, magnitude `double`, field `rawMulti` |
 
 Before quoting any chamber-level count, sum it out of the JSON. Do not reach for 435.
 
-## The five factors
+## The four factors
 
-F1 Security & Order. F2 Institutional Distrust (elections). F3 Government Distrust.
-F4 Religious Traditionalism. F5 Populist Conservatism (the primary left-right axis).
+App keys (`pipeline/factor_keys.py`): F1 Security & Order (= −FS_SO), F2 Government Distrust
+(= FS_TR), F4 Cultural Conservatism (= FS_RT), F5 Economic Conservatism (= −FS_PC). F3 retired.
+The raw FS_SO and FS_PC scores run high = liberal (r −0.58 with ideo5), so anything that shows
+or describes a position uses the keyed `FS_F*` columns of `efa_factor_scores.csv`; clustering,
+ballots and the bootstrap use the raw `FS_RT/TR/SO/PC`, which are sign-invariant there.
+Parties separate most on F4 (η² 0.75), then F1 and F5 (0.69), least on F2 (0.23).
 
-**Scores are label-coded since the 2026-10 rescore (69a6eeb).** Before it, `efa_update.py`
-scored raw DTA codes against label-coded loadings. Six items ran backwards, and government-trust
-"None at all" was scored as "A fair amount". That is why F3 used to look inverted and was
-treated as a suppressor. Correctly scored, F3 correlates +0.84 with respondents' own
-government-distrust answers, so it is a real government-distrust axis. Party IDs are pinned to
-the ten-party seed-61 typology of the rescore through `data/processed/party_id_reference.csv`,
-and the clustering keeps the most common of the solutions 20 converged seeds reach at cap 9
-(11 of 20), best lower bound within it. A better-fitting solution reached by 6 seeds elects POP. A new typology is rebuilt with
-`pipeline/rebuild_from_typology.py`: `check_stale.py --regenerate` covers only the house trees
-and the payloads.
+Scores come from `analysis/efa/pipeline/efa_revised.py` (41 items, pairwise polychoric, PAF +
+oblimin, available-item scoring, no residualization). Party IDs are pinned through
+`data/processed/party_id_reference.csv`; `dpgmm_clustering.py` keeps seed 52, the best lower
+bound in the modal solution. A new typology is rebuilt with `pipeline/rebuild_from_typology.py`:
+`check_stale.py --regenerate` covers only the house trees and the payloads.
+
+The quiz has a short (25-item) and long (41-item) version, keys and classifier built by
+`viz/scripts/make_quiz_questions.py` then `analysis/efa/build_quiz_shortform.py`.
 
 ## How a voter becomes a ballot
 
@@ -121,9 +123,10 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    scores candidates with `prob_cluster_k`, so STV's rank-1 already *is* the argmax. Matching
    the vote definition makes a list-versus-STV gap purely about the counting rule. Settled.
 
-4. **The typology CSV joins POSITIONALLY.** `typology_cluster_assignments.csv` has no `caseid`.
-   Apply the identical `ITEMS_24 + commonpostweight` `notna()` mask to the DTA before
-   concatenating, or the join is silently wrong.
+4. **Join respondent files by `caseid`, never by a re-derived mask.** `efa_factor_scores.csv` and
+   `typology_cluster_assignments.csv` are row-aligned and both carry `caseid`; join the DTA with
+   `.set_index('caseid').loc[typ.caseid]`. The old `ITEMS_24` `notna()` mask selects 45,214 rows,
+   not the 49,431 of the four-factor typology, so a positional join on it is silently wrong.
 
 5. **A below-quota floor is ordinary STV; ballot depth drives the variation above it.** When
    the continuing candidates run down to the seats remaining, the engine elects them regardless

@@ -1,0 +1,313 @@
+{
+  "order": [
+    "F4",
+    "F1",
+    "F5",
+    "F2"
+  ],
+  "items": {
+    "F1": [
+      {
+        "key": "CC24_443_4",
+        "loading": 0.721
+      },
+      {
+        "key": "CC24_323b",
+        "loading": 0.626
+      },
+      {
+        "key": "CC24_321e",
+        "loading": -0.585
+      },
+      {
+        "key": "CC24_323f",
+        "loading": -0.454
+      },
+      {
+        "key": "CC24_340d",
+        "loading": 0.454
+      },
+      {
+        "key": "CC24_441b_agree",
+        "loading": -0.356
+      },
+      {
+        "key": "CC24_326e",
+        "loading": -0.311
+      },
+      {
+        "key": "CC24_443_5",
+        "loading": 0.297
+      },
+      {
+        "key": "CC24_326d",
+        "loading": 0.291
+      },
+      {
+        "key": "CC24_323a",
+        "loading": -0.289
+      },
+      {
+        "key": "CC24_421_1_agree",
+        "loading": 0.263
+      },
+      {
+        "key": "CC24_444b",
+        "loading": 0.258
+      },
+      {
+        "key": "CC24_443_1",
+        "loading": -0.239
+      },
+      {
+        "key": "CC24_328b",
+        "loading": -0.23
+      },
+      {
+        "key": "CC24_444e",
+        "loading": 0.205
+      },
+      {
+        "key": "CC24_328e",
+        "loading": -0.203
+      }
+    ],
+    "F2": [
+      {
+        "key": "CC24_423",
+        "loading": 0.852
+      },
+      {
+        "key": "CC24_424",
+        "loading": 0.676
+      },
+      {
+        "key": "CC24_421_1_agree",
+        "loading": -0.559
+      },
+      {
+        "key": "CC24_323a",
+        "loading": -0.206
+      }
+    ],
+    "F4": [
+      {
+        "key": "CC24_444f",
+        "loading": 0.713
+      },
+      {
+        "key": "CC24_341a",
+        "loading": 0.649
+      },
+      {
+        "key": "CC24_444c",
+        "loading": 0.63
+      },
+      {
+        "key": "CC24_444b",
+        "loading": 0.61
+      },
+      {
+        "key": "CC24_445b",
+        "loading": 0.591
+      },
+      {
+        "key": "CC24_445a",
+        "loading": 0.571
+      },
+      {
+        "key": "CC24_444d",
+        "loading": 0.532
+      },
+      {
+        "key": "pew_bornagain",
+        "loading": 0.53
+      },
+      {
+        "key": "CC24_326d",
+        "loading": 0.513
+      },
+      {
+        "key": "CC24_444a",
+        "loading": 0.51
+      },
+      {
+        "key": "CC24_328d",
+        "loading": 0.506
+      },
+      {
+        "key": "CC24_325",
+        "loading": -0.5
+      },
+      {
+        "key": "CC24_324b",
+        "loading": 0.48
+      },
+      {
+        "key": "CC24_321b",
+        "loading": 0.466
+      },
+      {
+        "key": "CC24_440c_agree",
+        "loading": 0.42
+      },
+      {
+        "key": "CC24_444e",
+        "loading": 0.413
+      },
+      {
+        "key": "CC24_326f",
+        "loading": 0.379
+      },
+      {
+        "key": "pew_churatd",
+        "loading": 0.377
+      },
+      {
+        "key": "CC24_340c",
+        "loading": -0.363
+      },
+      {
+        "key": "CC24_440b_agree",
+        "loading": 0.332
+      },
+      {
+        "key": "CC24_441b_agree",
+        "loading": -0.24
+      },
+      {
+        "key": "CC24_421_1_agree",
+        "loading": -0.231
+      },
+      {
+        "key": "CC24_326e",
+        "loading": -0.228
+      },
+      {
+        "key": "CC24_443_4",
+        "loading": 0.217
+      },
+      {
+        "key": "CC24_341c",
+        "loading": -0.216
+      }
+    ],
+    "F5": [
+      {
+        "key": "CC24_443_2",
+        "loading": -0.819
+      },
+      {
+        "key": "CC24_443_3",
+        "loading": -0.756
+      },
+      {
+        "key": "CC24_328e",
+        "loading": -0.613
+      },
+      {
+        "key": "CC24_443_1",
+        "loading": -0.605
+      },
+      {
+        "key": "CC24_328b",
+        "loading": -0.528
+      },
+      {
+        "key": "CC24_443_5",
+        "loading": -0.524
+      },
+      {
+        "key": "CC24_323f",
+        "loading": -0.491
+      },
+      {
+        "key": "CC24_341d",
+        "loading": -0.482
+      },
+      {
+        "key": "CC24_341c",
+        "loading": -0.468
+      },
+      {
+        "key": "CC24_440b_agree",
+        "loading": 0.417
+      },
+      {
+        "key": "CC24_323a",
+        "loading": -0.38
+      },
+      {
+        "key": "CC24_441b_agree",
+        "loading": -0.336
+      },
+      {
+        "key": "CC24_326e",
+        "loading": -0.333
+      },
+      {
+        "key": "CC24_328d",
+        "loading": 0.27
+      },
+      {
+        "key": "CC24_321e",
+        "loading": -0.247
+      },
+      {
+        "key": "CC24_321b",
+        "loading": 0.242
+      },
+      {
+        "key": "CC24_445b",
+        "loading": 0.223
+      },
+      {
+        "key": "CC24_443_4",
+        "loading": -0.203
+      }
+    ]
+  },
+  "primary": {
+    "pew_churatd": "F4",
+    "pew_bornagain": "F4",
+    "CC24_321b": "F4",
+    "CC24_321e": "F1",
+    "CC24_323a": "F5",
+    "CC24_323b": "F1",
+    "CC24_323f": "F5",
+    "CC24_324b": "F4",
+    "CC24_325": "F4",
+    "CC24_326d": "F4",
+    "CC24_326e": "F5",
+    "CC24_326f": "F4",
+    "CC24_328b": "F5",
+    "CC24_328d": "F4",
+    "CC24_328e": "F5",
+    "CC24_340a": "F4",
+    "CC24_340b": "F5",
+    "CC24_340c": "F4",
+    "CC24_340d": "F1",
+    "CC24_341a": "F4",
+    "CC24_341c": "F5",
+    "CC24_341d": "F5",
+    "CC24_421_1_agree": "F2",
+    "CC24_423": "F2",
+    "CC24_424": "F2",
+    "CC24_440b_agree": "F5",
+    "CC24_440c_agree": "F4",
+    "CC24_441b_agree": "F1",
+    "CC24_443_1": "F5",
+    "CC24_443_2": "F5",
+    "CC24_443_3": "F5",
+    "CC24_443_4": "F1",
+    "CC24_443_5": "F5",
+    "CC24_444a": "F4",
+    "CC24_444b": "F4",
+    "CC24_444c": "F4",
+    "CC24_444d": "F4",
+    "CC24_444e": "F4",
+    "CC24_444f": "F4",
+    "CC24_445a": "F4",
+    "CC24_445b": "F4"
+  }
+}

@@ -86,9 +86,9 @@ const SCENARIOS = [
   },
   {
     name: 'Crossover',
-    tag: '37 candidates',
+    tag: '41 candidates',
     color: '#ea580c',
-    desc: '10 base candidates (one per party) + 28 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like LBR_hi_so (a Labor candidate who runs tougher on security) or CON_lo_pc (a Conservative who softens on populism).',
+    desc: '9 base candidates (one per party) + 32 crossover variants. Each variant shifts one ideological axis by ±25% of the inter-party standard deviation, producing candidates like LBR_hi_so (a Labor candidate who runs tougher on security) or CON_lo_pc (a Conservative who is less conservative on economics).',
     insight: 'Models intra-party ideological diversity. Voters can express a preference not just for a party, but for a faction within it.',
     candidates: 'LBR · LBR_hi_so · LBR_lo_so · LBR_hi_id · …',
   },
@@ -103,7 +103,7 @@ const STEPS = [
   {
     n: 2, color: '#7c3aed',
     title: 'Exploratory Factor Analysis (EFA)',
-    body: 'A core set of 24 policy items is reduced to 5 underlying ideological dimensions using polychoric EFA (oblimin rotation). These factors capture the latent structure of American opinion: not what people say they believe, but the correlated belief clusters that actually organize political space.',
+    body: 'A pool of 41 policy items is reduced to 4 underlying ideological dimensions using polychoric EFA (oblimin rotation). These factors capture the latent structure of American opinion: not what people say they believe, but the correlated belief clusters that actually organize political space.',
   },
   {
     n: 3, color: '#16a34a',
@@ -138,7 +138,7 @@ const SLATE_THRESHOLDS = [7, 6, 5, 4, 3].map(seats => ({
 const BALLOT_SPLIT = [
   { label: 'elected the 1st choice', value: 0.75, color: PARTY_COLORS.STY },
   { label: 'elected the 2nd choice', value: 0.15, color: PARTY_COLORS.LBR },
-  { label: 'elected the 3rd choice', value: 0.07, color: PARTY_COLORS.DAL },
+  { label: 'elected the 3rd choice', value: 0.07, color: PARTY_COLORS.OAO },
   { label: 'still live for later choices', value: 0.03, color: '#94a3b8' },
 ];
 
@@ -147,7 +147,7 @@ const BALLOT_SPLIT = [
 const EXAMPLE_SLATES = [
   { code: 'STY', n: 3 },
   { code: 'LBR', n: 3 },
-  { code: 'DAL', n: 3 },
+  { code: 'OAO', n: 3 },
   { code: 'PRG', n: 2 },
 ] as const;
 
@@ -558,7 +558,7 @@ export function AboutTab() {
             <p className="text-sm text-foreground leading-relaxed mb-3">
               Each &ldquo;party&rdquo; is a statistically distinct cluster of the surveyed electorate, named after the
               fact from its ideological profile. The spectrum is five-dimensional; the cards below run along the
-              primary axis (F5, Populist Conservatism, low to high), and the figure on each card is that
+              primary axis (F5, Economic Conservatism, low to high), and the figure on each card is that
               cluster&apos;s share of the adult population.
             </p>
             <p className={`${CARD_HINT} leading-relaxed`}>

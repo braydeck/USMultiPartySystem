@@ -45,9 +45,9 @@ CANDIDATES = [
     {"name": "LBR",  "cluster": 1},
     {"name": "STY", "cluster": 2},
     {"name": "NAT", "cluster": 3},
-    {"name": "DAL", "cluster": 4},
     {"name": "POP", "cluster": 5},
     {"name": "CUP", "cluster": 6},
+    {"name": "OAO", "cluster": 7},
     {"name": "DSA", "cluster": 8},
     {"name": "PRG", "cluster": 9},
 ]

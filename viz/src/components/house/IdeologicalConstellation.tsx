@@ -83,9 +83,9 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
   const [xFactor, setXFactor] = useState('F5');
   const [yFactor, setYFactor] = useState('F1');
-  // Size = Institutional Distrust (F2): the heavier-loading, cross-cutting factor gets the
+  // Size = Government Distrust (F2): the heavier-loading, cross-cutting factor gets the
   // more prominent channel (area reads uniformly; the diverging colour washes out near center).
-  // Color = Religious Traditionalism (F4): the partisan factor drives the left-right hue gradient.
+  // Color = Cultural Conservatism (F4): the partisan factor drives the left-right hue gradient.
   const [sizeFactor, setSizeFactor] = useState('F2');
   const [colorMode, setColorMode] = useState('F4');
   const [equalSize, setEqualSize] = useState(false);

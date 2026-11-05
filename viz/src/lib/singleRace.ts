@@ -19,7 +19,7 @@ export interface SRCandidate {
   party: string;
   axis: string;      // 'base' | 'so' | 'es' | 'pc'
   direction: string; // 'base' | 'hi' | 'lo'
-  pos: number[];     // 5-D position
+  pos: number[];     // position on the app factor keys [F1, F2, F4, F5]
 }
 
 export interface SRState {
@@ -77,21 +77,25 @@ export interface ECResult {
 }
 
 const W_IDX = 0;
-const F_IDX = 1;              // factors at rows[1..5]
-const LP_IDX = 6;             // log-posteriors at rows[6..15]
+const N_F = 4;                // factor axes, in the order [F1, F2, F4, F5] (pipeline/factor_keys.py)
+const F_IDX = 1;              // factors at rows[1..4]
+const LP_IDX = F_IDX + N_F;   // log-posteriors at rows[5..14]
 const GAUSS_FLOOR_ADD = -Math.log(1e-10); // 23.0258509 — mirrors the 1e-10 gauss(base) floor
 
-/** The four discriminating factor axes exposed as electorate-shift sliders (F3 residual excluded).
- * Ordered by discriminatory power: Populist Conservatism, Law & Order, Institutional Trust, Religious Traditionalism. */
+/** The four factor axes exposed as electorate-shift sliders, ordered by how much each separates
+ * the parties: Cultural Conservatism, Security & Order, Economic Conservatism, Government Distrust. */
 export const SHIFT_AXES = [
-  { idx: 4, factor: 'F5' },
+  { idx: 2, factor: 'F4' },
   { idx: 0, factor: 'F1' },
+  { idx: 3, factor: 'F5' },
   { idx: 1, factor: 'F2' },
-  { idx: 3, factor: 'F4' },
 ] as const;
 
+/** A zero shift vector, one entry per factor axis. */
+export const zeroShift = (): number[] => new Array(N_F).fill(0);
+
 /**
- * An electorate shift. Both are raw-factor 5-vectors (F3 held at 0), defaulting to none.
+ * An electorate shift. Both are raw-factor vectors over [F1, F2, F4, F5], defaulting to none.
  *  - opinionDelta: minds change. A uniform issue shift adds a constant tilt
  *    δ·(posA−posB)/σ² to every voter's margin — matters only insofar as the shift
  *    aligns with what separates the two candidates; swing voters flip, partisans hold.
@@ -159,12 +163,12 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
   const allRows: number[][] = [];
   for (const cd of allCds) for (const row of voters.byCD[cd]) allRows.push(row);
 
-  const factorMean = [0, 0, 0, 0, 0];
-  const factorSD = [0, 0, 0, 0, 0];
+  const factorMean = zeroShift();
+  const factorSD = zeroShift();
   {
     let wsum = 0;
     for (const r of allRows) wsum += r[W_IDX];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < N_F; i++) {
       let m = 0;
       for (const r of allRows) m += r[W_IDX] * r[F_IDX + i];
       m /= wsum;
@@ -177,7 +181,7 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
 
   function sqDist(row: number[], pos: number[]): number {
     let s = 0;
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < N_F; i++) {
       const d = row[F_IDX + i] - pos[i];
       s += d * d;
     }
@@ -199,7 +203,7 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
   function opinionK(a: SRCandidate, b: SRCandidate, delta?: number[]): number {
     if (!delta) return 0;
     let k = 0;
-    for (let i = 0; i < 5; i++) k += delta[i] * (a.pos[i] - b.pos[i]);
+    for (let i = 0; i < N_F; i++) k += delta[i] * (a.pos[i] - b.pos[i]);
     return k / (meta.sigma * meta.sigma);
   }
 
@@ -207,7 +211,7 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
   function turnoutMul(row: number[], beta?: number[]): number {
     if (!beta) return 1;
     let e = 0;
-    for (let i = 0; i < 5; i++) e += beta[i] * row[F_IDX + i];
+    for (let i = 0; i < N_F; i++) e += beta[i] * row[F_IDX + i];
     return Math.exp(e);
   }
 
@@ -332,7 +336,7 @@ export function createEngine(voters: SRVoters, meta: SRMeta): SingleRaceEngine {
   /** Solve β per axis (independent 1-D bisection) so the national weighted mean of each
    * shifted factor moves by sigmaTargets·SD. Non-shift axes get β=0. */
   function solveTurnoutBeta(sigmaTargets: number[]): number[] {
-    const beta = [0, 0, 0, 0, 0];
+    const beta = zeroShift();
     for (const { idx } of SHIFT_AXES) {
       const s = sigmaTargets[idx] ?? 0;
       if (!s) continue;

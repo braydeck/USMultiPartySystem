@@ -40,7 +40,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from party_codes import CLUSTER_TO_PARTY
+from party_codes import CLUSTER_TO_PARTY, PARTIES
 
 BASE_DIR        = Path(__file__).parent.parent.parent
 TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
@@ -96,6 +96,10 @@ CANDIDATES = [
     {"code": "CUP_1", "party": "CUP", "cluster": 6, "prominence": 0.40},
     {"code": "CUP_2", "party": "CUP", "cluster": 6, "prominence": 0.35},
     {"code": "CUP_3", "party": "CUP", "cluster": 6, "prominence": 0.25},
+    # ── OAO: 3 candidates ──
+    {"code": "OAO_1", "party": "OAO", "cluster": 7, "prominence": 0.40},
+    {"code": "OAO_2", "party": "OAO", "cluster": 7, "prominence": 0.35},
+    {"code": "OAO_3", "party": "OAO", "cluster": 7, "prominence": 0.25},
     # ── DSA: 3 candidates ──
     {"code": "DSA_1", "party": "DSA", "cluster": 8, "prominence": 0.40},
     {"code": "DSA_2", "party": "DSA", "cluster": 8, "prominence": 0.35},
@@ -259,7 +263,7 @@ def main():
     print(table.to_string())
 
     print("\nWithin-party first-choice splits (verify 40/35/25):")
-    for party in ["CON", "LBR", "STY", "NAT", "DAL", "POP", "CUP", "DSA", "PRG"]:
+    for party in PARTIES:
         codes = [f"{party}_{i}" for i in (1, 2, 3)]
         totals = {c: fc_counts.get(c, 0) for c in codes}
         party_total = sum(totals.values())

@@ -10,7 +10,7 @@ from collections import defaultdict
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "pipeline"))
 from stv_config import BILL_VARS  # noqa: E402  — the canonical bill set, shared with the pipeline
-from party_codes import CLUSTER_TO_PARTY as PARTY_BY_CLUSTER, PARTY_TO_CLUSTER  # noqa: E402
+from party_codes import CLUSTER_TO_PARTY as PARTY_BY_CLUSTER, LEFT_RIGHT, PARTY_TO_CLUSTER  # noqa: E402
 
 OUTPUTS          = Path(__file__).parent.parent.parent / "data" / "outputs"
 FD_DIR           = OUTPUTS / "factor_deviation"
@@ -26,26 +26,11 @@ DATA_OUT.mkdir(parents=True, exist_ok=True)
 
 CLUSTER_TO_PARTY = {str(k): p for k, p in PARTY_BY_CLUSTER.items()}
 
-# Soft-weighted national population shares per cluster (excluding C7/Blue Dogs, renormalized to 100%)
-# Derived from: np.average(prob_cluster_k, weights=commonpostweight), then renormalized.
-# Matches the GMM posterior scoring used in ballot generation.
-NATIONAL_POP_SHARES = {
-    0: 18.73,   # CON
-    1: 15.63,   # SD
-    2: 15.04,   # STY
-    3:  9.19,   # NAT
-    4:  9.30,   # DAL
-    5: 11.01,   # POP
-    6:  9.86,   # CUP
-    8:  6.27,   # DSA
-    9:  4.96,   # PRG
-}
-
-
 PARTY_NAMES = {
     "CON": "Conservative", "LBR": "Labor", "STY": "Solidarity",
     "NAT": "Nationalist", "DAL": "Democratic Alliance", "POP": "Populist",
-    "CUP": "Civic Union Party", "DSA": "Democratic Socialists", "PRG": "Progressive",
+    "CUP": "Civic Union", "OAO": "Order and Opportunity",
+    "DSA": "Democratic Socialists", "PRG": "Progressive",
 }
 
 # Domains are assigned upstream by CES variable battery, which misfiles the items whose subject
@@ -860,7 +845,7 @@ def compute_key_positions_vs_neighbors(rows, cid, cluster_factors, n=5):
     stops a party from looking distinctive merely for being extreme on a universally polarizing
     issue. Deviation from the national average is deliberately NOT used; `direction` is the party's
     own stance (supports if a majority back it), `diffPp` the signed gap vs. neighbors."""
-    factor_keys = ["F1", "F2", "F3", "F4", "F5"]
+    factor_keys = ["F1", "F2", "F4", "F5"]
     me = cluster_factors.get(cid) if cluster_factors else None
     neighbor_cids = []
     if me:
@@ -933,10 +918,7 @@ def _compute_cluster_factor_centroids() -> dict:
     typo_path = Path(__file__).parent.parent.parent / "data" / "processed" / "typology_cluster_assignments.csv"
     efa_rows = read_csv(str(efa_path))
     typo_rows = read_csv(str(typo_path))
-    factor_map = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
-    if efa_rows and "FS_F4" not in efa_rows[0]:
-        factor_map["F4"] = "FS_F4_resid"
-        factor_map["F5"] = "FS_F5_resid"
+    factor_map = {"F1": "FS_F1", "F2": "FS_F2", "F4": "FS_F4", "F5": "FS_F5"}
 
     def _val(row_idx, col):
         v = efa_rows[row_idx].get(col)
@@ -985,7 +967,7 @@ def build_cluster_profiles(out_name="clusterProfiles.json",
         code = CLUSTER_TO_PARTY.get(cid, cid)
         clusters[cid]["party"] = code
         clusters[cid]["partyName"] = PARTY_NAMES.get(code, code)
-        fac = centroids.get(cid, {f"F{k}": 0.0 for k in range(1, 6)})
+        fac = centroids.get(cid, {k: 0.0 for k in ("F1", "F2", "F4", "F5")})
         for fk, v in fac.items():
             clusters[cid][fk] = v
         cluster_factors[cid] = dict(fac)
@@ -1006,10 +988,7 @@ def build_cluster_profiles(out_name="clusterProfiles.json",
     if efa_path.exists() and typo_path.exists():
         efa_rows = read_csv(str(efa_path))
         typo_rows = read_csv(str(typo_path))
-        factor_map = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
-        if "FS_F4" not in (efa_rows[0] if efa_rows else {}):
-            factor_map["F4"] = "FS_F4_resid"
-            factor_map["F5"] = "FS_F5_resid"
+        factor_map = {"F1": "FS_F1", "F2": "FS_F2", "F4": "FS_F4", "F5": "FS_F5"}
         def get_factor_val(row_idx, factor_key):
             col = factor_map[factor_key]
             val = efa_rows[row_idx].get(col)
@@ -1018,7 +997,7 @@ def build_cluster_profiles(out_name="clusterProfiles.json",
             return float(val or 0)
 
         N = len(efa_rows)
-        for factor_key in ["F1", "F2", "F3", "F4", "F5"]:
+        for factor_key in ["F1", "F2", "F4", "F5"]:
             all_vals = [get_factor_val(i, factor_key) for i in range(N)]
             pop_mean = sum(all_vals) / N
             pop_sd = (sum((v - pop_mean) ** 2 for v in all_vals) / N) ** 0.5
@@ -1063,10 +1042,7 @@ def build_current_party_profiles(out_name="currentPartyProfiles.json"):
     # which only has resid columns for F4/F5.
     efa_path = Path(__file__).parent.parent.parent / "data" / "processed" / "efa_factor_scores.csv"
     efa_rows = read_csv(str(efa_path))
-    fmap = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
-    if efa_rows and "FS_F4" not in efa_rows[0]:
-        fmap["F4"] = "FS_F4_resid"
-        fmap["F5"] = "FS_F5_resid"
+    fmap = {"F1": "FS_F1", "F2": "FS_F2", "F4": "FS_F4", "F5": "FS_F5"}
     W = [float(r.get("commonpostweight") or 1) for r in efa_rows]
     pid = [(int(float(r["pid3"])) if r.get("pid3") not in (None, '', 'nan') else 0)
            for r in efa_rows]
@@ -1394,10 +1370,9 @@ def build_fd_primary():
             "axis":      c.get("axis", "base"),
             "direction": c.get("direction", "base"),
             "F1": float(c.get("F1_security_order", 0)),
-            "F2": float(c.get("F2_electoral_skepticism", 0)),
-            "F3": float(c.get("F3_government_distrust", 0)),
-            "F4": float(c.get("F4_religious_traditionalism", 0)),
-            "F5": float(c.get("F5_populist_conservatism", 0)),
+            "F2": float(c.get("F2_government_distrust", 0)),
+            "F4": float(c.get("F4_cultural_conservatism", 0)),
+            "F5": float(c.get("F5_economic_conservatism", 0)),
             "stages": {s: stages.get(s, {
                 "voteTotal": 0, "votePct": 0,
                 "status": "previously_eliminated",
@@ -1840,10 +1815,9 @@ def build_fd_profiles():
             "axis":      c.get("axis", "base"),
             "direction": c.get("direction", "base"),
             "F1": float(c.get("F1_security_order", 0)),
-            "F2": float(c.get("F2_electoral_skepticism", 0)),
-            "F3": float(c.get("F3_government_distrust", 0)),
-            "F4": float(c.get("F4_religious_traditionalism", 0)),
-            "F5": float(c.get("F5_populist_conservatism", 0)),
+            "F2": float(c.get("F2_government_distrust", 0)),
+            "F4": float(c.get("F4_cultural_conservatism", 0)),
+            "F5": float(c.get("F5_economic_conservatism", 0)),
             "keyPositions": key_positions[:8],
             "variables": variables,
         }
@@ -1863,10 +1837,9 @@ def build_pure_multi_primary(src_dir=PURE_MULTI_DIR, out_name="pureMultiPrimary.
     party_f = {
         r["candidate_name"]: {
             "F1": float(r.get("F1_security_order", 0) or 0),
-            "F2": float(r.get("F2_electoral_skepticism", 0) or 0),
-            "F3": float(r.get("F3_government_distrust", 0) or 0),
-            "F4": float(r.get("F4_religious_traditionalism", 0) or 0),
-            "F5": float(r.get("F5_populist_conservatism", 0) or 0),
+            "F2": float(r.get("F2_government_distrust", 0) or 0),
+            "F4": float(r.get("F4_cultural_conservatism", 0) or 0),
+            "F5": float(r.get("F5_economic_conservatism", 0) or 0),
         }
         for r in centroids_rows
     }
@@ -1903,14 +1876,14 @@ def build_pure_multi_primary(src_dir=PURE_MULTI_DIR, out_name="pureMultiPrimary.
     candidates = []
     for code, stages in by_candidate.items():
         party = party_of_code.get(code, code.rsplit("_", 1)[0])
-        f = party_f.get(party, {"F1": 0.0, "F2": 0.0, "F3": 0.0, "F4": 0.0, "F5": 0.0})
+        f = party_f.get(party, {"F1": 0.0, "F2": 0.0, "F4": 0.0, "F5": 0.0})
         candidates.append({
             "code":      code,
             "name":      code,
             "party":     party,
             "axis":      "base",
             "direction": "base",
-            "F1": f["F1"], "F2": f["F2"], "F3": f["F3"], "F4": f["F4"], "F5": f["F5"],
+            "F1": f["F1"], "F2": f["F2"], "F4": f["F4"], "F5": f["F5"],
             "stages": {s: stages.get(s, {
                 "voteTotal": 0, "votePct": 0,
                 "status": "previously_eliminated",
@@ -2355,7 +2328,7 @@ def build_senate_buckets(src_dir=None, out_name="senateBuckets.json"):
     src_dir = src_dir or PURE_MULTI_DIR
     bucket_rows  = read_csv(src_dir / "senate" / "senate_stv_buckets.csv")
 
-    PARTIES = ["CON", "CUP", "DSA", "DAL", "NAT", "PRG", "POP", "LBR", "STY"]
+    PARTIES = list(LEFT_RIGHT)
     STV_SURVIVORS = 5
 
     # Build per-state finalist bucket data
@@ -2434,7 +2407,7 @@ def build_senate_condorcet(src_dir=None, out_name="senateCondorcet.json"):
     src_dir = src_dir or PURE_MULTI_DIR
     cond_rows = read_csv(src_dir / "senate" / "senate_condorcet_results.csv")
 
-    PARTIES = ["PRG", "DAL", "DSA", "LBR", "STY", "CUP", "CON", "POP", "NAT"]
+    PARTIES = list(LEFT_RIGHT)
 
     # Per-state matchups (for drill-down)
     states = {}

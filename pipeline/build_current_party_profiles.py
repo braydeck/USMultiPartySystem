@@ -15,9 +15,13 @@ Outputs:
   viz/src/data/currentPartySpreads.json                (Task 2)
 """
 import json
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from factor_keys import add_app_keys  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DTA = ROOT / "data" / "raw" / "2024 CES Base" / "CCES24_Common_OUTPUT_vv_topost_final.dta"
@@ -529,26 +533,24 @@ def build_continuous(dc, pid, w):
 # ── Task 2: Factor spreads ─────────────────────────────────────────────────────
 
 OUT_SPREADS = ROOT / "viz" / "src" / "data" / "currentPartySpreads.json"
-FCOLS = {"F1": "FS_F1", "F2": "FS_F2", "F3": "FS_F3", "F4": "FS_F4", "F5": "FS_F5"}
+FCOLS = {"F1": "FS_F1", "F2": "FS_F2", "F4": "FS_F4", "F5": "FS_F5"}
 
 
 def build_spreads(typo, pid):
     assert len(typo) == len(pid), f"length mismatch typo {len(typo)} vs pid {len(pid)}"
     w = typo['commonpostweight'].values.astype(float)
-    fmap = dict(FCOLS)
-    if "FS_F4" not in typo.columns:
-        fmap["F4"], fmap["F5"] = "FS_F4_resid", "FS_F5_resid"
-    F = {k: pd.to_numeric(typo[v], errors='coerce').values for k, v in fmap.items()}
+    typo = add_app_keys(typo)
+    F = {k: pd.to_numeric(typo[v], errors='coerce').values for k, v in FCOLS.items()}
     out = []
     for code, sel in {"DEM": pid == 1, "REP": pid == 2, "IND": pid == 3}.items():
         ww = w[sel]; ws = ww.sum()
         rec = {"party": code, "n": int(sel.sum())}
         means = {}
-        for k in ("F1", "F2", "F3", "F4", "F5"):
+        for k in FCOLS:
             x = F[k][sel]; mu = float((ww * x).sum() / ws); means[k] = mu
             rec[f"mean_{k}"] = round(mu, 4)
             rec[f"sd_{k}"] = round(float(np.sqrt((ww * (x - mu) ** 2).sum() / ws)), 4)
-        ks = ("F1", "F2", "F3", "F4", "F5")
+        ks = tuple(FCOLS)
         for i in range(len(ks)):
             for j in range(i + 1, len(ks)):
                 a, b = ks[i], ks[j]

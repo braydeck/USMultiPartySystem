@@ -40,3 +40,29 @@ draw 37/50: ARI 0.857, 2 solutions, modal 0.90, worst factor phi 0.992, worst ke
 draw 38/50: ARI 0.862, 3 solutions, modal 0.90, worst factor phi 0.993, worst kept 0.91
 draw 39/50: ARI 0.880, 1 solutions, modal 1.00, worst factor phi 0.995, worst kept 0.89
 draw 40/50: ARI 0.786, 5 solutions, modal 0.70, worst factor phi 0.980, worst kept 0.80
+draw 41/50: ARI 0.814, 2 solutions, modal 0.95, worst factor phi 0.979, worst kept 0.85
+draw 42/50: ARI 0.821, 2 solutions, modal 0.95, worst factor phi 0.985, worst kept 0.88
+draw 43/50: ARI 0.841, 4 solutions, modal 0.80, worst factor phi 0.983, worst kept 0.85
+draw 44/50: ARI 0.643, 2 solutions, modal 0.95, worst factor phi 0.965, worst kept 0.68
+draw 45/50: ARI 0.850, 4 solutions, modal 0.55, worst factor phi 0.989, worst kept 0.85
+draw 46/50: ARI 0.899, 2 solutions, modal 0.95, worst factor phi 0.993, worst kept 0.89
+draw 47/50: ARI 0.864, 5 solutions, modal 0.70, worst factor phi 0.987, worst kept 0.87
+draw 48/50: ARI 0.834, 5 solutions, modal 0.70, worst factor phi 0.983, worst kept 0.84
+draw 49/50: ARI 0.515, 4 solutions, modal 0.55, worst factor phi 0.886, worst kept 0.54
+draw 50/50: ARI 0.825, 4 solutions, modal 0.80, worst factor phi 0.971, worst kept 0.86
+current ten: 50 draws, ARI median 0.852; draws with a cluster under half 0.12
+eight-party rebuild: 50 draws, ARI median 0.490; draws with a cluster under half 0.86
+revised ten: 50 draws, ARI median 0.841, 5th pct 0.646; draws with a cluster under half 0.00
+
+Per reference cluster across draws:
+        kept_median  kept_q05  jaccard_median  share_draws_kept_below_half  reference_share
+party                                                                                     
+B.1          0.946     0.906           0.900                          0.0            0.221
+A.1          0.951     0.684           0.903                          0.0            0.180
+A.2          0.917     0.682           0.846                          0.0            0.176
+D.1          0.939     0.903           0.867                          0.0            0.117
+C.1          0.898     0.801           0.822                          0.0            0.108
+C.2          0.930     0.875           0.868                          0.0            0.075
+D.2          0.928     0.827           0.857                          0.0            0.061
+E.1          0.968     0.929           0.914                          0.0            0.033
+B.2          0.926     0.694           0.826                          0.0            0.029

@@ -3,7 +3,7 @@ import type { QuizQuestion as QuizQuestionType, ClusterProfile, HouseSeat } from
 import { QuizQuestion } from '../components/quiz/QuizQuestion';
 import { QuizProgress } from '../components/quiz/QuizProgress';
 import { QuizResult, type RankEntry } from '../components/quiz/QuizResult';
-import { classifyQuiz, estimateFactorZScores } from '../utils/quizScoring';
+import { classifyQuiz, estimateFactorZScores, questionsFor, QUIZ_VERSION_SIZE, QUIZ_PLACEMENT, type QuizVersion } from '../utils/quizScoring';
 import { useUrlState } from '../hooks/useUrlState';
 import { F5_ORDER_WFP } from '../constants/parties';
 import { Card } from '@/components/ui/card';
@@ -11,8 +11,8 @@ import { Button } from '@/components/ui/button';
 import { submitQuizResult, submitVibe, answersToVariableMap, track } from '../utils/analytics';
 import { PAGE_TITLE, CARD_HINT } from '../constants/typography';
 
-// Liberal (LIB) was renamed Democratic Alliance (DAL); links shared before the rename still say LIB.
-const RESULT_ALIASES = { LIB: 'DAL' };
+// LIB and DAL have no successor in the nine-party typology, so their old share links open the quiz.
+const RESULT_ALIASES = {};
 
 interface Props {
   questions: QuizQuestionType[];
@@ -20,7 +20,9 @@ interface Props {
   houseSeats: HouseSeat[];
 }
 
-export function QuizTab({ questions, clusters, houseSeats }: Props) {
+export function QuizTab({ questions: allQuestions, clusters, houseSeats }: Props) {
+  const [version, setVersion] = useState<QuizVersion | null>(null);
+  const questions = version ? questionsFor(allQuestions, version) : [];
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [current, setCurrent] = useState(0);
   const [ranking, setRanking] = useState<RankEntry[] | null>(null);
@@ -46,13 +48,13 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
     if (current < questions.length - 1) {
       setCurrent(c => c + 1);
     } else {
-      const scores = classifyQuiz(questions, answers);
+      const scores = classifyQuiz(questions, answers, version ?? 'short');
       const top: RankEntry[] = scores.slice(0, 4).map(s => {
         const cl = clusters.find(c => c.id === s.clusterId);
         return { party: cl?.party ?? '', partyName: cl?.partyName ?? '', prob: s.prob };
       });
       setRanking(top);
-      setRespondentFactors(estimateFactorZScores(questions, answers));
+      setRespondentFactors(estimateFactorZScores(questions, answers, version ?? 'short'));
       if (top[0].party) {
         setResultParty(top[0].party);
         const id = crypto.randomUUID();
@@ -61,6 +63,7 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
           id,
           result_party: top[0].party,
           answers: answersToVariableMap(questions, answers),
+          variant: version ?? 'short',
           scores: top.map(t => ({ party: t.party, prob: t.prob })),
         });
       }
@@ -72,6 +75,7 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
   }
 
   function handleRetake() {
+    setVersion(null);
     setAnswers({});
     setCurrent(0);
     setRanking(null);
@@ -117,6 +121,37 @@ export function QuizTab({ questions, clusters, houseSeats }: Props) {
         </div>
       );
     }
+  }
+
+  if (!version) {
+    const choices: { v: QuizVersion; title: string }[] = [
+      { v: 'short', title: 'Short quiz' },
+      { v: 'long', title: 'Full quiz' },
+    ];
+    return (
+      <div className="space-y-8 max-w-xl mx-auto">
+        <div>
+          <h2 className={`${PAGE_TITLE} mb-1`}>Which Party Are You?</h2>
+          <p className="text-muted-foreground text-sm">
+            Answer real survey questions and land in one of the 9 parties. The full quiz matches more survey respondents to their own party.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {choices.map(({ v, title }) => (
+            <Card key={v} className="p-6 flex flex-col gap-3">
+              <div className="text-lg font-semibold">{title}</div>
+              <div className="text-sm text-muted-foreground">
+                {QUIZ_VERSION_SIZE[v]} questions. Places {Math.round(QUIZ_PLACEMENT[v] * 100)}% of survey respondents in their own party.
+              </div>
+              <Button onClick={() => { setVersion(v); track('quiz_version', { version: v }); }} className="mt-auto">
+                Start {QUIZ_VERSION_SIZE[v]} questions
+              </Button>
+            </Card>
+          ))}
+        </div>
+        {consentNote}
+      </div>
+    );
   }
 
   const q = questions[current];

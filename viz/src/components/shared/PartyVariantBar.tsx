@@ -12,6 +12,7 @@ const VARIANT_ORDER = [
   'base',
   'hi_so', 'lo_so',
   'hi_id', 'lo_id',
+  'hi_rt', 'lo_rt',
   'hi_pc', 'lo_pc',
 ] as const;
 type VariantKey = typeof VARIANT_ORDER[number];
@@ -19,13 +20,15 @@ type VariantKey = typeof VARIANT_ORDER[number];
 const AXIS_PATTERN_ID: Record<string, string> = {
   so: 'pvb_stripe_so',
   id: 'pvb_stripe_id',
+  rt: 'pvb_stripe_rt',
   pc: 'pvb_stripe_pc',
 };
 
 const AXIS_FULL: Record<string, string> = {
   so: 'Security & Order',
-  id: 'Institutional Distrust',
-  pc: 'Populist Conservatism',
+  id: 'Government Distrust',
+  rt: 'Cultural Conservatism',
+  pc: 'Economic Conservatism',
 };
 
 function getAxis(vk: VariantKey): string | null {
@@ -123,6 +126,10 @@ export function PartyVariantBar({ seats, totalLabel }: Props) {
             {/* Horizontal stripes — ES axis */}
             <pattern id="pvb_stripe_id" patternUnits="userSpaceOnUse" width="8" height="8">
               <line x1="0" y1="4" x2="8" y2="4" stroke="rgba(255,255,255,0.40)" strokeWidth="2.2" />
+            </pattern>
+            {/* Dotted — RT (Cultural Conservatism) axis */}
+            <pattern id="pvb_stripe_rt" patternUnits="userSpaceOnUse" width="8" height="8">
+              <circle cx="4" cy="4" r="1.4" fill="rgba(255,255,255,0.45)" />
             </pattern>
             {/* Vertical stripes — PC axis */}
             <pattern id="pvb_stripe_pc" patternUnits="userSpaceOnUse" width="8" height="8">

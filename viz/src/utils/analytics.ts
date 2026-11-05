@@ -2,7 +2,8 @@ import posthog from 'posthog-js'
 import type { QuizQuestion } from '../types'
 import { resolveDefaultTab } from './defaultTab'
 
-export const QUIZ_VERSION = 'v1-2026-07'
+// v2: the nine-party typology's quiz (2026-11); the stored tag appends the short/long variant.
+export const QUIZ_VERSION = 'v2-2026-11'
 
 export function debounce<A extends unknown[]>(fn: (...a: A) => void, ms: number): (...a: A) => void {
   let t: ReturnType<typeof setTimeout> | undefined
@@ -125,17 +126,19 @@ export function submitQuizResult(input: {
   result_party: string
   answers: Record<string, number>
   scores: { party: string; prob: number }[]
+  variant?: string
 }): void {
   if (disabled) return
+  const { variant, ...payload } = input
   try {
     fetch('/api/quiz', {
       method: 'POST',
       keepalive: true,
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        ...input,
+        ...payload,
         referrer: document.referrer || null,
-        quiz_version: QUIZ_VERSION,
+        quiz_version: variant ? `${QUIZ_VERSION}-${variant}` : QUIZ_VERSION,
       }),
     }).catch(() => {
       /* fire-and-forget */
@@ -143,7 +146,7 @@ export function submitQuizResult(input: {
   } catch {
     /* never throw into the UI */
   }
-  track('quiz_completed', { party: input.result_party })
+  track('quiz_completed', { party: input.result_party, variant: variant ?? null })
 }
 
 export function submitVibe(id: string, vibe: 'fit' | 'miss', party: string): void {

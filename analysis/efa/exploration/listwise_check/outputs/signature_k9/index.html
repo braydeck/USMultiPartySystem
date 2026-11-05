@@ -541,6 +541,7 @@ tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); fon
   <section id="s-demo">
     <p class="eyebrow">Demographics</p>
     <h2>Who is in each selected party</h2>
+    <div class="row" style="margin-bottom:8px"><span class="counts" id="dcount"></span><span class="counts">The C, D, M and divergence filters above apply here too.</span></div>
     <div class="wrap"><table id="t-demo"></table></div>
     <p class="caption">Party ID, ideology and 2024 vote sit last as context. Median age shades from 30 to 70.</p>
   </section>
@@ -615,13 +616,26 @@ function renderPolicy() {
   document.getElementById("pcount").textContent = `${rows.length} of ${DATA.policy.length} items`;
 }
 function renderDemo() {
-  const ks = sel(); let html = head("Measure", false) + "<tbody>", last = null;
-  for (const r of DATA.demo) {
+  // Same filters as the policy table. Median age is in years, so it takes the divergence test
+  // (parties' medians >= the threshold in years apart) but carries no C/D/M tags.
+  const ks = sel(); let html = head("Measure", false) + "<tbody>", last = null, n = 0;
+  const rows = DATA.demo.filter(r => {
+    if (r.median && (S.fC || S.fD || S.fM)) return false;
+    const ms = r.median ? [] : ks.map(k => marks(r, k));
+    if (S.fC && !ms.some(m => m.C)) return false;
+    if (S.fD && !ms.some(m => m.mk === "D")) return false;
+    if (S.fM && !ms.some(m => m.mk === "M")) return false;
+    if (S.fG && !diverge(r, ks)) return false;
+    return true;
+  });
+  for (const r of rows) {
     if (r.section !== last) { html += `<tr class="topic"><td class="lbl">${r.section}</td><td colspan="${ks.length + 1}"></td></tr>`; last = r.section; }
     const range = r.median ? [30, 70] : [0, 100];
-    html += `<tr><td class="lbl">${r.label}</td>${usCell(r, range)}${ks.map(k => cell(r, k, range, false)).join("")}</tr>`;
+    html += `<tr><td class="lbl">${diverge(r, ks) ? '<span class="dia" title="Selected parties diverge">◆ </span>' : ""}${r.label}</td>${usCell(r, range)}${ks.map(k => cell(r, k, range, !r.median)).join("")}</tr>`;
+    n++;
   }
   document.getElementById("t-demo").innerHTML = html + "</tbody>";
+  document.getElementById("dcount").textContent = `${n} of ${DATA.demo.length} rows`;
 }
 function renderCards() {
   const ks = sel();
@@ -651,8 +665,8 @@ document.addEventListener("click", e => {
   if (th) { const k = th.dataset.k; S.sort = !S.sort || S.sort.k !== k ? { k, dir: -1 } : S.sort.dir < 0 ? { k, dir: 1 } : null; renderPolicy(); }
 });
 document.addEventListener("input", e => {
-  if (e.target.dataset.ax) { S[e.target.dataset.ax] = +e.target.value; e.target.nextElementSibling.textContent = (e.target.dataset.ax === "main" ? "≤" : "≥") + e.target.value + (e.target.dataset.ax === "cons" ? "%" : ""); renderCards(); renderPolicy(); return; }
-  if (e.target.dataset.f) { S[e.target.dataset.f] = e.target.checked; renderPolicy(); return; }
+  if (e.target.dataset.ax) { S[e.target.dataset.ax] = +e.target.value; e.target.nextElementSibling.textContent = (e.target.dataset.ax === "main" ? "≤" : "≥") + e.target.value + (e.target.dataset.ax === "cons" ? "%" : ""); renderCards(); renderPolicy(); renderDemo(); return; }
+  if (e.target.dataset.f) { S[e.target.dataset.f] = e.target.checked; renderPolicy(); renderDemo(); return; }
   if (["topic", "q", "inputs"].includes(e.target.id)) renderPolicy();
 });
 renderAll();

@@ -1,177 +1,167 @@
 #!/usr/bin/env python3
-"""Generate viz/src/data/quizQuestions.json from clusterProfiles.json.
+"""Generate viz/src/data/quizQuestions.json: the 41 quiz items of the nine-party typology.
 
-The set is the top-loading items for each differentiating factor (F1, F2, F4, F5);
-F3 is dropped (non-differentiating). Each item carries its EFA loading magnitude,
-used as a weight when estimating the respondent's factor-space position (Method A
-probabilistic scoring). clusterSupport = each party's value for the item, 0-1; the
-classifier learns each item's orientation to the factor from the cluster data, so
-phrasing/sign conventions don't have to be reconciled by hand.
+Items and their order come from analysis/efa/rebuild_nine_parties/quiz_items.csv (greedy by held-out
+factor R2). The short quiz is the first 25 of that order, the long quiz all 41 (ruled 2026-11-04,
+analysis/efa/exploration/listwise_check/DECISIONS.md). Each question carries `short` (true when it is
+in the short quiz); the app shows the items of the chosen version in this file's order, which groups
+them by section.
 
-Retune by editing QUESTIONS and re-running.
+Question wording is the CES item text (the variable label after the battery prefix, or the
+questionnaire stem where the label is a bare area name). Answer values sit on the scale the scoring
+key is fit on (analysis/efa/build_quiz_shortform.py): each item's coding in
+analysis/efa/exploration/listwise_check/item_pool.py, min-max scaled to 0-1. Those values are read off
+the data here, label by label, so an item coded high = oppose gets reversed values automatically.
+Binary support/oppose and agree/disagree items get a four-step intensity scale (the strong answers at
+the item's 0 and 1, the mild ones at 0.25 / 0.75), as the five-factor quiz did.
+
+`factor` is the item's primary app factor key (largest |loading| among the four entering factors of
+outputs/stage_c_v2/loadings.csv), `loading` that |loading|. clusterSupport is each live party's
+weighted mean answer on the 0-1 scale.
 """
-import csv
 import json
 import sys
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+import pyreadstat
+
 ROOT = Path(__file__).resolve().parent.parent.parent
-PROFILES = ROOT / "viz" / "src" / "data" / "clusterProfiles.json"
-# CC24_325 is a continuous item (weeks), so it has no "% Supporting" row and no entry in
-# clusterProfiles' variables map — prepare_data stopped synthesising a median bar for it when the
-# abortion cutoff became a box-plot distribution item. Read it from the stats CSV instead: the quiz
-# should not depend on which bars the Parties tab happens to display.
-CLUSTER_STATS = ROOT / "data" / "outputs" / "profiles" / "cluster_stats.csv"
-CONTINUOUS_SRC = {"CC24_325_median": ("CC24_325", "Median")}
-OUT = ROOT / "viz" / "src" / "data" / "quizQuestions.json"
+LW = ROOT / "analysis" / "efa" / "exploration" / "listwise_check"
+sys.path.insert(0, str(LW))
 sys.path.insert(0, str(ROOT / "pipeline"))
+import item_pool as ip  # noqa: E402
 from party_codes import LIVE_CLUSTERS  # noqa: E402
-ACTIVE = [str(k) for k in LIVE_CLUSTERS]
 
-# Response scales: exact CES wording on the surface, each option's `value` keyed to the
-# clusterSupport axis (clusterSupport = pct/100 = fraction giving the keyed response, so
-# value 1 = behaves like a cluster at 100% on that axis). Orientation to the factor is then
-# learned from the cluster data, so only the value→clusterSupport mapping must be right here.
+ITEMS_CSV = ROOT / "analysis" / "efa" / "rebuild_nine_parties" / "quiz_items.csv"
+LOADINGS = LW / "outputs" / "stage_c_v2" / "loadings.csv"
+FACTORS = LW / "outputs" / "stage_c_v2" / "factors.csv"
+STATS = ROOT / "data" / "outputs" / "profiles" / "cluster_stats.csv"
+TYPO = ROOT / "data" / "processed" / "typology_cluster_assignments.csv"
+OUT = ROOT / "viz" / "src" / "data" / "quizQuestions.json"
+N_SHORT = 25
 
-# Policy batteries (CC24_321/323/340/341): original is binary Support/Oppose. We add an
-# intensity gradient (no neutral) so an individual's answer lands on the same continuous
-# support axis the model was calibrated on (cluster fractions); pure 0/1 over-extremizes.
-# clusterSupport = % who Support the statement → Strongly support 1, Strongly oppose 0.
-INTENSITY = [
-    {"value": 1.0,  "label": "Strongly support"},
-    {"value": 0.75, "label": "Support"},
-    {"value": 0.25, "label": "Oppose"},
-    {"value": 0.0,  "label": "Strongly oppose"},
-]
+ROLE_TO_KEY = {"RT": "F4", "TR": "F2", "SO": "F1", "PC": "F5"}
 
-# Agree/disagree statements (CC24_421_*, CC24_440*): clusterSupport = % who agree.
-AGREE_5 = [
-    {"value": 1.0,  "label": "Strongly agree"},
-    {"value": 0.75, "label": "Somewhat agree"},
-    {"value": 0.5,  "label": "Neither agree nor disagree"},
-    {"value": 0.25, "label": "Somewhat disagree"},
-    {"value": 0.0,  "label": "Strongly disagree"},
-]
+SECTIONS = {
+    "policy":   ("Policy Proposals", "Do you support or oppose each proposal, and how strongly?"),
+    "court":    ("Supreme Court Decisions", "Do you agree or disagree with each decision of the Supreme Court, and how strongly?"),
+    "spending": ("State Spending", "State legislatures must make choices when making spending decisions on important state programs. How would you like your legislature to spend money on each area?"),
+    "agree":    ("Statements", "How much do you agree or disagree with each statement?"),
+    "trust":    ("Trust in Government", "Rate your level of trust."),
+    "religion": ("Religion & Abortion", "Choose the answer that fits you best."),
+}
+SECTION_ORDER = list(SECTIONS)
 
-# Trust in government (CC24_423/424): clusterSupport keys to % with LOW trust, so the
-# value rises with distrust (None at all = 1) even though the prompt asks how much trust.
-TRUST_4 = [
-    {"value": 0.0,  "label": "A great deal"},
-    {"value": 0.33, "label": "A fair amount"},
-    {"value": 0.67, "label": "Not very much"},
-    {"value": 1.0,  "label": "None at all"},
-]
-
-# Religious attendance (pew_churatd): clusterSupport keys to % attending regularly, so the
-# value rises with frequency.
-CHURCH_6 = [
-    {"value": 1.0,  "label": "More than once a week"},
-    {"value": 0.8,  "label": "Once a week"},
-    {"value": 0.5,  "label": "Once or twice a month"},
-    {"value": 0.25, "label": "A few times a year"},
-    {"value": 0.1,  "label": "Seldom"},
-    {"value": 0.0,  "label": "Never"},
-]
-
-# Abortion is a 0-40 week slider in CES; discretized here. Values + clusterSupport are on a
-# 0-1 permissiveness scale = weeks / 40.
-WEEKS_OPTIONS = [
-    {"value": 1.0,   "label": "A woman's choice, without limits"},
-    {"value": 0.6,   "label": "Up to about 24 weeks (viability)"},
-    {"value": 0.375, "label": "Up to about 15 weeks"},
-    {"value": 0.15,  "label": "Up to about 6 weeks"},
-    {"value": 0.0,   "label": "Never legal, or only for rape, incest, or the mother's life"},
-]
-
-# Conceptual sections — group items by response type, each with an answering instruction.
-SECTION_INFO = {
-    "policy":   {"section": "Policy Proposals",    "instruction": "Do you support or oppose each proposal — and how strongly?"},
-    "agree":    {"section": "Statements",          "instruction": "Rate your level of agreement."},
-    "trust":    {"section": "Trust in Government",  "instruction": "Rate your level of trust."},
-    "religion": {"section": "Religion & Abortion",  "instruction": "Choose the answer that fits you best."},
+# Items whose variable label is not the question a respondent reads.
+QUESTION_TEXT = {
+    "CC24_423": "How much trust do you have in the federal government in Washington when it comes to handling the nation's problems?",
+    "CC24_424": "How much trust do you have in the government of the state where you live when it comes to handling the state's problems?",
+    "pew_churatd": "Aside from weddings and funerals, how often do you attend religious services?",
+    "pew_bornagain": 'Would you describe yourself as a "born-again" or evangelical Christian, or not?',
+    "CC24_325": "Until what point in a pregnancy do you think a woman should be legally allowed to obtain an abortion? (A normal pregnancy runs up to about 40 weeks.)",
+    "CC24_421_1": "Elections in the U.S. are fair",
 }
 
-# Full set: every answerable item that loads |λ|>0.2, assigned to its top differentiating
-# factor (F1/F2/F4/F5; F3 dropped). Question text is the exact CES wording. Items are ordered
-# and grouped by section. (variable, factor, loading, exact question, options, section)
-QUESTIONS = [
-    # ── Policy Proposals (Support/Oppose intensity) ──────────────────────────
-    ("CC24_321d", "F1", 0.734, "Increase the number of police on the street by 10 percent, even if it means fewer funds for other public services", INTENSITY, "policy"),
-    ("CC24_321e", "F1", 0.653, "Decrease the number of police on the street by 10 percent, and increase funding for other public services", INTENSITY, "policy"),
-    ("CC24_321b", "F5", 0.557, "Make it easier for people to obtain concealed-carry permit", INTENSITY, "policy"),
-    ("CC24_323b", "F1", 0.705, "Increase the number of border patrols on the US-Mexican border", INTENSITY, "policy"),
-    ("CC24_340f", "F1", 0.664, "Deny access to asylum for immigrants who cross the US-Mexico border illegally", INTENSITY, "policy"),
-    ("CC24_323a", "F5", 0.520, "Grant legal status to all illegal immigrants who have held jobs and paid taxes for at least 3 years, and not been convicted of any felony crimes", INTENSITY, "policy"),
-    ("CC24_323d", "F5", 0.540, "Provide permanent resident status to children of immigrants who were brought to the United States by their parents (also known as Dreamers). Provide these immigrants a pathway to citizenship if they meet the citizenship requirements and have committed no crimes", INTENSITY, "policy"),
-    ("CC24_340e", "F1", 0.493, "Renew the federal surveillance programs that were adopted after 9/11 and that allow the government to search private electronic data without a search warrant", INTENSITY, "policy"),
-    ("CC24_341a", "F1", 0.260, "Extend the tax cuts enacted in 2017, which reduced individual and corporate income tax rates and limited deductions on mortgage interest and state and local taxes", INTENSITY, "policy"),
-    ("CC24_341c", "F5", 0.534, "Allow tax rates on those earning $400,000 or more a year to rise to 35 percent", INTENSITY, "policy"),
-    ("CC24_341d", "F5", 0.365, "Spend $150 billion a year for 8 years on construction and repair of roads and bridges, rail, public transit, airports, water systems, broadband internet, and electric grid", INTENSITY, "policy"),
-    ("CC24_340c", "F4", 0.651, "Require that all federal agencies recognize same-sex marriages and interracial marriages", INTENSITY, "policy"),
-    ("CC24_340b", "F4", 0.489, "Prohibit government restrictions on the provision of, and access to, abortion services", INTENSITY, "policy"),
-    # ── Statements (agree/disagree) ──────────────────────────────────────────
-    ("CC24_421_1_agree", "F2", 0.726, "Elections in the U.S. are fair", AGREE_5, "agree"),
-    ("CC24_421_2_agree", "F2", 0.901, "Your state or local government conducted a fair and accurate election in 2024", AGREE_5, "agree"),
-    ("CC24_440b_agree", "F5", 0.616, "Racial problems in the U.S. are rare, isolated situations", AGREE_5, "agree"),
-    ("CC24_440c_agree", "F5", 0.437, "Women seek to gain power by getting control over men", AGREE_5, "agree"),
-    # ── Trust in Government ──────────────────────────────────────────────────
-    ("CC24_423", "F2", 0.240, "How much trust do you have in the federal government in Washington when it comes to handling the nation's problems?", TRUST_4, "trust"),
-    ("CC24_424", "F2", 0.380, "How much trust do you have in the government of the state where you live when it comes to handling the state's problems?", TRUST_4, "trust"),
-    # ── Religion & Abortion ──────────────────────────────────────────────────
-    ("pew_churatd", "F4", 0.688, "Aside from weddings and funerals, how often do you attend religious services?", CHURCH_6, "religion"),
-    ("CC24_325_median", "F4", 0.688, "Until what point in a pregnancy do you think a woman should be legally allowed to obtain an abortion? (A normal pregnancy runs up to about 40 weeks.)", WEEKS_OPTIONS, "religion"),
-    # CC24_324b ("abortion only in rape/incest/life") dropped: lowest F4 loading and redundant
-    # with the abortion-by-weeks item, whose most-restrictive option says the same thing.
-    # CC24_302 (household income change) and CC24_303 (perceived price change / inflation) are
-    # also in the 24-item EFA but omitted here: both are near-zero-communality retrospective
-    # *perceptions* (|loadings| <= 0.22 on every factor), not policy stances, so they make poor
-    # party-match questions and add negligible discriminating signal. This makes the quiz 21
-    # items = 24 EFA items - 324b - 302 - 303; F3 is dropped only as a scoring axis (its two
-    # trust items, 423/424, are retained above under F2).
-]
+# Abortion week limit: CES asks for a week (0-40); the quiz offers five stops.
+WEEKS = [(40, "A woman's choice, without limits"), (24, "Up to about 24 weeks (viability)"),
+         (15, "Up to about 15 weeks"), (6, "Up to about 6 weeks"),
+         (0, "Never legal, or only for rape, incest, or the mother's life")]
 
-profiles = json.loads(PROFILES.read_text())
-by_id = {p["id"]: p for p in profiles}
-with open(CLUSTER_STATS, newline="", encoding="utf-8") as f:
-    stats_rows = list(csv.DictReader(f))
 
-out = []
-for code, factor, loading, question, options, section_key in QUESTIONS:
-    denom = 40.0 if code in CONTINUOUS_SRC else 100.0  # weeks/40 vs pct/100
-    if code in CONTINUOUS_SRC:
-        var, stat = CONTINUOUS_SRC[code]
-        row = next((r for r in stats_rows
-                    if r["variable"] == var and r["stat_label"] == stat), None)
-        if row is None:
-            raise SystemExit(f"missing {stat} row for {var} in cluster_stats.csv")
-        meta = {"domain": row.get("domain", "")}
-        support = {a: round(min(float(row[f"c{a}"]) / denom, 1.0), 6) for a in ACTIVE
-                   if row.get(f"c{a}") not in (None, "")}
-    else:
-        meta = by_id["2"]["variables"].get(code) or next(
-            (by_id[a]["variables"][code] for a in ACTIVE if code in by_id[a]["variables"]), None)
-        if meta is None:
-            raise SystemExit(f"missing variable: {code}")
-        support = {a: round(min(by_id[a]["variables"][code]["pct"] / denom, 1.0), 6) for a in ACTIVE
-                   if code in by_id[a]["variables"]}
-    if len(support) != len(ACTIVE):
-        raise SystemExit(f"{code} missing in some clusters")
-    info = SECTION_INFO[section_key]
-    out.append({
-        "variable": code,
-        "factor": factor,
-        "loading": loading,
-        "question": question,
-        "domain": meta["domain"],
-        "section": info["section"],
-        "instruction": info["instruction"],
-        "clusterSupport": support,
-        "options": options,
-    })
+def section_of(item):
+    if item in ("CC24_423", "CC24_424"):
+        return "trust"
+    if item.startswith("pew_") or item == "CC24_325":
+        return "religion"
+    if item.startswith("CC24_445"):
+        return "court"
+    if item.startswith("CC24_443"):
+        return "spending"
+    if item.startswith(("CC24_421", "CC24_440", "CC24_441")):
+        return "agree"
+    return "policy"
 
-OUT.write_text(json.dumps(out, indent=2) + "\n")
-print(f"wrote {len(out)} questions")
-cov = {}
-for _, f, *_ in QUESTIONS:
-    cov[f] = cov.get(f, 0) + 1
-print("factor coverage:", cov)
+
+def intensity(v_yes, yes, no):
+    """Four-step scale for a binary item whose `yes` answer codes to v_yes (0 or 1)."""
+    mild = 0.75 * v_yes + 0.25 * (1 - v_yes)
+    return [{"value": round(v_yes, 4), "label": f"Strongly {yes.lower()}"},
+            {"value": round(mild, 4), "label": yes},
+            {"value": round(1 - mild, 4), "label": no},
+            {"value": round(1 - v_yes, 4), "label": f"Strongly {no.lower()}"}]
+
+
+def main():
+    order = pd.read_csv(ITEMS_CSV).item.tolist()
+    short = set(order[:N_SHORT])
+
+    X, w, _, caseid = ip.load()
+    _, meta = pyreadstat.read_dta(ip.eu.CES_PATH, metadataonly=True)
+    lab = pd.read_stata(ip.eu.CES_PATH, columns=[c for c in order if c != "CC24_325"], convert_categoricals=True)
+    post = pd.to_numeric(pd.read_stata(ip.eu.CES_PATH, columns=["commonpostweight"],
+                                       convert_categoricals=False).commonpostweight, errors="coerce").values > 0
+    lab = lab[post].reset_index(drop=True)
+
+    L = pd.read_csv(LOADINGS, index_col=0)
+    fac = pd.read_csv(FACTORS)
+    roles = {}
+    for _, r in fac[fac.enters].iterrows():
+        name = r["name"]
+        roles[f"F{r.factor}"] = ("RT" if "Religious" in name or "new:" in name else
+                                 "TR" if "Distrust" in name else "SO" if "Security" in name else "PC")
+    assert sorted(roles.values()) == ["PC", "RT", "SO", "TR"], roles
+
+    typ = pd.read_csv(TYPO, usecols=["caseid", "cluster", "commonpostweight"])
+    pos = pd.Series(np.arange(len(caseid)), index=caseid).loc[typ.caseid.values].values
+    cl, wt = typ.cluster.values, typ.commonpostweight.values
+    domains = pd.read_csv(STATS).drop_duplicates("variable").set_index("variable")["domain"]
+
+    out = []
+    for item in order:
+        x = X[item].values.astype(float)
+        lo, hi = np.nanmin(x), np.nanmax(x)
+        scaled = (x - lo) / (hi - lo)
+        sec = section_of(item)
+        if item == "CC24_325":
+            assert lo == 0 and hi == 40  # item_pool codes 40 - weeks (restrictiveness)
+            options = [{"value": round((40 - wk) / 40, 4), "label": txt} for wk, txt in WEEKS]
+        else:
+            df = pd.DataFrame({"l": lab[item].astype(str), "v": scaled}).dropna()
+            val = df.groupby("l").v.agg(["min", "max"])
+            assert (val["min"] == val["max"]).all(), f"{item}: a label maps to several codes"
+            val = val["min"].to_dict()
+            cats = [c for c in lab[item].cat.categories if c in val]
+            if set(cats) == {"Support", "Oppose"}:
+                options = intensity(val["Support"], "Support", "Oppose")
+            elif set(cats) == {"Agree", "Disagree"}:
+                options = intensity(val["Agree"], "Agree", "Disagree")
+            else:
+                options = [{"value": round(val[c], 4), "label": c} for c in cats]
+        label = meta.column_names_to_labels[item]
+        question = QUESTION_TEXT.get(item, label.split(" -- ", 1)[-1].strip())
+        ld = L.loc[item, list(roles)].abs()
+        key = ROLE_TO_KEY[roles[ld.idxmax()]]
+        s = scaled[pos]
+        support = {}
+        for k in LIVE_CLUSTERS:
+            m = (cl == k) & ~np.isnan(s)
+            support[str(k)] = round(float(np.average(s[m], weights=wt[m])), 6)
+        name, instruction = SECTIONS[sec]
+        out.append({"variable": item, "factor": key, "loading": round(float(ld.max()), 3),
+                    "question": question, "domain": str(domains.get(item, "")), "section": name,
+                    "instruction": instruction, "short": item in short,
+                    "clusterSupport": support, "options": options})
+
+    out.sort(key=lambda q: (SECTION_ORDER.index(next(k for k, v in SECTIONS.items() if v[0] == q["section"])),
+                            order.index(q["variable"])))
+    OUT.write_text(json.dumps(out, indent=2) + "\n")
+    n_short = sum(q["short"] for q in out)
+    print(f"wrote {OUT.relative_to(ROOT)}: {len(out)} questions, {n_short} in the short quiz")
+    cov = pd.Series([q["factor"] for q in out]).value_counts().to_dict()
+    print("primary factor per item:", cov)
+
+
+if __name__ == "__main__":
+    main()

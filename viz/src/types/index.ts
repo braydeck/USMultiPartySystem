@@ -3,7 +3,7 @@ export interface PrimaryCandidate {
   name: string;
   F1: number;
   F2: number;
-  F3: number;
+  F3?: number;  // retired with the four-factor typology
   F4: number;
   F5: number;
   stages: Record<string, {
@@ -147,19 +147,19 @@ export interface ClusterProfile {
   partyName: string;
   F1: number;
   F2: number;
-  F3: number;
+  F3?: number;  // retired with the four-factor typology
   F4: number;
   F5: number;
   /** Factor scores standardised against the full electorate; present on every row. */
   z_F1: number;
   z_F2: number;
-  z_F3: number;
+  z_F3?: number;
   z_F4: number;
   z_F5: number;
   /** Percentile of the same factor score within the electorate. */
   pctile_F1: number;
   pctile_F2: number;
-  pctile_F3: number;
+  pctile_F3?: number;
   pctile_F4: number;
   pctile_F5: number;
   seatsHouse: number;
@@ -178,6 +178,8 @@ export interface QuizQuestion {
   section?: string;
   /** How-to-answer prompt shown for the section (e.g. "Rate your level of agreement."). */
   instruction?: string;
+  /** True when the item is in the 25-item short quiz; every item is in the long one. */
+  short?: boolean;
   clusterSupport: Record<string, number>;
   /** Answer scale; each option's value is on the 0-1 clusterSupport axis. */
   options?: { value: number; label: string }[];
@@ -234,7 +236,7 @@ export interface BlendProfile {
   seatsIRV: number;
   F1: number;
   F2: number;
-  F3: number;
+  F3?: number;  // retired with the four-factor typology
   F4: number;
   F5: number;
   keyPositions: KeyPosition[];
@@ -353,7 +355,7 @@ export interface ConstellationNode {
   id: string;
   label: string;
   seats: number;
-  F1: number; F2: number; F3: number; F4: number; F5: number;
+  F1: number; F2: number; F3?: number; F4: number; F5: number;
 }
 
 // ── Factor Deviation types ─────────────────────────────────────────────────
@@ -409,7 +411,7 @@ export interface FDCandidateProfile {
   direction: string;
   F1: number;
   F2: number;
-  F3: number;
+  F3?: number;  // retired with the four-factor typology
   F4: number;
   F5: number;
   keyPositions: FDKeyPosition[];
@@ -424,7 +426,7 @@ export interface FDPrimaryCandidate {
   direction: string;
   F1: number;
   F2: number;
-  F3: number;
+  F3?: number;  // retired with the four-factor typology
   F4: number;
   F5: number;
   stages: Record<string, {

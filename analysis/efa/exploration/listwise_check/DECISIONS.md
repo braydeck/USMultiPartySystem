@@ -163,3 +163,16 @@
   `analysis/efa/rebuild_nine_parties/quiz_items.csv` (held-out factor R2 0.97); long = all 41. Both classify with the
   DPGMM's own components and mixing weights, covariances widened by each key's residual covariance
   (`quiz_classifier.py`: 25 items place 85.1%, 41 items 96.6%, vs 83.4% / 91.3% with the old per-party Gaussians).
+- **Party order is computed, not hand-listed** (researcher, 2026-11-04). Left to right = weighted Economic
+  Conservatism centroid (app key F5 = -FS_PC), low to high: OAO, PRG, DSA, LBR, STY, CUP, CON, NAT, POP
+  (`pipeline/party_codes.LEFT_RIGHT`, `viz/src/constants/parties.ts` F5_ORDER). Replaces the list in
+  `rebuild_nine_parties/NEXT.md` (DSA, PRG, OAO, ..., CUP, STY, ...), which did not match the centroids.
+
+## Senate split cutoff = 21 points (ruled 2026-11-05)
+
+On the 1,000 nine-party re-clustering draws at the default 5% stop, a state splits its two Senate seats when
+the top two parties' resample win shares are within 21 points. Both rules leave 20.0 to 21.6 empty (IRV gaps
+climb to 15.7, then 19.9, then 21.6; Ranked Pairs gaps climb to 20.0, then 23.6), so no state sits near the
+line. 18, the five-factor cutoff, fell between Ranked Pairs gaps of 17.8 and 18.2. Splits: 16 states under
+IRV, 15 under Ranked Pairs. `SPLIT_THRESHOLD_PP` in viz/src/lib/senateDelegations.ts; re-measure whenever
+the parties change.

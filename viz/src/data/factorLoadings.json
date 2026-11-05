@@ -1,55 +1,114 @@
 [
   {
-    "short": "PC",
-    "label": "Populist Conservatism",
-    "color": "#92400e",
-    "eta": 0.736,
-    "bw": 1.67,
-    "strength": "Strongest sorter. Parties sit about 1.7x farther apart than the spread within each one.",
-    "hi": "Anti-elite, nationalist, culturally conservative",
-    "lo": "Cosmopolitan, progressive on culture and economics",
-    "note": "Most items load negatively: the survey coded progressive answers as higher numbers, so a negative loading means a high factor score predicts the conservative answer.",
-    "factor": "F5",
+    "short": "CC",
+    "label": "Cultural Conservatism",
+    "color": "#dc2626",
+    "hi": "Restricts abortion and gender transition for minors; backs school vouchers; born-again",
+    "lo": "Protects abortion access, same-sex marriage and contraception",
+    "factor": "F4",
+    "eta": 0.745,
+    "bw": 1.71,
+    "strength": "Parties sit about 1.7x farther apart on this factor than the spread within each one.",
     "items": [
       {
-        "loading": -0.616,
-        "question": "Racial problems in the U.S. are rare, isolated situations"
+        "loading": 0.713,
+        "question": "School voucher subsidies"
       },
       {
-        "loading": -0.557,
+        "loading": 0.649,
+        "question": "Extend the 2017 tax cuts"
+      },
+      {
+        "loading": 0.63,
+        "question": "Prohibit abortion-inducing drugs by mail"
+      },
+      {
+        "loading": 0.61,
+        "question": "Parental consent for name/pronoun changes at school"
+      },
+      {
+        "loading": 0.591,
+        "question": "SCOTUS: Constitution doesn't protect abortion; Roe overruled (Agree/Disagree)"
+      },
+      {
+        "loading": 0.571,
+        "question": "SCOTUS: Race in admissions violates Equal Protection (Agree/Disagree)"
+      },
+      {
+        "loading": 0.532,
+        "question": "Prohibit women traveling to another state for abortion"
+      },
+      {
+        "loading": 0.53,
+        "question": "Born-again or evangelical Christian"
+      },
+      {
+        "loading": 0.513,
+        "question": "Increase fossil fuel production in the U.S."
+      },
+      {
+        "loading": 0.51,
+        "question": "Prevent gender transition surgery for minors"
+      },
+      {
+        "loading": 0.506,
+        "question": "Repeal the Affordable Care Act"
+      },
+      {
+        "loading": -0.5,
+        "question": "Later week limit for a legal abortion"
+      },
+      {
+        "loading": 0.48,
+        "question": "Permit abortion only in rape/incest/life danger cases"
+      },
+      {
+        "loading": 0.466,
         "question": "Easier concealed-carry permits"
       },
       {
-        "loading": -0.54,
-        "question": "Permanent status/pathway for Dreamers"
-      },
-      {
-        "loading": -0.534,
-        "question": "Allow rates on $400k+ earners to rise to 35%"
-      },
-      {
-        "loading": -0.52,
-        "question": "Grant legal status to long-term undocumented immigrants"
-      },
-      {
-        "loading": -0.437,
+        "loading": 0.42,
         "question": "Women seek to gain power by getting control over men"
       },
       {
-        "loading": -0.365,
-        "question": "Spend $150B/yr on infrastructure"
+        "loading": 0.413,
+        "question": "Age verification for adult web content"
       },
       {
-        "loading": 0.341,
-        "question": "Renew post-9/11 surveillance programs"
+        "loading": 0.379,
+        "question": "Prevent government from banning gas stoves"
       },
       {
-        "loading": -0.271,
-        "question": "Deny asylum for illegal border crossings"
+        "loading": 0.377,
+        "question": "Frequency of religious service attendance"
       },
       {
-        "loading": -0.238,
-        "question": "Extend the 2017 tax cuts"
+        "loading": -0.363,
+        "question": "Federal recognition of same-sex & interracial marriages"
+      },
+      {
+        "loading": 0.332,
+        "question": "Racial problems in the U.S. are rare, isolated situations"
+      },
+      {
+        "loading": -0.24,
+        "question": "Slavery/discrimination makes it hard for Blacks to rise"
+      },
+      {
+        "loading": -0.231,
+        "question": "Elections in the U.S. are fair"
+      },
+      {
+        "loading": -0.228,
+        "question": "Halt new oil and gas leases on federal lands"
+      },
+      {
+        "loading": 0.217,
+        "question": "Increase state spending on law enforcement"
+      },
+      {
+        "loading": -0.216,
+        "question": "Allow rates on $400k+ earners to rise to 35%"
       }
     ]
   },
@@ -57,179 +116,190 @@
     "short": "SO",
     "label": "Security & Order",
     "color": "#1d4ed8",
-    "eta": 0.701,
-    "bw": 1.53,
-    "strength": "Nearly as strong. The main law-and-order axis.",
-    "hi": "Pro-police, tougher sentencing, strong military",
-    "lo": "Reform policing, de-escalation, diplomacy-first",
+    "hi": "More police and border patrols, more law-enforcement spending",
+    "lo": "Fewer police, more spending on other services",
     "factor": "F1",
+    "eta": 0.693,
+    "bw": 1.5,
+    "strength": "Parties sit about 1.5x farther apart on this factor than the spread within each one.",
     "items": [
       {
-        "loading": 0.734,
-        "question": "Increase police by 10%"
+        "loading": 0.721,
+        "question": "Increase state spending on law enforcement"
       },
       {
-        "loading": 0.705,
+        "loading": 0.626,
         "question": "Increase border patrols"
       },
       {
-        "loading": 0.664,
-        "question": "Deny asylum for illegal border crossings"
-      },
-      {
-        "loading": 0.653,
+        "loading": -0.585,
         "question": "Decrease police by 10%, increase other funding"
       },
       {
-        "loading": 0.493,
-        "question": "Renew post-9/11 surveillance programs"
+        "loading": -0.454,
+        "question": "Forgive up to $20k of student loan debt per person"
       },
       {
-        "loading": 0.319,
-        "question": "Grant legal status to long-term undocumented immigrants"
+        "loading": 0.454,
+        "question": "Ban TikTok unless China sells to a US company"
       },
       {
-        "loading": 0.313,
-        "question": "Permanent status/pathway for Dreamers"
+        "loading": -0.356,
+        "question": "Slavery/discrimination makes it hard for Blacks to rise"
       },
       {
-        "loading": 0.268,
-        "question": "Permit abortion only in rape/incest/life danger cases"
-      },
-      {
-        "loading": 0.26,
-        "question": "Extend the 2017 tax cuts"
-      }
-    ]
-  },
-  {
-    "short": "ID",
-    "label": "Institutional Distrust",
-    "color": "#7c3aed",
-    "eta": 0.375,
-    "bw": 0.775,
-    "strength": "The genuine distrust-of-institutions axis \u2014 carries both electoral and government distrust (party-level r=+0.84 with raw government distrust). Cross-cutting: POP and STY both score high despite opposite left-right positions.",
-    "hi": "Distrusts elections and government; anti-establishment",
-    "lo": "Trusts institutions; accepts electoral and government legitimacy",
-    "factor": "F2",
-    "items": [
-      {
-        "loading": 0.901,
-        "question": "2024 state/local election was fair"
-      },
-      {
-        "loading": 0.726,
-        "question": "Elections in the U.S. are fair"
-      },
-      {
-        "loading": 0.38,
-        "question": "Low trust in state government"
-      },
-      {
-        "loading": 0.24,
-        "question": "Low trust in the federal government"
-      },
-      {
-        "loading": 0.209,
-        "question": "Women seek to gain power by getting control over men"
-      },
-      {
-        "loading": 0.202,
-        "question": "Extend the 2017 tax cuts"
-      }
-    ]
-  },
-  {
-    "short": "RT",
-    "label": "Religious Traditionalism",
-    "color": "#dc2626",
-    "eta": 0.305,
-    "bw": 0.663,
-    "strength": "Moderate. Sorts parties mainly on abortion and marriage, with substantial within-party noise.",
-    "hi": "Faith-informed policy, traditional family structures",
-    "lo": "Secular policy, pluralist social norms",
-    "factor": "F4",
-    "items": [
-      {
-        "loading": 0.688,
-        "question": "Frequency of church attendance"
-      },
-      {
-        "loading": 0.688,
-        "question": "Stricter limits on how many weeks abortion is legal"
-      },
-      {
-        "loading": 0.651,
-        "question": "Federal recognition of same-sex & interracial marriages"
-      },
-      {
-        "loading": 0.489,
-        "question": "Prohibit restrictions on abortion access"
-      },
-      {
-        "loading": 0.3,
-        "question": "Spend $150B/yr on infrastructure"
+        "loading": -0.311,
+        "question": "Halt new oil and gas leases on federal lands"
       },
       {
         "loading": 0.297,
-        "question": "Permit abortion only in rape/incest/life danger cases"
+        "question": "Increase state spending on transportation & infrastructure"
       },
       {
-        "loading": 0.285,
+        "loading": 0.291,
+        "question": "Increase fossil fuel production in the U.S."
+      },
+      {
+        "loading": -0.289,
+        "question": "Grant legal status to long-term undocumented immigrants"
+      },
+      {
+        "loading": 0.263,
+        "question": "Elections in the U.S. are fair"
+      },
+      {
+        "loading": 0.258,
+        "question": "Parental consent for name/pronoun changes at school"
+      },
+      {
+        "loading": -0.239,
+        "question": "Increase state spending on welfare"
+      },
+      {
+        "loading": -0.23,
+        "question": "Expand federal tax incentives for affordable housing"
+      },
+      {
+        "loading": 0.205,
+        "question": "Age verification for adult web content"
+      },
+      {
+        "loading": -0.203,
+        "question": "Expand Medicaid (income <$25k individual / <$40k family)"
+      }
+    ]
+  },
+  {
+    "short": "EC",
+    "label": "Economic Conservatism",
+    "color": "#92400e",
+    "hi": "Cuts state spending on health care, education and welfare; opposes Medicaid expansion",
+    "lo": "Raises state social spending, expands Medicaid, taxes high earners",
+    "factor": "F5",
+    "eta": 0.686,
+    "bw": 1.48,
+    "strength": "Parties sit about 1.5x farther apart on this factor than the spread within each one.",
+    "items": [
+      {
+        "loading": -0.819,
+        "question": "Increase state spending on health care"
+      },
+      {
+        "loading": -0.756,
+        "question": "Increase state spending on education"
+      },
+      {
+        "loading": -0.613,
+        "question": "Expand Medicaid (income <$25k individual / <$40k family)"
+      },
+      {
+        "loading": -0.605,
+        "question": "Increase state spending on welfare"
+      },
+      {
+        "loading": -0.528,
+        "question": "Expand federal tax incentives for affordable housing"
+      },
+      {
+        "loading": -0.524,
+        "question": "Increase state spending on transportation & infrastructure"
+      },
+      {
+        "loading": -0.491,
+        "question": "Forgive up to $20k of student loan debt per person"
+      },
+      {
+        "loading": -0.482,
+        "question": "Spend $150B/yr on infrastructure"
+      },
+      {
+        "loading": -0.468,
         "question": "Allow rates on $400k+ earners to rise to 35%"
       },
       {
-        "loading": 0.24,
-        "question": "Extend the 2017 tax cuts"
+        "loading": 0.417,
+        "question": "Racial problems in the U.S. are rare, isolated situations"
       },
       {
-        "loading": 0.219,
-        "question": "Perceive consumer prices as higher"
+        "loading": -0.38,
+        "question": "Grant legal status to long-term undocumented immigrants"
+      },
+      {
+        "loading": -0.336,
+        "question": "Slavery/discrimination makes it hard for Blacks to rise"
+      },
+      {
+        "loading": -0.333,
+        "question": "Halt new oil and gas leases on federal lands"
+      },
+      {
+        "loading": 0.27,
+        "question": "Repeal the Affordable Care Act"
+      },
+      {
+        "loading": -0.247,
+        "question": "Decrease police by 10%, increase other funding"
+      },
+      {
+        "loading": 0.242,
+        "question": "Easier concealed-carry permits"
+      },
+      {
+        "loading": 0.223,
+        "question": "SCOTUS: Constitution doesn't protect abortion; Roe overruled (Agree/Disagree)"
+      },
+      {
+        "loading": -0.203,
+        "question": "Increase state spending on law enforcement"
       }
     ]
   },
   {
     "short": "GD",
-    "label": "Government Distrust (residual)",
-    "color": "#b45309",
-    "eta": 0.057,
-    "bw": 0.246,
-    "strength": "Non-interpretable residual, shown for transparency only. Its party scores run OPPOSITE to actual government distrust (party-level r=-0.38) because Institutional Distrust absorbs the real signal. Retained in the model solely because splitting the trust variance lets clustering separate the institutionalist party (CUP). Not used to place you in the quiz.",
-    "hi": "(residual factor \u2014 no clean interpretation)",
-    "lo": "(residual factor \u2014 no clean interpretation)",
-    "factor": "F3",
+    "label": "Government Distrust",
+    "color": "#7c3aed",
+    "hi": "Little or no trust in federal and state government; doubts elections are fair",
+    "lo": "Trusts federal and state government and elections",
+    "factor": "F2",
+    "eta": 0.233,
+    "bw": 0.55,
+    "strength": "Parties sit about 0.6x farther apart on this factor than the spread within each one.",
     "items": [
       {
-        "loading": 0.663,
+        "loading": 0.852,
         "question": "Low trust in the federal government"
       },
       {
-        "loading": 0.476,
+        "loading": 0.676,
         "question": "Low trust in state government"
       },
       {
-        "loading": -0.319,
-        "question": "Renew post-9/11 surveillance programs"
+        "loading": -0.559,
+        "question": "Elections in the U.S. are fair"
       },
       {
-        "loading": 0.27,
+        "loading": -0.206,
         "question": "Grant legal status to long-term undocumented immigrants"
-      },
-      {
-        "loading": 0.225,
-        "question": "Permanent status/pathway for Dreamers"
-      },
-      {
-        "loading": -0.219,
-        "question": "Women seek to gain power by getting control over men"
-      },
-      {
-        "loading": -0.208,
-        "question": "Racial problems in the U.S. are rare, isolated situations"
-      },
-      {
-        "loading": 0.203,
-        "question": "Perceive consumer prices as higher"
       }
     ]
   }

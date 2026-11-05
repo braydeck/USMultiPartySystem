@@ -17,6 +17,7 @@ Outputs (Claude/outputs/senate/):
   senate_composition.csv        — one row per state (senator + vote shares)
 """
 
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -30,10 +31,11 @@ TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignment
 EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "pure_only" / "senate"
 
-# ── Party abbreviations (C7 Blue Dogs excluded — permanently dissolved) ────────
-PARTY_ABBR      = {0:"CON", 1:"LBR", 2:"STY", 3:"NAT", 4:"DAL",
-                   5:"POP", 6:"CUP", 8:"DSA", 9:"PRG"}
-ACTIVE_CLUSTERS = sorted(PARTY_ABBR.keys())   # [0,1,2,3,4,5,6,8,9]
+# ── Party abbreviations: the live parties (pipeline/party_codes.py) ───────────
+sys.path.insert(0, str(BASE_DIR / "pipeline"))
+from party_codes import CLUSTER_TO_PARTY  # noqa: E402
+PARTY_ABBR      = dict(CLUSTER_TO_PARTY)
+ACTIVE_CLUSTERS = sorted(PARTY_ABBR.keys())
 PROB_COLS       = [f"prob_cluster_{k}" for k in range(10)]
 
 # ── FIPS → state abbreviation ─────────────────────────────────────────────────

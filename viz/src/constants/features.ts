@@ -3,7 +3,7 @@
 import type { Pipeline } from './labels';
 
 /**
- * The Crossover candidate field — 10 base candidates plus 28 factor-deviation variants — is hidden.
+ * The Crossover candidate field — 9 base candidates plus 32 factor-deviation variants — is hidden.
  * It was always the least data-driven half of the model: the variants are synthetic positions
  * (one axis shifted by ±25% of the inter-party SD) scored by factor-space proximity rather than by
  * the DPGMM posterior every other surface uses, and it has no bootstrap, no turnout stops, and no

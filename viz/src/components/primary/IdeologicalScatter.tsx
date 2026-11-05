@@ -57,7 +57,7 @@ export function IdeologicalScatter({ candidates, stage }: Props) {
       .attr('text-anchor', 'middle')
       .style('fill', '#64748b')
       .style('font-size', '12px')
-      .text('F5: Populist Conservatism →');
+      .text('F5: Economic Conservatism →');
 
     // F4 opacity map: [-0.4, +0.5] → [0.3, 1.0]
     const opacityScale = d3.scaleLinear().domain([-0.4, 0.5]).range([0.3, 1.0]).clamp(true);

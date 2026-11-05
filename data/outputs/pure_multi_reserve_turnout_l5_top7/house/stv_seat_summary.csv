@@ -1,10 +1,10 @@
 party,party_name,URBAN,SUBURBAN,RURAL,NATIONAL,pct_national
-0,Conservative,78,63,18,159,22.08
-1,Labor,64,45,9,118,16.39
-5,Populist,44,37,9,90,12.5
-2,Solidarity,48,33,7,88,12.22
-4,Democratic Alliance,51,18,8,77,10.69
-6,Civic Union Party,38,32,7,77,10.69
-3,Nationalist,26,30,8,64,8.89
-9,Progressive,20,7,0,27,3.75
-8,DSA,15,5,0,20,2.78
+3,Nationalist,72,72,16,160,22.22
+0,Conservative,72,59,19,150,20.83
+2,Solidarity,62,47,10,119,16.53
+1,Labor,65,34,7,106,14.72
+6,Civic Union Party,54,37,10,101,14.03
+9,Progressive,41,14,2,57,7.92
+7,Order and Opportunity Party,15,4,2,21,2.92
+8,DSA,3,1,0,4,0.56
+5,Populist,0,2,0,2,0.28

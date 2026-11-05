@@ -267,7 +267,7 @@ export function OverviewTab({
       <Card className="p-5">
         <h4 className={`${CARD_HEADING} mb-1`}>Ideological Constellation</h4>
         <p className={`${CARD_HINT} mb-4`}>
-          Drag axes to explore ideological dimensions. Default: Security &amp; Order (X) vs Populist Conservatism (Y).
+          Drag axes to explore ideological dimensions. Default: Economic Conservatism (X) vs Security &amp; Order (Y).
         </p>
         <IdeologicalConstellation
           nodes={clusters.filter(c => c.party).map(c => ({

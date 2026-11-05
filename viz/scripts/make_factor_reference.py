@@ -1,79 +1,136 @@
 #!/usr/bin/env python3
-"""Generate viz/src/data/factorLoadings.json for the methodology display.
+"""Generate the factor reference for the four-factor typology.
 
-Authoritative sources: analysis/efa/efa_loadings_k5_final.csv (loadings) and
-clusterProfiles.json (the REAL survey-question text). This replaces hand-transcribed
-descriptions, which had errors (e.g. CC24_321b is concealed-carry, not 'community
-policing'; CC24_440c is 'women seek power over men', not 'progressive racial attitudes').
+Writes:
+  viz/src/data/factorLoadings.json  per factor (strongest sorter first): label, poles, eta (the weighted
+                                    eta-squared of the factor score by party), bw (between-party SD over
+                                    within-party SD), and every item loading |lambda| > 0.20 with its
+                                    survey question
+  viz/src/data/factorItems.json     {factor: [{key, loading}]} and {key: primary factor}, keyed by the
+                                    app's variable names (clusterProfiles), which constants/parties.ts
+                                    imports as FACTOR_ITEMS and VAR_FACTOR
 
-Per factor: η²/strength metadata (from the discriminating-power analysis) plus every item
-loading |λ|>0.20 on that factor, sorted by |loading|, with its real question.
+Loadings: analysis/efa/exploration/listwise_check/outputs/stage_c_v2/loadings.csv (the four entering
+factors), carried to the app keys of pipeline/factor_keys.py (F1 = -SO, F5 = -PC) and signed by each
+item's keyed answer (support, agree, increase, low trust, attends more, a later abortion limit), so a
+positive loading means that answer goes with a high score on the factor.
 """
-import csv
 import json
+import sys
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+
 ROOT = Path(__file__).resolve().parent.parent.parent
-LOADINGS = ROOT / "analysis" / "efa" / "efa_loadings_k5_final.csv"
-PROFILES = json.loads((ROOT / "viz" / "src" / "data" / "clusterProfiles.json").read_text())
-OUT = ROOT / "viz" / "src" / "data" / "factorLoadings.json"
+sys.path.insert(0, str(ROOT / "pipeline"))
+import factor_keys as fk  # noqa: E402
 
-vars0 = PROFILES[0]["variables"]
+LW = ROOT / "analysis" / "efa" / "exploration" / "listwise_check" / "outputs" / "stage_c_v2"
+QUIZ = ROOT / "viz" / "src" / "data" / "quizQuestions.json"
+PROFILES = ROOT / "viz" / "src" / "data" / "clusterProfiles.json"
+OUT_LOADINGS = ROOT / "viz" / "src" / "data" / "factorLoadings.json"
+OUT_ITEMS = ROOT / "viz" / "src" / "data" / "factorItems.json"
 
-# Cleaner display text for a few clunky/median items; otherwise use the clusterProfiles question.
+ROLE_COL = {"RT": "F4", "TR": "F2", "SO": "F1", "PC": "F5"}
+META = {
+    "F1": {"short": "SO", "label": "Security & Order", "color": "#1d4ed8",
+           "hi": "More police and border patrols, more law-enforcement spending",
+           "lo": "Fewer police, more spending on other services"},
+    "F2": {"short": "GD", "label": "Government Distrust", "color": "#7c3aed",
+           "hi": "Little or no trust in federal and state government; doubts elections are fair",
+           "lo": "Trusts federal and state government and elections"},
+    "F4": {"short": "CC", "label": "Cultural Conservatism", "color": "#dc2626",
+           "hi": "Restricts abortion and gender transition for minors; backs school vouchers; born-again",
+           "lo": "Protects abortion access, same-sex marriage and contraception"},
+    "F5": {"short": "EC", "label": "Economic Conservatism", "color": "#92400e",
+           "hi": "Cuts state spending on health care, education and welfare; opposes Medicaid expansion",
+           "lo": "Raises state social spending, expands Medicaid, taxes high earners"},
+}
 QUESTION_OVERRIDE = {
-    "CC24_325": "Stricter limits on how many weeks abortion is legal",
+    "CC24_325": "Later week limit for a legal abortion",
     "CC24_423": "Low trust in the federal government",
     "CC24_424": "Low trust in state government",
-    "pew_churatd": "Frequency of church attendance",
-    "CC24_302": "Household finances got worse over the past year",
-    "CC24_303": "Perceive consumer prices as higher",
+    "pew_churatd": "Frequency of religious service attendance",
 }
 
-def question_for(code: str) -> str:
-    if code in QUESTION_OVERRIDE:
-        return QUESTION_OVERRIDE[code]
-    for k in (code, code + "_agree", code + "_median"):
-        if k in vars0:
-            return vars0[k]["question"]
-    return code
 
-# Factor metadata (η², B/W, interpretation) from the discriminating-power analysis.
-META = {
-    "F5": {"short": "PC", "label": "Populist Conservatism", "color": "#92400e", "eta": 0.736, "bw": 1.67,
-           "strength": "Strongest sorter. Parties sit about 1.7x farther apart than the spread within each one.",
-           "hi": "Anti-elite, nationalist, culturally conservative", "lo": "Cosmopolitan, progressive on culture and economics",
-           "note": "Most items load negatively: the survey coded progressive answers as higher numbers, so a negative loading means a high factor score predicts the conservative answer."},
-    "F1": {"short": "SO", "label": "Security & Order", "color": "#1d4ed8", "eta": 0.701, "bw": 1.53,
-           "strength": "Nearly as strong. The main law-and-order axis.",
-           "hi": "Pro-police, tougher sentencing, strong military", "lo": "Reform policing, de-escalation, diplomacy-first"},
-    # F2 was relabelled from "Electoral Skepticism": it absorbs the government-trust items too and
-    # carries the real distrust signal (party-level r=+0.84 with raw government distrust).
-    "F2": {"short": "ID", "label": "Institutional Distrust", "color": "#7c3aed", "eta": 0.375, "bw": 0.775,
-           "strength": "The genuine distrust-of-institutions axis — carries both electoral and government distrust (party-level r=+0.84 with raw government distrust). Cross-cutting: POP and STY both score high despite opposite left-right positions.",
-           "hi": "Distrusts elections and government; anti-establishment", "lo": "Trusts institutions; accepts electoral and government legitimacy"},
-    "F4": {"short": "RT", "label": "Religious Traditionalism", "color": "#dc2626", "eta": 0.305, "bw": 0.663,
-           "strength": "Moderate. Sorts parties mainly on abortion and marriage, with substantial within-party noise.",
-           "hi": "Faith-informed policy, traditional family structures", "lo": "Secular policy, pluralist social norms"},
-    # F3's party scores run OPPOSITE to real government distrust (r=-0.38) because F2 absorbs the
-    # signal; it is kept only so splitting the trust variance lets clustering separate CUP.
-    "F3": {"short": "GD", "label": "Government Distrust (residual)", "color": "#b45309", "eta": 0.057, "bw": 0.246,
-           "strength": "Non-interpretable residual, shown for transparency only. Its party scores run OPPOSITE to actual government distrust (party-level r=-0.38) because Institutional Distrust absorbs the real signal. Retained in the model solely because splitting the trust variance lets clustering separate the institutionalist party (CUP). Not used to place you in the quiz.",
-           "hi": "(residual factor — no clean interpretation)", "lo": "(residual factor — no clean interpretation)"},
-}
+def app_key(item, profile_vars):
+    for k in (item, item + "_agree", item + "_median"):
+        if k in profile_vars:
+            return k
+    return item
 
-rows = list(csv.DictReader(open(LOADINGS)))
-out = []
-for f in ["F5", "F1", "F2", "F4", "F3"]:  # sorted by η² descending
-    items = []
-    for r in rows:
-        load = float(r[f])
-        if abs(load) > 0.20:
-            items.append({"loading": round(load, 3), "question": question_for(r[""])})
-    items.sort(key=lambda it: -abs(it["loading"]))
-    out.append({**META[f], "factor": f, "items": items})
 
-OUT.write_text(json.dumps(out, indent=2) + "\n")
-print(f"wrote {len(out)} factors to {OUT.relative_to(ROOT)}")
-for fac in out:
-    print(f"  {fac['short']} {fac['label']}: {len(fac['items'])} items")
+def keyed_direction(q):
+    """+1 when the item's keyed answer (support, agree, increase, low trust, ...) is coded high."""
+    v = q["variable"]
+    if v == "CC24_325":
+        return -1.0           # coded 40 - weeks; keyed = a later limit
+    if v in ("CC24_423", "CC24_424"):
+        return 1.0 if q["options"][-1]["value"] >= 0.5 else -1.0   # keyed = "None at all", the last option
+    first = q["options"][0]   # Strongly support / Strongly agree / Greatly increase / attends most / Yes
+    return 1.0 if first["value"] >= 0.5 else -1.0
+
+
+def main():
+    qs = {q["variable"]: q for q in json.loads(QUIZ.read_text())}
+    profile_vars = json.loads(PROFILES.read_text())[0]["variables"]
+    L = pd.read_csv(LW / "loadings.csv", index_col=0)
+    fac = pd.read_csv(LW / "factors.csv")
+    cols = {}
+    for _, r in fac[fac.enters].iterrows():
+        n = r["name"]
+        role = "RT" if ("Religious" in n or "new:" in n) else "TR" if "Distrust" in n else "SO" if "Security" in n else "PC"
+        cols[ROLE_COL[role]] = f"F{r.factor}"
+    sign = {k: fk.SOURCE[k][1] for k in fk.KEYS}
+
+    efa = pd.read_csv(ROOT / "data" / "processed" / "efa_factor_scores.csv")
+    typ = pd.read_csv(ROOT / "data" / "processed" / "typology_cluster_assignments.csv", usecols=["caseid", "cluster"])
+    d = efa.merge(typ, on="caseid", validate="one_to_one")
+    w = d.commonpostweight.values
+    eta = {}
+    for k in fk.KEYS:
+        x = d[f"FS_{k}"].values
+        m = np.average(x, weights=w)
+        between = sum(w[d.cluster == c].sum() * (np.average(x[d.cluster == c], weights=w[d.cluster == c]) - m) ** 2
+                      for c in d.cluster.unique()) / w.sum()
+        eta[k] = between / np.average((x - m) ** 2, weights=w)
+
+    items, primary, loadings = {k: [] for k in fk.KEYS}, {}, []
+    for item in L.index:
+        q = qs.get(item)
+        dirn = keyed_direction(q) if q else 1.0
+        key = app_key(item, profile_vars)
+        best = None
+        for k in fk.KEYS:
+            lam = float(L.loc[item, cols[k]]) * sign[k] * dirn
+            if abs(lam) > 0.20:
+                items[k].append({"key": key, "loading": round(lam, 3)})
+            if best is None or abs(lam) > abs(best[1]):
+                best = (k, lam)
+        primary[key] = best[0]
+    for k in items:
+        items[k].sort(key=lambda it: -abs(it["loading"]))
+
+    order = sorted(fk.KEYS, key=lambda k: -eta[k])
+    for k in order:
+        bw = float(np.sqrt(eta[k] / (1 - eta[k])))
+        qtext = {}
+        for it in items[k]:
+            base = it["key"].removesuffix("_agree").removesuffix("_median")
+            qtext[it["key"]] = QUESTION_OVERRIDE.get(base) or profile_vars.get(it["key"], {}).get("question") \
+                or (qs[base]["question"] if base in qs else base)
+        loadings.append({**META[k], "factor": k, "eta": round(float(eta[k]), 3), "bw": round(bw, 2),
+                         "strength": f"Parties sit about {bw:.1f}x farther apart on this factor than the spread within each one.",
+                         "items": [{"loading": it["loading"], "question": qtext[it["key"]]} for it in items[k]]})
+
+    OUT_LOADINGS.write_text(json.dumps(loadings, indent=2) + "\n")
+    OUT_ITEMS.write_text(json.dumps({"order": order, "items": items, "primary": primary}, indent=2) + "\n")
+    print(f"wrote {OUT_LOADINGS.relative_to(ROOT)} and {OUT_ITEMS.relative_to(ROOT)}")
+    for f in loadings:
+        print(f"  {f['factor']} {f['label']}: eta2 {f['eta']}, {len(f['items'])} items")
+
+
+if __name__ == "__main__":
+    main()

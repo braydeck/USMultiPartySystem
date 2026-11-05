@@ -1,5 +1,5 @@
 import type { ClusterProfile } from '../../types';
-import { getBlendColor, FACTOR_POLES, DISPLAY_FACTORS } from '../../constants/parties';
+import { getBlendColor, FACTOR_POLES, DISPLAY_FACTORS, PARTY_BLURBS } from '../../constants/parties';
 import { bamForZ, bamForPctile, BAM_TEXT_LOW, BAM_TEXT_HIGH } from '../../lib/bam';
 import { popShareLabel } from '../../lib/population';
 import { Card } from '@/components/ui/card';
@@ -7,22 +7,9 @@ import { CARD_HINT } from '../../constants/typography';
 
 const FACTOR_SHORT_LABEL: Record<string, string> = {
   F1: 'Security',
-  F2: 'Institutions',
-  F3: 'Establishment',
-  F4: 'Religion',
-  F5: 'Conservatism',
-};
-
-const PARTY_BLURBS: Record<string, string> = {
-  LBR: 'The center-left baseline. Working-class, racially diverse. Relatively moderate on tax policy, immigration enforcement, and abortion compared to other "left" clusters. Low political engagement.',
-  DAL: 'The establishment center-left. Professional-class, educated, progressive on all policy dimensions, and strongly institutionalist. High political engagement, interventionist on foreign policy.',
-  DSA: 'The anti-establishment far left. Youngest profile, urban-concentrated, culturally progressive, social libertarian. High institutional distrust, non-interventionist, universally pro-legalization for undocumented immigrants, opposes border patrols.',
-  PRG: 'The establishment far left. Wealthy, highly educated, intensely pro-choice, and strongly institutionalist. Highest voter turnout of any party. Tied with NAT as the wealthiest profile.',
-  STY: 'The disaffected center. Young, urban, most racially diverse, lowest income, lowest education. High institutional distrust, non-interventionist, pro-Medicaid, pro-immigrant-legalization. Lowest voter turnout of any party.',
-  CUP: 'The institutionalist center. Religious, law-and-order, pro-police, tough on borders, but economically progressive. The most institutionally trusting profile in the system.',
-  CON: 'The pre-Trump Republican coalition. Law-and-order, low-tax, pro-police, pro-border-patrol. Trusts elections, backs universal background checks on firearms. Supports fossil fuel production, socially conservative on trans issues.',
-  POP: 'The anti-establishment right. Nativist, economically conservative, isolationist, skeptical of government power. Majority opposed to increased police spending. Most racially diverse right-wing profile, highest homemaker population.',
-  NAT: 'The far right. Anti-immigrant, high racial and gender resentment, anti-environmentalist, religiously fundamentalist. Opposes all legalization efforts including for Dreamers, supports heavy abortion restrictions. Rural-concentrated, wealthy, strongly pro-Israel.',
+  F2: 'Government',
+  F4: 'Culture',
+  F5: 'Economy',
 };
 
 function zDescriptor(factor: string, z: number): string {

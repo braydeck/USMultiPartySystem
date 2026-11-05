@@ -10,9 +10,10 @@ Draw d uses stratified_indices(state, seed=42 + d), the index vector the seat, p
 population bootstraps already share, so all three describe the same resamples. The fitted
 model is cached per draw (a few KB), and posteriors are recomputed on demand.
 
-Fit settings match analysis/efa/pipeline/dpgmm_clustering.py: cap 9 (the stable cap,
-analysis/efa/exploration/k_stability/), full covariance, Dirichlet process prior, n_init 5,
-max_iter 2000, random_state 42 + d. Party IDs come from a Hungarian match of the draw's hard
+Fit settings match analysis/efa/pipeline/dpgmm_clustering.py: the four factor scores of the
+revised rule (FS_RT, FS_TR, FS_SO, FS_PC), cap 9 (ruled 2026-11-04,
+analysis/efa/exploration/listwise_check/DECISIONS.md), full covariance, Dirichlet process prior,
+n_init 5, max_iter 2000, random_state 42 + d. Party IDs come from a Hungarian match of the draw's hard
 labels against the published typology, over every respondent, weighted. With nine clusters
 over ten ID slots, the slot the published typology leaves empty stays empty in every draw.
 """
@@ -29,8 +30,8 @@ from sklearn.mixture import BayesianGaussianMixture
 from .inject import BASE, PROCESSED
 from .resample import stratified_indices
 
-CACHE = BASE / "data" / "bootstrap_cache" / "recluster_k9"
-COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4_resid", "FS_F5_resid"]
+CACHE = BASE / "data" / "bootstrap_cache" / "recluster_k9_four"
+COLS = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]  # the clustering space of dpgmm_clustering.py
 K = 9
 N_IDS = 10
 PROB_COLS = [f"prob_cluster_{k}" for k in range(N_IDS)]
@@ -77,7 +78,7 @@ def fit_draw(d: int) -> dict:
 
 
 def draw_typology(d: int) -> pd.DataFrame:
-    """Draw d's assignments for all 45,214 respondents, in the published typology's schema."""
+    """Draw d's assignments for every respondent, in the published typology's schema."""
     fs, typ = _inputs()
     f = fit_draw(d)
     p = f["model"].predict_proba(fs[COLS].values)

@@ -43,6 +43,7 @@ import statsmodels.api as sm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from party_codes import CLUSTER_TO_PARTY, PARTY_TO_CLUSTER  # noqa: E402
+from factor_keys import CENTROID_COLS as KEY_CENTROID_COLS, SCORE_COLS  # noqa: E402
 
 BASE = Path(__file__).parent.parent
 OUT_DIR = BASE / "data" / "outputs"
@@ -53,11 +54,8 @@ CLUSTER_STATS = OUT_DIR / "profiles" / "cluster_stats.csv"
 CENTROIDS = OUT_DIR / "candidate_factor_centroids.csv"
 VOTE_MODEL = OUT_DIR / "house_vote_model.csv"
 
-FACTORS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
-CENTROID_COLS = [
-    "F1_security_order", "F2_electoral_skepticism", "F3_government_distrust",
-    "F4_religious_traditionalism", "F5_populist_conservatism",
-]
+FACTORS = SCORE_COLS
+CENTROID_COLS = list(KEY_CENTROID_COLS.values())
 
 # 24 EFA-anchor items — the listwise mask that defines the typology row set.
 ANCHORS = ['pew_churatd', 'CC24_302', 'CC24_303', 'CC24_341a', 'CC24_341c',
@@ -187,7 +185,7 @@ def main():
         pr2 = float(1.0 - res.llf / res.llnull) if res.llnull != 0 else np.nan
         param_rows.append({
             "variable": var, "intercept": round(float(beta[0]), 5),
-            **{f"b_{FACTORS[k]}": round(float(beta[k + 1]), 5) for k in range(5)},
+            **{f"b_{FACTORS[k]}": round(float(beta[k + 1]), 5) for k in range(len(FACTORS))},
             "n": int(fit_mask.sum()), "pseudo_r2": round(pr2, 4),
         })
 

@@ -1,3 +1,4 @@
+import { CLUSTER_TO_PARTY as CLUSTER_PARTY } from '../constants/parties';
 import { useUrlState } from '../hooks/useUrlState';
 import { useState, useEffect } from 'react';
 import type { VoteModelRow, CandidateVoteRow, PresidentialElection } from '../types';
@@ -81,9 +82,9 @@ interface Props {
   rawMultiElectionTurnout: PresidentialElection;
 }
 
-const CLUSTER_TO_PARTY: Record<number, string> = {
-  0: 'CON', 1: 'LBR', 2: 'STY', 3: 'NAT', 4: 'DAL', 5: 'POP', 6: 'CUP', 8: 'DSA', 9: 'PRG',
-};
+const CLUSTER_TO_PARTY: Record<number, string> = Object.fromEntries(
+  Object.entries(CLUSTER_PARTY).map(([k, p]) => [Number(k), p]),
+);
 const toSeatMap = (arr: { party: number; national: number }[]): Record<string, number> =>
   Object.fromEntries(arr.map((r) => [CLUSTER_TO_PARTY[r.party], r.national]));
 /** Modal seats per party. */

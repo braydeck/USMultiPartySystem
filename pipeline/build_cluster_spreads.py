@@ -3,9 +3,9 @@
 build_cluster_spreads.py
 ------------------------
 Each party's spread in raw factor units, for the constellation penumbras and the Parties-tab
-z-scores. Source: data/processed/efa_factor_scores.csv (raw FS_F1..F5 + commonpostweight)
-joined positionally to data/processed/typology_cluster_assignments.csv (hard `cluster`), both
-45,214 rows on the same listwise-deletion mask. Raw, not resid, F4/F5, so the means match
+z-scores. Source: data/processed/efa_factor_scores.csv (app keys FS_F1/F2/F4/F5, pipeline/factor_keys.py,
++ commonpostweight) aligned row for row (asserted by caseid) with
+data/processed/typology_cluster_assignments.csv (hard `cluster`). The means match
 candidate_factor_centroids.csv, which places the constellation's nodes.
 
 Per party: weighted mean, weighted SD and weighted pairwise covariance of its first-choice
@@ -31,7 +31,7 @@ BASE = Path(__file__).resolve().parent.parent
 PROCESSED = BASE / "data" / "processed"
 OUT = BASE / "viz" / "src" / "data"
 
-FACTORS = ["F1", "F2", "F3", "F4", "F5"]
+FACTORS = ["F1", "F2", "F4", "F5"]
 
 
 def wsd(x, w):
@@ -42,8 +42,7 @@ def wsd(x, w):
 def main():
     scores = pd.read_csv(PROCESSED / "efa_factor_scores.csv")
     typ = pd.read_csv(PROCESSED / "typology_cluster_assignments.csv")
-    assert len(scores) == len(typ) == 45214
-    assert np.allclose(scores.FS_F1, typ.FS_F1) and np.allclose(scores.commonpostweight, typ.commonpostweight)
+    assert len(scores) == len(typ) and (scores.caseid.values == typ.caseid.values).all(), "rows not aligned by caseid"
 
     w = scores.commonpostweight.to_numpy()
     X = scores[[f"FS_{f}" for f in FACTORS]].to_numpy()

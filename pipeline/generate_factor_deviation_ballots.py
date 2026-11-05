@@ -26,6 +26,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 from party_codes import PARTY_TO_CLUSTER  # noqa: E402
+from factor_keys import CENTROID_COLS, SCORE_COLS  # noqa: E402
 
 BASE_DIR        = Path(__file__).parent.parent
 CANDIDATES_PATH = BASE_DIR / "data" / "outputs" / "factor_deviation" / "candidate_factor_centroids.csv"
@@ -34,22 +35,16 @@ TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignment
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation"
 
 # Voter factor score columns — raw (not residualized); same space as candidate centroids
-VOTER_FACTOR_COLS = ["FS_F1", "FS_F2", "FS_F3", "FS_F4", "FS_F5"]
+VOTER_FACTOR_COLS = SCORE_COLS
 PROB_COLS         = [f"prob_cluster_{k}" for k in range(10)]
 
 PARTY_CLUSTER = PARTY_TO_CLUSTER
 
 # Corresponding columns in the candidate CSV
-CAND_FACTOR_COLS = [
-    "F1_security_order",
-    "F2_electoral_skepticism",
-    "F3_government_distrust",
-    "F4_religious_traditionalism",
-    "F5_populist_conservatism",
-]
+CAND_FACTOR_COLS  = list(CENTROID_COLS.values())
 
 POSITIONAL_SIGMA = 0.35
-FACTOR_WEIGHTS   = np.array([1.0, 1.0, 1.0, 1.0, 1.0])  # uniform — centroid geometry handles discrimination
+FACTOR_WEIGHTS   = np.ones(4)  # uniform — centroid geometry handles discrimination
 
 FIPS_TO_ABBR = {
      1:"AL",  2:"AK",  4:"AZ",  5:"AR",  6:"CA",  8:"CO",  9:"CT",

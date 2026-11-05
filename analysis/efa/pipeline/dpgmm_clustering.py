@@ -11,10 +11,10 @@ Output: typology_cluster_assignments.csv  (hard + soft cluster assignments)
         dpgmm_seed_selection.csv  (per-seed fit diagnostics and agreement)
 
 Factor inputs (revised §3c rule, docs/EFA_ITEM_SELECTION_ROBUSTNESS.md; no residualization):
-  FS_RT  - cultural conservatism
-  FS_TR  - distrust of government
-  FS_SO  - security & order
-  FS_PC  - economic right
+  FS_RT  - cultural conservatism (high = conservative)
+  FS_TR  - distrust of government (high = distrust)
+  FS_SO  - security & order (high = civil libertarian; app key F1 = -FS_SO)
+  FS_PC  - economic (high = left; app key F5 = -FS_PC; pipeline/factor_keys.py)
 The nine reproduce listwise_check/outputs/stage_c_v2/labels.npz cap 9 (17 of 20 seeds).
 
 DPGMM params:
@@ -344,7 +344,7 @@ ideo5_series = fs["ideo5"].round(0)
 weighted_pct_crosstab(ideo5_series, cluster, w, ideo_labels)
 
 # --- 8d. Mean distrust and economic right per cluster ---
-print("\n--- Mean FS_TR (distrust) and FS_PC (economic right) per cluster ---")
+print("\n--- Mean FS_TR (distrust) and FS_PC (high = economic left) per cluster ---")
 f2_vals = fs["FS_TR"].values
 f3_vals = fs["FS_PC"].values
 print(f"\n  {'Cluster':>7}  {'Wtd N':>8}  {'Mean TR':>15}  {'Mean PC':>16}")

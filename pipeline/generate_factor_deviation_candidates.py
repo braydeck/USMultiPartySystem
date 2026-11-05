@@ -2,89 +2,78 @@
 """
 generate_factor_deviation_candidates.py
 ----------------------------------------
-Defines 37 factor-deviation (FD) candidates for the FD pipeline.
+Defines the factor-deviation (FD, "crossover") candidates for the FD pipeline.
 
-Each party gets hi/lo variants only on axes where its within-party SD
-is >= 70% of the inter-party SD — i.e., axes where real internal
-ideological variation exists.  F3 (Government Distrust) and F4
-(Religious Traditionalism) are excluded: F3's inter-party SD is near-
-zero; F4's inter-party SD is also very small (0.19 vs 0.76 for F1),
-making the ±0.048 deviation negligible.
+Each party gets hi/lo variants only on axes where its within-party SD is >= 70% of the
+inter-party SD, i.e. axes where real internal ideological variation exists. The qualifying
+parties are computed from the typology each run (the five-factor version froze them by hand).
+Axes are the four app factor keys (pipeline/factor_keys.py): so = F1 Security & Order,
+id = F2 Government Distrust (the code kept from the five-factor elections-distrust axis),
+rt = F4 Cultural Conservatism, pc = F5 Economic Conservatism.
 
-Active axes and qualifying parties (within/inter SD ratio >= 0.70):
-  so  — Security & Order (F1)      → SD (0.72), STY (0.75)
-  id  — Institutional Distrust (F2)  → DSA (1.16), SD (0.88), STY (1.47),
-                                      CON (0.91), POP (1.39), NAT (1.39)
-  pc  — Populist Conservatism (F5) → DAL (0.72), SD (0.86), STY (1.21),
-                                      CUP (0.99), CON (0.86), POP (1.09)
+Deviation = 25% of the inter-party SD on each factor. Within-party SD is weighted
+(commonpostweight) over the party's hard-cluster members; inter-party SD is the population SD
+of the live parties' centroids.
 
-Deviation = 25% of the inter-party SD on each factor.
-
-Candidate count:
-  PRG  — base only                   =  1
-  DAL  — base + PC×2                 =  3
-  DSA  — base + ES×2                 =  3
-  SD   — base + SO×2 + ES×2 + PC×2  =  7
-  STY  — base + SO×2 + ES×2 + PC×2  =  7
-  CUP  — base + PC×2                 =  3
-  CON  — base + ES×2 + PC×2         =  5
-  POP  — base + ES×2 + PC×2         =  5
-  NAT  — base + ES×2                 =  3
-  Total                               = 37
-
+Inputs:
+  data/outputs/candidate_factor_centroids.csv   (archive/generate_candidate_profiles.py)
+  data/processed/efa_factor_scores.csv, typology_cluster_assignments.csv (joined by caseid)
 Outputs:
   data/outputs/factor_deviation/candidate_factor_centroids.csv
 """
 
+
 import csv
 import math
+import sys
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
 
 BASE_DIR     = Path(__file__).parent.parent
 CENTROIDS_IN = BASE_DIR / "data" / "outputs" / "candidate_factor_centroids.csv"
 OUT_DIR      = BASE_DIR / "data" / "outputs" / "factor_deviation"
 OUT_PATH     = OUT_DIR / "candidate_factor_centroids.csv"
 
-FACTOR_COLS = [
-    "F1_security_order",
-    "F2_electoral_skepticism",
-    "F3_government_distrust",
-    "F4_religious_traditionalism",
-    "F5_populist_conservatism",
-]
+sys.path.insert(0, str(BASE_DIR / "pipeline"))
+from factor_keys import CENTROID_COLS  # noqa: E402
+from party_codes import LEFT_RIGHT, PARTY_TO_CLUSTER  # noqa: E402
 
-# Pure-party candidate codes in the existing centroids file
-PURE_CODES = {
-    "CON": "RH",
-    "LBR":  "MW",
-    "STY": "MRJ",
-    "NAT": "BE",
-    "DAL": "CO",
-    "POP": "DH",
-    "CUP": "LK",
-    "DSA": "ZN",
-    "PRG": "JR",
-}
-PARTIES = list(PURE_CODES.keys())
+FACTOR_COLS = list(CENTROID_COLS.values())
+PARTIES = list(LEFT_RIGHT)
+PURE_CODES = {p: p for p in PARTIES}   # base rows in candidate_factor_centroids.csv are keyed by party
 
-# Parties that qualify for each axis (within-party SD / inter-party SD >= 0.70)
-SO_PARTIES = {"LBR", "STY"}
-ES_PARTIES = {"DSA", "LBR", "STY", "CON", "POP", "NAT"}
-PC_PARTIES = {"DAL", "LBR", "STY", "CUP", "CON", "POP"}
+AXIS_KEY = {"so": "F1", "id": "F2", "rt": "F4", "pc": "F5"}
+AXIS_FACTOR_COL = {a: CENTROID_COLS[k] for a, k in AXIS_KEY.items()}
+QUALIFY_RATIO = 0.70
 
-AXIS_PARTIES = {"so": SO_PARTIES, "id": ES_PARTIES, "pc": PC_PARTIES}
 
-# Factor axis → column name (F3 and F4 excluded — inter-party SD too small)
-AXIS_FACTOR_IDX = {"so": 0, "id": 1, "pc": 4}
-AXIS_FACTOR_COL = {"so": "F1_security_order",
-                   "id": "F2_electoral_skepticism",
-                   "pc": "F5_populist_conservatism"}
+def qualifying_parties(centroids):
+    """{axis: set of parties whose weighted within-party SD >= QUALIFY_RATIO x inter-party SD}."""
+    efa = pd.read_csv(BASE_DIR / "data" / "processed" / "efa_factor_scores.csv")
+    typ = pd.read_csv(BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv", usecols=["caseid", "cluster"])
+    df = efa.merge(typ, on="caseid", validate="one_to_one")
+    inter = compute_inter_party_sd(centroids)
+    out = {}
+    for axis, key in AXIS_KEY.items():
+        col = AXIS_FACTOR_COL[axis]
+        out[axis] = set()
+        for p in PARTIES:
+            g = df[df["cluster"] == PARTY_TO_CLUSTER[p]]
+            x, w = g[f"FS_{key}"].values, g["commonpostweight"].values
+            sd = math.sqrt(np.average((x - np.average(x, weights=w)) ** 2, weights=w))
+            if sd >= QUALIFY_RATIO * inter[col]:
+                out[axis].add(p)
+        print(f"  {axis}: {sorted(out[axis], key=PARTIES.index)}")
+    return out
+
 
 DEVIATION_PCT = 0.25   # fraction of inter-party SD
 
 
 def load_pure_centroids() -> dict[str, dict[str, float]]:
-    """Return {party_abbr: {factor_col: value}} for the 9 base parties."""
+    """Return {party_abbr: {factor_col: value}} for the live base parties."""
     raw = {}
     with open(CENTROIDS_IN, newline="") as f:
         for row in csv.DictReader(f):
@@ -97,7 +86,7 @@ def load_pure_centroids() -> dict[str, dict[str, float]]:
 
 
 def compute_inter_party_sd(centroids: dict[str, dict[str, float]]) -> dict[str, float]:
-    """Population SD of each factor across the 9 base party centroids."""
+    """Population SD of each factor across the live base party centroids."""
     sds = {}
     for col in FACTOR_COLS:
         vals = [centroids[p][col] for p in PARTIES]
@@ -112,13 +101,15 @@ def main():
     centroids = load_pure_centroids()
 
     print("Base party centroids:")
-    print(f"  {'Party':5}  {'F1':>7}  {'F2':>7}  {'F3':>7}  {'F4':>7}  {'F5':>7}")
+    print(f"  {'Party':5}  " + "  ".join(f"{k:>7}" for k in AXIS_KEY.values()))
     for p in PARTIES:
         c = centroids[p]
         print(f"  {p:5}  "
               + "  ".join(f"{c[col]:>7.4f}" for col in FACTOR_COLS))
 
     sds = compute_inter_party_sd(centroids)
+    print("\nQualifying parties per axis (within/inter SD >= 0.70):")
+    AXIS_PARTIES = qualifying_parties(centroids)
     print("\nInter-party SDs:")
     for col, sd in sds.items():
         print(f"  {col:<32}  SD={sd:.4f}  Δ(25%)=±{DEVIATION_PCT * sd:.4f}")

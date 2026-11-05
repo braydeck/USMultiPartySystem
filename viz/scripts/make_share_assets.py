@@ -8,6 +8,8 @@ Pure-static (no edge function); files in public/ deploy verbatim to the site roo
 so a shared https://usmultiparty.com/r/<CODE> previews with the party card.
 """
 import json
+import sys
+import re
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -21,24 +23,23 @@ OG_DIR = ROOT / "viz" / "public" / "og"
 R_DIR = ROOT / "viz" / "public" / "r"
 SITE = "https://usmultiparty.com"
 
-# Names / colors / taglines mirror viz/src/constants/parties.ts (PARTY_NAMES, PARTY_COLORS,
-# PARTY_TAGLINES). Keep in sync if those change.
-NAMES = {"CON": "Conservative", "LBR": "Labor", "STY": "Solidarity", "POP": "Populist",
-         "CUP": "Civic Union Party", "DAL": "Democratic Alliance", "NAT": "Nationalist",
-         "DSA": "Democratic Socialists", "PRG": "Progressive"}
-COLORS = {"PRG": "#15803d", "DSA": "#22c55e", "DAL": "#0284c7", "LBR": "#38bdf8", "STY": "#8a70b8",
-          "CUP": "#825a27", "CON": "#e68c2c", "POP": "#d34812", "NAT": "#a01d2a"}
-TAGLINES = {"PRG": "Progressive on taxes, climate, and civil liberties; trusts elections",
-            "DAL": "Progressive on economics and climate; backs border enforcement and police",
-            "DSA": "Progressive on economics and culture, secular, election-skeptic",
-            "LBR": "Safety net, clean energy, and a Dreamer pathway with border enforcement",
-            "STY": "Economically progressive and religiously traditional; election-skeptic",
-            "CUP": "Centrist on economics and culture; law-and-order institutionalists",
-            "CON": "Low-tax, law-and-order; trusts elections and backs background checks",
-            "POP": "Immigration-restrictionist and election-skeptic; backs Medicaid expansion",
-            "NAT": "Anti-immigration, religiously traditional, low-tax, and election-skeptic"}
-CODE_TO_ID = {"CON": "0", "LBR": "1", "STY": "2", "NAT": "3", "DAL": "4",
-              "POP": "5", "CUP": "6", "DSA": "8", "PRG": "9"}
+# Names / colors / taglines read from viz/src/constants/parties.ts, so the share cards cannot drift
+# from the app; cluster ids from pipeline/party_codes.py.
+sys.path.insert(0, str(ROOT / "pipeline"))
+from party_codes import PARTY_TO_CLUSTER  # noqa: E402
+
+
+def _ts_map(name):
+    """{CODE: value} from a simple `export const NAME ... = { CODE: '...', ... }` block in parties.ts."""
+    src = (ROOT / "viz" / "src" / "constants" / "parties.ts").read_text()
+    block = re.search(rf"export const {name}\b[^{{]*{{(.*?)\n}};", src, re.S).group(1)
+    return {k: v.replace("\\'", "'") for k, v in re.findall(r"^\s+([A-Z]{3}): '((?:[^'\\]|\\.)*)'", block, re.M)}
+
+
+NAMES = {k: v for k, v in _ts_map("PARTY_NAMES").items() if k in PARTY_TO_CLUSTER}
+COLORS = _ts_map("PARTY_COLORS")
+TAGLINES = _ts_map("PARTY_TAGLINES")
+CODE_TO_ID = {p: str(k) for p, k in PARTY_TO_CLUSTER.items()}
 
 by_id = {p["id"]: p for p in PROFILES}
 seats_by_id = {str(h["party"]): h["national"] for h in HOUSE}
