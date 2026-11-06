@@ -50,7 +50,8 @@ oblimin, available-item scoring, no residualization). Party IDs are pinned throu
 bound in the modal solution. A new typology is rebuilt with `pipeline/rebuild_from_typology.py`:
 `check_stale.py --regenerate` covers only the house trees and the payloads.
 
-The quiz has a short (25-item) and long (41-item) version, keys and classifier built by
+The quiz has a short (25-item) and long (40-item) version (the 41 factor items less the out-of-date
+TikTok item, `QUIZ_EXCLUDE`), keys and classifier built by
 `viz/scripts/make_quiz_questions.py` then `analysis/efa/build_quiz_shortform.py`.
 
 ## How a voter becomes a ballot

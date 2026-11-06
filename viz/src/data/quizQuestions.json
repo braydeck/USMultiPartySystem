@@ -4,7 +4,7 @@
     "factor": "F5",
     "loading": 0.491,
     "question": "Forgive up to $20,000 of student loan debt for each person",
-    "domain": "Immigration",
+    "domain": "Taxes & Economy",
     "section": "Policy Proposals",
     "instruction": "Do you support or oppose each proposal, and how strongly?",
     "short": true,
@@ -624,45 +624,6 @@
     ]
   },
   {
-    "variable": "CC24_340d",
-    "factor": "F1",
-    "loading": 0.454,
-    "question": "Ban TikTok unless China sells it to a US company",
-    "domain": "Civil Liberties",
-    "section": "Policy Proposals",
-    "instruction": "Do you support or oppose each proposal, and how strongly?",
-    "short": false,
-    "clusterSupport": {
-      "0": 0.735329,
-      "1": 0.36721,
-      "2": 0.440757,
-      "3": 0.766905,
-      "5": 0.317115,
-      "6": 0.616024,
-      "7": 0.628188,
-      "8": 0.112052,
-      "9": 0.455548
-    },
-    "options": [
-      {
-        "value": 1.0,
-        "label": "Strongly support"
-      },
-      {
-        "value": 0.75,
-        "label": "Support"
-      },
-      {
-        "value": 0.25,
-        "label": "Oppose"
-      },
-      {
-        "value": 0.0,
-        "label": "Strongly oppose"
-      }
-    ]
-  },
-  {
     "variable": "CC24_444d",
     "factor": "F4",
     "loading": 0.532,
@@ -979,7 +940,7 @@
     "factor": "F4",
     "loading": 0.591,
     "question": "The United States Constitution does not protect a woman\u2019s right to have an abortion.  Roe v. Wade is overruled, and individual states can make their own laws governing abortion, including outlawing abortion.",
-    "domain": "Racial & Gender",
+    "domain": "Abortion",
     "section": "Supreme Court Decisions",
     "instruction": "Do you agree or disagree with each decision of the Supreme Court, and how strongly?",
     "short": true,
@@ -1522,7 +1483,7 @@
     "factor": "F4",
     "loading": 0.53,
     "question": "Would you describe yourself as a \"born-again\" or evangelical Christian, or not?",
-    "domain": "Religion",
+    "domain": "Faith",
     "section": "Religion & Abortion",
     "instruction": "Choose the answer that fits you best.",
     "short": true,
@@ -1596,7 +1557,7 @@
     "factor": "F4",
     "loading": 0.377,
     "question": "Aside from weddings and funerals, how often do you attend religious services?",
-    "domain": "Religion",
+    "domain": "Faith",
     "section": "Religion & Abortion",
     "instruction": "Choose the answer that fits you best.",
     "short": false,

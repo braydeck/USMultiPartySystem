@@ -13,10 +13,10 @@ function answersOf(qs: QuizQuestion[], clusterId: string): Record<number, number
 }
 
 describe('quiz versions', () => {
-  it('asks 25 items short and all 41 long', () => {
-    expect(QUIZ_VERSION_SIZE).toEqual({ short: 25, long: 41 })
+  it('asks 25 items short and 40 long', () => {
+    expect(QUIZ_VERSION_SIZE).toEqual({ short: 25, long: 40 })
     expect(questionsFor(all, 'short')).toHaveLength(25)
-    expect(questionsFor(all, 'long')).toHaveLength(41)
+    expect(questionsFor(all, 'long')).toHaveLength(40)
   })
 })
 

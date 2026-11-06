@@ -28,7 +28,9 @@ export function QuizQuestion({ question, domain, section, instruction, selected,
       <div className={`${FIELD_LABEL} mb-1`}>
         {section ?? domain}{section && domain ? ` · ${domain}` : ''}
       </div>
-      {instruction && <div className="text-sm text-muted-foreground mb-3">{instruction}</div>}
+      {/* The framing changes between sections (support/oppose, agree/disagree, spend more/less, trust), so it is
+          set as a prompt, not a caption, to keep it from being skimmed past. */}
+      {instruction && <p className="text-base sm:text-lg font-medium text-foreground/80 mb-3 leading-snug">{instruction}</p>}
       <h3 className="text-xl font-semibold text-foreground mb-6 leading-snug">{question}</h3>
       <div className="flex flex-col gap-2">
         {OPTIONS.map(opt => (

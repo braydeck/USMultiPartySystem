@@ -176,3 +176,10 @@ climb to 15.7, then 19.9, then 21.6; Ranked Pairs gaps climb to 20.0, then 23.6)
 line. 18, the five-factor cutoff, fell between Ranked Pairs gaps of 17.8 and 18.2. Splits: 16 states under
 IRV, 15 under Ranked Pairs. `SPLIT_THRESHOLD_PP` in viz/src/lib/senateDelegations.ts; re-measure whenever
 the parties change.
+
+## TikTok item out of the quiz (ruled 2026-11-05)
+
+CC24_340d (ban TikTok unless China sells it) is out of date, so the quiz no longer asks it. It stays in the factor
+model, the typology and everywhere else on the site. `QUIZ_EXCLUDE` in `viz/scripts/make_quiz_questions.py`; the
+long quiz is now 40 items and the 25-item short quiz is unchanged (the item was not in it). Long-quiz placement
+falls from 96.9% to 95.3% of respondents in their own party.

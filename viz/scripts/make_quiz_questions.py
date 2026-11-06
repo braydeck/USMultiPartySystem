@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Generate viz/src/data/quizQuestions.json: the 41 quiz items of the nine-party typology.
+"""Generate viz/src/data/quizQuestions.json: the quiz items of the nine-party typology (the 41 factor items less
+QUIZ_EXCLUDE).
 
 Items and their order come from analysis/efa/rebuild_nine_parties/quiz_items.csv (greedy by held-out
-factor R2). The short quiz is the first 25 of that order, the long quiz all 41 (ruled 2026-11-04,
+factor R2). The short quiz is the first 25 of that order, the long quiz all of them (ruled 2026-11-04,
 analysis/efa/exploration/listwise_check/DECISIONS.md). Each question carries `short` (true when it is
 in the short quiz); the app shows the items of the chosen version in this file's order, which groups
 them by section.
@@ -39,8 +40,13 @@ LOADINGS = LW / "outputs" / "stage_c_v2" / "loadings.csv"
 FACTORS = LW / "outputs" / "stage_c_v2" / "factors.csv"
 STATS = ROOT / "data" / "outputs" / "profiles" / "cluster_stats.csv"
 TYPO = ROOT / "data" / "processed" / "typology_cluster_assignments.csv"
+PROFILES = ROOT / "viz" / "src" / "data" / "clusterProfiles.json"
 OUT = ROOT / "viz" / "src" / "data" / "quizQuestions.json"
 N_SHORT = 25
+# Items that stay in the factor model and on the rest of the site but are not asked in the quiz.
+QUIZ_EXCLUDE = {
+    "CC24_340d": "TikTok ban: the forced-sale deadline has passed, so the question is out of date (ruled 2026-11-05)",
+}
 
 ROLE_TO_KEY = {"RT": "F4", "TR": "F2", "SO": "F1", "PC": "F5"}
 
@@ -94,7 +100,7 @@ def intensity(v_yes, yes, no):
 
 
 def main():
-    order = pd.read_csv(ITEMS_CSV).item.tolist()
+    order = [i for i in pd.read_csv(ITEMS_CSV).item.tolist() if i not in QUIZ_EXCLUDE]
     short = set(order[:N_SHORT])
 
     X, w, _, caseid = ip.load()
@@ -116,7 +122,14 @@ def main():
     typ = pd.read_csv(TYPO, usecols=["caseid", "cluster", "commonpostweight"])
     pos = pd.Series(np.arange(len(caseid)), index=caseid).loc[typ.caseid.values].values
     cl, wt = typ.cluster.values, typ.commonpostweight.values
-    domains = pd.read_csv(STATS).drop_duplicates("variable").set_index("variable")["domain"]
+    domains = pd.read_csv(STATS).drop_duplicates("variable").set_index("variable")["domain"].to_dict()
+    # cluster_stats files an item under its CES battery (CC24_323f, student debt, sits in the immigration battery);
+    # the Parties tab's clusterProfiles.json carries the topic, so prefer it
+    prof = json.loads(PROFILES.read_text())[0]["variables"]
+    for k, v in prof.items():
+        base = k.removesuffix("_agree").removesuffix("_median")
+        if v.get("domain"):
+            domains[base] = v["domain"]
 
     out = []
     for item in order:
