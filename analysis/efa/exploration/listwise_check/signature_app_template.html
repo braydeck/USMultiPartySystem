@@ -80,7 +80,7 @@ tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); fon
     <p class="eyebrow">Signatures</p>
     <h2>Each selected party's draft description and signature positions</h2>
     <div class="cards" id="cards"></div>
-    <p class="caption">Signature positions: items the party holds cohesively and far from everyone (C and D), furthest first. Descriptions are read from party_descriptions.md; edit the file and rerun signature_app.py.</p>
+    <p class="caption">Signature positions: items the party holds cohesively and far from everyone (C and D), furthest first. Consensus positions: items it holds cohesively at the national figure (C and M) where the nine parties split by 40+ points. Descriptions are read from party_descriptions.md; edit the file and rerun signature_app.py.</p>
   </section>
 
   <section id="s-factors">
@@ -209,11 +209,16 @@ function renderCards() {
     const ms = DATA.policy.map(r => ({ r, m: marks(r, k) }));
     const nC = ms.filter(x => x.m.C).length, nD = ms.filter(x => x.m.mk === "D").length, nM = ms.filter(x => x.m.mk === "M").length;
     const sig = ms.filter(x => x.m.C && x.m.mk === "D").sort((a, b) => b.m.d - a.m.d).slice(0, 8);
+    // C and M on an item the nine parties split on (span >= 40): a national consensus this party holds
+    const NEWK = DATA.parties.filter(q => q.set === "new").map(q => q.key);
+    const span = r => { const v = NEWK.map(q => r[q]).filter(x => x != null); return Math.max(...v) - Math.min(...v); };
+    const cons = ms.filter(x => x.m.C && x.m.mk === "M" && span(x.r) >= 40).sort((a, b) => Math.abs(b.r[k] - 50) - Math.abs(a.r[k] - 50)).slice(0, 8);
     const li = x => { const v = x.r[k], up = v >= x.r.us; return `<li><span><span class="tp">${x.r.topic}</span>${x.r.label}</span><span><span class="${up ? "hi" : "lo"}">${Math.round(v)}%</span> <span class="counts">vs ${Math.round(x.r.us)}</span></span></li>`; };
     return `<div class="card" style="--pc:${p.color}"><h3>${pcode(k, false)} ${d.name || (p.set === "prod" ? "production party" : "")} <span class="counts">${p.share ?? ""}%${d.letter ? " · cluster " + d.letter : ""}</span></h3>
       ${d.tagline ? `<p class="tagline">${d.tagline}</p>` : ""}${d.paragraph ? `<p class="para">${d.paragraph}</p>` : ""}
       <div class="counts"><span class="tag C">C</span> ${nC} cohesive · <span class="tag D">D</span> ${nD} deviant · <span class="tag M">M</span> ${nM} mainstream, of ${DATA.policy.length} items</div>
-      <div class="k">Signature positions (C and D)</div><ul>${sig.map(li).join("") || '<li><span class="counts">none at these thresholds</span></li>'}</ul></div>`;
+      <div class="k">Signature positions (C and D)</div><ul>${sig.map(li).join("") || '<li><span class="counts">none at these thresholds</span></li>'}</ul>
+      <div class="k">Consensus positions (C and M, on items the nine split on by 40+ points)</div><ul>${cons.map(li).join("") || '<li><span class="counts">none at these thresholds</span></li>'}</ul></div>`;
   }).join("");
 }
 function renderAll() { renderBar(); renderCards(); renderFactors(); renderPolicy(); renderDemo(); }

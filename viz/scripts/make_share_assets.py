@@ -9,6 +9,7 @@ so a shared https://usmultiparty.com/r/<CODE> previews with the party card.
 """
 import json
 import sys
+import textwrap
 import re
 import matplotlib
 matplotlib.use("Agg")
@@ -60,10 +61,14 @@ def card(code: str):
     # Shrink the name to fit the card width for long party names (e.g. "Order and Opportunity Party").
     name_fs = max(30, min(52, int(1120 / len(name))))
     ax.text(70, 500, name, fontsize=name_fs, color=color, fontweight="bold")
-    ax.text(70, 452, tag, fontsize=19, color="#475569")
-    ax.text(70, 410, f"{seats} of 873 House seats under proportional rules", fontsize=15, color="#94a3b8")
+    # wrap the tagline at 74 characters (about 950 px at 19 pt); later rows shift down by each extra line
+    lines = textwrap.wrap(tag, 74)
+    for i, line in enumerate(lines):
+        ax.text(70, 452 - 28 * i, line, fontsize=19, color="#475569")
+    drop = 28 * (len(lines) - 1)
+    ax.text(70, 410 - drop, f"{seats} of 873 House seats under proportional rules", fontsize=15, color="#94a3b8")
 
-    y = 345
+    y = 345 - drop
     for pos in positions:
         supports = pos.get("direction") == "supports"
         mark, mcol = ("✓", "#16a34a") if supports else ("✗", "#dc2626")

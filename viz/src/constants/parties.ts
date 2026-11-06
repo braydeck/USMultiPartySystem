@@ -55,28 +55,28 @@ export const PARTY_NAMES: Record<string, string> = {
 
 // Copied from analysis/efa/rebuild_nine_parties/party_descriptions.md (the researcher's file); edit there, then copy.
 export const PARTY_TAGLINES: Record<string, string> = {
-  OAO: 'Left on economics, moderate on culture, pro-police, and trusts government',
-  PRG: 'Progressive across the board; backs arming Ukraine and trusts elections',
-  DSA: 'Socialist left: shift police funding, secular, and distrusts government',
-  LBR: 'Progressive on culture, climate and civil liberties; shift police funding',
-  STY: 'Backs student-debt relief and Medicaid, along with tax cuts and school vouchers',
-  CUP: 'Socially liberal, centrist on economics, pro-police, and trusts institutions',
-  CON: 'Pro-order and pro-border, low-tax, and backs Medicaid expansion',
-  NAT: 'Anti-immigration, culturally traditional, low-tax, and distrusts government',
-  POP: 'Distrusts elections and government; opposes more public spending',
+  OAO: 'Spends on health care, schools, and police alike, and trusts government the most',
+  PRG: 'The professional left: progressive across the board, the most politically active, and pro-Ukraine',
+  DSA: 'Against police, border enforcement, and surveillance; the youngest and most secular party',
+  LBR: 'Progressive on rights, climate, and taxes; three in ten cross over on tax cuts and vouchers',
+  STY: 'The working-class middle: economically left, culturally traditional, and least engaged in politics',
+  CUP: 'Socially liberal and pro-police; funds public services and resists aid paid to individuals',
+  CON: 'United on borders, police, energy, and tax cuts; split on abortion, guns, and climate',
+  NAT: 'Conservative on every issue at near-unanimity, and the most politically engaged right',
+  POP: 'Distrusts elections and government, opposes public spending of every kind, and wants out of foreign wars',
 };
 
 // Paragraph descriptions, copied from analysis/efa/rebuild_nine_parties/party_descriptions.md.
 export const PARTY_BLURBS: Record<string, string> = {
-  OAO: 'The working-class left of order. Backs Medicaid expansion, student-debt relief, higher taxes on top earners and more police funding; supports school vouchers and parental consent on pronouns. The most trusting of the federal government. Older, urban, lower-income, and about a third Black.',
-  PRG: 'The college-educated progressive left. Backs abortion rights, a path to legal status, climate rules and an assault-weapons ban, and a majority would move police funding to other services. The strongest support for sending arms to Ukraine. Trusts elections. The most college-educated party.',
-  DSA: 'The socialist left. Near-unanimous for moving police funding to other services, abortion rights and a path to legal status. Distrusts the federal government. The youngest party, with the highest shares of LGBT and atheist or agnostic members.',
-  LBR: 'The civil-libertarian left. Backs abortion rights, a path to legal status, climate rules and higher taxes on top earners, and a majority would move police funding to other services. College-educated, secular and suburban.',
-  STY: 'The cross-pressured working class, and the largest party. Backs student-debt relief, Medicaid expansion and a path to legal status, along with extending the 2017 tax cuts, school vouchers and parental consent on pronouns. Younger, racially diverse and lower-income; members come from both major parties.',
-  CUP: 'The suburban moderate. Backs abortion rights, an assault-weapons ban and Medicaid expansion; splits on the 2017 tax cuts and mostly opposes student-debt relief. Supports more police funding and trusts elections and the federal government. Older homeowners, with the highest share of self-described moderates.',
-  CON: 'The mainstream right. Backs the border wall, more police funding, more fossil-fuel production and extending the 2017 tax cuts. Supports Medicaid expansion and splits on repealing the Affordable Care Act. Older, mostly white homeowners.',
-  NAT: 'The hard right. Backs the border wall, more fossil-fuel production, repealing the Affordable Care Act and parental consent before schools use a new name or pronoun. Opposes higher taxes on top earners. The most culturally conservative party, and distrusts the federal government. Older, white, married and Protestant.',
-  POP: 'The anti-government party. The most distrustful of elections and the federal government, and the most opposed to new spending on schools, health care, roads and police. Splits on the border wall and abortion. Younger, mostly independent, and often religiously unaffiliated.',
+  OAO: 'The urban Democratic base. Its members want government to do more of everything, policing included: they back Medicaid expansion, student-debt relief, and more state health spending at near-unanimity, along with more police and border patrols. They trust the federal and state governments more than any other party. On culture they sit near the national average, and three in ten attend church weekly. Older city residents, the highest Black and Catholic shares of any party, and the fewest independents.',
+  PRG: 'The left\'s professional and activist class. Progressive on every domain at near-unanimity, and the party most committed to Ukraine. It is also the most politically active party: nearly half gave money to a campaign in the past year, and it has the highest verified turnout. It accepts border patrols and trusts elections. The most college-educated, highest-income, and most invested party.',
+  DSA: 'The anti-state left. Its members are unanimous against police and border enforcement, distrust the federal government, and oppose state controls on speech and the internet. It has the most support of any party for non-combat aid to Gaza. The youngest party, and the most secular, LGBT, and unmarried. Mostly renters, and the most likely to have protested in the past year.',
+  LBR: 'The left\'s rank and file. It is for abortion rights, a path to legal status, clean-energy rules, Medicaid expansion, and higher taxes on top earners, each at roughly nine in ten. About three in ten members back the 2017 tax cuts, school vouchers, and limits on gender medicine for minors, and just over half want more state welfare spending. It trusts government and elections at about the national average. The most suburban party.',
+  STY: 'The working-class middle, and the largest party. Its members agree on the country\'s consensus positions: seven in ten or more back border patrols, parental consent on pronouns, higher taxes on top earners, infrastructure and mental-health spending, and age checks on adult websites, each within ten points of the national figure. Beyond that consensus it leans left on economic help (student-debt relief, Medicaid) and right on school vouchers and the 2017 tax cuts. It is also the party furthest from politics: one in five follows public affairs and 31% voted in 2024 by the voter file, both the lowest of any party, and few back arms or aid for Ukraine (16% and 40%). Majority non-white; the lowest-income, most female, and most Southern party, with the most children at home.',
+  CUP: 'The fiscally cautious center. Socially liberal on abortion, same-sex marriage, and assault weapons, pro-police, and trusting of elections. It funds shared public services: nine in ten back infrastructure and mental-health and school-safety spending, seven in ten want more state spending on health care, schools, and roads, and eight in ten back Medicaid expansion and higher taxes on top earners. It resists aid paid to individuals: 37% back student-debt relief, 20% want more state welfare spending, and a majority would add work requirements to Medicaid. It has the most self-described moderates of any party.',
+  CON: 'The mainstream right. Its members agree on order and low taxes: the wall, more police, border patrols, fossil fuels, and the 2017 tax cuts. On abortion, guns, climate, immigration status, and the Affordable Care Act they split, with a third to a half taking the liberal position. On spending and trust in elections it sits at the national average. The most Republican-identifying party.',
+  NAT: 'The conservative core. It takes the right-hand position on nearly every item at near-unanimity, and it is the party most set against the health-care safety net: nine in ten would repeal the Affordable Care Act, and fewer than one in five want more state health spending. It takes the most resentful position of any party on all nine racial and gender resentment items. It is the party most attached to property and arms: older, white, rural homeowners, stockholders, and gun owners. It follows politics closely and votes almost without exception.',
+  POP: 'The disaffected right. Distrust defines it: it has the least faith in elections and state government of any party. It opposes spending on roads, police, and welfare alike, and it wants the U.S. out of Ukraine and Gaza. On abortion, the wall, and guns it sits at the national average. Younger, the most independent and religiously unaffiliated party, and the most often out of work. Three in ten follow public affairs, and a third voted in 2024 by the voter file.',
 };
 
 export const CLUSTER_TO_PARTY: Record<string, string> = {
