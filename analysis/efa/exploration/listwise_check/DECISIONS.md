@@ -183,3 +183,30 @@ CC24_340d (ban TikTok unless China sells it) is out of date, so the quiz no long
 model, the typology and everywhere else on the site. `QUIZ_EXCLUDE` in `viz/scripts/make_quiz_questions.py`; the
 long quiz is now 40 items and the 25-item short quiz is unchanged (the item was not in it). Long-quiz placement
 falls from 96.9% to 95.3% of respondents in their own party.
+
+## Party order = vote agreement (ruled 2026-11-06)
+
+The default left-right order is how often the parties vote together, replacing the Economic Conservatism order
+of 2026-11-04. Order = first dimension of classical MDS on party-majority agreement (share of the Legislation
+tab's 37 bills on which two parties' majorities land on the same side), signed so the economically conservative
+end is on the right: DSA, PRG, LBR, CUP, STY, OAO, CON, POP, NAT. One dimension carries 83% of the agreement
+pattern (88% for member-level agreement, which orders DSA PRG LBR OAO CUP STY POP CON NAT). OAO moves from the
+left end to the center and POP from the right end into the right bloc. Computed by
+`analysis/coalitions/vote_agreement.py` into `data/processed/party_order.csv`, read by
+`pipeline/party_codes.LEFT_RIGHT`; the script rewrites `F5_ORDER` in `viz/src/constants/parties.ts` when the
+order moves. Review page: `analysis/coalitions/outputs/vote_agreement.html` (local only).
+
+## Party colors (ruled 2026-11-06)
+
+Picked in `analysis/coalitions/party_colors.html`: DSA #15803d, PRG #14b8a6, LBR #0369a1, CUP #c026d3, STY #a78bfa,
+OAO #4c1d95, CON #ef4444, POP #f59e0b, NAT #7f1d1d (`PARTY_COLORS` in `viz/src/constants/parties.ts`). CUP moved
+from #a21caf to #c026d3 because #a21caf and LBR were 2.6 apart (OKLab x100) under deuteranopia, and the two sit side
+by side on the line; #c026d3 raises the closest LBR/CUP pair to 10.0 (deutan) and 9.4 (protan) with typical-vision
+distances at 18 or more. Chip text stays white for every party (`CHIP_TEXT`).
+
+## Status signals on the bam poles; share images on the default view (ruled 2026-11-06)
+
+Pass/fail, supports/opposes, wins/loses and survives/eliminated use the factor-profile bam poles (teal = yes,
+magenta = no; `SIGNAL` in `viz/src/lib/bam.ts`, `.sig-*` classes in `viz/src/index.css`) instead of red/green,
+which now read as CON and DSA. The share cards and the site preview image take their seats from the default House
+view (`uncertaintyTurnoutL5.json` observed), and the preview image drops its left/right axis labels.

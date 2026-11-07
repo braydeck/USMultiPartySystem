@@ -5,6 +5,7 @@ import type { VoteMode, HouseSystem } from '../../constants/labels';
 import { blocOutcome, freeOutcome, houseProbField, presSigns, type SeatMap } from './voteBloc';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SIGNAL } from '../../lib/bam';
 
 interface Props {
   houseRows: VoteModelRow[];
@@ -47,13 +48,14 @@ export type VerdictLabel =
   | 'Possibly Fails' | 'Likely Fails'    | 'Clearly Fails';
 
 export const VERDICT_STYLE: Record<string, { bg: string; text: string; border: string }> = {
-  'Clearly Passes': { bg: '#dcfce7', text: '#15803d', border: '#86efac' },
-  'Likely Passes':  { bg: '#f0fdf4', text: '#16a34a', border: '#bbf7d0' },
-  'Possibly Passes':{ bg: '#ecfdf5', text: '#0f766e', border: '#99f6e4' },
-  'Tossup':         { bg: '#fefce8', text: '#a16207', border: '#fde68a' },
-  'Possibly Fails': { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
-  'Likely Fails':   { bg: '#fef2f2', text: '#dc2626', border: '#fca5a5' },
-  'Clearly Fails':  { bg: '#fee2e2', text: '#b91c1c', border: '#f87171' },
+  // bam poles (src/lib/bam.ts SIGNAL): teal passes, magenta fails, slate tossup
+  'Clearly Passes': { bg: '#c8e6e0', text: '#134e4a', border: '#4fa89b' },
+  'Likely Passes':  { bg: '#e3f2ef', text: '#134e4a', border: '#8fccc2' },
+  'Possibly Passes':{ bg: '#f0f8f6', text: '#2b7a70', border: '#c8e6e0' },
+  'Tossup':         { bg: '#f8fafc', text: '#475569', border: '#cbd5e1' },
+  'Possibly Fails': { bg: '#faf3f7', text: '#a5477f', border: '#e7c8db' },
+  'Likely Fails':   { bg: '#f4e4ed', text: '#7a1f58', border: '#c884ab' },
+  'Clearly Fails':  { bg: '#e7c8db', text: '#4d0d33', border: '#a5477f' },
 };
 
 /** Single-estimate: 45–55% is a tossup zone. Multi-estimate: straddles 50% → tossup. */
@@ -131,7 +133,7 @@ export function WhippedBadge({ pass, kind }: { pass: boolean; kind: 'pass' | 'si
 function ProbBar({ prob }: { prob: number | undefined }) {
   if (prob === undefined || prob === null) return <span className="text-slate-300 text-xs">—</span>;
   const pct   = Math.round(prob * 100);
-  const color = prob > 0.65 ? '#22c55e' : prob > 0.50 ? '#84cc16' : prob > 0.35 ? '#f59e0b' : '#ef4444';
+  const color = prob > 0.65 ? SIGNAL.yesStrong : prob > 0.50 ? SIGNAL.yes : prob > 0.35 ? SIGNAL.neutral : SIGNAL.no;
   return (
     <div className="flex items-center gap-1.5 min-w-[90px]">
       <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">

@@ -41,7 +41,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from party_codes import ALL_PARTIES, PARTY_TO_CLUSTER  # noqa: E402
+from party_codes import ALL_PARTIES, PARTY_TO_CLUSTER, LEFT_RIGHT  # noqa: E402
 
 BASE_DIR = Path(__file__).parent.parent
 TYPO_PATH = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"
@@ -49,7 +49,7 @@ OUT_PATH = BASE_DIR / "viz" / "src" / "data" / "crossPartyAffinity.json"
 
 PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 PARTIES = list(ALL_PARTIES.values())  # indexed by cluster ID, like the posterior columns
-F5_ORDER = [p for p in ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"] if p in PARTY_TO_CLUSTER]
+F5_ORDER = list(LEFT_RIGHT)
 
 
 def main():

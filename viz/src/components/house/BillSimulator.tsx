@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { VoteModelRow } from '../../types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SIGNAL } from '../../lib/bam';
 
 interface Props {
   rows: VoteModelRow[];
@@ -10,7 +11,7 @@ interface Props {
 
 function ProbBar({ prob }: { prob: number }) {
   const pct = Math.round(prob * 100);
-  const color = prob > 0.7 ? '#22c55e' : prob > 0.3 ? '#f59e0b' : '#ef4444';
+  const color = prob > 0.7 ? SIGNAL.yes : prob > 0.3 ? SIGNAL.neutral : SIGNAL.no;
   return (
     <div className="flex items-center gap-2 min-w-[120px]">
       <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -23,8 +24,8 @@ function ProbBar({ prob }: { prob: number }) {
 
 function VerdictBadge({ verdict }: { verdict: string }) {
   const cls =
-    verdict === 'PASS' ? 'bg-green-50 text-green-700 border-green-300' :
-    verdict === 'FAIL' ? 'bg-red-50 text-red-700 border-red-300' :
+    verdict === 'PASS' ? 'sig-yes-chip' :
+    verdict === 'FAIL' ? 'sig-no-chip' :
     'bg-yellow-50 text-yellow-700 border-yellow-300';
   return (
     <Badge variant="outline" className={`whitespace-nowrap ${cls}`}>

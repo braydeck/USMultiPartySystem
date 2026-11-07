@@ -5,6 +5,7 @@ import type { CondorcetMatchup } from '../../types';
 import type { StateUncertainty } from '../../lib/uncertainty';
 import { Button } from '@/components/ui/button';
 import { CHART_TYPE } from '../../constants/typography';
+import { SIGNAL } from '../../lib/bam';
 
 interface CellData { winRate: number; avgMargin: number; n: number }
 interface StateMatchup { candidateA: string; candidateB: string; aWinsPct: number; margin: number; winner: string }
@@ -134,8 +135,8 @@ export default function SenateCondorcetView({ data, states }: Props) {
                       const wins = cell.winRate > 0.5;
                       const intensity = Math.min(1, Math.abs(cell.winRate - 0.5) * 2.5);
                       const bg = wins
-                        ? `rgba(34,197,94,${0.12 + intensity * 0.55})`
-                        : `rgba(239,68,68,${0.12 + intensity * 0.55})`;
+                        ? `rgba(${SIGNAL.yesRgb},${0.12 + intensity * 0.55})`
+                        : `rgba(${SIGNAL.noRgb},${0.12 + intensity * 0.55})`;
 
                       return (
                         <div
@@ -156,10 +157,10 @@ export default function SenateCondorcetView({ data, states }: Props) {
                           })}
                           onMouseLeave={() => setTip(null)}
                         >
-                          <span style={{ fontSize: CHART_TYPE.cellValue, fontWeight: 700, color: wins ? '#15803d' : '#b91c1c' }}>
+                          <span style={{ fontSize: CHART_TYPE.cellValue, fontWeight: 700, color: wins ? SIGNAL.yesStrong : SIGNAL.noStrong }}>
                             {Math.round(cell.winRate * 100)}%
                           </span>
-                          <span style={{ fontSize: CHART_TYPE.inMark, color: wins ? '#15803d' : '#b91c1c', opacity: 0.7 }}>
+                          <span style={{ fontSize: CHART_TYPE.inMark, color: wins ? SIGNAL.yesStrong : SIGNAL.noStrong, opacity: 0.7 }}>
                             n={cell.n}
                           </span>
                         </div>
@@ -172,11 +173,11 @@ export default function SenateCondorcetView({ data, states }: Props) {
               {/* Legend */}
               <div className="text-xs text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-1">
                 <span>
-                  <span className="inline-block w-3 h-3 rounded-sm bg-green-400 opacity-60 mr-1 align-middle" />
+                  <span className="inline-block w-3 h-3 rounded-sm sig-yes-swatch mr-1 align-middle" />
                   Row wins &gt;50%
                 </span>
                 <span>
-                  <span className="inline-block w-3 h-3 rounded-sm bg-red-400 opacity-60 mr-1 align-middle" />
+                  <span className="inline-block w-3 h-3 rounded-sm sig-no-swatch mr-1 align-middle" />
                   Row wins &lt;50%
                 </span>
                 <span className="text-amber-500">★ Highest average win rate</span>

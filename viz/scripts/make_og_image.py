@@ -2,10 +2,9 @@
 """Render the social-preview / README hero image: the multiparty House as an
 ideological-spectrum seat bar. Outputs viz/public/og-image.png (1200x630).
 
-Seat totals are read from the default site view (src/data/houseSeatsTurnout.json,
-the validated-turnout-weighted result) so this image can't drift out of sync with
-what visitors actually see. Colors and left->right order mirror
-src/constants/parties.ts — keep them in sync if either changes there.
+Seat totals are the app's default House view (double magnitude, depth 7, 5% turnout gap): the
+published observed result in src/data/uncertaintyTurnoutL5.json, the numbers the House tab opens on.
+Colors come from src/constants/parties.ts and the left->right order from pipeline/party_codes.py.
 """
 import json
 import sys
@@ -18,11 +17,10 @@ from pathlib import Path
 
 W, H = 1200, 630
 
-# F5 left -> right (matches parties.ts F5_ORDER)
-ORDER = ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"]
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT.parent / "pipeline"))
-from party_codes import CLUSTER_TO_PARTY as CODE  # noqa: E402
+from party_codes import CLUSTER_TO_PARTY as CODE, LEFT_RIGHT as ORDER  # noqa: E402
 
 
 def _ts_map(name):
@@ -33,8 +31,8 @@ def _ts_map(name):
 
 
 COLORS = _ts_map("PARTY_COLORS")
-rows = json.loads((ROOT / "src" / "data" / "houseSeatsTurnout.json").read_text())
-SEATS = {CODE[r["party"]]: r["national"] for r in rows}
+seats = json.loads((ROOT / "src" / "data" / "uncertaintyTurnoutL5.json").read_text())["house"]["seats"]
+SEATS = {code: seats.get(code, {}).get("observed", 0) for code in ORDER}
 TOTAL = sum(SEATS.values())
 
 fig = plt.figure(figsize=(W / 100, H / 100), dpi=100)
@@ -72,9 +70,7 @@ for cx, code in below:
             color=COLORS[code], fontsize=12.5, fontweight="bold")
     last_x = cx
 
-# spectrum cue + footer
-ax.text(x0, by + bh + 30, "◀  progressive left", ha="left", va="center", color="#94a3b8", fontsize=13)
-ax.text(x1, by + bh + 30, "populist right  ▶", ha="right", va="center", color="#94a3b8", fontsize=13)
+# footer
 ax.text(W / 2, 52, "usmultiparty.com", ha="center", color="#4338ca", fontsize=19, fontweight="bold")
 
 out = ROOT / "public" / "og-image.png"

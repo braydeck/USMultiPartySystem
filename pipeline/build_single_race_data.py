@@ -50,7 +50,7 @@ import pandas as pd
 BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import DTA_PATH  # noqa: E402
-from party_codes import PARTY_TO_CLUSTER  # noqa: E402
+from party_codes import LEFT_RIGHT, PARTY_TO_CLUSTER  # noqa: E402
 from factor_keys import CENTROID_COLS, SCORE_COLS  # noqa: E402
 
 EFA_PATH   = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
@@ -68,8 +68,7 @@ DEC              = 4
 LOGPROB_FLOOR    = -700.0          # only replaces log(0)=-inf; preserves full ranking (100% ballots.csv match)
 
 PARTY_CLUSTER = PARTY_TO_CLUSTER
-# Display order left->right (constants/parties.ts F5_ORDER)
-PARTY_ORDER = [p for p in ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"] if p in PARTY_CLUSTER]
+PARTY_ORDER = list(LEFT_RIGHT)
 
 # Current Electoral College (2020 census apportionment, used 2024/2028) — 538 total.
 STATE_EV = {

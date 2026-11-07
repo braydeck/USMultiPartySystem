@@ -30,7 +30,7 @@ Cloudflare.
 | House districts | 150 double, 243 triple. MMP and Single Race instead use the 436 real 119th-Congress districts. |
 | Senate | 51 seats, one per state plus DC |
 | Electoral college | 975 electors |
-| Cluster to party | 0 CON, 1 LBR (Labor), 2 STY, 3 NAT, 5 POP, 6 CUP (Civic Union), 7 OAO (Order and Opportunity), 8 DSA, 9 PRG. Slot 4 (DAL) holds no voters. Left-right order is Economic Conservatism, low to high: OAO PRG DSA LBR STY CUP CON NAT POP (`party_codes.LEFT_RIGHT`, `F5_ORDER`). IDs stay stable across typologies; scripts get the live parties from `pipeline/party_codes.py`, which reads them off the typology, and keep length-10 arrays only where `prob_cluster_0..9` is positional. |
+| Cluster to party | 0 CON, 1 LBR (Labor), 2 STY, 3 NAT, 5 POP, 6 CUP (Civic Union), 7 OAO (Order and Opportunity), 8 DSA, 9 PRG. Slot 4 (DAL) holds no voters. Left-right order is how often the parties vote together (first MDS dimension of party-majority agreement on the 37 Legislation bills, ruled 2026-11-06): DSA PRG LBR CUP STY OAO CON POP NAT (`analysis/coalitions/vote_agreement.py` → `data/processed/party_order.csv` → `party_codes.LEFT_RIGHT`, and it rewrites `F5_ORDER`). IDs stay stable across typologies; scripts get the live parties from `pipeline/party_codes.py`, which reads them off the typology, and keep length-10 arrays only where `prob_cluster_0..9` is positional. |
 | App defaults | ballot depth `top7`, turnout gap `5%`, magnitude `double`, field `rawMulti` |
 
 Before quoting any chamber-level count, sum it out of the JSON. Do not reach for 435.

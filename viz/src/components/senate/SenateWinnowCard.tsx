@@ -222,7 +222,7 @@ export function SenateWinnowCard({ data }: Props) {
       {selected && (
         <div className="space-y-4">
           <div>
-            <div className="text-3xs font-semibold text-emerald-600 uppercase tracking-widest mb-1">
+            <div className="text-3xs font-semibold sig-yes-text uppercase tracking-widest mb-1">
               Reached quota — {selected.abbr}
             </div>
             {split.above.length > 0 ? (

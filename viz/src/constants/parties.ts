@@ -1,26 +1,28 @@
 import factorItems from '../data/factorItems.json';
 
 export const PARTY_COLORS: Record<string, string> = {
-  // Cool left (green→blue), distinct center (violet, brown), warm right (orange→red)
-  PRG: '#15803d',  // lively green, deep (leftmost)
-  DSA: '#22c55e',  // lively green, bright
-  OAO: '#0284c7',  // rich azure (DAL's color, a placeholder; OAO's color is the researcher's call)
-  LBR: '#38bdf8',  // vivid sky blue (Labor — formerly SD)
-  STY: '#8a70b8',  // violet (center)
-  CUP: '#825a27',  // brown (center)
-  CON: '#e68c2c',  // orange
-  POP: '#d34812',  // red-orange
-  NAT: '#a01d2a',  // deep red (rightmost)
+  // Researcher's palette (2026-11-06, analysis/coalitions/party_colors.html): greens left, blues and violets
+  // center-left and center, magenta between them, reds and amber right. All chips use white text (CHIP_TEXT).
+  PRG: '#14b8a6',  // teal
+  DSA: '#15803d',  // deep green (leftmost)
+  OAO: '#4c1d95',  // deep violet
+  LBR: '#0369a1',  // dark azure
+  STY: '#a78bfa',  // light violet
+  CUP: '#c026d3',  // magenta
+  CON: '#ef4444',  // red
+  POP: '#f59e0b',  // amber
+  NAT: '#7f1d1d',  // maroon (rightmost)
   // Current (real) parties — muted D/R/I, rendered dashed to read as "status quo".
   DEM: '#5b7fa6',
   IND: '#8a8f98',
   REP: '#a66b6b',
 };
 
-// Left→right order for the nine parties: weighted Economic Conservatism (F5) centroid, low to high
-// (ruled 2026-11-04). Mirrors LEFT_RIGHT in pipeline/party_codes.py; the hex cartograms read this copy.
-// Cluster ID 4 (DAL) holds no voters in the nine-party typology.
-export const F5_ORDER = ['OAO','PRG','DSA','LBR','STY','CUP','CON','NAT','POP'] as const;
+// Left→right order for the nine parties: how often they vote together (ruled 2026-11-06), the first
+// MDS dimension of party-majority agreement over the Legislation bills (analysis/coalitions/
+// vote_agreement.py → data/processed/party_order.csv). Mirrors LEFT_RIGHT in pipeline/party_codes.py;
+// the hex cartograms read this copy. The name F5_ORDER is historical. Cluster ID 4 (DAL) holds no voters.
+export const F5_ORDER = ['DSA','PRG','LBR','CUP','STY','OAO','CON','POP','NAT'] as const;
 
 // Back-compat alias (previously toggled the 10th party); now identical to F5_ORDER.
 export const F5_ORDER_WFP = F5_ORDER;

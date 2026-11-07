@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Party Vote Agreement</title>
+<style>
+/* ── Plaid research design tokens — Foundations-backed ───────────────────────
+   Canonical visual system for HTML research artifacts. AUTHORING SOURCE, not a
+   shipped file:
+     • Local iteration: link it — <link rel="stylesheet" href="lib/tokens.css">
+     • Shipped Claude artifact: inline this file inside the artifact <style>
+       (artifacts must be one self-contained file; CDN is the only external src).
+
+   LAYER 1 (Foundations primitives) is lifted verbatim from @plaid/design-tokens
+   → node/lib/design-tokens/src/css/foundation.css, generated from the canonical
+   Foundations Figma source. To refresh, re-pull that file and replace Layer 1;
+   the alias layer below keeps resolving automatically. Do NOT hand-tune Layer 1
+   values — Foundations is the source of truth.
+
+   LAYER 3 (alias layer) is YOUR public interface. Components + research-viz.js
+   reference these friendly names; they map onto Foundations so a brand refresh
+   flows through without touching component code.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 1 — PLAID DESIGN FOUNDATIONS PRIMITIVES  (verbatim, do not edit)
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Neutrals — cool / blue-tinted (this is the real Plaid "black" ramp) */
+  --color-white: #ffffff;
+  --color-black-100: #f7fafd;  --color-black-200: #ebf0f4;  --color-black-300: #dde3e9;
+  --color-black-400: #c5ccd3;  --color-black-450: #a6b0bc;  --color-black-500: #8c95a1;
+  --color-black-600: #6b7785;  --color-black-700: #4f5c69;  --color-black-800: #2c3a49;
+  --color-black-900: #1b242d;  --color-black-1000: #08131e;
+
+  /* Blue — interactive / link blue */
+  --color-blue-100: #f7faff;  --color-blue-200: #e5effe;  --color-blue-300: #d3e4fd;
+  --color-blue-400: #b0cefc;  --color-blue-450: #83b2fb;  --color-blue-500: #5294f8;
+  --color-blue-600: #156ef5;  --color-blue-700: #0a54c4;  --color-blue-800: #06347a;
+  --color-blue-900: #04224f;  --color-blue-1000: #021127;
+
+  /* Sky — your signature "Plaid blue" lives here */
+  --color-sky-100: #e5fcff;  --color-sky-200: #ccf8ff;  --color-sky-300: #9aedfe;
+  --color-sky-400: #51d2fb;  --color-sky-450: #0dadf2;  --color-sky-500: #0e94d8;
+  --color-sky-600: #0b7bbc;  --color-sky-700: #07578d;  --color-sky-800: #043c67;
+  --color-sky-900: #02294b;  --color-sky-1000: #00172e;
+
+  /* Minted — your "teal" lives here */
+  --color-minted-100: #effffa;  --color-minted-200: #d8fef3;  --color-minted-300: #b6fbe9;
+  --color-minted-400: #42f0cd;  --color-minted-450: #10d1b7;  --color-minted-500: #0ba299;
+  --color-minted-600: #088181;  --color-minted-700: #05565c;  --color-minted-800: #034049;
+  --color-minted-900: #012e37;  --color-minted-1000: #001d24;
+
+  /* Purple */
+  --color-purple-100: #f5f5ff;  --color-purple-200: #e6e6ff;  --color-purple-300: #ccccff;
+  --color-purple-400: #a3a3ff;  --color-purple-450: #8b8bf9;  --color-purple-500: #7373ed;
+  --color-purple-600: #5e5ed9;  --color-purple-700: #4444a7;  --color-purple-800: #2b2b82;
+  --color-purple-900: #1c1c69;  --color-purple-1000: #0d0d3f;
+
+  /* Pink */
+  --color-pink-100: #fcf0ff;  --color-pink-200: #f9dbff;  --color-pink-300: #f5c2ff;
+  --color-pink-400: #ee99ff;  --color-pink-450: #e574fb;  --color-pink-500: #d45aed;
+  --color-pink-600: #bb33d7;  --color-pink-700: #8f29a3;  --color-pink-800: #671877;
+  --color-pink-900: #3f0849;  --color-pink-1000: #2a0132;
+
+  /* Red */
+  --color-red-100: #fff0f0;  --color-red-200: #ffd9d9;  --color-red-300: #ffc2c2;
+  --color-red-400: #ff9999;  --color-red-450: #fb7474;  --color-red-500: #ed5a5a;
+  --color-red-600: #ce3b3b;  --color-red-700: #a32929;  --color-red-800: #771818;
+  --color-red-900: #490808;  --color-red-1000: #320101;
+
+  /* Orange */
+  --color-orange-100: #fffaf5;  --color-orange-200: #fff0e0;  --color-orange-300: #ffe3c7;
+  --color-orange-400: #ffbf80;  --color-orange-450: #fb942d;  --color-orange-500: #e57300;
+  --color-orange-600: #b85e05;  --color-orange-700: #944a00;  --color-orange-800: #613605;
+  --color-orange-900: #442804;  --color-orange-1000: #2c1a02;
+
+  /* Yellow */
+  --color-yellow-100: #fffbf0;  --color-yellow-200: #fff6d8;  --color-yellow-300: #ffeda3;
+  --color-yellow-400: #fbde51;  --color-yellow-450: #ebcb00;  --color-yellow-500: #a39300;
+  --color-yellow-600: #807700;  --color-yellow-700: #615e00;  --color-yellow-800: #4d4d00;
+  --color-yellow-900: #363800;  --color-yellow-1000: #212400;
+
+  /* Lime */
+  --color-lime-100: #f7fff0;  --color-lime-200: #e8fed7;  --color-lime-300: #d2fbb6;
+  --color-lime-400: #7cf042;  --color-lime-450: #46da10;  --color-lime-500: #29a20b;
+  --color-lime-600: #188108;  --color-lime-700: #0b5c05;  --color-lime-800: #034903;
+  --color-lime-900: #013703;  --color-lime-1000: #002402;
+
+  /* Green */
+  --color-green-100: #f0fdf8;  --color-green-200: #cdf7e7;  --color-green-300: #a9f1d5;
+  --color-green-400: #57e4ab;  --color-green-500: #21a96f;  --color-green-600: #1b8657;
+  --color-green-700: #156843;  --color-green-800: #0d4029;  --color-green-900: #07291a;
+  --color-green-1000: #03140d;
+
+  /* Radii (numeric scale) */
+  --radius-0: 0px;   --radius-2: 2px;   --radius-4: 4px;   --radius-6: 6px;
+  --radius-8: 8px;   --radius-12: 12px; --radius-16: 16px; --radius-24: 24px;
+  --radius-30: 30px; --radius-full: 9999px;
+
+  /* Spacing (4-pt grid) */
+  --spacing-0: 0px;     --spacing-2: 2px;    --spacing-4: 4px;    --spacing-6: 6px;
+  --spacing-8: 8px;     --spacing-12: 12px;  --spacing-16: 16px;  --spacing-20: 20px;
+  --spacing-24: 24px;   --spacing-32: 32px;  --spacing-40: 40px;  --spacing-48: 48px;
+  --spacing-56: 56px;   --spacing-64: 64px;  --spacing-80: 80px;  --spacing-96: 96px;
+  --spacing-120: 120px; --spacing-160: 160px; --spacing-200: 200px;
+
+  /* Font families (real Plaid faces — see Layer 3 note before using directly) */
+  --font-cern: Cern;
+  --font-plaid-sans: 'Plaid Sans';
+  --font-inconsolata: Inconsolata;
+  --font-bowery-lane: 'Bowery Lane';
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 2 — BRAND GRADIENTS  (curated from Foundations gradient sets)
+     Named themes: benjamin (teal/mint), elizabeth (blue/violet),
+     euro (violet/pink/gold), lincoln (mint/lime/gold), viola (pink/violet).
+     ═══════════════════════════════════════════════════════════════════════ */
+  --gradient-background-stark-benjamin:  linear-gradient(to top right, #ccf8ff 0%, #d8fef3 50%, #e8fed7 100%);
+  --gradient-background-stark-elizabeth: linear-gradient(to top right, #e6e6ff 0%, #e5effe 50%, #ccf8ff 100%);
+  --gradient-background-stark-euro:      linear-gradient(to top right, #e6e6ff 0%, #f9dbff 50%, #fff6d8 100%);
+  --gradient-background-stark-lincoln:   linear-gradient(to top right, #d8fef3 0%, #e8fed7 50%, #fff6d8 100%);
+  --gradient-background-stark-viola:     linear-gradient(to top right, #f9dbff 0%, #e6e6ff 50%, #ccf8ff 100%);
+  --gradient-background-subtle-benjamin:  linear-gradient(to top right, #e5fcff 0%, #effffa 50%, #f7fff0 100%);
+  --gradient-background-subtle-elizabeth: linear-gradient(to top right, #f5f5ff 0%, #f7faff 50%, #e5fcff 100%);
+  --gradient-background-subtle-euro:      linear-gradient(to top right, #f5f5ff 0%, #fcf0ff 50%, #fffbf0 100%);
+  --gradient-background-subtle-lincoln:   linear-gradient(to top right, #effffa 0%, #f7fff0 50%, #fffbf0 100%);
+  --gradient-background-subtle-viola:     linear-gradient(to top right, #fcf0ff 0%, #f5f5ff 50%, #e5fcff 100%);
+  --gradient-background-vibrant-benjamin:  linear-gradient(to top right, #42f0cd 0%, #0dadf2 100%);
+  --gradient-background-vibrant-elizabeth: linear-gradient(to top right, #51d2fb 0%, #8b8bf9 100%);
+  --gradient-background-vibrant-euro:      linear-gradient(to top right, #ff9999 0%, #e574fb 100%);
+  --gradient-background-vibrant-lincoln:   linear-gradient(to top right, #10d1b7 0%, #7cf042 100%);
+  --gradient-background-vibrant-viola:     linear-gradient(to top right, #ee99ff 0%, #8b8bf9 100%);
+  --gradient-graphic-stark-benjamin:  linear-gradient(to top right, #0b7bbc 0%, #088181 100%);
+  --gradient-graphic-stark-elizabeth: linear-gradient(to top right, #5e5ed9 0%, #156ef5 100%);
+  --gradient-graphic-stark-euro:      linear-gradient(to top right, #bb33d7 0%, #ce3b3b 100%);
+  --gradient-graphic-stark-lincoln:   linear-gradient(to top right, #088181 0%, #188108 100%);
+  --gradient-graphic-stark-viola:     linear-gradient(to top right, #0b7bbc 0%, #5e5ed9 100%);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 3 — RESEARCH ALIAS LAYER  (your friendly names → Foundations)
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Type families.
+     NOTE: the real Plaid faces (Cern body, Plaid Sans display, Inconsolata mono)
+     are NOT web-available without hosting the font files, so portable artifacts
+     fall back to native stacks. If you self-host the fonts, prepend the real
+     family, e.g. --font-display: var(--font-plaid-sans), <stack>.
+     CORRECTION: Plaid Sans is a geometric SANS (not a serif) — the display
+     fallback below is now a sans stack to match the brand, not the old serif. */
+  --font-display: var(--font-plaid-sans), "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --font-sans:    var(--font-cern), -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono:    var(--font-inconsolata), "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* Core neutrals → real (cool) Plaid black ramp. NOTE: slightly bluer than before. */
+  --plaid-black: var(--color-black-1000);
+  --plaid-white: var(--color-white);
+  --gray-950: var(--color-black-1000);
+  --gray-900: var(--color-black-900);
+  --gray-800: var(--color-black-800);
+  --gray-700: var(--color-black-700);
+  --gray-500: var(--color-black-600);
+  --gray-400: var(--color-black-450);
+  --gray-300: var(--color-black-400);
+  --gray-200: var(--color-black-300);
+  --gray-100: var(--color-black-200);
+  --gray-50:  var(--color-black-100);
+
+  /* Brand blues = Foundations SKY ramp (600/700/ink are exact matches).
+     500/400 shift slightly cyaner vs your old true-blues. To keep them truer
+     blue instead, point them at --color-blue-500 / --color-blue-450. */
+  --plaid-ink-900:  var(--color-sky-900);
+  --plaid-ink-800:  var(--color-sky-800);
+  --plaid-blue-700: var(--color-sky-700);   /* exact */
+  --plaid-blue-600: var(--color-sky-600);   /* exact — your signature */
+  --plaid-blue-500: var(--color-sky-500);
+  --plaid-blue-400: var(--color-sky-400);
+
+  /* Mint = Foundations MINTED ramp (600/500 are exact matches). */
+  --plaid-teal-600: var(--color-minted-700); /* exact */
+  --plaid-teal-500: var(--color-minted-400); /* exact */
+  --plaid-teal-400: var(--color-minted-300);
+
+  /* Holo pastels. Soft set = exact Foundations 200 tints. Brights = custom
+     (no Foundations equivalent) — kept literal and flagged. */
+  --holo-lilac:       var(--color-purple-200);  /* exact */
+  --holo-mint:        var(--color-minted-200);  /* exact */
+  --holo-buttercream: var(--color-yellow-200);  /* exact */
+  --holo-pink-soft:   var(--color-pink-200);    /* exact */
+  --holo-magenta:     var(--color-pink-450);    /* ~exact */
+  --holo-aqua:        var(--color-minted-300);  /* near */
+  --holo-pink:        var(--color-pink-300);    /* near */
+  --holo-cyan:        #8BFFFF;   /* CUSTOM — no Foundations match */
+  --holo-yellow:      #FFFFC7;   /* CUSTOM — no Foundations match */
+  --holo-periwinkle:  #98A5FF;   /* CUSTOM — no Foundations match */
+
+  /* Canonical gradients — rebuilt FROM Foundations tokens where they map. */
+  --gradient-holo-soft: linear-gradient(135deg, var(--color-purple-200) 0%, var(--color-minted-200) 50%, var(--color-yellow-200) 100%);
+  --gradient-holo-deep: linear-gradient(180deg, var(--color-sky-700) 0%, var(--color-sky-600) 33%, var(--color-minted-400) 100%);
+  --gradient-dark:      linear-gradient(180deg, var(--color-sky-800) 2%, var(--color-sky-900) 64%);
+
+  /* ── Heatmap / colorscale ramps ──────────────────────────────────────────
+     Cividis (unipolar/sequential) — perceptually uniform, colorblind-safe.
+     Vik (diverging, Crameri) — warm-cool diverging, neutral midpoint.
+     Signal purple (discrete) — 3-step ramp for Strong / Moderate / Directional.
+     Same values on light and dark surfaces. Inconclusive = neutral gray (no
+     purple); render as hollow ring / dashed whisker so it stays distinct from
+     Directional on dark backgrounds.
+     ─────────────────────────────────────────────────────────────────────── */
+
+  /* OKLCH H305 C0.12, |ΔL| 0.52 / 0.34 / 0.15 from the light surface.
+     Contrast on a #ffffff card: 6.91:1 / 3.27:1 / 1.66:1. Directional is
+     faint on purpose and carries a grey ring so it stays locatable. */
+  --signal-directional: #e0baff;
+  --signal-moderate:    #a37ecd;
+  --signal-strong:      #6e4993;
+  --signal-inconclusive: #566271;
+
+  /* --evidence-* is the name html-research-artifacts/SKILL.md uses for this
+     ramp; --signal-* is the name tokens.css has always used and what
+     research-viz.js resolves. Aliased so both spellings resolve to one value.
+     NOTE: SKILL.md documents the LIGHT ramp as #6e4993 / #a37ecd / #e0baff,
+     which are the OKLCH-derived values that meet its stated 7:1 / 1.7:1
+     contrast targets. The values below are the older, brighter ramp. The dark
+     ramp in .on-dark already matches SKILL.md. Reconciling the light ramp
+     changes every published artifact's evidence pips, so it is deliberately
+     not done here. */
+  --evidence-strong:      var(--signal-strong);
+  --evidence-moderate:    var(--signal-moderate);
+  --evidence-directional: var(--signal-directional);
+
+  /* Cividis 9-stop sequential (dark→light, 0%→100% of range) */
+  /* Categorical (unordered groups such as use cases or segments). Validated for separation:
+     min ΔE 93 normal vision, 59 deuteranopia, 60 protanopia, 27 tritanopia. Kept off the
+     reserved hues: sky blue (interactive/favorable), the evidence purple ramp, pink (highlight). */
+  --cat-1: var(--color-orange-500, #e57300);
+  --cat-2: var(--color-minted-500, #0ba299);
+  --cat-3: var(--color-purple-600, #5e5ed9);
+  --cividis-0: #00204d;  --cividis-12: #1b3b6f;  --cividis-25: #41577b;
+  --cividis-38: #697386;  --cividis-50: #8f8f8c;  --cividis-62: #b3a960;
+  --cividis-75: #d6c92f;  --cividis-88: #f4e801;  --cividis-100: #ffe945;
+  --gradient-cividis: linear-gradient(to right,
+    #00204d 0%, #1b3b6f 12%, #41577b 25%, #697386 38%, #8f8f8c 50%,
+    #b3a960 62%, #d6c92f 75%, #f4e801 88%, #ffe945 100%);
+
+  /* Vik 9-stop diverging (Crameri — cold-blue → neutral → warm-red) */
+  --vik-0: #001160;  --vik-12: #024380;  --vik-25: #307ca6;
+  --vik-38: #93bdd2;  --vik-50: #ece4e0;  --vik-62: #dba98d;
+  --vik-75: #c27040;  --vik-88: #912c05;  --vik-100: #590007;
+  --gradient-vik: linear-gradient(to right,
+    #001160 0%, #024380 12%, #307ca6 25%, #93bdd2 38%, #ece4e0 50%,
+    #dba98d 62%, #c27040 75%, #912c05 88%, #590007 100%);
+
+  /* Text on colored backgrounds — palette-agnostic luminance switch.
+     Aligned to the cool neutral ramp: on-dark = black-200, on-light = black-1000.
+     Keep textColorForBg() in research-viz.js returning these same two values. */
+  --text-on-dark: #ebf0f4;
+  --text-on-light: #08131e;
+  --luminance-threshold: 0.179;
+
+  /* Semantic colors → Foundations (exact where noted). */
+  --success-fg:    var(--color-minted-700); /* exact */
+  --success-bg:    var(--color-minted-200); /* exact */
+  --success-solid: var(--color-minted-400); /* exact */
+  --warning-fg:    var(--color-yellow-600);
+  --warning-bg:    var(--color-yellow-200); /* exact */
+  --error-fg:      var(--color-red-700);
+  --error-bg:      var(--color-red-200);
+  --error-solid:   var(--color-red-600);
+  --info-fg:       var(--color-sky-700);    /* exact */
+  --info-bg:       var(--color-blue-200);
+
+  /* Foreground / background aliases — mode-aware. Light defaults here; the
+     .on-dark scope below re-points the same names for dark cards.
+     Halation guard: pure white (--color-white) is MAX-EMPHASIS text only on
+     dark — never the default dark body color (that is --fg-1 = #ebf0f4).
+     Elevation: cards sit one luminance step *brighter* than their canvas in
+     both modes — light card #ffffff > canvas #fdffff; dark card #1b242d >
+     canvas #08131e. Same principle, inverted. */
+  --fg-1: var(--gray-950);             /* primary   #08131e */
+  --fg-2: var(--gray-700);             /* secondary #4f5c69 */
+  --fg-3: var(--gray-500);             /* tertiary  #6b7785 */
+  --fg-inverse: var(--plaid-white);
+  --bg-1: #fdffff;                     /* page / canvas (bespoke literal, not a ramp stop) */
+  --bg-2: var(--color-white);          /* raised card #ffffff */
+  --bg-3: var(--gray-100);             /* sunken      #ebf0f4 */
+  --surface-2: var(--color-black-100); /* subtle fill #f7fafd */
+  --bg-inverse: var(--plaid-black);
+  --border-subtle:  var(--color-black-200); /* internal  #ebf0f4 */
+  --border-default: var(--color-black-300); /* section   #dde3e9 */
+  --border-strong:  var(--gray-300);
+
+  /* Product-accent colors — custom, NO Foundations token. Surface-aware pairs.
+     Bright/base split by contrast: gold reads on dark (~8:1) but fails on light
+     (~1.9:1, light mode uses dark-gold --warning-fg instead); coral reads on
+     light (~5:1) but is weak on dark (~3:1) so it gets a brightened dark variant
+     (~5.2:1). Use the *-dark token on dark surfaces; the base on light. */
+  --accent-payments:      #E2B53A;     /* gold  — dark surfaces */
+  --accent-payments-dark: #E2B53A;     /* already clears ~8:1 on #1b242d; no brightening needed */
+  --accent-credit:        #C5411E;     /* coral — light surfaces (~5:1 on #fdffff) */
+  --accent-credit-dark:   #ee6d4a;     /* brightened for #1b242d (~5.2:1 AA) */
+
+  /* Spacing scale → Foundations (--space-32 has no Foundations step; literal). */
+  --space-1:  var(--spacing-4);   --space-2:  var(--spacing-8);   --space-3:  var(--spacing-12);
+  --space-4:  var(--spacing-16);  --space-5:  var(--spacing-20);  --space-6:  var(--spacing-24);
+  --space-8:  var(--spacing-32);  --space-10: var(--spacing-40);  --space-12: var(--spacing-48);
+  --space-16: var(--spacing-64);  --space-20: var(--spacing-80);  --space-24: var(--spacing-96);
+  --space-32: 128px;              --space-40: var(--spacing-160);
+
+  /* Radii → Foundations */
+  --radius-none: var(--radius-0);
+  --radius-sm:   var(--radius-4);
+  --radius-md:   var(--radius-8);
+  --radius-lg:   var(--radius-16);
+  --radius-xl:   var(--radius-24);
+  --radius-pill: var(--radius-full);
+
+  /* Shadows — custom (Foundations shadow tokens are still in flux). */
+  --shadow-sm: 0 1px 2px rgba(8,19,30,0.04), 0 1px 1px rgba(8,19,30,0.06);
+  --shadow-md: 0 4px 12px rgba(8,19,30,0.06), 0 2px 4px rgba(8,19,30,0.04);
+  --shadow-lg: 0 16px 40px rgba(8,19,30,0.08), 0 4px 12px rgba(8,19,30,0.04);
+  --shadow-xl: 0 32px 80px rgba(2,41,75,0.14), 0 8px 24px rgba(2,41,75,0.08);
+  --shadow-focus: 0 0 0 3px rgba(14,148,216,0.30);
+
+  /* Motion — custom */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-micro: 150ms; --dur-small: 250ms; --dur-page: 400ms; --dur-hero: 800ms;
+
+  /* Layout — custom */
+  --container-marketing: 1200px;
+  --container-dashboard: 1440px;
+
+  /* Type scale — custom (Foundations has --text-* tokens if you ever want them) */
+  --display-xl-size: 120px; --display-xl-lh: 0.9;  --display-xl-weight: 700;
+  --display-lg-size: 88px;  --display-lg-lh: 0.95; --display-lg-weight: 700;
+  --display-md-size: 64px;  --display-md-lh: 1.0;  --display-md-weight: 500;
+  --display-sm-size: 44px;  --display-sm-lh: 1.05; --display-sm-weight: 500;
+  --h1-size: 48px; --h1-lh: 1.1; --h1-weight: 600;
+  --h2-size: 32px; --h2-lh: 1.2; --h2-weight: 600;
+  --h3-size: 22px; --h3-lh: 1.3; --h3-weight: 600;
+  --h4-size: 18px; --h4-lh: 1.4; --h4-weight: 600;
+  --body-lg-size: 18px; --body-lg-lh: 1.55;
+  --body-size: 16px;    --body-lh: 1.5;
+  --body-sm-size: 14px; --body-sm-lh: 1.45;
+  --caption-size: 12px; --caption-lh: 1.3;
+  --eyebrow-size: 12px; --eyebrow-lh: 1.0; --eyebrow-tracking: 0.12em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK SCOPE — wrap any element in class="on-dark" to flip the surface/text
+   aliases to the dark neutral ramp. Lets a single light page host a dark chart
+   card without touching component CSS (the dark-card-on-light-page pattern).
+   Charts and prose default to light (researcher preference, 2026-11-02); use .on-dark only by choice. Uses a class, not a media query.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.on-dark {
+  --bg-1: var(--color-black-1000);  /* canvas #08131e */
+  --bg-2: var(--color-black-900);   /* card   #1b242d */
+  --bg-3: var(--color-black-800);   /* raised #2c3a49 */
+  --surface-2: var(--color-black-800);
+
+  --fg-1: var(--color-black-200);   /* primary off-white #ebf0f4 */
+  --fg-2: var(--color-black-400);   /* secondary         #c5ccd3 */
+  --fg-3: var(--color-black-500);   /* tertiary          #8c95a1 */
+
+  --border-subtle:  var(--color-black-900); /* #1b242d */
+  --border-default: var(--color-black-800); /* #2c3a49 */
+
+  /* Accent + semantic foregrounds → brightened Foundations stops so links,
+     eyebrows, and status text read on dark (light-mode inks fail here: e.g.
+     success #05565c = 1.9:1, error #a32929 = 2.2:1 on #1b242d). */
+  --plaid-blue-600: var(--color-sky-400);   /* link/accent #51d2fb (~9:1) */
+  --success-fg:     var(--color-minted-400); /* #42f0cd (~11:1) */
+  --warning-fg:     var(--color-yellow-400); /* #fbde51 (~12:1) */
+  --error-fg:       var(--color-red-450);    /* #fb7474 (~5.9:1) */
+  --info-fg:        var(--color-sky-400);    /* #51d2fb (~9:1) */
+
+  /* Evidence ramp — the purple encodes tier as luminance distance FROM the surface, so on
+     dark it has to invert: dark→pale on light becomes bright→dim on dark. Without this the
+     light-mode inks sit on #1b242d at ~3:1 (strong #9b30e8 measured 2.98:1 as chip text).
+     Keeps strong ~7:1 and directional intentionally faint in both modes. */
+  --signal-strong:      #cca7f8;
+  --signal-moderate:    #946fbd;
+  --signal-directional: #5d3881;
+  --evidence-strong:      var(--signal-strong);
+  --evidence-moderate:    var(--signal-moderate);
+  --evidence-directional: var(--signal-directional);
+
+  /* Product accents flip to their brightened dark variants for CSS chips/pills.
+     (research-viz.js charts read the flat *-dark tokens directly — see note there.) */
+  --accent-payments: var(--accent-payments-dark);
+  --accent-credit:   var(--accent-credit-dark);
+}
+
+/* ── Signal tier utilities (discrete evidence encoding) ────────────────────
+   Purple fill ramp for Strong / Moderate / Directional. Inconclusive is always
+   hollow neutral gray — never a lighter purple. Chart marks: research-viz.js
+   signalMarkStyle() (dashed whisker + hollow dot). HTML: classes below.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.signal-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.signal-dot.strong      { background: var(--signal-strong);      border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.moderate    { background: var(--signal-moderate);    border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.directional { background: var(--signal-directional); border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.inconclusive {
+  background: transparent;
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+.signal-whisker {
+  display: inline-block;
+  width: 18px;
+  border-top-width: 2.5px;
+  border-top-style: solid;
+  flex-shrink: 0;
+}
+.signal-whisker.inconclusive {
+  border-top-style: dashed;
+  border-top-color: var(--signal-inconclusive);
+  opacity: 0.7;
+}
+
+.ev-pill.inconclusive {
+  background: transparent;
+  color: var(--signal-inconclusive);
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+/* Confidence chip — inconclusive tier on ::before pseudo (alias of .signal-dot.inconclusive) */
+.conf-chip.thin::before {
+  background: transparent;
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1400px; margin: 0 auto; padding: 32px 16px 64px; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+h2 { font-family: var(--font-display); font-size: 21px; letter-spacing: -0.01em; margin: 0 0 6px; }
+.sub { color: var(--fg-2); margin: 0 0 16px; max-width: 900px; }
+section { margin: 44px 0 0; }
+.callout { background: var(--bg-inverse); color: var(--fg-inverse); border-radius: var(--radius-md); padding: 14px 18px; margin: 0 0 14px; max-width: 900px; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 8px 0 0; max-width: 900px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.seg { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-pill); overflow: hidden; }
+.seg button { background: var(--bg-2); color: var(--fg-2); border: 0; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pills button { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: var(--radius-pill); border: 1px solid var(--border-default); background: var(--bg-2); color: var(--fg-2); cursor: pointer; }
+.pills button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+.ctl-l { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); margin-left: 6px; }
+select { font: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--fg-1); }
+.sticky-ctl { position: sticky; top: 0; z-index: 5; background: var(--bg-1); padding: 10px 0; border-bottom: 1px solid var(--border-subtle); margin-bottom: 8px; }
+.card { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); padding: 12px 14px; }
+.wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); }
+.wrap.tall { max-height: 78vh; }
+table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 7px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+thead th { position: sticky; top: 0; background: var(--bg-2); z-index: 2; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-default); vertical-align: bottom; }
+th.lbl, td.lbl { position: sticky; left: 0; background: var(--bg-2); z-index: 1; text-align: left; white-space: normal; min-width: 240px; max-width: 340px; }
+thead th.lbl { z-index: 3; }
+td.v { text-align: center; min-width: 48px; }
+td.maj { font-weight: 700; box-shadow: inset 0 0 0 2px currentColor; }
+td.num { text-align: right; min-width: 64px; }
+td.sep, th.sep { border-left: 2px solid var(--border-strong); }
+tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); font-size: 12px; }
+tr.topic td.lbl { background: var(--bg-3); }
+.sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: 0; }
+.mx td.v { min-width: 54px; height: 40px; }
+.chips { display: inline-flex; gap: 3px; }
+.chip { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border-default); color: var(--fg-3); min-width: 34px; text-align: center; }
+.chip.on { color: #fff; border-color: transparent; }
+.lines svg { display: block; width: 100%; height: auto; }
+.lines text { font-size: 11px; fill: var(--fg-1); font-family: var(--font-sans); }
+.lines .dl { fill: var(--fg-2); font-size: 12px; font-weight: 600; }
+.lines .dn { fill: var(--fg-3); font-size: 10.5px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--fg-2); margin: 0 0 10px; }
+.ramp { width: 160px; height: 10px; border-radius: 2px; }
+.builder { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.builder button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: var(--radius-pill); border: 2px solid var(--border-default); background: var(--bg-2); color: var(--fg-2); cursor: pointer; }
+.builder button[aria-pressed="true"] { color: #fff; border-color: transparent; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; max-width: 900px; }
+.stat { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); padding: 10px 12px; }
+.stat b { display: block; font-family: var(--font-display); font-size: 24px; letter-spacing: -0.01em; }
+.stat span { font-size: 12px; color: var(--fg-3); }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; } .grid2 > div { min-width: 0; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0, 1fr); } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } th.lbl, td.lbl { min-width: 170px; } }
+@media print { .wrap { max-height: none; overflow: visible; } .sticky-ctl { position: static; } .callout { background: var(--bg-3); color: var(--fg-1); border: 1px solid var(--border-default); } }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Coalitions · nine parties · 37 Legislation-tab bills</p>
+  <h1>Who votes with whom</h1>
+  <p class="sub">Each party's position on the line comes from how often it votes with the others. Parties close together agree on most bills.</p>
+  <div class="callout" id="headline"></div>
+
+  <div class="sticky-ctl controls">
+    <span class="ctl-l">Agreement</span>
+    <div class="seg" id="mode"><button data-v="bloc" aria-pressed="true">Party majorities</button><button data-v="member">Individual members</button></div>
+    <span class="ctl-l">Issue</span>
+    <div class="pills" id="dom"></div>
+  </div>
+
+  <section style="margin-top:20px">
+    <p class="eyebrow">The line</p>
+    <h2>Left to right by voting agreement, overall and issue by issue</h2>
+    <div class="card lines" id="lines"></div>
+    <p class="caption" id="linecap"></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Agreement matrix</p>
+    <h2 id="mxh">How often each pair votes the same way</h2>
+    <div class="controls"><span class="ctl-l">Order</span><div class="seg" id="mxorder"><button data-v="all" aria-pressed="true">Overall line</button><button data-v="dom">This issue's line</button></div></div>
+    <div class="legend"><span>0%</span><span class="ramp" id="civramp"></span><span>100% of bills the same way</span></div>
+    <div class="wrap"><table class="mx" id="mx"></table></div>
+    <p class="caption" id="mxcap"></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Issue coalitions</p>
+    <h2>Which parties end up on the yes side</h2>
+    <p class="sub">Each row is a set of parties whose majorities support the same bills. Seats are the default House (double magnitude, depth 7, 5% turnout gap).</p>
+    <div class="wrap"><table id="pat"></table></div>
+    <p class="caption" id="patcap"></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Bills</p>
+    <h2>Each party's support, bill by bill</h2>
+    <div class="controls"><span class="ctl-l">Sort</span>
+      <select id="bsort"><option value="domain">By issue</option><option value="pattern">By yes coalition</option><option value="overall">By overall support</option><option value="seats">By yes-side seats</option></select></div>
+    <div class="legend"><span>Oppose</span><span class="ramp" id="vikramp"></span><span>Support</span><span>· outlined cell: party majority supports</span></div>
+    <div class="wrap tall"><table id="bills"></table></div>
+    <p class="caption" id="billcap"></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Majority odds</p>
+    <h2>Build a coalition and see how often it holds a House majority</h2>
+    <div class="builder" id="builder"></div>
+    <div class="stats" id="stats"></div>
+    <div class="grid2" style="margin-top:16px">
+      <div><p class="sub" style="margin:0 0 6px">Neighbors on the overall line that reach 437 seats, with no party to spare</p><div class="wrap"><table id="mwc"></table></div></div>
+      <div><p class="sub" style="margin:0 0 6px">Every coalition of up to four parties with at least a 50% chance</p><div class="wrap tall" style="max-height:420px"><table id="any"></table></div></div>
+    </div>
+    <p class="caption" id="oddcap"></p>
+  </section>
+</main>
+<script>
+const DATA = {"parties": ["CON", "CUP", "DSA", "LBR", "NAT", "OAO", "POP", "PRG", "STY"], "order": ["DSA", "PRG", "LBR", "CUP", "STY", "OAO", "CON", "POP", "NAT"], "names": {"CON": "Conservative", "CUP": "Civic Union", "DSA": "Democratic Socialists", "LBR": "Labor", "NAT": "Nationalist", "OAO": "Order and Opportunity", "POP": "Populist", "PRG": "Progressive", "STY": "Solidarity"}, "colors": {"CON": "#ef4444", "CUP": "#c026d3", "DSA": "#15803d", "LBR": "#0369a1", "NAT": "#7f1d1d", "OAO": "#4c1d95", "POP": "#f59e0b", "PRG": "#14b8a6", "STY": "#a78bfa"}, "seats": {"CON": 185, "CUP": 117, "DSA": 4, "LBR": 134, "NAT": 196, "OAO": 33, "POP": 2, "PRG": 60, "STY": 142}, "chamber": 873, "majority": 437, "share": {"bloc": [0.826, 0.137], "member": [0.876, 0.092]}, "lines": {"bloc|All": {"n": 37, "share1": 0.826, "dim1": {"CON": 0.369, "CUP": -0.136, "DSA": -0.3672, "LBR": -0.2867, "NAT": 0.49, "OAO": -0.076, "POP": 0.3978, "PRG": -0.3136, "STY": -0.0772}, "dim2": {"CON": -0.0871, "CUP": -0.0776, "DSA": 0.0886, "LBR": 0.0736, "NAT": -0.0483, "OAO": -0.1906, "POP": 0.256, "PRG": 0.0786, "STY": -0.0932}}, "bloc|Abortion": {"n": 3, "share1": 0.748, "dim1": {"CON": 0.4528, "CUP": -0.2165, "DSA": -0.2165, "LBR": -0.2165, "NAT": 0.4528, "OAO": -0.2165, "POP": 0.0884, "PRG": -0.2165, "STY": 0.0884}, "dim2": {"CON": 0.0, "CUP": 0.0, "DSA": 0.0, "LBR": -0.0, "NAT": 0.0, "OAO": 0.0, "POP": 0.3333, "PRG": 0.0, "STY": -0.3333}}, "bloc|Civil Liberties": {"n": 7, "share1": 0.785, "dim1": {"CON": 0.3621, "CUP": -0.2539, "DSA": -0.4834, "LBR": -0.3402, "NAT": 0.3621, "OAO": 0.3245, "POP": 0.2479, "PRG": -0.3402, "STY": 0.1213}, "dim2": {"CON": -0.0472, "CUP": -0.2762, "DSA": 0.0662, "LBR": 0.0416, "NAT": -0.0472, "OAO": -0.1638, "POP": 0.2434, "PRG": 0.0416, "STY": 0.1415}}, "bloc|Environment & Climate": {"n": 6, "share1": 0.824, "dim1": {"CON": 0.5528, "CUP": -0.0865, "DSA": -0.4281, "LBR": -0.2646, "NAT": 0.5528, "OAO": -0.1731, "POP": 0.4478, "PRG": -0.4281, "STY": -0.1731}, "dim2": {"CON": 0.1048, "CUP": -0.1266, "DSA": -0.097, "LBR": -0.0633, "NAT": 0.1048, "OAO": 0.2453, "POP": -0.3164, "PRG": -0.097, "STY": 0.2453}}, "bloc|Healthcare & Housing": {"n": 5, "share1": 0.758, "dim1": {"CON": 0.2092, "CUP": -0.2386, "DSA": -0.2603, "LBR": -0.2603, "NAT": 0.657, "OAO": -0.2386, "POP": 0.6304, "PRG": -0.2603, "STY": -0.2386}, "dim2": {"CON": 0.1942, "CUP": 0.167, "DSA": -0.1913, "LBR": -0.1913, "NAT": 0.2214, "OAO": 0.167, "POP": -0.3425, "PRG": -0.1913, "STY": 0.167}}, "bloc|Immigration": {"n": 5, "share1": 1.0, "dim1": {"CON": 0.3111, "CUP": -0.0889, "DSA": -0.4889, "LBR": -0.2889, "NAT": 0.5111, "OAO": -0.0889, "POP": 0.5111, "PRG": -0.2889, "STY": -0.0889}, "dim2": {"CON": 0.0, "CUP": 0.0, "DSA": 0.0, "LBR": 0.0, "NAT": 0.0, "OAO": 0.0, "POP": 0.0, "PRG": 0.0, "STY": -0.0}}, "bloc|Police & Guns": {"n": 6, "share1": 0.797, "dim1": {"CON": 0.3797, "CUP": 0.0068, "DSA": -0.2876, "LBR": -0.2876, "NAT": 0.3797, "OAO": 0.0068, "POP": 0.2103, "PRG": -0.2876, "STY": -0.1207}, "dim2": {"CON": -0.0211, "CUP": -0.1889, "DSA": 0.041, "LBR": 0.041, "NAT": -0.0211, "OAO": -0.1889, "POP": 0.2714, "PRG": 0.041, "STY": 0.0255}}, "bloc|Taxes & Economy": {"n": 5, "share1": 0.909, "dim1": {"CON": 0.2632, "CUP": -0.119, "DSA": -0.3379, "LBR": -0.3379, "NAT": 0.4636, "OAO": -0.129, "POP": 0.664, "PRG": -0.3379, "STY": -0.129}, "dim2": {"CON": 0.0092, "CUP": 0.2441, "DSA": 0.0189, "LBR": 0.0189, "NAT": 0.006, "OAO": -0.1594, "POP": 0.0028, "PRG": 0.0189, "STY": -0.1594}}, "member|All": {"n": 37, "share1": 0.876, "dim1": {"CON": 0.2468, "CUP": -0.0284, "DSA": -0.3043, "LBR": -0.2033, "NAT": 0.4365, "OAO": -0.0406, "POP": 0.1298, "PRG": -0.2518, "STY": 0.0151}, "dim2": {"CON": 0.0467, "CUP": 0.0365, "DSA": -0.06, "LBR": -0.0015, "NAT": -0.0042, "OAO": 0.111, "POP": -0.1689, "PRG": 0.0052, "STY": 0.0351}}, "member|Abortion": {"n": 3, "share1": 0.945, "dim1": {"CON": 0.1716, "CUP": -0.0951, "DSA": -0.1784, "LBR": -0.1627, "NAT": 0.3291, "OAO": -0.0081, "POP": 0.044, "PRG": -0.1707, "STY": 0.0701}, "dim2": {"CON": 0.0016, "CUP": -0.0444, "DSA": 0.0183, "LBR": -0.0042, "NAT": -0.0079, "OAO": 0.0464, "POP": -0.0664, "PRG": -0.0001, "STY": 0.0567}}, "member|Civil Liberties": {"n": 7, "share1": 0.881, "dim1": {"CON": 0.2386, "CUP": -0.04, "DSA": -0.3313, "LBR": -0.186, "NAT": 0.3394, "OAO": 0.1124, "POP": 0.0082, "PRG": -0.2719, "STY": 0.1306}, "dim2": {"CON": -0.0342, "CUP": -0.0867, "DSA": 0.0631, "LBR": -0.0103, "NAT": 0.0382, "OAO": -0.0778, "POP": 0.1387, "PRG": -0.0556, "STY": 0.0246}}, "member|Environment & Climate": {"n": 6, "share1": 0.953, "dim1": {"CON": 0.3358, "CUP": -0.0646, "DSA": -0.3492, "LBR": -0.2426, "NAT": 0.5534, "OAO": -0.0948, "POP": 0.1875, "PRG": -0.3214, "STY": -0.0041}, "dim2": {"CON": -0.0433, "CUP": -0.0141, "DSA": 0.0343, "LBR": -0.0018, "NAT": -0.0056, "OAO": -0.088, "POP": 0.1436, "PRG": 0.0224, "STY": -0.0474}}, "member|Healthcare & Housing": {"n": 5, "share1": 0.899, "dim1": {"CON": 0.1456, "CUP": -0.0483, "DSA": -0.2064, "LBR": -0.1606, "NAT": 0.4093, "OAO": -0.1061, "POP": 0.1916, "PRG": -0.1954, "STY": -0.0297}, "dim2": {"CON": 0.0378, "CUP": -0.0071, "DSA": -0.0486, "LBR": -0.0037, "NAT": 0.0324, "OAO": 0.0695, "POP": -0.1249, "PRG": -0.0173, "STY": 0.0618}}, "member|Immigration": {"n": 5, "share1": 0.903, "dim1": {"CON": 0.3338, "CUP": 0.044, "DSA": -0.4294, "LBR": -0.2566, "NAT": 0.4656, "OAO": -0.0137, "POP": 0.117, "PRG": -0.2606, "STY": -0.0002}, "dim2": {"CON": 0.0391, "CUP": 0.0642, "DSA": -0.0777, "LBR": 0.0073, "NAT": -0.0198, "OAO": 0.1128, "POP": -0.1899, "PRG": 0.0551, "STY": 0.0089}}, "member|Police & Guns": {"n": 6, "share1": 0.871, "dim1": {"CON": 0.1898, "CUP": 0.0087, "DSA": -0.2896, "LBR": -0.1768, "NAT": 0.3904, "OAO": 0.0057, "POP": 0.0769, "PRG": -0.1988, "STY": -0.0064}, "dim2": {"CON": -0.0517, "CUP": -0.0921, "DSA": 0.0565, "LBR": -0.0057, "NAT": 0.0277, "OAO": -0.0925, "POP": 0.1582, "PRG": -0.018, "STY": 0.0177}}, "member|Taxes & Economy": {"n": 5, "share1": 0.882, "dim1": {"CON": 0.2419, "CUP": -0.0242, "DSA": -0.2836, "LBR": -0.2131, "NAT": 0.4949, "OAO": -0.1544, "POP": 0.2579, "PRG": -0.2897, "STY": -0.0298}, "dim2": {"CON": 0.0027, "CUP": 0.0853, "DSA": 0.0286, "LBR": -0.0105, "NAT": -0.044, "OAO": -0.0931, "POP": 0.0991, "PRG": 0.0496, "STY": -0.1176}}}, "domains": ["All", "Abortion", "Civil Liberties", "Environment & Climate", "Healthcare & Housing", "Immigration", "Police & Guns", "Taxes & Economy"], "draws": {"CON": [190, 196, 190, 177, 198, 190, 183, 191, 160, 210, 203, 208, 208, 179, 192, 207, 191, 200, 191, 206, 172, 186, 205, 199, 178, 190, 183, 194, 194, 196, 184, 174, 194, 186, 181, 182, 186, 169, 185, 192, 183, 183, 193, 180, 187, 183, 176, 176, 181, 167, 192, 165, 185, 171, 182, 196, 188, 184, 191, 183, 208, 199, 196, 184, 192, 196, 215, 178, 189, 195, 190, 192, 174, 180, 186, 178, 207, 201, 191, 182, 175, 200, 171, 198, 180, 195, 212, 202, 198, 187, 194, 196, 190, 189, 168, 178, 186, 188, 176, 184, 184, 186, 190, 186, 198, 180, 195, 194, 180, 189, 186, 199, 188, 184, 193, 197, 195, 190, 188, 202, 192, 184, 200, 191, 197, 149, 188, 192, 177, 185, 190, 191, 181, 184, 198, 187, 168, 179, 181, 208, 200, 184, 181, 191, 209, 186, 180, 207, 185, 193, 192, 11, 182, 201, 187, 201, 179, 182, 192, 183, 184, 201, 197, 191, 196, 200, 202, 181, 178, 199, 185, 205, 181, 186, 182, 190, 167, 184, 182, 195, 184, 193, 185, 203, 180, 186, 182, 198, 179, 140, 226, 185, 202, 200, 190, 207, 209, 189, 185, 178, 181, 189, 176, 184, 184, 198, 191, 206, 182, 194, 172, 195, 183, 192, 186, 178, 200, 172, 172, 198, 200, 192, 193, 176, 195, 195, 172, 201, 178, 198, 194, 201, 191, 188, 207, 189, 185, 186, 200, 191, 188, 183, 193, 203, 185, 196, 183, 189, 182, 189, 147, 186, 189, 191, 170, 231, 195, 194, 175, 180, 189, 186, 192, 210, 203, 187, 178, 178, 204, 186, 182, 179, 192, 197, 211, 185, 186, 183, 202, 192, 196, 191, 199, 190, 171, 175, 189, 182, 203, 182, 189, 179, 183, 206, 192, 192, 192, 198, 194, 177, 175, 169, 199, 180, 187, 187, 181, 180, 191, 174, 178, 212, 182, 179, 208, 185, 173, 188, 174, 194, 215, 170, 234, 169, 205, 187, 192, 209, 174, 186, 188, 176, 185, 207, 198, 190, 201, 191, 179, 187, 170, 191, 196, 219, 186, 176, 185, 187, 187, 184, 177, 191, 177, 174, 229, 192, 189, 191, 195, 209, 191, 197, 181, 184, 192, 190, 181, 197, 196, 185, 183, 188, 174, 193, 212, 198, 182, 199, 220, 178, 181, 190, 185, 198, 193, 198, 190, 188, 196, 190, 190, 198, 199, 194, 214, 179, 180, 173, 197, 193, 198, 181, 178, 195, 193, 178, 207, 175, 179, 192, 207, 190, 191, 198, 174, 175, 184, 183, 189, 175, 197, 195, 192, 190, 190, 188, 190, 200, 186, 176, 203, 189, 200, 180, 177, 187, 174, 190, 176, 174, 182, 180, 188, 198, 182, 174, 201, 188, 188, 219, 146, 191, 183, 194, 185, 182, 185, 197, 182, 181, 147, 194, 204, 176, 190, 189, 193, 199, 192, 197, 175, 198, 192, 196, 201, 175, 187, 168, 200, 193, 187, 178, 208, 179, 174, 188, 209, 189, 182, 188, 184, 179, 208, 184, 176, 200, 182, 189, 164, 196, 187, 201, 200, 193, 194, 190, 183, 186, 195, 188, 136, 193, 189, 184, 183, 189, 176, 204, 163, 205, 148, 184, 189, 186, 164, 199, 184, 205, 184, 188, 184, 193, 193, 193, 214, 184, 176, 201, 187, 182, 177, 189, 194, 190, 200, 184, 207, 187, 173, 197, 174, 188, 199, 185, 177, 181, 197, 209, 183, 189, 178, 191, 185, 192, 188, 200, 188, 155, 209, 186, 189, 188, 184, 196, 187, 176, 196, 182, 185, 175, 191, 190, 188, 182, 195, 203, 195, 198, 183, 181, 182, 190, 187, 176, 169, 196, 175, 178, 187, 174, 189, 201, 185, 184, 190, 177, 198, 203, 206, 176, 218, 181, 220, 166, 174, 188, 194, 174, 205, 167, 188, 188, 199, 194, 175, 200, 193, 196, 180, 193, 200, 197, 176, 188, 205, 200, 166, 179, 189, 192, 175, 196, 184, 191, 152, 187, 193, 184, 202, 193, 177, 185, 192, 175, 176, 187, 193, 197, 197, 179, 180, 181, 194, 191, 179, 179, 194, 191, 176, 186, 193, 207, 200, 191, 176, 187, 189, 200, 186, 194, 194, 196, 204, 196, 192, 183, 182, 206, 189, 197, 190, 193, 173, 196, 199, 199, 181, 188, 189, 194, 193, 189, 197, 179, 185, 184, 191, 183, 206, 188, 190, 199, 192, 186, 194, 192, 185, 189, 175, 192, 189, 198, 205, 184, 191, 206, 190, 197, 180, 198, 194, 172, 208, 191, 204, 183, 189, 180, 188, 186, 196, 180, 202, 160, 180, 180, 195, 193, 202, 187, 175, 194, 190, 181, 197, 205, 198, 197, 196, 184, 188, 203, 189, 199, 187, 190, 204, 185, 173, 194, 185, 187, 184, 187, 205, 179, 201, 188, 230, 189, 201, 174, 192, 177, 204, 185, 191, 196, 185, 196, 194, 198, 198, 202, 189, 195, 198, 178, 193, 199, 190, 173, 192, 185, 202, 188, 208, 171, 177, 199, 192, 186, 195, 176, 189, 206, 190, 189, 206, 176, 180, 231, 189, 174, 172, 187, 186, 171, 140, 194, 204, 161, 195, 182, 180, 188, 199, 183, 181, 174, 174, 179, 189, 186, 200, 198, 207, 185, 198, 179, 195, 154, 200, 195, 199, 194, 217, 189, 206, 187, 203, 189, 183, 181, 183, 181, 195, 177, 201, 181, 202, 212, 205, 192, 178, 173, 180, 180, 184, 186, 194, 155, 188, 218, 180, 185, 193, 190, 201, 194, 187, 187, 203, 201, 183, 180, 193, 181, 191, 209, 202, 191, 209, 171, 202, 203, 180, 205, 188, 185, 200, 183, 184, 200, 181, 208, 205, 180, 191, 186, 198, 196, 170, 192, 191, 189, 184, 212, 184, 172, 189, 203, 178, 184, 181, 185, 211, 190, 191, 203, 191, 179, 186, 190, 179, 192, 191, 181, 189, 189, 183, 205, 181, 182, 187, 185, 202, 196, 201, 189, 189, 193, 193, 184, 186, 199, 182, 187, 188, 202, 177, 206, 183, 193, 147, 209, 200, 189, 193, 178, 197, 213, 187, 183, 185, 207, 177, 197, 187, 196, 197, 189, 171, 178, 187, 190, 197, 187, 188, 185], "CUP": [122, 132, 113, 117, 130, 112, 99, 91, 93, 122, 142, 144, 130, 105, 103, 108, 102, 144, 129, 138, 87, 102, 127, 123, 87, 99, 100, 119, 133, 98, 91, 104, 119, 123, 91, 79, 117, 107, 112, 102, 98, 101, 101, 114, 113, 237, 94, 201, 105, 106, 81, 189, 105, 149, 122, 103, 114, 100, 120, 120, 162, 94, 118, 111, 234, 87, 114, 104, 103, 114, 108, 117, 118, 108, 119, 103, 107, 120, 113, 116, 101, 107, 103, 117, 114, 108, 127, 147, 145, 109, 131, 121, 111, 109, 85, 235, 108, 210, 230, 117, 106, 108, 111, 115, 120, 119, 119, 107, 119, 225, 135, 125, 86, 93, 106, 101, 123, 129, 96, 128, 108, 126, 149, 98, 133, 159, 116, 92, 200, 111, 125, 121, 110, 96, 105, 98, 106, 182, 135, 166, 117, 120, 100, 121, 149, 116, 118, 127, 104, 118, 136, 269, 123, 131, 100, 104, 133, 107, 100, 191, 110, 124, 108, 125, 120, 189, 110, 119, 112, 115, 118, 89, 108, 107, 86, 114, 168, 115, 114, 117, 136, 112, 101, 138, 103, 113, 105, 110, 112, 131, 153, 116, 125, 112, 118, 139, 131, 108, 109, 90, 114, 103, 100, 118, 121, 121, 111, 147, 102, 104, 85, 116, 142, 128, 107, 108, 165, 115, 134, 157, 134, 115, 113, 107, 170, 103, 144, 104, 116, 106, 135, 127, 132, 125, 126, 104, 175, 103, 114, 102, 131, 121, 115, 125, 133, 85, 103, 129, 125, 131, 186, 101, 114, 90, 219, 110, 195, 115, 98, 114, 97, 136, 126, 123, 101, 95, 105, 90, 130, 131, 105, 124, 161, 116, 118, 113, 111, 138, 137, 121, 132, 105, 141, 112, 116, 101, 100, 108, 99, 118, 119, 103, 128, 144, 105, 118, 115, 119, 132, 127, 116, 116, 135, 255, 112, 99, 125, 118, 85, 116, 102, 123, 94, 109, 131, 106, 103, 107, 119, 96, 142, 120, 83, 121, 148, 130, 130, 158, 120, 103, 128, 93, 84, 111, 122, 125, 129, 121, 94, 145, 105, 96, 90, 133, 227, 108, 125, 136, 128, 82, 146, 104, 115, 139, 142, 135, 104, 113, 96, 130, 97, 133, 129, 108, 117, 126, 98, 92, 113, 107, 119, 123, 102, 113, 124, 120, 113, 100, 149, 102, 100, 151, 136, 119, 105, 121, 126, 116, 114, 113, 126, 119, 116, 114, 146, 97, 108, 117, 122, 113, 126, 115, 81, 154, 141, 141, 108, 90, 91, 100, 125, 115, 108, 107, 106, 90, 107, 99, 121, 115, 93, 93, 140, 107, 241, 131, 155, 130, 122, 99, 137, 118, 104, 121, 111, 95, 103, 119, 112, 138, 118, 119, 100, 136, 101, 117, 123, 127, 143, 143, 170, 101, 93, 114, 140, 150, 117, 135, 95, 133, 180, 106, 209, 97, 120, 79, 118, 152, 139, 124, 101, 143, 240, 103, 117, 104, 99, 103, 98, 114, 137, 108, 188, 103, 94, 97, 140, 123, 111, 109, 124, 124, 130, 112, 107, 122, 110, 107, 116, 107, 134, 153, 97, 122, 100, 143, 106, 97, 113, 112, 166, 98, 114, 112, 115, 121, 93, 120, 186, 97, 127, 109, 92, 118, 99, 95, 104, 119, 119, 104, 123, 111, 96, 102, 187, 96, 95, 108, 128, 119, 106, 126, 112, 117, 141, 109, 117, 108, 107, 111, 132, 98, 84, 113, 121, 222, 117, 136, 124, 122, 94, 109, 113, 113, 122, 110, 123, 173, 121, 142, 135, 191, 138, 120, 109, 82, 136, 128, 122, 115, 108, 99, 112, 104, 123, 127, 109, 140, 119, 108, 112, 123, 102, 105, 122, 123, 119, 110, 122, 130, 89, 108, 121, 121, 116, 113, 103, 115, 108, 125, 139, 149, 137, 104, 99, 117, 101, 92, 132, 105, 111, 116, 134, 114, 220, 134, 120, 115, 95, 135, 113, 113, 90, 109, 145, 170, 129, 80, 109, 105, 122, 150, 96, 108, 158, 85, 78, 107, 107, 143, 84, 93, 101, 168, 94, 73, 123, 91, 102, 106, 130, 110, 107, 98, 112, 86, 115, 109, 104, 111, 234, 133, 128, 137, 99, 98, 124, 93, 94, 120, 94, 132, 99, 106, 110, 109, 111, 143, 125, 136, 103, 142, 75, 91, 144, 110, 244, 120, 118, 137, 141, 102, 129, 105, 103, 104, 104, 219, 151, 108, 117, 96, 131, 117, 159, 131, 111, 113, 109, 144, 121, 232, 113, 113, 161, 137, 118, 110, 107, 116, 121, 114, 112, 116, 153, 103, 103, 113, 117, 103, 127, 105, 111, 94, 112, 115, 116, 119, 124, 151, 113, 105, 139, 115, 130, 123, 129, 153, 118, 137, 87, 120, 98, 115, 96, 118, 110, 99, 97, 114, 113, 204, 121, 103, 140, 100, 145, 148, 157, 111, 169, 126, 101, 95, 110, 112, 100, 151, 127, 114, 115, 100, 102, 203, 247, 168, 130, 119, 97, 134, 95, 87, 84, 158, 114, 131, 96, 131, 95, 83, 106, 106, 115, 114, 118, 152, 125, 106, 111, 115, 94, 179, 106, 138, 108, 111, 94, 123, 128, 122, 141, 172, 129, 150, 84, 123, 86, 125, 83, 108, 112, 115, 101, 99, 235, 99, 119, 118, 117, 114, 120, 156, 99, 123, 110, 98, 162, 114, 122, 97, 144, 88, 118, 120, 103, 106, 127, 102, 121, 125, 114, 140, 127, 127, 110, 100, 109, 108, 116, 122, 110, 145, 109, 173, 132, 115, 124, 126, 131, 143, 109, 103, 104, 134, 98, 87, 119, 110, 159, 146, 122, 95, 143, 119, 135, 117, 103, 130, 116, 108, 121, 105, 105, 110, 128, 126, 94, 98, 100, 105, 111, 106, 125, 136, 136, 106, 107, 103, 98, 113, 117, 140, 92, 95, 92, 118, 142, 119, 139, 110, 98, 103, 117, 222, 93, 103, 95, 102, 107, 116, 119, 126, 110, 135, 106, 114, 131, 116, 111, 119, 251, 103, 108, 135, 89, 83, 109, 98, 139, 140, 103, 138, 120, 135, 122, 136, 130, 126, 127, 96, 115, 140, 104, 117, 113, 135, 119, 143, 108, 112, 149, 120, 110, 116, 109, 105, 117, 119, 108, 131], "DSA": [5, 5, 7, 6, 8, 3, 4, 8, 48, 6, 8, 6, 8, 6, 4, 7, 7, 4, 2, 3, 5, 2, 3, 6, 10, 5, 10, 5, 10, 6, 5, 9, 10, 11, 7, 8, 7, 6, 5, 5, 3, 4, 6, 8, 4, 6, 5, 8, 4, 8, 6, 11, 9, 13, 8, 4, 6, 7, 3, 6, 8, 10, 14, 9, 8, 6, 4, 3, 9, 4, 6, 5, 8, 5, 8, 7, 6, 2, 5, 3, 7, 8, 5, 9, 6, 7, 6, 6, 5, 6, 4, 7, 6, 5, 5, 8, 3, 9, 6, 6, 7, 5, 6, 10, 11, 6, 6, 5, 6, 8, 6, 7, 4, 6, 7, 6, 6, 3, 5, 7, 7, 9, 6, 5, 7, 12, 5, 6, 7, 2, 6, 7, 8, 9, 2, 5, 3, 7, 2, 6, 7, 4, 5, 5, 6, 7, 4, 7, 6, 5, 3, 4, 2, 6, 6, 6, 8, 6, 7, 3, 8, 5, 8, 5, 2, 6, 2, 8, 4, 7, 7, 7, 9, 3, 8, 7, 8, 5, 5, 5, 12, 6, 9, 4, 4, 4, 10, 3, 8, 8, 5, 8, 9, 7, 8, 5, 10, 6, 4, 6, 5, 1, 3, 5, 8, 3, 6, 7, 10, 5, 10, 5, 6, 7, 5, 6, 6, 5, 6, 8, 7, 5, 6, 8, 5, 6, 3, 4, 6, 6, 8, 9, 8, 6, 4, 8, 4, 6, 7, 9, 7, 7, 8, 12, 5, 3, 9, 6, 8, 10, 8, 6, 5, 5, 4, 7, 5, 5, 5, 6, 4, 6, 6, 7, 2, 6, 4, 8, 5, 5, 10, 6, 5, 7, 7, 9, 3, 9, 3, 6, 9, 8, 7, 5, 7, 9, 11, 5, 2, 7, 6, 4, 8, 6, 6, 8, 7, 4, 7, 4, 10, 8, 6, 5, 6, 4, 8, 4, 6, 6, 8, 6, 5, 7, 4, 9, 4, 8, 8, 3, 6, 9, 7, 8, 6, 4, 6, 5, 9, 7, 9, 5, 5, 9, 6, 6, 5, 6, 5, 7, 8, 7, 5, 4, 13, 8, 5, 10, 6, 9, 6, 5, 12, 4, 9, 4, 4, 5, 9, 7, 6, 6, 2, 8, 7, 9, 2, 4, 7, 7, 6, 5, 5, 7, 6, 13, 7, 9, 6, 2, 6, 7, 6, 8, 4, 3, 6, 6, 4, 4, 7, 6, 6, 9, 8, 5, 7, 7, 7, 4, 10, 8, 5, 4, 7, 6, 7, 8, 7, 6, 9, 5, 1, 6, 8, 7, 7, 7, 5, 9, 8, 8, 7, 11, 8, 6, 3, 10, 7, 8, 6, 9, 5, 4, 8, 8, 9, 6, 7, 8, 10, 5, 5, 5, 4, 3, 6, 4, 4, 7, 6, 2, 9, 6, 7, 5, 6, 13, 6, 5, 8, 3, 4, 8, 6, 6, 4, 6, 5, 4, 5, 7, 6, 5, 3, 9, 3, 7, 6, 4, 8, 8, 4, 5, 5, 4, 6, 9, 6, 7, 10, 4, 5, 6, 5, 5, 6, 9, 6, 4, 10, 8, 10, 7, 8, 10, 6, 3, 10, 5, 8, 6, 4, 3, 3, 9, 12, 4, 8, 8, 4, 3, 7, 3, 5, 13, 10, 6, 10, 3, 4, 6, 5, 3, 8, 4, 9, 5, 7, 4, 8, 9, 6, 3, 7, 6, 8, 8, 5, 6, 6, 9, 6, 4, 8, 10, 8, 4, 5, 9, 5, 6, 7, 5, 8, 3, 5, 5, 7, 8, 8, 7, 5, 8, 7, 4, 5, 10, 5, 5, 5, 4, 8, 10, 5, 6, 8, 7, 8, 7, 5, 4, 5, 8, 7, 8, 10, 7, 4, 8, 6, 7, 4, 8, 4, 7, 6, 5, 7, 6, 9, 7, 4, 5, 6, 5, 6, 8, 4, 3, 6, 8, 6, 4, 9, 8, 7, 6, 6, 9, 2, 2, 6, 7, 8, 4, 10, 4, 8, 4, 1, 5, 10, 8, 9, 4, 7, 8, 11, 11, 4, 8, 8, 7, 9, 8, 8, 5, 6, 3, 7, 2, 5, 5, 5, 5, 7, 6, 11, 13, 3, 5, 5, 6, 4, 6, 4, 3, 7, 6, 5, 9, 6, 8, 5, 10, 6, 3, 5, 9, 3, 8, 9, 6, 4, 7, 6, 9, 10, 7, 8, 7, 6, 4, 3, 9, 7, 6, 7, 11, 10, 4, 6, 8, 5, 4, 5, 7, 7, 6, 8, 8, 8, 5, 8, 4, 8, 6, 3, 7, 5, 5, 4, 7, 7, 5, 7, 7, 8, 1, 5, 7, 10, 4, 7, 5, 11, 8, 6, 4, 7, 6, 5, 5, 6, 10, 8, 7, 8, 4, 9, 7, 5, 3, 8, 4, 5, 5, 5, 4, 6, 10, 6, 4, 5, 10, 8, 4, 5, 7, 4, 9, 8, 6, 3, 6, 4, 6, 10, 8, 11, 6, 9, 5, 5, 8, 9, 6, 4, 4, 7, 7, 5, 8, 4, 7, 4, 8, 3, 5, 6, 4, 6, 11, 11, 5, 7, 9, 8, 6, 4, 12, 7, 6, 9, 6, 8, 8, 10, 6, 12, 5, 4, 5, 6, 6, 4, 12, 3, 6, 5, 8, 10, 4, 6, 7, 7, 4, 6, 7, 6, 4, 8, 6, 4, 6, 9, 8, 4, 7, 7, 8, 9, 7, 4, 5, 7, 9, 9, 9, 6, 6, 9, 4, 10, 5, 5, 7, 3, 6, 8, 5, 6, 7, 8, 5, 7, 6, 6, 10, 8, 5, 5, 4, 4, 6, 7, 5, 5, 8, 5, 4, 8, 7, 3, 6, 7, 2, 6, 7, 10, 6, 5, 8, 5, 4, 10, 8, 5, 8, 9, 3, 4, 4, 7, 5, 5, 4, 6, 7, 8, 10, 9, 4, 9, 7, 6, 5, 12, 6, 8, 7, 7, 6, 8, 4, 6, 5, 7, 7, 8, 5, 6, 10, 3, 9, 6, 7, 4, 6, 8, 49, 5, 6, 10, 10, 6, 9, 8, 9, 6, 7, 5, 8, 4, 3, 9, 5, 7, 8, 7, 6, 2, 7, 6, 7, 8, 5, 9, 3, 9, 9, 6, 3, 7, 7, 7, 7, 7, 7], "LBR": [122, 136, 126, 124, 138, 134, 126, 129, 129, 146, 137, 141, 143, 123, 118, 129, 132, 139, 129, 136, 115, 119, 136, 128, 137, 121, 129, 145, 132, 111, 122, 124, 135, 119, 88, 101, 135, 134, 126, 114, 122, 126, 121, 137, 115, 159, 131, 161, 138, 118, 122, 146, 132, 125, 125, 119, 134, 119, 125, 123, 138, 124, 137, 121, 156, 134, 136, 124, 131, 129, 104, 134, 126, 119, 138, 95, 129, 120, 126, 119, 135, 133, 119, 134, 125, 125, 124, 140, 141, 127, 146, 127, 127, 114, 126, 147, 126, 157, 156, 143, 122, 138, 133, 120, 127, 122, 133, 121, 123, 143, 127, 127, 123, 127, 136, 109, 125, 140, 123, 119, 114, 140, 130, 91, 139, 145, 133, 122, 152, 132, 131, 135, 133, 118, 125, 129, 124, 143, 127, 131, 127, 129, 114, 141, 128, 41, 136, 144, 129, 132, 138, 155, 118, 130, 117, 134, 139, 124, 124, 145, 105, 147, 125, 119, 117, 147, 129, 131, 126, 136, 128, 107, 130, 126, 122, 129, 143, 115, 115, 125, 140, 145, 126, 128, 130, 119, 113, 138, 126, 145, 129, 121, 136, 125, 124, 139, 126, 131, 111, 126, 104, 120, 115, 152, 123, 125, 121, 135, 125, 113, 111, 132, 132, 124, 121, 133, 137, 108, 136, 145, 133, 133, 139, 121, 142, 124, 128, 133, 128, 135, 112, 124, 122, 125, 130, 117, 135, 125, 142, 131, 131, 138, 123, 70, 136, 108, 109, 134, 134, 124, 155, 123, 129, 121, 150, 72, 136, 139, 129, 118, 103, 138, 119, 115, 130, 114, 134, 108, 135, 126, 57, 136, 139, 136, 147, 133, 133, 144, 123, 121, 126, 123, 133, 142, 126, 119, 115, 115, 113, 114, 131, 141, 131, 142, 128, 117, 131, 119, 144, 130, 127, 124, 145, 157, 133, 128, 144, 123, 83, 133, 133, 125, 126, 129, 130, 115, 113, 142, 128, 125, 122, 134, 101, 137, 140, 122, 139, 141, 122, 111, 118, 129, 101, 124, 115, 125, 131, 139, 117, 132, 125, 109, 98, 148, 140, 132, 130, 131, 117, 76, 139, 124, 123, 142, 131, 129, 116, 132, 136, 141, 128, 141, 126, 120, 135, 135, 127, 113, 117, 129, 125, 134, 136, 125, 135, 129, 142, 123, 139, 119, 111, 152, 134, 132, 134, 112, 128, 140, 120, 143, 134, 117, 127, 138, 146, 125, 131, 103, 129, 121, 127, 129, 109, 135, 127, 139, 138, 77, 111, 124, 125, 132, 135, 140, 112, 122, 116, 113, 113, 118, 128, 124, 125, 121, 151, 130, 138, 129, 139, 97, 145, 141, 121, 128, 140, 123, 125, 141, 132, 136, 116, 119, 97, 133, 131, 127, 134, 139, 139, 126, 143, 112, 123, 128, 138, 106, 129, 130, 118, 135, 135, 116, 144, 124, 136, 116, 125, 142, 130, 120, 134, 144, 147, 137, 130, 127, 122, 130, 121, 130, 132, 127, 136, 129, 116, 135, 134, 128, 140, 126, 120, 48, 129, 111, 123, 136, 130, 121, 116, 141, 145, 144, 121, 136, 132, 127, 134, 115, 128, 128, 126, 123, 132, 119, 114, 131, 87, 118, 146, 72, 138, 134, 132, 126, 103, 138, 122, 133, 128, 117, 120, 130, 123, 123, 147, 129, 125, 131, 129, 128, 104, 137, 135, 127, 159, 141, 127, 134, 119, 126, 145, 123, 127, 113, 144, 152, 119, 145, 137, 123, 121, 106, 125, 125, 132, 129, 130, 157, 128, 132, 124, 146, 140, 133, 130, 127, 115, 127, 137, 126, 126, 127, 134, 130, 118, 136, 132, 126, 124, 118, 120, 137, 125, 126, 144, 141, 114, 132, 133, 124, 122, 118, 117, 138, 130, 130, 114, 131, 129, 128, 144, 132, 138, 127, 121, 128, 123, 100, 141, 112, 130, 126, 135, 127, 158, 128, 129, 137, 98, 138, 128, 135, 141, 132, 145, 148, 140, 115, 119, 131, 129, 139, 99, 117, 141, 103, 135, 121, 134, 134, 111, 124, 140, 152, 123, 111, 125, 123, 141, 120, 135, 112, 117, 110, 134, 68, 135, 135, 127, 126, 149, 144, 130, 145, 125, 108, 143, 137, 120, 139, 116, 125, 143, 133, 127, 122, 138, 138, 129, 123, 130, 137, 109, 122, 136, 137, 147, 131, 44, 148, 126, 126, 130, 114, 118, 123, 135, 148, 138, 122, 135, 117, 132, 131, 135, 138, 122, 134, 143, 138, 121, 130, 132, 139, 136, 137, 123, 126, 113, 142, 123, 130, 137, 127, 147, 133, 126, 135, 136, 105, 125, 116, 126, 122, 126, 125, 135, 142, 135, 133, 130, 119, 134, 131, 135, 125, 126, 145, 133, 125, 124, 132, 116, 140, 124, 118, 134, 119, 113, 131, 123, 146, 128, 123, 138, 128, 127, 138, 144, 131, 138, 135, 113, 118, 116, 119, 134, 120, 145, 138, 118, 122, 121, 161, 149, 139, 146, 124, 118, 130, 118, 139, 114, 148, 123, 126, 135, 133, 98, 98, 122, 115, 140, 125, 119, 139, 135, 114, 129, 127, 114, 142, 132, 127, 124, 132, 113, 116, 139, 121, 134, 52, 135, 139, 114, 121, 119, 99, 125, 108, 111, 124, 113, 122, 139, 124, 48, 117, 135, 130, 129, 148, 48, 137, 124, 132, 149, 117, 127, 113, 127, 108, 140, 115, 128, 117, 120, 135, 116, 135, 140, 136, 136, 121, 126, 98, 107, 109, 143, 136, 134, 143, 119, 76, 126, 134, 131, 131, 145, 127, 109, 124, 121, 136, 140, 123, 115, 129, 137, 130, 131, 85, 137, 131, 133, 126, 58, 133, 123, 116, 125, 121, 117, 124, 129, 125, 127, 105, 104, 125, 138, 126, 127, 123, 136, 132, 129, 139, 114, 123, 133, 144, 135, 105, 136, 134, 141, 130, 137, 108, 127, 121, 127, 138, 115, 119, 127, 114, 135, 120, 131, 131, 115, 122, 121, 125, 130, 127, 129, 100, 155, 143, 130, 140, 123, 131, 131, 122, 123, 136, 139, 137, 110, 128, 131, 136, 129, 137, 133, 118, 118, 135, 127, 132, 121, 128, 127, 127, 116, 127, 129, 121, 134, 122, 117, 133, 130, 128, 134, 134], "NAT": [195, 160, 211, 204, 160, 203, 236, 214, 175, 162, 148, 154, 139, 230, 237, 183, 208, 165, 191, 161, 237, 231, 152, 171, 225, 206, 224, 188, 174, 214, 231, 225, 196, 161, 251, 224, 200, 233, 212, 207, 195, 213, 211, 223, 235, 127, 216, 185, 194, 220, 212, 197, 188, 205, 203, 229, 175, 237, 212, 213, 150, 207, 173, 209, 130, 224, 156, 226, 192, 218, 233, 204, 218, 222, 201, 228, 164, 215, 200, 219, 215, 178, 223, 169, 217, 194, 183, 172, 174, 185, 157, 169, 196, 196, 241, 166, 188, 156, 175, 190, 213, 199, 191, 218, 164, 208, 193, 216, 231, 158, 195, 174, 227, 232, 197, 220, 191, 200, 230, 180, 204, 203, 137, 245, 167, 200, 188, 237, 188, 221, 183, 191, 203, 221, 193, 216, 234, 187, 192, 131, 172, 216, 233, 180, 157, 167, 199, 171, 221, 202, 166, 278, 229, 160, 236, 210, 198, 231, 198, 183, 235, 184, 206, 217, 214, 145, 191, 192, 218, 146, 189, 253, 213, 219, 224, 199, 176, 224, 216, 187, 184, 195, 204, 153, 245, 213, 207, 171, 209, 200, 120, 198, 209, 200, 207, 145, 150, 218, 229, 234, 234, 209, 223, 175, 201, 189, 195, 138, 207, 196, 239, 217, 174, 161, 209, 230, 153, 235, 213, 156, 178, 215, 177, 231, 156, 203, 193, 221, 239, 185, 184, 184, 172, 187, 175, 213, 172, 219, 173, 199, 190, 184, 202, 241, 191, 232, 244, 165, 205, 221, 245, 221, 204, 241, 154, 269, 143, 207, 216, 222, 234, 196, 191, 165, 195, 206, 235, 247, 166, 178, 160, 211, 163, 187, 155, 178, 204, 183, 163, 192, 176, 203, 171, 203, 225, 218, 206, 190, 193, 219, 222, 219, 210, 143, 197, 223, 185, 163, 184, 217, 204, 222, 177, 134, 210, 230, 203, 181, 254, 215, 212, 158, 213, 227, 147, 230, 232, 203, 198, 214, 161, 215, 280, 220, 153, 174, 191, 152, 211, 230, 189, 215, 233, 189, 212, 189, 167, 194, 251, 200, 211, 242, 231, 128, 120, 204, 196, 161, 189, 248, 173, 226, 214, 199, 122, 180, 225, 188, 202, 139, 199, 191, 193, 216, 188, 188, 224, 215, 192, 208, 216, 197, 219, 194, 162, 186, 226, 234, 142, 203, 237, 177, 187, 182, 179, 198, 202, 198, 198, 214, 208, 169, 186, 190, 140, 238, 180, 237, 195, 194, 175, 218, 239, 165, 155, 189, 179, 165, 213, 198, 175, 197, 205, 176, 224, 230, 217, 231, 204, 223, 197, 203, 165, 189, 129, 194, 178, 153, 186, 216, 165, 186, 191, 224, 216, 216, 215, 170, 214, 186, 223, 221, 231, 180, 214, 233, 172, 159, 181, 137, 193, 228, 213, 181, 180, 113, 202, 173, 223, 181, 229, 191, 127, 240, 184, 248, 205, 146, 172, 182, 228, 177, 142, 192, 193, 219, 187, 222, 222, 171, 175, 169, 146, 210, 228, 200, 139, 185, 177, 198, 209, 162, 172, 220, 200, 204, 205, 223, 119, 169, 193, 150, 202, 195, 186, 178, 213, 246, 209, 213, 199, 196, 178, 196, 218, 208, 255, 190, 178, 210, 216, 193, 199, 214, 243, 190, 221, 183, 217, 206, 227, 205, 222, 221, 139, 212, 215, 203, 194, 208, 221, 184, 210, 214, 148, 214, 163, 194, 235, 205, 192, 203, 214, 233, 209, 171, 168, 157, 191, 193, 223, 222, 203, 214, 164, 188, 195, 224, 161, 183, 184, 163, 204, 183, 205, 241, 180, 212, 224, 219, 220, 220, 197, 209, 193, 179, 196, 162, 208, 232, 208, 192, 178, 234, 218, 180, 249, 232, 190, 215, 202, 218, 201, 201, 184, 204, 237, 170, 187, 200, 136, 200, 147, 218, 242, 197, 204, 235, 160, 238, 230, 225, 162, 188, 189, 186, 166, 167, 239, 187, 199, 191, 215, 204, 144, 147, 185, 273, 194, 182, 224, 160, 234, 217, 198, 236, 203, 230, 192, 184, 250, 213, 204, 185, 226, 244, 206, 214, 184, 213, 217, 220, 220, 230, 220, 163, 192, 192, 221, 222, 122, 163, 168, 159, 224, 229, 182, 184, 243, 180, 206, 188, 171, 195, 178, 201, 193, 158, 213, 173, 187, 162, 222, 192, 167, 193, 176, 189, 247, 151, 169, 190, 166, 225, 224, 203, 192, 180, 169, 202, 197, 225, 166, 219, 159, 189, 207, 178, 211, 186, 203, 146, 163, 187, 174, 171, 199, 184, 208, 191, 183, 217, 169, 201, 156, 208, 210, 197, 215, 231, 177, 212, 184, 239, 228, 211, 187, 180, 185, 169, 211, 209, 184, 212, 168, 184, 212, 159, 180, 195, 221, 181, 207, 167, 210, 190, 185, 232, 232, 191, 199, 185, 220, 241, 172, 229, 170, 153, 117, 208, 136, 202, 211, 234, 220, 216, 193, 183, 180, 167, 212, 204, 214, 134, 163, 146, 172, 218, 216, 167, 241, 211, 209, 173, 188, 199, 160, 226, 251, 252, 212, 206, 181, 210, 205, 160, 181, 210, 178, 196, 228, 112, 208, 186, 215, 208, 218, 219, 200, 186, 162, 134, 171, 191, 227, 184, 250, 204, 222, 245, 219, 213, 209, 242, 160, 195, 265, 215, 185, 210, 182, 195, 265, 190, 190, 208, 130, 219, 183, 233, 168, 236, 156, 189, 235, 238, 186, 221, 174, 212, 202, 158, 163, 211, 219, 234, 245, 246, 196, 181, 170, 194, 218, 120, 185, 193, 162, 180, 162, 191, 202, 188, 167, 170, 201, 216, 211, 210, 169, 150, 160, 245, 165, 196, 163, 168, 252, 169, 191, 218, 200, 224, 212, 196, 194, 159, 177, 204, 212, 200, 201, 204, 232, 168, 175, 208, 228, 177, 234, 211, 194, 159, 219, 229, 233, 182, 145, 188, 177, 201, 190, 235, 190, 153, 230, 219, 212, 204, 201, 213, 204, 165, 218, 190, 236, 211, 169, 161, 168, 236, 121, 122, 184, 180, 230, 228, 227, 214, 164, 155, 214, 144, 209, 184, 193, 172, 183, 193, 195, 246, 186, 147, 193, 205, 194, 186, 225, 160, 218, 211, 190, 200, 214, 220, 210, 212, 187, 196, 197, 171], "OAO": [27, 32, 37, 33, 31, 32, 31, 46, 38, 20, 23, 35, 25, 31, 26, 21, 35, 27, 31, 32, 40, 17, 30, 33, 37, 35, 51, 34, 24, 38, 25, 29, 26, 26, 26, 50, 26, 32, 22, 23, 31, 35, 52, 31, 23, 22, 31, 16, 23, 28, 33, 16, 20, 15, 22, 27, 31, 35, 33, 38, 27, 41, 23, 32, 20, 37, 27, 47, 43, 39, 26, 23, 31, 37, 23, 28, 31, 29, 32, 28, 60, 35, 39, 28, 27, 35, 27, 25, 32, 40, 41, 29, 26, 22, 37, 41, 26, 16, 19, 26, 24, 42, 42, 21, 36, 39, 27, 25, 22, 20, 38, 32, 39, 34, 24, 43, 31, 28, 22, 31, 32, 23, 37, 36, 35, 22, 29, 25, 29, 22, 31, 28, 37, 39, 24, 43, 33, 20, 28, 21, 24, 30, 35, 23, 28, 45, 20, 27, 27, 18, 28, 21, 20, 28, 30, 33, 29, 44, 35, 24, 32, 38, 27, 29, 33, 29, 31, 33, 25, 34, 39, 33, 32, 29, 28, 38, 34, 42, 47, 32, 34, 37, 49, 40, 28, 34, 39, 36, 33, 29, 30, 41, 31, 39, 34, 25, 30, 23, 28, 24, 40, 42, 29, 23, 24, 28, 39, 25, 28, 35, 34, 25, 35, 38, 27, 34, 28, 28, 29, 31, 31, 23, 18, 29, 31, 23, 18, 34, 23, 27, 23, 27, 23, 27, 20, 38, 26, 41, 39, 42, 28, 29, 39, 4, 24, 42, 26, 28, 31, 22, 30, 30, 26, 54, 38, 21, 29, 31, 36, 21, 33, 26, 35, 23, 30, 35, 14, 35, 34, 29, 31, 16, 20, 36, 34, 20, 26, 29, 32, 26, 30, 29, 32, 38, 28, 37, 38, 35, 39, 20, 25, 38, 22, 32, 31, 74, 35, 24, 36, 27, 30, 19, 35, 15, 31, 38, 27, 29, 43, 28, 28, 27, 32, 30, 31, 29, 29, 23, 30, 38, 27, 23, 11, 34, 14, 25, 29, 27, 36, 27, 19, 36, 54, 24, 34, 22, 28, 30, 36, 21, 34, 29, 52, 33, 38, 27, 28, 25, 25, 30, 35, 31, 29, 15, 30, 24, 21, 33, 33, 23, 32, 33, 22, 33, 28, 28, 42, 37, 30, 21, 34, 15, 33, 26, 43, 24, 16, 24, 32, 36, 30, 24, 23, 26, 30, 34, 27, 19, 35, 33, 24, 46, 29, 30, 34, 21, 35, 31, 30, 21, 31, 25, 58, 29, 38, 28, 20, 24, 40, 33, 30, 38, 27, 30, 22, 30, 21, 32, 28, 15, 32, 38, 42, 36, 28, 29, 32, 26, 35, 22, 31, 38, 35, 25, 23, 38, 38, 38, 22, 26, 15, 26, 28, 32, 32, 27, 29, 35, 25, 30, 30, 46, 26, 36, 22, 118, 24, 32, 28, 27, 26, 34, 28, 25, 26, 34, 34, 29, 29, 24, 28, 25, 16, 31, 24, 35, 49, 41, 33, 35, 30, 34, 24, 28, 41, 31, 37, 28, 23, 39, 25, 20, 27, 40, 36, 26, 33, 39, 166, 36, 12, 30, 37, 39, 39, 34, 53, 30, 31, 35, 33, 33, 44, 46, 25, 25, 24, 33, 28, 37, 28, 28, 30, 26, 22, 36, 35, 28, 33, 43, 31, 30, 26, 24, 23, 25, 36, 28, 26, 32, 27, 20, 44, 36, 26, 33, 27, 30, 33, 42, 32, 34, 49, 27, 27, 31, 33, 28, 26, 33, 15, 24, 39, 25, 37, 35, 27, 12, 36, 21, 36, 17, 23, 32, 33, 42, 31, 30, 36, 15, 26, 25, 31, 22, 33, 32, 25, 34, 26, 28, 43, 19, 28, 32, 28, 37, 28, 51, 33, 35, 22, 41, 27, 27, 28, 33, 34, 24, 30, 24, 25, 26, 16, 38, 33, 32, 33, 29, 36, 32, 22, 36, 39, 27, 21, 28, 38, 52, 34, 31, 29, 39, 31, 56, 37, 20, 32, 33, 47, 40, 32, 25, 48, 26, 26, 37, 37, 21, 33, 23, 42, 30, 29, 33, 16, 59, 20, 31, 31, 26, 31, 28, 30, 28, 28, 31, 21, 40, 13, 29, 24, 30, 27, 25, 40, 27, 35, 42, 22, 35, 34, 30, 36, 34, 34, 29, 22, 31, 29, 34, 35, 30, 46, 45, 28, 23, 25, 53, 42, 23, 37, 30, 24, 21, 35, 43, 32, 30, 19, 28, 26, 42, 28, 24, 27, 35, 26, 20, 39, 22, 16, 37, 36, 23, 26, 22, 29, 36, 30, 26, 35, 30, 36, 28, 34, 32, 31, 23, 24, 40, 25, 24, 33, 33, 14, 19, 33, 31, 24, 36, 30, 40, 28, 34, 30, 22, 30, 22, 21, 27, 45, 27, 40, 21, 33, 38, 34, 26, 30, 30, 28, 26, 38, 25, 21, 34, 19, 28, 32, 17, 19, 31, 29, 24, 13, 22, 31, 25, 27, 38, 29, 29, 31, 24, 22, 29, 35, 26, 31, 30, 38, 35, 36, 18, 40, 22, 32, 24, 24, 41, 35, 30, 25, 31, 24, 20, 24, 34, 25, 31, 31, 16, 29, 29, 37, 33, 42, 25, 30, 22, 24, 101, 34, 27, 42, 33, 46, 29, 41, 38, 27, 25, 39, 37, 15, 26, 28, 28, 32, 33, 38, 30, 46, 34, 31, 29, 21, 33, 21, 37, 41, 48, 27, 34, 22, 33, 28, 20, 31, 25, 24, 33, 29, 43, 30, 39, 30, 29, 48, 27, 34, 29, 19, 107, 24, 32, 35, 32, 38, 22, 25, 28, 33, 22, 36, 40, 35, 32, 26, 34, 39, 44, 22, 34, 25, 40, 52, 34, 21, 46, 26, 35, 24, 33, 23, 32, 33, 47, 39, 21, 34, 36, 35, 40, 34, 32, 34, 25, 30, 42, 31, 24, 45, 34, 23, 39, 24, 32, 28, 38, 28, 26, 36, 24, 31, 32, 31, 40, 21, 19, 38, 35, 44, 31, 25, 29, 26, 30, 33, 28, 27, 31, 37, 36, 30, 21, 23, 23, 32, 27, 31, 22, 27, 30, 35, 29, 33, 26, 23, 24, 32, 28, 34, 25, 33, 15, 31, 30, 24, 25, 19, 38, 27, 31, 29, 20, 28, 18, 23, 51], "POP": [4, 5, 4, 7, 4, 4, 2, 1, 1, 7, 6, 2, 10, 4, 1, 6, 2, 7, 5, 7, 3, 2, 5, 2, 4, 8, 3, 4, 1, 1, 3, 1, 4, 9, 5, 3, 7, 4, 12, 6, 7, 4, 2, 6, 1, 3, 3, 2, 7, 3, 2, 89, 2, 6, 3, 3, 3, 6, 4, 5, 4, 5, 4, 3, 5, 0, 4, 1, 3, 8, 1, 2, 3, 0, 4, 7, 9, 4, 4, 3, 2, 3, 5, 3, 4, 2, 5, 5, 3, 1, 4, 4, 8, 8, 4, 5, 4, 3, 8, 5, 7, 4, 5, 8, 2, 4, 2, 4, 2, 3, 2, 2, 2, 1, 5, 1, 4, 2, 4, 6, 3, 3, 3, 4, 4, 1, 2, 3, 54, 5, 3, 5, 7, 3, 3, 3, 2, 3, 3, 10, 6, 7, 7, 4, 3, 10, 11, 5, 3, 7, 4, 6, 3, 6, 3, 3, 5, 6, 3, 2, 3, 4, 0, 6, 2, 6, 3, 14, 3, 8, 2, 3, 3, 4, 5, 6, 3, 1, 2, 5, 2, 2, 2, 3, 4, 0, 3, 4, 1, 0, 9, 4, 7, 3, 3, 5, 4, 6, 2, 4, 0, 6, 6, 3, 6, 6, 5, 8, 2, 4, 2, 3, 5, 2, 3, 4, 7, 2, 2, 5, 3, 2, 6, 5, 6, 5, 3, 3, 0, 9, 7, 3, 2, 4, 6, 0, 3, 0, 2, 3, 2, 2, 10, 19, 3, 3, 3, 2, 1, 4, 62, 4, 6, 3, 3, 5, 3, 5, 2, 4, 0, 5, 4, 11, 1, 3, 6, 3, 8, 4, 12, 5, 2, 7, 9, 4, 3, 2, 5, 10, 2, 2, 4, 1, 8, 3, 2, 6, 1, 4, 7, 2, 2, 3, 5, 84, 2, 4, 6, 5, 8, 6, 4, 4, 3, 2, 9, 4, 1, 2, 6, 6, 3, 7, 8, 2, 2, 5, 7, 5, 1, 7, 3, 2, 11, 6, 3, 8, 2, 1, 6, 0, 4, 7, 3, 3, 6, 5, 4, 7, 6, 1, 0, 18, 4, 7, 2, 8, 3, 0, 4, 4, 9, 2, 5, 6, 4, 8, 4, 0, 6, 3, 8, 2, 5, 4, 7, 1, 3, 2, 6, 4, 3, 6, 2, 4, 3, 4, 7, 7, 3, 2, 6, 1, 6, 3, 7, 2, 5, 2, 5, 4, 4, 2, 2, 1, 10, 2, 1, 7, 6, 2, 3, 4, 3, 1, 2, 11, 3, 4, 4, 3, 5, 9, 7, 5, 7, 4, 2, 4, 3, 8, 10, 6, 1, 4, 2, 5, 4, 4, 2, 4, 3, 3, 6, 3, 3, 5, 4, 7, 3, 2, 5, 2, 5, 2, 0, 3, 3, 4, 1, 1, 5, 3, 4, 3, 2, 6, 3, 4, 65, 5, 6, 5, 6, 4, 2, 5, 5, 7, 4, 2, 3, 3, 6, 3, 6, 4, 2, 5, 1, 4, 2, 5, 1, 5, 2, 7, 7, 4, 4, 22, 4, 4, 4, 5, 4, 7, 1, 1, 2, 3, 4, 3, 1, 3, 7, 3, 1, 2, 4, 5, 7, 3, 6, 2, 4, 3, 4, 4, 1, 3, 3, 2, 2, 2, 2, 5, 2, 2, 3, 5, 1, 3, 9, 2, 3, 4, 5, 4, 2, 9, 2, 5, 6, 1, 6, 4, 3, 3, 3, 3, 2, 3, 4, 9, 6, 5, 4, 2, 2, 5, 3, 3, 7, 5, 5, 2, 9, 4, 4, 7, 2, 5, 6, 0, 4, 3, 3, 3, 4, 5, 5, 6, 4, 2, 8, 7, 6, 9, 3, 7, 3, 1, 0, 3, 8, 3, 4, 6, 2, 3, 5, 7, 7, 3, 1, 8, 3, 5, 9, 3, 9, 4, 6, 3, 6, 4, 3, 3, 5, 1, 4, 6, 8, 2, 10, 5, 2, 4, 2, 0, 3, 1, 4, 6, 2, 6, 7, 5, 3, 3, 0, 4, 0, 3, 7, 4, 6, 3, 3, 7, 1, 1, 3, 1, 2, 2, 3, 4, 2, 1, 3, 2, 2, 18, 5, 5, 3, 1, 7, 5, 9, 4, 7, 5, 2, 10, 5, 5, 3, 6, 5, 2, 7, 4, 6, 4, 3, 1, 3, 3, 2, 4, 4, 6, 8, 3, 5, 6, 5, 7, 8, 2, 6, 1, 5, 9, 3, 2, 8, 2, 10, 2, 5, 0, 2, 6, 1, 12, 5, 1, 3, 9, 8, 8, 3, 1, 10, 2, 4, 2, 4, 5, 2, 1, 5, 2, 2, 4, 9, 10, 4, 2, 2, 2, 3, 4, 2, 1, 2, 2, 8, 2, 2, 1, 6, 8, 4, 4, 5, 7, 1, 4, 1, 0, 4, 4, 4, 1, 3, 6, 4, 5, 6, 2, 6, 8, 9, 3, 7, 8, 3, 1, 6, 5, 3, 2, 5, 6, 3, 4, 3, 7, 8, 3, 8, 2, 1, 7, 1, 3, 2, 3, 5, 4, 4, 5, 1, 4, 1, 2, 5, 4, 2, 5, 5, 3, 6, 6, 2, 6, 3, 3, 4, 5, 3, 5, 1, 8, 4, 1, 4, 5, 0, 8, 4, 3, 2, 2, 5, 4, 6, 2, 14, 0, 8, 1, 4, 0, 5, 3, 2, 3, 3, 2, 4, 6, 7, 2, 3, 3, 4, 6, 2, 3, 6, 3, 7, 2, 4, 1, 8, 1, 8, 5, 2, 5, 2, 2, 2, 6, 3, 1, 9, 6, 7, 3, 5, 4, 1, 5, 3, 5, 2, 1, 5, 3, 5, 7, 6, 2, 6, 2, 2, 5, 7, 1, 3, 5, 3, 4, 2, 4, 1, 5, 4, 2, 2, 3, 6, 4, 4, 5, 3, 0, 6, 4, 1, 3, 4, 4, 4, 5, 4, 6, 6, 8, 3, 3, 6, 4, 4, 7, 2, 8, 5, 8, 4, 5, 3, 3, 2, 2, 2, 4, 3, 6, 3, 2, 2, 2, 3, 0, 5, 55, 5, 7, 9, 3, 1, 1, 4, 6, 6, 5, 6, 6, 1, 2, 4, 6, 5, 8, 4, 3, 5, 8, 4, 2, 4, 2, 2, 4, 4, 4, 4, 2, 6, 2], "PRG": [59, 55, 46, 59, 68, 57, 58, 53, 94, 52, 57, 50, 55, 52, 52, 64, 51, 55, 57, 64, 53, 59, 63, 72, 39, 55, 49, 48, 72, 71, 59, 64, 52, 68, 71, 73, 44, 36, 57, 63, 69, 73, 62, 33, 59, 77, 46, 64, 62, 63, 66, 54, 66, 61, 66, 57, 54, 50, 57, 58, 66, 50, 52, 58, 53, 60, 72, 51, 64, 54, 63, 54, 62, 55, 51, 75, 61, 57, 66, 66, 51, 59, 66, 63, 63, 68, 45, 50, 48, 68, 53, 63, 62, 65, 46, 54, 67, 64, 51, 54, 55, 50, 59, 57, 71, 55, 57, 45, 59, 69, 66, 64, 55, 54, 62, 62, 63, 46, 49, 81, 74, 46, 68, 79, 56, 64, 69, 55, 58, 55, 58, 47, 58, 69, 65, 59, 72, 64, 60, 60, 58, 61, 60, 69, 70, 74, 62, 44, 57, 62, 71, 59, 53, 68, 62, 48, 54, 43, 57, 54, 60, 38, 53, 56, 57, 62, 67, 52, 63, 66, 60, 58, 56, 60, 63, 47, 52, 53, 65, 60, 44, 36, 63, 74, 40, 59, 69, 57, 65, 62, 68, 73, 36, 60, 52, 70, 64, 49, 61, 60, 62, 51, 63, 49, 59, 62, 55, 75, 67, 72, 69, 44, 61, 70, 64, 51, 58, 66, 55, 46, 57, 58, 68, 47, 68, 57, 67, 47, 52, 51, 77, 59, 67, 63, 62, 55, 75, 53, 52, 58, 62, 47, 51, 88, 55, 71, 63, 74, 61, 49, 35, 52, 67, 58, 68, 78, 65, 38, 53, 60, 66, 49, 60, 69, 53, 59, 51, 78, 68, 73, 70, 44, 60, 58, 44, 58, 51, 52, 67, 53, 59, 67, 65, 44, 53, 56, 62, 70, 65, 69, 49, 48, 56, 65, 47, 55, 63, 75, 52, 57, 56, 63, 61, 72, 45, 58, 39, 66, 81, 49, 60, 68, 60, 44, 63, 53, 63, 51, 67, 57, 73, 47, 91, 53, 76, 72, 44, 52, 57, 65, 65, 69, 69, 60, 58, 75, 52, 53, 51, 57, 63, 55, 69, 60, 76, 52, 59, 59, 67, 78, 69, 54, 51, 53, 72, 60, 61, 50, 47, 68, 60, 45, 75, 62, 70, 55, 47, 65, 75, 60, 55, 62, 65, 67, 60, 69, 38, 42, 57, 69, 59, 54, 47, 59, 60, 69, 53, 66, 58, 48, 53, 78, 60, 48, 45, 58, 66, 80, 47, 73, 64, 52, 58, 65, 72, 73, 52, 71, 59, 74, 70, 56, 48, 48, 67, 54, 63, 68, 70, 53, 49, 52, 60, 67, 58, 47, 51, 63, 51, 80, 39, 46, 57, 54, 46, 60, 55, 62, 54, 76, 60, 71, 71, 66, 56, 52, 58, 63, 60, 75, 64, 61, 69, 61, 54, 69, 58, 46, 55, 60, 75, 78, 86, 46, 67, 59, 61, 57, 65, 68, 43, 57, 67, 48, 59, 62, 72, 56, 53, 71, 52, 63, 62, 55, 70, 57, 65, 66, 65, 49, 57, 84, 68, 63, 63, 49, 52, 44, 67, 51, 48, 51, 50, 48, 59, 62, 51, 46, 49, 60, 69, 62, 68, 74, 70, 55, 77, 67, 54, 99, 54, 56, 57, 57, 70, 47, 60, 52, 46, 54, 52, 49, 61, 55, 56, 62, 68, 60, 70, 69, 85, 57, 45, 46, 48, 41, 63, 54, 55, 52, 55, 63, 55, 56, 43, 57, 61, 54, 60, 58, 70, 68, 57, 66, 69, 49, 53, 49, 64, 64, 68, 47, 51, 58, 58, 55, 76, 50, 53, 61, 60, 56, 51, 53, 57, 51, 53, 59, 59, 58, 61, 55, 79, 47, 48, 55, 70, 40, 59, 62, 63, 53, 74, 51, 71, 64, 48, 67, 55, 68, 50, 56, 71, 60, 45, 57, 60, 74, 56, 64, 48, 56, 55, 53, 56, 59, 75, 59, 80, 54, 56, 61, 46, 49, 63, 69, 68, 63, 64, 59, 67, 71, 74, 69, 63, 74, 50, 54, 39, 60, 72, 67, 50, 55, 66, 58, 64, 52, 52, 63, 48, 64, 66, 61, 54, 68, 59, 58, 59, 50, 72, 59, 70, 70, 53, 70, 66, 52, 50, 58, 71, 57, 52, 52, 61, 56, 61, 64, 58, 71, 63, 67, 68, 54, 53, 49, 43, 54, 109, 60, 63, 66, 67, 66, 61, 56, 54, 53, 53, 69, 56, 63, 67, 49, 62, 56, 63, 64, 36, 59, 61, 83, 71, 55, 54, 58, 58, 62, 63, 54, 66, 48, 55, 58, 53, 60, 55, 65, 46, 69, 69, 72, 57, 57, 55, 63, 66, 55, 61, 64, 51, 60, 52, 55, 58, 62, 50, 47, 66, 71, 52, 58, 68, 61, 62, 61, 63, 61, 67, 77, 58, 50, 50, 48, 56, 43, 55, 65, 73, 62, 70, 48, 61, 58, 60, 62, 51, 70, 43, 52, 62, 68, 50, 47, 52, 59, 63, 57, 57, 74, 62, 63, 71, 59, 56, 59, 64, 53, 64, 76, 52, 64, 58, 62, 66, 62, 57, 52, 62, 65, 70, 69, 60, 68, 49, 46, 61, 70, 53, 70, 56, 82, 59, 58, 55, 64, 42, 73, 53, 55, 66, 66, 53, 56, 66, 55, 85, 70, 53, 64, 55, 69, 95, 42, 60, 56, 54, 52, 70, 50, 53, 71, 72, 73, 65, 59, 71, 46, 74, 45, 58, 60, 51, 65, 58, 74, 64, 53, 48, 49, 59, 64, 59, 70, 65, 62, 71, 73, 60, 65, 72, 74, 77, 61, 48, 67, 66, 46, 70, 63, 70, 80, 47, 49, 76, 57, 88, 70, 62, 53, 59, 60, 68, 77, 59, 71, 67, 65, 72, 59, 50, 56, 55, 68, 55, 60, 55, 49, 55, 65, 56, 53, 51, 63, 57, 60, 60, 46, 49, 71, 66, 51, 67, 86, 71, 45, 54, 73, 47, 66, 52, 67, 61, 72, 52, 61, 61, 64, 68, 70, 54, 28, 63, 50, 50, 80, 47, 68, 81, 68, 48, 63, 74, 61, 82, 56, 56, 53, 55, 66, 64, 76, 68, 56, 60, 60, 51, 64, 61, 48, 46, 56, 63, 53, 61, 51, 72, 74, 56, 63], "STY": [149, 152, 139, 146, 136, 138, 134, 140, 135, 148, 149, 133, 155, 143, 140, 148, 145, 132, 138, 126, 161, 155, 152, 139, 156, 154, 124, 136, 133, 138, 153, 143, 137, 170, 153, 153, 151, 152, 142, 161, 165, 134, 125, 141, 136, 59, 171, 60, 159, 160, 159, 6, 166, 128, 142, 135, 168, 135, 128, 127, 110, 143, 156, 146, 75, 129, 145, 139, 139, 112, 142, 142, 133, 147, 143, 152, 159, 125, 136, 137, 127, 150, 142, 152, 137, 139, 144, 126, 127, 150, 143, 157, 147, 165, 161, 39, 165, 70, 52, 148, 155, 141, 136, 138, 144, 140, 141, 156, 131, 58, 118, 143, 149, 142, 143, 134, 135, 135, 156, 119, 139, 139, 143, 124, 135, 121, 143, 141, 8, 140, 146, 148, 136, 134, 158, 133, 131, 88, 145, 140, 162, 122, 138, 139, 123, 227, 143, 141, 141, 136, 135, 70, 143, 143, 132, 134, 128, 130, 157, 88, 136, 132, 149, 125, 132, 89, 138, 143, 144, 162, 145, 118, 141, 139, 155, 143, 122, 134, 127, 147, 137, 147, 134, 130, 139, 145, 145, 156, 140, 158, 133, 127, 118, 127, 137, 138, 149, 143, 144, 151, 133, 152, 158, 164, 147, 141, 150, 132, 150, 150, 151, 136, 135, 151, 151, 129, 119, 142, 126, 127, 130, 130, 153, 149, 100, 157, 145, 126, 131, 156, 133, 139, 156, 148, 143, 149, 98, 140, 144, 138, 134, 162, 132, 111, 141, 133, 133, 146, 126, 123, 5, 150, 133, 110, 67, 80, 102, 139, 159, 148, 147, 131, 140, 150, 158, 168, 146, 126, 123, 141, 246, 152, 131, 129, 148, 173, 156, 133, 141, 152, 143, 145, 121, 138, 139, 155, 150, 162, 158, 140, 125, 139, 133, 132, 162, 2, 143, 167, 118, 129, 147, 146, 111, 51, 146, 127, 137, 168, 129, 150, 146, 148, 158, 141, 151, 144, 154, 146, 142, 141, 126, 148, 63, 129, 120, 153, 139, 121, 142, 143, 151, 150, 138, 142, 125, 138, 154, 134, 136, 117, 151, 143, 132, 130, 69, 159, 143, 156, 151, 166, 124, 134, 143, 145, 133, 143, 149, 153, 151, 156, 154, 124, 137, 140, 131, 138, 145, 149, 140, 154, 129, 145, 136, 142, 129, 130, 146, 138, 121, 157, 146, 116, 149, 148, 162, 135, 134, 138, 143, 126, 126, 136, 146, 148, 138, 149, 156, 123, 145, 147, 136, 143, 142, 122, 137, 118, 160, 252, 170, 142, 128, 137, 153, 159, 153, 160, 151, 136, 141, 161, 166, 152, 132, 146, 67, 144, 124, 157, 143, 171, 145, 142, 157, 134, 146, 143, 151, 142, 152, 122, 146, 130, 148, 121, 148, 138, 150, 155, 130, 132, 120, 131, 152, 150, 143, 127, 150, 141, 163, 147, 8, 146, 65, 152, 138, 138, 131, 137, 136, 147, 155, 120, 60, 158, 140, 139, 148, 142, 138, 150, 151, 182, 103, 159, 144, 156, 141, 138, 162, 153, 140, 230, 130, 133, 159, 126, 151, 134, 118, 168, 142, 133, 152, 130, 154, 126, 120, 147, 137, 130, 132, 157, 137, 136, 139, 133, 145, 134, 106, 141, 157, 163, 164, 141, 165, 153, 135, 142, 134, 156, 129, 144, 146, 149, 90, 159, 146, 133, 127, 127, 143, 142, 125, 135, 138, 144, 155, 154, 143, 131, 134, 152, 137, 139, 140, 40, 164, 135, 143, 144, 165, 142, 141, 130, 146, 154, 147, 96, 138, 133, 125, 107, 126, 138, 138, 146, 130, 131, 108, 154, 133, 147, 147, 157, 145, 137, 147, 140, 140, 132, 139, 146, 166, 144, 137, 130, 100, 120, 141, 119, 178, 124, 139, 136, 143, 142, 132, 150, 148, 141, 143, 119, 131, 151, 147, 146, 146, 157, 136, 149, 133, 117, 139, 160, 37, 128, 135, 136, 139, 122, 144, 135, 165, 127, 122, 109, 141, 120, 136, 155, 120, 124, 128, 133, 126, 144, 163, 144, 149, 122, 130, 146, 148, 97, 160, 132, 132, 158, 157, 159, 123, 155, 131, 148, 139, 255, 145, 137, 159, 135, 69, 127, 136, 136, 145, 143, 128, 152, 146, 136, 150, 130, 157, 147, 159, 159, 154, 126, 122, 129, 159, 131, 169, 163, 138, 149, 43, 126, 109, 147, 131, 156, 146, 157, 138, 150, 153, 45, 127, 143, 134, 125, 141, 137, 127, 128, 152, 162, 152, 114, 149, 38, 142, 158, 115, 130, 145, 151, 159, 137, 142, 155, 148, 140, 117, 148, 147, 151, 137, 134, 140, 147, 146, 162, 149, 153, 127, 141, 134, 128, 154, 138, 133, 138, 147, 141, 114, 135, 147, 126, 142, 138, 149, 163, 152, 154, 134, 142, 152, 131, 158, 59, 122, 137, 130, 148, 142, 141, 106, 145, 129, 140, 155, 160, 141, 146, 166, 120, 151, 154, 129, 142, 145, 90, 38, 126, 112, 143, 156, 128, 121, 155, 160, 121, 141, 137, 170, 122, 160, 115, 147, 160, 148, 140, 139, 124, 149, 156, 148, 151, 150, 106, 139, 142, 155, 145, 148, 136, 172, 144, 136, 165, 142, 116, 165, 146, 123, 145, 163, 137, 154, 139, 153, 125, 38, 169, 106, 135, 143, 136, 143, 114, 110, 143, 152, 148, 127, 135, 133, 147, 127, 122, 164, 148, 131, 131, 133, 160, 140, 139, 123, 127, 145, 109, 134, 145, 131, 136, 133, 164, 162, 132, 152, 101, 144, 141, 143, 132, 125, 117, 160, 159, 160, 140, 161, 153, 122, 157, 111, 126, 138, 127, 136, 164, 134, 151, 126, 129, 163, 135, 129, 135, 156, 121, 153, 143, 156, 164, 148, 166, 126, 142, 121, 137, 136, 141, 125, 160, 151, 137, 141, 136, 140, 154, 138, 142, 138, 155, 137, 133, 159, 147, 139, 47, 144, 151, 152, 146, 162, 138, 135, 136, 136, 129, 141, 135, 145, 166, 156, 123, 66, 202, 150, 142, 150, 66, 143, 145, 129, 133, 154, 155, 141, 128, 153, 127, 127, 138, 139, 135, 150, 122, 153, 140, 157, 132, 130, 139, 146, 149, 130, 138, 146, 146, 149, 151, 131, 142, 154, 129]}, "bills": [{"v": "CC24_341a", "domain": "Taxes & Economy", "q": "Extend the 2017 tax cuts", "overall": 62.9, "pFree": 1.0, "pct": {"CON": 81.3, "CUP": 42.0, "DSA": 13.9, "LBR": 33.4, "NAT": 96.0, "OAO": 60.3, "POP": 53.4, "PRG": 7.0, "STY": 75.1}}, {"v": "CC24_341b", "domain": "Taxes & Economy", "q": "Raise corporate income tax from 21% to 28%", "overall": 57.7, "pFree": 0.9952, "pct": {"CON": 40.5, "CUP": 76.4, "DSA": 98.2, "LBR": 88.6, "NAT": 8.2, "OAO": 79.3, "POP": 31.1, "PRG": 98.4, "STY": 60.3}}, {"v": "CC24_341c", "domain": "Taxes & Economy", "q": "Allow rates on $400k+ earners to rise to 35%", "overall": 65.3, "pFree": 1.0, "pct": {"CON": 54.0, "CUP": 79.8, "DSA": 98.7, "LBR": 91.8, "NAT": 12.9, "OAO": 90.4, "POP": 37.8, "PRG": 97.5, "STY": 73.1}}, {"v": "CC24_341d", "domain": "Taxes & Economy", "q": "Spend $150B/yr on infrastructure", "overall": 80.5, "pFree": 1.0, "pct": {"CON": 76.8, "CUP": 88.7, "DSA": 99.1, "LBR": 95.5, "NAT": 62.5, "OAO": 96.9, "POP": 37.7, "PRG": 99.4, "STY": 75.2}}, {"v": "CC24_323a", "domain": "Immigration", "q": "Grant legal status to long-term undocumented immigrants", "overall": 59.2, "pFree": 0.9985, "pct": {"CON": 36.0, "CUP": 65.2, "DSA": 99.3, "LBR": 88.7, "NAT": 12.3, "OAO": 85.6, "POP": 33.7, "PRG": 95.2, "STY": 72.8}}, {"v": "CC24_323b", "domain": "Immigration", "q": "Increase border patrols", "overall": 79.6, "pFree": 1.0, "pct": {"CON": 98.4, "CUP": 93.4, "DSA": 0.9, "LBR": 52.0, "NAT": 98.7, "OAO": 95.7, "POP": 59.3, "PRG": 66.9, "STY": 71.8}}, {"v": "CC24_323d", "domain": "Immigration", "q": "Permanent status/pathway for Dreamers", "overall": 70.4, "pFree": 1.0, "pct": {"CON": 53.2, "CUP": 79.3, "DSA": 100.0, "LBR": 97.5, "NAT": 30.4, "OAO": 90.6, "POP": 44.3, "PRG": 99.8, "STY": 80.1}}, {"v": "CC24_323f", "domain": "Taxes & Economy", "q": "Forgive up to $20k of student loan debt per person", "overall": 54.2, "pFree": 0.0, "pct": {"CON": 11.7, "CUP": 37.0, "DSA": 100.0, "LBR": 94.0, "NAT": 1.0, "OAO": 95.1, "POP": 31.5, "PRG": 98.3, "STY": 84.6}}, {"v": "CC24_340f", "domain": "Immigration", "q": "Deny asylum for illegal border crossings", "overall": 63.2, "pFree": 1.0, "pct": {"CON": 92.3, "CUP": 67.3, "DSA": 1.0, "LBR": 22.3, "NAT": 97.7, "OAO": 59.9, "POP": 56.9, "PRG": 15.3, "STY": 59.1}}, {"v": "CC24_321a", "domain": "Police & Guns", "q": "Ban assault rifles", "overall": 59.6, "pFree": 1.0, "pct": {"CON": 40.5, "CUP": 78.6, "DSA": 93.1, "LBR": 91.6, "NAT": 8.6, "OAO": 83.1, "POP": 38.2, "PRG": 96.8, "STY": 65.5}}, {"v": "CC24_321b", "domain": "Police & Guns", "q": "Easier concealed-carry permits", "overall": 38.9, "pFree": 0.0, "pct": {"CON": 54.8, "CUP": 17.2, "DSA": 3.4, "LBR": 7.7, "NAT": 84.6, "OAO": 23.2, "POP": 52.2, "PRG": 2.8, "STY": 38.3}}, {"v": "CC24_321c", "domain": "Police & Guns", "q": "Require background checks on all gun sales", "overall": 92.5, "pFree": 1.0, "pct": {"CON": 94.3, "CUP": 97.8, "DSA": 99.7, "LBR": 99.2, "NAT": 79.8, "OAO": 96.8, "POP": 72.2, "PRG": 99.8, "STY": 93.4}}, {"v": "CC24_321d", "domain": "Police & Guns", "q": "Increase police by 10%", "overall": 56.7, "pFree": 1.0, "pct": {"CON": 83.5, "CUP": 62.2, "DSA": 0.2, "LBR": 17.0, "NAT": 90.8, "OAO": 68.0, "POP": 40.1, "PRG": 14.8, "STY": 49.5}}, {"v": "CC24_321e", "domain": "Police & Guns", "q": "Decrease police by 10%, increase other funding", "overall": 26.8, "pFree": 0.0, "pct": {"CON": 4.3, "CUP": 8.5, "DSA": 100.0, "LBR": 55.7, "NAT": 1.1, "OAO": 16.6, "POP": 39.0, "PRG": 58.7, "STY": 38.9}}, {"v": "CC24_321f", "domain": "Police & Guns", "q": "Increase spending on mental health & school safety", "overall": 86.5, "pFree": 1.0, "pct": {"CON": 86.7, "CUP": 96.0, "DSA": 99.3, "LBR": 97.8, "NAT": 59.1, "OAO": 97.9, "POP": 64.4, "PRG": 99.7, "STY": 89.9}}, {"v": "CC24_340b", "domain": "Abortion", "q": "Prohibit restrictions on abortion access", "overall": 63.0, "pFree": 1.0, "pct": {"CON": 47.6, "CUP": 68.0, "DSA": 97.4, "LBR": 88.5, "NAT": 34.6, "OAO": 71.5, "POP": 48.1, "PRG": 91.5, "STY": 63.9}}, {"v": "CC24_444c", "domain": "Abortion", "q": "Prohibit abortion-inducing drugs by mail", "overall": 41.2, "pFree": 0.0, "pct": {"CON": 61.0, "CUP": 15.9, "DSA": 0.2, "LBR": 2.9, "NAT": 82.2, "OAO": 40.5, "POP": 36.0, "PRG": 0.6, "STY": 50.5}}, {"v": "CC24_444d", "domain": "Abortion", "q": "Prohibit women traveling to another state for abortion", "overall": 18.5, "pFree": 0.0, "pct": {"CON": 27.9, "CUP": 8.4, "DSA": 0.2, "LBR": 1.3, "NAT": 25.1, "OAO": 21.2, "POP": 24.9, "PRG": 0.2, "STY": 31.6}}, {"v": "CC24_340c", "domain": "Civil Liberties", "q": "Federal recognition of same-sex & interracial marriages", "overall": 66.1, "pFree": 1.0, "pct": {"CON": 48.0, "CUP": 82.5, "DSA": 100.0, "LBR": 97.0, "NAT": 30.8, "OAO": 72.8, "POP": 49.7, "PRG": 99.0, "STY": 63.5}}, {"v": "CC24_340d", "domain": "Civil Liberties", "q": "Ban TikTok unless China sells to a US company", "overall": 55.5, "pFree": 1.0, "pct": {"CON": 73.5, "CUP": 61.6, "DSA": 11.2, "LBR": 36.7, "NAT": 76.7, "OAO": 62.8, "POP": 31.7, "PRG": 45.6, "STY": 44.1}}, {"v": "CC24_340e", "domain": "Civil Liberties", "q": "Renew post-9/11 surveillance programs", "overall": 34.0, "pFree": 0.0, "pct": {"CON": 40.0, "CUP": 46.7, "DSA": 7.7, "LBR": 24.9, "NAT": 19.7, "OAO": 50.6, "POP": 22.3, "PRG": 19.8, "STY": 44.0}}, {"v": "CC24_444a", "domain": "Civil Liberties", "q": "Prevent gender transition surgery for minors", "overall": 60.1, "pFree": 1.0, "pct": {"CON": 82.3, "CUP": 46.8, "DSA": 7.4, "LBR": 29.0, "NAT": 92.3, "OAO": 53.0, "POP": 56.8, "PRG": 10.4, "STY": 66.5}}, {"v": "CC24_444b", "domain": "Civil Liberties", "q": "Parental consent for name/pronoun changes at school", "overall": 62.7, "pFree": 1.0, "pct": {"CON": 88.9, "CUP": 48.4, "DSA": 0.4, "LBR": 15.2, "NAT": 98.7, "OAO": 75.2, "POP": 53.3, "PRG": 3.8, "STY": 71.3}}, {"v": "CC24_444e", "domain": "Civil Liberties", "q": "Age verification for adult web content", "overall": 78.8, "pFree": 1.0, "pct": {"CON": 89.2, "CUP": 76.6, "DSA": 36.6, "LBR": 65.4, "NAT": 90.0, "OAO": 92.2, "POP": 53.0, "PRG": 61.9, "STY": 81.9}}, {"v": "CC24_444f", "domain": "Civil Liberties", "q": "School voucher subsidies", "overall": 56.2, "pFree": 1.0, "pct": {"CON": 64.1, "CUP": 26.4, "DSA": 12.6, "LBR": 29.8, "NAT": 91.0, "OAO": 60.7, "POP": 50.7, "PRG": 3.4, "STY": 73.1}}, {"v": "CC24_326a", "domain": "Environment & Climate", "q": "Give EPA power to regulate CO2 emissions", "overall": 62.4, "pFree": 1.0, "pct": {"CON": 37.5, "CUP": 83.6, "DSA": 99.5, "LBR": 96.4, "NAT": 6.3, "OAO": 92.4, "POP": 32.5, "PRG": 99.5, "STY": 73.1}}, {"v": "CC24_326b", "domain": "Environment & Climate", "q": "Require 20% renewable electricity", "overall": 66.1, "pFree": 1.0, "pct": {"CON": 43.6, "CUP": 82.1, "DSA": 99.4, "LBR": 96.0, "NAT": 9.7, "OAO": 91.5, "POP": 44.8, "PRG": 98.6, "STY": 82.9}}, {"v": "CC24_326c", "domain": "Environment & Climate", "q": "Strengthen Clean Air/Water Act enforcement (even if it costs jobs)", "overall": 55.2, "pFree": 0.3707, "pct": {"CON": 25.0, "CUP": 72.3, "DSA": 98.8, "LBR": 90.6, "NAT": 4.0, "OAO": 80.0, "POP": 39.6, "PRG": 98.0, "STY": 64.6}}, {"v": "CC24_326d", "domain": "Environment & Climate", "q": "Increase fossil fuel production in the U.S.", "overall": 57.0, "pFree": 1.0, "pct": {"CON": 89.6, "CUP": 40.8, "DSA": 0.7, "LBR": 12.8, "NAT": 98.7, "OAO": 54.4, "POP": 45.8, "PRG": 4.1, "STY": 57.6}}, {"v": "CC24_326e", "domain": "Environment & Climate", "q": "Halt new oil and gas leases on federal lands", "overall": 44.7, "pFree": 0.0, "pct": {"CON": 14.0, "CUP": 49.5, "DSA": 99.1, "LBR": 81.1, "NAT": 1.5, "OAO": 59.4, "POP": 29.8, "PRG": 92.8, "STY": 53.8}}, {"v": "CC24_326f", "domain": "Environment & Climate", "q": "Prevent government from banning gas stoves", "overall": 67.5, "pFree": 1.0, "pct": {"CON": 80.8, "CUP": 57.8, "DSA": 27.7, "LBR": 52.6, "NAT": 94.2, "OAO": 62.2, "POP": 56.9, "PRG": 34.2, "STY": 67.0}}, {"v": "CC24_328a", "domain": "Healthcare & Housing", "q": "Relax local zoning laws to allow more apartments/condos", "overall": 50.2, "pFree": 0.1064, "pct": {"CON": 38.5, "CUP": 50.6, "DSA": 64.7, "LBR": 55.9, "NAT": 36.5, "OAO": 63.0, "POP": 43.2, "PRG": 68.1, "STY": 55.6}}, {"v": "CC24_328b", "domain": "Healthcare & Housing", "q": "Expand federal tax incentives for affordable housing", "overall": 72.4, "pFree": 1.0, "pct": {"CON": 58.5, "CUP": 71.6, "DSA": 98.1, "LBR": 93.1, "NAT": 35.9, "OAO": 94.4, "POP": 39.4, "PRG": 98.1, "STY": 85.8}}, {"v": "CC24_328c", "domain": "Healthcare & Housing", "q": "Require able-bodied Medicaid recipients under 64 to work", "overall": 53.3, "pFree": 1.0, "pct": {"CON": 65.8, "CUP": 55.7, "DSA": 9.9, "LBR": 33.6, "NAT": 77.5, "OAO": 52.9, "POP": 43.5, "PRG": 23.0, "STY": 51.9}}, {"v": "CC24_328d", "domain": "Healthcare & Housing", "q": "Repeal the Affordable Care Act", "overall": 38.5, "pFree": 0.0, "pct": {"CON": 56.4, "CUP": 11.0, "DSA": 1.3, "LBR": 2.0, "NAT": 91.2, "OAO": 19.4, "POP": 53.6, "PRG": 0.3, "STY": 39.4}}, {"v": "CC24_328e", "domain": "Healthcare & Housing", "q": "Expand Medicaid (income <$25k individual / <$40k family)", "overall": 78.7, "pFree": 1.0, "pct": {"CON": 69.8, "CUP": 80.9, "DSA": 99.9, "LBR": 98.4, "NAT": 37.9, "OAO": 99.3, "POP": 47.0, "PRG": 99.9, "STY": 92.0}}, {"v": "CC24_323c", "domain": "Immigration", "q": "Build a wall between the U.S. and Mexico", "overall": 53.7, "pFree": 1.0, "pct": {"CON": 92.9, "CUP": 39.7, "DSA": 0.0, "LBR": 4.9, "NAT": 98.7, "OAO": 42.2, "POP": 53.2, "PRG": 2.1, "STY": 49.9}}]};
+const VIK = ["#001160","#024380","#307ca6","#93bdd2","#ece4e0","#dba98d","#c27040","#912c05","#590007"];
+const CIV = ["#00204d","#1b3b6f","#41577b","#697386","#8f8f8c","#b3a960","#d6c92f","#f4e801","#ffe945"];
+function ramp(stops, t) {
+  t = Math.max(0, Math.min(1, t)); const x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
+  const a = stops[i].match(/\w\w/g).map(h => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map(h => parseInt(h, 16));
+  return "#" + a.map((v, k) => Math.round(v + (b[k] - v) * f).toString(16).padStart(2, "0")).join("");
+}
+function ink(hex) {
+  const c = hex.match(/\w\w/g).map(h => parseInt(h, 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) <= 0.179 ? "#ebf0f4" : "#08131e";
+}
+document.getElementById("civramp").style.background = `linear-gradient(90deg, ${CIV.join(",")})`;
+document.getElementById("vikramp").style.background = `linear-gradient(90deg, ${[...VIK].reverse().join(",")})`;
+
+const PT = DATA.parties, ORDER = DATA.order, B = DATA.bills, C = DATA.colors, SEATS = DATA.seats, MAJ = DATA.majority;
+const S = { mode: "bloc", dom: "All", mxorder: "all", bsort: "domain", pick: new Set() };
+const pct = v => `${Math.round(v * 100)}%`;
+const seatsOf = set => [...set].reduce((s, q) => s + (SEATS[q] || 0), 0);
+const sw = q => `<span class="sw" style="background:${C[q]}"></span>`;
+const chips = set => `<span class="chips">${ORDER.map(q => `<span class="chip${set.has(q) ? " on" : ""}" style="${set.has(q) ? `background:${C[q]}` : ""}">${q}</span>`).join("")}</span>`;
+const inDom = b => S.dom === "All" || b.domain === S.dom;
+const yesSet = b => new Set(PT.filter(q => b.pct[q] > 50));
+const key = set => ORDER.filter(q => set.has(q)).join(" ") || "(none)";
+
+// majority odds from the joint per-draw seats
+const ND = DATA.draws ? DATA.draws[PT[0]].length : 0;
+function odds(set) {
+  if (!ND) return null;
+  const qs = [...set]; let hit = 0; const tot = [];
+  for (let d = 0; d < ND; d++) { let s = 0; for (const q of qs) s += DATA.draws[q][d]; tot.push(s); if (s >= MAJ) hit++; }
+  tot.sort((a, b) => a - b);
+  return { p: hit / ND, lo: tot[Math.floor(0.05 * (ND - 1))], hi: tot[Math.ceil(0.95 * (ND - 1))] };
+}
+const oddsTxt = o => o === null ? "–" : o.p >= 0.995 ? ">99%" : o.p <= 0.005 ? "<1%" : pct(o.p);
+
+function agree(bills, mode) {
+  const M = {};
+  for (const a of PT) { M[a] = {}; for (const b of PT) {
+    let s = 0;
+    for (const x of bills) { const pa = x.pct[a] / 100, pb = x.pct[b] / 100; s += mode === "bloc" ? ((pa > .5) === (pb > .5) ? 1 : 0) : pa * pb + (1 - pa) * (1 - pb); }
+    M[a][b] = bills.length ? s / bills.length : NaN;
+  } }
+  return M;
+}
+
+function headline() {
+  const L = DATA.lines["bloc|All"], m = DATA.lines["member|All"];
+  document.getElementById("headline").innerHTML =
+    `Ordered by how often party majorities vote together: <b>${ORDER.join(" · ")}</b>. One left-right line accounts for ${pct(L.share1)} of the agreement pattern (${pct(m.share1)} counting individual members).`;
+}
+
+function renderLines() {
+  const W = 1000, rowH = 58, padL = 200, padR = 30, rows = DATA.domains;
+  let svg = `<svg viewBox="0 0 ${W} ${rows.length * rowH + 10}" role="img" aria-label="Party positions on the agreement line, overall and by issue">`;
+  rows.forEach((dom, r) => {
+    const L = DATA.lines[`${S.mode}|${dom}`], y = r * rowH + 30;
+    const xs = PT.map(q => L.dim1[q]), lo = Math.min(...xs), hi = Math.max(...xs);
+    const X = v => padL + (W - padL - padR) * (hi > lo ? (v - lo) / (hi - lo) : 0.5);
+    const sel = dom === S.dom;
+    svg += `<rect x="0" y="${y - 26}" width="${W}" height="${rowH - 2}" rx="6" fill="${sel ? "var(--bg-3)" : "transparent"}"/>`;
+    svg += `<text class="dl" x="10" y="${y - 2}">${dom}</text><text class="dn" x="10" y="${y + 13}">${L.n} bills · line ${pct(L.share1)}</text>`;
+    svg += `<line x1="${padL}" x2="${W - padR}" y1="${y}" y2="${y}" stroke="var(--border-default)"/>`;
+    const sorted = [...PT].sort((a, b) => L.dim1[a] - L.dim1[b]);
+    // parties closer than 26px share one label, so tied positions stay readable
+    const groups = [];
+    for (const q of sorted) { const g = groups[groups.length - 1]; if (g && X(L.dim1[q]) - X(L.dim1[g[g.length - 1]]) < 26) g.push(q); else groups.push([q]); }
+    groups.forEach((g, i) => {
+      g.forEach((q, k) => svg += `<circle cx="${X(L.dim1[q])}" cy="${y}" r="6" fill="${C[q]}" stroke="var(--bg-2)" stroke-width="${g.length > 1 ? 1.5 : 0}"><title>${DATA.names[q]}: dim 1 ${L.dim1[q].toFixed(3)}, dim 2 ${L.dim2[q].toFixed(3)}</title></circle>`);
+      const x = g.reduce((s, q) => s + X(L.dim1[q]), 0) / g.length, up = i % 2 === 0;
+      const edge = x - padL < 70 ? ["start", x - 8] : W - padR - x < 70 ? ["end", x + 8] : ["middle", x];
+      svg += `<text x="${edge[1]}" y="${up ? y - 10 : y + 19}" text-anchor="${edge[0]}">${g.join(" · ")}</text>`;
+    });
+  });
+  document.getElementById("lines").innerHTML = svg + "</svg>";
+  document.getElementById("linecap").textContent = `Positions are the first dimension of classical MDS on 1 minus ${S.mode === "bloc" ? "party-majority" : "member"} agreement, rescaled per row; "line %" is that dimension's share of the agreement pattern. Each issue row is signed to match the overall line. Highlighted row = the selected issue.`;
+}
+
+function renderMatrix() {
+  const bills = B.filter(inDom), M = agree(bills, S.mode);
+  const L = DATA.lines[`${S.mode}|${S.mxorder === "dom" ? S.dom : "All"}`];
+  const ord = [...PT].sort((a, b) => L.dim1[a] - L.dim1[b]);
+  let h = `<thead><tr><th class="lbl"></th>${ord.map(q => `<th>${sw(q)}${q}</th>`).join("")}</tr></thead><tbody>`;
+  for (const a of ord) {
+    h += `<tr><td class="lbl">${sw(a)}${DATA.names[a]}</td>`;
+    for (const b of ord) {
+      const v = M[a][b], bg = ramp(CIV, v);
+      h += a === b ? `<td class="v" style="color:var(--fg-3)">·</td>` : `<td class="v" style="background:${bg};color:${ink(bg)}" title="${a}–${b}: ${pct(v)} of ${bills.length} bills">${Math.round(v * 100)}</td>`;
+    }
+    h += "</tr>";
+  }
+  document.getElementById("mx").innerHTML = h + "</tbody>";
+  document.getElementById("mxh").textContent = `How often each pair votes the same way${S.dom === "All" ? "" : ": " + S.dom}`;
+  document.getElementById("mxcap").textContent = S.mode === "bloc"
+    ? `Share of ${bills.length} bills on which both parties' majorities (support above 50%) land on the same side.`
+    : `Chance that a random member of each party votes the same way, averaged over ${bills.length} bills. A party's agreement with itself is below 100% when its members split.`;
+}
+
+function renderPatterns() {
+  const g = new Map();
+  for (const b of B.filter(inDom)) { const s = yesSet(b), k = key(s); if (!g.has(k)) g.set(k, { set: s, bills: [] }); g.get(k).bills.push(b); }
+  const rows = [...g.values()].sort((a, b) => b.bills.length - a.bills.length || seatsOf(b.set) - seatsOf(a.set));
+  let h = `<thead><tr><th class="lbl">Yes-side parties</th><th>Bills</th><th>Yes-side seats</th><th>Yes side holds 437+</th><th class="lbl" style="position:static">Bills</th></tr></thead><tbody>`;
+  for (const r of rows) {
+    const o = odds(r.set);
+    h += `<tr><td class="lbl">${chips(r.set)}</td><td class="num">${r.bills.length}</td><td class="num">${seatsOf(r.set)}</td><td class="num">${oddsTxt(o)}</td><td style="white-space:normal;min-width:320px;font-size:12px;color:var(--fg-2)">${r.bills.map(b => b.q).join("; ")}</td></tr>`;
+  }
+  document.getElementById("pat").innerHTML = h + "</tbody>";
+  document.getElementById("patcap").textContent = `${rows.length} distinct yes-side coalitions across ${B.filter(inDom).length} bills. "Holds 437+" is the share of ${ND || "the"} bootstrap draws (parties re-clustered on each resample) in which the yes-side parties together win a majority of 873 House seats, i.e. the bill passes under whipped party-line voting.`;
+}
+
+function renderBills() {
+  let bills = B.filter(inDom);
+  const sorters = {
+    domain: (a, b) => a.domain.localeCompare(b.domain),
+    pattern: (a, b) => key(yesSet(a)).localeCompare(key(yesSet(b))),
+    overall: (a, b) => b.overall - a.overall,
+    seats: (a, b) => seatsOf(yesSet(b)) - seatsOf(yesSet(a)),
+  };
+  bills = [...bills].sort(sorters[S.bsort]);
+  let h = `<thead><tr><th class="lbl">Bill</th>${ORDER.map(q => `<th>${sw(q)}${q}</th>`).join("")}<th class="sep">All</th><th>Yes-side seats</th><th>Passes, party-line</th><th>Passes, free vote</th></tr></thead><tbody>`;
+  let last = null;
+  for (const b of bills) {
+    if (S.bsort === "domain" && b.domain !== last) { h += `<tr class="topic"><td class="lbl">${b.domain}</td><td colspan="${ORDER.length + 4}"></td></tr>`; last = b.domain; }
+    const ys = yesSet(b);
+    h += `<tr><td class="lbl">${b.q}</td>` + ORDER.map(q => {
+      const v = b.pct[q], bg = ramp(VIK, 1 - v / 100);
+      return `<td class="v${v > 50 ? " maj" : ""}" style="background:${bg};color:${ink(bg)}">${Math.round(v)}</td>`;
+    }).join("") + `<td class="v sep">${Math.round(b.overall)}</td><td class="num">${seatsOf(ys)}</td><td class="num">${oddsTxt(odds(ys))}</td><td class="num">${pct(b.pFree)}</td></tr>`;
+  }
+  document.getElementById("bills").innerHTML = h + "</tbody>";
+  document.getElementById("billcap").textContent = `Cells: % of each party's members who support the bill (the Parties tab's numbers). "Passes, party-line" = share of bootstrap draws in which the parties whose majorities support it hold 437+ seats. "Passes, free vote" = the Legislation tab's House pass probability, where each member votes their party's support rate.`;
+}
+
+function renderBuilder() {
+  document.getElementById("builder").innerHTML = ORDER.map(q => `<button data-q="${q}" aria-pressed="${S.pick.has(q)}" style="${S.pick.has(q) ? `background:${C[q]}` : `border-color:${C[q]}`}">${q} <span style="font-weight:400">${SEATS[q] || 0}</span></button>`).join("");
+  const o = odds(S.pick), n = seatsOf(S.pick);
+  const agreeAll = (() => { const ps = [...S.pick]; if (ps.length < 2) return null; const M = agree(B, "bloc"); let s = 0, k = 0; for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) { s += M[ps[i]][ps[j]]; k++; } return s / k; })();
+  const unanimous = S.pick.size ? B.filter(b => { const v = [...S.pick].map(q => b.pct[q] > 50); return v.every(x => x === v[0]); }).length : 0;
+  document.getElementById("stats").innerHTML = [
+    [n, "seats, published result"],
+    [o ? `${o.lo}–${o.hi}` : "–", "seats, 90% of draws"],
+    [o ? oddsTxt(o) : "–", "of draws with 437+"],
+    [S.pick.size > 1 ? `${unanimous} / ${B.length}` : "–", `bills where every member party's majority agrees${agreeAll !== null ? ` (pairs avg ${pct(agreeAll)})` : ""}`],
+  ].map(([b, s]) => `<div class="stat"><b>${b}</b><span>${s}</span></div>`).join("");
+  document.querySelectorAll("#builder button").forEach(btn => btn.onclick = () => { const q = btn.dataset.q; S.pick.has(q) ? S.pick.delete(q) : S.pick.add(q); renderBuilder(); });
+}
+
+function renderOdds() {
+  const out = [];
+  for (let i = 0; i < ORDER.length; i++) for (let j = i; j < ORDER.length; j++) {
+    const c = ORDER.slice(i, j + 1), n = seatsOf(new Set(c));
+    if (n >= MAJ && seatsOf(new Set(c.slice(1))) < MAJ && seatsOf(new Set(c.slice(0, -1))) < MAJ) out.push(new Set(c));
+  }
+  const M = agree(B, "bloc"), unan = set => B.filter(b => { const v = [...set].map(q => b.pct[q] > 50); return v.every(x => x === v[0]); }).length;
+  document.getElementById("mwc").innerHTML = `<thead><tr><th class="lbl">Coalition</th><th>Seats</th><th>437+</th><th>Bills all agree</th></tr></thead><tbody>` +
+    out.map(s => `<tr><td class="lbl">${chips(s)}</td><td class="num">${seatsOf(s)}</td><td class="num">${oddsTxt(odds(s))}</td><td class="num">${unan(s)} / ${B.length}</td></tr>`).join("") + "</tbody>";
+  const any = [];
+  const rec = (start, cur) => {
+    if (cur.length) { const s = new Set(cur), o = odds(s); const p = o ? o.p : (seatsOf(s) >= MAJ ? 1 : 0); if (p >= 0.5) any.push({ s, p, o }); }
+    if (cur.length === 4) return;
+    for (let k = start; k < ORDER.length; k++) rec(k + 1, [...cur, ORDER[k]]);
+  };
+  rec(0, []);
+  const minimal = any.filter(a => ![...a.s].some(q => { const t = new Set(a.s); t.delete(q); const o = odds(t); return (o ? o.p : (seatsOf(t) >= MAJ ? 1 : 0)) >= 0.5; }));
+  minimal.sort((a, b) => unan(b.s) - unan(a.s) || b.p - a.p);
+  document.getElementById("any").innerHTML = `<thead><tr><th class="lbl">Coalition</th><th>Seats</th><th>437+</th><th>Bills all agree</th></tr></thead><tbody>` +
+    minimal.map(a => `<tr><td class="lbl">${chips(a.s)}</td><td class="num">${seatsOf(a.s)}</td><td class="num">${oddsTxt(a.o)}</td><td class="num">${unan(a.s)} / ${B.length}</td></tr>`).join("") + "</tbody>";
+  document.getElementById("oddcap").textContent = (ND ? `Odds over ${ND} bootstrap draws: each draw resamples respondents, re-clusters the parties and reruns the default House, so seats move together the way they would in one election. ` : "Per-draw seats are not built yet, so odds show only whether the published result clears 437. ") +
+    `Right table lists coalitions of up to four parties that reach 437+ in at least half of draws and need every member to get there, sorted by how many of the 37 bills all member majorities vote alike.`;
+}
+
+function bind(id, k, after) {
+  document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => {
+    S[k] = b.dataset.v; document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b)); after();
+  });
+}
+document.getElementById("dom").innerHTML = DATA.domains.map(d => `<button data-v="${d}" aria-pressed="${d === S.dom}">${d}</button>`).join("");
+const all = () => { renderLines(); renderMatrix(); renderPatterns(); renderBills(); };
+bind("mode", "mode", all); bind("dom", "dom", all); bind("mxorder", "mxorder", renderMatrix);
+document.getElementById("bsort").onchange = e => { S.bsort = e.target.value; renderBills(); };
+headline(); all(); renderBuilder(); renderOdds();
+</script>
+</body>
+</html>

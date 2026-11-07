@@ -72,3 +72,11 @@ body {
 code, kbd, samp, pre, .font-mono {
   font-family: 'Geist Mono', ui-monospace, monospace;
 }
+
+/* Status signals on the bam poles (src/lib/bam.ts SIGNAL); unlayered so they win over utilities. */
+.sig-yes-chip { background-color: #eef7f5; color: #134e4a; border-color: #8fccc2; }
+.sig-no-chip { background-color: #f8eef3; color: #7a1f58; border-color: #c884ab; }
+.sig-yes-text { color: #2b7a70; }
+.sig-no-text { color: #a5477f; }
+.sig-yes-swatch { background-color: rgb(43 122 112 / 0.55); }
+.sig-no-swatch { background-color: rgb(165 71 127 / 0.55); }

@@ -3,6 +3,7 @@ import type { PresidentialElection, ClusterProfile, FDCandidateProfile } from '.
 import { getBlendColor, PARTY_NAMES } from '../../constants/parties';
 import { Card } from '@/components/ui/card';
 import { MINOR_HEADING } from '../../constants/typography';
+import { SIGNAL } from '../../lib/bam';
 
 interface Props {
   data: PresidentialElection;
@@ -169,7 +170,7 @@ function CandidateCard({
                   <div className="flex items-start gap-1.5">
                     <span
                       className="mt-0.5 shrink-0"
-                      style={{ color: iAmHigher ? '#22c55e' : '#ef4444' }}
+                      style={{ color: iAmHigher ? SIGNAL.yes : SIGNAL.no }}
                     >
                       {iAmHigher ? '▲' : '▼'}
                     </span>
@@ -263,8 +264,8 @@ export function WinnerCard({ data, clusters, fdProfiles }: Props) {
                 {' '}wins via IRV because its voters transfer well from eliminated candidates.
                 In head-to-head, it
                 {' '}{irvInfo.matchupVsOther?.margin != null && irvInfo.matchupVsOther.margin > 0
-                  ? <span className="text-red-600 font-medium">loses</span>
-                  : <span className="text-green-600 font-medium">beats</span>
+                  ? <span className="sig-no-text font-medium">loses</span>
+                  : <span className="sig-yes-text font-medium">beats</span>
                 }
                 {' '}<span className="font-semibold" style={{ color: condInfo.color }}>{condInfo.code}</span>
                 {' '}by {Math.abs(irvInfo.matchupVsOther?.margin ?? 0).toFixed(1)}pp.

@@ -2,6 +2,7 @@ import { getBlendColor } from '../../constants/parties';
 import type { KeyPosition } from '../../types';
 import { Card } from '@/components/ui/card';
 import { CHART_TYPE } from '../../constants/typography';
+import { SIGNAL } from '../../lib/bam';
 
 interface Props {
   code: string;
@@ -45,7 +46,7 @@ export function MiniPartyCard({ code, seats, votePct, positions }: Props) {
                 <span
                   aria-hidden="true"
                   className="shrink-0 mt-0.5"
-                  style={{ color: pos.direction === 'supports' ? '#22c55e' : '#ef4444', fontSize: CHART_TYPE.smallTick }}
+                  style={{ color: pos.direction === 'supports' ? SIGNAL.yes : SIGNAL.no, fontSize: CHART_TYPE.smallTick }}
                 >
                   {pos.direction === 'supports' ? '▲' : '▼'}
                 </span>

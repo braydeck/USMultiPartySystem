@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Party Color Picker</title>
+<style>
+/*TOKENS*/
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1400px; margin: 0 auto; padding: 28px 16px 64px; display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 1000px) { main { grid-template-columns: minmax(0, 1fr); } }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 26px; letter-spacing: -0.02em; margin: 0 0 6px; }
+h2 { font-family: var(--font-display); font-size: 17px; margin: 0 0 8px; }
+.sub { color: var(--fg-2); margin: 0 0 14px; font-size: 13px; }
+.panel { position: sticky; top: 12px; }
+.card { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); padding: 12px 14px; margin: 0 0 14px; }
+.row { display: grid; grid-template-columns: 44px 1fr 92px 30px; gap: 8px; align-items: center; padding: 6px 4px; border-radius: var(--radius-sm); cursor: pointer; }
+.row.sel { background: var(--bg-3); box-shadow: inset 3px 0 0 var(--plaid-blue-600); }
+.row input[type=color] { width: 44px; height: 30px; border: 1px solid var(--border-default); border-radius: 6px; padding: 0; background: none; cursor: pointer; }
+.row input[type=text] { width: 92px; font: inherit; font-family: var(--font-mono, monospace); font-size: 12.5px; padding: 4px 6px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-1); color: var(--fg-1); }
+.row .nm b { font-size: 13px; } .row .nm span { display: block; font-size: 11px; color: var(--fg-3); }
+.row .was { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border-default); }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+button.b { font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: var(--radius-pill); border: 1px solid var(--border-default); background: var(--bg-2); color: var(--fg-1); cursor: pointer; }
+button.b.pri { background: var(--fg-1); color: var(--bg-1); }
+.swatches { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.swatches button { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border-default); cursor: pointer; }
+.swl { font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: .06em; margin-top: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-pill); overflow: hidden; }
+.seg button { background: var(--bg-2); color: var(--fg-2); border: 0; padding: 5px 11px; font: inherit; font-size: 12.5px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 14px; }
+.ctl-l { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); }
+.stage { border-radius: var(--radius-md); padding: 16px; margin: 0 0 14px; border: 1px solid var(--border-default); }
+.stage.light { background: #ffffff; color: #0b1620; } .stage.dark { background: #0f1720; color: #e8eef3; }
+.stage h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 8px; opacity: .7; } .stage h3:first-child { margin-top: 0; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-size: 12.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px; }
+.bar { display: flex; height: 34px; border-radius: 6px; overflow: hidden; }
+.bar div { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; min-width: 0; overflow: hidden; }
+.line svg, .hemi svg, .mosaic svg { display: block; width: 100%; height: auto; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; } .grid2 > div { min-width: 0; }
+@media (max-width: 700px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+table { border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; width: 100%; }
+th, td { padding: 5px 6px; border-bottom: 1px solid var(--border-subtle); text-align: left; }
+th { font-weight: 600; color: var(--fg-2); }
+.warn { color: var(--danger-600, #b42318); font-weight: 700; } .ok { color: var(--fg-3); }
+.dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; }
+textarea { width: 100%; height: 190px; font-family: var(--font-mono, monospace); font-size: 12px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-1); color: var(--fg-1); padding: 8px; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 6px 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <div class="panel">
+    <p class="eyebrow">Party colors · nine parties</p>
+    <h1>Color picker</h1>
+    <p class="sub">Click a party, then pick a color or a swatch. The small dot on the right is the production color. Changes save in this browser.</p>
+    <div class="card" id="rows"></div>
+    <div class="card">
+      <div class="btns">
+        <button class="b" id="r-prop">Reset to production</button>
+        
+      </div>
+      <div class="swl">Try on <span id="selname"></span></div>
+      <div id="swatchsets"></div>
+    </div>
+    <div class="card">
+      <h2>Export</h2>
+      <textarea id="out" readonly></textarea>
+      <div class="btns" style="margin-top:8px"><button class="b pri" id="copy">Copy PARTY_COLORS block</button><span class="caption" id="copied"></span></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="controls">
+      <span class="ctl-l">Background</span>
+      <div class="seg" id="bg"><button data-v="light" aria-pressed="true">Light</button><button data-v="dark">Dark</button><button data-v="both">Both</button></div>
+      <span class="ctl-l">Vision</span>
+      <div class="seg" id="cvd"><button data-v="none" aria-pressed="true">Typical</button><button data-v="protan">Protan</button><button data-v="deutan">Deutan</button><button data-v="tritan">Tritan</button><button data-v="gray">Grayscale</button></div>
+    </div>
+    <div id="stages"></div>
+    <div class="card">
+      <h2>Closest pairs</h2>
+      <p class="sub" style="margin:0 0 8px">Distance in OKLab ×100 under the selected vision mode. Under about 12, two parties are hard to tell apart in small marks.</p>
+      <table id="pairs"></table>
+    </div>
+    <div class="card">
+      <h2>Text and background contrast</h2>
+      <table id="contrast"></table>
+      <p class="caption">WCAG contrast ratio. Pills use white text for every party (the app's CHIP_TEXT setting); small white text wants 4.5:1. A color under 3:1 against a background is weak for thin lines and small dots on that background.</p>
+    </div>
+  </div>
+</main>
+<script>
+const DATA = /*DATA*/;
+const O = DATA.order, KEY = "stv-party-colors-v3";
+let C = { ...DATA.proposed };
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && O.every(q => /^#[0-9a-f]{6}$/i.test(s[q]))) C = s; } catch (e) {}
+const S = { sel: "CON", bg: "light", cvd: "none" };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(C)); } catch (e) {} };
+
+// ---- color math
+const hex2rgb = h => h.match(/\w\w/g).map(x => parseInt(x, 16) / 255);
+const rgb2hex = c => "#" + c.map(v => Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, "0")).join("");
+const lin = v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+const unlin = v => v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055;
+const MAT = {
+  protan: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+  deutan: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]],
+  tritan: [[1.255528, -0.076749, -0.178779], [-0.078411, 0.930809, 0.147602], [0.004733, 0.691367, 0.303900]],
+};
+function sim(h, mode = S.cvd) {
+  if (mode === "none") return h;
+  const l = hex2rgb(h).map(lin);
+  if (mode === "gray") { const y = 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2]; return rgb2hex([y, y, y].map(unlin)); }
+  const m = MAT[mode];
+  return rgb2hex(m.map(r => r[0] * l[0] + r[1] * l[1] + r[2] * l[2]).map(unlin));
+}
+function oklab(h) {
+  const [r, g, b] = hex2rgb(h).map(lin);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s, 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
+}
+const dist = (a, b) => { const p = oklab(a), q = oklab(b); return 100 * Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]); };
+const lum = h => { const [r, g, b] = hex2rgb(h).map(lin); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+const textOn = h => "#ffffff";  // the app sets CHIP_TEXT = 'white' for every party
+const col = q => sim(C[q]);
+
+// ---- seeded layout helpers
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const TOTAL = O.reduce((s, q) => s + (DATA.seats[q] || 0), 0);
+const seatSeq = O.flatMap(q => Array(DATA.seats[q] || 0).fill(q));
+const HEMI = (() => {
+  const rows = 14, r0 = 0.32, pts = [];
+  const radii = Array.from({ length: rows }, (_, i) => r0 + (1 - r0) * i / (rows - 1));
+  const tot = radii.reduce((s, r) => s + r, 0);
+  let left = TOTAL;
+  radii.forEach((r, i) => {
+    const n = i === rows - 1 ? left : Math.round(TOTAL * r / tot); left -= n;
+    for (let k = 0; k < n; k++) { const th = Math.PI * (1 - k / Math.max(1, n - 1)); pts.push({ x: r * Math.cos(th), y: r * Math.sin(th), th }); }
+  });
+  pts.sort((a, b) => b.th - a.th || a.y - b.y);
+  return pts;
+})();
+const MOSAIC = (() => {
+  const rnd = mulberry(42), d = [];
+  let pool = [...seatSeq];
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  while (pool.length) { const n = 4 + Math.floor(rnd() * 4); d.push(pool.splice(0, n).sort((a, b) => O.indexOf(a) - O.indexOf(b))); }
+  return d;
+})();
+
+// ---- rendering
+function stage(kind) {
+  const bgc = kind === "light" ? "#ffffff" : "#0f1720", ink = kind === "light" ? "#0b1620" : "#e8eef3";
+  const pills = O.map(q => `<span class="pill" style="background:${col(q)};color:${textOn(col(q))}">${DATA.names[q]}</span>`).join("");
+  const bar = O.map(q => `<div style="flex:${DATA.seats[q] || 0};background:${col(q)};color:${textOn(col(q))}" title="${q} ${DATA.seats[q]}">${(DATA.seats[q] || 0) > 40 ? q : ""}</div>`).join("");
+  const W = 520, H = 280, R = 250;
+  const hemi = HEMI.map((p, i) => `<circle cx="${W / 2 + p.x * R}" cy="${H - 12 - p.y * R}" r="3.6" fill="${col(seatSeq[i])}"/>`).join("");
+  const L = DATA.pos;
+  let lsv = `<line x1="20" x2="500" y1="30" y2="30" stroke="${ink}" stroke-opacity=".25"/>`;
+  O.forEach((q, i) => { const x = 20 + 480 * L[q]; lsv += `<circle cx="${x}" cy="30" r="8" fill="${col(q)}" stroke="${bgc}" stroke-width="2"/><text x="${x}" y="${i % 2 ? 58 : 12}" text-anchor="middle" font-size="11" fill="${ink}">${q}</text>`; });
+  const cw = 12, gap = 4, perRow = 15;
+  let ms = "", x = 0, y = 0, maxX = 0;
+  MOSAIC.forEach((dd, i) => {
+    if (i && i % perRow === 0) { maxX = Math.max(maxX, x); x = 0; y += cw + 4; }
+    dd.forEach((q, k) => ms += `<rect x="${x + k * cw}" y="${y}" width="${cw - 1}" height="${cw - 1}" fill="${col(q)}"/>`);
+    x += dd.length * cw + gap;
+  });
+  const sq = Object.entries(DATA.statusQuo).map(([k, v]) => `<span class="pill" style="background:transparent;border:2px dashed ${sim(v)};color:${ink}">${k}</span>`).join("");
+  const lines = (() => {
+    const rnd = mulberry(7); let s = "";
+    O.forEach((q, i) => { let p = `M 10 ${20 + i * 14}`; for (let k = 1; k <= 12; k++) p += ` L ${10 + k * 40} ${20 + i * 14 + (rnd() - 0.5) * 18}`; s += `<path d="${p}" fill="none" stroke="${col(q)}" stroke-width="2.2"/>`; });
+    return `<svg viewBox="0 0 500 150">${s}</svg>`;
+  })();
+  return `<div class="stage ${kind}">
+    <h3>Pills</h3><div class="pills">${pills}</div><div class="pills" style="margin-top:6px">${sq}</div>
+    <h3>House seats, default view (${TOTAL})</h3><div class="bar">${bar}</div>
+    <div class="grid2"><div><h3>Chamber</h3><div class="hemi"><svg viewBox="0 0 ${W} ${H}">${hemi}</svg></div></div>
+    <div><h3>Agreement line</h3><div class="line"><svg viewBox="0 0 520 70">${lsv}</svg></div><h3>Thin lines</h3><div class="line">${lines}</div></div></div>
+    <h3>District tiles (seats shuffled across 150 mock districts)</h3><div class="mosaic"><svg viewBox="0 0 ${Math.max(maxX, x)} ${y + cw}" preserveAspectRatio="xMinYMin meet">${ms}</svg></div>
+  </div>`;
+}
+
+function renderRows() {
+  document.getElementById("rows").innerHTML = O.map(q => `<div class="row${q === S.sel ? " sel" : ""}" data-q="${q}">
+    <input type="color" value="${C[q]}" data-q="${q}" aria-label="${DATA.names[q]} color">
+    <div class="nm"><b>${q}</b><span>${DATA.names[q]} · ${DATA.seats[q] || 0} seats</span></div>
+    <input type="text" value="${C[q]}" data-q="${q}" aria-label="${DATA.names[q]} hex" spellcheck="false">
+    <span class="was" style="background:${DATA.current[q]}" title="production ${DATA.current[q]}"></span></div>`).join("");
+  document.querySelectorAll(".row").forEach(r => r.addEventListener("click", e => { if (e.target.tagName !== "INPUT") { S.sel = r.dataset.q; renderRows(); renderSwatches(); } }));
+  document.querySelectorAll(".row input[type=color]").forEach(i => i.addEventListener("input", () => { S.sel = i.dataset.q; set(i.dataset.q, i.value, false); }));
+  document.querySelectorAll(".row input[type=text]").forEach(i => i.addEventListener("change", () => { const v = i.value.trim().replace(/^([0-9a-f]{6})$/i, "#$1"); if (/^#[0-9a-f]{6}$/i.test(v)) set(i.dataset.q, v.toLowerCase(), true); else i.value = C[i.dataset.q]; }));
+  document.getElementById("selname").textContent = `${S.sel} (${DATA.names[S.sel]})`;
+}
+function set(q, v, rerow) {
+  C[q] = v; save();
+  if (rerow) renderRows(); else document.querySelectorAll(`.row input[data-q="${q}"]`).forEach(i => { if (i.type === "text") i.value = v; });
+  renderAll();
+}
+const SETS = {
+  "Yellows & golds": ["#fef08a", "#fde047", "#facc15", "#eab308", "#ca8a04", "#a16207", "#d4a017", "#b8860b"],
+  "Ambers": ["#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#b45309", "#92400e"],
+  "Oranges": ["#fdba74", "#fb923c", "#f97316", "#e68c2c", "#ea580c", "#c2410c", "#9a3412", "#7c2d12"],
+  "Red-oranges & corals": ["#ff7f50", "#ff6b35", "#f4511e", "#d34812", "#e4572e", "#c1440e", "#b7410e", "#a0522d"],
+  "Reds": ["#f87171", "#ef4444", "#dc2626", "#b91c1c", "#991b1b", "#7f1d1d", "#a01d2a", "#8b0000"],
+  "Crimsons & roses": ["#fb7185", "#f43f5e", "#e11d48", "#be123c", "#9f1239", "#881337", "#c41e3a", "#7b1e3a"],
+  "Browns": ["#825a27", "#92400e", "#78350f", "#713f12", "#6b4423", "#5c3317"],
+  "Magentas": ["#c026d3", "#a21caf", "#86198f", "#d946ef", "#db2777", "#be185d", "#9d174d", "#e879a9"],
+  "Violets": ["#a78bfa", "#8a70b8", "#7c3aed", "#6d28d9", "#5b21b6", "#4c1d95"],
+  "Blues": ["#1e3a8a", "#1d4ed8", "#2563eb", "#0369a1", "#0284c7", "#0ea5e9", "#38bdf8", "#7dd3fc"],
+  "Greens & teals": ["#22c55e", "#15803d", "#166534", "#0f766e", "#0d9488", "#14b8a6"],
+  "Production": [...new Set(Object.values(DATA.current))],
+};
+function renderSwatches() {
+  document.getElementById("swatchsets").innerHTML = Object.entries(SETS).map(([k, arr]) => `<div class="swl">${k}</div><div class="swatches">${arr.map(h => `<button style="background:${h}" title="${h}" data-h="${h}"></button>`).join("")}</div>`).join("");
+  document.querySelectorAll("#swatchsets button").forEach(b => b.onclick = () => set(S.sel, b.dataset.h, true));
+}
+function renderAll() {
+  document.getElementById("stages").innerHTML = (S.bg === "both" ? ["light", "dark"] : [S.bg]).map(stage).join("");
+  const pr = [];
+  for (let i = 0; i < O.length; i++) for (let j = i + 1; j < O.length; j++) pr.push([O[i], O[j], dist(col(O[i]), col(O[j]))]);
+  pr.sort((a, b) => a[2] - b[2]);
+  document.getElementById("pairs").innerHTML = `<tr><th>Pair</th><th>Distance</th><th>Neighbors on the line?</th></tr>` + pr.slice(0, 8).map(([a, b, d]) =>
+    `<tr><td><span class="dot" style="background:${col(a)}"></span>${a} · <span class="dot" style="background:${col(b)}"></span>${b}</td><td class="${d < 12 ? "warn" : "ok"}">${d.toFixed(1)}</td><td>${Math.abs(O.indexOf(a) - O.indexOf(b)) === 1 ? "yes" : ""}</td></tr>`).join("");
+  document.getElementById("contrast").innerHTML = `<tr><th>Party</th><th>Hex</th><th>vs white</th><th>vs dark</th><th>White text</th></tr>` + O.map(q => {
+    const w = ratio(C[q], "#ffffff"), d = ratio(C[q], "#0f1720");
+    return `<tr><td><span class="dot" style="background:${C[q]}"></span>${q}</td><td>${C[q]}</td><td class="${w < 3 ? "warn" : ""}">${w.toFixed(2)}</td><td class="${d < 3 ? "warn" : ""}">${d.toFixed(2)}</td><td class="${w < 4.5 ? "warn" : ""}">${w.toFixed(2)}</td></tr>`;
+  }).join("");
+  const cur = DATA.current;
+  document.getElementById("out").value = "  // proposed " + new Date().toLocaleDateString("en-CA") + " (party_colors.html)\n" +
+    ["PRG", "DSA", "OAO", "LBR", "STY", "CUP", "CON", "POP", "NAT"].filter(q => O.includes(q)).map(q => `  ${q}: '${C[q]}',${C[q] !== cur[q] ? `  // was ${cur[q]}` : ""}`).join("\n");
+}
+function seg(id, k) {
+  document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => { S[k] = b.dataset.v; document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b)); renderAll(); });
+}
+seg("bg", "bg"); seg("cvd", "cvd");
+document.getElementById("r-prop").onclick = () => { C = { ...DATA.proposed }; save(); renderRows(); renderAll(); };
+
+document.getElementById("copy").onclick = async () => { const t = document.getElementById("out").value; try { await navigator.clipboard.writeText(t); document.getElementById("copied").textContent = "copied"; } catch (e) { document.getElementById("out").select(); document.getElementById("copied").textContent = "selected; press Cmd+C"; } };
+renderRows(); renderSwatches(); renderAll();
+</script>
+</body>
+</html>

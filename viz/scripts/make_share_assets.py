@@ -19,7 +19,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PROFILES = json.loads((ROOT / "viz" / "src" / "data" / "clusterProfiles.json").read_text())
-HOUSE = json.loads((ROOT / "viz" / "src" / "data" / "houseSeats.json").read_text())
+# Seats are the app's default House view (double magnitude, depth 7, 5% turnout gap): the published
+# observed result in uncertaintyTurnoutL5.json, the same numbers the House tab opens on.
+HOUSE = json.loads((ROOT / "viz" / "src" / "data" / "uncertaintyTurnoutL5.json").read_text())["house"]["seats"]
 OG_DIR = ROOT / "viz" / "public" / "og"
 R_DIR = ROOT / "viz" / "public" / "r"
 SITE = "https://usmultiparty.com"
@@ -43,13 +45,13 @@ TAGLINES = _ts_map("PARTY_TAGLINES")
 CODE_TO_ID = {p: str(k) for p, k in PARTY_TO_CLUSTER.items()}
 
 by_id = {p["id"]: p for p in PROFILES}
-seats_by_id = {str(h["party"]): h["national"] for h in HOUSE}
+seats_by_code = {code: v["observed"] for code, v in HOUSE.items()}
 
 
 def card(code: str):
     name, color, tag = NAMES[code], COLORS[code], TAGLINES[code]
     cid = CODE_TO_ID[code]
-    seats = seats_by_id.get(cid, 0)
+    seats = seats_by_code.get(code, 0)
     positions = by_id[cid].get("keyPositions", [])[:3]
 
     fig = plt.figure(figsize=(12, 6.3), dpi=100)
@@ -71,7 +73,7 @@ def card(code: str):
     y = 345 - drop
     for pos in positions:
         supports = pos.get("direction") == "supports"
-        mark, mcol = ("✓", "#16a34a") if supports else ("✗", "#dc2626")
+        mark, mcol = ("✓", "#2b7a70") if supports else ("✗", "#a5477f")  # bam poles, src/lib/bam.ts SIGNAL
         q = pos["question"]
         if len(q) > 64:
             q = q[:61] + "..."

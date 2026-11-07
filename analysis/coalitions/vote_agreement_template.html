@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Party Vote Agreement</title>
+<style>
+/*TOKENS*/
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1400px; margin: 0 auto; padding: 32px 16px 64px; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+h2 { font-family: var(--font-display); font-size: 21px; letter-spacing: -0.01em; margin: 0 0 6px; }
+.sub { color: var(--fg-2); margin: 0 0 16px; max-width: 900px; }
+section { margin: 44px 0 0; }
+.callout { background: var(--bg-inverse); color: var(--fg-inverse); border-radius: var(--radius-md); padding: 14px 18px; margin: 0 0 14px; max-width: 900px; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 8px 0 0; max-width: 900px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; }
+.seg { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-pill); overflow: hidden; }
+.seg button { background: var(--bg-2); color: var(--fg-2); border: 0; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pills button { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: var(--radius-pill); border: 1px solid var(--border-default); background: var(--bg-2); color: var(--fg-2); cursor: pointer; }
+.pills button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+.ctl-l { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); margin-left: 6px; }
+select { font: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--fg-1); }
+.sticky-ctl { position: sticky; top: 0; z-index: 5; background: var(--bg-1); padding: 10px 0; border-bottom: 1px solid var(--border-subtle); margin-bottom: 8px; }
+.card { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); padding: 12px 14px; }
+.wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); }
+.wrap.tall { max-height: 78vh; }
+table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 7px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+thead th { position: sticky; top: 0; background: var(--bg-2); z-index: 2; font-weight: 600; text-align: center; border-bottom: 1px solid var(--border-default); vertical-align: bottom; }
+th.lbl, td.lbl { position: sticky; left: 0; background: var(--bg-2); z-index: 1; text-align: left; white-space: normal; min-width: 240px; max-width: 340px; }
+thead th.lbl { z-index: 3; }
+td.v { text-align: center; min-width: 48px; }
+td.maj { font-weight: 700; box-shadow: inset 0 0 0 2px currentColor; }
+td.num { text-align: right; min-width: 64px; }
+td.sep, th.sep { border-left: 2px solid var(--border-strong); }
+tr.topic td { background: var(--bg-3); font-weight: 600; color: var(--fg-2); font-size: 12px; }
+tr.topic td.lbl { background: var(--bg-3); }
+.sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: 0; }
+.mx td.v { min-width: 54px; height: 40px; }
+.chips { display: inline-flex; gap: 3px; }
+.chip { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border-default); color: var(--fg-3); min-width: 34px; text-align: center; }
+.chip.on { color: #fff; border-color: transparent; }
+.lines svg { display: block; width: 100%; height: auto; }
+.lines text { font-size: 11px; fill: var(--fg-1); font-family: var(--font-sans); }
+.lines .dl { fill: var(--fg-2); font-size: 12px; font-weight: 600; }
+.lines .dn { fill: var(--fg-3); font-size: 10.5px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--fg-2); margin: 0 0 10px; }
+.ramp { width: 160px; height: 10px; border-radius: 2px; }
+.builder { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.builder button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: var(--radius-pill); border: 2px solid var(--border-default); background: var(--bg-2); color: var(--fg-2); cursor: pointer; }
+.builder button[aria-pressed="true"] { color: #fff; border-color: transparent; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; max-width: 900px; }
+.stat { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); padding: 10px 12px; }
+.stat b { display: block; font-family: var(--font-display); font-size: 24px; letter-spacing: -0.01em; }
+.stat span { font-size: 12px; color: var(--fg-3); }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; } .grid2 > div { min-width: 0; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: minmax(0, 1fr); } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } th.lbl, td.lbl { min-width: 170px; } }
+@media print { .wrap { max-height: none; overflow: visible; } .sticky-ctl { position: static; } .callout { background: var(--bg-3); color: var(--fg-1); border: 1px solid var(--border-default); } }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Coalitions · nine parties · 37 Legislation-tab bills</p>
+  <h1>Who votes with whom</h1>
+  <p class="sub">Each party's position on the line comes from how often it votes with the others. Parties close together agree on most bills.</p>
+  <div class="callout" id="headline"></div>
+
+  <div class="sticky-ctl controls">
+    <span class="ctl-l">Agreement</span>
+    <div class="seg" id="mode"><button data-v="bloc" aria-pressed="true">Party majorities</button><button data-v="member">Individual members</button></div>
+    <span class="ctl-l">Issue</span>
+    <div class="pills" id="dom"></div>
+  </div>
+
+  <section style="margin-top:20px">
+    <p class="eyebrow">The line</p>
+    <h2>Left to right by voting agreement, overall and issue by issue</h2>
+    <div class="card lines" id="lines"></div>
+    <p class="caption" id="linecap"></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Agreement matrix</p>
+    <h2 id="mxh">How often each pair votes the same way</h2>
+    <div class="controls"><span class="ctl-l">Order</span><div class="seg" id="mxorder"><button data-v="all" aria-pressed="true">Overall line</button><button data-v="dom">This issue's line</button></div></div>
+    <div class="legend"><span>0%</span><span class="ramp" id="civramp"></span><span>100% of bills the same way</span></div>
+    <div class="wrap"><table class="mx" id="mx"></table></div>
+    <p class="caption" id="mxcap"></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Issue coalitions</p>
+    <h2>Which parties end up on the yes side</h2>
+    <p class="sub">Each row is a set of parties whose majorities support the same bills. Seats are the default House (double magnitude, depth 7, 5% turnout gap).</p>
+    <div class="wrap"><table id="pat"></table></div>
+    <p class="caption" id="patcap"></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Bills</p>
+    <h2>Each party's support, bill by bill</h2>
+    <div class="controls"><span class="ctl-l">Sort</span>
+      <select id="bsort"><option value="domain">By issue</option><option value="pattern">By yes coalition</option><option value="overall">By overall support</option><option value="seats">By yes-side seats</option></select></div>
+    <div class="legend"><span>Oppose</span><span class="ramp" id="vikramp"></span><span>Support</span><span>· outlined cell: party majority supports</span></div>
+    <div class="wrap tall"><table id="bills"></table></div>
+    <p class="caption" id="billcap"></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Majority odds</p>
+    <h2>Build a coalition and see how often it holds a House majority</h2>
+    <div class="builder" id="builder"></div>
+    <div class="stats" id="stats"></div>
+    <div class="grid2" style="margin-top:16px">
+      <div><p class="sub" style="margin:0 0 6px">Neighbors on the overall line that reach 437 seats, with no party to spare</p><div class="wrap"><table id="mwc"></table></div></div>
+      <div><p class="sub" style="margin:0 0 6px">Every coalition of up to four parties with at least a 50% chance</p><div class="wrap tall" style="max-height:420px"><table id="any"></table></div></div>
+    </div>
+    <p class="caption" id="oddcap"></p>
+  </section>
+</main>
+<script>
+const DATA = /*DATA*/;
+const VIK = ["#001160","#024380","#307ca6","#93bdd2","#ece4e0","#dba98d","#c27040","#912c05","#590007"];
+const CIV = ["#00204d","#1b3b6f","#41577b","#697386","#8f8f8c","#b3a960","#d6c92f","#f4e801","#ffe945"];
+function ramp(stops, t) {
+  t = Math.max(0, Math.min(1, t)); const x = t * (stops.length - 1), i = Math.min(Math.floor(x), stops.length - 2), f = x - i;
+  const a = stops[i].match(/\w\w/g).map(h => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map(h => parseInt(h, 16));
+  return "#" + a.map((v, k) => Math.round(v + (b[k] - v) * f).toString(16).padStart(2, "0")).join("");
+}
+function ink(hex) {
+  const c = hex.match(/\w\w/g).map(h => parseInt(h, 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) <= 0.179 ? "#ebf0f4" : "#08131e";
+}
+document.getElementById("civramp").style.background = `linear-gradient(90deg, ${CIV.join(",")})`;
+document.getElementById("vikramp").style.background = `linear-gradient(90deg, ${[...VIK].reverse().join(",")})`;
+
+const PT = DATA.parties, ORDER = DATA.order, B = DATA.bills, C = DATA.colors, SEATS = DATA.seats, MAJ = DATA.majority;
+const S = { mode: "bloc", dom: "All", mxorder: "all", bsort: "domain", pick: new Set() };
+const pct = v => `${Math.round(v * 100)}%`;
+const seatsOf = set => [...set].reduce((s, q) => s + (SEATS[q] || 0), 0);
+const sw = q => `<span class="sw" style="background:${C[q]}"></span>`;
+const chips = set => `<span class="chips">${ORDER.map(q => `<span class="chip${set.has(q) ? " on" : ""}" style="${set.has(q) ? `background:${C[q]}` : ""}">${q}</span>`).join("")}</span>`;
+const inDom = b => S.dom === "All" || b.domain === S.dom;
+const yesSet = b => new Set(PT.filter(q => b.pct[q] > 50));
+const key = set => ORDER.filter(q => set.has(q)).join(" ") || "(none)";
+
+// majority odds from the joint per-draw seats
+const ND = DATA.draws ? DATA.draws[PT[0]].length : 0;
+function odds(set) {
+  if (!ND) return null;
+  const qs = [...set]; let hit = 0; const tot = [];
+  for (let d = 0; d < ND; d++) { let s = 0; for (const q of qs) s += DATA.draws[q][d]; tot.push(s); if (s >= MAJ) hit++; }
+  tot.sort((a, b) => a - b);
+  return { p: hit / ND, lo: tot[Math.floor(0.05 * (ND - 1))], hi: tot[Math.ceil(0.95 * (ND - 1))] };
+}
+const oddsTxt = o => o === null ? "–" : o.p >= 0.995 ? ">99%" : o.p <= 0.005 ? "<1%" : pct(o.p);
+
+function agree(bills, mode) {
+  const M = {};
+  for (const a of PT) { M[a] = {}; for (const b of PT) {
+    let s = 0;
+    for (const x of bills) { const pa = x.pct[a] / 100, pb = x.pct[b] / 100; s += mode === "bloc" ? ((pa > .5) === (pb > .5) ? 1 : 0) : pa * pb + (1 - pa) * (1 - pb); }
+    M[a][b] = bills.length ? s / bills.length : NaN;
+  } }
+  return M;
+}
+
+function headline() {
+  const L = DATA.lines["bloc|All"], m = DATA.lines["member|All"];
+  document.getElementById("headline").innerHTML =
+    `Ordered by how often party majorities vote together: <b>${ORDER.join(" · ")}</b>. One left-right line accounts for ${pct(L.share1)} of the agreement pattern (${pct(m.share1)} counting individual members).`;
+}
+
+function renderLines() {
+  const W = 1000, rowH = 58, padL = 200, padR = 30, rows = DATA.domains;
+  let svg = `<svg viewBox="0 0 ${W} ${rows.length * rowH + 10}" role="img" aria-label="Party positions on the agreement line, overall and by issue">`;
+  rows.forEach((dom, r) => {
+    const L = DATA.lines[`${S.mode}|${dom}`], y = r * rowH + 30;
+    const xs = PT.map(q => L.dim1[q]), lo = Math.min(...xs), hi = Math.max(...xs);
+    const X = v => padL + (W - padL - padR) * (hi > lo ? (v - lo) / (hi - lo) : 0.5);
+    const sel = dom === S.dom;
+    svg += `<rect x="0" y="${y - 26}" width="${W}" height="${rowH - 2}" rx="6" fill="${sel ? "var(--bg-3)" : "transparent"}"/>`;
+    svg += `<text class="dl" x="10" y="${y - 2}">${dom}</text><text class="dn" x="10" y="${y + 13}">${L.n} bills · line ${pct(L.share1)}</text>`;
+    svg += `<line x1="${padL}" x2="${W - padR}" y1="${y}" y2="${y}" stroke="var(--border-default)"/>`;
+    const sorted = [...PT].sort((a, b) => L.dim1[a] - L.dim1[b]);
+    // parties closer than 26px share one label, so tied positions stay readable
+    const groups = [];
+    for (const q of sorted) { const g = groups[groups.length - 1]; if (g && X(L.dim1[q]) - X(L.dim1[g[g.length - 1]]) < 26) g.push(q); else groups.push([q]); }
+    groups.forEach((g, i) => {
+      g.forEach((q, k) => svg += `<circle cx="${X(L.dim1[q])}" cy="${y}" r="6" fill="${C[q]}" stroke="var(--bg-2)" stroke-width="${g.length > 1 ? 1.5 : 0}"><title>${DATA.names[q]}: dim 1 ${L.dim1[q].toFixed(3)}, dim 2 ${L.dim2[q].toFixed(3)}</title></circle>`);
+      const x = g.reduce((s, q) => s + X(L.dim1[q]), 0) / g.length, up = i % 2 === 0;
+      const edge = x - padL < 70 ? ["start", x - 8] : W - padR - x < 70 ? ["end", x + 8] : ["middle", x];
+      svg += `<text x="${edge[1]}" y="${up ? y - 10 : y + 19}" text-anchor="${edge[0]}">${g.join(" · ")}</text>`;
+    });
+  });
+  document.getElementById("lines").innerHTML = svg + "</svg>";
+  document.getElementById("linecap").textContent = `Positions are the first dimension of classical MDS on 1 minus ${S.mode === "bloc" ? "party-majority" : "member"} agreement, rescaled per row; "line %" is that dimension's share of the agreement pattern. Each issue row is signed to match the overall line. Highlighted row = the selected issue.`;
+}
+
+function renderMatrix() {
+  const bills = B.filter(inDom), M = agree(bills, S.mode);
+  const L = DATA.lines[`${S.mode}|${S.mxorder === "dom" ? S.dom : "All"}`];
+  const ord = [...PT].sort((a, b) => L.dim1[a] - L.dim1[b]);
+  let h = `<thead><tr><th class="lbl"></th>${ord.map(q => `<th>${sw(q)}${q}</th>`).join("")}</tr></thead><tbody>`;
+  for (const a of ord) {
+    h += `<tr><td class="lbl">${sw(a)}${DATA.names[a]}</td>`;
+    for (const b of ord) {
+      const v = M[a][b], bg = ramp(CIV, v);
+      h += a === b ? `<td class="v" style="color:var(--fg-3)">·</td>` : `<td class="v" style="background:${bg};color:${ink(bg)}" title="${a}–${b}: ${pct(v)} of ${bills.length} bills">${Math.round(v * 100)}</td>`;
+    }
+    h += "</tr>";
+  }
+  document.getElementById("mx").innerHTML = h + "</tbody>";
+  document.getElementById("mxh").textContent = `How often each pair votes the same way${S.dom === "All" ? "" : ": " + S.dom}`;
+  document.getElementById("mxcap").textContent = S.mode === "bloc"
+    ? `Share of ${bills.length} bills on which both parties' majorities (support above 50%) land on the same side.`
+    : `Chance that a random member of each party votes the same way, averaged over ${bills.length} bills. A party's agreement with itself is below 100% when its members split.`;
+}
+
+function renderPatterns() {
+  const g = new Map();
+  for (const b of B.filter(inDom)) { const s = yesSet(b), k = key(s); if (!g.has(k)) g.set(k, { set: s, bills: [] }); g.get(k).bills.push(b); }
+  const rows = [...g.values()].sort((a, b) => b.bills.length - a.bills.length || seatsOf(b.set) - seatsOf(a.set));
+  let h = `<thead><tr><th class="lbl">Yes-side parties</th><th>Bills</th><th>Yes-side seats</th><th>Yes side holds 437+</th><th class="lbl" style="position:static">Bills</th></tr></thead><tbody>`;
+  for (const r of rows) {
+    const o = odds(r.set);
+    h += `<tr><td class="lbl">${chips(r.set)}</td><td class="num">${r.bills.length}</td><td class="num">${seatsOf(r.set)}</td><td class="num">${oddsTxt(o)}</td><td style="white-space:normal;min-width:320px;font-size:12px;color:var(--fg-2)">${r.bills.map(b => b.q).join("; ")}</td></tr>`;
+  }
+  document.getElementById("pat").innerHTML = h + "</tbody>";
+  document.getElementById("patcap").textContent = `${rows.length} distinct yes-side coalitions across ${B.filter(inDom).length} bills. "Holds 437+" is the share of ${ND || "the"} bootstrap draws (parties re-clustered on each resample) in which the yes-side parties together win a majority of 873 House seats, i.e. the bill passes under whipped party-line voting.`;
+}
+
+function renderBills() {
+  let bills = B.filter(inDom);
+  const sorters = {
+    domain: (a, b) => a.domain.localeCompare(b.domain),
+    pattern: (a, b) => key(yesSet(a)).localeCompare(key(yesSet(b))),
+    overall: (a, b) => b.overall - a.overall,
+    seats: (a, b) => seatsOf(yesSet(b)) - seatsOf(yesSet(a)),
+  };
+  bills = [...bills].sort(sorters[S.bsort]);
+  let h = `<thead><tr><th class="lbl">Bill</th>${ORDER.map(q => `<th>${sw(q)}${q}</th>`).join("")}<th class="sep">All</th><th>Yes-side seats</th><th>Passes, party-line</th><th>Passes, free vote</th></tr></thead><tbody>`;
+  let last = null;
+  for (const b of bills) {
+    if (S.bsort === "domain" && b.domain !== last) { h += `<tr class="topic"><td class="lbl">${b.domain}</td><td colspan="${ORDER.length + 4}"></td></tr>`; last = b.domain; }
+    const ys = yesSet(b);
+    h += `<tr><td class="lbl">${b.q}</td>` + ORDER.map(q => {
+      const v = b.pct[q], bg = ramp(VIK, 1 - v / 100);
+      return `<td class="v${v > 50 ? " maj" : ""}" style="background:${bg};color:${ink(bg)}">${Math.round(v)}</td>`;
+    }).join("") + `<td class="v sep">${Math.round(b.overall)}</td><td class="num">${seatsOf(ys)}</td><td class="num">${oddsTxt(odds(ys))}</td><td class="num">${pct(b.pFree)}</td></tr>`;
+  }
+  document.getElementById("bills").innerHTML = h + "</tbody>";
+  document.getElementById("billcap").textContent = `Cells: % of each party's members who support the bill (the Parties tab's numbers). "Passes, party-line" = share of bootstrap draws in which the parties whose majorities support it hold 437+ seats. "Passes, free vote" = the Legislation tab's House pass probability, where each member votes their party's support rate.`;
+}
+
+function renderBuilder() {
+  document.getElementById("builder").innerHTML = ORDER.map(q => `<button data-q="${q}" aria-pressed="${S.pick.has(q)}" style="${S.pick.has(q) ? `background:${C[q]}` : `border-color:${C[q]}`}">${q} <span style="font-weight:400">${SEATS[q] || 0}</span></button>`).join("");
+  const o = odds(S.pick), n = seatsOf(S.pick);
+  const agreeAll = (() => { const ps = [...S.pick]; if (ps.length < 2) return null; const M = agree(B, "bloc"); let s = 0, k = 0; for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) { s += M[ps[i]][ps[j]]; k++; } return s / k; })();
+  const unanimous = S.pick.size ? B.filter(b => { const v = [...S.pick].map(q => b.pct[q] > 50); return v.every(x => x === v[0]); }).length : 0;
+  document.getElementById("stats").innerHTML = [
+    [n, "seats, published result"],
+    [o ? `${o.lo}–${o.hi}` : "–", "seats, 90% of draws"],
+    [o ? oddsTxt(o) : "–", "of draws with 437+"],
+    [S.pick.size > 1 ? `${unanimous} / ${B.length}` : "–", `bills where every member party's majority agrees${agreeAll !== null ? ` (pairs avg ${pct(agreeAll)})` : ""}`],
+  ].map(([b, s]) => `<div class="stat"><b>${b}</b><span>${s}</span></div>`).join("");
+  document.querySelectorAll("#builder button").forEach(btn => btn.onclick = () => { const q = btn.dataset.q; S.pick.has(q) ? S.pick.delete(q) : S.pick.add(q); renderBuilder(); });
+}
+
+function renderOdds() {
+  const out = [];
+  for (let i = 0; i < ORDER.length; i++) for (let j = i; j < ORDER.length; j++) {
+    const c = ORDER.slice(i, j + 1), n = seatsOf(new Set(c));
+    if (n >= MAJ && seatsOf(new Set(c.slice(1))) < MAJ && seatsOf(new Set(c.slice(0, -1))) < MAJ) out.push(new Set(c));
+  }
+  const M = agree(B, "bloc"), unan = set => B.filter(b => { const v = [...set].map(q => b.pct[q] > 50); return v.every(x => x === v[0]); }).length;
+  document.getElementById("mwc").innerHTML = `<thead><tr><th class="lbl">Coalition</th><th>Seats</th><th>437+</th><th>Bills all agree</th></tr></thead><tbody>` +
+    out.map(s => `<tr><td class="lbl">${chips(s)}</td><td class="num">${seatsOf(s)}</td><td class="num">${oddsTxt(odds(s))}</td><td class="num">${unan(s)} / ${B.length}</td></tr>`).join("") + "</tbody>";
+  const any = [];
+  const rec = (start, cur) => {
+    if (cur.length) { const s = new Set(cur), o = odds(s); const p = o ? o.p : (seatsOf(s) >= MAJ ? 1 : 0); if (p >= 0.5) any.push({ s, p, o }); }
+    if (cur.length === 4) return;
+    for (let k = start; k < ORDER.length; k++) rec(k + 1, [...cur, ORDER[k]]);
+  };
+  rec(0, []);
+  const minimal = any.filter(a => ![...a.s].some(q => { const t = new Set(a.s); t.delete(q); const o = odds(t); return (o ? o.p : (seatsOf(t) >= MAJ ? 1 : 0)) >= 0.5; }));
+  minimal.sort((a, b) => unan(b.s) - unan(a.s) || b.p - a.p);
+  document.getElementById("any").innerHTML = `<thead><tr><th class="lbl">Coalition</th><th>Seats</th><th>437+</th><th>Bills all agree</th></tr></thead><tbody>` +
+    minimal.map(a => `<tr><td class="lbl">${chips(a.s)}</td><td class="num">${seatsOf(a.s)}</td><td class="num">${oddsTxt(a.o)}</td><td class="num">${unan(a.s)} / ${B.length}</td></tr>`).join("") + "</tbody>";
+  document.getElementById("oddcap").textContent = (ND ? `Odds over ${ND} bootstrap draws: each draw resamples respondents, re-clusters the parties and reruns the default House, so seats move together the way they would in one election. ` : "Per-draw seats are not built yet, so odds show only whether the published result clears 437. ") +
+    `Right table lists coalitions of up to four parties that reach 437+ in at least half of draws and need every member to get there, sorted by how many of the 37 bills all member majorities vote alike.`;
+}
+
+function bind(id, k, after) {
+  document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => {
+    S[k] = b.dataset.v; document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b)); after();
+  });
+}
+document.getElementById("dom").innerHTML = DATA.domains.map(d => `<button data-v="${d}" aria-pressed="${d === S.dom}">${d}</button>`).join("");
+const all = () => { renderLines(); renderMatrix(); renderPatterns(); renderBills(); };
+bind("mode", "mode", all); bind("dom", "dom", all); bind("mxorder", "mxorder", renderMatrix);
+document.getElementById("bsort").onchange = e => { S.bsort = e.target.value; renderBills(); };
+headline(); all(); renderBuilder(); renderOdds();
+</script>
+</body>
+</html>

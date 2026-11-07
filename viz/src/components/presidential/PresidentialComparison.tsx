@@ -26,7 +26,7 @@ function SignBadge({ sign, pct }: { sign: string; pct?: number }) {
   return (
     <div className="flex flex-col items-center gap-0.5">
       <span className={`text-xs font-bold px-2 py-0.5 rounded border whitespace-nowrap ${
-        signs ? 'bg-green-50 text-green-700 border-green-300' : 'bg-red-50 text-red-700 border-red-300'
+        signs ? 'sig-yes-chip' : 'sig-no-chip'
       }`}>
         {signs ? 'Signs' : 'Vetoes'}
       </span>

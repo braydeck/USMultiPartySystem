@@ -353,9 +353,9 @@ function FactorBarRow({
         })}
       </div>
       <div className="flex justify-between text-4xs mt-1.5">
-        <span style={{ color: '#2563eb' }}>← {poles?.low ?? ''}</span>
+        <span style={{ color: BAM_TEXT_LOW }}>← {poles?.low ?? ''}</span>
         <span className="text-muted-foreground">{isPct ? '50% = median' : '0 = U.S. mean'}</span>
-        <span style={{ color: '#dc2626' }}>{poles?.high ?? ''} →</span>
+        <span style={{ color: BAM_TEXT_HIGH }}>{poles?.high ?? ''} →</span>
       </div>
     </div>
   );

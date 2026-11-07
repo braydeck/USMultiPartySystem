@@ -39,3 +39,13 @@ export function bamForPctile(pctile: number): string {
 // teal for the low pole, magenta for the high pole. These match the flipped scale's hue at each end.
 export const BAM_TEXT_LOW = '#134e4a';  // teal (low / progressive pole)
 export const BAM_TEXT_HIGH = '#7a1f58'; // magenta (high / conservative pole)
+
+// Status signals (pass/fail, supports/opposes, wins/loses, survives/eliminated) use the bam poles, never
+// red/green: CON is red and DSA green, so a red "fails" or a green "wins" would read as a party.
+// Teal = yes / passes / wins, magenta = no / fails / loses (the agree/disagree orientation of bamForFrac).
+// Text colors clear AA on white (yes 5.1:1, no 5.5:1). Matching CSS classes: .sig-* in index.css.
+export const SIGNAL = {
+  yes: '#2b7a70', yesStrong: '#134e4a', yesBg: '#eef7f5', yesBorder: '#8fccc2', yesRgb: '43,122,112',
+  no: '#a5477f', noStrong: '#7a1f58', noBg: '#f8eef3', noBorder: '#c884ab', noRgb: '165,71,127',
+  neutral: '#475569', neutralBg: '#f8fafc', neutralBorder: '#cbd5e1',
+} as const;

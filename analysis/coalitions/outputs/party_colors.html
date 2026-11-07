@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Party Color Picker</title>
+<style>
+/* ── Plaid research design tokens — Foundations-backed ───────────────────────
+   Canonical visual system for HTML research artifacts. AUTHORING SOURCE, not a
+   shipped file:
+     • Local iteration: link it — <link rel="stylesheet" href="lib/tokens.css">
+     • Shipped Claude artifact: inline this file inside the artifact <style>
+       (artifacts must be one self-contained file; CDN is the only external src).
+
+   LAYER 1 (Foundations primitives) is lifted verbatim from @plaid/design-tokens
+   → node/lib/design-tokens/src/css/foundation.css, generated from the canonical
+   Foundations Figma source. To refresh, re-pull that file and replace Layer 1;
+   the alias layer below keeps resolving automatically. Do NOT hand-tune Layer 1
+   values — Foundations is the source of truth.
+
+   LAYER 3 (alias layer) is YOUR public interface. Components + research-viz.js
+   reference these friendly names; they map onto Foundations so a brand refresh
+   flows through without touching component code.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 1 — PLAID DESIGN FOUNDATIONS PRIMITIVES  (verbatim, do not edit)
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Neutrals — cool / blue-tinted (this is the real Plaid "black" ramp) */
+  --color-white: #ffffff;
+  --color-black-100: #f7fafd;  --color-black-200: #ebf0f4;  --color-black-300: #dde3e9;
+  --color-black-400: #c5ccd3;  --color-black-450: #a6b0bc;  --color-black-500: #8c95a1;
+  --color-black-600: #6b7785;  --color-black-700: #4f5c69;  --color-black-800: #2c3a49;
+  --color-black-900: #1b242d;  --color-black-1000: #08131e;
+
+  /* Blue — interactive / link blue */
+  --color-blue-100: #f7faff;  --color-blue-200: #e5effe;  --color-blue-300: #d3e4fd;
+  --color-blue-400: #b0cefc;  --color-blue-450: #83b2fb;  --color-blue-500: #5294f8;
+  --color-blue-600: #156ef5;  --color-blue-700: #0a54c4;  --color-blue-800: #06347a;
+  --color-blue-900: #04224f;  --color-blue-1000: #021127;
+
+  /* Sky — your signature "Plaid blue" lives here */
+  --color-sky-100: #e5fcff;  --color-sky-200: #ccf8ff;  --color-sky-300: #9aedfe;
+  --color-sky-400: #51d2fb;  --color-sky-450: #0dadf2;  --color-sky-500: #0e94d8;
+  --color-sky-600: #0b7bbc;  --color-sky-700: #07578d;  --color-sky-800: #043c67;
+  --color-sky-900: #02294b;  --color-sky-1000: #00172e;
+
+  /* Minted — your "teal" lives here */
+  --color-minted-100: #effffa;  --color-minted-200: #d8fef3;  --color-minted-300: #b6fbe9;
+  --color-minted-400: #42f0cd;  --color-minted-450: #10d1b7;  --color-minted-500: #0ba299;
+  --color-minted-600: #088181;  --color-minted-700: #05565c;  --color-minted-800: #034049;
+  --color-minted-900: #012e37;  --color-minted-1000: #001d24;
+
+  /* Purple */
+  --color-purple-100: #f5f5ff;  --color-purple-200: #e6e6ff;  --color-purple-300: #ccccff;
+  --color-purple-400: #a3a3ff;  --color-purple-450: #8b8bf9;  --color-purple-500: #7373ed;
+  --color-purple-600: #5e5ed9;  --color-purple-700: #4444a7;  --color-purple-800: #2b2b82;
+  --color-purple-900: #1c1c69;  --color-purple-1000: #0d0d3f;
+
+  /* Pink */
+  --color-pink-100: #fcf0ff;  --color-pink-200: #f9dbff;  --color-pink-300: #f5c2ff;
+  --color-pink-400: #ee99ff;  --color-pink-450: #e574fb;  --color-pink-500: #d45aed;
+  --color-pink-600: #bb33d7;  --color-pink-700: #8f29a3;  --color-pink-800: #671877;
+  --color-pink-900: #3f0849;  --color-pink-1000: #2a0132;
+
+  /* Red */
+  --color-red-100: #fff0f0;  --color-red-200: #ffd9d9;  --color-red-300: #ffc2c2;
+  --color-red-400: #ff9999;  --color-red-450: #fb7474;  --color-red-500: #ed5a5a;
+  --color-red-600: #ce3b3b;  --color-red-700: #a32929;  --color-red-800: #771818;
+  --color-red-900: #490808;  --color-red-1000: #320101;
+
+  /* Orange */
+  --color-orange-100: #fffaf5;  --color-orange-200: #fff0e0;  --color-orange-300: #ffe3c7;
+  --color-orange-400: #ffbf80;  --color-orange-450: #fb942d;  --color-orange-500: #e57300;
+  --color-orange-600: #b85e05;  --color-orange-700: #944a00;  --color-orange-800: #613605;
+  --color-orange-900: #442804;  --color-orange-1000: #2c1a02;
+
+  /* Yellow */
+  --color-yellow-100: #fffbf0;  --color-yellow-200: #fff6d8;  --color-yellow-300: #ffeda3;
+  --color-yellow-400: #fbde51;  --color-yellow-450: #ebcb00;  --color-yellow-500: #a39300;
+  --color-yellow-600: #807700;  --color-yellow-700: #615e00;  --color-yellow-800: #4d4d00;
+  --color-yellow-900: #363800;  --color-yellow-1000: #212400;
+
+  /* Lime */
+  --color-lime-100: #f7fff0;  --color-lime-200: #e8fed7;  --color-lime-300: #d2fbb6;
+  --color-lime-400: #7cf042;  --color-lime-450: #46da10;  --color-lime-500: #29a20b;
+  --color-lime-600: #188108;  --color-lime-700: #0b5c05;  --color-lime-800: #034903;
+  --color-lime-900: #013703;  --color-lime-1000: #002402;
+
+  /* Green */
+  --color-green-100: #f0fdf8;  --color-green-200: #cdf7e7;  --color-green-300: #a9f1d5;
+  --color-green-400: #57e4ab;  --color-green-500: #21a96f;  --color-green-600: #1b8657;
+  --color-green-700: #156843;  --color-green-800: #0d4029;  --color-green-900: #07291a;
+  --color-green-1000: #03140d;
+
+  /* Radii (numeric scale) */
+  --radius-0: 0px;   --radius-2: 2px;   --radius-4: 4px;   --radius-6: 6px;
+  --radius-8: 8px;   --radius-12: 12px; --radius-16: 16px; --radius-24: 24px;
+  --radius-30: 30px; --radius-full: 9999px;
+
+  /* Spacing (4-pt grid) */
+  --spacing-0: 0px;     --spacing-2: 2px;    --spacing-4: 4px;    --spacing-6: 6px;
+  --spacing-8: 8px;     --spacing-12: 12px;  --spacing-16: 16px;  --spacing-20: 20px;
+  --spacing-24: 24px;   --spacing-32: 32px;  --spacing-40: 40px;  --spacing-48: 48px;
+  --spacing-56: 56px;   --spacing-64: 64px;  --spacing-80: 80px;  --spacing-96: 96px;
+  --spacing-120: 120px; --spacing-160: 160px; --spacing-200: 200px;
+
+  /* Font families (real Plaid faces — see Layer 3 note before using directly) */
+  --font-cern: Cern;
+  --font-plaid-sans: 'Plaid Sans';
+  --font-inconsolata: Inconsolata;
+  --font-bowery-lane: 'Bowery Lane';
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 2 — BRAND GRADIENTS  (curated from Foundations gradient sets)
+     Named themes: benjamin (teal/mint), elizabeth (blue/violet),
+     euro (violet/pink/gold), lincoln (mint/lime/gold), viola (pink/violet).
+     ═══════════════════════════════════════════════════════════════════════ */
+  --gradient-background-stark-benjamin:  linear-gradient(to top right, #ccf8ff 0%, #d8fef3 50%, #e8fed7 100%);
+  --gradient-background-stark-elizabeth: linear-gradient(to top right, #e6e6ff 0%, #e5effe 50%, #ccf8ff 100%);
+  --gradient-background-stark-euro:      linear-gradient(to top right, #e6e6ff 0%, #f9dbff 50%, #fff6d8 100%);
+  --gradient-background-stark-lincoln:   linear-gradient(to top right, #d8fef3 0%, #e8fed7 50%, #fff6d8 100%);
+  --gradient-background-stark-viola:     linear-gradient(to top right, #f9dbff 0%, #e6e6ff 50%, #ccf8ff 100%);
+  --gradient-background-subtle-benjamin:  linear-gradient(to top right, #e5fcff 0%, #effffa 50%, #f7fff0 100%);
+  --gradient-background-subtle-elizabeth: linear-gradient(to top right, #f5f5ff 0%, #f7faff 50%, #e5fcff 100%);
+  --gradient-background-subtle-euro:      linear-gradient(to top right, #f5f5ff 0%, #fcf0ff 50%, #fffbf0 100%);
+  --gradient-background-subtle-lincoln:   linear-gradient(to top right, #effffa 0%, #f7fff0 50%, #fffbf0 100%);
+  --gradient-background-subtle-viola:     linear-gradient(to top right, #fcf0ff 0%, #f5f5ff 50%, #e5fcff 100%);
+  --gradient-background-vibrant-benjamin:  linear-gradient(to top right, #42f0cd 0%, #0dadf2 100%);
+  --gradient-background-vibrant-elizabeth: linear-gradient(to top right, #51d2fb 0%, #8b8bf9 100%);
+  --gradient-background-vibrant-euro:      linear-gradient(to top right, #ff9999 0%, #e574fb 100%);
+  --gradient-background-vibrant-lincoln:   linear-gradient(to top right, #10d1b7 0%, #7cf042 100%);
+  --gradient-background-vibrant-viola:     linear-gradient(to top right, #ee99ff 0%, #8b8bf9 100%);
+  --gradient-graphic-stark-benjamin:  linear-gradient(to top right, #0b7bbc 0%, #088181 100%);
+  --gradient-graphic-stark-elizabeth: linear-gradient(to top right, #5e5ed9 0%, #156ef5 100%);
+  --gradient-graphic-stark-euro:      linear-gradient(to top right, #bb33d7 0%, #ce3b3b 100%);
+  --gradient-graphic-stark-lincoln:   linear-gradient(to top right, #088181 0%, #188108 100%);
+  --gradient-graphic-stark-viola:     linear-gradient(to top right, #0b7bbc 0%, #5e5ed9 100%);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LAYER 3 — RESEARCH ALIAS LAYER  (your friendly names → Foundations)
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Type families.
+     NOTE: the real Plaid faces (Cern body, Plaid Sans display, Inconsolata mono)
+     are NOT web-available without hosting the font files, so portable artifacts
+     fall back to native stacks. If you self-host the fonts, prepend the real
+     family, e.g. --font-display: var(--font-plaid-sans), <stack>.
+     CORRECTION: Plaid Sans is a geometric SANS (not a serif) — the display
+     fallback below is now a sans stack to match the brand, not the old serif. */
+  --font-display: var(--font-plaid-sans), "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --font-sans:    var(--font-cern), -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono:    var(--font-inconsolata), "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* Core neutrals → real (cool) Plaid black ramp. NOTE: slightly bluer than before. */
+  --plaid-black: var(--color-black-1000);
+  --plaid-white: var(--color-white);
+  --gray-950: var(--color-black-1000);
+  --gray-900: var(--color-black-900);
+  --gray-800: var(--color-black-800);
+  --gray-700: var(--color-black-700);
+  --gray-500: var(--color-black-600);
+  --gray-400: var(--color-black-450);
+  --gray-300: var(--color-black-400);
+  --gray-200: var(--color-black-300);
+  --gray-100: var(--color-black-200);
+  --gray-50:  var(--color-black-100);
+
+  /* Brand blues = Foundations SKY ramp (600/700/ink are exact matches).
+     500/400 shift slightly cyaner vs your old true-blues. To keep them truer
+     blue instead, point them at --color-blue-500 / --color-blue-450. */
+  --plaid-ink-900:  var(--color-sky-900);
+  --plaid-ink-800:  var(--color-sky-800);
+  --plaid-blue-700: var(--color-sky-700);   /* exact */
+  --plaid-blue-600: var(--color-sky-600);   /* exact — your signature */
+  --plaid-blue-500: var(--color-sky-500);
+  --plaid-blue-400: var(--color-sky-400);
+
+  /* Mint = Foundations MINTED ramp (600/500 are exact matches). */
+  --plaid-teal-600: var(--color-minted-700); /* exact */
+  --plaid-teal-500: var(--color-minted-400); /* exact */
+  --plaid-teal-400: var(--color-minted-300);
+
+  /* Holo pastels. Soft set = exact Foundations 200 tints. Brights = custom
+     (no Foundations equivalent) — kept literal and flagged. */
+  --holo-lilac:       var(--color-purple-200);  /* exact */
+  --holo-mint:        var(--color-minted-200);  /* exact */
+  --holo-buttercream: var(--color-yellow-200);  /* exact */
+  --holo-pink-soft:   var(--color-pink-200);    /* exact */
+  --holo-magenta:     var(--color-pink-450);    /* ~exact */
+  --holo-aqua:        var(--color-minted-300);  /* near */
+  --holo-pink:        var(--color-pink-300);    /* near */
+  --holo-cyan:        #8BFFFF;   /* CUSTOM — no Foundations match */
+  --holo-yellow:      #FFFFC7;   /* CUSTOM — no Foundations match */
+  --holo-periwinkle:  #98A5FF;   /* CUSTOM — no Foundations match */
+
+  /* Canonical gradients — rebuilt FROM Foundations tokens where they map. */
+  --gradient-holo-soft: linear-gradient(135deg, var(--color-purple-200) 0%, var(--color-minted-200) 50%, var(--color-yellow-200) 100%);
+  --gradient-holo-deep: linear-gradient(180deg, var(--color-sky-700) 0%, var(--color-sky-600) 33%, var(--color-minted-400) 100%);
+  --gradient-dark:      linear-gradient(180deg, var(--color-sky-800) 2%, var(--color-sky-900) 64%);
+
+  /* ── Heatmap / colorscale ramps ──────────────────────────────────────────
+     Cividis (unipolar/sequential) — perceptually uniform, colorblind-safe.
+     Vik (diverging, Crameri) — warm-cool diverging, neutral midpoint.
+     Signal purple (discrete) — 3-step ramp for Strong / Moderate / Directional.
+     Same values on light and dark surfaces. Inconclusive = neutral gray (no
+     purple); render as hollow ring / dashed whisker so it stays distinct from
+     Directional on dark backgrounds.
+     ─────────────────────────────────────────────────────────────────────── */
+
+  /* OKLCH H305 C0.12, |ΔL| 0.52 / 0.34 / 0.15 from the light surface.
+     Contrast on a #ffffff card: 6.91:1 / 3.27:1 / 1.66:1. Directional is
+     faint on purpose and carries a grey ring so it stays locatable. */
+  --signal-directional: #e0baff;
+  --signal-moderate:    #a37ecd;
+  --signal-strong:      #6e4993;
+  --signal-inconclusive: #566271;
+
+  /* --evidence-* is the name html-research-artifacts/SKILL.md uses for this
+     ramp; --signal-* is the name tokens.css has always used and what
+     research-viz.js resolves. Aliased so both spellings resolve to one value.
+     NOTE: SKILL.md documents the LIGHT ramp as #6e4993 / #a37ecd / #e0baff,
+     which are the OKLCH-derived values that meet its stated 7:1 / 1.7:1
+     contrast targets. The values below are the older, brighter ramp. The dark
+     ramp in .on-dark already matches SKILL.md. Reconciling the light ramp
+     changes every published artifact's evidence pips, so it is deliberately
+     not done here. */
+  --evidence-strong:      var(--signal-strong);
+  --evidence-moderate:    var(--signal-moderate);
+  --evidence-directional: var(--signal-directional);
+
+  /* Cividis 9-stop sequential (dark→light, 0%→100% of range) */
+  /* Categorical (unordered groups such as use cases or segments). Validated for separation:
+     min ΔE 93 normal vision, 59 deuteranopia, 60 protanopia, 27 tritanopia. Kept off the
+     reserved hues: sky blue (interactive/favorable), the evidence purple ramp, pink (highlight). */
+  --cat-1: var(--color-orange-500, #e57300);
+  --cat-2: var(--color-minted-500, #0ba299);
+  --cat-3: var(--color-purple-600, #5e5ed9);
+  --cividis-0: #00204d;  --cividis-12: #1b3b6f;  --cividis-25: #41577b;
+  --cividis-38: #697386;  --cividis-50: #8f8f8c;  --cividis-62: #b3a960;
+  --cividis-75: #d6c92f;  --cividis-88: #f4e801;  --cividis-100: #ffe945;
+  --gradient-cividis: linear-gradient(to right,
+    #00204d 0%, #1b3b6f 12%, #41577b 25%, #697386 38%, #8f8f8c 50%,
+    #b3a960 62%, #d6c92f 75%, #f4e801 88%, #ffe945 100%);
+
+  /* Vik 9-stop diverging (Crameri — cold-blue → neutral → warm-red) */
+  --vik-0: #001160;  --vik-12: #024380;  --vik-25: #307ca6;
+  --vik-38: #93bdd2;  --vik-50: #ece4e0;  --vik-62: #dba98d;
+  --vik-75: #c27040;  --vik-88: #912c05;  --vik-100: #590007;
+  --gradient-vik: linear-gradient(to right,
+    #001160 0%, #024380 12%, #307ca6 25%, #93bdd2 38%, #ece4e0 50%,
+    #dba98d 62%, #c27040 75%, #912c05 88%, #590007 100%);
+
+  /* Text on colored backgrounds — palette-agnostic luminance switch.
+     Aligned to the cool neutral ramp: on-dark = black-200, on-light = black-1000.
+     Keep textColorForBg() in research-viz.js returning these same two values. */
+  --text-on-dark: #ebf0f4;
+  --text-on-light: #08131e;
+  --luminance-threshold: 0.179;
+
+  /* Semantic colors → Foundations (exact where noted). */
+  --success-fg:    var(--color-minted-700); /* exact */
+  --success-bg:    var(--color-minted-200); /* exact */
+  --success-solid: var(--color-minted-400); /* exact */
+  --warning-fg:    var(--color-yellow-600);
+  --warning-bg:    var(--color-yellow-200); /* exact */
+  --error-fg:      var(--color-red-700);
+  --error-bg:      var(--color-red-200);
+  --error-solid:   var(--color-red-600);
+  --info-fg:       var(--color-sky-700);    /* exact */
+  --info-bg:       var(--color-blue-200);
+
+  /* Foreground / background aliases — mode-aware. Light defaults here; the
+     .on-dark scope below re-points the same names for dark cards.
+     Halation guard: pure white (--color-white) is MAX-EMPHASIS text only on
+     dark — never the default dark body color (that is --fg-1 = #ebf0f4).
+     Elevation: cards sit one luminance step *brighter* than their canvas in
+     both modes — light card #ffffff > canvas #fdffff; dark card #1b242d >
+     canvas #08131e. Same principle, inverted. */
+  --fg-1: var(--gray-950);             /* primary   #08131e */
+  --fg-2: var(--gray-700);             /* secondary #4f5c69 */
+  --fg-3: var(--gray-500);             /* tertiary  #6b7785 */
+  --fg-inverse: var(--plaid-white);
+  --bg-1: #fdffff;                     /* page / canvas (bespoke literal, not a ramp stop) */
+  --bg-2: var(--color-white);          /* raised card #ffffff */
+  --bg-3: var(--gray-100);             /* sunken      #ebf0f4 */
+  --surface-2: var(--color-black-100); /* subtle fill #f7fafd */
+  --bg-inverse: var(--plaid-black);
+  --border-subtle:  var(--color-black-200); /* internal  #ebf0f4 */
+  --border-default: var(--color-black-300); /* section   #dde3e9 */
+  --border-strong:  var(--gray-300);
+
+  /* Product-accent colors — custom, NO Foundations token. Surface-aware pairs.
+     Bright/base split by contrast: gold reads on dark (~8:1) but fails on light
+     (~1.9:1, light mode uses dark-gold --warning-fg instead); coral reads on
+     light (~5:1) but is weak on dark (~3:1) so it gets a brightened dark variant
+     (~5.2:1). Use the *-dark token on dark surfaces; the base on light. */
+  --accent-payments:      #E2B53A;     /* gold  — dark surfaces */
+  --accent-payments-dark: #E2B53A;     /* already clears ~8:1 on #1b242d; no brightening needed */
+  --accent-credit:        #C5411E;     /* coral — light surfaces (~5:1 on #fdffff) */
+  --accent-credit-dark:   #ee6d4a;     /* brightened for #1b242d (~5.2:1 AA) */
+
+  /* Spacing scale → Foundations (--space-32 has no Foundations step; literal). */
+  --space-1:  var(--spacing-4);   --space-2:  var(--spacing-8);   --space-3:  var(--spacing-12);
+  --space-4:  var(--spacing-16);  --space-5:  var(--spacing-20);  --space-6:  var(--spacing-24);
+  --space-8:  var(--spacing-32);  --space-10: var(--spacing-40);  --space-12: var(--spacing-48);
+  --space-16: var(--spacing-64);  --space-20: var(--spacing-80);  --space-24: var(--spacing-96);
+  --space-32: 128px;              --space-40: var(--spacing-160);
+
+  /* Radii → Foundations */
+  --radius-none: var(--radius-0);
+  --radius-sm:   var(--radius-4);
+  --radius-md:   var(--radius-8);
+  --radius-lg:   var(--radius-16);
+  --radius-xl:   var(--radius-24);
+  --radius-pill: var(--radius-full);
+
+  /* Shadows — custom (Foundations shadow tokens are still in flux). */
+  --shadow-sm: 0 1px 2px rgba(8,19,30,0.04), 0 1px 1px rgba(8,19,30,0.06);
+  --shadow-md: 0 4px 12px rgba(8,19,30,0.06), 0 2px 4px rgba(8,19,30,0.04);
+  --shadow-lg: 0 16px 40px rgba(8,19,30,0.08), 0 4px 12px rgba(8,19,30,0.04);
+  --shadow-xl: 0 32px 80px rgba(2,41,75,0.14), 0 8px 24px rgba(2,41,75,0.08);
+  --shadow-focus: 0 0 0 3px rgba(14,148,216,0.30);
+
+  /* Motion — custom */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-micro: 150ms; --dur-small: 250ms; --dur-page: 400ms; --dur-hero: 800ms;
+
+  /* Layout — custom */
+  --container-marketing: 1200px;
+  --container-dashboard: 1440px;
+
+  /* Type scale — custom (Foundations has --text-* tokens if you ever want them) */
+  --display-xl-size: 120px; --display-xl-lh: 0.9;  --display-xl-weight: 700;
+  --display-lg-size: 88px;  --display-lg-lh: 0.95; --display-lg-weight: 700;
+  --display-md-size: 64px;  --display-md-lh: 1.0;  --display-md-weight: 500;
+  --display-sm-size: 44px;  --display-sm-lh: 1.05; --display-sm-weight: 500;
+  --h1-size: 48px; --h1-lh: 1.1; --h1-weight: 600;
+  --h2-size: 32px; --h2-lh: 1.2; --h2-weight: 600;
+  --h3-size: 22px; --h3-lh: 1.3; --h3-weight: 600;
+  --h4-size: 18px; --h4-lh: 1.4; --h4-weight: 600;
+  --body-lg-size: 18px; --body-lg-lh: 1.55;
+  --body-size: 16px;    --body-lh: 1.5;
+  --body-sm-size: 14px; --body-sm-lh: 1.45;
+  --caption-size: 12px; --caption-lh: 1.3;
+  --eyebrow-size: 12px; --eyebrow-lh: 1.0; --eyebrow-tracking: 0.12em;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK SCOPE — wrap any element in class="on-dark" to flip the surface/text
+   aliases to the dark neutral ramp. Lets a single light page host a dark chart
+   card without touching component CSS (the dark-card-on-light-page pattern).
+   Charts and prose default to light (researcher preference, 2026-11-02); use .on-dark only by choice. Uses a class, not a media query.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.on-dark {
+  --bg-1: var(--color-black-1000);  /* canvas #08131e */
+  --bg-2: var(--color-black-900);   /* card   #1b242d */
+  --bg-3: var(--color-black-800);   /* raised #2c3a49 */
+  --surface-2: var(--color-black-800);
+
+  --fg-1: var(--color-black-200);   /* primary off-white #ebf0f4 */
+  --fg-2: var(--color-black-400);   /* secondary         #c5ccd3 */
+  --fg-3: var(--color-black-500);   /* tertiary          #8c95a1 */
+
+  --border-subtle:  var(--color-black-900); /* #1b242d */
+  --border-default: var(--color-black-800); /* #2c3a49 */
+
+  /* Accent + semantic foregrounds → brightened Foundations stops so links,
+     eyebrows, and status text read on dark (light-mode inks fail here: e.g.
+     success #05565c = 1.9:1, error #a32929 = 2.2:1 on #1b242d). */
+  --plaid-blue-600: var(--color-sky-400);   /* link/accent #51d2fb (~9:1) */
+  --success-fg:     var(--color-minted-400); /* #42f0cd (~11:1) */
+  --warning-fg:     var(--color-yellow-400); /* #fbde51 (~12:1) */
+  --error-fg:       var(--color-red-450);    /* #fb7474 (~5.9:1) */
+  --info-fg:        var(--color-sky-400);    /* #51d2fb (~9:1) */
+
+  /* Evidence ramp — the purple encodes tier as luminance distance FROM the surface, so on
+     dark it has to invert: dark→pale on light becomes bright→dim on dark. Without this the
+     light-mode inks sit on #1b242d at ~3:1 (strong #9b30e8 measured 2.98:1 as chip text).
+     Keeps strong ~7:1 and directional intentionally faint in both modes. */
+  --signal-strong:      #cca7f8;
+  --signal-moderate:    #946fbd;
+  --signal-directional: #5d3881;
+  --evidence-strong:      var(--signal-strong);
+  --evidence-moderate:    var(--signal-moderate);
+  --evidence-directional: var(--signal-directional);
+
+  /* Product accents flip to their brightened dark variants for CSS chips/pills.
+     (research-viz.js charts read the flat *-dark tokens directly — see note there.) */
+  --accent-payments: var(--accent-payments-dark);
+  --accent-credit:   var(--accent-credit-dark);
+}
+
+/* ── Signal tier utilities (discrete evidence encoding) ────────────────────
+   Purple fill ramp for Strong / Moderate / Directional. Inconclusive is always
+   hollow neutral gray — never a lighter purple. Chart marks: research-viz.js
+   signalMarkStyle() (dashed whisker + hollow dot). HTML: classes below.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.signal-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.signal-dot.strong      { background: var(--signal-strong);      border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.moderate    { background: var(--signal-moderate);    border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.directional { background: var(--signal-directional); border: 1px solid var(--gray-500, #6b7785); }
+.signal-dot.inconclusive {
+  background: transparent;
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+.signal-whisker {
+  display: inline-block;
+  width: 18px;
+  border-top-width: 2.5px;
+  border-top-style: solid;
+  flex-shrink: 0;
+}
+.signal-whisker.inconclusive {
+  border-top-style: dashed;
+  border-top-color: var(--signal-inconclusive);
+  opacity: 0.7;
+}
+
+.ev-pill.inconclusive {
+  background: transparent;
+  color: var(--signal-inconclusive);
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+/* Confidence chip — inconclusive tier on ::before pseudo (alias of .signal-dot.inconclusive) */
+.conf-chip.thin::before {
+  background: transparent;
+  border: 1.5px solid var(--signal-inconclusive);
+}
+
+* { box-sizing: border-box; }
+*:focus-visible { outline: 2px solid var(--plaid-blue-500); outline-offset: 3px; border-radius: var(--radius-sm); }
+body { margin: 0; background: var(--bg-1); color: var(--fg-1); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+main { max-width: 1400px; margin: 0 auto; padding: 28px 16px 64px; display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 1000px) { main { grid-template-columns: minmax(0, 1fr); } }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--plaid-blue-600); font-weight: 600; margin: 0 0 6px; }
+h1 { font-family: var(--font-display); font-size: 26px; letter-spacing: -0.02em; margin: 0 0 6px; }
+h2 { font-family: var(--font-display); font-size: 17px; margin: 0 0 8px; }
+.sub { color: var(--fg-2); margin: 0 0 14px; font-size: 13px; }
+.panel { position: sticky; top: 12px; }
+.card { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-2); padding: 12px 14px; margin: 0 0 14px; }
+.row { display: grid; grid-template-columns: 44px 1fr 92px 30px; gap: 8px; align-items: center; padding: 6px 4px; border-radius: var(--radius-sm); cursor: pointer; }
+.row.sel { background: var(--bg-3); box-shadow: inset 3px 0 0 var(--plaid-blue-600); }
+.row input[type=color] { width: 44px; height: 30px; border: 1px solid var(--border-default); border-radius: 6px; padding: 0; background: none; cursor: pointer; }
+.row input[type=text] { width: 92px; font: inherit; font-family: var(--font-mono, monospace); font-size: 12.5px; padding: 4px 6px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-1); color: var(--fg-1); }
+.row .nm b { font-size: 13px; } .row .nm span { display: block; font-size: 11px; color: var(--fg-3); }
+.row .was { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border-default); }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+button.b { font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: var(--radius-pill); border: 1px solid var(--border-default); background: var(--bg-2); color: var(--fg-1); cursor: pointer; }
+button.b.pri { background: var(--fg-1); color: var(--bg-1); }
+.swatches { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.swatches button { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border-default); cursor: pointer; }
+.swl { font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: .06em; margin-top: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-pill); overflow: hidden; }
+.seg button { background: var(--bg-2); color: var(--fg-2); border: 0; padding: 5px 11px; font: inherit; font-size: 12.5px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg-1); color: var(--bg-1); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 14px; }
+.ctl-l { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); }
+.stage { border-radius: var(--radius-md); padding: 16px; margin: 0 0 14px; border: 1px solid var(--border-default); }
+.stage.light { background: #ffffff; color: #0b1620; } .stage.dark { background: #0f1720; color: #e8eef3; }
+.stage h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 8px; opacity: .7; } .stage h3:first-child { margin-top: 0; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-size: 12.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px; }
+.bar { display: flex; height: 34px; border-radius: 6px; overflow: hidden; }
+.bar div { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; min-width: 0; overflow: hidden; }
+.line svg, .hemi svg, .mosaic svg { display: block; width: 100%; height: auto; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; } .grid2 > div { min-width: 0; }
+@media (max-width: 700px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+table { border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; width: 100%; }
+th, td { padding: 5px 6px; border-bottom: 1px solid var(--border-subtle); text-align: left; }
+th { font-weight: 600; color: var(--fg-2); }
+.warn { color: var(--danger-600, #b42318); font-weight: 700; } .ok { color: var(--fg-3); }
+.dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; }
+textarea { width: 100%; height: 190px; font-family: var(--font-mono, monospace); font-size: 12px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-1); color: var(--fg-1); padding: 8px; }
+.caption { font-size: 11px; font-style: italic; color: var(--fg-3); margin: 6px 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <div class="panel">
+    <p class="eyebrow">Party colors · nine parties</p>
+    <h1>Color picker</h1>
+    <p class="sub">Click a party, then pick a color or a swatch. The small dot on the right is the production color. Changes save in this browser.</p>
+    <div class="card" id="rows"></div>
+    <div class="card">
+      <div class="btns">
+        <button class="b" id="r-prop">Reset to production</button>
+        
+      </div>
+      <div class="swl">Try on <span id="selname"></span></div>
+      <div id="swatchsets"></div>
+    </div>
+    <div class="card">
+      <h2>Export</h2>
+      <textarea id="out" readonly></textarea>
+      <div class="btns" style="margin-top:8px"><button class="b pri" id="copy">Copy PARTY_COLORS block</button><span class="caption" id="copied"></span></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="controls">
+      <span class="ctl-l">Background</span>
+      <div class="seg" id="bg"><button data-v="light" aria-pressed="true">Light</button><button data-v="dark">Dark</button><button data-v="both">Both</button></div>
+      <span class="ctl-l">Vision</span>
+      <div class="seg" id="cvd"><button data-v="none" aria-pressed="true">Typical</button><button data-v="protan">Protan</button><button data-v="deutan">Deutan</button><button data-v="tritan">Tritan</button><button data-v="gray">Grayscale</button></div>
+    </div>
+    <div id="stages"></div>
+    <div class="card">
+      <h2>Closest pairs</h2>
+      <p class="sub" style="margin:0 0 8px">Distance in OKLab ×100 under the selected vision mode. Under about 12, two parties are hard to tell apart in small marks.</p>
+      <table id="pairs"></table>
+    </div>
+    <div class="card">
+      <h2>Text and background contrast</h2>
+      <table id="contrast"></table>
+      <p class="caption">WCAG contrast ratio. Pills use white text for every party (the app's CHIP_TEXT setting); small white text wants 4.5:1. A color under 3:1 against a background is weak for thin lines and small dots on that background.</p>
+    </div>
+  </div>
+</main>
+<script>
+const DATA = {"order": ["DSA", "PRG", "LBR", "CUP", "STY", "OAO", "CON", "POP", "NAT"], "names": {"DSA": "Democratic Socialists", "PRG": "Progressive", "LBR": "Labor", "CUP": "Civic Union", "STY": "Solidarity", "OAO": "Order and Opportunity", "CON": "Conservative", "POP": "Populist", "NAT": "Nationalist"}, "seats": {"CON": 185, "CUP": 117, "DSA": 4, "LBR": 134, "NAT": 196, "OAO": 33, "POP": 2, "PRG": 60, "STY": 142}, "pos": {"DSA": 0.0, "PRG": 0.0625, "LBR": 0.0939, "CUP": 0.2697, "STY": 0.3383, "OAO": 0.3397, "CON": 0.8588, "POP": 0.8924, "NAT": 1.0}, "current": {"DSA": "#15803d", "PRG": "#14b8a6", "LBR": "#0369a1", "CUP": "#c026d3", "STY": "#a78bfa", "OAO": "#4c1d95", "CON": "#ef4444", "POP": "#f59e0b", "NAT": "#7f1d1d"}, "proposed": {"DSA": "#15803d", "PRG": "#14b8a6", "LBR": "#0369a1", "CUP": "#c026d3", "STY": "#a78bfa", "OAO": "#4c1d95", "CON": "#ef4444", "POP": "#f59e0b", "NAT": "#7f1d1d"}, "statusQuo": {"DEM": "#5b7fa6", "IND": "#8a8f98", "REP": "#a66b6b"}};
+const O = DATA.order, KEY = "stv-party-colors-v3";
+let C = { ...DATA.proposed };
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && O.every(q => /^#[0-9a-f]{6}$/i.test(s[q]))) C = s; } catch (e) {}
+const S = { sel: "CON", bg: "light", cvd: "none" };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(C)); } catch (e) {} };
+
+// ---- color math
+const hex2rgb = h => h.match(/\w\w/g).map(x => parseInt(x, 16) / 255);
+const rgb2hex = c => "#" + c.map(v => Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, "0")).join("");
+const lin = v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+const unlin = v => v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055;
+const MAT = {
+  protan: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+  deutan: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]],
+  tritan: [[1.255528, -0.076749, -0.178779], [-0.078411, 0.930809, 0.147602], [0.004733, 0.691367, 0.303900]],
+};
+function sim(h, mode = S.cvd) {
+  if (mode === "none") return h;
+  const l = hex2rgb(h).map(lin);
+  if (mode === "gray") { const y = 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2]; return rgb2hex([y, y, y].map(unlin)); }
+  const m = MAT[mode];
+  return rgb2hex(m.map(r => r[0] * l[0] + r[1] * l[1] + r[2] * l[2]).map(unlin));
+}
+function oklab(h) {
+  const [r, g, b] = hex2rgb(h).map(lin);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s, 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s];
+}
+const dist = (a, b) => { const p = oklab(a), q = oklab(b); return 100 * Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]); };
+const lum = h => { const [r, g, b] = hex2rgb(h).map(lin); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+const textOn = h => "#ffffff";  // the app sets CHIP_TEXT = 'white' for every party
+const col = q => sim(C[q]);
+
+// ---- seeded layout helpers
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const TOTAL = O.reduce((s, q) => s + (DATA.seats[q] || 0), 0);
+const seatSeq = O.flatMap(q => Array(DATA.seats[q] || 0).fill(q));
+const HEMI = (() => {
+  const rows = 14, r0 = 0.32, pts = [];
+  const radii = Array.from({ length: rows }, (_, i) => r0 + (1 - r0) * i / (rows - 1));
+  const tot = radii.reduce((s, r) => s + r, 0);
+  let left = TOTAL;
+  radii.forEach((r, i) => {
+    const n = i === rows - 1 ? left : Math.round(TOTAL * r / tot); left -= n;
+    for (let k = 0; k < n; k++) { const th = Math.PI * (1 - k / Math.max(1, n - 1)); pts.push({ x: r * Math.cos(th), y: r * Math.sin(th), th }); }
+  });
+  pts.sort((a, b) => b.th - a.th || a.y - b.y);
+  return pts;
+})();
+const MOSAIC = (() => {
+  const rnd = mulberry(42), d = [];
+  let pool = [...seatSeq];
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  while (pool.length) { const n = 4 + Math.floor(rnd() * 4); d.push(pool.splice(0, n).sort((a, b) => O.indexOf(a) - O.indexOf(b))); }
+  return d;
+})();
+
+// ---- rendering
+function stage(kind) {
+  const bgc = kind === "light" ? "#ffffff" : "#0f1720", ink = kind === "light" ? "#0b1620" : "#e8eef3";
+  const pills = O.map(q => `<span class="pill" style="background:${col(q)};color:${textOn(col(q))}">${DATA.names[q]}</span>`).join("");
+  const bar = O.map(q => `<div style="flex:${DATA.seats[q] || 0};background:${col(q)};color:${textOn(col(q))}" title="${q} ${DATA.seats[q]}">${(DATA.seats[q] || 0) > 40 ? q : ""}</div>`).join("");
+  const W = 520, H = 280, R = 250;
+  const hemi = HEMI.map((p, i) => `<circle cx="${W / 2 + p.x * R}" cy="${H - 12 - p.y * R}" r="3.6" fill="${col(seatSeq[i])}"/>`).join("");
+  const L = DATA.pos;
+  let lsv = `<line x1="20" x2="500" y1="30" y2="30" stroke="${ink}" stroke-opacity=".25"/>`;
+  O.forEach((q, i) => { const x = 20 + 480 * L[q]; lsv += `<circle cx="${x}" cy="30" r="8" fill="${col(q)}" stroke="${bgc}" stroke-width="2"/><text x="${x}" y="${i % 2 ? 58 : 12}" text-anchor="middle" font-size="11" fill="${ink}">${q}</text>`; });
+  const cw = 12, gap = 4, perRow = 15;
+  let ms = "", x = 0, y = 0, maxX = 0;
+  MOSAIC.forEach((dd, i) => {
+    if (i && i % perRow === 0) { maxX = Math.max(maxX, x); x = 0; y += cw + 4; }
+    dd.forEach((q, k) => ms += `<rect x="${x + k * cw}" y="${y}" width="${cw - 1}" height="${cw - 1}" fill="${col(q)}"/>`);
+    x += dd.length * cw + gap;
+  });
+  const sq = Object.entries(DATA.statusQuo).map(([k, v]) => `<span class="pill" style="background:transparent;border:2px dashed ${sim(v)};color:${ink}">${k}</span>`).join("");
+  const lines = (() => {
+    const rnd = mulberry(7); let s = "";
+    O.forEach((q, i) => { let p = `M 10 ${20 + i * 14}`; for (let k = 1; k <= 12; k++) p += ` L ${10 + k * 40} ${20 + i * 14 + (rnd() - 0.5) * 18}`; s += `<path d="${p}" fill="none" stroke="${col(q)}" stroke-width="2.2"/>`; });
+    return `<svg viewBox="0 0 500 150">${s}</svg>`;
+  })();
+  return `<div class="stage ${kind}">
+    <h3>Pills</h3><div class="pills">${pills}</div><div class="pills" style="margin-top:6px">${sq}</div>
+    <h3>House seats, default view (${TOTAL})</h3><div class="bar">${bar}</div>
+    <div class="grid2"><div><h3>Chamber</h3><div class="hemi"><svg viewBox="0 0 ${W} ${H}">${hemi}</svg></div></div>
+    <div><h3>Agreement line</h3><div class="line"><svg viewBox="0 0 520 70">${lsv}</svg></div><h3>Thin lines</h3><div class="line">${lines}</div></div></div>
+    <h3>District tiles (seats shuffled across 150 mock districts)</h3><div class="mosaic"><svg viewBox="0 0 ${Math.max(maxX, x)} ${y + cw}" preserveAspectRatio="xMinYMin meet">${ms}</svg></div>
+  </div>`;
+}
+
+function renderRows() {
+  document.getElementById("rows").innerHTML = O.map(q => `<div class="row${q === S.sel ? " sel" : ""}" data-q="${q}">
+    <input type="color" value="${C[q]}" data-q="${q}" aria-label="${DATA.names[q]} color">
+    <div class="nm"><b>${q}</b><span>${DATA.names[q]} · ${DATA.seats[q] || 0} seats</span></div>
+    <input type="text" value="${C[q]}" data-q="${q}" aria-label="${DATA.names[q]} hex" spellcheck="false">
+    <span class="was" style="background:${DATA.current[q]}" title="production ${DATA.current[q]}"></span></div>`).join("");
+  document.querySelectorAll(".row").forEach(r => r.addEventListener("click", e => { if (e.target.tagName !== "INPUT") { S.sel = r.dataset.q; renderRows(); renderSwatches(); } }));
+  document.querySelectorAll(".row input[type=color]").forEach(i => i.addEventListener("input", () => { S.sel = i.dataset.q; set(i.dataset.q, i.value, false); }));
+  document.querySelectorAll(".row input[type=text]").forEach(i => i.addEventListener("change", () => { const v = i.value.trim().replace(/^([0-9a-f]{6})$/i, "#$1"); if (/^#[0-9a-f]{6}$/i.test(v)) set(i.dataset.q, v.toLowerCase(), true); else i.value = C[i.dataset.q]; }));
+  document.getElementById("selname").textContent = `${S.sel} (${DATA.names[S.sel]})`;
+}
+function set(q, v, rerow) {
+  C[q] = v; save();
+  if (rerow) renderRows(); else document.querySelectorAll(`.row input[data-q="${q}"]`).forEach(i => { if (i.type === "text") i.value = v; });
+  renderAll();
+}
+const SETS = {
+  "Yellows & golds": ["#fef08a", "#fde047", "#facc15", "#eab308", "#ca8a04", "#a16207", "#d4a017", "#b8860b"],
+  "Ambers": ["#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#b45309", "#92400e"],
+  "Oranges": ["#fdba74", "#fb923c", "#f97316", "#e68c2c", "#ea580c", "#c2410c", "#9a3412", "#7c2d12"],
+  "Red-oranges & corals": ["#ff7f50", "#ff6b35", "#f4511e", "#d34812", "#e4572e", "#c1440e", "#b7410e", "#a0522d"],
+  "Reds": ["#f87171", "#ef4444", "#dc2626", "#b91c1c", "#991b1b", "#7f1d1d", "#a01d2a", "#8b0000"],
+  "Crimsons & roses": ["#fb7185", "#f43f5e", "#e11d48", "#be123c", "#9f1239", "#881337", "#c41e3a", "#7b1e3a"],
+  "Browns": ["#825a27", "#92400e", "#78350f", "#713f12", "#6b4423", "#5c3317"],
+  "Magentas": ["#c026d3", "#a21caf", "#86198f", "#d946ef", "#db2777", "#be185d", "#9d174d", "#e879a9"],
+  "Violets": ["#a78bfa", "#8a70b8", "#7c3aed", "#6d28d9", "#5b21b6", "#4c1d95"],
+  "Blues": ["#1e3a8a", "#1d4ed8", "#2563eb", "#0369a1", "#0284c7", "#0ea5e9", "#38bdf8", "#7dd3fc"],
+  "Greens & teals": ["#22c55e", "#15803d", "#166534", "#0f766e", "#0d9488", "#14b8a6"],
+  "Production": [...new Set(Object.values(DATA.current))],
+};
+function renderSwatches() {
+  document.getElementById("swatchsets").innerHTML = Object.entries(SETS).map(([k, arr]) => `<div class="swl">${k}</div><div class="swatches">${arr.map(h => `<button style="background:${h}" title="${h}" data-h="${h}"></button>`).join("")}</div>`).join("");
+  document.querySelectorAll("#swatchsets button").forEach(b => b.onclick = () => set(S.sel, b.dataset.h, true));
+}
+function renderAll() {
+  document.getElementById("stages").innerHTML = (S.bg === "both" ? ["light", "dark"] : [S.bg]).map(stage).join("");
+  const pr = [];
+  for (let i = 0; i < O.length; i++) for (let j = i + 1; j < O.length; j++) pr.push([O[i], O[j], dist(col(O[i]), col(O[j]))]);
+  pr.sort((a, b) => a[2] - b[2]);
+  document.getElementById("pairs").innerHTML = `<tr><th>Pair</th><th>Distance</th><th>Neighbors on the line?</th></tr>` + pr.slice(0, 8).map(([a, b, d]) =>
+    `<tr><td><span class="dot" style="background:${col(a)}"></span>${a} · <span class="dot" style="background:${col(b)}"></span>${b}</td><td class="${d < 12 ? "warn" : "ok"}">${d.toFixed(1)}</td><td>${Math.abs(O.indexOf(a) - O.indexOf(b)) === 1 ? "yes" : ""}</td></tr>`).join("");
+  document.getElementById("contrast").innerHTML = `<tr><th>Party</th><th>Hex</th><th>vs white</th><th>vs dark</th><th>White text</th></tr>` + O.map(q => {
+    const w = ratio(C[q], "#ffffff"), d = ratio(C[q], "#0f1720");
+    return `<tr><td><span class="dot" style="background:${C[q]}"></span>${q}</td><td>${C[q]}</td><td class="${w < 3 ? "warn" : ""}">${w.toFixed(2)}</td><td class="${d < 3 ? "warn" : ""}">${d.toFixed(2)}</td><td class="${w < 4.5 ? "warn" : ""}">${w.toFixed(2)}</td></tr>`;
+  }).join("");
+  const cur = DATA.current;
+  document.getElementById("out").value = "  // proposed " + new Date().toLocaleDateString("en-CA") + " (party_colors.html)\n" +
+    ["PRG", "DSA", "OAO", "LBR", "STY", "CUP", "CON", "POP", "NAT"].filter(q => O.includes(q)).map(q => `  ${q}: '${C[q]}',${C[q] !== cur[q] ? `  // was ${cur[q]}` : ""}`).join("\n");
+}
+function seg(id, k) {
+  document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => { S[k] = b.dataset.v; document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b)); renderAll(); });
+}
+seg("bg", "bg"); seg("cvd", "cvd");
+document.getElementById("r-prop").onclick = () => { C = { ...DATA.proposed }; save(); renderRows(); renderAll(); };
+
+document.getElementById("copy").onclick = async () => { const t = document.getElementById("out").value; try { await navigator.clipboard.writeText(t); document.getElementById("copied").textContent = "copied"; } catch (e) { document.getElementById("out").select(); document.getElementById("copied").textContent = "selected; press Cmd+C"; } };
+renderRows(); renderSwatches(); renderAll();
+</script>
+</body>
+</html>

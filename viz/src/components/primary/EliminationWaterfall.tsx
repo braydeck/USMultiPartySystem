@@ -5,6 +5,7 @@ import {
 import type { PrimaryCandidate } from '../../types';
 import { getPartyColor } from '../../constants/parties';
 import { CHART_TYPE, CHART_FILL } from '../../constants/typography';
+import { SIGNAL } from '../../lib/bam';
 
 interface Props {
   candidates: PrimaryCandidate[];
@@ -68,7 +69,7 @@ export function EliminationWaterfall({ candidates, stage, quota }: Props) {
               <Cell
                 key={entry.code}
                 fill={elim ? '#374151' : color}
-                stroke={elimThisRound ? '#ef4444' : 'transparent'}
+                stroke={elimThisRound ? SIGNAL.no : 'transparent'}
                 strokeWidth={elimThisRound ? 2 : 0}
                 opacity={elim ? 0.5 : 1}
               />

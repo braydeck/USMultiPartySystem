@@ -67,7 +67,7 @@ export default function PrimaryBuckets({ data, stageIdx }: Props) {
 
       {/* Survivors */}
       <div className="space-y-1.5">
-        <div className="text-3xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Survivors</div>
+        <div className="text-3xs font-bold sig-yes-text uppercase tracking-widest mb-1">Survivors</div>
         {sortedWinners.map(w => (
           <WinnerBar key={w.code} w={w} onTip={setTip} />
         ))}
@@ -79,7 +79,7 @@ export default function PrimaryBuckets({ data, stageIdx }: Props) {
         const noVotes = sortedEliminated.filter(e => e.total <= 0.05);
         return (
           <div className="space-y-2">
-            <div className="text-3xs font-bold text-red-400 uppercase tracking-widest">Eliminated</div>
+            <div className="text-3xs font-bold sig-no-text uppercase tracking-widest">Eliminated</div>
             {withVotes.length > 0 && (
               <>
                 <div className="text-3xs text-muted-foreground -mt-1 mb-1">Bars show where each eliminated candidate&apos;s votes transferred to</div>

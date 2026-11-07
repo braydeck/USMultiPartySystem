@@ -44,9 +44,9 @@ BASE = Path(__file__).resolve().parent.parent
 STAMP = BASE / "data" / "outputs" / ".verified.json"
 
 PROCESSED = "data/processed/"
-# party_codes.py derives the party set from the typology, so it travels with it
+# party_codes.py derives the party set from the typology and the order from party_order.csv, so both travel with it
 SURVEY = [PROCESSED + "efa_factor_scores.csv", PROCESSED + "typology_cluster_assignments.csv",
-          "pipeline/party_codes.py"]
+          "pipeline/party_codes.py", PROCESSED + "party_order.csv"]
 GEO = [PROCESSED + "county_to_district.csv", PROCESSED + "voter_county_fips.csv",
        "pipeline/county_split_overrides.csv"]
 TURNOUT = [PROCESSED + "turnout_propensity.csv"]

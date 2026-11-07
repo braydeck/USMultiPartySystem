@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { CondorcetMatchup } from '../../types';
 import { getBlendColor, buildDisplayLabels } from '../../constants/parties';
 import { CHART_TYPE } from '../../constants/typography';
+import { SIGNAL } from '../../lib/bam';
 
 interface Props {
   matchups: CondorcetMatchup[];
@@ -121,8 +122,8 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
                 const intensity = Math.min(1, margin / 30); // saturate at 30pp
 
                 const bg = rowWins
-                  ? `rgba(34,197,94,${0.15 + intensity * 0.55})`
-                  : `rgba(239,68,68,${0.15 + intensity * 0.55})`;
+                  ? `rgba(${SIGNAL.yesRgb},${0.15 + intensity * 0.55})`
+                  : `rgba(${SIGNAL.noRgb},${0.15 + intensity * 0.55})`;
 
                 return (
                   <div
@@ -140,7 +141,7 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
                       justifyContent: 'center',
                     }}
                   >
-                    <span style={{ fontSize: cellFontSize, fontWeight: 600, color: rowWins ? '#15803d' : '#b91c1c' }}>
+                    <span style={{ fontSize: cellFontSize, fontWeight: 600, color: rowWins ? SIGNAL.yesStrong : SIGNAL.noStrong }}>
                       {rowWins ? '+' : '−'}{margin.toFixed(0)}
                     </span>
                   </div>
@@ -153,11 +154,11 @@ export function CondorcetMatrix({ matchups, condorcetWinner, scale = 1 }: Props)
         {/* Caption */}
         <div className="text-xs text-muted-foreground mt-2 flex gap-4">
           <span>
-            <span className="inline-block w-3 h-3 rounded-sm bg-green-400 opacity-60 mr-1 align-middle" />
+            <span className="inline-block w-3 h-3 rounded-sm sig-yes-swatch mr-1 align-middle" />
             Row beats column
           </span>
           <span>
-            <span className="inline-block w-3 h-3 rounded-sm bg-red-400 opacity-60 mr-1 align-middle" />
+            <span className="inline-block w-3 h-3 rounded-sm sig-no-swatch mr-1 align-middle" />
             Row loses to column
           </span>
           <span className="text-amber-500">★ = Condorcet winner (all-green row)</span>

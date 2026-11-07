@@ -1263,7 +1263,7 @@ def map_seed(real_pt, real_bbox, hex_bbox):
 PARTIES_TS = BASE_DIR / "viz" / "src" / "constants" / "parties.ts"
 
 # Fallback only; the live order is F5_ORDER in the app's constants.
-LEFT_RIGHT_FALLBACK = ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"]
+LEFT_RIGHT_FALLBACK = ["DSA", "PRG", "LBR", "CUP", "STY", "OAO", "CON", "POP", "NAT"]
 
 
 def left_right_order():

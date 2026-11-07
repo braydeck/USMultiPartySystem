@@ -22,8 +22,8 @@ const SCENARIO_FIELDS: Record<SenateScenario, {
 
 function VerdictBadge({ verdict }: { verdict: string }) {
   const color =
-    verdict === 'PASS' ? 'bg-green-50 text-green-700 border-green-300' :
-    verdict === 'FAIL' ? 'bg-red-50 text-red-700 border-red-300' :
+    verdict === 'PASS' ? 'sig-yes-chip' :
+    verdict === 'FAIL' ? 'sig-no-chip' :
     'bg-yellow-50 text-yellow-700 border-yellow-300';
   return (
     <Badge variant="outline" className={color}>
@@ -88,8 +88,8 @@ export function VoteModelTable({ rows, scenario }: Props) {
                   {signs ? (
                     <Badge variant="outline" className={
                       signs === 'SIGN'
-                        ? 'bg-green-50 text-green-700 border-green-300'
-                        : 'bg-red-50 text-red-700 border-red-300'
+                        ? 'sig-yes-chip'
+                        : 'sig-no-chip'
                     }>
                       {signs === 'SIGN' ? 'Signs' : 'Vetoes'}
                     </Badge>
@@ -97,7 +97,7 @@ export function VoteModelTable({ rows, scenario }: Props) {
                 </TableCell>
                 <TableCell className="text-center">
                   {verdict && signs ? (
-                    <span className={`text-base ${becomesLaw ? 'text-green-600' : 'text-red-500'}`}>
+                    <span className={`text-base ${becomesLaw ? 'sig-yes-text' : 'sig-no-text'}`}>
                       {becomesLaw ? '✓' : '✗'}
                     </span>
                   ) : <span className="text-muted-foreground text-xs">—</span>}

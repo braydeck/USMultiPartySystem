@@ -43,6 +43,7 @@ import {
 import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, GROUP_LABEL, FIELD_LABEL, CARD_HINT } from '../constants/typography';
 import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
 import { SYSTEM_COLORS } from '../constants/parties';
+import { SIGNAL } from '../lib/bam';
 
 interface Props {
   factorDev: PresidentialElection;
@@ -115,7 +116,7 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
       style={
         signs === 'SIGN'
           ? { backgroundColor: color + '18', color, borderColor: color + '55' }
-          : { backgroundColor: '#fef2f2', color: '#b91c1c', borderColor: '#fca5a5' }
+          : { backgroundColor: SIGNAL.noBg, color: SIGNAL.noStrong, borderColor: SIGNAL.noBorder }
       }
     >
       {signs === 'SIGN' ? 'Signs' : 'Vetoes'}

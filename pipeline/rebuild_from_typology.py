@@ -108,7 +108,10 @@ def steps(draws, procs):
                                             [py("analysis/bootstrap_population.py", "--draws", str(draws))],
                                             # cycle turnout for partyPopulation.json, read by prepare_data
                                             [py("analysis/efa/previous_years/compare/turnout_by_wave.py")]]),
-        (16, "viz payloads (chains the rank-7 rebuilds)", [[py("viz/scripts/prepare_data.py")]]),
+        # vote_agreement.py reads the bills and party support prepare_data writes, then rewrites the party order
+        # (party_order.csv + parties.ts F5_ORDER); step 14 ran on the previous order, so rerun 14 if it moved
+        (16, "viz payloads (chains the rank-7 rebuilds)", [[py("viz/scripts/prepare_data.py"),
+                                                           py("analysis/coalitions/vote_agreement.py")]]),
         (17, "payloads downstream of prepare_data", [[py(s, *a)] for s, *a in [
             ("pipeline/build_house_mmp.py",), ("pipeline/build_house_rep_by_rank.py",),
             ("pipeline/build_house_votemodel_depth.py",), ("pipeline/build_general_depth_bundle.py",),

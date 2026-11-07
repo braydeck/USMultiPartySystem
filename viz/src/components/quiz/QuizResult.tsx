@@ -7,6 +7,7 @@ import { track } from '../../utils/analytics';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BODY_PROSE } from '../../constants/typography';
+import { SIGNAL } from '../../lib/bam';
 
 export interface RankEntry { party: string; partyName: string; prob: number }
 
@@ -153,7 +154,7 @@ export function QuizResult({ cluster, seats, shared, ranking, onRetake, submissi
               const supports = p.direction === 'supports';
               return (
                 <li key={i} className="text-sm text-foreground flex items-start gap-2">
-                  <span className="mt-0.5 shrink-0" style={{ color: supports ? '#16a34a' : '#dc2626' }} aria-hidden="true">
+                  <span className="mt-0.5 shrink-0" style={{ color: supports ? SIGNAL.yes : SIGNAL.no }} aria-hidden="true">
                     {supports ? '↑' : '↓'}
                   </span>
                   <span>

@@ -33,8 +33,11 @@ PARTY_TO_CLUSTER = {p: k for k, p in CLUSTER_TO_PARTY.items()}
 PARTIES = list(CLUSTER_TO_PARTY.values())
 EMPTY_PARTIES = [p for k, p in ALL_PARTIES.items() if k not in CLUSTER_TO_PARTY]
 
-# Left-to-right display order: weighted Economic Conservatism centroid (factor_keys F5 = -FS_PC),
-# low to high (ruled 2026-11-04). Mirrors F5_ORDER in viz/src/constants/parties.ts; the hex
-# cartograms read that copy.
-LEFT_RIGHT = [p for p in ["OAO", "PRG", "DSA", "LBR", "STY", "CUP", "CON", "NAT", "POP"]
-              if p in PARTY_TO_CLUSTER]
+# Left-to-right display order: how often the parties vote together (ruled 2026-11-06). First MDS
+# dimension of party-majority agreement over the Legislation tab's bills, written to
+# data/processed/party_order.csv by analysis/coalitions/vote_agreement.py. Mirrors F5_ORDER in
+# viz/src/constants/parties.ts; the hex cartograms read that copy.
+with open(BASE / "data" / "processed" / "party_order.csv", newline="") as f:
+    LEFT_RIGHT = [r["party"] for r in sorted(csv.DictReader(f), key=lambda r: int(r["rank"]))
+                  if r["party"] in PARTY_TO_CLUSTER]
+assert sorted(LEFT_RIGHT) == sorted(PARTIES), f"party_order.csv {LEFT_RIGHT} != live parties {PARTIES}"

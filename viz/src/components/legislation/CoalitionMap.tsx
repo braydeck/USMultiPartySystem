@@ -62,7 +62,7 @@ function CoalitionRow({ bill, seats, mode }: { bill: CandidateVoteRow; seats: Se
   return (
     <div className="grid grid-cols-[minmax(140px,1.3fr)_2fr] gap-3 items-center py-1.5 border-t border-border/40">
       <div className="text-2xs leading-tight flex items-start gap-1.5">
-        <span className={`shrink-0 font-bold ${pass ? 'text-emerald-600' : 'text-rose-500'}`}
+        <span className={`shrink-0 font-bold ${pass ? 'sig-yes-text' : 'sig-no-text'}`}
           title={pass ? 'Supporters hold a majority — passes' : 'Supporters fall short of a majority — fails'}>
           {pass ? '✓' : '✗'}
         </span>
@@ -167,7 +167,7 @@ export function CoalitionMap({ candidateVotes, houseSeats, senateSeats, voteMode
       ))}
 
       <p className={`${FOOTNOTE} mt-3`}>
-        <span className="text-emerald-600 font-bold">✓</span>/<span className="text-rose-500 font-bold">✗</span> marks
+        <span className="sig-yes-text font-bold">✓</span>/<span className="sig-no-text font-bold">✗</span> marks
         whether the bill's supporters hold a seat majority. On a pass, the pivotal party (white/dark ring) is the one
         whose seats tip the coalition over the line; a defeat has no pivotal party.{' '}
         {voteModel === 'whipped'
