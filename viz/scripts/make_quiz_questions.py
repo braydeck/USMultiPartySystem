@@ -70,6 +70,20 @@ QUESTION_TEXT = {
     "CC24_421_1": "Elections in the U.S. are fair",
 }
 
+# Items worded as a negative or a court ruling, where "support" or "agree" takes a double step. The CES text stays as
+# the question; the hint, shown under it, says what the support/agree answer means (researcher, 2026-11-07).
+HINTS = {
+    "CC24_340a": "Supporting this means federal law protects access to birth control.",
+    "CC24_340b": "Supporting this means federal law protects access to abortion.",
+    "CC24_326f": "Supporting this means gas stoves stay legal.",
+    "CC24_445b": "Agreeing means you side with the Court's 2022 ruling that ended Roe v. Wade and let states ban abortion.",
+    "CC24_444c": "Supporting this means abortion pills could not be sent by mail.",
+    "CC24_444d": "Supporting this means a state could bar women from traveling to get an abortion.",
+    "CC24_444a": "Supporting this means minors could not get gender transition surgery.",
+    "CC24_324b": "Supporting this means abortion is banned except in those cases.",
+    "CC24_445a": "Agreeing means you side with the Court's 2023 ruling that ended race-based admissions.",
+}
+
 # Abortion week limit: CES asks for a week (0-40); the quiz offers five stops.
 WEEKS = [(40, "A woman's choice, without limits"), (24, "Up to about 24 weeks (viability)"),
          (15, "Up to about 15 weeks"), (6, "Up to about 6 weeks"),
@@ -163,7 +177,8 @@ def main():
             support[str(k)] = round(float(np.average(s[m], weights=wt[m])), 6)
         name, instruction = SECTIONS[sec]
         out.append({"variable": item, "factor": key, "loading": round(float(ld.max()), 3),
-                    "question": question, "domain": str(domains.get(item, "")), "section": name,
+                    "question": question, **({"hint": HINTS[item]} if item in HINTS else {}),
+                    "domain": str(domains.get(item, "")), "section": name,
                     "instruction": instruction, "short": item in short,
                     "clusterSupport": support, "options": options})
 

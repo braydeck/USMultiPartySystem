@@ -173,6 +173,8 @@ export interface QuizQuestion {
   /** EFA loading magnitude on its factor; used to weight the factor-position estimate. */
   loading: number;
   question: string;
+  /** Plain-language line under a negatively worded item: what a support/agree answer means. */
+  hint?: string;
   domain: string;
   /** Conceptual group (e.g. "Policy Proposals") used to batch items in the quiz. */
   section?: string;

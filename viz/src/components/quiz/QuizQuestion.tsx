@@ -5,6 +5,7 @@ interface Option { value: number; label: string }
 
 interface Props {
   question: string;
+  hint?: string;
   domain: string;
   section?: string;
   instruction?: string;
@@ -21,7 +22,7 @@ const DEFAULT_OPTIONS: Option[] = [
   { value: 0, label: 'Strongly Disagree' },
 ];
 
-export function QuizQuestion({ question, domain, section, instruction, selected, onSelect, options }: Props) {
+export function QuizQuestion({ question, hint, domain, section, instruction, selected, onSelect, options }: Props) {
   const OPTIONS = options ?? DEFAULT_OPTIONS;
   return (
     <div aria-live="polite">
@@ -31,7 +32,8 @@ export function QuizQuestion({ question, domain, section, instruction, selected,
       {/* The framing changes between sections (support/oppose, agree/disagree, spend more/less, trust), so it is
           set as a prompt, not a caption, to keep it from being skimmed past. */}
       {instruction && <p className="text-base sm:text-lg font-medium text-foreground/80 mb-3 leading-snug">{instruction}</p>}
-      <h3 className="text-xl font-semibold text-foreground mb-6 leading-snug">{question}</h3>
+      <h3 className={`text-xl font-semibold text-foreground leading-snug ${hint ? 'mb-2' : 'mb-6'}`}>{question}</h3>
+      {hint && <p className="text-sm text-muted-foreground mb-6 leading-snug">{hint}</p>}
       <div className="flex flex-col gap-2">
         {OPTIONS.map(opt => (
           <Button

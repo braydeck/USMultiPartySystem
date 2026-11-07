@@ -171,6 +171,7 @@ export function QuizTab({ questions: allQuestions, clusters, houseSeats }: Props
       <Card className="p-6">
         <QuizQuestion
           question={q.question}
+          hint={q.hint}
           domain={q.domain}
           section={q.section}
           instruction={q.instruction}

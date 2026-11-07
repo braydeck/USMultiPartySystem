@@ -210,3 +210,10 @@ Pass/fail, supports/opposes, wins/loses and survives/eliminated use the factor-p
 magenta = no; `SIGNAL` in `viz/src/lib/bam.ts`, `.sig-*` classes in `viz/src/index.css`) instead of red/green,
 which now read as CON and DSA. The share cards and the site preview image take their seats from the default House
 view (`uncertaintyTurnoutL5.json` observed), and the preview image drops its left/right axis labels.
+
+## Quiz hints under negatively worded items (ruled 2026-11-07)
+
+Quiz questions keep the verbatim CES text. Nine items worded as a negative ("prohibit restrictions on", "prevent the
+government from banning", "does not protect") or as a court ruling carry a plain line under the question saying what
+a support/agree answer means (`HINTS` in `viz/scripts/make_quiz_questions.py`). Scoring and answer values are
+unchanged.
