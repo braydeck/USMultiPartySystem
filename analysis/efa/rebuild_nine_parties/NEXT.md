@@ -2,7 +2,7 @@
 
 ## Where it stands
 - Production runs on the nine parties, on `main` at 69ea807 (rebuild edd9249, descriptions 09afbd3, quiz 11a68fb,
-  order/palette/signals cf77d20, quiz hints 69ea807). `bd-nine-parties` equals `main`.
+  order/palette/signals cf77d20, quiz hints 69ea807). Work goes straight to `main`; the side branches were deleted 2026-11-11 (one unmerged exploration commit kept as tag `archive/k9-solution-families`).
 - `python3 pipeline/check_stale.py`: all groups current (stamp `data/outputs/.verified.json`). `npm test` in `viz/`
   85 of 85, `tsc -b` clean.
 - Party order = vote-agreement MDS: DSA PRG LBR CUP STY OAO CON POP NAT. `analysis/coalitions/vote_agreement.py`
