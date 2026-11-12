@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 const W = 560, H = 460;
 const FACTORS = ['F1', 'F2', 'F4', 'F5'] as const;
 type Factor = typeof FACTORS[number];
-const AXIS_WORD: Record<string, string> = { F1: 'Security', F2: 'Distrust', F4: 'Traditionalism', F5: 'Populism' };
+const AXIS_WORD: Record<string, string> = { F1: 'Security', F2: 'Distrust', F4: 'Traditionalism', F5: 'Econ. Right' };
 const DEFAULT_VIEW = { yaw: -0.6, pitch: 0.42 };
 // Pitch stays at or above level: from below, the floor and its shadows would sit on top of the
 // parties instead of under them.

@@ -36,7 +36,7 @@ const ALL_AXES = [...FACTORS, 'seats'] as const;
 // Short, readable axis labels — a fresh visitor won't know "SO/ID/RT/PC". Full factor names
 // stay on the button tooltips and the chart axes.
 const AXIS_WORD: Record<string, string> = {
-  party: 'Party', F1: 'Security', F2: 'Distrust', F4: 'Traditionalism', F5: 'Populism', seats: 'Seats',
+  party: 'Party', F1: 'Security', F2: 'Distrust', F4: 'Traditionalism', F5: 'Econ. Right', seats: 'Seats',
 };
 
 const SCALE_LABELS: Record<'strength' | 'percentile', string> = {
