@@ -6,6 +6,7 @@ import type { PrimaryStateWinner, PrimaryStageShares, PrimarySankeyData, FDPrima
 import { PrimaryShareCartogram } from '../components/primary/PrimaryShareCartogram';
 import PrimaryBuckets from '../components/primary/PrimaryBuckets';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
+import { DEFAULT_HOUSE_SEATS } from '../lib/defaultHouseSeats';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PARTY_NAMES, PARTY_COLORS, F5_ORDER, getBlendColor, getContrastText } from '../constants/parties';
 import { PIPELINE_LABELS_LONG, PIPELINE_DESC } from '../constants/labels';
@@ -283,13 +284,13 @@ export function PrimaryTab({
             Ideological Constellation
           </h4>
           <p className={`${CARD_HINT} mb-4`}>
-            Drag axes to explore ideological dimensions. Bubble size = house seats. Links = transfer affinity.
+            Pick a factor for each axis, size, and color, or switch to 3D. Seats are House seats at the default settings.
           </p>
           <IdeologicalConstellation
             nodes={clusters.filter(c => c.party).map(c => ({
               id: c.party,
               label: c.party,
-              seats: c.seatsHouse,
+              seats: DEFAULT_HOUSE_SEATS[c.party] ?? 0,
               F1: (c.z_F1 ?? 0),
               F2: (c.z_F2 ?? 0),
               F3: (c.z_F3 ?? 0),

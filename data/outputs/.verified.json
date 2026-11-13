@@ -1,5 +1,5 @@
 {
-  "commit": "c7d613f8",
+  "commit": "d4773ca6",
   "inputs": {
     "data/outputs/canonical/ballots_checkpoint.parquet": "7172e7307079657d",
     "data/outputs/canonical/district_apportionment.csv": "2b68b63fa58c47d9",
@@ -53,11 +53,11 @@
     "viz/public/data/houseMmp.json": "1d0c1aa95ff5ec27",
     "viz/public/data/housePartyList.json": "546efac002da6b4c",
     "viz/public/data/houseReserve.json": "cc00f502e63fcb59",
-    "viz/scripts/prepare_data.py": "82bf2fcf3cd9d465",
+    "viz/scripts/prepare_data.py": "1dc54c0731197bf0",
     "viz/src/constants/parties.ts": "bc09d16477273b8c",
     "viz/src/data/districtStvResults.json": "3dc5f9c321e2db8b",
     "viz/src/data/districtStvResultsTriple.json": "ee72be566c7cdc63"
   },
   "note": "Written by pipeline/check_stale.py --regenerate. Records the inputs as they stood when every committed output last reproduced. Commit this with the regenerated outputs.",
-  "verified_at": "2026-11-13T01:02:16Z"
+  "verified_at": "2026-11-13T23:29:23Z"
 }

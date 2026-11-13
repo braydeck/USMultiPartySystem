@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { FPTPvsSTV } from '../components/house/FPTPvsSTV';
 import { FPTPDisproportionality } from '../components/house/FPTPDisproportionality';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
+import { DEFAULT_HOUSE_SEATS } from '../lib/defaultHouseSeats';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { PartyProfileCard } from '../components/shared/PartyProfileCard';
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
@@ -267,13 +268,13 @@ export function OverviewTab({
       <Card className="p-5">
         <h4 className={`${CARD_HEADING} mb-1`}>Ideological Constellation</h4>
         <p className={`${CARD_HINT} mb-4`}>
-          Drag axes to explore ideological dimensions. Default: Economic Conservatism (X) vs Security &amp; Order (Y).
+          Pick a factor for each axis, size, and color, or switch to 3D. Seats are House seats at the default settings.
         </p>
         <IdeologicalConstellation
           nodes={clusters.filter(c => c.party).map(c => ({
             id: c.party,
             label: c.party,
-            seats: c.seatsHouse,
+            seats: DEFAULT_HOUSE_SEATS[c.party] ?? 0,
             F1: (c.z_F1 ?? 0),
             F2: (c.z_F2 ?? 0),
             F3: (c.z_F3 ?? 0),

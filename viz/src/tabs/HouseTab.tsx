@@ -387,7 +387,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     const cp = clusterByParty[party] ?? clusterByParty[party.split('_')[0]];
     return {
       id: party, label: party,
-      seats: dzSeatsByCode ? (dzSeatsByCode[party] ?? 0) : (c.seatsHouse ?? 0),
+      seats: chamberSeatsByCode[party] ?? 0,
       F1: (cp?.z_F1 ?? 0),
       F2: (cp?.z_F2 ?? 0),
       F3: (cp?.z_F3 ?? 0),
@@ -526,11 +526,11 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     .filter(s => s.code)
     .sort((a, b) => a.fVal - b.fVal);
 
-  // A dissolved field's chamber sizes the constellation's nodes; the full field's seats under the
-  // same settings feed the comparison bars (bundled national blocks, so nothing extra to load).
-  const dzSeatsByCode = dzd
-    ? Object.fromEntries(parliamentSeats.map(r => [CLUSTER_TO_PARTY[String(r.party)], r.national])) as Record<string, number>
-    : undefined;
+  // The chamber on screen (system, map, depth, turnout, reserve, dissolve) sizes the
+  // constellation's nodes. Under a dissolve, the full field's seats under the same settings feed
+  // the comparison bars (bundled national blocks, so nothing extra to load).
+  const chamberSeatsByCode = Object.fromEntries(
+    parliamentSeats.map(r => [CLUSTER_TO_PARTY[String(r.party)], r.national])) as Record<string, number>;
   const compare = useMemo((): DissolveCompare | null => {
     if (!dzd) return null;
     const nat = BASE_DEPTH_NATIONAL[depth]?.[wyoming]?.[part]?.national as { stvSeats: PartyCounts; listSeats?: PartyCounts } | undefined;
@@ -592,7 +592,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           return fdNodes.length > 0 ? fdNodes : [];
         }
         return clusters
-          .filter(c => (dzSeatsByCode ? dzSeatsByCode[c.party] ?? 0 : c.seatsHouse) > 0)
+          .filter(c => (chamberSeatsByCode[c.party] ?? 0) > 0)
           .map(c => clusterToNode(c));
       })()}
       transfers={scenario === 'rawMulti' ? (dzd?.transferMatrix ?? transfers) : undefined}

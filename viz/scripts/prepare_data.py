@@ -940,6 +940,16 @@ def _compute_cluster_factor_centroids() -> dict:
                   for fk in factor_map} for cid in num}
 
 
+def _weighted_mean_sd(vals, weights):
+    """Weighted electorate mean and SD of one factor. Every party position in the app is
+    (centroid - mean) / sd on this scale, so 0 is the average voter: the same scale as
+    pipeline/build_party_factor_ellipses.py and factorPopulationMean/Sd.json."""
+    ws = sum(weights)
+    mean = sum(v * w for v, w in zip(vals, weights)) / ws
+    sd = (sum(w * (v - mean) ** 2 for v, w in zip(vals, weights)) / ws) ** 0.5
+    return mean, sd
+
+
 def build_cluster_profiles(out_name="clusterProfiles.json",
                            house_summary_csv=None):
     rows = read_csv(OUTPUTS / "profiles" / "cluster_stats.csv")
@@ -997,18 +1007,16 @@ def build_cluster_profiles(out_name="clusterProfiles.json",
             return float(val or 0)
 
         N = len(efa_rows)
+        W = [float(r.get("commonpostweight") or 0) for r in efa_rows]
         for factor_key in ["F1", "F2", "F4", "F5"]:
             all_vals = [get_factor_val(i, factor_key) for i in range(N)]
-            pop_mean = sum(all_vals) / N
-            pop_sd = (sum((v - pop_mean) ** 2 for v in all_vals) / N) ** 0.5
+            pop_mean, pop_sd = _weighted_mean_sd(all_vals, W)
             for cid in clusters:
                 centroid = clusters[cid].get(factor_key, 0)
                 below = sum(1 for v in all_vals if v < centroid)
                 pctile = round(below / N * 100, 1)
-                z_mean = round((centroid - pop_mean) / pop_sd, 2) if pop_sd > 0 else 0
-                z_zero = round(centroid / pop_sd, 2) if pop_sd > 0 else 0
                 clusters[cid][f"pctile_{factor_key}"] = pctile
-                clusters[cid][f"z_{factor_key}"] = z_zero  # zero-based (factor model origin)
+                clusters[cid][f"z_{factor_key}"] = round((centroid - pop_mean) / pop_sd, 2) if pop_sd > 0 else 0
 
     # Add key positions vs nearest neighbors
     for cid in clusters:
@@ -1050,15 +1058,14 @@ def build_current_party_profiles(out_name="currentPartyProfiles.json"):
     N = len(efa_rows)
     for fk, col in fmap.items():
         vals = [float(efa_rows[i].get(col) or 0) for i in range(N)]
-        pop_mean = sum(vals) / N
-        pop_sd = (sum((v - pop_mean) ** 2 for v in vals) / N) ** 0.5
+        pop_mean, pop_sd = _weighted_mean_sd(vals, W)
         for code in CODES:
             idx = [i for i in range(N) if pidcode.get(pid[i]) == code]
             ws = sum(W[i] for i in idx)
             centroid = sum(vals[i] * W[i] for i in idx) / ws if ws > 0 else 0.0
             below = sum(1 for v in vals if v < centroid)
             profiles[code][fk] = round(centroid, 4)
-            profiles[code][f"z_{fk}"] = round(centroid / pop_sd, 2) if pop_sd > 0 else 0
+            profiles[code][f"z_{fk}"] = round((centroid - pop_mean) / pop_sd, 2) if pop_sd > 0 else 0
             profiles[code][f"pctile_{fk}"] = round(below / N * 100, 1)
     write_json([profiles[c] for c in CODES], out_name)
 

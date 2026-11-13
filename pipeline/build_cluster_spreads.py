@@ -11,9 +11,10 @@ candidate_factor_centroids.csv, which places the constellation's nodes.
 Per party: weighted mean, weighted SD and weighted pairwise covariance of its first-choice
 members; `n` is the unweighted member count.
 
-Output: viz/src/data/clusterSpreads.json, plus viz/src/data/factorPopulationSd.json, the
-weighted SD of each raw factor across the whole electorate, which the viz divides by to put
-raw scores on a z scale.
+Output: viz/src/data/clusterSpreads.json, plus viz/src/data/factorPopulationMean.json and
+factorPopulationSd.json, the weighted mean and SD of each raw factor across the whole electorate.
+The viz puts a raw score on the app's one position scale as (raw - mean) / sd, so 0 is the
+average voter; build_party_factor_ellipses.py and prepare_data.py's z_F* use the same scale.
 """
 
 import json
@@ -61,10 +62,13 @@ def main():
             row[f"cov_{FACTORS[i]}_{FACTORS[j]}"] = round(float(cov[i, j]), 4)
         rows.append(row)
 
+    pop_mean = {f: round(float(np.average(X[:, i], weights=w)), 4) for i, f in enumerate(FACTORS)}
     pop_sd = {f: round(wsd(X[:, i], w), 3) for i, f in enumerate(FACTORS)}
     (OUT / "clusterSpreads.json").write_text(json.dumps(rows))
+    (OUT / "factorPopulationMean.json").write_text(json.dumps(pop_mean))
     (OUT / "factorPopulationSd.json").write_text(json.dumps(pop_sd))
-    print(f"wrote clusterSpreads.json ({len(rows)} parties), factorPopulationSd.json {pop_sd}")
+    print(f"wrote clusterSpreads.json ({len(rows)} parties), factorPopulationMean.json {pop_mean}, "
+          f"factorPopulationSd.json {pop_sd}")
 
 
 if __name__ == "__main__":

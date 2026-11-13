@@ -261,3 +261,21 @@ Switching changes one bill's label at the default view (CC24_326c, 55% to 91% to
 and failing. House configurations with no published pass-probability column (MMP, the reserve, depths other than 7) now
 compute one the same way, each member voting at their party's observed support (`passProbability` in
 `viz/src/components/legislation/voteBloc.ts`); they had been showing an expected yes share on the probability bands.
+
+## One position scale for every party, centred on the average voter (ruled 2026-11-13)
+
+Every party position in the app is (weighted party mean − weighted electorate mean) / weighted electorate SD, so 0 is
+the average voter. Three files had placed the parties three ways: `partyFactorEllipses.json` (the 3D view) on this
+scale; `clusterProfiles.json` `z_F*` (the 2D bubbles, profile bars, Senate and House nodes) uncentred and divided by the
+unweighted SD; `clusterSpreads.json` (the 2D penumbras) uncentred and divided by the weighted SD. The weighted mean of
+Distrust is −0.069, so the 2D and 3D views disagreed by up to 0.09 SD (Labor −0.30 against −0.22). After the change all
+three agree within the 2-dp rounding of `z_F*` (largest gap 0.005), held by `viz/src/lib/factorScale.test.ts`.
+`build_cluster_spreads.py` writes `factorPopulationMean.json` beside `factorPopulationSd.json`; the viz converts with
+`rawToZ` in `viz/src/lib/factorScale.ts`.
+
+## Constellation defaults follow how well each factor separates the parties (ruled 2026-11-13)
+
+Position and size, the channels read most accurately, carry the three factors that separate the parties most; colour
+carries Government Distrust (η² 0.23), which separates them least. 2D: X Econ. Right, Y Traditionalism, size Security,
+colour Distrust. 3D: axes Econ. Right, Traditionalism, Security, size seats, colour Distrust. Every constellation offers
+both views, and seats are the chamber on screen on the House tab and the default House elsewhere.

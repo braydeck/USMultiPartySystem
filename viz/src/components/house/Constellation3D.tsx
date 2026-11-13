@@ -1,20 +1,28 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { color as d3color } from 'd3';
 import type { ConstellationNode } from '../../types';
 import { FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, PARTY_NAMES, F5_ORDER } from '../../constants/parties';
 import { CARD_HINT, CHART_FILL, CHART_TYPE } from '../../constants/typography';
 import { PARTY_ELLIPSES, ELLIPSE_FACTORS, ellipseFromCov2 } from '../../lib/partyOverlap';
 import { bamForZ } from '../../lib/bam';
 import { Button } from '@/components/ui/button';
+import { ColorControl, ControlSection, SizeControl } from './ConstellationControls';
 
 const W = 560, H = 460;
 const FACTORS = ['F1', 'F2', 'F4', 'F5'] as const;
 type Factor = typeof FACTORS[number];
-const AXIS_WORD: Record<string, string> = { F1: 'Security', F2: 'Distrust', F4: 'Traditionalism', F5: 'Econ. Right' };
 const DEFAULT_VIEW = { yaw: -0.6, pitch: 0.42 };
 // Pitch stays at or above level: from below, the floor and its shadows would sit on top of the
 // parties instead of under them.
 const PITCH_MIN = 0.05, PITCH_MAX = 1.4;
-const PARTIES = F5_ORDER.filter(p => PARTY_ELLIPSES[p]);
+const ALL_PARTIES = F5_ORDER.filter(p => PARTY_ELLIPSES[p]);
+const SIZE_OPTIONS = ['seats', ...FACTORS] as const;
+const COLOR_OPTIONS = [...FACTORS, 'party'] as const;
+// Ball radii in viewBox pixels. Smaller than the 2D bubbles: each ball sits inside its party's
+// shell, and a ball as wide as the shell would hide it.
+const R_SEATS: [number, number] = [3, 17];
+const R_FACTOR: [number, number] = [4, 13];
+const R_EQUAL = 6;
 const R2_HALF = 2 * Math.LN2;
 
 type Vec3 = [number, number, number];
@@ -49,21 +57,31 @@ function maxEig(S: number[][]) {
 }
 
 /**
- * Three factors as axes and any factor as colour; colouring by the one left off the axes puts all
- * four interpretable factors on screen at once. Each party is its 50% ellipsoid from the
- * within-party covariance. Under orthographic projection an ellipsoid's outline is exactly the ellipse of its projected
- * covariance R Σ Rᵀ, and its shadow on the floor is the ellipse of the two floor axes' block, so
- * every frame is drawn without approximation. Shading, floor shadows and fading with distance
- * carry the depth that a flat outline loses.
+ * Three factors as axes, a fourth channel as colour, and size free for seats or any factor. Each
+ * party is a shaded ball at its centroid inside a faint shell, its 50% ellipsoid from the
+ * within-party covariance: the 3D form of the 2D view's bubble and penumbra. Under orthographic
+ * projection an ellipsoid's outline is exactly the ellipse of its projected covariance R Σ Rᵀ, and
+ * its shadow on the floor is the ellipse of the two floor axes' block, so every frame is drawn
+ * without approximation. Shading, floor shadows and fading with distance carry the depth.
  */
 export function Constellation3D({ nodes, isDim }: {
-  /** Supplies the current-party markers (DEM/IND/REP), which have positions but no covariance. */
+  /** The parties to draw and their seats; ids without a covariance (DEM/IND/REP) become markers. */
   nodes: ConstellationNode[];
   isDim: (id: string) => boolean;
 }) {
-  const [axes, setAxes] = useState<[Factor, Factor, Factor]>(['F5', 'F1', 'F4']);
+  const [axes, setAxes] = useState<[Factor, Factor, Factor]>(['F5', 'F4', 'F1']);
   const fourth = FACTORS.find(f => !axes.includes(f))!;
   const [colorMode, setColorMode] = useState<'party' | Factor>('F2');
+  const [sizeBy, setSizeBy] = useState<'seats' | Factor>('seats');
+  const [equalSize, setEqualSize] = useState(false);
+
+  const seatsOf = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const n of nodes) { const p = n.id.split('_')[0]; m[p] = (m[p] ?? 0) + (n.seats ?? 0); }
+    return m;
+  }, [nodes]);
+  const partyKey = ALL_PARTIES.filter(p => p in seatsOf).join(',');
+  const PARTIES = useMemo(() => partyKey.split(',').filter(Boolean), [partyKey]);
   const [view, setView] = useState(DEFAULT_VIEW);
   const [spin, setSpin] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
@@ -100,7 +118,7 @@ export function Constellation3D({ nodes, isDim }: {
     const grid = Math.round((reach + 0.15) * 4) / 4;
     const radius = Math.max(sphere, Math.hypot(grid, floorY, grid));
     return { ix, floorY, grid, radius };
-  }, [axes]);
+  }, [axes, PARTIES]);
   const { ix, floorY, grid, radius } = scene;
 
   // Zoom and vertical offset that fit everything on screen across a full turn at this tilt, so
@@ -124,10 +142,10 @@ export function Constellation3D({ nodes, isDim }: {
         xMax = Math.max(xMax, Math.abs(q[0]) + hx); yMin = Math.min(yMin, q[1] - hy); yMax = Math.max(yMax, q[1] + hy);
       }
     }
-    const MARGIN = 26;
+    const MARGIN = 30;
     const scale = Math.min((W / 2 - MARGIN) / xMax, (H - 2 * MARGIN) / (yMax - yMin));
     return { scale, yMid: (yMax + yMin) / 2 };
-  }, [ix, floorY, grid, view.pitch]);
+  }, [ix, floorY, grid, view.pitch, PARTIES]);
 
   const px = fit.scale;
   const R = rotation(view.yaw, view.pitch);
@@ -140,6 +158,16 @@ export function Constellation3D({ nodes, isDim }: {
   const screenRows = [R[0], R[1]];
   const floorMap = [[R[0][0], R[0][2]], [R[1][0], R[1][2]]];
 
+  const sizeVal = (p: string) => sizeBy === 'seats' ? (seatsOf[p] ?? 0) : PARTY_ELLIPSES[p].mean[ELLIPSE_FACTORS.indexOf(sizeBy)];
+  const sizeVals = PARTIES.map(sizeVal);
+  const sMin = Math.min(...sizeVals), sMax = Math.max(...sizeVals);
+  const ballR = (p: string) => {
+    if (equalSize) return R_EQUAL;
+    const v = sizeVal(p);
+    if (sizeBy === 'seats') return R_SEATS[0] + (R_SEATS[1] - R_SEATS[0]) * Math.sqrt(Math.max(0, v) / (sMax || 1));
+    return R_FACTOR[0] + (R_FACTOR[1] - R_FACTOR[0]) * (sMax > sMin ? (v - sMin) / (sMax - sMin) : 0.5);
+  };
+
   const ellipsoids = PARTIES.map(p => {
     const { mean, cov } = PARTY_ELLIPSES[p];
     const c: Vec3 = [mean[ix[0]], mean[ix[1]], mean[ix[2]]];
@@ -151,7 +179,7 @@ export function Constellation3D({ nodes, isDim }: {
     const shadow = ellipseFromCov2(Pf[0][0], Pf[0][1], Pf[1][1]);
     const fourthZ = mean[ELLIPSE_FACTORS.indexOf(fourth)];
     const colorZ = colorMode === 'party' ? 0 : mean[ELLIPSE_FACTORS.indexOf(colorMode)];
-    return { p, at: project(c), foot: project([c[0], floorY, c[2]]), e, shadow, fourthZ, colorZ };
+    return { p, at: project(c), foot: project([c[0], floorY, c[2]]), e, shadow, fourthZ, colorZ, r: ballR(p) };
   }).sort((a, b) => a.at.depth - b.at.depth);
 
   const currentMarkers = nodes
@@ -232,15 +260,14 @@ export function Constellation3D({ nodes, isDim }: {
             <filter id="c3d-shadow-blur" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="2.5" />
             </filter>
-            {ellipsoids.map(({ p, e, colorZ }) => {
+            {ellipsoids.map(({ p, r, colorZ }) => {
               const base = colorMode === 'party' ? PARTY_COLORS[p] : bamForZ(colorZ);
-              const { fx, fy } = lightOffset(e);
+              const { fx, fy } = lightOffset({ rx: r, ry: r, angle: 0 });
               return (
                 <radialGradient key={p} id={`c3d-shade-${p}`} cx={0.5} cy={0.5} r={0.5} fx={fx} fy={fy}>
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity={0.9} />
-                  <stop offset="35%" stopColor={base} stopOpacity={0.35} />
-                  <stop offset="85%" stopColor={base} stopOpacity={0.55} />
-                  <stop offset="100%" stopColor={base} stopOpacity={0.75} />
+                  <stop offset="0%" stopColor={d3color(base)?.brighter(0.8).formatHex() ?? base} />
+                  <stop offset="45%" stopColor={base} />
+                  <stop offset="100%" stopColor={d3color(base)?.darker(0.6).formatHex() ?? base} />
                 </radialGradient>
               );
             })}
@@ -254,7 +281,7 @@ export function Constellation3D({ nodes, isDim }: {
           {ellipsoids.map(({ p, foot, shadow }) => (
             <ellipse key={p} cx={foot.x} cy={foot.y} rx={shadow.rx * px} ry={shadow.ry * px}
               transform={`rotate(${-shadow.angle} ${foot.x} ${foot.y})`}
-              fill={dimmed(p) ? '#cbd5e1' : '#64748b'} fillOpacity={dimmed(p) ? 0.12 : 0.22}
+              fill={dimmed(p) ? '#cbd5e1' : '#64748b'} fillOpacity={dimmed(p) ? 0.08 : 0.16}
               filter="url(#c3d-shadow-blur)" />
           ))}
 
@@ -280,21 +307,31 @@ export function Constellation3D({ nodes, isDim }: {
             </g>
           ))}
 
-          {ellipsoids.map(({ p, at, e, fourthZ }) => {
+          {/* Shells first, so every ball sits on top of every shell, as bubbles sit on penumbras in 2D. */}
+          {ellipsoids.map(({ p, at, e }) => {
             const dim = dimmed(p);
-            const near = nearness(at.depth);
+            return (
+              <ellipse key={p} cx={at.x} cy={at.y} rx={e.rx * px} ry={e.ry * px}
+                transform={`rotate(${-e.angle} ${at.x} ${at.y})`} pointerEvents="none"
+                opacity={dim ? 0.3 : 0.6 + 0.4 * nearness(at.depth)}
+                fill={PARTY_COLORS[p]} fillOpacity={dim ? 0.015 : 0.05}
+                stroke={PARTY_COLORS[p]} strokeOpacity={dim ? 0.08 : 0.25} strokeWidth={1} />
+            );
+          })}
+
+          {ellipsoids.map(({ p, at, r, fourthZ, colorZ }) => {
+            const dim = dimmed(p);
+            const base = colorMode === 'party' ? PARTY_COLORS[p] : bamForZ(colorZ);
+            const outline = d3color(base)?.darker(1.4).formatHex() ?? base;
+            const seats = seatsOf[p] ?? 0;
             return (
               <g key={p} onPointerEnter={() => setHover(p)} onPointerLeave={() => setHover(null)}
-                opacity={dim ? 0.18 : 0.55 + 0.45 * near}>
-                <title>{`${PARTY_NAMES[p]}: ${FACTOR_LABELS[fourth]} ${fourthZ >= 0 ? '+' : ''}${fourthZ.toFixed(2)} SD`}</title>
-                <ellipse cx={at.x} cy={at.y} rx={e.rx * px} ry={e.ry * px}
-                  transform={`rotate(${-e.angle} ${at.x} ${at.y})`}
-                  fill={`url(#c3d-shade-${p})`}
-                  stroke={PARTY_COLORS[p]} strokeOpacity={0.9} strokeWidth={dim ? 1 : 1.5} />
-                {!dim && (
-                  <text x={at.x} y={at.y + 3} textAnchor="middle" fontSize={CHART_TYPE.inMark} fontWeight={700}
-                    fill={PARTY_COLORS[p]} stroke="#fff" strokeWidth={2.5} paintOrder="stroke">{p}</text>
-                )}
+                opacity={dim ? 0.2 : 0.85 + 0.15 * nearness(at.depth)}>
+                <title>{`${PARTY_NAMES[p]}: ${seats} seats · ${FACTOR_LABELS[fourth]} ${fourthZ >= 0 ? '+' : ''}${fourthZ.toFixed(2)} SD`}</title>
+                <circle cx={at.x} cy={at.y} r={r} fill={`url(#c3d-shade-${p})`}
+                  stroke={outline} strokeWidth={dim ? 1 : 1.5} />
+                <text x={at.x} y={at.y - r - 3} textAnchor="middle" fontSize={CHART_TYPE.axisTick} fontWeight={700}
+                  fill="#1e293b" stroke="#f8fafc" strokeWidth={3} paintOrder="stroke">{p}</text>
               </g>
             );
           })}
@@ -307,45 +344,21 @@ export function Constellation3D({ nodes, isDim }: {
           ))}
         </svg>
         <p className={`${CARD_HINT} mt-1 text-center`}>
-          Drag to rotate. Each shape holds the middle half of a party's voters as seen from the current
-          angle, with its shadow on the floor directly below. Dots on the axes mark 1 and 2 standard deviations.
+          Drag to rotate. Each ball sits at a party's average voter
+          {equalSize ? '' : `, sized by ${sizeBy === 'seats' ? 'seats' : FACTOR_LABELS[sizeBy]}`}. The faint
+          shell around it holds the middle half of the party's voters as seen from this angle, and its
+          shadow falls on the floor below. Dots on the axes mark 1 and 2 standard deviations.
         </p>
       </div>
 
       <div className="flex shrink-0 flex-col gap-2.5 border-t border-border pt-3 lg:w-60 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
         {(['Axis 1', 'Axis 2', 'Axis 3'] as const).map((label, k) => (
-          <div key={label} className="flex items-start gap-1.5">
-            <span className="w-12 shrink-0 pt-1 text-xs text-muted-foreground font-semibold">{label}</span>
-            <div className="flex flex-wrap gap-1">
-              {FACTORS.map(f => (
-                <Button key={f} onClick={() => setAxis(k, f)} title={FACTOR_LABELS[f]}
-                  variant={axes[k] === f ? 'default' : 'secondary'} size="sm" className="px-2 h-6 flex-none">
-                  {AXIS_WORD[f]}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <ControlSection key={label} label={label} options={FACTORS} value={axes[k]}
+            onChange={f => setAxis(k, f as Factor)} />
         ))}
-        <div className="flex items-start gap-1.5">
-          <span className="w-12 shrink-0 pt-1 text-xs text-muted-foreground font-semibold">Color</span>
-          <div className="flex flex-wrap items-center gap-1">
-            {(['party', ...FACTORS] as const).map(opt => (
-              <Button key={opt} onClick={() => setColorMode(opt)}
-                title={opt === 'party' ? 'Party color' : FACTOR_LABELS[opt]}
-                variant={colorMode === opt ? 'default' : 'secondary'} size="sm" className="px-2 h-6 flex-none">
-                {opt === 'party' ? 'Party' : AXIS_WORD[opt]}
-              </Button>
-            ))}
-            {colorMode !== 'party' && (
-              <div className="flex items-center gap-1 ml-1">
-                <span className="text-4xs text-muted-foreground">{FACTOR_POLES[colorMode]?.low}</span>
-                <div className="h-1.5 w-14 rounded-full"
-                  style={{ background: `linear-gradient(to right, ${bamForZ(-2.5)}, ${bamForZ(0)}, ${bamForZ(2.5)})` }} />
-                <span className="text-4xs text-muted-foreground">{FACTOR_POLES[colorMode]?.high}</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <SizeControl options={SIZE_OPTIONS} value={sizeBy} equal={equalSize}
+          onChange={v => setSizeBy(v as 'seats' | Factor)} onEqualChange={setEqualSize} />
+        <ColorControl options={COLOR_OPTIONS} value={colorMode} onChange={v => setColorMode(v as 'party' | Factor)} />
         <div className="flex gap-1">
           <Button onClick={() => setSpin(s => !s)} variant={spin ? 'default' : 'secondary'} size="sm" className="px-2 h-6">
             {spin ? 'Stop' : 'Spin'}

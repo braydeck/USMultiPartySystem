@@ -1,13 +1,13 @@
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import type { ConstellationNode, TransferMatrix } from '../../types';
-import { getBlendColor, isCurrentParty, FACTOR_LABELS, FACTOR_POLES, PARTY_COLORS, CLUSTER_TO_PARTY, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
-import { Button } from '@/components/ui/button';
+import { getBlendColor, isCurrentParty, FACTOR_POLES, PARTY_COLORS, CLUSTER_TO_PARTY, F5_ORDER_WFP as F5_ORDER } from '../../constants/parties';
 import { ToggleGroup } from '../shared/ToggleGroup';
 import { bamForZ, bamForPctile } from '../../lib/bam';
 import { CARD_HINT, CHART_TYPE } from '../../constants/typography';
 import { Constellation3D } from './Constellation3D';
-import factorPopulationSd from '../../data/factorPopulationSd.json';
+import { ColorControl, ControlSection, SizeControl } from './ConstellationControls';
+import { rawToZ, rawSpreadToZ } from '../../lib/factorScale';
 
 interface ClusterSpread {
   party: string;
@@ -22,8 +22,6 @@ interface Props {
   // toggles: all parties stay visible, but any not in the selection are faded (highlight, not
   // filter). An empty array shows everything at full emphasis. Undefined = self-managed toggles.
   selection?: string[];
-  /** Offer a 3D view: three factors as axes, the fourth as optional colour. */
-  allow3d?: boolean;
 }
 
 const VIEW_LABELS: Record<'2d' | '3d', string> = { '2d': '2D', '3d': '3D' };
@@ -33,61 +31,26 @@ const THRESHOLD = 1.5;
 const FACTORS = ['F1', 'F2', 'F4', 'F5'] as const;
 const ALL_AXES = [...FACTORS, 'seats'] as const;
 
-// Short, readable axis labels — a fresh visitor won't know "SO/ID/RT/PC". Full factor names
-// stay on the button tooltips and the chart axes.
-const AXIS_WORD: Record<string, string> = {
-  party: 'Party', F1: 'Security', F2: 'Distrust', F4: 'Traditionalism', F5: 'Econ. Right', seats: 'Seats',
-};
-
 const SCALE_LABELS: Record<'strength' | 'percentile', string> = {
   strength: 'σ Strength',
   percentile: '% Percentile',
 };
 
-function ControlSection({
-  label, options, value, onChange,
-}: {
-  label: string;
-  options: readonly string[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="flex items-start gap-1.5">
-      <span className="w-12 shrink-0 pt-1 text-xs text-muted-foreground font-semibold">{label}</span>
-      <div className="flex flex-wrap gap-1">
-        {options.map(opt => (
-          <Button
-            key={opt}
-            onClick={() => onChange(opt)}
-            title={opt === 'seats' ? 'Seats' : (FACTOR_LABELS[opt] ?? opt)}
-            variant={value === opt ? 'default' : 'secondary'}
-            size="sm"
-            className="px-2 h-6 flex-none"
-          >
-            {AXIS_WORD[opt] ?? opt}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function IdeologicalConstellation({ nodes: inputNodes, transfers, clusterSpreads, selection, allow3d }: Props) {
+export function IdeologicalConstellation({ nodes: inputNodes, transfers, clusterSpreads, selection }: Props) {
   const controlled = selection !== undefined;
   const [view, setView] = useState<'2d' | '3d'>('2d');
-  const is3d = allow3d && view === '3d';
+  const is3d = view === '3d';
   const svgRef = useRef<SVGSVGElement>(null);
   const W = 560, H = 460;
   const PAD_L = 52, PAD_R = 24, PAD_T = 30, PAD_B = 52;
 
   const [xFactor, setXFactor] = useState('F5');
-  const [yFactor, setYFactor] = useState('F1');
-  // Size = Government Distrust (F2): the heavier-loading, cross-cutting factor gets the
-  // more prominent channel (area reads uniformly; the diverging colour washes out near center).
-  // Color = Cultural Conservatism (F4): the partisan factor drives the left-right hue gradient.
-  const [sizeFactor, setSizeFactor] = useState('F2');
-  const [colorMode, setColorMode] = useState('F4');
+  const [yFactor, setYFactor] = useState('F4');
+  // Position and size, the channels read most accurately, carry the three factors that separate
+  // the parties most (F4, F1, F5). Colour, read least accurately, carries Government Distrust (F2),
+  // which separates them least; its diverging scale still shows which side of average each sits.
+  const [sizeFactor, setSizeFactor] = useState('F1');
+  const [colorMode, setColorMode] = useState('F2');
   const [equalSize, setEqualSize] = useState(false);
   const [scaleMode, setScaleMode] = useState<'strength' | 'percentile'>('strength');
   const [enabledParties, setEnabledParties] = useState<Set<string>>(() => new Set(F5_ORDER));
@@ -137,9 +100,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
     // Expand domain to fit penumbra extents in percentile space
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
-      const LP_SD_D: Record<string, number> = factorPopulationSd;
       const r2plot = (raw: number, f: string) => {
-        const z = raw / (LP_SD_D[f] || 1);
+        const z = rawToZ(raw, f);
         return scaleMode === 'percentile' ? zToPctile(z) : z;
       };
       for (const cs of clusterSpreads) {
@@ -305,10 +267,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     // --- Penumbra ellipses (voter spread) ---
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
       const penumbraG = svg.append('g').attr('class', 'penumbra').attr('clip-path', `url(#${clipId})`);
-      // Population stats for raw→z conversion
-      const LP_SD_P: Record<string, number> = factorPopulationSd;
       const rawToPlot = (raw: number, f: string) => {
-        const z = raw / (LP_SD_P[f] || 1);
+        const z = rawToZ(raw, f);
         return scaleMode === 'percentile' ? zToPctile(z) : z;
       };
       for (const cs of clusterSpreads) {
@@ -322,10 +282,10 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         const rawSdy = Number(cs[`sd_${yFactor}`] ?? 0);
         const sdx = scaleMode === 'percentile'
           ? Math.abs(rawToPlot(rawMx + rawSdx, xFactor) - mx)
-          : rawSdx / (LP_SD_P[xFactor] || 1);
+          : rawSpreadToZ(rawSdx, xFactor);
         const sdy = scaleMode === 'percentile'
           ? Math.abs(rawToPlot(rawMy + rawSdy, yFactor) - my)
-          : rawSdy / (LP_SD_P[yFactor] || 1);
+          : rawSpreadToZ(rawSdy, yFactor);
         if (!sdx || !sdy || isNaN(sdx) || isNaN(sdy)) continue;
 
         const covKey = `cov_${xFactor}_${yFactor}`;
@@ -532,10 +492,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
             })}
           </div>
         )}
-        {allow3d && (
-          <ToggleGroup label="View" value={view} onChange={setView}
-            options={['2d', '3d'] as const} labels={VIEW_LABELS} />
-        )}
+        <ToggleGroup label="View" value={view} onChange={setView}
+          options={['2d', '3d'] as const} labels={VIEW_LABELS} />
         {!is3d && (
           <ToggleGroup label="Scale" value={scaleMode} onChange={setScaleMode}
             options={['strength', 'percentile'] as const} labels={SCALE_LABELS} />
@@ -543,7 +501,8 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
       </div>
 
       {is3d && (
-        <Constellation3D nodes={inputNodes}
+        <Constellation3D
+          nodes={controlled ? inputNodes : inputNodes.filter(n => enabledParties.has(n.id.split('_')[0]))}
           isDim={id => controlled && (selection?.length ?? 0) > 0 && !selection!.includes(id.split('_')[0])} />
       )}
 
@@ -562,44 +521,9 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         <div className="flex shrink-0 flex-col gap-2.5 border-t border-border pt-3 lg:w-60 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
           <ControlSection label="X" options={ALL_AXES} value={xFactor} onChange={setXFactor} />
           <ControlSection label="Y" options={ALL_AXES} value={yFactor} onChange={setYFactor} />
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Equal size and a size dimension are mutually exclusive: when equal size is on,
-                no dimension is highlighted; picking a dimension turns equal size off. */}
-            <ControlSection label="Size" options={ALL_AXES}
-              value={equalSize ? '' : sizeFactor}
-              onChange={v => { setSizeFactor(v); setEqualSize(false); }} />
-            <Button onClick={() => setEqualSize(!equalSize)}
-              variant={equalSize ? 'default' : 'secondary'}
-              size="sm" className="px-2 h-6">
-              {equalSize ? '⊙ Equal size' : '○ Equal size'}
-            </Button>
-          </div>
-          <div className="flex items-start gap-1.5">
-            <span className="w-12 shrink-0 pt-1 text-xs text-muted-foreground font-semibold">Color</span>
-            <div className="flex flex-wrap items-center gap-1">
-              {colorOptions.map(opt => (
-                <Button
-                  key={opt}
-                  onClick={() => setColorMode(opt)}
-                  title={opt === 'party' ? 'Party color' : (FACTOR_LABELS[opt] ?? opt)}
-                  variant={colorMode === opt ? 'default' : 'secondary'}
-                  size="sm"
-                  className="px-2 h-6 flex-none"
-                >
-                  {AXIS_WORD[opt] ?? opt}
-                </Button>
-              ))}
-              {/* Legend for the diverging factor colour (teal = low pole → magenta = high pole). */}
-              {colorMode !== 'party' && (
-                <div className="flex items-center gap-1 ml-1">
-                  <span className="text-4xs text-muted-foreground">low</span>
-                  <div className="h-1.5 w-16 rounded-full"
-                    style={{ background: `linear-gradient(to right, ${bamForZ(-2.5)}, ${bamForZ(0)}, ${bamForZ(2.5)})` }} />
-                  <span className="text-4xs text-muted-foreground">high</span>
-                </div>
-              )}
-            </div>
-          </div>
+          <SizeControl options={ALL_AXES} value={sizeFactor} equal={equalSize}
+            onChange={setSizeFactor} onEqualChange={setEqualSize} />
+          <ColorControl options={colorOptions} value={colorMode} onChange={setColorMode} />
         </div>
       </div>
     </div>

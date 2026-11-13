@@ -7,6 +7,7 @@ import { useSignatureFilter } from '../hooks/useSignatureFilter';
 import { SignatureFilters } from '../components/shared/SignatureFilters';
 import { PartySelector } from '../components/shared/PartySelector';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
+import { DEFAULT_HOUSE_SEATS } from '../lib/defaultHouseSeats';
 import { PopulationBreakdown } from '../components/shared/PopulationBreakdown';
 import { PartyProfileGrid } from '../components/shared/PartyProfileGrid';
 import { RangeBarCell, CompositionStackCell, HeatmapCell, FactorTags, type RangeMeta, type CompMeta } from '../components/shared/DistributionCells';
@@ -28,7 +29,7 @@ import { CurrentPartyDistance } from '../components/parties/CurrentPartyDistance
 // import { PartyOverlapMatrix } from '../components/parties/PartyOverlapMatrix';
 // import { FactorPairGrid } from '../components/parties/FactorPairGrid';
 import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, MINOR_HEADING, TABLE_HEADER, CARD_HINT } from '../constants/typography';
-import factorPopulationSd from '../data/factorPopulationSd.json';
+import { rawToZ } from '../lib/factorScale';
 
 interface Props {
   clusters: ClusterProfile[];
@@ -284,11 +285,6 @@ function getFactorScores(
   return null;
 }
 
-// Population SDs for raw→z conversion
-const LP_SD: Record<string, number> = factorPopulationSd;
-function rawToZ(val: number, factor: string): number {
-  return val / (LP_SD[factor] || 1);
-}
 
 
 
@@ -824,8 +820,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
 
   const distanceInputs = useMemo(() => {
     const zByCode: Record<string, Record<string, number>> = {};
-    // Same z definition for formulated AND current parties: raw factor score / LP_SD via
-    // rawToZ. getFactorScores already resolves current parties (Task 9), so one path covers both.
+    // Same z definition for formulated AND current parties: rawToZ, the app's one position
+    // scale. getFactorScores already resolves current parties (Task 9), so one path covers both.
     const addZ = (c: string) => {
       const fs = getFactorScores(c, clusters, fdProfiles);
       if (!fs) return;
@@ -873,7 +869,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     (F5_ORDER.filter(code => clusters.some(c => c.party === code)).map(code => {
       const c = clusters.find(x => x.party === code) as unknown as Record<string, number> & { seatsHouse?: number };
       return {
-        id: code, label: code, seats: c.seatsHouse ?? 0,
+        id: code, label: code, seats: DEFAULT_HOUSE_SEATS[code] ?? 0,
         F1: c.z_F1 ?? 0, F2: c.z_F2 ?? 0, F3: c.z_F3 ?? 0, F4: c.z_F4 ?? 0, F5: c.z_F5 ?? 0,
       };
     }) as ConstellationNode[]).concat(currentParties.map(c => ({
@@ -895,7 +891,7 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
         {selected.length > 0 && ' Selected parties are highlighted; the rest stay for context.'}
       </p>
-      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={[...clusterSpreads, ...(currentPartySpreadsData as typeof clusterSpreads)]} selection={selected} allow3d />
+      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={[...clusterSpreads, ...(currentPartySpreadsData as typeof clusterSpreads)]} selection={selected} />
     </Card>
   );
 
