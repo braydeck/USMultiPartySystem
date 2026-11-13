@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import type { VoteModelRow, CandidateVoteRow } from '../../types';
 import { getBlendColor, getPrimaryParty } from '../../constants/parties';
 import type { VoteMode, HouseSystem } from '../../constants/labels';
-import { blocOutcome, freeOutcome, houseProbField, presSigns, type SeatMap } from './voteBloc';
+import { blocOutcome, passProbability, houseProbField, presSigns, type SeatMap } from './voteBloc';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SIGNAL } from '../../lib/bam';
@@ -204,7 +204,7 @@ export function UnifiedBillTable({ houseRows, senateRows, pipeline, senateMethod
         }
         const houseProb  = houseField
           ? hr?.[houseField] as number | undefined
-          : candByVar[variable] ? freeOutcome(candByVar[variable], houseSeats).share : undefined;
+          : candByVar[variable] ? passProbability(candByVar[variable], houseSeats) : undefined;
         const senateProb = sr?.[senateProbField] as number | undefined;
         // See VoteModelRow.presSignsByParty: keyed on `presWinner`, the president this table
         // names in its own header, not on the fixed columns' full-depth winners.

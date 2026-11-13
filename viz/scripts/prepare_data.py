@@ -3136,12 +3136,13 @@ def build_house_vote_model_wfp(src, out_name="houseVoteModelWFP.json", triple_sr
         code = _cluster_to_party.get(cl, str(cl))
         rm_seats[code] = rm_seats.get(code, 0) + int(r["NATIONAL"])
         total += int(r["NATIONAL"])
-    # The headline chamber is the modal one, so the legislation model must describe
-    # that chamber rather than the single observed run. Total/maj stay put — the
-    # modal house still sums to 873.
+    # The House votes as the House tab shows it: the elected chamber of this tree, not the
+    # bootstrap's per-party modal counts (ruled 2026-11-12). The modal chamber is assembled party
+    # by party, so it is not a House any draw produced, and it exists only for rank-7 double STV;
+    # the elected chamber exists for every system, map and depth the tab can switch to. The
+    # Senate keeps its modal delegations because the Senate tab displays those.
     # Path(...).name so an archive-prefixed out_name still yields the bare turnout suffix.
     _suffix = Path(out_name).name.replace("houseVoteModel", "").replace(".json", "")
-    rm_seats = _modal_seats(_suffix, "house") or rm_seats
     maj = total // 2 + 1
     import math as _m
     def _tt(t):

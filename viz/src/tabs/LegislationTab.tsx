@@ -42,7 +42,7 @@ import { senateSeatMap } from '../components/legislation/voteBloc';
 import { useScenarioFiles, useLazyData, fetchJson } from '../hooks/useDissolve';
 import { loadScenario, type ByStop } from '../lib/dissolve';
 import { DissolveMenu } from '../components/shared/DissolveMenu';
-import { uncertaintyAt, type SeatInterval } from '../lib/uncertainty';
+import { uncertaintyAt } from '../lib/uncertainty';
 import { delegationSeats } from '../lib/senateDelegations';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
 import { ParticipationSlider, GAP_STOPS } from '../components/shared/ParticipationSlider';
@@ -90,11 +90,6 @@ const CLUSTER_TO_PARTY: Record<number, string> = Object.fromEntries(
 );
 const toSeatMap = (arr: { party: number; national: number }[]): Record<string, number> =>
   Object.fromEntries(arr.map((r) => [CLUSTER_TO_PARTY[r.party], r.national]));
-/** Modal seats per party. */
-const modalMap = (seats: Record<string, SeatInterval>): Record<string, number> =>
-  Object.fromEntries(Object.entries(seats)
-    .filter(([, v]) => v.modal > 0)
-    .map(([p, v]) => [p, v.modal]));
 /** Both of a state's seats to its single modelled winner, for the pipelines that have no
  *  resampling to split on. Keeps every senate map on the 102-seat basis. */
 const doubled = (m: Record<string, number>): Record<string, number> =>
@@ -163,25 +158,21 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const presWinner = method === 'condorcet' ? election.condorcetWinner : election.irvWinner;
 
   // Both Vote Model settings have to describe ONE chamber: the toggle changes party discipline,
-  // not who sits in the seats. The Raw-Multi vote-model columns are computed from the modal
-  // chamber, so the browser-side seat maps that drive whipped mode, CoalitionMap and the bloc
-  // arithmetic must be the modal chamber too. Do not revert these to the committed per-state
-  // JSONs — that puts the observed chamber on one side of the toggle and the modal one on the
-  // other. Crossover has no bootstrap and keeps its own maps.
+  // not who sits in the seats. Each chamber votes as its own tab shows it. The House is the
+  // elected chamber (ruled 2026-11-12), which every system, map and depth has, and which the
+  // Raw-Multi House columns are computed from. The Senate is the bootstrap's delegations, which
+  // the Senate tab displays and the Senate columns are computed from. Crossover has no bootstrap
+  // and keeps its own maps.
   const unc = isRawMulti && !dzd ? uncertaintyAt(gi) : undefined;
 
-  // House seat composition for the coalition seat-stack.
+  // House seat composition for the coalition seat-stack and the computed pass probabilities.
   // Reserve and MMP read from their bundled national data; STV/list from the depth bundle.
-  // The bootstrap modal chamber is rank-7 double-Wyoming STV only, so it applies only when
-  // depth=top7 + wyoming=double + system=stv + reserve=off.
-  const useModal = unc && wyoming === 'double' && depth === 'top7' && system === 'stv' && reserve === 'off';
   const houseSeats = (() => {
     if (system === 'mmp') return mmpNat?.mmpSeats ?? {};
     if (reserve === 'on' && reserveNat) {
       return system === 'list' ? (reserveNat.list.seats ?? {}) : (reserveNat.stv.seats ?? {});
     }
     if (system === 'list') return houseNat?.listSeats ?? {};
-    if (useModal) return modalMap(unc!.house.seats);
     if (isRawMulti) return houseNat?.stvSeats ?? toSeatMap(dzd ? dzd.houseSeats[part] : rmSeatStops[gi]);
     return toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[]);
   })();

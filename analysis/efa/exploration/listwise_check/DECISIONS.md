@@ -248,3 +248,16 @@ Exact ties in every STV and IRV count break by the Scottish rules (SSI 2007/42 S
 recent earlier stage at which the tied candidates had unequal votes, then a seeded lot over a name-independent order
 (`pipeline/tiebreak.py`). Ireland (Electoral Act 1992 s.122) looks at the first count instead; Scotland's text was the
 one confirmed. The old alphabetical tie-break is why renaming POP to LP moved seats.
+
+## Legislation votes the elected House, not the bootstrap's modal House (ruled 2026-11-12)
+
+Each chamber votes on bills as its own tab shows it. The House is the chamber the simulation elects on the full sample,
+the one the House tab draws; the Senate stays the bootstrap's delegations, which the Senate tab draws. The modal House
+was each party's most frequent seat count across the 1,000 re-clustered draws, taken party by party, so it need not be a
+House any draw produced, and it existed only for rank-7 double-map STV. At the default view it held NAT at 204 seats
+against 183 elected and a bootstrap average of 184.6, because NAT's draws spread from 127 to 231.
+
+Switching changes one bill's label at the default view (CC24_326c, 55% to 91% to pass) and flips none between passing
+and failing. House configurations with no published pass-probability column (MMP, the reserve, depths other than 7) now
+compute one the same way, each member voting at their party's observed support (`passProbability` in
+`viz/src/components/legislation/voteBloc.ts`); they had been showing an expected yes share on the probability bands.

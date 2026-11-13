@@ -3,7 +3,7 @@ import type { VoteModelRow, PresidentialElection, CandidateVoteRow } from '../..
 import { getBlendColor } from '../../constants/parties';
 import type { VoteMode, HouseSystem } from '../../constants/labels';
 import { SHOW_CROSSOVER } from '../../constants/features';
-import { blocOutcome, freeOutcome, houseProbField, presSigns, type SeatMap } from './voteBloc';
+import { blocOutcome, passProbability, houseProbField, presSigns, type SeatMap } from './voteBloc';
 import { getBayesianLabel, getDirection, VerdictBadge, SignBadge, WhippedBadge, type VerdictLabel } from './UnifiedBillTable';
 import { Card } from '@/components/ui/card';
 import { FIELD_LABEL } from '../../constants/typography';
@@ -108,7 +108,7 @@ export function LegislationDivergences({ houseVotes, senateVotes, election, pipe
           } as Row;
         }
 
-        const houseFreeProb  = !HOUSE_PROB && candByVar[row.variable] ? freeOutcome(candByVar[row.variable], houseSeats).share : undefined;
+        const houseFreeProb  = !HOUSE_PROB && candByVar[row.variable] ? passProbability(candByVar[row.variable], houseSeats) : undefined;
         const houseLabel     = getBayesianLabel([HOUSE_PROB ? hr?.[HOUSE_PROB] as number | undefined : houseFreeProb]);
         const senateCondLabel = getBayesianLabel([row[SENATE_PROB[condCombo]] as number | undefined]);
         const senateIRVLabel  = getBayesianLabel([row[SENATE_PROB[irvCombo]] as number | undefined]);

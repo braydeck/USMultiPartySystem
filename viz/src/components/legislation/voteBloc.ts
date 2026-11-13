@@ -13,7 +13,7 @@ const HOUSE_PROB_FIELD: Record<string, keyof VoteModelRow> = {
 
 /** The precomputed pass-probability column for one House configuration, or undefined when the
  *  combination (MMP, reserve, non-rank-7 depth) has no pre-baked column and must be computed
- *  on the fly via freeOutcome. */
+ *  on the fly via passProbability. */
 export function houseProbField(
   system: HouseSystem, pipeline: Pipeline, wyoming: WyomingRule,
   opts?: { depth?: string; reserve?: string },
@@ -44,17 +44,36 @@ export function blocOutcome(bill: CandidateVoteRow, seats: SeatMap) {
   return { yes, total, pass: yes > total / 2, share: total ? yes / total : 0 };
 }
 
-/** Free vote: each party's seats split by its per-candidate yes-probability. */
-export function freeOutcome(bill: CandidateVoteRow, seats: SeatMap) {
-  let yes = 0, total = 0;
+// Abramowitz & Stegun 26.2.17, the normal CDF prepare_data.py uses, so a computed column matches
+// a published one to the digit.
+function normalCdf(x: number): number {
+  if (x > 6) return 1;
+  if (x < -6) return 0;
+  const t = 1 / (1 + 0.2316419 * Math.abs(x));
+  const d = 0.3989422803 * Math.exp(-0.5 * x * x);
+  const tail = d * t * (0.3193815 + t * (-0.3565638 + t * (1.7814779 + t * (-1.821256 + t * 1.3302744))));
+  return x < 0 ? tail : 1 - tail;
+}
+
+/** Chamber vote model: the chance a bill clears a majority of `seats`. Every member votes
+ *  independently at their party's observed support, so the yes count is a sum of binomials,
+ *  taken by its continuity-corrected normal approximation. This is the calculation behind the
+ *  published pass-probability columns (prepare_data.py `_lf_prob_pass`), for the House
+ *  configurations that have none. `majority` defaults to more than half the seats. */
+export function passProbability(bill: CandidateVoteRow, seats: SeatMap, majority?: number): number | undefined {
+  let mu = 0, variance = 0, total = 0;
   for (const p of F5_ORDER) {
     const s = seats[p] ?? 0;
-    if (!s || !bill.parties[p]) continue;
+    if (!s) continue;
     total += s;
-    const pYes = bill.parties[p].pYes ?? (bill.parties[p].observedPct ?? 0) / 100;
-    yes += s * pYes;
+    const q = (bill.parties[p]?.observedPct ?? 0) / 100;
+    mu += s * q;
+    variance += s * q * (1 - q);
   }
-  return { yes, total, pass: yes > total / 2, share: total ? yes / total : 0 };
+  if (!total) return undefined;
+  const need = majority ?? Math.floor(total / 2) + 1;
+  const z = (need - 0.5 - mu) / (variance > 0 ? Math.sqrt(variance) : 1e-6);
+  return 1 - normalCdf(z);
 }
 
 /** A single president signs (whipped) when their party favors the bill. */
