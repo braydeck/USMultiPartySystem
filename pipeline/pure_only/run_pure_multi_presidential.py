@@ -22,7 +22,9 @@ from pathlib import Path
 from itertools import combinations
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(1, str(Path(__file__).parent.parent))
 from turnout_weights import turnout_multiplier, output_tree
+from tiebreak import History, stable_key
 
 BASE_DIR     = Path(__file__).parent.parent.parent
 _BALLOT_TREE = "pure_multi"
@@ -70,15 +72,17 @@ def first_surviving_choice(ballots: np.ndarray, active: set) -> np.ndarray:
 # ── IRV ────────────────────────────────────────────────────────────────────────
 
 def run_irv(ballots: np.ndarray, weights: np.ndarray,
-            candidates: list) -> list:
-    """Run IRV to completion. Returns list of round dicts."""
+            candidates: list, lot_label: str = "") -> list:
+    """Run IRV to completion. Returns list of round dicts. Ties: pipeline/tiebreak.py."""
     active  = set(candidates)
     total_w = float(weights.sum())
     rounds  = []
+    history = History(lot_label)
 
     while len(active) > 1:
         fsc    = first_surviving_choice(ballots, active)
         totals = {c: float(weights[fsc == c].sum()) for c in active}
+        history.push(totals)
 
         winner_candidates = [c for c, v in totals.items() if v > total_w / 2]
 
@@ -94,7 +98,7 @@ def run_irv(ballots: np.ndarray, weights: np.ndarray,
             rounds.append(round_record)
             break
 
-        loser = min(active, key=lambda c: (totals[c], c))
+        loser = history.exclude(active, totals)
         round_record["eliminated"] = loser
         rounds.append(round_record)
         active.discard(loser)
@@ -150,7 +154,8 @@ def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
         defeats.append({"winner": winner, "loser": loser, "margin": margin,
                          "margin_pct": margin / total_votes * 100 if total_votes else 0,
                          "orig_idx": idx})
-    defeats.sort(key=lambda x: (-x["margin"], x["winner"]))
+    # Equal margins lock in a fixed, name-independent order (party cluster id, then slate).
+    defeats.sort(key=lambda x: (-x["margin"], stable_key(x["winner"]), stable_key(x["loser"])))
 
     def creates_cycle(locked, new_w, new_l):
         reachable, frontier = set(), {new_l}
@@ -174,7 +179,7 @@ def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
             lock_meta[idx]["locked"] = True
 
     losers     = {l for _, l in locked_edges}
-    undefeated = [c for c in candidates if c not in losers]
+    undefeated = sorted((c for c in candidates if c not in losers), key=stable_key)
     rp_winner  = undefeated[0] if undefeated else "none"
 
     for d in defeats:
@@ -237,7 +242,7 @@ def main():
 
     # ── National IRV ──────────────────────────────────────────────────────────
     print("\nRunning national IRV…")
-    nat_rounds = run_irv(fin_ballots, weights, FINALISTS)
+    nat_rounds = run_irv(fin_ballots, weights, FINALISTS, lot_label="US")
     nat_result = summarise_irv(nat_rounds, FINALISTS)
 
     print(f"\n{'='*60}")
@@ -296,7 +301,7 @@ def main():
         s_weights = weights[mask]
         abbr      = FIPS_TO_ABBR.get(fips, f"FIPS{fips}")
 
-        s_rounds = run_irv(s_ballots, s_weights, FINALISTS)
+        s_rounds = run_irv(s_ballots, s_weights, FINALISTS, lot_label=abbr)
         s_result = summarise_irv(s_rounds, FINALISTS)
 
         # State-level Condorcet via Ranked Pairs

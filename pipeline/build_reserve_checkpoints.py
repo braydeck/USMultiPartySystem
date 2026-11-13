@@ -21,7 +21,7 @@ import pandas as pd
 
 BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
-from run_house_canonical import assign_voters_to_districts_geo, SPLIT_OVERRIDE_PATH  # noqa: E402
+from run_house_canonical import assign_voters_to_districts_geo  # noqa: E402
 from stv_config import EFA_SCORES_PATH, TYPOLOGY_PATH  # noqa: E402
 
 VOTER_FIPS_PATH = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
@@ -48,10 +48,6 @@ def main():
     N = len(efa)
     print(f"{N:,} voters loaded")
 
-    voter_fips_df = pd.read_csv(VOTER_FIPS_PATH, index_col=0)
-    voter_counties = voter_fips_df["countyfips"].astype(str).str.zfill(5).values
-    voter_cds = (pd.to_numeric(voter_fips_df["cd119"], errors="coerce").values
-                 if "cd119" in voter_fips_df.columns else None)
 
     # Need density_tier from the base checkpoint for fallback assignment
     base_ckpt = pd.read_parquet(
@@ -62,14 +58,7 @@ def main():
     for cfg in CONFIGS:
         print(f"\n{'='*60}\n{cfg['label']}")
         apportion = pd.read_csv(cfg["apport"])
-        county_dist_df = pd.read_csv(cfg["county_dist"])
-        county_to_dist = dict(zip(
-            county_dist_df["county_fips5"].astype(str).str.zfill(5),
-            county_dist_df["district_id"]
-        ))
-
-        voter_district = assign_voters_to_districts_geo(
-            voter_counties, county_to_dist, inputstates, apportion, voter_cds)
+        voter_district = assign_voters_to_districts_geo(cfg["county_dist"], apportion, inputstates)
 
         unassigned = (voter_district == "").sum()
         if unassigned:

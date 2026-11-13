@@ -6,10 +6,10 @@ Every seat count in the app is reported as an exact number produced by one simul
 on the observed CES sample. Those numbers are less certain than they look, and in a handful
 of states the reported winner is not the likely one.
 
-Wyoming is the case that surfaced it. The observed sample gives POP by 2.8pp. Resampling its
-70 respondents 1000 times gives **CON 54%, POP 28%**. The reason is clean: POP and CON are
+Wyoming is the case that surfaced it. The observed sample gives LP by 2.8pp. Resampling its
+70 respondents 1000 times gives **CON 54%, LP 28%**. The reason is clean: LP and CON are
 evenly matched head-to-head — each wins 59% of the time once they meet — but CON reaches the
-final round 93% of the time and POP only 48%. POP won our sample because it survived to the
+final round 93% of the time and LP only 48%. LP won our sample because it survived to the
 final round, which happens less than half the time.
 
 This change moves the app from "here is the run" to "here is the likely outcome, with its
@@ -31,10 +31,10 @@ Bootstrap probes, 2026-07-29/30, senate, at the app default stop (λ=0.05):
 - Deterministic and modal chambers differ in only **3 of 51 states (IRV)** and **6 (Condorcet)**:
 
 ```
-IRV        observed:  CON 48  LBR 42  LIB 8  STY 2  POP 2
-           modal:     CON 48  LBR 46  LIB 6  STY 2  POP 0
-Condorcet  observed:  LBR 44  STY 26  CON 22  POP 8  CUP 2
-           modal:     LBR 42  STY 28  CON 20  POP 8  CUP 4
+IRV        observed:  CON 48  LBR 42  LIB 8  STY 2  LP 2
+           modal:     CON 48  LBR 46  LIB 6  STY 2  LP 0
+Condorcet  observed:  LBR 44  STY 26  CON 22  LP 8  CUP 2
+           modal:     LBR 42  STY 28  CON 20  LP 8  CUP 4
 ```
 
 So the probabilistic reading does not overturn the project's findings. It moves a few
@@ -123,14 +123,14 @@ produces the modal winner and is typical of such draws:
 3. Within that bucket, take the **medoid** — the draw whose round-1 vote vector is closest to
    the bucket mean.
 
-Verified on Wyoming: slate `CON_1/CON_2/LBR_1/LIB_1/POP_1` covers 23% of CON wins; the order
-`CON_2→LBR_1→POP_1` covers 35% of that slate; the resulting bucket is 8% of CON wins. The
+Verified on Wyoming: slate `CON_1/CON_2/LBR_1/LIB_1/LP_1` covers 23% of CON wins; the order
+`CON_2→LBR_1→LP_1` covers 35% of that slate; the resulting bucket is 8% of CON wins. The
 medoid run:
 
 ```
-R1: CON_1 42.7  LIB_1 25.4  POP_1 19.1  LBR_1 12.8  CON_2 0.0 ✕   (100.0)
-R2: CON_1 42.7  LIB_1 25.4  POP_1 19.1  LBR_1 12.8 ✕              (100.0)
-R3: CON_1 43.4  LIB_1 34.6  POP_1 22.0 ✕                           (100.0)
+R1: CON_1 42.7  LIB_1 25.4  LP_1 19.1  LBR_1 12.8  CON_2 0.0 ✕   (100.0)
+R2: CON_1 42.7  LIB_1 25.4  LP_1 19.1  LBR_1 12.8 ✕              (100.0)
+R3: CON_1 43.4  LIB_1 34.6  LP_1 22.0 ✕                           (100.0)
 R4: CON_1 64.1  LIB_1 35.9                                          (100.0)
 ```
 
@@ -139,8 +139,8 @@ Averaging across draws is **not** an option: round 3 cannot be averaged across d
 eliminated different candidates in round 2, because the active sets differ, so tallies aren't
 commensurable and transfers wouldn't sum.
 
-It is also narratively consistent with the prediction: POP is eliminated in R3, which is what
-happens 52% of the time. The observed run, where POP survives R3 and wins, is the minority
+It is also narratively consistent with the prediction: LP is eliminated in R3, which is what
+happens 52% of the time. The observed run, where LP survives R3 and wins, is the minority
 path.
 
 The same substituted draw supplies that state's winnow card and head-to-head matrix, so a
@@ -159,10 +159,10 @@ Suffixes match `_build_turnout_variant`: `Turnout`, `TurnoutL5` … `TurnoutL30`
       "seats": { "LBR": { "modal": 23, "expected": 22.6, "lo": 18, "hi": 27, "observed": 21 } },
       "states": {
         "56": {
-          "observed": "POP_1", "modal": "CON_1", "pModal": 0.54, "substituted": true,
-          "dist": { "CON": 0.54, "POP": 0.28, "LBR": 0.12, "CUP": 0.05 },
+          "observed": "LP_1", "modal": "CON_1", "pModal": 0.54, "substituted": true,
+          "dist": { "CON": 0.54, "LP": 0.28, "LBR": 0.12, "CUP": 0.05 },
           "decomp": { "CON": { "slate": 1.00, "final": 0.93, "win": 0.54, "winIfFinal": 0.59 },
-                      "POP": { "slate": 0.92, "final": 0.48, "win": 0.28, "winIfFinal": 0.59 } }
+                      "LP": { "slate": 0.92, "final": 0.48, "win": 0.28, "winIfFinal": 0.59 } }
         }
       },
       "nSubstituted": 3, "nBelow50": 8

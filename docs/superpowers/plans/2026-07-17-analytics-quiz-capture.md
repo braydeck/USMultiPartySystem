@@ -15,7 +15,7 @@
 - **No PII, ever.** Never write IP address, name, email, login, or any persistent device/cookie identifier to D1 or PostHog. The Function receives the client IP but must never store it.
 - **Consent copy, verbatim:** `Your answers are anonymous. I store the response and result to study which parties resonate, with no names, accounts, or IP addresses attached.`
 - **PostHog key/host, verbatim:** key `phc_vRxUStnjzxWPrLb449r4VvnjFUjYmxi2C7jxXHzHDhmo`, host `https://us.i.posthog.com`.
-- **Allowed party codes, verbatim:** `PRG, DSA, LIB, LBR, OAO, STY, CUP, CON, POP, NAT`.
+- **Allowed party codes, verbatim:** `PRG, DSA, LIB, LBR, OAO, STY, CUP, CON, LP, NAT`.
 - **PostHog config:** `person_profiles: 'identified_only'`, `persistence: 'memory'`, `autocapture: false`, `capture_pageview: 'history_change'`.
 - **Copy style:** public-writing voice; no em-dashes with spaces around them.
 - **Commit after every task.** This is a personal project on `main`; commit locally, do not push unless asked.
@@ -213,7 +213,7 @@ Expected: FAIL — cannot resolve `./validate`.
 
 Create `functions/api/_lib/validate.ts`:
 ```ts
-export const PARTY_CODES = ['PRG', 'DSA', 'LIB', 'LBR', 'OAO', 'STY', 'CUP', 'CON', 'POP', 'NAT'] as const
+export const PARTY_CODES = ['PRG', 'DSA', 'LIB', 'LBR', 'OAO', 'STY', 'CUP', 'CON', 'LP', 'NAT'] as const
 export const VIBE_VALUES = ['fit', 'miss'] as const
 export const MAX_ANSWERS = 50
 export const MAX_BODY_BYTES = 8192

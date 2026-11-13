@@ -10,6 +10,7 @@ the pipeline still runs clean, the app still builds, and the tests still pass.
 
   python3 pipeline/check_stale.py              # hash check, ~1s, no side effects
   python3 pipeline/check_stale.py --regenerate # rebuild everything and diff, ~4min
+  The dissolve-a-party scenarios are checked against their own manifest and rebuilt separately.
 
 HOW IT DECIDES
 The fast check hashes the declared inputs and compares them to `.verified.json`, a stamp
@@ -45,10 +46,14 @@ STAMP = BASE / "data" / "outputs" / ".verified.json"
 
 PROCESSED = "data/processed/"
 # party_codes.py derives the party set from the typology and the order from party_order.csv, so both travel with it
+# Every count breaks ties through tiebreak.py, so it rides with the survey inputs into each group.
 SURVEY = [PROCESSED + "efa_factor_scores.csv", PROCESSED + "typology_cluster_assignments.csv",
-          "pipeline/party_codes.py", PROCESSED + "party_order.csv"]
-GEO = [PROCESSED + "county_to_district.csv", PROCESSED + "voter_county_fips.csv",
-       "pipeline/county_split_overrides.csv"]
+          "pipeline/party_codes.py", PROCESSED + "party_order.csv", "pipeline/tiebreak.py"]
+# The drawn map: whole counties, ZIP-area pieces of split counties, and how respondents are placed.
+GEO = [PROCESSED + "county_to_district.csv", PROCESSED + "county_split_zcta.csv",
+       PROCESSED + "county_to_district_triple.csv", PROCESSED + "county_split_zcta_triple.csv",
+       PROCESSED + "voter_county_fips.csv", "pipeline/district_assign.py",
+       "pipeline/draw_geographic_districts.py"]
 TURNOUT = [PROCESSED + "turnout_propensity.csv"]
 CANON = ["data/outputs/canonical/district_apportionment.csv",
          "data/outputs/canonical/ballots_checkpoint.parquet",
@@ -67,8 +72,10 @@ GROUPS = [
         PROCESSED + "county_to_district_triple_reserve.csv",
         "data/outputs/canonical_reserve/district_apportionment.csv",
         "data/outputs/canonical_reserve/ballots_checkpoint.parquet",
-        "pipeline/run_reserve_stv.py", "pipeline/build_reserve_apportionment.py",
-        "pipeline/draw_reserve_districts.py", "pipeline/build_reserve_checkpoints.py"]),
+        PROCESSED + "county_split_zcta_reserve.csv", PROCESSED + "county_split_zcta_triple_reserve.csv",
+        PROCESSED + "voter_county_fips.csv", "pipeline/district_assign.py",
+        "pipeline/run_reserve_stv.py", "pipeline/draw_geographic_districts.py",
+        "pipeline/build_reserve_checkpoints.py"]),
     ("senate", SURVEY + TURNOUT + [
         "data/outputs/pure_multi/state_candidate_profiles.csv",
         "pipeline/pure_only/run_pure_multi_senate.py"]),
@@ -93,7 +100,8 @@ GROUPS = [
         PROCESSED + "county_to_district.csv", PROCESSED + "county_to_district_triple.csv",
         PROCESSED + "county_to_district_reserve.csv",
         PROCESSED + "county_to_district_triple_reserve.csv",
-        "pipeline/county_split_overrides.csv",
+        PROCESSED + "county_split_zcta.csv", PROCESSED + "county_split_zcta_triple.csv",
+        PROCESSED + "county_split_zcta_reserve.csv", PROCESSED + "county_split_zcta_triple_reserve.csv",
         "viz/src/data/districtStvResults.json",
         "viz/src/data/districtStvResultsTriple.json",
         "data/outputs/canonical_reserve/district_apportionment.csv",
@@ -179,8 +187,32 @@ def check() -> int:
                 print(f"      … and {len(changed) - 4} more")
         else:
             print(f"  {name:22s} ok")
+    stale += check_dissolve()
     print(f"\n  verified {stamp['verified_at']} at commit {stamp['commit']}")
     return stale
+
+
+DISSOLVE_MANIFEST = BASE / "data" / "dissolve_store" / "manifest.json"
+
+
+def check_dissolve() -> int:
+    """The dissolve scenarios carry their own stamp (a six-hour build, outside --regenerate):
+    manifest.json records the hash of every input and script they were built from."""
+    if not DISSOLVE_MANIFEST.exists():
+        print(f"  {'dissolve scenarios':22s} not built (pipeline/build_dissolve_scenarios.py --run)")
+        return 0
+    m = json.loads(DISSOLVE_MANIFEST.read_text())
+    changed = [i for i, h in m["inputs"].items() if digest(i) != h]
+    if changed or m["built"] < m["combinations"]:
+        print(f"  {'dissolve scenarios':22s} STALE — {m['built']} of {m['combinations']} built"
+              + (f", {len(changed)} input(s) changed:" if changed else ""))
+        for c in changed[:4]:
+            print(f"      {c}")
+        print(f"      rebuild: python3 pipeline/build_dissolve_scenarios.py --run{' --force' if changed else ''} --procs 6"
+              + (" (~9 h)" if changed else " (resumes; finished combinations are kept)"))
+        return 1
+    print(f"  {'dissolve scenarios':22s} ok ({m['built']} combinations)")
+    return 0
 
 
 def regenerate() -> int:

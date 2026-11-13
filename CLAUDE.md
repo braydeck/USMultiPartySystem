@@ -25,12 +25,12 @@ Cloudflare.
 | Fact | Value |
 |---|---|
 | Respondents | **49,431**: every post-weighted respondent who answered at least half of each factor's primary items (available-item scoring, nine-party typology of 2026-11-04). Not 45,214, the old listwise count. |
-| Parties | **9**, the cap-9 modal solution of the revised §3c rule on the four plain factor scores (ruled 2026-11-04, `analysis/efa/exploration/listwise_check/DECISIONS.md`): 17 of 20 seeds reach it, 8 of 9 clusters stable under resampling (POP at 0.75). The DPGMM fills every component it is given, so the count is a cap. Borders between neighboring parties are approximate; the re-clustering bootstrap carries that into every interval. No party is protected: a new typology may add, merge or drop parties on the evidence. |
+| Parties | **9**, the cap-9 modal solution of the revised §3c rule on the four plain factor scores (ruled 2026-11-04, `analysis/efa/exploration/listwise_check/DECISIONS.md`): 17 of 20 seeds reach it, 8 of 9 clusters stable under resampling (LP at 0.75). The DPGMM fills every component it is given, so the count is a cap. Borders between neighboring parties are approximate; the re-clustering bootstrap carries that into every interval. No party is protected: a new typology may add, merge or drop parties on the evidence. |
 | House chamber | **873 seats** (double magnitude), 1,726 (triple). **Not 435.** |
-| House districts | 150 double, 243 triple. MMP and Single Race instead use the 436 real 119th-Congress districts. |
+| House districts | 154 double, 278 triple, seats following each district's people (4-9 double, 4-10 triple; big counties cut by ZIP; redrawn 2026-11-11). MMP and Single Race instead use the 436 real 119th-Congress districts. |
 | Senate | 51 seats, one per state plus DC |
 | Electoral college | 975 electors |
-| Cluster to party | 0 CON, 1 LBR (Labor), 2 STY, 3 NAT, 5 POP, 6 CUP (Civic Union), 7 OAO (Order and Opportunity), 8 DSA, 9 PRG. Slot 4 (DAL) holds no voters. Left-right order is how often the parties vote together (first MDS dimension of party-majority agreement on the 37 Legislation bills, ruled 2026-11-06): DSA PRG LBR CUP STY OAO CON POP NAT (`analysis/coalitions/vote_agreement.py` → `data/processed/party_order.csv` → `party_codes.LEFT_RIGHT`, and it rewrites `F5_ORDER`). IDs stay stable across typologies; scripts get the live parties from `pipeline/party_codes.py`, which reads them off the typology, and keep length-10 arrays only where `prob_cluster_0..9` is positional. |
+| Cluster to party | 0 CON, 1 LBR (Labor), 2 STY, 3 NAT, 5 LP, 6 CUP (Civic Union), 7 OAO (Order and Opportunity), 8 DSA, 9 PRG. Slot 4 (DAL) holds no voters. Left-right order is how often the parties vote together (first MDS dimension of party-majority agreement on the 37 Legislation bills, ruled 2026-11-06): DSA PRG LBR CUP STY OAO CON LP NAT (`analysis/coalitions/vote_agreement.py` → `data/processed/party_order.csv` → `party_codes.LEFT_RIGHT`, and it rewrites `F5_ORDER`). IDs stay stable across typologies; scripts get the live parties from `pipeline/party_codes.py`, which reads them off the typology, and keep length-10 arrays only where `prob_cluster_0..9` is positional. |
 | App defaults | ballot depth `top7`, turnout gap `5%`, magnitude `double`, field `rawMulti` |
 
 Before quoting any chamber-level count, sum it out of the JSON. Do not reach for 435.
@@ -98,6 +98,17 @@ Displayed numbers live in `viz/src/data/*.json` (bundled) and `viz/public/data/*
 (fetched lazily). `viz/scripts/prepare_data.py` converts pipeline CSVs into most of them;
 `pipeline/build_*.py` writes the rest.
 
+**Dissolve scenarios** (`?dissolve=NAT-LP`, the Dissolve dropdown in the settings bar on Presidency,
+Senate, House, Legislation): all 510 combinations at every turnout stop, depth and map, built by
+`pipeline/build_dissolve_scenarios.py` (~9 h on 6 processes, resumable; `--check` must first reproduce
+all 124 committed payload files) into `data/dissolve_store/` (gitignored, ~600 MB gzip). Each file is
+the full-field payload of the same name rerun without the dissolved parties, so tabs swap files rather
+than special-case views; only bootstrap ranges are missing. Dev serves the store through
+`viz/vite.config.ts`; production reads the R2 bucket bound as `DISSOLVE` via
+`viz/functions/data/dissolve/[[path]].ts`. A dissolved party's posterior column is zeroed and
+renormalized, slates resize to the new shares, turnout stays per person. A new typology means
+`--run --force`; `check_stale.py` reads the store's own `manifest.json`.
+
 **Trace a number to its JSON, then to the script that writes that JSON, before explaining it.**
 Reading a script in `pipeline/` is not evidence the app uses it. Use
 `grep -rln <module> pipeline/` to check for a live importer.
@@ -136,7 +147,7 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    9.6, and a 7.9% floor at full ranking. Benchmark the floor before calling it high — one such
    seat in each of the 150 districts would be 17.2%, so 7.9% (69 seats, 46% of districts) sits
    well under the ordinary rate. Concentration is a plausible story for *which* districts sit at
-   the floor, untested as of 2026-09-12. These figures predate the 2026-10 rescore; re-measure
+   the floor, untested as of 2026-09-12. These figures predate the 2026-10 rescore and the 2026-11-11 redraw; re-measure
    before quoting.
 
 6. **`id` is the correct FD axis label.** Do not re-run `rename_ae_to_es.py`.
@@ -177,13 +188,18 @@ Reading a script in `pipeline/` is not evidence the app uses it. Use
    `python3 pipeline/check_stale.py` (1s) — it hashes every declared input against
    `data/outputs/.verified.json` and names the groups that need rebuilding. `--regenerate`
    (~3 min) rebuilds everything, diffs, and rewrites the stamp; commit the stamp with the
-   outputs. This is what caught nothing in July, when `county_split_overrides.csv` changed and
+   outputs. This is what caught nothing in July, when a county-split file changed and
    73 of 74 house trees sat stale for six weeks.
 
    When verifying a pipeline **edit**, still never diff against HEAD: the runners rewrite their
    own committed output on a no-op re-run. Run the unedited code, snapshot, apply the edit,
    re-run, diff those two. The runners are deterministic (byte-identical across runs and across
    `PYTHONHASHSEED`); it is the committed baseline that lags.
+
+10. **Ties never break on a party's name.** Every STV and IRV count breaks exact ties by the
+   Scottish rules (SSI 2007/42 Sch. 1 rules 49 and 51): the most recent earlier stage at which the
+   tied candidates differed, then a seeded lot over a name-independent order
+   (`pipeline/tiebreak.py`). The old alphabetical tie-break made the POP→LP rename move seats.
 
 ## Voice for app copy
 

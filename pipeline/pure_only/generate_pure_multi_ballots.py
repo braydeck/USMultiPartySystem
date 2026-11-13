@@ -88,10 +88,10 @@ CANDIDATES = [
     {"code": "DAL_1", "party": "DAL", "cluster": 4, "prominence": 0.40},
     {"code": "DAL_2", "party": "DAL", "cluster": 4, "prominence": 0.35},
     {"code": "DAL_3", "party": "DAL", "cluster": 4, "prominence": 0.25},
-    # ── POP: 3 candidates ──
-    {"code": "POP_1", "party": "POP", "cluster": 5, "prominence": 0.40},
-    {"code": "POP_2", "party": "POP", "cluster": 5, "prominence": 0.35},
-    {"code": "POP_3", "party": "POP", "cluster": 5, "prominence": 0.25},
+    # ── LP: 3 candidates ──
+    {"code": "LP_1", "party": "LP", "cluster": 5, "prominence": 0.40},
+    {"code": "LP_2", "party": "LP", "cluster": 5, "prominence": 0.35},
+    {"code": "LP_3", "party": "LP", "cluster": 5, "prominence": 0.25},
     # ── CUP: 3 candidates ──
     {"code": "CUP_1", "party": "CUP", "cluster": 6, "prominence": 0.40},
     {"code": "CUP_2", "party": "CUP", "cluster": 6, "prominence": 0.35},

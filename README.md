@@ -37,24 +37,20 @@ Regenerating the field is unchanged — see the crossover block under [Running t
 
 ### District map
 
-`data/processed/county_to_district.csv` assigns each of the 3,142 counties to a multi-member
-district, and it is an *input* to the House simulation — STV pools voters district by district.
-`draw_geographic_districts.py` used to draw a different map on every run, because tie-breaks
-resolved through set iteration order, which varies with `PYTHONHASHSEED`. That is fixed: the map is
-byte-identical across runs, verified at seeds 0, 1 and 7.
+`pipeline/draw_geographic_districts.py` draws all four House maps (double, triple, and their
+reserve versions). Each state's seats are its population over the map's people per seat. Each
+district's seat count follows the people it holds:
 
-The committed map predated the fix, so it could not be reproduced from the code. **Resynced on
-2026-07-31**: the deterministic map is now the committed one, and everything downstream was rebuilt
-against it. 65 counties changed district — all within their own state and their own density tier,
-so no state's seat count moved — reshaping 31 of the 149 districts and reassigning three seats
-(Conservative +1, Nationalist +2, Labor −1, Populist −2). Six parties and the 873-seat total were
-unaffected.
+- A county worth 4 or more seats is a district of its own. One worth more than the map's largest
+  district (9 seats double, 10 triple) is cut into ZIP-area districts by straight cuts on Census
+  ZIP-area centres, and respondents there vote in the piece holding their ZIP.
+- The other counties are cut into contiguous districts of 4 to 7 seats.
+- Seats go to districts by largest remainder on population, so every double-map district sits
+  within 10% of its state's people per seat.
 
-`pipeline/resync_district_map.py` remains the driver for doing this again: six stages, dry-run by
-default, `--run` to execute. Verified during the resync — senate, president and primary blocks in
-`uncertainty*.json` came back byte-identical, which is the expected result since none of those
-contests are district-pooled, and it confirms the bootstrap is reproducible given its seeds.
-Measured cost: ~16 min per turnout stop, ~110 min for the seven, ~2 h end to end.
+The double map has 154 districts and the triple map 278. Respondent placement lives in
+`pipeline/district_assign.py`, shared by every House runner. The drawer is deterministic, and a
+redraw needs the full rebuild (`pipeline/rebuild_from_typology.py` from step 4).
 
 ### No-Solidarity scenario (removed 2026-09-11)
 
@@ -113,13 +109,13 @@ Produced by **Dirichlet Process Gaussian Mixture Model (DPGMM)** clustering on 5
 | C2 | STY | Solidarity | Disaffected working-class left; skeptical of institutions, economically left but low union density | ~15% |
 | C3 | NAT | Nationalist | Populist right; strong on immigration, anti-establishment, very high F5 | ~9% |
 | C4 | LIB | Liberal | College-educated progressive; socially liberal, moderate-left economics | ~9% |
-| C5 | POP | Populist | Right-of-center reformists; skeptical of elections, high F2 + F5 | ~11% |
+| C5 | LP | Libertarian | Right-of-center reformists; skeptical of elections, high F2 + F5 | ~11% |
 | C6 | CUP | Civic Union Party | True centrists; cross-pressured, low electoral skepticism | ~10% |
 | C7 | OAO | Order & Opportunity | Law-and-order Democrats (former "Blue Dogs"); a full party that wins seats | — |
 | C8 | DSA | DSA | Progressive left; far left on security, high electoral skepticism | ~6% |
 | C9 | PRG | Progressive | Progressive elite; urban, far left across most dimensions | ~5% |
 
-**House seat counts (party-line, canonical, 873 total):** CON=202, LBR=158, STY=129, POP=104, LIB=93, CUP=89, NAT=43, DSA=25, OAO=15, PRG=15. Conservative is the largest party. Source: `viz/src/data/houseSeats.json` — see **[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)**. *(Do not quote `clusterProfiles.json` `seatsHouse` for seat counts — it's a population baseline, not seats won.)*
+**House seat counts (party-line, canonical, 873 total):** CON=202, LBR=158, STY=129, LP=104, LIB=93, CUP=89, NAT=43, DSA=25, OAO=15, PRG=15. Conservative is the largest party. Source: `viz/src/data/houseSeats.json` — see **[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md)**. *(Do not quote `clusterProfiles.json` `seatsHouse` for seat counts — it's a population baseline, not seats won.)*
 
 ---
 
@@ -144,11 +140,11 @@ Factor scores are standardized to the survey population (mean≈0, SD≈1). Abso
 **High** = distrusts elections and government; anti-establishment
 **Low** = trusts institutions
 *Top items: state/local elections not fair (+0.90), US elections not fair (+0.73)*
-Anchored by the election-integrity items, but it also absorbs the government-trust items (CC24_423/424) and carries the real distrust signal — F2 correlates +0.84 with raw government distrust across the ten parties. Near-orthogonal to partisan ID — STY, POP, and DSA all score High despite being ideologically distant on F1/F5, so institutional distrust cuts across the left-right divide. (Formerly labeled "Electoral Skepticism.")
+Anchored by the election-integrity items, but it also absorbs the government-trust items (CC24_423/424) and carries the real distrust signal — F2 correlates +0.84 with raw government distrust across the ten parties. Near-orthogonal to partisan ID — STY, LP, and DSA all score High despite being ideologically distant on F1/F5, so institutional distrust cuts across the left-right divide. (Formerly labeled "Electoral Skepticism.")
 
 ### F3 — Government Distrust (residual)
 *Top items: distrust federal govt (+0.66), distrust state govt (+0.48)*
-**Non-interpretable residual; the label is misleading and the sign inverts.** Re-deriving from the stored factor scores (repro: `analysis/efa/exploration/verify_f3_inversion.py`), a party's F3 score correlates **−0.38** with its actual government distrust: the two most distrusting parties, POP and NAT, score *lowest*, while institutionalist CON scores highest among the right. The mechanism is that the government-trust items (CC24_423/424) load on both F2 and F3, and F2 — where the party-level variance sits — absorbs the real signal, so F3's discriminating variance instead comes from culturally-coded cross-loadings (immigration, race) and its ordering tracks a culturally-progressive residual, not distrust. F3 earns its k=5 slot only by keeping the trust variance split so the DPGMM can isolate CUP, the institutionalist that trusts both elections and government (see Robustness in [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md)). It is excluded from party-facing displays and flagged as a residual; the genuine distrust axis is F2. All 23 winning coalition types also score Medium on F3 (range −0.21 to +0.13), so it does not differentiate coalitions.
+**Non-interpretable residual; the label is misleading and the sign inverts.** Re-deriving from the stored factor scores (repro: `analysis/efa/exploration/verify_f3_inversion.py`), a party's F3 score correlates **−0.38** with its actual government distrust: the two most distrusting parties, LP and NAT, score *lowest*, while institutionalist CON scores highest among the right. The mechanism is that the government-trust items (CC24_423/424) load on both F2 and F3, and F2 — where the party-level variance sits — absorbs the real signal, so F3's discriminating variance instead comes from culturally-coded cross-loadings (immigration, race) and its ordering tracks a culturally-progressive residual, not distrust. F3 earns its k=5 slot only by keeping the trust variance split so the DPGMM can isolate CUP, the institutionalist that trusts both elections and government (see Robustness in [`docs/EFA_FACTORS.md`](docs/EFA_FACTORS.md)). It is excluded from party-facing displays and flagged as a residual; the genuine distrust axis is F2. All 23 winning coalition types also score Medium on F3 (range −0.21 to +0.13), so it does not differentiate coalitions.
 
 ### F4 — Religious Traditionalism
 **High** = traditional religious values; conservative on abortion and same-sex marriage
@@ -191,7 +187,7 @@ Broader modeling caveats (party cohesion, sincere voting, static factor space, t
 | CON | 202 | 23.1% | 107 | 67 | 28 |
 | LBR | 158 | 18.1% | 89 | 51 | 18 |
 | STY | 129 | 14.8% | 72 | 49 | 8 |
-| POP | 104 | 11.9% | 52 | 37 | 15 |
+| LP | 104 | 11.9% | 52 | 37 | 15 |
 | LIB | 93 | 10.7% | 63 | 24 | 6 |
 | CUP | 89 | 10.2% | 47 | 31 | 11 |
 | NAT | 43 | 4.9% | 16 | 16 | 11 |
@@ -222,7 +218,7 @@ This is the **party-line** field, the only one the site shows. The **crossover**
 | STY | 34 | 19 | 33 | 11 |
 | SD  | 11 | 27 | 15 | 26 |
 | CON | 1  | 3  | 1  | 11 |
-| POP | 5  | 1  | 1  | 2  |
+| LP | 5  | 1  | 1  | 2  |
 | CUP | 0  | 1  | 1  | 0  |
 | LIB | 0  | 0  | 0  | 1  |
 
@@ -372,7 +368,7 @@ been restored to `pipeline/` and re-keyed to the current party codes. The only p
 archive-only is the single-candidate `pure_only/senate/` run, which feeds the **legacy**
 senate vote-model chain (see the note above) and is superseded by `prepare_data.py`'s
 recompute. Older archived copies under `data/outputs/archive/` and `pipeline/archive/`
-predate three party renames (Reform→Populist, Center→Civic Union, SD→Labor, C7→OAO) and
+predate three party renames (Reform→Libertarian, Center→Civic Union, SD→Labor, C7→OAO) and
 should not be restored as-is.
 
 ---

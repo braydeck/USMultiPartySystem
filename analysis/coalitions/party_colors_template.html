@@ -236,7 +236,7 @@ function renderAll() {
   }).join("");
   const cur = DATA.current;
   document.getElementById("out").value = "  // proposed " + new Date().toLocaleDateString("en-CA") + " (party_colors.html)\n" +
-    ["PRG", "DSA", "OAO", "LBR", "STY", "CUP", "CON", "POP", "NAT"].filter(q => O.includes(q)).map(q => `  ${q}: '${C[q]}',${C[q] !== cur[q] ? `  // was ${cur[q]}` : ""}`).join("\n");
+    ["PRG", "DSA", "OAO", "LBR", "STY", "CUP", "CON", "LP", "NAT"].filter(q => O.includes(q)).map(q => `  ${q}: '${C[q]}',${C[q] !== cur[q] ? `  // was ${cur[q]}` : ""}`).join("\n");
 }
 function seg(id, k) {
   document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => { S[k] = b.dataset.v; document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b)); renderAll(); });

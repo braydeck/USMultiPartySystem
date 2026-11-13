@@ -51,6 +51,9 @@ PARTY_CLUSTER = PARTY_TO_CLUSTER
 
 # ── Ballot generation ────────────────────────────────────────────────────────
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tiebreak import History, stable_key  # noqa: E402
+
 def score_candidates_hybrid(voter_factors:  np.ndarray,
                             prob_matrix:    np.ndarray,
                             cand_positions: np.ndarray,
@@ -126,20 +129,20 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
     quota       = droop_quota(total_votes, n_seats)
     elected: list = []
 
+    history = History()   # ties: Scottish rules 49 and 51 (pipeline/tiebreak.py)
+
     while len(elected) < n_seats and active:
         remaining = n_seats - len(elected)
         if len(active) <= remaining:
-            elected.extend(sorted(active))
+            elected.extend(sorted(active, key=stable_key))
             active.clear()
             break
 
         fsc    = first_surviving_choice(ballots_arr, active)
         totals = compute_vote_totals(fsc, ballot_wts, active)
+        history.push(totals)
 
-        over_quota = sorted(
-            [c for c in active if totals[c] >= quota],
-            key=lambda c: (-totals[c], c),
-        )
+        over_quota = history.order_desc([c for c in active if totals[c] >= quota], totals)
         if over_quota:
             winner         = over_quota[0]
             surplus_factor = (totals[winner] - quota) / totals[winner]
@@ -149,7 +152,7 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
                     ballot_wts[i] *= surplus_factor
             active.discard(winner)
         else:
-            loser = min(active, key=lambda c: (totals[c], c))
+            loser = history.exclude(active, totals)
             active.discard(loser)
 
     return elected

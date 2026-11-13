@@ -23,7 +23,7 @@ BASE = Path(__file__).resolve().parent.parent
 TYPOLOGY = BASE / "data" / "processed" / "typology_cluster_assignments.csv"
 
 ALL_PARTIES = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "DAL",
-               5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
+               5: "LP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
 ALL_CLUSTERS = list(ALL_PARTIES)
 
 with open(TYPOLOGY, newline="") as f:

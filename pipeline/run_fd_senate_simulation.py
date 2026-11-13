@@ -61,6 +61,9 @@ FIPS_TO_ABBR = {
 
 # ── Ballot generation ────────────────────────────────────────────────────────
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tiebreak import History, stable_key  # noqa: E402
+
 def score_candidates(voter_factors: np.ndarray,
                      prob_matrix: np.ndarray,
                      cand_positions: np.ndarray,
@@ -136,20 +139,20 @@ def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
     quota       = droop_quota(total_votes, target)
     elected: list = []
 
+    history = History()   # ties: Scottish rules 49 and 51 (pipeline/tiebreak.py)
+
     while len(elected) < target and active:
         remaining = target - len(elected)
         if len(active) <= remaining:
-            elected.extend(sorted(active))
+            elected.extend(sorted(active, key=stable_key))
             active.clear()
             break
 
         fsc    = first_surviving_choice(ballots_arr, active)
         totals = compute_vote_totals(fsc, ballot_wts, active)
+        history.push(totals)
 
-        over_quota = sorted(
-            [c for c in active if totals[c] >= quota],
-            key=lambda c: (-totals[c], c),
-        )
+        over_quota = history.order_desc([c for c in active if totals[c] >= quota], totals)
         if over_quota:
             winner         = over_quota[0]
             surplus_factor = (totals[winner] - quota) / totals[winner]
@@ -159,7 +162,7 @@ def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
                     ballot_wts[i] *= surplus_factor
             active.discard(winner)
         else:
-            loser = min(active, key=lambda c: (totals[c], c))
+            loser = history.exclude(active, totals)
             active.discard(loser)
 
     return set(elected)
@@ -202,7 +205,7 @@ def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
         defeats.append({"winner": w, "loser": l, "margin": margin,
                         "margin_pct": margin / total_v * 100 if total_v else 0,
                         "orig_idx": idx})
-    defeats.sort(key=lambda x: (-x["margin"], x["winner"]))
+    defeats.sort(key=lambda x: (-x["margin"], stable_key(x["winner"]), stable_key(x["loser"])))
 
     def creates_cycle(locked, new_w, new_l):
         reachable, frontier = set(), {new_l}
@@ -228,7 +231,7 @@ def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
             lock_meta[idx]["locked"] = True
 
     losers     = {l for _, l in locked_edges}
-    undefeated = [c for c in candidates if c not in losers]
+    undefeated = sorted((c for c in candidates if c not in losers), key=stable_key)
     rp_winner  = undefeated[0] if undefeated else "none"
 
     for d in defeats:
@@ -249,17 +252,20 @@ def run_irv(ballots_arr: np.ndarray, weights: np.ndarray,
             candidates: list) -> str:
     active  = set(candidates)
     total_w = float(weights.sum())
+    history = History()   # ties: Scottish rule 51 (pipeline/tiebreak.py)
     while len(active) > 1:
         fsc    = first_surviving_choice(ballots_arr, active)
         totals = compute_vote_totals(fsc, weights, active)
+        history.push(totals)
         if any(v > total_w / 2 for v in totals.values()):
             break
-        loser = min(active, key=lambda c: (totals[c], c))
+        loser = history.exclude(active, totals)
         active.discard(loser)
     if not active:
         return "none"
     fsc    = first_surviving_choice(ballots_arr, active)
     totals = compute_vote_totals(fsc, weights, active)
+    history.push(totals)
     return max(active, key=lambda c: totals.get(c, 0))
 
 

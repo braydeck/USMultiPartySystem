@@ -54,10 +54,9 @@ BALLOT_DEPTH = int(os.environ.get("BALLOT_DEPTH", "7"))
 # validate a different chamber.
 PUBLISHED = BASE / "viz" / "public" / "data" / "housePartyList.json"
 PUBLISHED_PATH = ("top7", "double", "5")
-# 04-01/04-03 carry the Maricopa sub-county split, which the published bundle predates
-# (see county_split_overrides.csv and the "label the statewide-pool district until it
-# runs" commit). This run applies the override, so these two are expected to differ.
-KNOWN_STALE = {"04-01", "04-03"}
+# Districts whose published seats are expected to differ from this run (none: the published
+# bundle and this run read the same drawn map).
+KNOWN_STALE: set = set()
 OUT_PATH = BASE / "viz" / "src" / "data" / "quotaComposition.json"
 
 # The env vars must be set before importing H: turnout_weights reads TURNOUT_LAMBDA at import.
@@ -76,7 +75,7 @@ def active_choice(ballot_row, active_set):
     return None, None
 
 
-def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party, flows=None):
+def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party, flows=None, lot_label=""):
     """H.run_stv with per-seat composition recorded. Counting logic is line-for-line
     the same: Droop quota, weighted inclusive Gregory surplus, field-collapse branch.
 
@@ -99,6 +98,7 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party,
     elected: list = []
     seats: list = []
     below_quota = 0
+    history = H.History(lot_label)   # ties: Scottish rules 49 and 51, as H.run_stv
 
     def compose(winner, fsc, ranks):
         """Joint weight by (origin party, rank). Marginals are recoverable from it;
@@ -146,8 +146,9 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party,
             if code in totals:
                 totals[code] += w
 
+        history.push(totals)
         if len(active) <= remaining:
-            for c in sorted(active):
+            for c in history.order_desc(active, totals):
                 by_origin, joint = compose(c, fsc, ranks)
                 elected.append(c)
                 is_below = totals.get(c, 0.0) < quota
@@ -159,8 +160,7 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party,
             active.clear()
             break
 
-        over_quota = sorted([c for c in active if totals[c] >= quota],
-                            key=lambda c: (-totals[c], c))
+        over_quota = history.order_desc([c for c in active if totals[c] >= quota], totals)
         if over_quota:
             winner = over_quota[0]
             by_origin, joint = compose(winner, fsc, ranks)
@@ -178,7 +178,7 @@ def run_stv_instrumented(ballots_arr, weights, cand_codes, n_seats, first_party,
             # Surplus leaves at the transferred value, which is what (1 - sf) of the old weight is.
             record_flow(winner, [(i, ballot_wts[i]) for i, _ in movers], "surplus")
         else:
-            loser = min(active, key=lambda c: (totals[c], c))
+            loser = history.exclude(active, totals)
             movers = [(i, ballot_wts[i]) for i in range(len(fsc)) if fsc[i] == loser]
             active.discard(loser)
             record_flow(loser, movers, "elimination")
@@ -264,7 +264,7 @@ def main():
         first_party = np.array([b[0].rsplit("_", 1)[0] for b in ballots], dtype=object)
 
         elected, _, seats = run_stv_instrumented(
-            bal_stv, d_count_weights, cand_codes, n_seats_eff, first_party, flows)
+            bal_stv, d_count_weights, cand_codes, n_seats_eff, first_party, flows, lot_label=did)
 
         for i, p_first in enumerate(first_party):
             flows["ballot_weight"][p_first] += float(d_count_weights[i])
@@ -285,7 +285,7 @@ def main():
                 if mismatched <= 5:
                     print(f"  MISMATCH {did}: got {sorted(got)} want {sorted(want)}")
         elif did in KNOWN_STALE:
-            print(f"  (skipping {did}: Maricopa split, published bundle predates it)")
+            print(f"  (skipping {did}: listed in KNOWN_STALE)")
 
         for s in seats:
             s["districtId"] = did
@@ -303,39 +303,8 @@ def main():
 
 
 def H_district_ids(efa, apportion_df):
-    """Voter→district assignment, mirroring the geo path in H.main()."""
-    voter_fips_df = pd.read_csv(H.VOTER_FIPS_PATH, index_col=0)
-    county_fips = pd.to_numeric(voter_fips_df["countyfips"], errors="coerce").fillna(0).astype(int)
-    voter_counties = county_fips.astype(str).str.zfill(5).values
-
-    county_dist_df = pd.read_csv(H.COUNTY_DIST_PATH)
-    county_to_dist = dict(zip(
-        county_dist_df["county_fips5"].astype(str).str.zfill(5), county_dist_df["district_id"]))
-
-    state_fallback: dict = {}
-    for _, row in apportion_df.iterrows():
-        sfips = str(int(row["state_fips"])).zfill(2)
-        state_fallback.setdefault(sfips, row["district_id"])
-
-    split_override: dict = {}
-    if H.SPLIT_OVERRIDE_PATH.exists():
-        for _, row in pd.read_csv(H.SPLIT_OVERRIDE_PATH).iterrows():
-            split_override[(str(row["county_fips5"]).zfill(5), int(row["cd119"]))] = row["district_id"]
-    voter_cds = (pd.to_numeric(voter_fips_df["cd119"], errors="coerce").values
-                 if "cd119" in voter_fips_df.columns else np.full(len(voter_counties), np.nan))
-
-    out = np.empty(len(voter_counties), dtype=object)
-    for i, county in enumerate(voter_counties):
-        did = None
-        cd = voter_cds[i]
-        if split_override and cd == cd:
-            did = split_override.get((county, int(cd)))
-        if did is None:
-            did = county_to_dist.get(county)
-        if did is None:
-            did = state_fallback.get(county[:2], "")
-        out[i] = did
-    return out
+    """Voter→district assignment, the same call H.main() makes."""
+    return H.assign_voter_districts(apportion_df, H.COUNTY_DIST_PATH, None, len(efa))
 
 
 def write_bundle(seats_all, flows):

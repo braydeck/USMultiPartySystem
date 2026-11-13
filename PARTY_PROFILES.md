@@ -28,7 +28,7 @@ below is from `clusterProfiles.json` / `clusterIntensity.json`.
 | **CON** Conservative | right | 201 | 17.7 | 14.8 | 14 | 22 | 26 | mainstream-right consensus |
 | **LBR** Labor | left | 159 | 14.8 | 13.2 | 10 | 29 | 21 | mainstream-progressive consensus |
 | **STY** Solidarity | center | 129 | 14.3 | **8.0** | **2** | 23 | **29** | ambivalence + electoral skepticism |
-| **POP** Populist | right | 106 | 10.4 | 17.7 | 19 | 21 | 27 | immigration hardline + skepticism |
+| **LP** Libertarian | right | 106 | 10.4 | 17.7 | 19 | 21 | 27 | immigration hardline + skepticism |
 | **LIB** Liberal | left | 93 | 8.8 | 21.2 | 41 | 17 | 10 | racial-justice + secular liberalism |
 | **CUP** Civic Union | center | 89 | 9.3 | **7.0** | 3 | 30 | 19 | institutional/electoral trust |
 | **NAT** Nationalist | right | 41 | 8.7 | 28.5 | 49 | 12 | 20 | nationalist-traditionalist maximalism |
@@ -41,9 +41,9 @@ Two cross-cutting facts worth holding onto:
 - **The center parties are literally closest to the electorate** (CUP 7.0, STY 8.0, OAO 10.6),
   the two large wings next (LBR 13.2, CON 14.8), and the ideological vanguards farthest (DSA,
   NAT, PRG all ≥27). Distance-from-center tracks size and radicalism.
-- **Ambivalence is orthogonal to left–right.** The most ambivalent parties are STY (29), POP
+- **Ambivalence is orthogonal to left–right.** The most ambivalent parties are STY (29), LP
   (27), CON (26) — one from each bloc. Commitment vs. cross-pressure is its own axis, and the
-  two biggest *right* parties (CON, POP) are internally less committed than the small radical
+  two biggest *right* parties (CON, LP) are internally less committed than the small radical
   ones (PRG 3, DSA 9).
 
 ---
@@ -98,10 +98,10 @@ on order (F1 +0.34) and religion (F4 +0.27), dead-center economically (F5 +0.04)
 ambivalence (19) — it *does* hold positions; they're just the country's consensus ones.
 
 **STY — Solidarity** (129 seats · 14.3%). The **ambivalent** center. Its ambivalence (29) is
-high but *not* unique — POP (27) and CON (26) are right there, and all three are equally
+high but *not* unique — LP (27) and CON (26) are right there, and all three are equally
 cross-pressured at the individual level (overdispersion ≈1). What sets STY apart is that its
-ambivalence is **unanchored**: only **2** deviant planks and meanDev 8.0, versus POP's 19 /
-CON's 14. POP and CON are ambivalent *around a hard core* (immigration, order) — the neutrality
+ambivalence is **unanchored**: only **2** deviant planks and meanDev 8.0, versus LP's 19 /
+CON's 14. LP and CON are ambivalent *around a hard core* (immigration, order) — the neutrality
 is a texture on a firm identity; STY has the same neutrality with no core to anchor it, so the
 ambivalence *is* the identity. Its only real leans are **electoral skepticism** (F2 +0.80 — the
 mirror image of CUP) and mild religiosity (F4 +0.34). A large, disengaged, cross-pressured
@@ -121,7 +121,7 @@ left–right axis.
 
 ---
 
-## RIGHT — POP, NAT, CON
+## RIGHT — LP, NAT, CON
 
 Shared floor: all three are populist-conservative (F5 positive), pro-order (F1 positive), and
 religious-traditional (F4 positive). They split on **how extreme** and **how anti-establishment**.
@@ -140,7 +140,7 @@ status (0.2%), no top-rate rise (8%), no EPA CO₂ authority (5%), no renewables
 Electorally skeptical (F2 +0.52). It is CON's positions pushed to the pole and extended to
 climate and taxes.
 
-**POP — Populist** (106 seats · 10.4%). The **anti-establishment** right — most electorally
+**LP — Libertarian** (106 seats · 10.4%). The **anti-establishment** right — most electorally
 skeptical party on the board (F2 +0.93), high populist-conservatism (F5 +1.13), but *lower* on
 order than CON/NAT (F1 +0.26) and high ambivalence (27). Signature is immigration hardline
 (wall 87%, no legal status 12%, no Dreamer pathway 28%) and anti-racial-justice, but it's
@@ -148,8 +148,8 @@ markedly non-committal elsewhere. Populism defined by grievance and skepticism m
 full conservative program.
 
 *Within the bloc:* CON (mainstream, largest, order-focused, trusts elections) → NAT
-(maximalist nationalist-traditionalist, most extreme) → POP (skeptical, immigration-driven,
-ambivalent elsewhere). Electoral skepticism (F2) and religiosity (F4) separate NAT/POP from
+(maximalist nationalist-traditionalist, most extreme) → LP (skeptical, immigration-driven,
+ambivalent elsewhere). Electoral skepticism (F2) and religiosity (F4) separate NAT/LP from
 the establishment CON.
 
 ---
@@ -161,8 +161,8 @@ the establishment CON.
 - **LIB** — strong secular liberalism centered on racial justice and immigration; trusts institutions.
 - **LBR** — mainstream progressive consensus; the left position closest to the country.
 - **OAO** — law-and-order + economic progressivism; cross-cuts the left–right axis.
-- **STY** — the disengaged, electorally-skeptical middle; ambivalent like POP/CON but, unlike them, with no signature to anchor it.
+- **STY** — the disengaged, electorally-skeptical middle; ambivalent like LP/CON but, unlike them, with no signature to anchor it.
 - **CUP** — the institutionalist middle, defined by trust in elections and consensus positions.
-- **POP** — grievance populism: immigration hardline + electoral skepticism, non-committal elsewhere.
+- **LP** — grievance populism: immigration hardline + electoral skepticism, non-committal elsewhere.
 - **NAT** — nationalist-traditionalist maximalism across immigration, taxes, and climate.
 - **CON** — mainstream establishment right; firm on order, close to the electorate, not a skeptic.

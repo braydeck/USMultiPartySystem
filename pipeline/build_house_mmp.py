@@ -57,7 +57,7 @@ import pandas as pd
 BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
 from stv_config import (STATE_POPS, FIPS_TO_ABBR,  # noqa: E402
-                        POP_PER_SEAT, POP_PER_SEAT_TRIPLE)
+                        LP_PER_SEAT, LP_PER_SEAT_TRIPLE)
 from run_house_canonical import assign_density_tiers  # noqa: E402
 from party_codes import ALL_PARTIES, CLUSTER_TO_PARTY, PARTY_TO_CLUSTER, LEFT_RIGHT  # noqa: E402
 
@@ -71,7 +71,7 @@ PROB_COLS = [f"prob_cluster_{k}" for k in range(10)]
 PARTIES = list(ALL_PARTIES.values())  # indexed by cluster ID, like the length-10 count vectors
 F5_ORDER = list(LEFT_RIGHT)
 PARTS = [0, 5, 10, 15, 20, 25, 30]
-WYOMING = {"double": POP_PER_SEAT, "triple": POP_PER_SEAT_TRIPLE}
+WYOMING = {"double": LP_PER_SEAT, "triple": LP_PER_SEAT_TRIPLE}
 
 
 def sainte_lague(votes: np.ndarray, pool: int, seeded: np.ndarray) -> np.ndarray:

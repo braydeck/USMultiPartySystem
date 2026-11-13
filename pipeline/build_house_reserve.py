@@ -35,7 +35,7 @@ import pandas as pd
 
 BASE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(Path(__file__).parent))
-from stv_config import POP_PER_SEAT, POP_PER_SEAT_TRIPLE  # noqa: E402
+from stv_config import LP_PER_SEAT, LP_PER_SEAT_TRIPLE  # noqa: E402
 from party_codes import ALL_PARTIES, CLUSTER_TO_PARTY, PARTY_TO_CLUSTER, LEFT_RIGHT  # noqa: E402
 
 TYPO_PATH = BASE_DIR / "data" / "processed" / "typology_cluster_assignments.csv"

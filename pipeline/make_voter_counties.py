@@ -2,13 +2,15 @@
 """
 make_voter_counties.py
 ----------------------
-Extract county FIPS for the 45,707 CES rows that survive listwise deletion,
-aligned positionally with efa_factor_scores.csv.
+Extract county FIPS, real 119th-Congress district, and ZIP for every typology respondent,
+aligned by caseid with efa_factor_scores.csv and typology_cluster_assignments.csv.
 
 Output: data/processed/voter_county_fips.csv
   index   = row position (0-based, matches efa row order)
   caseid  = CES respondent ID
   countyfips = 5-digit zero-padded county FIPS string
+  cd119   = real 119th-Congress district number within the state
+  zip     = 5-digit ZIP (CES lookupzip)
 """
 
 import sys
@@ -22,7 +24,7 @@ from stv_config import DTA_PATH, TYPOLOGY_PATH as BASE_TYPO
 EXPECTED_N    = len(pd.read_csv(BASE_TYPO, usecols=["caseid"]))
 OUTPUT_PATH   = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 
-READ_COLS     = ["caseid", "countyfips", "cdid119"]
+READ_COLS     = ["caseid", "countyfips", "cdid119", "lookupzip"]
 
 
 def main():
@@ -37,7 +39,7 @@ def main():
     print(f"  Raw rows: {len(df):,}")
 
     ids = pd.read_csv(BASE_TYPO, usecols=["caseid"]).caseid.values
-    out = df.set_index("caseid").loc[ids, ["countyfips", "cdid119"]].reset_index()  # CLAUDE.md trap 4: rows join the typology by caseid, in typology order
+    out = df.set_index("caseid").loc[ids, ["countyfips", "cdid119", "lookupzip"]].reset_index()  # CLAUDE.md trap 4: rows join the typology by caseid, in typology order
     print(f"  After listwise deletion: {len(out):,} rows")
     assert len(out) == EXPECTED_N, \
         f"Expected {EXPECTED_N} rows after deletion, got {len(out)}"
@@ -51,10 +53,12 @@ def main():
         .str.zfill(5)
     )
 
-    # cd119: the respondent's real 119th-Congress district. Carried so a county that spans more
-    # districts than the whole-county draw can express — Maricopa is the only one — can be split on
-    # actual congressional geography instead of arbitrarily. See county_split_overrides.csv.
+    # cd119: the respondent's real 119th-Congress district, for MMP and Single Race, which use the
+    # real districts.
     out["cd119"] = pd.to_numeric(out.pop("cdid119"), errors="coerce").astype("Int64")
+    # zip: the respondent's 5-digit ZIP. A county too big for one drawn district is split on Census
+    # ZIP areas (draw_geographic_districts.py), and the ZIP places the respondent in a piece.
+    out["zip"] = out.pop("lookupzip").astype(str).str.extract(r"(\d+)")[0].str.zfill(5)
 
     null_count = (out["countyfips"] == "00000").sum()
     if null_count:

@@ -32,7 +32,9 @@ from collections import defaultdict
 from itertools import combinations
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(1, str(Path(__file__).parent.parent))
 from turnout_weights import turnout_multiplier, output_tree
+from tiebreak import History, stable_key
 
 BASE_DIR     = Path(__file__).parent.parent.parent
 _BALLOT_TREE = "pure_multi"
@@ -124,7 +126,7 @@ def first_surviving_choice(ballots, active):
     return result
 
 
-def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
+def run_stv_stage(ballots, weights, active_set, n_survivors, codes, lot_label=None):
     """Weighted Inclusive Gregory STV — elect n_survivors candidates.
 
     Every ballot the winner holds transfers, each scaled by its own current value, so a
@@ -143,6 +145,10 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
     round_data  = []
 
     max_rounds = len(active) * 3
+    # Ties: Scottish rules 49 and 51 (pipeline/tiebreak.py), on codes rather than the alphabetical
+    # indices, so a renamed party cannot change who survives.
+    history = History(str(sorted(stable_key(codes[c]) for c in active)) if lot_label is None else lot_label,
+                      key=lambda c: stable_key(codes[c]))
 
     for rnd in range(max_rounds):
         if len(elected) >= n_survivors or not active:
@@ -151,16 +157,17 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
         remaining = n_survivors - len(elected)
         # If remaining seats >= active non-elected candidates, elect them all
         active_non_elected = active - set(elected)
-        if len(active_non_elected) <= remaining:
-            for c in sorted(active_non_elected):
-                elected.append(c)
-            break
-
         fsc = first_surviving_choice(ballots, active)
         totals = {c: 0.0 for c in active}
         for i in range(len(fsc)):
             if fsc[i] in totals:
                 totals[fsc[i]] += ballot_wts[i]
+        history.push(totals)
+
+        if len(active_non_elected) <= remaining:
+            for c in history.order_desc(active_non_elected, totals):
+                elected.append(c)
+            break
 
         # Record round
         rd = {}
@@ -169,8 +176,8 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
         round_data.append(rd)
 
         # Check quota
-        over = [(c, totals[c]) for c in active if c not in elected and totals[c] >= quota]
-        over.sort(key=lambda x: -x[1])
+        over = [(c, totals[c]) for c in history.order_desc(
+            [c for c in active if c not in elected and totals[c] >= quota], totals)]
 
         if over:
             winner, votes = over[0]
@@ -206,7 +213,7 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
             eliminable = [c for c in active if c not in elected]
             if not eliminable:
                 break
-            weakest = min(eliminable, key=lambda c: (totals.get(c, 0), c))
+            weakest = history.exclude(eliminable, totals)
             active.discard(weakest)
             eliminated.append(weakest)
 
@@ -239,6 +246,7 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
     # to survivors (recorded) or remaining leftovers (cascade continues).
     leftover = list(active - set(elected))
     remaining_left = set(leftover)
+    left_history = History(history.label + ":leftover", key=history.key)
     while remaining_left:
         # First choice among only leftovers (not survivors — those already elected)
         fsc_left = first_surviving_choice(ballots, remaining_left)
@@ -246,8 +254,9 @@ def run_stv_stage(ballots, weights, active_set, n_survivors, codes):
         for i in range(len(fsc_left)):
             if fsc_left[i] in totals_left:
                 totals_left[fsc_left[i]] += ballot_wts[i]
+        left_history.push(totals_left)
         # Eliminate weakest leftover
-        weakest_left = min(remaining_left, key=lambda c: (totals_left.get(c, 0), c))
+        weakest_left = left_history.exclude(remaining_left, totals_left)
         remaining_left.discard(weakest_left)
         # Find where weakest_left's voters go (to remaining leftovers or survivors)
         dest_set = remaining_left | survivors

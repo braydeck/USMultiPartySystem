@@ -244,40 +244,33 @@ def load_reserve_districts(triple):
     return districts, dict(per_state), reserve
 
 
-SPLIT_OVERRIDES = Path(__file__).parent / "county_split_overrides.csv"
-
-
-def load_split_overrides():
-    """(county, district) → share of that county, from the cd119 split overrides.
-
-    A county listed here is divided between districts by real 119th-Congress district,
-    so it seeds every district it feeds rather than only the one the whole-county file
-    names. Maricopa is the case this exists for: it alone backs both AZ 04-01 and 04-03,
-    and without it 04-03 has no geography at all and falls back to the state centre.
-    """
-    if not SPLIT_OVERRIDES.exists():
-        return {}
-    per_county = defaultdict(list)
-    with open(SPLIT_OVERRIDES) as f:
+def load_split_pieces(suffix):
+    """{district: (lon, lat)} people-weighted centre of each ZIP-area piece of a split county
+    (data/processed/county_split_zcta{suffix}.csv, written by draw_geographic_districts.py)."""
+    path = OUT_DIR / f"county_split_zcta{suffix}.csv"
+    if not path.exists():
+        return {}, set()
+    acc = defaultdict(lambda: [0.0, 0.0, 0.0])
+    counties = set()
+    with open(path) as f:
         for row in csv.DictReader(f):
-            per_county[row["county_fips5"]].append(row["district_id"])
-    shares = {}
-    for fips, dids in per_county.items():
-        for did in set(dids):
-            shares[(fips, did)] = dids.count(did) / len(dids)
-    return shares
+            w = float(row["pop"]) + 1.0
+            a = acc[row["district_id"]]
+            a[0] += float(row["lon"]) * w; a[1] += float(row["lat"]) * w; a[2] += w
+            counties.add(row["county_fips5"])
+    return {d: (a[0] / a[2], a[1] / a[2]) for d, a in acc.items()}, counties
 
 
 def district_real_centroids(suffix, districts):
-    """Population-free centroid per district in real lon/lat, weighted by county share.
+    """Population-free centroid per district in real lon/lat.
 
-    Whole counties count once; a county split across districts by cd119 contributes to
-    each in proportion to how many of its cd119 pieces that district takes.
+    Whole counties count once each. A district cut from a split county sits at the centre of
+    its own ZIP-area piece, counted as one county, so the pieces of Los Angeles land in
+    different corners of the county rather than on one shared point.
     """
     path = OUT_DIR / f"county_to_district{suffix}.csv"
     cents = county_centroids(TOPO_PATH)
-    overrides = load_split_overrides()
-    split_counties = {fips for fips, _ in overrides}
+    pieces, split_counties = load_split_pieces(suffix)
 
     acc = defaultdict(list)          # district -> [(lon, lat, weight)]
     missing = 0
@@ -289,12 +282,10 @@ def district_real_centroids(suffix, districts):
                 missing += 1
                 continue
             if fips in split_counties:
-                continue             # handled from the override table below
+                continue             # its pieces are placed from the ZIP table below
             acc[row["district_id"]].append((c[0], c[1], 1.0))
-    for (fips, did), share in sorted(overrides.items()):
-        c = cents.get(fips)
-        if c is not None:
-            acc[did].append((c[0], c[1], share))
+    for did, (lon, lat) in sorted(pieces.items()):
+        acc[did].append((lon, lat, 1.0))
 
     out = {}
     for did in districts:
@@ -309,9 +300,8 @@ def district_real_centroids(suffix, districts):
 def spread_coincident(seeds, R):
     """Nudge apart districts that share a seed point.
 
-    Two districts carved out of the same county (AZ 04-01 and 04-03 both come from
-    Maricopa) land on the identical centroid, which leaves the growth with nothing to
-    tell them apart. Spacing them on a small ring keeps both in the right place while
+    Two districts can land on the identical centroid, which leaves the growth with nothing
+    to tell them apart. Spacing them on a small ring keeps both in the right place while
     giving each its own side to grow from.
     """
     groups = defaultdict(list)
@@ -1263,7 +1253,7 @@ def map_seed(real_pt, real_bbox, hex_bbox):
 PARTIES_TS = BASE_DIR / "viz" / "src" / "constants" / "parties.ts"
 
 # Fallback only; the live order is F5_ORDER in the app's constants.
-LEFT_RIGHT_FALLBACK = ["DSA", "PRG", "LBR", "CUP", "STY", "OAO", "CON", "POP", "NAT"]
+LEFT_RIGHT_FALLBACK = ["DSA", "PRG", "LBR", "CUP", "STY", "OAO", "CON", "LP", "NAT"]
 
 
 def left_right_order():

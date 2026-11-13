@@ -8,7 +8,7 @@ State-level proportional house election: each state is a single multi-member dis
 C7 (Blue Dogs) voters are included in the ballot pool but have no C7 candidate;
 they vote naturally for the 10 parties via Gaussian proximity (CUP ≈76%, DAL ≈15%).
 
-Seat formula: max(1, round(STATE_POP / 380_000)) → 873 total seats.
+Seat formula: max(1, round(STATE_LP / 380_000)) → 873 total seats.
 
 Method: Gaussian proximity scores → weighted expected first-choice vote shares
 → Hare quota + largest remainders (Hamilton/proportional representation).
@@ -33,7 +33,7 @@ EFA_SCORES_PATH = BASE_DIR / "data" / "processed" / "efa_factor_scores.csv"
 OUTPUT_DIR      = BASE_DIR / "data" / "outputs" / "house"
 
 sys.path.insert(0, str(Path(__file__).parent))
-from stv_config import STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT
+from stv_config import STATE_POPS, FIPS_TO_ABBR, LP_PER_SEAT
 
 FACTOR_COLS      = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
 POSITIONAL_SIGMA = 0.35
@@ -45,7 +45,7 @@ CANDIDATES = [
     {"name": "LBR",  "cluster": 1},
     {"name": "STY", "cluster": 2},
     {"name": "NAT", "cluster": 3},
-    {"name": "POP", "cluster": 5},
+    {"name": "LP", "cluster": 5},
     {"name": "CUP", "cluster": 6},
     {"name": "OAO", "cluster": 7},
     {"name": "DSA", "cluster": 8},
@@ -159,7 +159,7 @@ def main():
     for fips in all_fips:
         abbr    = FIPS_TO_ABBR.get(fips, f"FIPS{fips}")
         pop     = STATE_POPS[fips]
-        n_seats = max(1, round(pop / POP_PER_SEAT))
+        n_seats = max(1, round(pop / LP_PER_SEAT))
 
         mask    = inputstate == fips
         N_state = int(mask.sum())

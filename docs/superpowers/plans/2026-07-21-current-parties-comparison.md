@@ -1046,7 +1046,7 @@ Compute the distance inputs with a `useMemo` (place after `sectionVarMap`). `zBy
 
   const distanceInputs = useMemo(() => {
     const zByCode: Record<string, Record<string, number>> = {};
-    // Same z definition for formulated AND current parties: raw factor score / POP_SD via
+    // Same z definition for formulated AND current parties: raw factor score / LP_SD via
     // rawToZ. getFactorScores already resolves current parties (Task 9), so one path covers both.
     const addZ = (c: string) => {
       const fs = getFactorScores(c, clusters, fdProfiles);

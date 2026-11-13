@@ -44,6 +44,7 @@ from run_pure_multi_presidential import (  # noqa: E402
     BALLOTS_PATH, EFA_PATH, build_matchups, extract_finalist_ballots, first_surviving_choice,
     ranked_pairs_winner, run_irv,
 )
+from tiebreak import History  # noqa: E402  (pipeline/ is on the path via that import)
 
 TURNOUT_CSV = BASE / "data" / "processed" / "turnout_propensity.csv"
 OUTPUTS = BASE / "data" / "outputs"
@@ -81,16 +82,19 @@ def condorcet_pair(fin_ballots, weights, finalists) -> tuple:
     return a, b
 
 
-def irv_pair(fin_ballots, weights, finalists) -> tuple:
+def irv_pair(fin_ballots, weights, finalists, lot_label: str = "") -> tuple:
     """run_irv stops once someone clears half, so elimination continues here to exactly two."""
     active = set(finalists)
+    history = History(lot_label)   # ties: Scottish rule 51 (pipeline/tiebreak.py)
     while len(active) > 2:
         fsc = first_surviving_choice(fin_ballots, active)
         totals = {c: float(weights[fsc == c].sum()) for c in active}
-        active.discard(min(active, key=lambda c: (totals[c], c)))
+        history.push(totals)
+        active.discard(history.exclude(active, totals))
     fsc = first_surviving_choice(fin_ballots, active)
     totals = {c: float(weights[fsc == c].sum()) for c in active}
-    return tuple(sorted(active, key=lambda c: (-totals[c], c)))
+    history.push(totals)
+    return tuple(history.order_desc(active, totals))
 
 
 def route_payload(fin_ballots, weights, state_fips, electors, a, b) -> dict:
@@ -184,7 +188,7 @@ def main() -> None:
             fin_ballots = extract_finalist_ballots(ballots_arr, set(finalists), len(finalists))
 
             ca, cb = condorcet_pair(fin_ballots, weights, finalists)
-            ia, ib = irv_pair(fin_ballots, weights, finalists)
+            ia, ib = irv_pair(fin_ballots, weights, finalists, lot_label="US")
             by_part[str(stop)] = {
                 "finalists": finalists,
                 "condorcet": route_payload(fin_ballots, weights, state_fips, electors, ca, cb),

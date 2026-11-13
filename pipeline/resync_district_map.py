@@ -24,7 +24,7 @@ pool, and a few Arizona seats to move.
 
 WHAT ADOPTING IT COSTS  (measured 2026-07-30, full depth / double Wyoming)
 --------------------------------------------------------------------------
-  Conservative 201 -> 202   Labor 159 -> 158   Populist 106 -> 104   Nationalist 41 -> 43
+  Conservative 201 -> 202   Labor 159 -> 158   Libertarian 106 -> 104   Nationalist 41 -> 43
   Six parties unchanged, chamber still 873, three seats reassigned.
 All 65 counties stay inside their own state and their own density tier, and
 apportionment is by state population, so no state's seat count changes — only which

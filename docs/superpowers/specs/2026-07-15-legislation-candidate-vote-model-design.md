@@ -59,7 +59,7 @@ quirks). That gap is new information.
 | Within-party shakiness | **Spread band** from measured within-party factor dispersion (STY wide, PRG tight). Candidate-identity uncertainty only. |
 | Enactment | Full chain: pass both chambers, then **sign OR 2/3 override**. |
 | Layout | **Party × bill matrix** + president column + law verdict. |
-| Columns | **10 pure parties only**: CON, LBR, STY, NAT, LIB, POP, CUP, OAO, DSA, PRG. |
+| Columns | **10 pure parties only**: CON, LBR, STY, NAT, LIB, LP, CUP, OAO, DSA, PRG. |
 
 ### Naming rule (hard constraint)
 

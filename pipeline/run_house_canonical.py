@@ -35,10 +35,9 @@ TYPOLOGY_PATH   = BASE_DIR / "data" / "processed" / "typology_cluster_assignment
 OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / "canonical"
 VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
-SPLIT_OVERRIDE_PATH = BASE_DIR / "pipeline" / "county_split_overrides.csv"
 
 sys.path.insert(0, str(Path(__file__).parent))
-from stv_config import STATE_POPS, FIPS_TO_ABBR, POP_PER_SEAT, POP_PER_SEAT_TRIPLE, STATE_URBAN_PCT
+from stv_config import STATE_POPS, FIPS_TO_ABBR, LP_PER_SEAT, LP_PER_SEAT_TRIPLE, STATE_URBAN_PCT
 from party_codes import CLUSTER_TO_PARTY
 
 FACTOR_COLS      = ["FS_RT", "FS_TR", "FS_SO", "FS_PC"]
@@ -51,13 +50,16 @@ CAND_NAMES = [c["name"] for c in CANDIDATES]
 
 PARTY_LABELS = {
     0: "Conservative", 1: "Labor", 2: "Solidarity",
-    3: "Nationalist",  4: "Democratic Alliance", 5: "Populist",
+    3: "Nationalist",  4: "Democratic Alliance", 5: "Libertarian",
     6: "Civic Union Party", 7: "Order and Opportunity Party", 8: "DSA", 9: "Progressive",
 }
 NAME_TO_CLUSTER = {c["name"]: c["cluster"] for c in CANDIDATES}
 
 
 # ── District apportionment ────────────────────────────────────────────────────
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tiebreak import History, stable_key  # noqa: E402
 
 def partition_seats(total: int) -> list:
     """
@@ -282,7 +284,7 @@ def assign_density_tiers(district_sizes: list, fips: int) -> list:
     return ["URBAN"] * n_u + ["SUBURBAN"] * n_s + ["RURAL"] * n_r
 
 
-def run_apportionment(pop_per_seat=POP_PER_SEAT, partition_fn=None) -> pd.DataFrame:
+def run_apportionment(pop_per_seat=LP_PER_SEAT, partition_fn=None) -> pd.DataFrame:
     """Compute district apportionment for all 51 states."""
     if partition_fn is None:
         partition_fn = partition_seats
@@ -358,44 +360,12 @@ def assign_voters_to_districts(apportion: pd.DataFrame,
     return voter_district
 
 
-def assign_voters_to_districts_geo(voter_counties: np.ndarray,
-                                    county_to_dist: dict,
-                                    inputstates: np.ndarray,
-                                    apportion: pd.DataFrame,
-                                    voter_cds: np.ndarray = None) -> np.ndarray:
-    """Assign each voter to a district via county FIPS lookup.
-    Voters in counties not in county_to_dist fall back to the first district
-    in their state.
-    """
-    state_fallback: dict = {}
-    for _, row in apportion.iterrows():
-        state_fallback.setdefault(int(row["state_fips"]), row["district_id"])
-
-    # Sub-county override — see county_split_overrides.csv. The whole-county draw cannot express a
-    # county whose population exceeds one district: Maricopa justifies ~11.6 seats at 380k/seat but
-    # lands entirely in 04-01 (7 seats), leaving 04-03 (5 seats) with no counties, which then falls
-    # back to counting Arizona statewide. Split on the respondent's real 119th-Congress district.
-    split_override: dict = {}
-    if SPLIT_OVERRIDE_PATH.exists():
-        for _, row in pd.read_csv(SPLIT_OVERRIDE_PATH).iterrows():
-            split_override[(str(row["county_fips5"]).zfill(5), int(row["cd119"]))] = row["district_id"]
-
-    voter_district = np.empty(len(voter_counties), dtype=object)
-    n_split = 0
-    for i, (county, state) in enumerate(zip(voter_counties, inputstates)):
-        did = None
-        if split_override and voter_cds is not None:
-            cd = voter_cds[i]
-            if cd == cd:  # not NaN
-                did = split_override.get((county, int(cd)))
-                if did is not None:
-                    n_split += 1
-        if did is None:
-            did = county_to_dist.get(county)
-        voter_district[i] = did if did else state_fallback.get(int(state), "")
-    if n_split:
-        print(f"  sub-county override applied to {n_split:,} respondents")
-    return voter_district
+def assign_voters_to_districts_geo(county_dist_path, apportion: pd.DataFrame,
+                                    inputstates: np.ndarray) -> np.ndarray:
+    """Each voter's district from their county, or by ZIP inside a county the map cuts into
+    pieces (pipeline/district_assign.py)."""
+    import district_assign
+    return district_assign.assign(county_dist_path, apportion, inputstates=inputstates)
 
 
 # ── Centroid computation ──────────────────────────────────────────────────────
@@ -463,10 +433,12 @@ def run_stv(ballots: np.ndarray, weights: np.ndarray,
     quota      = total_v / (n_seats + 1) + 1
     elected: list = []
 
+    history = History()   # ties: Scottish rules 49 and 51 (pipeline/tiebreak.py)
+
     while len(elected) < n_seats and active:
         remaining = n_seats - len(elected)
         if len(active) <= remaining:
-            elected.extend(sorted(active))
+            elected.extend(sorted(active, key=stable_key))
             break
 
         fsc    = first_surviving_choice(ballots, active)
@@ -474,11 +446,9 @@ def run_stv(ballots: np.ndarray, weights: np.ndarray,
         for code, w in zip(fsc, ballot_wts):
             if code in totals:
                 totals[code] += w
+        history.push(totals)
 
-        over_quota = sorted(
-            [c for c in active if totals[c] >= quota],
-            key=lambda c: (-totals[c], c),
-        )
+        over_quota = history.order_desc([c for c in active if totals[c] >= quota], totals)
         if over_quota:
             winner = over_quota[0]
             sf     = (totals[winner] - quota) / totals[winner]
@@ -488,14 +458,14 @@ def run_stv(ballots: np.ndarray, weights: np.ndarray,
                     ballot_wts[i] *= sf
             active.discard(winner)
         else:
-            active.discard(min(active, key=lambda c: (totals[c], c)))
+            active.discard(history.exclude(active, totals))
 
     return elected
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-def main(output_dir=None, pop_per_seat=POP_PER_SEAT, partition_fn=None, label="CANONICAL"):
+def main(output_dir=None, pop_per_seat=LP_PER_SEAT, partition_fn=None, label="CANONICAL"):
     if output_dir is None:
         output_dir = OUTPUT_DIR
     else:
@@ -533,11 +503,11 @@ def main(output_dir=None, pop_per_seat=POP_PER_SEAT, partition_fn=None, label="C
 
     # ── Apportionment ──────────────────────────────────────────────────────────
     print("\nRunning apportionment…")
-    apportion    = run_apportionment(pop_per_seat=pop_per_seat, partition_fn=partition_fn)
+    # Seat counts come from the drawn map (draw_geographic_districts.py writes this file): each
+    # district's seats follow the people it holds.
+    apportion    = pd.read_csv(output_dir / "district_apportionment.csv")
     total_seats  = int(apportion["seat_count"].sum())
     n_districts  = len(apportion)
-
-    apportion.to_csv(output_dir / "district_apportionment.csv", index=False)
     print(f"  {apportion['state_fips'].nunique()} states  |  {n_districts} districts  |  {total_seats} seats")
     size_dist = apportion["seat_count"].value_counts().sort_index()
     for sz, cnt in size_dist.items():
@@ -550,21 +520,10 @@ def main(output_dir=None, pop_per_seat=POP_PER_SEAT, partition_fn=None, label="C
     print("\nAssigning voters to districts…")
     # Triple Wyoming uses its own county-to-district mapping if available
     county_dist_path = (BASE_DIR / "data" / "processed" / "county_to_district_triple.csv"
-                        if pop_per_seat == POP_PER_SEAT_TRIPLE else COUNTY_DIST_PATH)
+                        if pop_per_seat == LP_PER_SEAT_TRIPLE else COUNTY_DIST_PATH)
     if VOTER_FIPS_PATH.exists() and county_dist_path.exists():
-        print(f"  Using geographic county FIPS assignment ({county_dist_path.name})…")
-        voter_fips_df  = pd.read_csv(VOTER_FIPS_PATH, index_col=0)
-        voter_counties = voter_fips_df["countyfips"].astype(str).str.zfill(5).values
-        county_dist_df = pd.read_csv(county_dist_path)
-        county_to_dist = dict(zip(
-            county_dist_df["county_fips5"].astype(str).str.zfill(5),
-            county_dist_df["district_id"]
-        ))
-        voter_cds = (pd.to_numeric(voter_fips_df["cd119"], errors="coerce").values
-                     if "cd119" in voter_fips_df.columns else None)
-        voter_district = assign_voters_to_districts_geo(
-            voter_counties, county_to_dist, inputstates, apportion, voter_cds
-        )
+        print(f"  Using geographic county and ZIP assignment ({county_dist_path.name})…")
+        voter_district = assign_voters_to_districts_geo(county_dist_path, apportion, inputstates)
     else:
         print("  Warning: geo files not found — falling back to tier-shuffle assignment")
         voter_district = assign_voters_to_districts(apportion, inputstates, density_tiers)
@@ -703,7 +662,7 @@ TRIPLE_OUTPUT_DIR = BASE_DIR / "data" / "outputs" / "canonical_triple"
 def main_triple():
     main(
         output_dir=TRIPLE_OUTPUT_DIR,
-        pop_per_seat=POP_PER_SEAT_TRIPLE,
+        pop_per_seat=LP_PER_SEAT_TRIPLE,
         partition_fn=partition_seats_triple,
         label="TRIPLE WYOMING",
     )

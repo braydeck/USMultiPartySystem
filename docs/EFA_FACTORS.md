@@ -28,7 +28,7 @@ Detailed reference for the 5-factor Exploratory Factor Analysis (EFA) solution u
   ├──────────────────────┼──────────┼────────────┤
   │ STY (Solidarity)     │ 14.25%   │ 11.68%     │
   ├──────────────────────┼──────────┼────────────┤
-  │ POP (Populist)         │ 10.43%   │ 8.76%      │
+  │ LP (Libertarian)         │ 10.43%   │ 8.76%      │
   ├──────────────────────┼──────────┼────────────┤
   │ CUP (Civic Union)    │ 9.35%    │ 8.52%      │
   ├──────────────────────┼──────────┼────────────┤
@@ -131,7 +131,7 @@ Key relationships:
 | CC24_440c | +0.209 | Women seek to gain power by getting control over men |
 | CC24_341a | +0.202 | Support extending 2017 Trump tax cuts |
 
-**Note:** F2 is near-orthogonal to partisan ID (Cramér's V ≈ 0.15). STY (Solidarity), POP (Populist), and DSA all score High on F2 despite being ideologically opposed on F1 and F5 — institutional distrust cuts across the left-right divide.
+**Note:** F2 is near-orthogonal to partisan ID (Cramér's V ≈ 0.15). STY (Solidarity), LP (Libertarian), and DSA all score High on F2 despite being ideologically opposed on F1 and F5 — institutional distrust cuts across the left-right divide.
 
 ### F3 — Government Distrust (residual)
 
@@ -154,9 +154,9 @@ Key relationships:
 
 **Validity re-check (July 2026): F3 is a residual factor, and its sign is misleading.** Re-deriving the relationship from the stored factor scores (repro: `analysis/efa/exploration/verify_f3_inversion.py`) shows the factor does not measure what its name implies:
 
-- Across the ten parties, the F3 score correlates **−0.38** with actual government distrust (the raw `govt_trust_imputed` indicator), and **−0.21** at the respondent level. The two *most* government-distrusting parties in the raw data — POP (0.37) and NAT (0.43) — score *lowest* on the F3 factor (both ≈ −0.21). CON, only mid-pack on raw distrust (0.18), scores *highest* among the right parties (+0.11). The factor inverts its own construct: a party's F3 z-score runs opposite to how much it actually distrusts government.
+- Across the ten parties, the F3 score correlates **−0.38** with actual government distrust (the raw `govt_trust_imputed` indicator), and **−0.21** at the respondent level. The two *most* government-distrusting parties in the raw data — LP (0.37) and NAT (0.43) — score *lowest* on the F3 factor (both ≈ −0.21). CON, only mid-pack on raw distrust (0.18), scores *highest* among the right parties (+0.11). The factor inverts its own construct: a party's F3 z-score runs opposite to how much it actually distrusts government.
 - The real government-distrust signal lives in **F2 (Institutional Distrust)**, which correlates **+0.84** with raw government distrust across parties. In a weighted regression of raw distrust on all five factor scores, F2's coefficient is **+0.151** (t=68) while F3's is **−0.165** (t=−58).
-- Mechanism: the two government-trust items (CC24_423/424) load on both F2 and F3, and F2 — where the party-level variance actually sits — absorbs them. F3's *discriminating* variance instead comes from its culturally-coded cross-loading items (immigration, race, hostile sexism), which already belong to F5/PC. So F3's party ordering tracks a culturally-progressive residual, not distrust, which is why hard-right POP falls below institutionalist CON.
+- Mechanism: the two government-trust items (CC24_423/424) load on both F2 and F3, and F2 — where the party-level variance actually sits — absorbs them. F3's *discriminating* variance instead comes from its culturally-coded cross-loading items (immigration, race, hostile sexism), which already belong to F5/PC. So F3's party ordering tracks a culturally-progressive residual, not distrust, which is why hard-right LP falls below institutionalist CON.
 
 **Consequence:** F3 functions as a **residual / suppressor factor**, not an interpretable substantive dimension. It earns its k=5 slot only by keeping the trust variance split — not as a number to display next to a party. The "Government Distrust" label is actively misleading, since a party's F3 score is *negatively* related to its real government distrust; the genuine institutional-distrust axis is F2. When surfacing factors in the UI, F3 should be dropped or explicitly flagged as a non-interpretable residual, and F2 is the axis that should carry the "distrust / anti-establishment" reading.
 
@@ -191,7 +191,7 @@ Key relationships:
 | CC24_340f | −0.271 | Deny asylum to Central American seekers | Support |
 | CC24_341a | −0.238 | Extend 2017 Trump tax cuts | Support |
 
-**Note on negative signs:** The CES coded liberal/progressive positions as higher numeric values. So negative loadings indicate high F5 predicts the *conservative* response. NAT (Nationalist) at +1.51 and POP (Populist) at +0.99 are the most extreme; PRG (Progressive) at −0.99 and LIB (Liberal) at −0.95 are the most progressive.
+**Note on negative signs:** The CES coded liberal/progressive positions as higher numeric values. So negative loadings indicate high F5 predicts the *conservative* response. NAT (Nationalist) at +1.51 and LP (Libertarian) at +0.99 are the most extreme; PRG (Progressive) at −0.99 and LIB (Liberal) at −0.95 are the most progressive.
 
 ---
 
@@ -208,11 +208,11 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 | Type | Chamber | F1 SecOrd | F2 ElecSkep | F3 GovtDis | F4 ReligTrad | F5 PopCons |
 |------|---------|-----------|-------------|------------|--------------|------------|
 | NAT | house | +0.737 | +0.428 | −0.208 | +0.457 | **+1.510** |
-| POP | both | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
+| LP | both | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
 | CON/NAT | senate | +0.752 | +0.198 | −0.045 | +0.336 | +0.966 |
-| CON/POP | senate | +0.592 | +0.219 | +0.013 | +0.196 | +0.612 |
-| POP/STY | senate | −0.038 | +0.722 | −0.081 | +0.153 | +0.601 |
-| STY/POP | senate | −0.154 | +0.704 | −0.019 | +0.157 | +0.411 |
+| CON/LP | senate | +0.592 | +0.219 | +0.013 | +0.196 | +0.612 |
+| LP/STY | senate | −0.038 | +0.722 | −0.081 | +0.153 | +0.601 |
+| STY/LP | senate | −0.154 | +0.704 | −0.019 | +0.157 | +0.411 |
 | CON | both | +0.767 | −0.024 | +0.111 | +0.219 | +0.442 |
 | CON/CUP | senate | +0.577 | −0.325 | +0.002 | +0.185 | +0.289 |
 | CON/STY | senate | +0.258 | +0.263 | +0.120 | +0.196 | +0.230 |
@@ -241,17 +241,17 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 | Tier | Types |
 |------|-------|
 | Very High | CON (+0.77), CON/NAT (+0.75) |
-| High | NAT (+0.74), CON/POP (+0.59), CON/CUP (+0.58), CUP (+0.27), CON/STY (+0.26) |
-| Medium | CON/LBR (+0.24), POP (+0.20), LBR/CON (+0.15), STY/CON (+0.08), POP/STY (−0.04), LBR/CUP (−0.12), STY/POP (−0.15), LIB/CUP (−0.17) |
+| High | NAT (+0.74), CON/LP (+0.59), CON/CUP (+0.58), CUP (+0.27), CON/STY (+0.26) |
+| Medium | CON/LBR (+0.24), LP (+0.20), LBR/CON (+0.15), STY/CON (+0.08), LP/STY (−0.04), LBR/CUP (−0.12), STY/LP (−0.15), LIB/CUP (−0.17) |
 | Low | LBR (−0.41), LBR/STY (−0.42), STY/LBR (−0.43), LBR/LIB (−0.44), STY (−0.45), LIB (−0.46) |
 | Very Low | PRG (−1.26), DSA (−1.30) |
 
 ### F2 — Institutional Distrust
 | Tier | Types |
 |------|-------|
-| Very High | POP (+0.76) |
-| High | POP/STY (+0.72), STY/POP (+0.70), STY (+0.66), DSA (+0.50), NAT (+0.43), STY/CON (+0.36), STY/LBR (+0.31), CON/STY (+0.26) |
-| Medium | CON/POP (+0.22), CON/NAT (+0.20), LBR/STY (+0.20), CON (−0.02), CON/LBR (−0.03), LBR/CON (−0.03), LBR (−0.03) |
+| Very High | LP (+0.76) |
+| High | LP/STY (+0.72), STY/LP (+0.70), STY (+0.66), DSA (+0.50), NAT (+0.43), STY/CON (+0.36), STY/LBR (+0.31), CON/STY (+0.26) |
+| Medium | CON/LP (+0.22), CON/NAT (+0.20), LBR/STY (+0.20), CON (−0.02), CON/LBR (−0.03), LBR/CON (−0.03), LBR (−0.03) |
 | Low | CON/CUP (−0.32), LBR/CUP (−0.37), LBR/LIB (−0.38), PRG (−0.63), LIB (−0.74) |
 | Very Low | LIB/CUP (−0.77), CUP (−0.82) |
 
@@ -276,8 +276,8 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 ### F5 — Populist Conservatism
 | Tier | Types |
 |------|-------|
-| Very High | NAT (+1.51), POP (+0.99), CON/NAT (+0.97) |
-| High | CON/POP (+0.61), POP/STY (+0.60), CON (+0.44), STY/POP (+0.41), CON/CUP (+0.29) |
+| Very High | NAT (+1.51), LP (+0.99), CON/NAT (+0.97) |
+| High | CON/LP (+0.61), LP/STY (+0.60), CON (+0.44), STY/LP (+0.41), CON/CUP (+0.29) |
 | Medium | CON/STY (+0.23) through LBR/CON (−0.08) — 6 types |
 | Low | LBR/CUP (−0.30), STY/LBR (−0.31), LBR/STY (−0.40), LIB/CUP (−0.55), LBR (−0.56) |
 | Very Low | LBR/LIB (−0.75), DSA (−0.87), LIB (−0.95), PRG (−0.99) |
@@ -288,9 +288,9 @@ Sorted by F5 descending (most populist-conservative to most progressive):
 
 1. **F3 is non-differentiating** — All winning types cluster in Medium. Government distrust as a raw dimension is shared broadly across the winning coalition space.
 
-2. **F2 is the most cross-cutting** — POP (+0.76), STY (+0.66), and DSA (+0.50) all score High on institutional distrust despite being maximally opposed on F5. These three parties would align on election-reform legislation despite sharing little else ideologically.
+2. **F2 is the most cross-cutting** — LP (+0.76), STY (+0.66), and DSA (+0.50) all score High on institutional distrust despite being maximally opposed on F5. These three parties would align on election-reform legislation despite sharing little else ideologically.
 
-3. **NAT is the outlier on F5** — At +1.51, NAT is a full standard deviation above the next highest type (POP at +0.99). In coalition analysis, NAT forms a distinct bloc on the populist-right pole that no senate blend type fully reaches.
+3. **NAT is the outlier on F5** — At +1.51, NAT is a full standard deviation above the next highest type (LP at +0.99). In coalition analysis, NAT forms a distinct bloc on the populist-right pole that no senate blend type fully reaches.
 
 4. **DSA and PRG are near-identical on F4 and F5** — Both score −0.387 on F4 and approximately −0.87/−0.99 on F5. Their main distinction is F1 (DSA: −1.303, PRG: −1.260) and F2 (DSA: +0.504, PRG: −0.634) — DSA distrusts elections; PRG trusts them.
 
@@ -308,7 +308,7 @@ The production typology rests on three modeling choices that aren't forced by th
 
 | Party | k=5 no-resid | k=4 resid | k=4 no-resid |
 |---|---|---|---|
-| LBR, STY, POP, CON, NAT | preserved | preserved | preserved |
+| LBR, STY, LP, CON, NAT | preserved | preserved | preserved |
 | CUP | preserved | **split → CON** | **split → CON** |
 | PRG | absorbed (→DSA) | preserved | preserved |
 | LIB | **split** | **split** | **split** |
@@ -318,7 +318,7 @@ All four variants still produce 10 well-populated DPGMM clusters — k=4 does **
 
 ### Findings
 
-1. **Robust core (real structure):** LBR, STY, POP, CON, NAT survive in every variant, residualized or not, k=4 or k=5. Crucially this includes **STY**, the cross-cutting flagship (left-ish enforcement + high institutional distrust + religious traditionalism) — it is not an artifact of the modeling choices.
+1. **Robust core (real structure):** LBR, STY, LP, CON, NAT survive in every variant, residualized or not, k=4 or k=5. Crucially this includes **STY**, the cross-cutting flagship (left-ish enforcement + high institutional distrust + religious traditionalism) — it is not an artifact of the modeling choices.
 
 2. **The cross-cutting structure survives without residualization.** In every variant there are simultaneously left-skeptic, right-skeptic, and right-trusting clusters — institutional distrust stays orthogonal to the enforcement (left–right) axis. Residualization *sharpens* separation (it moves ~40% of assignments, ARI≈0.60 vs baseline) but does not *create* the cross-cutting result.
 
@@ -338,7 +338,7 @@ Strength = weighted mean of each cluster's max posterior probability (how cleanl
 | OAO (Order & Opportunity) | 0.70 |
 | CON / LBR / LIB | 0.74 |
 | PRG | 0.76 |
-| POP / NAT | 0.80 |
+| LP / NAT | 0.80 |
 | STY / DSA | 0.81 |
 
 Residualized vs non-residualized clusterings have ~the same average confidence (≈0.77 either way) — residualization changes *which* clusters form, not their cohesion. Government Distrust is never residualized (only F4/F5 are), so its η² is essentially unchanged by the residualization choice (≈0.06 production; 0.28→0.26 in the reproduction): not residualizing does **not** rescue its discriminating power.
@@ -359,7 +359,7 @@ The 5 factors and the 10 parties are a **domestic-policy** typology. A separate 
 
 **Excluded *clean* (EFA-compatible) items carry no hidden dimension.** Of ~30 support/oppose and agree/disagree items left out, the strongly-polarized ones are already well explained by the 5 factors (build-the-wall R²=0.54, racial-resentment 0.48–0.50, climate 0.39–0.45, assault-rifle ban 0.39) — redundant, so excluding them was parsimony/balance, not loss. The low-communality ones don't cohere into a factor (pairwise |r| mostly <0.3); they're either **valence issues** (background checks R²=0.13 at 93% support; mental-health spending; expand Medicaid — broadly popular, little discriminating signal) or the one genuinely off-axis thread below. Re-including any of these would not improve the model.
 
-**Foreign policy is a real, mostly-orthogonal cleavage — engagement ↔ isolationism.** PCA on the Ukraine / Israel–Gaza / use-of-force batteries gives a coherent PC1 (~25% variance): every engagement action loads one way, "stay out / none" the other. It correlates only modestly with the domestic factors (F5 −0.33, F2 −0.29, F1 −0.26, F3 ≈ 0) and separates the 9 clusters at **η²=0.18 — on par with Religious Traditionalism (F4=0.181) and 3× the retained Government Distrust (F3=0.061)**. It cross-cuts the parties: isolationism is highest at the *anti-establishment* poles — populist-right **POP** and economically-left **STY** meet at the isolationist end, despite sitting opposite on left–right. It was correctly kept out of the polychoric EFA for the **data-shape** reason (multi-select / the mechanical "none" anti-correlation), not for lack of signal.
+**Foreign policy is a real, mostly-orthogonal cleavage — engagement ↔ isolationism.** PCA on the Ukraine / Israel–Gaza / use-of-force batteries gives a coherent PC1 (~25% variance): every engagement action loads one way, "stay out / none" the other. It correlates only modestly with the domestic factors (F5 −0.33, F2 −0.29, F1 −0.26, F3 ≈ 0) and separates the 9 clusters at **η²=0.18 — on par with Religious Traditionalism (F4=0.181) and 3× the retained Government Distrust (F3=0.061)**. It cross-cuts the parties: isolationism is highest at the *anti-establishment* poles — populist-right **LP** and economically-left **STY** meet at the isolationist end, despite sitting opposite on left–right. It was correctly kept out of the polychoric EFA for the **data-shape** reason (multi-select / the mechanical "none" anti-correlation), not for lack of signal.
 
 **Housing/zoning is a faint second off-axis thread.** "Relax zoning for apartments" has R²=0.04 with the five factors (essentially unrelated) and correlates 0.31 with affordable-housing — a YIMBY–NIMBY cleavage structurally like foreign policy, but only 2–3 items, far too thin to anchor a stable factor.
 
@@ -377,12 +377,12 @@ We tested what happens if foreign policy were a *party-defining* sixth dimension
 
 | stable poles (1 cluster) | fractured middle (2–3 clusters) |
 |---|---|
-| PRG, DSA, LIB, CON, NAT | STY (3), LBR (2), CUP (2), POP (2), OAO (2) |
+| PRG, DSA, LIB, CON, NAT | STY (3), LBR (2), CUP (2), LP (2), OAO (2) |
 
-The ideological poles hold; the cross-pressured center splits along engagement↔isolationism. The signature new entity is an **isolationist bloc** (POP 37 / STY 36 / CON 11, FP engagement −1.78) — drawn from the populist right *and* the economic left, united only by "stay out." LBR splits into an **internationalist wing** (LBR/LIB, FP +0.92) and a lower-engagement LBR/STY group; STY fragments three ways.
+The ideological poles hold; the cross-pressured center splits along engagement↔isolationism. The signature new entity is an **isolationist bloc** (LP 37 / STY 36 / CON 11, FP engagement −1.78) — drawn from the populist right *and* the economic left, united only by "stay out." LBR splits into an **internationalist wing** (LBR/LIB, FP +0.92) and a lower-engagement LBR/STY group; STY fragments three ways.
 
 **Legislation effect (party-discipline House, seats ∝ population).** The electorate is identical, so most outcomes hold — but the re-sorted blocs, voting as units, **flip two knife-edge immigration bills toward restriction**: *grant legal status to undocumented* 60%→49% (fails, despite 59% popular) and *deny asylum* 50%→59% (passes). Foreign-policy votes also become more decisive/whippable (the isolationist bloc votes cohesively instead of splitting inside every party). The flips come from bloc mechanics under perfect party discipline, not changed minds — a reminder that *party structure*, not just opinion, decides near-even bills.
 
-**OAO (cluster 7), under the 6-D lens.** OAO's members split **65% into a Conservative-led cluster, 26% into a Liberal-led one** — left and right. OAO is Democratic by identity (45% Dem, very racially progressive, values −1.09) but enforcement-hawkish, so an enforcement-dominated clustering pulls it rightward. This is exactly why it earns its own party in production rather than being folded into Conservative: it is a genuinely cross-pressured bloc the two-party frame cannot hold. It also fits the broader pattern — **the cross-pressured middle and the left are far more fractious than the right** (CON/NAT solid everywhere; LIB/DSA/LBR/STY/CUP/POP/OAO all split under one lens or another).
+**OAO (cluster 7), under the 6-D lens.** OAO's members split **65% into a Conservative-led cluster, 26% into a Liberal-led one** — left and right. OAO is Democratic by identity (45% Dem, very racially progressive, values −1.09) but enforcement-hawkish, so an enforcement-dominated clustering pulls it rightward. This is exactly why it earns its own party in production rather than being folded into Conservative: it is a genuinely cross-pressured bloc the two-party frame cannot hold. It also fits the broader pattern — **the cross-pressured middle and the left are far more fractious than the right** (CON/NAT solid everywhere; LIB/DSA/LBR/STY/CUP/LP/OAO all split under one lens or another).
 
 **Decision.** Keep the **5-D, residualized, 10-party model as the backbone** (it's the validated foundation the whole simulation runs on). Foreign policy stays a **documented overlay** for the current "what parties would emerge from today's opinion" framing. The 6-D run is preserved as the **forward-looking "where this is heading" variant**: it shows the foreign-policy realignment is latent in the data and would fracture the middle into more partisan camps *if* foreign policy keeps rising in salience — but its headline new group (the everyone-who-wants-to-stay-out bloc) is a real *cleavage*, not yet a plausible governing *party* (it agrees on one issue and little else). Cohesion can't decide between 5-D and 6-D (they tie at ~0.75); plausibility favors the 5-D parties as coalitions, with the 6-D as the scenario for an emerging populist/nationalist foreign-policy axis.

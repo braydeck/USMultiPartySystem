@@ -34,7 +34,7 @@ OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / "pure_multi" / "irv"
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from party_stv import run_irv, condorcet_matchups
 
-PARTY_CODES = ["CON", "LBR", "STY", "NAT", "POP", "CUP", "OAO", "DSA", "PRG"]
+PARTY_CODES = ["CON", "LBR", "STY", "NAT", "LP", "CUP", "OAO", "DSA", "PRG"]
 PARTY_IDX   = {c: i for i, c in enumerate(PARTY_CODES)}
 
 FIPS_TO_ABBR = {

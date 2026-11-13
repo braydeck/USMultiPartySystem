@@ -217,3 +217,34 @@ Quiz questions keep the verbatim CES text. Nine items worded as a negative ("pro
 government from banning", "does not protect") or as a court ruling carry a plain line under the question saying what
 a support/agree answer means (`HINTS` in `viz/scripts/make_quiz_questions.py`). Scoring and answer values are
 unchanged.
+
+## POP renamed Libertarian, code LP (ruled 2026-11-11)
+
+Cluster 5 (formerly Populist, POP) is the Libertarian party, code LP ("LIB" would read as liberal). Its center is
+the most economically conservative of the nine (F5 +1.38 SD), against law-and-order spending (F1 −0.83), the most
+distrustful of government (F2 +1.12), and slightly culturally progressive (F4 −0.31); 46% of its voters meet an
+economic-right, culturally-liberal, civil-libertarian profile against 2.7% of all voters. Color stays #f59e0b.
+Applied by `pipeline/rename_party.py POP LP Populist Libertarian` across live code, data and docs; records of earlier
+typologies (this folder, `analysis/validation`, archives) keep the old code. `?result=POP` and `/r/POP` still land on LP.
+The constellation's F5 axis word is "Econ. Right" (was "Populism").
+
+## House districts sized by their people; big counties cut by ZIP; Scottish tie-breaks (ruled 2026-11-11)
+
+The four House maps are redrawn by `pipeline/draw_geographic_districts.py`. Each state keeps its population-based
+seat total; each district's seats now follow the people it holds (largest remainder), instead of a size fixed before
+any county was placed. A county worth 4+ seats is its own district; one worth more than 9 seats (double) or 10
+(triple) is cut into ZIP-area districts by straight cuts on Census 2010 ZCTA centres, and respondents there are placed
+by ZIP (`pipeline/district_assign.py`). Nine-seat districts are allowed on the double map only inside such large
+counties; everywhere else districts are 4-7 seats. Congressional districts were rejected as building blocks: they
+carry partisan line-drawing and come in 2-seat (double) or 4-seat (triple) units that cannot make 5, 7 or 9-seat
+districts. This replaces the Maricopa-only cd119 override (`county_split_overrides.csv`, removed).
+
+Measured on the old map (double): 17 districts holding 104 of 873 seats had under a quarter of their fair share of
+respondents, and three counted their whole state for want of 5 local respondents. On the new maps no district holds
+under half its fair share, every double district is within 0.91-1.10 of its state's people per seat, and the
+thinnest double district has 25 respondents per seat.
+
+Exact ties in every STV and IRV count break by the Scottish rules (SSI 2007/42 Sch. 1 rules 49 and 51): the most
+recent earlier stage at which the tied candidates had unequal votes, then a seeded lot over a name-independent order
+(`pipeline/tiebreak.py`). Ireland (Electoral Act 1992 s.122) looks at the first count instead; Scotland's text was the
+one confirmed. The old alphabetical tie-break is why renaming POP to LP moved seats.

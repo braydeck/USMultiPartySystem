@@ -6,7 +6,7 @@ Generate ranked ballots for 71 factor-deviation (FD) candidates using
 Plackett-Luce sampling from each respondent's 5-D factor position.
 
 The slate = 9 base party candidates + 62 factor-deviation variants:
-  - 4 axes: SO (F1), AE (F2), RT (F4; STY/CUP/POP/CON only), PC (F5)
+  - 4 axes: SO (F1), AE (F2), RT (F4; STY/CUP/LP/CON only), PC (F5)
   - Deviation = ±25% of inter-party SD per factor
   - F3 fixed at party centroid for all candidates (excluded deviation axis)
 

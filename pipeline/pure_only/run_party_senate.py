@@ -30,9 +30,9 @@ OUTPUT_DIR   = BASE_DIR / "data" / "outputs" / "pure_multi" / "senate"
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from party_stv import run_multi_seat_stv, run_irv, condorcet_matchups
 
-PARTY_CODES = ["CON", "LBR", "STY", "NAT", "POP", "CUP", "OAO", "DSA", "PRG"]
+PARTY_CODES = ["CON", "LBR", "STY", "NAT", "LP", "CUP", "OAO", "DSA", "PRG"]
 PARTY_IDX   = {c: i for i, c in enumerate(PARTY_CODES)}
-CLUSTER_FOR_PARTY = {"CON":0,"LBR":1,"STY":2,"NAT":3,"POP":5,"CUP":6,"OAO":7,"DSA":8,"PRG":9}
+CLUSTER_FOR_PARTY = {"CON":0,"LBR":1,"STY":2,"NAT":3,"LP":5,"CUP":6,"OAO":7,"DSA":8,"PRG":9}
 N_PARTIES   = len(PARTY_CODES)
 STV_SEATS   = 5   # finalists per state
 

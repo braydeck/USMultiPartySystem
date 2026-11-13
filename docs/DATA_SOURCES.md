@@ -18,7 +18,7 @@ This is the **party-line** (a.k.a. `rawMulti` / pure_multi) STV result — the v
 | Conservative | 202 | 23.1% | 19.2% |
 | Labor | 158 | 18.1% | 14.1% |
 | Solidarity | 129 | 14.8% | 12.4% |
-| Populist | 104 | 11.9% | 9.0% |
+| Libertarian | 104 | 11.9% | 9.0% |
 | Liberal | 92 | 10.5% | 9.2% |
 | Civic Union Party | 89 | 10.2% | 8.6% |
 | Nationalist | 43 | 4.9% | 9.8% |
@@ -61,7 +61,7 @@ candidate variant, `stateAbbr`/`stateFips` = state. Party totals:
 | LBR | 15 | 30 | 17 | 33 |
 | STY | 29 | 12 | 30 | 6 |
 | CON | 1 | 7 | 1 | 12 |
-| POP | 5 | 2 | 2 | 0 |
+| LP | 5 | 2 | 2 | 0 |
 | CUP | 1 | 0 | 1 | 0 |
 
 These four files are the no-turnout-weighting (λ=0) runs. The app defaults to a 5% turnout gap

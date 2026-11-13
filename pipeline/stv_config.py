@@ -21,7 +21,7 @@ PARTY_LABELS = {
     2: "Solidarity",
     3: "Nationalist",
     4: "Democratic Alliance",
-    5: "Populist",
+    5: "Libertarian",
     6: "Civic Union Party",
     7: "Order and Opportunity Party",
     8: "DSA",
@@ -135,8 +135,8 @@ STATE_POPS = {
     56:  576851,   # Wyoming
 }
 
-POP_PER_SEAT = 380_000
-POP_PER_SEAT_TRIPLE = 192_284   # Triple Wyoming: 576,851 / 3
+LP_PER_SEAT = 380_000
+LP_PER_SEAT_TRIPLE = 192_284   # Triple Wyoming: 576,851 / 3
 
 # ── Census 2020 urban % by state FIPS ─────────────────────────────────────────
 # Approximated from 2020 Census Urban and Rural Classification

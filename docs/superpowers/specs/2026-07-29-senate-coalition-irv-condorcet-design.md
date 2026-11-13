@@ -26,8 +26,8 @@ Four independent defects, established from the code and data:
    (`viz/scripts/prepare_data.py:2581`, `:2673`) read `PURE_MULTI_DIR`
    (`data/outputs/pure_multi`) — the unweighted baseline. The tab's seat data comes
    from `pure_multi_turnout_l5` at the `part=5` default. Hence "STY 30s". Actual
-   defaults: IRV `CON 24 · LBR 21 · LIB 4 · STY 1 · POP 1`; Condorcet
-   `LBR 22 · STY 13 · CON 11 · POP 4 · CUP 1`. Neither card responds to the
+   defaults: IRV `CON 24 · LBR 21 · LIB 4 · STY 1 · LP 1`; Condorcet
+   `LBR 22 · STY 13 · CON 11 · LP 4 · CUP 1`. Neither card responds to the
    participation slider.
 
 3. **Method mislabeling.** `prepare_data.py:2632` always averages off
@@ -305,7 +305,7 @@ Manual, in the browser, since none of this is unit-testable presentation:
 
 - At `part=5`, IRV coalition bars sum to the party's real final-round tally and
   every bar crosses the 50% line; seat counts in the gutter match
-  `CON 24 · LBR 21 · LIB 4 · STY 1 · POP 1`.
+  `CON 24 · LBR 21 · LIB 4 · STY 1 · LP 1`.
 - Toggling Condorcet swaps the card to the matrix and the winnow card stays.
 - Moving the participation slider changes the coalition bars, the matrix, and the
   winnow card together.

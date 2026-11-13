@@ -126,7 +126,7 @@ def main():
     # Centroid = weighted mean of FS_F1..F5 within each cluster (the definition).
     # We reconstruct them directly from the aligned factor scores rather than
     # read candidate_factor_centroids.csv, which carries stale cluster labels
-    # (REF/CTR for POP/CUP). The file is used only as a cross-check
+    # (REF/CTR for LP/CUP). The file is used only as a cross-check
     # where its labels still match the current taxonomy.
     pure = {}
     for party, cluster in PARTY_TO_CLUSTER.items():

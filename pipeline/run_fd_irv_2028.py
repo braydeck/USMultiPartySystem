@@ -38,6 +38,10 @@ FINALISTS:       list = []
 FINALIST_LABELS: dict = {}
 
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tiebreak import History, stable_key  # noqa: E402
+
 def extract_finalist_ballots(ballots_df: pd.DataFrame) -> np.ndarray:
     finalist_set = set(FINALISTS)
     rank_cols    = [c for c in ballots_df.columns if c.startswith("rank_")]
@@ -67,9 +71,12 @@ def run_irv(ballots: np.ndarray, weights: np.ndarray,
     rounds  = []
     total_w = float(weights.sum())
 
+    history = History()   # ties: Scottish rule 51 (pipeline/tiebreak.py)
+
     while len(active) > 1:
         fsc    = first_surviving_choice(ballots, active)
         totals = {code: float(weights[fsc == code].sum()) for code in active}
+        history.push(totals)
 
         winner_candidates = [c for c, v in totals.items() if v > total_w / 2]
         round_record = {
@@ -84,7 +91,7 @@ def run_irv(ballots: np.ndarray, weights: np.ndarray,
             rounds.append(round_record)
             break
 
-        loser = min(active, key=lambda c: (totals[c], c))
+        loser = history.exclude(active, totals)
         round_record["eliminated"] = loser
         rounds.append(round_record)
         active.discard(loser)

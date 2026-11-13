@@ -67,6 +67,10 @@ for fips in POD_D_BENCH: STATE_POD[fips] = {"pod": "D",      "bench": True,  "re
 
 # ── STV helpers ──────────────────────────────────────────────────────────────
 
+import sys  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tiebreak import History, stable_key  # noqa: E402
+
 def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarray:
     N      = len(ballots_arr)
     result = np.empty(N, dtype=object)
@@ -111,21 +115,21 @@ def winnow(ballots_arr, weights, active_set, survivors_target, label, cand_names
     results_rows:          list = []
     transfer_rows:         list = []
 
+    history = History()   # ties: Scottish rules 49 and 51 (pipeline/tiebreak.py)
+
     while len(elected) < survivors_target and active:
         remaining_seats = survivors_target - len(elected)
         if len(active) <= remaining_seats:
-            survived_default.extend(sorted(active))
-            elected.extend(sorted(active))
+            survived_default.extend(sorted(active, key=stable_key))
+            elected.extend(sorted(active, key=stable_key))
             active.clear()
             break
 
         fsc    = first_surviving_choice(ballots_arr, active)
         totals = compute_vote_totals(fsc, ballot_weights, active)
+        history.push(totals)
 
-        over_quota = sorted(
-            [c for c in active if totals[c] >= quota],
-            key=lambda c: (-totals[c], c),
-        )
+        over_quota = history.order_desc([c for c in active if totals[c] >= quota], totals)
         if over_quota:
             winner         = over_quota[0]
             winner_votes   = totals[winner]
@@ -158,7 +162,7 @@ def winnow(ballots_arr, weights, active_set, survivors_target, label, cand_names
                 })
 
         else:
-            loser       = min(active, key=lambda c: (totals[c], c))
+            loser       = history.exclude(active, totals)
             loser_votes = totals[loser]
             eliminated_this_round.append(loser)
             active.discard(loser)
@@ -192,7 +196,7 @@ def winnow(ballots_arr, weights, active_set, survivors_target, label, cand_names
         all_remaining  = active | finalists
         cleanup_fsc    = first_surviving_choice(ballots_arr, all_remaining)
         cleanup_totals = compute_vote_totals(cleanup_fsc, ballot_weights, active)
-        loser          = min(active, key=lambda c: (cleanup_totals.get(c, 0.0), c))
+        loser          = min(active, key=lambda c: (cleanup_totals.get(c, 0.0), stable_key(c)))
         loser_votes    = cleanup_totals.get(loser, 0.0)
         eliminated_this_round.append(loser)
         active.discard(loser)
@@ -264,7 +268,7 @@ def ranked_pairs_winner(matchups, candidates, cand_names):
             loser  = b if winner == a else a
             margin = abs(m["votes_a_beats_b"] - m["votes_b_beats_a"])
             defeats.append({"winner": winner, "loser": loser, "margin": margin, "orig_idx": idx})
-    defeats.sort(key=lambda d: -d["margin"])
+    defeats.sort(key=lambda d: (-d["margin"], stable_key(d["winner"]), stable_key(d["loser"])))
 
     def creates_cycle(locked_edges, new_winner, new_loser):
         reachable: set = set()
@@ -292,7 +296,7 @@ def ranked_pairs_winner(matchups, candidates, cand_names):
             lock_meta[idx]["locked"] = True
 
     losers     = {l for _, l in locked_edges}
-    undefeated = [c for c in candidates if c not in losers]
+    undefeated = sorted((c for c in candidates if c not in losers), key=stable_key)
     rp_winner  = undefeated[0] if len(undefeated) == 1 else "none"
 
     annotated = []

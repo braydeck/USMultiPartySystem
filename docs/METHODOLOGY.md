@@ -87,7 +87,7 @@ eliminated, the ballot goes dead and can no longer transfer. Depth has two disti
   five finalists advance. The Senate winnows its ~20-candidate field at rank-7; the presidential
   general takes the rank-7 primary finalists. Both then **full-rank the final five** (there is
   nothing to truncate past five). At top-3 the consensus party (STY) drops out of several
-  contests and the concentrated-base party (POP) gains — e.g. three Senate seats shift, and the
+  contests and the concentrated-base party (LP) gains — e.g. three Senate seats shift, and the
   general-election Condorcet winner flips from STY to LBR.
 
 House and Primary expose the depth toggle; Senate and the presidential general are baked at

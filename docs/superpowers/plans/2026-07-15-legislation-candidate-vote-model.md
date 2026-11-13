@@ -17,7 +17,7 @@
 - **Factor scores:** `data/processed/efa_factor_scores.csv` has raw `FS_F1..FS_F5` (same listwise order). Centroids in `candidate_factor_centroids.csv` are weighted cluster means of `FS_F1..F5`.
 - **Binary recode:** standard CES support items → `1→1.0, 2→0.0, else NaN`. Non-standard items (spending 5-pt, categorical) follow `add_compare_items.py`. **Every recode is validated** against `cluster_stats.csv` `% Supporting` `c0..c9`.
 - **Bills:** 36 rows in `data/outputs/house_vote_model.csv` (`variable, domain, question`).
-- **Parties (columns):** CON, LBR, STY, NAT, LIB, POP, CUP, OAO, DSA, PRG. Cluster map `{0:CON,1:LBR,2:STY,3:NAT,4:LIB,5:POP,6:CUP,7:OAO,8:DSA,9:PRG}`.
+- **Parties (columns):** CON, LBR, STY, NAT, LIB, LP, CUP, OAO, DSA, PRG. Cluster map `{0:CON,1:LBR,2:STY,3:NAT,4:LIB,5:LP,6:CUP,7:OAO,8:DSA,9:PRG}`.
 - **Naming:** never surface candidate initials or fusion labels; party labels only.
 - **Override:** reuse the Normal-approx sum-of-binomials at a 2/3 threshold (mirror `_lf_prob_pass`).
 

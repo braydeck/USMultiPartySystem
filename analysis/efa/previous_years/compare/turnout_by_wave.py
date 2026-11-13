@@ -43,7 +43,7 @@ PID3_LABEL = {'Democrat': 1, 'Republican': 2, 'Independent': 3, 'Other': 4, 'Not
 CODES = CLUSTER_TO_PARTY
 COMPONENT = {pk: i for i, pk in enumerate(LIVE_CLUSTERS)}  # GMM component index per cluster ID
 NAMES = {'CON':'Conservative','LBR':'Labor','STY':'Solidarity','NAT':'Nationalist',
-         'DAL':'Dem. Alliance','POP':'Populist','CUP':'Civic Union','OAO':'Order and Opportunity',
+         'DAL':'Dem. Alliance','LP':'Libertarian','CUP':'Civic Union','OAO':'Order and Opportunity',
          'DSA':'Dem. Socialist','PRG':'Progressive'}
 CANONICAL_24 = [
     'pew_churatd','CC24_302','CC24_303','CC24_341a','CC24_341c','CC24_341d',

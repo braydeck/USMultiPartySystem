@@ -34,6 +34,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from party_codes import PARTY_TO_CLUSTER, LIVE_CLUSTERS
 from turnout_weights import turnout_multiplier, output_tree, TURNOUT_WEIGHT
+from tiebreak import History
+import district_assign
 
 BASE_DIR         = Path(__file__).parent.parent.parent
 _TREE            = output_tree("pure_multi")
@@ -44,7 +46,6 @@ TYPOLOGY_PATH    = BASE_DIR / "data" / "processed" / "typology_cluster_assignmen
 OUTPUT_DIR       = BASE_DIR / "data" / "outputs" / _TREE / "house"
 VOTER_FIPS_PATH  = BASE_DIR / "data" / "processed" / "voter_county_fips.csv"
 COUNTY_DIST_PATH = BASE_DIR / "data" / "processed" / "county_to_district.csv"
-SPLIT_OVERRIDE_PATH     = BASE_DIR / "pipeline" / "county_split_overrides.csv"
 
 # Triple Wyoming variants
 CHECKPOINT_PATH_TRIPLE  = BASE_DIR / "data" / "outputs" / "canonical_triple" / "ballots_checkpoint.parquet"
@@ -69,6 +70,15 @@ PROMINENCE_BY_K: dict[int, list[float]] = {
 }
 
 
+def prominence_weights(k: int) -> list[float]:
+    """Within-party weights for a k-candidate slate. Past five, which only a party inheriting a
+    dissolved party's voters reaches (pipeline/build_dissolve_scenarios.py), the weights step down
+    evenly. Slate order within a party is fixed for every voter, so the values never move a seat."""
+    if k in PROMINENCE_BY_K:
+        return PROMINENCE_BY_K[k]
+    return [round((k - i) / (k * (k + 1) / 2), 4) for i in range(k)]
+
+
 MIN_SHARE = 0.00   # every party with any voters fields at least 1 candidate in every district
 
 def n_candidates_for_district(share: float, n_seats: int) -> int:
@@ -89,7 +99,7 @@ def n_candidates_for_district(share: float, n_seats: int) -> int:
 PARTY_CLUSTER = PARTY_TO_CLUSTER
 PARTY_LABELS = {
     0: "Conservative", 1: "Labor", 2: "Solidarity",
-    3: "Nationalist",  4: "Democratic Alliance", 5: "Populist",
+    3: "Nationalist",  4: "Democratic Alliance", 5: "Libertarian",
     6: "Civic Union Party", 7: "Order and Opportunity Party", 8: "DSA", 9: "Progressive",
 }
 
@@ -109,14 +119,14 @@ def build_district_candidates(cluster_shares: dict, n_seats: int) -> list:
     ks = {p: n_candidates_for_district(sh, n_seats) for p, sh in shares.items() if sh > 0}
     # Never field fewer candidates than seats: add runners to the strongest parties first.
     while 0 < sum(ks.values()) < n_seats:
-        top = max((p for p in ks if ks[p] < max(PROMINENCE_BY_K)), key=lambda p: shares[p] / (ks[p] + 1))
+        top = max((p for p in ks if ks[p] < n_seats), key=lambda p: shares[p] / (ks[p] + 1))
         ks[top] += 1
     candidates = []
     for party, cluster_idx in PARTY_CLUSTER.items():
         k = ks.get(party, 0)
         if k == 0:
             continue
-        prominences = PROMINENCE_BY_K[k]
+        prominences = prominence_weights(k)
         for i, prom in enumerate(prominences, start=1):
             candidates.append({
                 "code":       f"{party}_{i}",
@@ -220,7 +230,7 @@ def first_surviving_choice(ballots_arr: np.ndarray, active_set: set) -> np.ndarr
 
 
 def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
-            cand_codes: list, n_seats: int) -> tuple:
+            cand_codes: list, n_seats: int, lot_label: str = "") -> tuple:
     """Droop-quota STV with Weighted Inclusive Gregory surplus transfers.
 
     Every ballot the winner holds transfers, each scaled by its own current value, so a
@@ -239,6 +249,7 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
     elected: list = []
     below_quota   = 0
     transfers: list = []
+    history = History(lot_label)   # ties: Scottish rules 49 and 51 (pipeline/tiebreak.py)
 
     def _record(moving_from, mask, moved_wts):
         """Where does each moving ballot land once `moving_from` leaves the field?"""
@@ -262,7 +273,8 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
             for code, w in zip(fsc, ballot_wts):
                 if code in totals:
                     totals[code] += w
-            for c in sorted(active):
+            history.push(totals)
+            for c in history.order_desc(active, totals):
                 elected.append(c)
                 if totals.get(c, 0.0) < quota:
                     below_quota += 1
@@ -274,11 +286,9 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
         for code, w in zip(fsc, ballot_wts):
             if code in totals:
                 totals[code] += w
+        history.push(totals)
 
-        over_quota = sorted(
-            [c for c in active if totals[c] >= quota],
-            key=lambda c: (-totals[c], c),
-        )
+        over_quota = history.order_desc([c for c in active if totals[c] >= quota], totals)
         if over_quota:
             winner = over_quota[0]
             sf     = (totals[winner] - quota) / totals[winner]
@@ -290,7 +300,7 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
             # After the discard, so first_surviving_choice skips the winner.
             _record(winner, np.asarray(fsc) == winner, ballot_wts)
         else:
-            loser = min(active, key=lambda c: (totals[c], c))
+            loser = history.exclude(active, totals)
             moving = np.asarray(fsc) == loser
             active.discard(loser)
             _record(loser, moving, ballot_wts)
@@ -301,60 +311,16 @@ def run_stv(ballots_arr: np.ndarray, weights: np.ndarray,
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def assign_voter_districts(apportion_df, county_dist_path, checkpoint_path, n_voters):
-    """Each respondent's district id: whole-county assignment from the drawn map, split on
-    the real 119th-Congress district where a county is too big for one district, else the
-    checkpoint. Shared with build_house_rep_by_rank.py so it attributes voters as STV counted them."""
-    if VOTER_FIPS_PATH.exists() and county_dist_path.exists():
-        print(f"Assigning voters to districts via county FIPS ({county_dist_path.name})…")
-        voter_fips_df  = pd.read_csv(VOTER_FIPS_PATH, index_col=0)
-        county_fips    = pd.to_numeric(voter_fips_df["countyfips"], errors="coerce").fillna(0).astype(int)
-        voter_counties = county_fips.astype(str).str.zfill(5).values
-
-        county_dist_df = pd.read_csv(county_dist_path)
-        county_to_dist = dict(zip(
-            county_dist_df["county_fips5"].astype(str).str.zfill(5),
-            county_dist_df["district_id"]
-        ))
-
-        state_fallback: dict = {}
-        for _, row in apportion_df.iterrows():
-            sfips = str(int(row["state_fips"])).zfill(2)
-            if sfips not in state_fallback:
-                state_fallback[sfips] = row["district_id"]
-
-        # Sub-county override. The draw assigns whole counties, which cannot express a county whose
-        # population exceeds one district: Maricopa (04013) justifies ~11.6 seats at 380k/seat but
-        # lands entirely in 04-01 (7 seats), leaving 04-03 (5 seats) with no counties and no
-        # respondents — it then falls back to counting Arizona statewide. This splits such counties
-        # on the respondent's real 119th-Congress district. Counties absent from the file keep their
-        # whole-county assignment, so this is inert for the other 3,141.
-        split_override: dict = {}
-        if SPLIT_OVERRIDE_PATH.exists():
-            _so = pd.read_csv(SPLIT_OVERRIDE_PATH)
-            for _, row in _so.iterrows():
-                key = (str(row["county_fips5"]).zfill(5), int(row["cd119"]))
-                split_override[key] = row["district_id"]
-        voter_cds = (pd.to_numeric(voter_fips_df["cd119"], errors="coerce")
-                     if "cd119" in voter_fips_df.columns else pd.Series(index=voter_fips_df.index, dtype=float))
-        voter_cds = voter_cds.values
-
-        district_ids = np.empty(len(voter_counties), dtype=object)
-        n_split = 0
-        for i, county in enumerate(voter_counties):
-            did = None
-            if split_override:
-                cd = voter_cds[i]
-                if cd == cd:  # not NaN
-                    did = split_override.get((county, int(cd)))
-                    if did is not None:
-                        n_split += 1
-            if did is None:
-                did = county_to_dist.get(county)
-            if did is None:
-                did = state_fallback.get(county[:2], "")
-            district_ids[i] = did
-        if n_split:
-            print(f"  sub-county override applied to {n_split:,} respondents")
+    """Each respondent's district id: their county's district, or inside a county the drawn map
+    cuts by ZIP, their ZIP's piece (pipeline/district_assign.py). Falls back to the checkpoint
+    when the geo files are missing. Shared with build_house_rep_by_rank.py so it attributes
+    voters as STV counted them."""
+    if VOTER_FIPS_PATH.exists() and Path(county_dist_path).exists():
+        print(f"Assigning voters to districts via county and ZIP ({Path(county_dist_path).name})…")
+        states = pd.read_csv(EFA_PATH, usecols=["inputstate"])["inputstate"].values
+        district_ids = district_assign.assign(county_dist_path, apportion_df, VOTER_FIPS_PATH,
+                                              inputstates=states)
+        assert len(district_ids) == n_voters
         n_unique = len({d for d in district_ids if d})
         print(f"  {n_voters:,} respondents assigned to {n_unique} districts")
     else:
@@ -485,7 +451,7 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
 
         scores    = compute_candidate_scores_prob(d_prob_matrix, candidates)
         ballots   = generate_ballots(scores, rng, candidates)
-        elected, _, _ = run_stv(ballots, d_count_weights, cand_codes, n_seats_eff)
+        elected, _, _ = run_stv(ballots, d_count_weights, cand_codes, n_seats_eff, lot_label=did)
 
         # Tally by base party (strip _N suffix)
         elected_parties = [code.rsplit("_", 1)[0] for code in elected]
@@ -510,7 +476,7 @@ def main(apportionment_path=None, checkpoint_path=None, county_dist_path=None,
         # Truncate to the top-`ballot_depth` preferences for the STV count; truncated ballots
         # exhaust when all ranked candidates are eliminated (they stop transferring).
         bal_stv        = prob_ballots if not ballot_depth else prob_ballots[:, :ballot_depth]
-        prob_elected, prob_below, prob_transfers = run_stv(bal_stv, d_count_weights, cand_codes, n_seats_eff)
+        prob_elected, prob_below, prob_transfers = run_stv(bal_stv, d_count_weights, cand_codes, n_seats_eff, lot_label=did)
         for _src, _dst, _w in prob_transfers:
             transfer_totals[(_src, _dst)] = transfer_totals.get((_src, _dst), 0.0) + _w
 

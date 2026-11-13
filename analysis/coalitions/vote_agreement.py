@@ -32,7 +32,7 @@ HERE = Path(__file__).parent
 DATA = BASE / "viz/src/data"
 TOKENS = Path.home() / ".claude/skills/html-research-artifacts/assets/tokens.css"
 DRAWS = HERE / "outputs/house_draw_seats_l5.csv"
-NAMES = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
+NAMES = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 5: "LP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
 
 
 def agreement(p, mode):

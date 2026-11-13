@@ -33,6 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from party_codes import PARTY_TO_CLUSTER
 from turnout_weights import turnout_multiplier, output_tree
+from tiebreak import History, stable_key
 
 BASE_DIR       = Path(__file__).parent.parent.parent
 _BALLOT_TREE   = "pure_multi"
@@ -217,7 +218,7 @@ def droop_quota(total_votes: float, n_survivors: int) -> float:
 
 
 def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
-               active_set: set, target: int):
+               active_set: set, target: int, lot_label: str = ""):
     """Weighted Inclusive Gregory STV → returns (finalist_set, first_choice_totals, transfer_records).
 
     Every ballot the winner holds transfers, each scaled by its own current value, so a
@@ -234,6 +235,7 @@ def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
     quota       = droop_quota(total_votes, target)
     elected: list = []
     transfers: list = []  # (from_idx, dest_idx, votes, "surplus"|"elimination")
+    history = History(lot_label)   # ties: Scottish rules 49 and 51 (pipeline/tiebreak.py)
 
     # Record initial first-choice totals
     fsc0 = first_surviving_choice(ballots_arr, active)
@@ -242,17 +244,18 @@ def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
     while len(elected) < target and active:
         remaining = target - len(elected)
         if len(active) <= remaining:
-            elected.extend(sorted(active))
+            fsc    = first_surviving_choice(ballots_arr, active)
+            totals = compute_vote_totals(fsc, ballot_wts, active)
+            history.push(totals)
+            elected.extend(history.order_desc(active, totals))
             active.clear()
             break
 
         fsc    = first_surviving_choice(ballots_arr, active)
         totals = compute_vote_totals(fsc, ballot_wts, active)
+        history.push(totals)
 
-        over_quota = sorted(
-            [c for c in active if totals[c] >= quota],
-            key=lambda c: (-totals[c], c),
-        )
+        over_quota = history.order_desc([c for c in active if totals[c] >= quota], totals)
         if over_quota:
             winner         = over_quota[0]
             surplus_factor = (totals[winner] - quota) / totals[winner]
@@ -273,7 +276,7 @@ def winnow_stv(ballots_arr: np.ndarray, weights: np.ndarray,
             active.discard(winner)
             elected.append(winner)
         else:
-            loser = min(active, key=lambda c: (totals[c], c))
+            loser = history.exclude(active, totals)
             # Track where elimination goes
             xfer_dest = defaultdict(float)
             for i in range(len(fsc)):
@@ -348,7 +351,8 @@ def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
         defeats.append({"winner": winner, "loser": loser, "margin": margin,
                          "margin_pct": margin / total_votes * 100 if total_votes else 0,
                          "orig_idx": idx})
-    defeats.sort(key=lambda x: (-x["margin"], x["winner"]))
+    # Equal margins lock in a fixed, name-independent order (party cluster id, then slate).
+    defeats.sort(key=lambda x: (-x["margin"], stable_key(x["winner"]), stable_key(x["loser"])))
 
     def creates_cycle(locked, new_w, new_l):
         reachable, frontier = set(), {new_l}
@@ -372,7 +376,7 @@ def ranked_pairs_winner(matchups: list, candidates: list) -> tuple:
             lock_meta[idx]["locked"] = True
 
     losers     = {l for _, l in locked_edges}
-    undefeated = [c for c in candidates if c not in losers]
+    undefeated = sorted((c for c in candidates if c not in losers), key=stable_key)
     rp_winner  = undefeated[0] if undefeated else "none"
 
     for d in defeats:
@@ -405,7 +409,7 @@ def _irv_round(idx: int, totals: dict, total: float, eliminated) -> dict:
 
 
 def irv_rounds(ballots_arr: np.ndarray, weights: np.ndarray,
-               candidates: list) -> tuple:
+               candidates: list, lot_label: str = "") -> tuple:
     """Plain IRV (instant runoff) among a candidate list.
 
     Returns (winner_code, rounds). The winner is identical to the plain
@@ -418,10 +422,12 @@ def irv_rounds(ballots_arr: np.ndarray, weights: np.ndarray,
     bwts   = weights.astype(float).copy()
     rounds: list = []
     winner = None
+    history = History(lot_label)
 
     while len(active) > 1:
         fsc    = first_surviving_choice(ballots_arr, active)
         totals = compute_vote_totals(fsc, bwts, active)
+        history.push(totals)
         total  = sum(totals.values())
         if total == 0:
             rounds.append(_irv_round(len(rounds) + 1, totals, total, None))
@@ -431,7 +437,7 @@ def irv_rounds(ballots_arr: np.ndarray, weights: np.ndarray,
             winner = majority[0]
             rounds.append(_irv_round(len(rounds) + 1, totals, total, None))
             break
-        loser = min(active, key=lambda c: (totals[c], c))
+        loser = history.exclude(active, totals)
         rounds.append(_irv_round(len(rounds) + 1, totals, total, loser))
         active.discard(loser)
 
@@ -557,7 +563,7 @@ def main(ballot_depth=0):
         # STV → finalists
         n_survivors = min(STV_SURVIVORS, n_cands)
         finalists, fc_totals, stv_transfers = winnow_stv(
-            state_ballots, state_weights, set(cand_codes), n_survivors)
+            state_ballots, state_weights, set(cand_codes), n_survivors, lot_label=state_abbr)
         finalist_list = sorted(finalists)
 
         # Build bucket composition for each finalist
@@ -593,7 +599,7 @@ def main(ballot_depth=0):
             cond_winner, matchups = ranked_pairs_winner(raw_matchups, finalist_list)
 
         # IRV
-        irv_win, irv_round_log = irv_rounds(state_ballots_full, state_weights, finalist_list)
+        irv_win, irv_round_log = irv_rounds(state_ballots_full, state_weights, finalist_list, lot_label=state_abbr)
         irv_rounds_by_state[f"{int(state_fips):02d}"] = {
             "abbr":        state_abbr,
             "winner":      irv_win,
@@ -621,7 +627,7 @@ def main(ballot_depth=0):
         prob_ballots_full  = generate_ballots(prob_scores, rng_prob, candidates)
         prob_ballots       = prob_ballots_full[:, :ballot_depth] if ballot_depth else prob_ballots_full
 
-        prob_finalists, _, _ = winnow_stv(prob_ballots, state_weights, set(cand_codes), n_survivors)
+        prob_finalists, _, _ = winnow_stv(prob_ballots, state_weights, set(cand_codes), n_survivors, lot_label=state_abbr)
         prob_finalist_list = sorted(prob_finalists)
 
         if len(prob_finalist_list) < 2:
@@ -631,7 +637,7 @@ def main(ballot_depth=0):
             prob_raw_matchups               = build_matchups(prob_ballots_full, state_weights, prob_finalist_list)
             prob_cond_winner, prob_matchups = ranked_pairs_winner(prob_raw_matchups, prob_finalist_list)
 
-        prob_irv_win, _ = irv_rounds(prob_ballots_full, state_weights, prob_finalist_list)
+        prob_irv_win, _ = irv_rounds(prob_ballots_full, state_weights, prob_finalist_list, lot_label=state_abbr)
 
         for m in prob_matchups:
             m["state_fips"] = int(state_fips)

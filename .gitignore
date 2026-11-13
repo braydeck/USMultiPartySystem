@@ -54,3 +54,6 @@ data/outputs/*/house/transfer_matrix_*.csv
 !data/outputs/pure_multi/house/transfer_matrix_*.csv
 data/outputs/rebuild_from_typology.log
 data/bootstrap_cache/
+
+# Dissolve-a-party scenarios: ~800 MB, hosted outside git (pipeline/build_dissolve_scenarios.py)
+data/dissolve_store/

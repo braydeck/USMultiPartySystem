@@ -35,7 +35,7 @@ Each field is then counted two ways: **Instant Runoff Voting (IRV)**, which elim
 | Pure partisan IRV | **SD_1** (Social Democrat) | 54.4% vs. CON_1 45.6% |
 | Pure partisan Condorcet | **STY_1** (Solidarity, pure) | Beats all opponents; closest: SD_1 at 40.9% |
 
-In the crossover field, both methods converge on the same president: a Solidarity candidate who breaks from the party base by running tougher on security. STY_hi_so's factor profile shifts Security & Order from the base STY position of −0.45 to −0.27 — still left of center on enforcement, but meaningfully less anti-police than the median Solidarity voter. This is the Solidarity candidate who can credibly promise working-class economic policy while also promising not to defund anyone's local police department. In the final IRV round, STY_hi_so defeats SD_lo_es (a Social Democrat who softens on enforcement) by 60–40 after absorbing transfers from eliminated Conservative and Populist voters who prefer any candidate with security credibility over a pure civil-libertarian Social Democrat.
+In the crossover field, both methods converge on the same president: a Solidarity candidate who breaks from the party base by running tougher on security. STY_hi_so's factor profile shifts Security & Order from the base STY position of −0.45 to −0.27 — still left of center on enforcement, but meaningfully less anti-police than the median Solidarity voter. This is the Solidarity candidate who can credibly promise working-class economic policy while also promising not to defund anyone's local police department. In the final IRV round, STY_hi_so defeats SD_lo_es (a Social Democrat who softens on enforcement) by 60–40 after absorbing transfers from eliminated Conservative and Libertarian voters who prefer any candidate with security credibility over a pure civil-libertarian Social Democrat.
 
 In the pure partisan field, the two methods diverge. IRV elects a **Social Democrat** — SD_1 wins the final round 54.4% to 45.6% against CON_1 after Solidarity is eliminated in round 3 and its transfers split roughly evenly. Condorcet elects a **pure Solidarity partisan** — STY_1 beats every other candidate in head-to-head matchups, including SD_1 by a margin of 18 points. The divergence illustrates a structural property: IRV penalizes candidates who aren't many voters' first choice (STY_1 starts in third at 18.4%) even when those candidates would beat everyone one-on-one.
 
@@ -98,7 +98,7 @@ The Democratic Socialists are ideologically close to Progressives on economic an
 - Assault rifle ban: 93.2%
 
 **Unusually for American politics:**
-- Only 32.8% of DSA members believe U.S. elections are run fairly — the lowest of any party in the system, below even Populist (36.4%) and Nationalist (47.9%). Electoral distrust is not a right-wing monopoly; for a party that is 38.6% LGBTQ+ and 34.1% non-white, there are independent reasons to doubt whether the system delivers equal treatment.
+- Only 32.8% of DSA members believe U.S. elections are run fairly — the lowest of any party in the system, below even Libertarian (36.4%) and Nationalist (47.9%). Electoral distrust is not a right-wing monopoly; for a party that is 38.6% LGBTQ+ and 34.1% non-white, there are independent reasons to doubt whether the system delivers equal treatment.
 - DSA has the lowest marriage rate of any party (29.0%) and among the highest non-voting rates in 2020 (27.5% did not vote), a combination that reflects a young, non-traditional left base that remains substantially disengaged from electoral participation despite deep political conviction.
 
 **Senate seats:** 0 in all four scenarios. Like PRG, DSA's vote share never commands a state-level plurality; its support is too young, too urban, and too dispersed.
@@ -155,7 +155,7 @@ Social Democrats are the second-largest party in the system and, in many ways, t
 
 ### Solidarity (STY) — 130 House Seats (14.9%)
 
-Solidarity is the most politically disorienting party in the system, and arguably the most important one to understand. They are the youngest working-class party (median age 38), majority female (60.7%), majority non-white (56.6%), lowest household income of any party in the system, and — most surprisingly — 37.7% born-again evangelical. Their economics lean center-left: they support infrastructure spending and Medicaid expansion, but express ambivalence on immigration and are more skeptical of corporate tax hikes than their left-leaning neighbors. What makes STY genuinely novel is their combination of economic marginalization with deep institutional distrust: just 35.5% believe national elections are run fairly — among the lowest in the system, alongside Populist (36.4%) and DSA (32.8%). Nearly half (44%) didn't vote in 2020. They are the party of Americans most left behind by the economy — low income, limited education, religiously conservative, and alienated from both political parties.
+Solidarity is the most politically disorienting party in the system, and arguably the most important one to understand. They are the youngest working-class party (median age 38), majority female (60.7%), majority non-white (56.6%), lowest household income of any party in the system, and — most surprisingly — 37.7% born-again evangelical. Their economics lean center-left: they support infrastructure spending and Medicaid expansion, but express ambivalence on immigration and are more skeptical of corporate tax hikes than their left-leaning neighbors. What makes STY genuinely novel is their combination of economic marginalization with deep institutional distrust: just 35.5% believe national elections are run fairly — among the lowest in the system, alongside Libertarian (36.4%) and DSA (32.8%). Nearly half (44%) didn't vote in 2020. They are the party of Americans most left behind by the economy — low income, limited education, religiously conservative, and alienated from both political parties.
 
 **Who they are:**
 - Median age 38 · 39.3% male · 43.4% white · 23.0% 4-yr+ degree · 36.3% city
@@ -170,7 +170,7 @@ Solidarity is the most politically disorienting party in the system, and arguabl
 - Increase police by 10%: just 35.0% support
 
 **Unusually for American politics:**
-- Just 35.5% of STY believe national elections are run fairly — as skeptical as Populist (36.4%) — yet only 16.3% voted for Trump in 2020 and 44% didn't vote at all. STY's electoral skepticism comes from the left, not the right: for a majority non-white, lowest-income, female-majority party, distrust of institutions reflects lived experience of exclusion rather than election denialism.
+- Just 35.5% of STY believe national elections are run fairly — as skeptical as Libertarian (36.4%) — yet only 16.3% voted for Trump in 2020 and 44% didn't vote at all. STY's electoral skepticism comes from the left, not the right: for a majority non-white, lowest-income, female-majority party, distrust of institutions reflects lived experience of exclusion rather than election denialism.
 - STY is the only party that combines majority non-white membership, majority female membership, the lowest income in the system, and 37.7% born-again evangelical identity — a demographic profile that fits no existing political coalition and explains why they are estranged from both parties rather than firmly attached to either.
 
 **Senate seats:** STY dominates under Condorcet — where broad head-to-head acceptability matters most — and competes strongly under IRV. Crossover Condorcet: 34 seats (the largest total in any scenario, overwhelmingly through the establishment-friendly STY_lo_es variant). Crossover IRV: 19 seats. Pure partisan Condorcet: 33 seats. Pure partisan IRV: 11 seats. STY's Condorcet dominance reflects its position as the spatial median of the multi-party field — the party that the most other voters can tolerate even if it isn't their first choice.
@@ -219,15 +219,15 @@ Conservatives are the largest party in the system and the dominant force on the 
 
 **Unusually for American politics:**
 - 93.8% of Conservatives support universal background checks on gun sales — better than nine in ten. This is the signature cross-cutting finding for CON: a party that is 39.2% gun-owning and 99.5% pro-border-patrol nonetheless backs a policy their partisan analog in the two-party system has blocked for decades. Their gun politics are about ownership and rights, not about blocking all regulation.
-- 64.0% of Conservatives believe national elections are run fairly — almost exactly the national average (62.8%) — reflecting an institutional conservatism that CON shares with CUP but not with POP (36.4% believe elections fair) or NAT (47.9%).
+- 64.0% of Conservatives believe national elections are run fairly — almost exactly the national average (62.8%) — reflecting an institutional conservatism that CON shares with CUP but not with LP (36.4% believe elections fair) or NAT (47.9%).
 
 **Senate seats:** CON wins few seats under Condorcet but breaks through under IRV — especially in the pure partisan field where its strong first-choice base survives elimination rounds. Crossover Condorcet: 1 seat *(Tennessee — via CON_lo_pc, a Conservative softened on populism)*. Crossover IRV: 3 seats *(Idaho via CON_hi_pc, Oklahoma via CON_lo_es, Wyoming via base CON)*. Pure partisan Condorcet: 1 seat *(Tennessee)*. Pure partisan IRV: 11 seats *(Arkansas, Idaho, Indiana, Iowa, Kentucky, Michigan, Montana, North Carolina, North Dakota, Ohio, Tennessee)*. The IRV–Condorcet gap is dramatic: CON accumulates first-choice votes in contested states but loses head-to-head matchups to the centrist STY and SD candidates who attract broader second-choice support.
 
 ---
 
-### Populist (POP) — 99 House Seats (11.3%)
+### Libertarian (LP) — 99 House Seats (11.3%)
 
-Populist is the Tea Party and MAGA populism stripped of the Republican establishment — deeply suspicious that elections are run fairly, intensely restrictionist on immigration, and socially conservative without being particularly evangelical. Populist members are older (median age 46), majority male (51.2%), rural, and low-education relative to income. They feel left behind and channel that anxiety into distrust of both elections and elites. What makes Populist genuinely different from Conservative is their anti-institutional streak: just 36.4% believe national elections are run fairly and 80.4% express low trust in the federal government — a suspicion of concentrated power that reaches even into law enforcement, where Populist is markedly cooler on policing than the rest of the right. They are not reflexively pro-establishment; they are pro-themselves, against a system they believe is rigged by people who are not like them.
+Libertarian is the Tea Party and MAGA populism stripped of the Republican establishment — deeply suspicious that elections are run fairly, intensely restrictionist on immigration, and socially conservative without being particularly evangelical. Libertarian members are older (median age 46), majority male (51.2%), rural, and low-education relative to income. They feel left behind and channel that anxiety into distrust of both elections and elites. What makes Libertarian genuinely different from Conservative is their anti-institutional streak: just 36.4% believe national elections are run fairly and 80.4% express low trust in the federal government — a suspicion of concentrated power that reaches even into law enforcement, where Libertarian is markedly cooler on policing than the rest of the right. They are not reflexively pro-establishment; they are pro-themselves, against a system they believe is rigged by people who are not like them.
 
 **Who they are:**
 - Median age 46 · 51.2% male · 70.2% white · 25.8% 4-yr+ degree · 23.1% city
@@ -242,16 +242,16 @@ Populist is the Tea Party and MAGA populism stripped of the Republican establish
 - Believe elections are run fairly: 36.4%
 
 **Unusually for American politics:**
-- Just 44.2% of Populist support increasing police funding — the lowest of any right-leaning party and far below Conservative (99.7%) — and 19.5% actively want to cut it. Populist's anti-establishment suspicion extends even to law enforcement, the one institution the two-party right treats as sacrosanct.
+- Just 44.2% of Libertarian support increasing police funding — the lowest of any right-leaning party and far below Conservative (99.7%) — and 19.5% actively want to cut it. Libertarian's anti-establishment suspicion extends even to law enforcement, the one institution the two-party right treats as sacrosanct.
 - 80.4% support universal background checks despite being among the most immigration-restrictionist parties — suggesting gun-regulation opposition in the two-party system reflects partisan packaging more than genuine voter preference.
 
-**Senate seats:** POP wins seats primarily through its establishment-friendly crossover variant (POP_lo_es), which tones down anti-establishment rhetoric enough to attract transfers from moderate voters. Crossover Condorcet: 5 seats *(Idaho, North Dakota, Oklahoma, South Dakota, Wyoming)*. Crossover IRV: 1 seat *(North Dakota)*. Pure partisan Condorcet: 1 seat *(Idaho)*. Pure partisan IRV: 2 seats *(Arizona, Wyoming)*. POP's Condorcet success in the crossover field reflects a surprising dynamic: when a Populist candidate dials back institutional distrust, the resulting profile — fiscally populist, immigration-restrictionist, but trusting enough of elections to seem governable — commands a plurality in deeply conservative states.
+**Senate seats:** LP wins seats primarily through its establishment-friendly crossover variant (LP_lo_es), which tones down anti-establishment rhetoric enough to attract transfers from moderate voters. Crossover Condorcet: 5 seats *(Idaho, North Dakota, Oklahoma, South Dakota, Wyoming)*. Crossover IRV: 1 seat *(North Dakota)*. Pure partisan Condorcet: 1 seat *(Idaho)*. Pure partisan IRV: 2 seats *(Arizona, Wyoming)*. LP's Condorcet success in the crossover field reflects a surprising dynamic: when a Libertarian candidate dials back institutional distrust, the resulting profile — fiscally populist, immigration-restrictionist, but trusting enough of elections to seem governable — commands a plurality in deeply conservative states.
 
 ---
 
 ### Nationalist (NAT) — 46 House Seats (5.3%)
 
-The Nationalist Party is the populist far-right pole of the system. At +1.51 on Populist Conservatism — a full standard deviation above the next highest type — they are an outlier even within a system designed to find outliers. They are the oldest party (median age 60), the most male (63.6%), the most rural (only 15.9% city), and the most evangelical (47.7% born-again) — but they are also the second highest income party in the simulation, and more college-educated (39.3%) than Conservative (30.3%) or Populist (25.8%). NAT is not the economically precarious working class; it is prosperous older white rural Christians who have organized their politics around immigration restriction and cultural anxiety rather than economic grievance. They want borders enforced, firearms secured, tradition maintained, and a specific vision of American national identity preserved. Their 89.4% Trump support in 2020 and near-universal immigration restriction coexist with household incomes that benefit substantially from the tax cuts they demand.
+The Nationalist Party is the populist far-right pole of the system. At +1.51 on Populist Conservatism — a full standard deviation above the next highest type — they are an outlier even within a system designed to find outliers. They are the oldest party (median age 60), the most male (63.6%), the most rural (only 15.9% city), and the most evangelical (47.7% born-again) — but they are also the second highest income party in the simulation, and more college-educated (39.3%) than Conservative (30.3%) or Libertarian (25.8%). NAT is not the economically precarious working class; it is prosperous older white rural Christians who have organized their politics around immigration restriction and cultural anxiety rather than economic grievance. They want borders enforced, firearms secured, tradition maintained, and a specific vision of American national identity preserved. Their 89.4% Trump support in 2020 and near-universal immigration restriction coexist with household incomes that benefit substantially from the tax cuts they demand.
 
 **Who they are:**
 - Median age 60 · 63.6% male · 81.2% white · 39.3% 4-yr+ degree · 15.9% city
@@ -266,10 +266,10 @@ The Nationalist Party is the populist far-right pole of the system. At +1.51 on 
 - Believe elections are run fairly: 47.9%
 
 **Unusually for American politics:**
-- Despite being the most evangelical party (47.7% born-again) and the most rural (15.9% city), NAT ranks second in household income — a profile of prosperous older white rural Christians, not the economically precarious working class its anti-establishment rhetoric might suggest. NAT is more college-educated (39.3%) than Conservative (30.3%) or Populist (25.8%), and their near-universal support for the 2017 tax cuts aligns with their actual economic position rather than contradicting it.
+- Despite being the most evangelical party (47.7% born-again) and the most rural (15.9% city), NAT ranks second in household income — a profile of prosperous older white rural Christians, not the economically precarious working class its anti-establishment rhetoric might suggest. NAT is more college-educated (39.3%) than Conservative (30.3%) or Libertarian (25.8%), and their near-universal support for the 2017 tax cuts aligns with their actual economic position rather than contradicting it.
 - 75.8% support universal background checks — a solid majority, even in the most nativist and gun-owning party in the system.
 
-**Senate seats:** 0 in all four scenarios. NAT's extreme F5 position (+1.51) places it too far from the median voter to win any state-level plurality — even in the most conservative states, where crossover Conservative or Populist candidates absorb its voters by running closer to the center.
+**Senate seats:** 0 in all four scenarios. NAT's extreme F5 position (+1.51) places it too far from the median voter to win any state-level plurality — even in the most conservative states, where crossover Conservative or Libertarian candidates absorb its voters by running closer to the center.
 
 ---
 
@@ -359,16 +359,16 @@ SD_hi_so shifts Security & Order from SD's base of −0.41 to −0.23, making a 
 
 ---
 
-### POP_lo_es — The Establishment Populist Senator
+### LP_lo_es — The Establishment Libertarian Senator
 **Condorcet: 5 seats · IRV: 1 seat**
 
-*A Populist senator who tones down anti-establishment rhetoric and signals trust in institutions.*
+*A Libertarian senator who tones down anti-establishment rhetoric and signals trust in institutions.*
 
-POP_lo_es shifts Electoral Skepticism from POP's base of +0.76 down to +0.61 — still deeply skeptical by any standard, but measurably less hostile to institutions than the pure Populist position. This candidate keeps Populist's immigration restrictionism, fiscal populism, and cultural conservatism while becoming just acceptable enough to win in deeply red states. Under Condorcet: Idaho, North Dakota, Oklahoma, South Dakota, Wyoming. Under IRV: only North Dakota.
+LP_lo_es shifts Electoral Skepticism from LP's base of +0.76 down to +0.61 — still deeply skeptical by any standard, but measurably less hostile to institutions than the pure Libertarian position. This candidate keeps Libertarian's immigration restrictionism, fiscal populism, and cultural conservatism while becoming just acceptable enough to win in deeply red states. Under Condorcet: Idaho, North Dakota, Oklahoma, South Dakota, Wyoming. Under IRV: only North Dakota.
 
 **Factor profile:** F1 +0.20 (moderate enforcement) · F2 +0.61 (electorally skeptical) · F4 +0.15 (moderate religious) · F5 +0.99 (strongly conservative)
 
-**Why it works:** In the five most conservative states in the system, no center-left candidate wins a head-to-head matchup. POP_lo_es wins by being the rightmost candidate that has moderated enough to beat CON variants one-on-one. Under IRV, only North Dakota produces enough first-choice Populist votes to survive elimination — in the other four states, first-choice CON voters outnumber POP voters, and IRV rewards that first-choice lead.
+**Why it works:** In the five most conservative states in the system, no center-left candidate wins a head-to-head matchup. LP_lo_es wins by being the rightmost candidate that has moderated enough to beat CON variants one-on-one. Under IRV, only North Dakota produces enough first-choice Libertarian votes to survive elimination — in the other four states, first-choice CON voters outnumber LP voters, and IRV rewards that first-choice lead.
 
 ---
 
@@ -388,7 +388,7 @@ Several types win a small number of seats:
 
 **SD_lo_pc** (Social Democrat, less populist-conservative) — Condorcet: 0 · IRV: 1 *(Nevada)*. A more progressive SD variant.
 
-**CON_lo_pc** (Conservative, less populist) — Condorcet: 1 *(Tennessee)* · IRV: 0. The only Conservative to win under Condorcet — by softening populism enough to beat STY and POP in head-to-head matchups.
+**CON_lo_pc** (Conservative, less populist) — Condorcet: 1 *(Tennessee)* · IRV: 0. The only Conservative to win under Condorcet — by softening populism enough to beat STY and LP in head-to-head matchups.
 
 **CON_hi_pc** (Conservative, more populist) — Condorcet: 0 · IRV: 1 *(Idaho)*. A hard-right Conservative who survives IRV in the most conservative state outside the deep South.
 
@@ -413,7 +413,7 @@ Under Condorcet, Solidarity wins 33 of 51 seats — a near-supermajority driven 
 | STY | 33 | AL, AK, AZ, AR, CA, CO, FL, GA, HI, IN, IA, KS, KY, LA, MD, MI, MS, MO, MT, NE, NV, NC, ND, OH, OK, PA, SC, SD, TX, UT, VA, WI, WV |
 | SD | 15 | CT, DE, DC, IL, ME, MA, MN, NH, NJ, NM, NY, OR, RI, VT, WA |
 | CON | 1 | TN |
-| POP | 1 | ID |
+| LP | 1 | ID |
 | CUP | 1 | WY |
 
 ### IRV: Three-Way Competition
@@ -425,7 +425,7 @@ Under IRV, the map transforms. Social Democrat wins 26 seats, while Conservative
 | SD | 26 | CA, CO, CT, DE, DC, FL, GA, IL, ME, MD, MA, MN, MO, NE, NV, NH, NJ, NM, NY, OR, PA, RI, SC, VA, WA, WI |
 | CON | 11 | AR, ID, IN, IA, KY, MI, MT, NC, ND, OH, TN |
 | STY | 11 | AL, AK, HI, KS, LA, MS, OK, SD, TX, UT, WV |
-| POP | 2 | AZ, WY |
+| LP | 2 | AZ, WY |
 | LIB | 1 | VT |
 
 The 25-state divergence between methods is the largest in the simulation. CON gains 10 seats under IRV that it loses under Condorcet; STY loses 22 seats. The implication is stark: for Solidarity, which counting method the Senate uses matters more than any policy position.
@@ -441,7 +441,7 @@ The 25-state divergence between methods is the largest in the simulation. CON ga
 | STY | 34 | 19 | 33 | 11 |
 | SD | 11 | 27 | 15 | 26 |
 | CON | 1 | 3 | 1 | 11 |
-| POP | 5 | 1 | 1 | 2 |
+| LP | 5 | 1 | 1 | 2 |
 | CUP | 0 | 1 | 1 | 0 |
 | LIB | 0 | 0 | 0 | 1 |
 | PRG | 0 | 0 | 0 | 0 |
@@ -468,7 +468,7 @@ States where both methods elect the same party are in plain text. The **21 state
 | Florida | STY_lo_pc | STY_lo_pc |
 | **Georgia** | **STY_lo_pc** | **SD** |
 | Hawaii | STY_lo_pc | STY_lo_pc |
-| **Idaho** | **POP_lo_es** | **CON_hi_pc** |
+| **Idaho** | **LP_lo_es** | **CON_hi_pc** |
 | Illinois* | SD_lo_es | SD_lo_so |
 | Indiana | STY_lo_es | STY_lo_es |
 | Iowa | SD | SD |
@@ -490,14 +490,14 @@ States where both methods elect the same party are in plain text. The **21 state
 | **New Mexico** | **STY_lo_es** | **SD_lo_so** |
 | **New York** | **STY_lo_es** | **SD_lo_so** |
 | North Carolina | STY_lo_es | STY_lo_es |
-| North Dakota | POP_lo_es | POP_lo_es |
+| North Dakota | LP_lo_es | LP_lo_es |
 | Ohio | STY_lo_es | STY_lo_es |
-| **Oklahoma** | **POP_lo_es** | **CON_lo_es** |
+| **Oklahoma** | **LP_lo_es** | **CON_lo_es** |
 | **Oregon** | **STY_lo_es** | **SD_lo_so** |
 | Pennsylvania* | SD_hi_so | SD_lo_so |
 | Rhode Island | SD_hi_so | SD_hi_so |
 | South Carolina | STY_hi_so | STY_hi_so |
-| **South Dakota** | **POP_lo_es** | **CUP_hi_pc** |
+| **South Dakota** | **LP_lo_es** | **CUP_hi_pc** |
 | **Tennessee** | **CON_lo_pc** | **STY_hi_so** |
 | Texas | STY_lo_es | STY_lo_es |
 | Utah | STY_lo_so | STY_lo_so |
@@ -506,7 +506,7 @@ States where both methods elect the same party are in plain text. The **21 state
 | **Washington** | **STY_lo_es** | **SD_lo_so** |
 | West Virginia | STY_hi_so | STY_hi_so |
 | **Wisconsin** | **STY_lo_es** | **SD_lo_es** |
-| **Wyoming** | **POP_lo_es** | **CON** |
+| **Wyoming** | **LP_lo_es** | **CON** |
 
 ### State-by-State: Pure Partisan Field
 
@@ -516,7 +516,7 @@ The **25 states where the winner differs** between methods are bold.
 |-------|-----------|-----|
 | Alabama | STY | STY |
 | Alaska | STY | STY |
-| **Arizona** | **STY** | **POP** |
+| **Arizona** | **STY** | **LP** |
 | **Arkansas** | **STY** | **CON** |
 | **California** | **STY** | **SD** |
 | **Colorado** | **STY** | **SD** |
@@ -526,7 +526,7 @@ The **25 states where the winner differs** between methods are bold.
 | **Florida** | **STY** | **SD** |
 | **Georgia** | **STY** | **SD** |
 | Hawaii | STY | STY |
-| **Idaho** | **POP** | **CON** |
+| **Idaho** | **LP** | **CON** |
 | Illinois | SD | SD |
 | **Indiana** | **STY** | **CON** |
 | **Iowa** | **STY** | **CON** |
@@ -564,7 +564,7 @@ The **25 states where the winner differs** between methods are bold.
 | Washington | SD | SD |
 | West Virginia | STY | STY |
 | **Wisconsin** | **STY** | **SD** |
-| **Wyoming** | **CUP** | **POP** |
+| **Wyoming** | **CUP** | **LP** |
 
 ---
 
@@ -657,7 +657,7 @@ High scorers favor increasing police by 10%, expanding border patrols, denying a
 
 ### F2 — Electoral Skepticism
 
-High scorers disagree that U.S. elections are run fairly and disagree that their 2024 state/local elections were fair. This factor is near-orthogonal to partisan identity. Critically, POP (+0.76), STY (+0.66), and DSA (+0.50) all score High on F2 despite being maximally opposed on F5. Electoral skepticism cuts across the left-right divide. CUP (−0.82) is the most trusting party.
+High scorers disagree that U.S. elections are run fairly and disagree that their 2024 state/local elections were fair. This factor is near-orthogonal to partisan identity. Critically, LP (+0.76), STY (+0.66), and DSA (+0.50) all score High on F2 despite being maximally opposed on F5. Electoral skepticism cuts across the left-right divide. CUP (−0.82) is the most trusting party.
 
 ---
 
@@ -675,7 +675,7 @@ High scorers attend church frequently, favor stricter limits on abortion, and op
 
 ### F5 — Populist Conservatism
 
-High scorers agree that racial problems are rare and isolated, oppose Dreamer pathways to citizenship, oppose raising top-bracket tax rates, oppose legal status for undocumented immigrants, and disagree with progressive racial attitudes. NAT at +1.51 is a full standard deviation above the next type (POP at +0.99). PRG (−0.99) and LIB (−0.95) anchor the opposite pole.
+High scorers agree that racial problems are rare and isolated, oppose Dreamer pathways to citizenship, oppose raising top-bracket tax rates, oppose legal status for undocumented immigrants, and disagree with progressive racial attitudes. NAT at +1.51 is a full standard deviation above the next type (LP at +0.99). PRG (−0.99) and LIB (−0.95) anchor the opposite pole.
 
 ---
 
@@ -686,8 +686,8 @@ Sorted by F5, most populist-conservative first. Crossover types that win senate 
 | Type | Description | F1 Sec/Ord | F2 ElecSkep | F3 GovtDis | F4 ReligTrad | F5 PopCons |
 |------|-------------|-----------|-------------|------------|--------------|------------|
 | NAT | Nationalist | +0.737 | +0.428 | −0.208 | +0.457 | **+1.510** |
-| POP | Populist | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
-| POP_lo_es | Populist, establishment-friendly | +0.202 | +0.613 | −0.206 | +0.147 | +0.990 |
+| LP | Libertarian | +0.202 | +0.759 | −0.206 | +0.147 | +0.990 |
+| LP_lo_es | Libertarian, establishment-friendly | +0.202 | +0.613 | −0.206 | +0.147 | +0.990 |
 | CON_hi_pc | Conservative, more populist | +0.767 | −0.024 | +0.111 | +0.219 | +0.653 |
 | CON | Conservative | +0.767 | −0.024 | +0.111 | +0.219 | +0.442 |
 | CON_lo_es | Conservative, establishment-friendly | +0.767 | −0.170 | +0.111 | +0.219 | +0.442 |

@@ -51,7 +51,7 @@ PARTY_LABELS = {
     2: "Solidarity",
     3: "Nationalist",
     4: "Democratic Alliance",
-    5: "Populist",
+    5: "Libertarian",
     6: "Civic Union Party",
     7: "Order and Opportunity Party",
     8: "DSA",

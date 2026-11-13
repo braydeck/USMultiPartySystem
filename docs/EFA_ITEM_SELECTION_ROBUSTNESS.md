@@ -227,7 +227,7 @@ The full pipeline was re-run under **k=4/k=5 × residualized/non-residualized** 
 
 | tier | parties | depends on |
 |---|---|---|
-| **Bulletproof** (survive every variant) | STY, POP, CON, NAT, LBR | nothing |
+| **Bulletproof** (survive every variant) | STY, LP, CON, NAT, LBR | nothing |
 | **Needs k=5** | CUP | the 5th factor (dissolves into CON at k=4) |
 | **Needs residualization** | PRG, DSA, LIB, OAO | F4/F5 residualized on F1 |
 
@@ -242,7 +242,7 @@ The uniform-rule test surfaced policy domains never in the original candidate fr
 | domain added | new dimension? | party effect | verdict |
 |---|---|---|---|
 | Economic (repeal-ACA, work-req, student-loans, corporate-tax, TikTok) | No — items reinforce the existing spine/enforcement factors | churn, softer parties | **reinforce → don't adopt** |
-| Environment / climate (`CC24_326a–f`) | No — all six load on the left–right spine (λ up to 0.87); parallel analysis rejects a 6th factor | churn (CON −0.23, POP −0.23); confidence 0.89→0.77 | **redundant → document-and-exclude** |
+| Environment / climate (`CC24_326a–f`) | No — all six load on the left–right spine (λ up to 0.87); parallel analysis rejects a 6th factor | churn (CON −0.23, LP −0.23); confidence 0.89→0.77 | **redundant → document-and-exclude** |
 | Culture war (`CC24_444a/b/d/e/f`, `445a`) | Numerically yes (parallel analysis → k=6) — but the items fuse into the values spine; the "6th factor" is actually **immigration-status**, not culture | CON *shatters* (no home); confidence 0.89→0.76 | **a k=6 variant, not a patch** |
 
 ### 8a. Climate is a left–right gradient (exhibit)
@@ -257,7 +257,7 @@ Mean pro-climate support by party, clusters ordered left→right. The correlatio
 | Econ-left / socially-mixed (LIB/OAO) | −0.89 | 76% |
 | Center-left independents (STY/LBR) | −0.66 | 71% |
 | Populist-immigration center (CON/CUP) | −0.52 | 65% |
-| Disengaged center-right (STY/POP) | +0.41 | 42% |
+| Disengaged center-right (STY/LP) | +0.41 | 42% |
 | Mainstream conservative (CON/CUP) | +0.58 | 25% |
 | Hard conservative (CON/NAT) | +1.41 | 3% |
 | Nationalist right (NAT/CON) | +1.54 | 2% |
@@ -268,7 +268,7 @@ We specifically searched for the two signatures that would make climate cross-cu
 
 Adding the culture battery does push parallel analysis to k=6, but profiling the actual parties shows why it is a *variant*, not an upgrade:
 - The six culture items **do not form their own factor** — the "new right" items (trans, pronouns, vouchers, race-in-admissions) fuse into an expanded left–right values factor; abortion-travel joins religious traditionalism; and the sixth factor k=6 buys is **immigration legalization** (dreamers/legal-status), not culture.
-- **Conservative (the largest party, ~19%) shatters** across four clusters with no home; POP dissolves; mean assignment confidence falls 0.89→0.76.
+- **Conservative (the largest party, ~19%) shatters** across four clusters with no home; LP dissolves; mean assignment confidence falls 0.89→0.76.
 - The only genuinely new distinction is a split of the secular left into anti-establishment vs institutionalist blocs — driven by **government distrust, not culture**.
 
 No socially-liberal/economically-conservative bloc and no trad-populist bloc — the groups that would have justified the move — appear. Kept as a documented "k=6 culture-war variant," not adopted.

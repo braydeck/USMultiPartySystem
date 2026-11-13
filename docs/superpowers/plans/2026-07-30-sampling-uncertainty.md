@@ -16,7 +16,7 @@
 - Draw `d` uses seed `42 + d`. Record the seed in output.
 - **Stratified within state, per-state N preserved exactly.** No draw may fail.
 - Suffixes match `_build_turnout_variant`: `Turnout`, `TurnoutL5`, `TurnoutL10`, `TurnoutL15`, `TurnoutL20`, `TurnoutL25`, `TurnoutL30`.
-- Cluster→party map (identical in every pipeline): `{0:CON, 1:LBR, 2:STY, 3:NAT, 4:LIB, 5:POP, 6:CUP, 7:OAO, 8:DSA, 9:PRG}`.
+- Cluster→party map (identical in every pipeline): `{0:CON, 1:LBR, 2:STY, 3:NAT, 4:LIB, 5:LP, 6:CUP, 7:OAO, 8:DSA, 9:PRG}`.
 - **Never call these "credible intervals."** They are bootstrap percentile intervals. Copy must say so.
 - **Never show candidate initials in UI** (project convention). Party labels only. `buildDisplayLabels` collapses `CON_1`→`CON` where a party fields one candidate.
 - **Methodology copy goes in About → Caveats only.** Simulation cards get at most one short line each.
@@ -394,7 +394,7 @@ from .inject import BASE, PROCESSED, ballots_path, resampled_inputs
 from .resample import stratified_indices
 
 CLUSTER_TO_PARTY = {0: "CON", 1: "LBR", 2: "STY", 3: "NAT", 4: "LIB",
-                    5: "POP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
+                    5: "LP", 6: "CUP", 7: "OAO", 8: "DSA", 9: "PRG"}
 
 # The app publishes the rank-7 model for the house, primary and president.
 DEPTH = 7
@@ -2144,10 +2144,10 @@ In the `{active === 'caveats' && (` block of `AboutTab.tsx`, immediately after t
               <p>
                 Most results barely move. A handful do. Wyoming has the smallest sample of any state at
                 70 respondents, and its observed result is the less likely one: Conservative wins 54% of
-                resamples, Populist 28%. The reason is worth stating, because it is not that Populist is
+                resamples, Libertarian 28%. The reason is worth stating, because it is not that Libertarian is
                 weaker. The two are evenly matched head-to-head — each wins 59% of the time once they
-                meet — but Conservative reaches the final round 93% of the time and Populist only 48%.
-                Populist won the observed sample because it survived that far, which happens less than
+                meet — but Conservative reaches the final round 93% of the time and Libertarian only 48%.
+                Libertarian won the observed sample because it survived that far, which happens less than
                 half the time.
               </p>
               <p>
