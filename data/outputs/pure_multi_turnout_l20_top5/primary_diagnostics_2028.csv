@@ -6,8 +6,8 @@ After_Retail,STY_1,STY_1,STY_2,STY_2,93.36,surplus
 After_Retail,CON_2,CON_2,CON_3,CON_3,78.08,surplus
 After_Retail,LBR_1,LBR_1,LBR_2,LBR_2,73.62,surplus
 After_Retail,CUP_1,CUP_1,CUP_2,CUP_2,61.72,surplus
-After_Retail,POP_1,POP_1,STY_2,STY_2,20.28,elimination
-After_Retail,POP_1,POP_1,CUP_2,CUP_2,10.8,elimination
+After_Retail,LP_1,LP_1,STY_2,STY_2,20.28,elimination
+After_Retail,LP_1,LP_1,CUP_2,CUP_2,10.8,elimination
 After_Retail,DSA_1,DSA_1,PRG_1,PRG_1,57.3,elimination
 After_Retail,DSA_1,DSA_1,LBR_2,LBR_2,7.46,elimination
 After_Retail,PRG_1,PRG_1,LBR_2,LBR_2,25.68,surplus

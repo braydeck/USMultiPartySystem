@@ -1,0 +1,2 @@
+wrote /Users/bdecker/Local Projects/Personal/STV/analysis/coalitions/outputs/house_draw_seats_l5.csv (1000 draws)
+python3 analysis/coalitions/house_draw_seats.py --procs 11  2168.45s user 80.39s system 1045% cpu 3:35.03 total

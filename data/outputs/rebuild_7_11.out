@@ -1,0 +1,6 @@
+Step 7: canonical district checkpoints  [2 chain(s)]
+  ok in 3s
+Step 8: reserve checkpoints  [1 chain(s)]
+  ok in 1s
+Step 9: house trees  [2 chain(s)]
+  FAILED: pipeline/resync_district_map.py --run --stage 3 --jobs 10 (+0 more; see /Users/bdecker/Local Projects/Personal/STV/data/outputs/rebuild_from_typology.log)

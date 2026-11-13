@@ -1,4 +1,4 @@
-state_fips,state_abbr,finalist_code,finalist_party,first_choice_pct,inc_POP,inc_CON,inc_OAO,inc_LBR,inc_PRG,inc_NAT,inc_STY,inc_CUP,inc_DSA
+state_fips,state_abbr,finalist_code,finalist_party,first_choice_pct,inc_LP,inc_CON,inc_OAO,inc_LBR,inc_PRG,inc_NAT,inc_STY,inc_CUP,inc_DSA
 1,AL,CON_1,CON,22.53,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
 1,AL,CUP_1,CUP,5.54,2.54,2.67,6.21,0.71,0.0,0.0,0.0,0.0,0.0
 1,AL,LBR_1,LBR,10.38,0.0,0.0,2.22,0.0,4.81,0.0,0.0,0.0,0.0

@@ -6,10 +6,10 @@ After_Retail,NAT_2,NAT_2,NAT_3,NAT_3,92.39,surplus
 After_Retail,CON_2,CON_2,CON_3,CON_3,79.91,surplus
 After_Retail,LBR_1,LBR_1,LBR_2,LBR_2,74.79,surplus
 After_Retail,CUP_1,CUP_1,CUP_2,CUP_2,64.45,surplus
-After_Retail,POP_1,POP_1,STY_2,STY_2,23.01,elimination
-After_Retail,POP_1,POP_1,CUP_2,CUP_2,12.25,elimination
-After_Retail,POP_1,POP_1,NAT_3,NAT_3,4.43,elimination
-After_Retail,POP_1,POP_1,CON_3,CON_3,2.11,elimination
+After_Retail,LP_1,LP_1,STY_2,STY_2,23.01,elimination
+After_Retail,LP_1,LP_1,CUP_2,CUP_2,12.25,elimination
+After_Retail,LP_1,LP_1,NAT_3,NAT_3,4.43,elimination
+After_Retail,LP_1,LP_1,CON_3,CON_3,2.11,elimination
 After_Retail,STY_2,STY_2,OAO_1,OAO_1,2.36,surplus
 After_Retail,STY_2,STY_2,CON_3,CON_3,2.01,surplus
 After_Retail,STY_2,STY_2,CUP_2,CUP_2,1.45,surplus

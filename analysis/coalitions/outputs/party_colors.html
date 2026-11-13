@@ -531,7 +531,7 @@ textarea { width: 100%; height: 190px; font-family: var(--font-mono, monospace);
   </div>
 </main>
 <script>
-const DATA = {"order": ["DSA", "PRG", "LBR", "CUP", "STY", "OAO", "CON", "POP", "NAT"], "names": {"DSA": "Democratic Socialists", "PRG": "Progressive", "LBR": "Labor", "CUP": "Civic Union", "STY": "Solidarity", "OAO": "Order and Opportunity", "CON": "Conservative", "POP": "Populist", "NAT": "Nationalist"}, "seats": {"CON": 185, "CUP": 117, "DSA": 4, "LBR": 134, "NAT": 196, "OAO": 33, "POP": 2, "PRG": 60, "STY": 142}, "pos": {"DSA": 0.0, "PRG": 0.0625, "LBR": 0.0939, "CUP": 0.2697, "STY": 0.3383, "OAO": 0.3397, "CON": 0.8588, "POP": 0.8924, "NAT": 1.0}, "current": {"DSA": "#15803d", "PRG": "#14b8a6", "LBR": "#0369a1", "CUP": "#c026d3", "STY": "#a78bfa", "OAO": "#4c1d95", "CON": "#ef4444", "POP": "#f59e0b", "NAT": "#7f1d1d"}, "proposed": {"DSA": "#15803d", "PRG": "#14b8a6", "LBR": "#0369a1", "CUP": "#c026d3", "STY": "#a78bfa", "OAO": "#4c1d95", "CON": "#ef4444", "POP": "#f59e0b", "NAT": "#7f1d1d"}, "statusQuo": {"DEM": "#5b7fa6", "IND": "#8a8f98", "REP": "#a66b6b"}};
+const DATA = {"order": ["DSA", "PRG", "LBR", "CUP", "STY", "OAO", "CON", "LP", "NAT"], "names": {"DSA": "Democratic Socialists", "PRG": "Progressive", "LBR": "Labor", "CUP": "Civic Union", "STY": "Solidarity", "OAO": "Order and Opportunity", "CON": "Conservative", "LP": "Libertarian", "NAT": "Nationalist"}, "seats": {"CON": 185, "CUP": 117, "DSA": 4, "LBR": 134, "NAT": 196, "OAO": 33, "LP": 2, "PRG": 60, "STY": 142}, "pos": {"DSA": 0.0, "PRG": 0.0625, "LBR": 0.0939, "CUP": 0.2697, "STY": 0.3383, "OAO": 0.3397, "CON": 0.8588, "LP": 0.8924, "NAT": 1.0}, "current": {"DSA": "#15803d", "PRG": "#14b8a6", "LBR": "#0369a1", "CUP": "#c026d3", "STY": "#a78bfa", "OAO": "#4c1d95", "CON": "#ef4444", "LP": "#f59e0b", "NAT": "#7f1d1d"}, "proposed": {"DSA": "#15803d", "PRG": "#14b8a6", "LBR": "#0369a1", "CUP": "#c026d3", "STY": "#a78bfa", "OAO": "#4c1d95", "CON": "#ef4444", "LP": "#f59e0b", "NAT": "#7f1d1d"}, "statusQuo": {"DEM": "#5b7fa6", "IND": "#8a8f98", "REP": "#a66b6b"}};
 const O = DATA.order, KEY = "stv-party-colors-v3";
 let C = { ...DATA.proposed };
 try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && O.every(q => /^#[0-9a-f]{6}$/i.test(s[q]))) C = s; } catch (e) {}
@@ -671,7 +671,7 @@ function renderAll() {
   }).join("");
   const cur = DATA.current;
   document.getElementById("out").value = "  // proposed " + new Date().toLocaleDateString("en-CA") + " (party_colors.html)\n" +
-    ["PRG", "DSA", "OAO", "LBR", "STY", "CUP", "CON", "POP", "NAT"].filter(q => O.includes(q)).map(q => `  ${q}: '${C[q]}',${C[q] !== cur[q] ? `  // was ${cur[q]}` : ""}`).join("\n");
+    ["PRG", "DSA", "OAO", "LBR", "STY", "CUP", "CON", "LP", "NAT"].filter(q => O.includes(q)).map(q => `  ${q}: '${C[q]}',${C[q] !== cur[q] ? `  // was ${cur[q]}` : ""}`).join("\n");
 }
 function seg(id, k) {
   document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => { S[k] = b.dataset.v; document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b)); renderAll(); });

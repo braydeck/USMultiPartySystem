@@ -1,0 +1,723 @@
+
+###  pipeline/build_house_partylist.py  exit=0  3s
+  [full] double: 150 districts × 7 turnout stops
+  [full] triple: 243 districts × 7 turnout stops
+  [top3] double: 150 districts × 7 turnout stops
+  [top3] triple: 243 districts × 7 turnout stops
+  [top5] double: 150 districts × 7 turnout stops
+  [top5] triple: 243 districts × 7 turnout stops
+  [top7] double: 150 districts × 7 turnout stops
+  [top7] triple: 243 districts × 7 turnout stops
+  [top10] double: 150 districts × 7 turnout stops
+  [top10] triple: 243 districts × 7 turnout stops
+
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/data/housePartyList.json  (4.72 MB)
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/src/data/houseDepthNational.json  (92 KB)
+first-choice share vs houseStateMap popShares: max gap 0.00 pp at 18/CON
+  (nonzero by design — popShares are still soft; see module docstring)
+[full] double λ=0: unrepresented list 15.36% stv 0.55%  |  nonFirstChoice stv 16.74%
+[top3] double λ=0: unrepresented list 15.36% stv 0.95%  |  nonFirstChoice stv 15.25%
+[top5] double λ=0: unrepresented list 15.36% stv 0.57%  |  nonFirstChoice stv 15.83%
+[top7] double λ=0: unrepresented list 15.36% stv 0.55%  |  nonFirstChoice stv 16.59%
+[top10] double λ=0: unrepresented list 15.36% stv 0.55%  |  nonFirstChoice stv 16.68%
+
+###  pipeline/build_house_reserve.py  exit=0  3s
+  [full] double: 121 districts × 7 turnout stops
+  [full] triple: 197 districts × 7 turnout stops
+  [top3] double: 121 districts × 7 turnout stops
+  [top3] triple: 197 districts × 7 turnout stops
+  [top5] double: 121 districts × 7 turnout stops
+  [top5] triple: 197 districts × 7 turnout stops
+  [top7] double: 121 districts × 7 turnout stops
+  [top7] triple: 197 districts × 7 turnout stops
+  [top10] double: 121 districts × 7 turnout stops
+  [top10] triple: 197 districts × 7 turnout stops
+
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/data/houseReserve.json  (5.70 MB)
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/src/data/houseReserveNational.json  (75 KB)
+
+[double top7 λ=5%] 873 seats (720 district + 153 reserve)
+  list : Gallagher  0.99 (district  3.16) | unrep  6.99% (district 15.42%) | coverage district 82.4% state 94.3%
+  stv  : Gallagher  1.91 (district  5.30) | unrep  6.53% (district 16.83%) | coverage district 81.5% state 94.2%
+
+[triple top7 λ=5%] 1726 seats (1400 district + 326 reserve)
+  list : Gallagher  0.89 (district  2.75) | unrep  2.68% (district 11.20%) | coverage district 86.6% state 98.0%
+  stv  : Gallagher  1.07 (district  4.18) | unrep  2.99% (district 12.06%) | coverage district 86.0% state 98.0%
+
+###  viz/scripts/prepare_data.py  exit=0  12s
+eSeatsTurnoutL30.json (1,161 bytes)
+  Wrote houseStateMapTurnoutL30.json (11,748 bytes)
+  Wrote districtStvResultsTurnoutL30.json (19,246 bytes)
+  Wrote senateVoteModelTurnoutL30.json (55,594 bytes)
+  Wrote houseVoteModelTurnoutL30.json (24,765 bytes)
+  Wrote senateIrvRoundsTurnoutL30.json (65,323 bytes)
+  Wrote senateCondorcetTurnoutL30.json (52,606 bytes)
+  Wrote senateBucketsTurnoutL30.json (34,624 bytes)
+  Wrote pureMultiPrimaryTurnoutL30.json (15,137 bytes)
+  Wrote pureMultiPrimaryBucketsTurnoutL30.json (7,859 bytes)
+  Wrote pureMultiPrimaryStageSharesTurnoutL30.json (29,638 bytes)
+  Wrote fdSenateCondorcetTurnout.json (10,558 bytes)
+  Wrote fdSenateIRVTurnout.json (10,558 bytes)
+  Wrote fdHouseSeatsTurnout.json (3,911 bytes)
+  Wrote fdDistrictStvResultsTurnout.json (31,435 bytes)
+  Wrote houseSeatsTripleTurnout.json (1,173 bytes)
+  Wrote districtStvResultsTripleTurnout.json (32,800 bytes)
+  Wrote fdHouseSeatsTripleTurnout.json (4,829 bytes)
+  Wrote fdDistrictStvResultsTripleTurnout.json (53,139 bytes)
+  Wrote fdSenateCondorcetTurnoutL5.json (10,558 bytes)
+  Wrote fdSenateIRVTurnoutL5.json (10,558 bytes)
+  Wrote fdHouseSeatsTurnoutL5.json (3,909 bytes)
+  Wrote fdDistrictStvResultsTurnoutL5.json (31,435 bytes)
+  Wrote houseSeatsTripleTurnoutL5.json (1,172 bytes)
+  Wrote districtStvResultsTripleTurnoutL5.json (32,800 bytes)
+  Wrote fdHouseSeatsTripleTurnoutL5.json (4,830 bytes)
+  Wrote fdDistrictStvResultsTripleTurnoutL5.json (53,133 bytes)
+  Wrote fdSenateCondorcetTurnoutL10.json (10,558 bytes)
+  Wrote fdSenateIRVTurnoutL10.json (10,558 bytes)
+  Wrote fdHouseSeatsTurnoutL10.json (3,783 bytes)
+  Wrote fdDistrictStvResultsTurnoutL10.json (31,441 bytes)
+  Wrote houseSeatsTripleTurnoutL10.json (1,173 bytes)
+  Wrote districtStvResultsTripleTurnoutL10.json (32,800 bytes)
+  Wrote fdHouseSeatsTripleTurnoutL10.json (4,831 bytes)
+  Wrote fdDistrictStvResultsTripleTurnoutL10.json (53,133 bytes)
+  Wrote fdSenateCondorcetTurnoutL15.json (10,558 bytes)
+  Wrote fdSenateIRVTurnoutL15.json (10,558 bytes)
+  Wrote fdHouseSeatsTurnoutL15.json (3,784 bytes)
+  Wrote fdDistrictStvResultsTurnoutL15.json (31,435 bytes)
+  Wrote houseSeatsTripleTurnoutL15.json (1,174 bytes)
+  Wrote districtStvResultsTripleTurnoutL15.json (32,800 bytes)
+  Wrote fdHouseSeatsTripleTurnoutL15.json (4,832 bytes)
+  Wrote fdDistrictStvResultsTripleTurnoutL15.json (53,115 bytes)
+  Wrote fdSenateCondorcetTurnoutL20.json (10,558 bytes)
+  Wrote fdSenateIRVTurnoutL20.json (10,558 bytes)
+  Wrote fdHouseSeatsTurnoutL20.json (3,650 bytes)
+  Wrote fdDistrictStvResultsTurnoutL20.json (31,429 bytes)
+  Wrote houseSeatsTripleTurnoutL20.json (1,175 bytes)
+  Wrote districtStvResultsTripleTurnoutL20.json (32,800 bytes)
+  Wrote fdHouseSeatsTripleTurnoutL20.json (4,834 bytes)
+  Wrote fdDistrictStvResultsTripleTurnoutL20.json (53,127 bytes)
+  Wrote fdSenateCondorcetTurnoutL25.json (10,558 bytes)
+  Wrote fdSenateIRVTurnoutL25.json (10,558 bytes)
+  Wrote fdHouseSeatsTurnoutL25.json (3,521 bytes)
+  Wrote fdDistrictStvResultsTurnoutL25.json (31,429 bytes)
+  Wrote houseSeatsTripleTurnoutL25.json (1,174 bytes)
+  Wrote districtStvResultsTripleTurnoutL25.json (32,800 bytes)
+  Wrote fdHouseSeatsTripleTurnoutL25.json (4,831 bytes)
+  Wrote fdDistrictStvResultsTripleTurnoutL25.json (53,103 bytes)
+  Wrote fdSenateCondorcetTurnoutL30.json (10,558 bytes)
+  Wrote fdSenateIRVTurnoutL30.json (10,558 bytes)
+  Wrote fdHouseSeatsTurnoutL30.json (3,648 bytes)
+  Wrote fdDistrictStvResultsTurnoutL30.json (31,417 bytes)
+  Wrote houseSeatsTripleTurnoutL30.json (1,177 bytes)
+  Wrote districtStvResultsTripleTurnoutL30.json (32,800 bytes)
+  Wrote fdHouseSeatsTripleTurnoutL30.json (4,830 bytes)
+  Wrote fdDistrictStvResultsTripleTurnoutL30.json (53,067 bytes)
+  partyPopulation: cycle turnout from turnout_by_wave.csv
+  Wrote partyPopulation.json (892 bytes)
+  Wrote turnoutVerification.json (784 bytes)
+  Wrote distributions.json (15,275 bytes)
+  → pipeline/build_legislation_rank7.py
+  → pipeline/build_senate_rank7.py
+Done.
+
+###  analysis/coalitions/vote_agreement.py  exit=0  0s
+order (bloc agreement): DSA PRG LBR CUP STY OAO CON LP NAT dim1 83%, dim2 14%
+order (member agreement): DSA PRG LBR OAO CUP STY LP CON NAT
+wrote /Users/bdecker/Local Projects/Personal/STV/analysis/coalitions/outputs/vote_agreement.html
+
+###  pipeline/build_house_mmp.py  exit=0  1s
+49,431 voters across 436 districts in 51 states
+  double: 436 districts + top-off to 873 × 7 turnout stops
+  triple: 436 districts + top-off to 1726 × 7 turnout stops
+
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/data/houseMmp.json  (0.95 MB)
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/src/data/houseMmpNational.json  (11 KB)
+
+[double λ=5%] 873 seats (436 district + 437 top-off), overhang 23, Gallagher 1.5 (district tier alone 15.98), unrepresented 10.46%
+    NAT   219 = 192 district +  27 top-off   (vote 23.48%)
+    CON   160 =  89 district +  71 top-off   (vote 18.88%)
+    LBR   119 =  56 district +  63 top-off   (vote 13.25%)
+    STY   112 =  42 district +  70 top-off   (vote 12.56%)
+    CUP    98 =  29 district +  69 top-off   (vote 11.30%)
+    PRG    68 =  15 district +  53 top-off   (vote  8.51%)
+    OAO    58 =  10 district +  48 top-off   (vote  6.44%)
+    DSA    31 =   3 district +  28 top-off   (vote  3.77%)
+    LP     8 =   0 district +   8 top-off   (vote  1.81%)
+
+[triple λ=5%] 1726 seats (436 district + 1290 top-off), overhang 1, Gallagher 0.43 (district tier alone 15.98), unrepresented 1.52%
+    NAT   401 = 192 district + 209 top-off   (vote 23.48%)
+    CON   323 =  89 district + 234 top-off   (vote 18.88%)
+    LBR   231 =  56 district + 175 top-off   (vote 13.25%)
+    STY   223 =  42 district + 181 top-off   (vote 12.56%)
+    CUP   195 =  29 district + 166 top-off   (vote 11.30%)
+    PRG   144 =  15 district + 129 top-off   (vote  8.51%)
+    OAO   114 =  10 district + 104 top-off   (vote  6.44%)
+    DSA    61 =   3 district +  58 top-off   (vote  3.77%)
+    LP    34 =   0 district +  34 top-off   (vote  1.81%)
+
+###  pipeline/build_house_rep_by_rank.py  exit=0  8s
+  double/off: 1 voters outside every district count as unrepresented
+  triple/off: 1 voters outside every district count as unrepresented
+  double/on: 1 voters outside every district count as unrepresented
+  triple/on: 1 voters outside every district count as unrepresented
+wrote viz/public/data/houseRepByRank.json  (112 KB)
+  top7 double 5% reserve off: STV 1st 83.27  2nd 13.22  3rd 2.62  later 0.84  state 0.0  none 0.06  |  list 1st 84.75  state 0.0  none 15.25
+  top7 double 5% reserve on: STV 1st 83.17  2nd 4.4  3rd 0.82  later 0.49  state 11.07  none 0.06  |  list 1st 84.58  state 8.43  none 6.99
+  MMP double 5%: 1st 30.05  state 59.49  none 10.46
+
+###  pipeline/build_house_votemodel_depth.py  exit=0  0s
+  top3: 7 turnout stops (double + triple)
+  top5: 7 turnout stops (double + triple)
+  top7: 7 turnout stops (double + triple)
+  top10: 7 turnout stops (double + triple)
+  full: 7 turnout stops (double + triple)
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/data/houseVoteModelDepth.json (0.64 MB)
+
+###  pipeline/build_general_depth_bundle.py  exit=0  0s
+  top3: 7 stops
+  top5: 7 stops
+  top7: 7 stops
+  top10: 7 stops
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/data/generalDepth.json (0.33 MB)
+
+###  pipeline/build_primary_depth_bundle.py  exit=0  0s
+  top3: 7 stops × 3 families
+  top5: 7 stops × 3 families
+  top7: 7 stops × 3 families
+  top10: 7 stops × 3 families
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/data/primaryDepth.json (1.48 MB)
+
+###  pipeline/build_top_two_bundle.py  exit=0  4s
+  top3 @  0%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top3 @  5%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top3 @ 10%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top3 @ 15%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top3 @ 20%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top3 @ 25%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top3 @ 30%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top5 @  0%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top5 @  5%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top5 @ 10%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top5 @ 15%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top5 @ 20%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top5 @ 25%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top5 @ 30%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top7 @  0%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top7 @  5%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top7 @ 10%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top7 @ 15%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top7 @ 20%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top7 @ 25%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top7 @ 30%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top10 @  0%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top10 @  5%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top10 @ 10%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top10 @ 15%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top10 @ 20%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top10 @ 25%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+  top10 @ 30%  RR STY_1/CUP_1  IRV STY_1/NAT_1
+
+Wrote viz/public/data/topTwo.json (208 KB)
+
+###  pipeline/build_party_factor_ellipses.py  exit=0  0s
+wrote viz/src/data/partyFactorEllipses.json
+  CON: n= 8703  50% ellipse holds 46-49%
+  LBR: n= 6643  50% ellipse holds 44-49%
+  STY: n= 8414  50% ellipse holds 48-50%
+  NAT: n= 8360  50% ellipse holds 47-50%
+  LP: n= 1050  50% ellipse holds 44-51%
+  CUP: n= 6365  50% ellipse holds 44-50%
+  OAO: n= 4104  50% ellipse holds 43-46%
+  DSA: n= 1668  50% ellipse holds 45-48%
+  PRG: n= 4124  50% ellipse holds 44-50%
+
+###  pipeline/build_cross_party_affinity.py  exit=0  0s
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/src/data/crossPartyAffinity.json  (2.1 KB)
+n = 49,431 voters · Σ commonpostweight = 49,430.5
+validation — max |row sum − 1| = 1.11e-15; max |net − (soft − hard)| = 1.15e-14 pp
+
+party    recv   leak    net    soft    hard
+LP       2.3    0.7   +1.6    4.45    2.88
+CUP       4.2    3.4   +0.8   11.65   10.83
+STY       5.2    4.9   +0.3   22.34   22.05
+CON       5.3    5.1   +0.3   17.89   17.64
+DSA       0.4    0.7   -0.3    3.03    3.34
+PRG       1.2    1.6   -0.3    5.77    6.08
+LBR       2.9    3.3   -0.4   11.32   11.69
+OAO       2.3    2.8   -0.5    7.00    7.46
+NAT       2.1    3.6   -1.5   16.55   18.03
+
+largest off-diagonal flows (from -> to, pp of electorate):
+  NAT -> CON  3.30
+  CON -> NAT  2.05
+  CON -> STY  1.48
+  CUP -> STY  1.30
+  OAO -> STY  1.17
+  STY -> CON  1.13
+  STY -> CUP  1.10
+  STY -> OAO  1.09
+  STY -> LP  1.03
+  CON -> CUP  1.01
+
+###  pipeline/build_cluster_spreads.py  exit=0  0s
+wrote clusterSpreads.json (9 parties), factorPopulationSd.json {'F1': 0.826, 'F2': 0.859, 'F4': 0.825, 'F5': 0.85}
+
+###  pipeline/build_single_race_data.py  exit=0  1s
+Loading EFA factor scores + typology…
+Reading CES .dta for cdid119: CCES24_Common_OUTPUT_vv_topost_final.dta …
+Grouping voters by real congressional district…
+
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/data/singleRaceVoters.json  (6.00 MB)
+Wrote /Users/bdecker/Local Projects/Personal/STV/viz/src/data/singleRaceMeta.json  (41 candidates)
+  districts: 436 | states with CDs: 51
+  per-CD n: min 44 | median 114 | max 199
+  EV total: 538
+
+###  pipeline/build_hex_seat_cartogram.py  exit=0  1s
+districts=150 seats=873 cells-per-seat=1 lattice cells=873
+counties without a centroid: 0
+
+step 1 — hex lattice
+   AK: target=   2 rings=1 alloc={0: 2} kept=   2
+   AL: target=  13 rings=1 alloc={0: 13} kept=  13
+   AR: target=   8 rings=1 alloc={0: 8} kept=   8
+   AZ: target=  19 rings=1 alloc={0: 19} kept=  19
+   CA: target= 104 rings=1 alloc={0: 104} kept= 104
+   CO: target=  15 rings=1 alloc={0: 15} kept=  15
+   CT: target=   9 rings=1 alloc={0: 9} kept=   9
+   DE: target=   3 rings=1 alloc={0: 3} kept=   3
+   FL: target=  57 rings=1 alloc={0: 57} kept=  57
+   GA: target=  28 rings=2 alloc={0: 28} kept=  28
+   HI: target=   4 rings=7 alloc={6: 4} kept=   4
+   IA: target=   8 rings=1 alloc={0: 8} kept=   8
+   ID: target=   5 rings=1 alloc={0: 5} kept=   5
+   IL: target=  34 rings=1 alloc={0: 34} kept=  34
+   IN: target=  18 rings=1 alloc={0: 18} kept=  18
+   KS: target=   8 rings=1 alloc={0: 8} kept=   8
+   KY: target=  12 rings=1 alloc={0: 12} kept=  12
+   LA: target=  12 rings=1 alloc={0: 12} kept=  12
+   MA: target=  18 rings=3 alloc={0: 18} kept=  18
+   MD: target=  16 rings=1 alloc={0: 16} kept=  16
+   ME: target=   4 rings=1 alloc={0: 4} kept=   4
+   MI: target=  27 rings=2 alloc={0: 20, 1: 7} kept=  27
+   MN: target=  15 rings=1 alloc={0: 15} kept=  15
+   MO: target=  16 rings=1 alloc={0: 16} kept=  16
+   MS: target=   8 rings=1 alloc={0: 8} kept=   8
+   MT: target=   3 rings=1 alloc={0: 3} kept=   3
+   NC: target=  27 rings=1 alloc={0: 27} kept=  27
+   ND: target=   2 rings=1 alloc={0: 2} kept=   2
+   NE: target=   5 rings=1 alloc={0: 5} kept=   5
+   NH: target=   4 rings=1 alloc={0: 4} kept=   4
+   NJ: target=  24 rings=2 alloc={0: 24} kept=  24
+   NM: target=   6 rings=1 alloc={0: 6} kept=   6
+   NV: target=   8 rings=1 alloc={0: 8} kept=   8
+   NY: target=  53 rings=1 alloc={0: 53} kept=  53
+   OH: target=  31 rings=1 alloc={0: 31} kept=  31
+   OK: target=  10 rings=1 alloc={0: 10} kept=  10
+   OR: target=  11 rings=1 alloc={0: 11} kept=  11
+   PA: target=  34 rings=1 alloc={0: 34} kept=  34
+   RI: target=   3 rings=1 alloc={0: 3} kept=   3
+   SC: target=  13 rings=1 alloc={0: 13} kept=  13
+   SD: target=   2 rings=1 alloc={0: 2} kept=   2
+   TN: target=  18 rings=1 alloc={0: 18} kept=  18
+   TX: target=  77 rings=1 alloc={0: 77} kept=  77
+   UT: target=   9 rings=1 alloc={0: 9} kept=   9
+   VA: target=  23 rings=2 alloc={0: 23} kept=  23
+   VT: target=   2 rings=1 alloc={0: 2} kept=   2
+   WA: target=  20 rings=1 alloc={0: 20} kept=  20
+   WI: target=  16 rings=1 alloc={0: 16} kept=  16
+   WV: target=   5 rings=1 alloc={0: 5} kept=   5
+   WY: target=   2 rings=1 alloc={0: 2} kept=   2
+   R=0.4216 deg  cells=871  (target 871)
+   DC: placed 2 cells near (-82.82, 37.35)
+   states with detached cells: none
+
+step 2 — district blobs
+   non-contiguous district blobs: 3 {'06-13': 1, '36-04': 1, '47-01': 1}
+
+step 3 — seats and parties
+   districts needing a non-strict shape: 0 of 150
+   seats: 873 from 873 cells  (left→right order: DSA PRG LBR CUP STY OAO CON LP NAT)
+
+step 4 — equal-area seat regions
+   sub-cells: 31435 at 1/6 of a seat
+   seat area within a district, largest/smallest: median 1.091, worst 2.350 (VA 51-01)
+
+step 5 — statewide miniatures: 0 seats across 0 states
+   miniatures short of their seat count: none
+
+wrote /Users/bdecker/Local Projects/Personal/STV/data/processed/hex_seat_cartogram.json (31435 cells across 51 states)
+wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/hexmap/hex_seat_cartogram.json (532 KB, geometry only)
+
+###  pipeline/build_hex_seat_cartogram.py --triple  exit=0  3s
+districts=243 seats=1726 cells-per-seat=1 lattice cells=1726
+counties without a centroid: 0
+WARNING districts with no county centroid: ['04-05', '06-19', '06-20', '06-21', '06-22', '06-23', '06-24', '06-25', '06-26', '17-09', '48-20']
+
+step 1 — hex lattice
+   AK: target=   4 rings=1 alloc={0: 4} kept=   4
+   AL: target=  26 rings=1 alloc={0: 26} kept=  26
+   AR: target=  16 rings=1 alloc={0: 16} kept=  16
+   AZ: target=  37 rings=1 alloc={0: 37} kept=  37
+   CA: target= 206 rings=1 alloc={0: 206} kept= 206
+   CO: target=  30 rings=1 alloc={0: 30} kept=  30
+   CT: target=  19 rings=1 alloc={0: 19} kept=  19
+   DE: target=   5 rings=1 alloc={0: 5} kept=   5
+   FL: target= 112 rings=1 alloc={0: 112} kept= 112
+   GA: target=  56 rings=2 alloc={0: 56} kept=  56
+   HI: target=   8 rings=7 alloc={6: 8} kept=   8
+   IA: target=  17 rings=1 alloc={0: 17} kept=  17
+   ID: target=  10 rings=1 alloc={0: 10} kept=  10
+   IL: target=  67 rings=1 alloc={0: 67} kept=  67
+   IN: target=  35 rings=1 alloc={0: 35} kept=  35
+   KS: target=  15 rings=1 alloc={0: 15} kept=  15
+   KY: target=  23 rings=1 alloc={0: 23} kept=  23
+   LA: target=  24 rings=1 alloc={0: 24} kept=  24
+   MA: target=  37 rings=3 alloc={0: 37} kept=  37
+   MD: target=  32 rings=1 alloc={0: 32} kept=  32
+   ME: target=   7 rings=1 alloc={0: 7} kept=   7
+   MI: target=  52 rings=2 alloc={0: 37, 1: 15} kept=  52
+   MN: target=  30 rings=1 alloc={0: 30} kept=  30
+   MO: target=  32 rings=1 alloc={0: 32} kept=  32
+   MS: target=  15 rings=1 alloc={0: 15} kept=  15
+   MT: target=   6 rings=1 alloc={0: 6} kept=   6
+   NC: target=  54 rings=1 alloc={0: 54} kept=  54
+   ND: target=   4 rings=1 alloc={0: 4} kept=   4
+   NE: target=  10 rings=1 alloc={0: 10} kept=  10
+   NH: target=   7 rings=1 alloc={0: 7} kept=   7
+   NJ: target=  48 rings=2 alloc={0: 48} kept=  48
+   NM: target=  11 rings=1 alloc={0: 11} kept=  11
+   NV: target=  16 rings=1 alloc={0: 16} kept=  16
+   NY: target= 105 rings=1 alloc={0: 105} kept= 105
+   OH: target=  61 rings=1 alloc={0: 61} kept=  61
+   OK: target=  21 rings=1 alloc={0: 21} kept=  21
+   OR: target=  22 rings=1 alloc={0: 22} kept=  22
+   PA: target=  68 rings=1 alloc={0: 68} kept=  68
+   RI: target=   6 rings=1 alloc={0: 6} kept=   6
+   SC: target=  27 rings=1 alloc={0: 27} kept=  27
+   SD: target=   5 rings=1 alloc={0: 5} kept=   5
+   TN: target=  36 rings=1 alloc={0: 36} kept=  36
+   TX: target= 152 rings=1 alloc={0: 152} kept= 152
+   UT: target=  17 rings=1 alloc={0: 17} kept=  17
+   VA: target=  45 rings=2 alloc={0: 45} kept=  45
+   VT: target=   3 rings=1 alloc={0: 3} kept=   3
+   WA: target=  40 rings=1 alloc={0: 40} kept=  40
+   WI: target=  31 rings=1 alloc={0: 31} kept=  31
+   WV: target=   9 rings=1 alloc={0: 9} kept=   9
+   WY: target=   3 rings=1 alloc={0: 3} kept=   3
+   R=0.2999 deg  cells=1722  (target 1722)
+   DC: placed 4 cells near (-82.82, 37.35)
+   states with detached cells: {'MD': 1, 'MI': 15}
+
+step 2 — district blobs
+   non-contiguous district blobs: 9 {'06-14': 1, '12-03': 6, '22-01': 3, '25-01': 2, '24-01': 1, '39-01': 1, '42-01': 1, '48-10': 1}
+
+step 3 — seats and parties
+   districts needing a non-strict shape: 0 of 243
+   seats: 1726 from 1726 cells  (left→right order: DSA PRG LBR CUP STY OAO CON LP NAT)
+
+step 4 — equal-area seat regions
+   sub-cells: 62165 at 1/6 of a seat
+   seat area within a district, largest/smallest: median 1.100, worst 2.037 (HI 15-01)
+
+step 5 — statewide miniatures: 0 seats across 0 states
+   miniatures short of their seat count: none
+
+wrote /Users/bdecker/Local Projects/Personal/STV/data/processed/hex_seat_cartogram_triple.json (62165 cells across 51 states)
+wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/hexmap/hex_seat_cartogram_triple.json (976 KB, geometry only)
+
+###  pipeline/build_hex_seat_cartogram.py --reserve  exit=0  5s
+districts=121 seats=720 cells-per-seat=1 lattice cells=720
+counties without a centroid: 0
+
+step 1 — hex lattice
+   AK: target=   2 rings=1 alloc={0: 2} kept=   2
+   AL: target=  10 rings=1 alloc={0: 10} kept=  10
+   AR: target=   8 rings=1 alloc={0: 8} kept=   8
+   AZ: target=  15 rings=1 alloc={0: 15} kept=  15
+   CA: target=  83 rings=1 alloc={0: 83} kept=  83
+   CO: target=  12 rings=1 alloc={0: 12} kept=  12
+   CT: target=   9 rings=1 alloc={0: 9} kept=   9
+   DE: target=   3 rings=1 alloc={0: 3} kept=   3
+   FL: target=  46 rings=1 alloc={0: 46} kept=  46
+   GA: target=  22 rings=2 alloc={0: 22} kept=  22
+   HI: target=   4 rings=7 alloc={6: 4} kept=   4
+   IA: target=   8 rings=1 alloc={0: 8} kept=   8
+   ID: target=   5 rings=1 alloc={0: 5} kept=   5
+   IL: target=  27 rings=1 alloc={0: 27} kept=  27
+   IN: target=  14 rings=1 alloc={0: 14} kept=  14
+   KS: target=   8 rings=1 alloc={0: 8} kept=   8
+   KY: target=  10 rings=1 alloc={0: 10} kept=  10
+   LA: target=  10 rings=1 alloc={0: 10} kept=  10
+   MA: target=  14 rings=3 alloc={0: 14} kept=  14
+   MD: target=  13 rings=1 alloc={0: 13} kept=  13
+   ME: target=   4 rings=1 alloc={0: 4} kept=   4
+   MI: target=  22 rings=2 alloc={0: 17, 1: 5} kept=  22
+   MN: target=  12 rings=1 alloc={0: 12} kept=  12
+   MO: target=  13 rings=1 alloc={0: 13} kept=  13
+   MS: target=   8 rings=1 alloc={0: 8} kept=   8
+   MT: target=   3 rings=1 alloc={0: 3} kept=   3
+   NC: target=  22 rings=1 alloc={0: 22} kept=  22
+   ND: target=   2 rings=1 alloc={0: 2} kept=   2
+   NE: target=   5 rings=1 alloc={0: 5} kept=   5
+   NH: target=   4 rings=1 alloc={0: 4} kept=   4
+   NJ: target=  19 rings=2 alloc={0: 19} kept=  19
+   NM: target=   6 rings=1 alloc={0: 6} kept=   6
+   NV: target=   8 rings=1 alloc={0: 8} kept=   8
+   NY: target=  42 rings=1 alloc={0: 42} kept=  42
+   OH: target=  25 rings=1 alloc={0: 25} kept=  25
+   OK: target=   8 rings=1 alloc={0: 8} kept=   8
+   OR: target=   9 rings=1 alloc={0: 9} kept=   9
+   PA: target=  27 rings=1 alloc={0: 27} kept=  27
+   RI: target=   3 rings=1 alloc={0: 3} kept=   3
+   SC: target=  10 rings=1 alloc={0: 10} kept=  10
+   SD: target=   2 rings=1 alloc={0: 2} kept=   2
+   TN: target=  14 rings=1 alloc={0: 14} kept=  14
+   TX: target=  62 rings=1 alloc={0: 62} kept=  62
+   UT: target=   9 rings=1 alloc={0: 9} kept=   9
+   VA: target=  18 rings=2 alloc={0: 18} kept=  18
+   VT: target=   2 rings=1 alloc={0: 2} kept=   2
+   WA: target=  16 rings=1 alloc={0: 16} kept=  16
+   WI: target=  13 rings=1 alloc={0: 13} kept=  13
+   WV: target=   5 rings=1 alloc={0: 5} kept=   5
+   WY: target=   2 rings=1 alloc={0: 2} kept=   2
+   R=0.4216 deg  cells=718  (target 718)
+   DC: placed 2 cells near (-82.82, 37.35)
+   states with detached cells: {'MI': 5}
+
+step 2 — district blobs
+   non-contiguous district blobs: 0
+
+step 3 — seats and parties
+   districts needing a non-strict shape: 0 of 121
+   seats: 0 from 720 cells  (left→right order: DSA PRG LBR CUP STY OAO CON LP NAT)
+
+step 4 — equal-area seat regions
+   sub-cells: 25932 at 1/6 of a seat
+   seat area within a district, largest/smallest: median 1.097, worst 1.960 (HI 15-01)
+
+step 5 — statewide miniatures: 153 seats across 28 states
+   miniatures short of their seat count: none
+
+wrote /Users/bdecker/Local Projects/Personal/STV/data/processed/hex_seat_cartogram_reserve.json (25932 cells across 51 states)
+wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/hexmap/hex_seat_cartogram_reserve.json (591 KB, geometry only)
+
+###  pipeline/build_hex_seat_cartogram.py --reserve --triple  exit=0  7s
+districts=197 seats=1400 cells-per-seat=1 lattice cells=1400
+counties without a centroid: 0
+WARNING districts with no county centroid: ['06-20', '06-21']
+
+step 1 — hex lattice
+   AK: target=   4 rings=1 alloc={0: 4} kept=   4
+   AL: target=  21 rings=1 alloc={0: 21} kept=  21
+   AR: target=  13 rings=1 alloc={0: 13} kept=  13
+   AZ: target=  30 rings=1 alloc={0: 30} kept=  30
+   CA: target= 165 rings=1 alloc={0: 165} kept= 165
+   CO: target=  24 rings=1 alloc={0: 24} kept=  24
+   CT: target=  15 rings=1 alloc={0: 15} kept=  15
+   DE: target=   5 rings=1 alloc={0: 5} kept=   5
+   FL: target=  90 rings=1 alloc={0: 90} kept=  90
+   GA: target=  45 rings=2 alloc={0: 45} kept=  45
+   HI: target=   8 rings=7 alloc={6: 8} kept=   8
+   IA: target=  14 rings=1 alloc={0: 14} kept=  14
+   ID: target=   8 rings=1 alloc={0: 8} kept=   8
+   IL: target=  54 rings=1 alloc={0: 54} kept=  54
+   IN: target=  28 rings=1 alloc={0: 28} kept=  28
+   KS: target=  12 rings=1 alloc={0: 12} kept=  12
+   KY: target=  18 rings=1 alloc={0: 18} kept=  18
+   LA: target=  19 rings=1 alloc={0: 19} kept=  19
+   MA: target=  30 rings=3 alloc={0: 30} kept=  30
+   MD: target=  26 rings=1 alloc={0: 26} kept=  26
+   ME: target=   7 rings=1 alloc={0: 7} kept=   7
+   MI: target=  42 rings=2 alloc={0: 28, 1: 14} kept=  42
+   MN: target=  24 rings=1 alloc={0: 24} kept=  24
+   MO: target=  26 rings=1 alloc={0: 26} kept=  26
+   MS: target=  12 rings=1 alloc={0: 12} kept=  12
+   MT: target=   6 rings=1 alloc={0: 6} kept=   6
+   NC: target=  43 rings=1 alloc={0: 43} kept=  43
+   ND: target=   4 rings=1 alloc={0: 4} kept=   4
+   NE: target=   8 rings=1 alloc={0: 8} kept=   8
+   NH: target=   7 rings=1 alloc={0: 7} kept=   7
+   NJ: target=  38 rings=2 alloc={0: 38} kept=  38
+   NM: target=   9 rings=1 alloc={0: 9} kept=   9
+   NV: target=  13 rings=1 alloc={0: 13} kept=  13
+   NY: target=  84 rings=1 alloc={0: 84} kept=  84
+   OH: target=  49 rings=1 alloc={0: 49} kept=  49
+   OK: target=  17 rings=1 alloc={0: 17} kept=  17
+   OR: target=  18 rings=1 alloc={0: 18} kept=  18
+   PA: target=  54 rings=1 alloc={0: 54} kept=  54
+   RI: target=   6 rings=1 alloc={0: 6} kept=   6
+   SC: target=  22 rings=1 alloc={0: 22} kept=  22
+   SD: target=   5 rings=1 alloc={0: 5} kept=   5
+   TN: target=  29 rings=1 alloc={0: 29} kept=  29
+   TX: target= 122 rings=1 alloc={0: 122} kept= 122
+   UT: target=  14 rings=1 alloc={0: 14} kept=  14
+   VA: target=  36 rings=2 alloc={0: 36} kept=  36
+   VT: target=   3 rings=1 alloc={0: 3} kept=   3
+   WA: target=  32 rings=1 alloc={0: 32} kept=  32
+   WI: target=  25 rings=1 alloc={0: 25} kept=  25
+   WV: target=   9 rings=1 alloc={0: 9} kept=   9
+   WY: target=   3 rings=1 alloc={0: 3} kept=   3
+   R=0.2999 deg  cells=1396  (target 1396)
+   DC: placed 4 cells near (-82.82, 37.35)
+   states with detached cells: none
+
+step 2 — district blobs
+   non-contiguous district blobs: 6 {'08-01': 3, '12-02': 5, '25-01': 2, '37-01': 1, '48-04': 1, '48-13': 1}
+
+step 3 — seats and parties
+   districts needing a non-strict shape: 0 of 197
+   seats: 0 from 1400 cells  (left→right order: DSA PRG LBR CUP STY OAO CON LP NAT)
+
+step 4 — equal-area seat regions
+   sub-cells: 50451 at 1/6 of a seat
+   seat area within a district, largest/smallest: median 1.091, worst 1.857 (HI 15-01)
+
+step 5 — statewide miniatures: 326 seats across 38 states
+   miniatures short of their seat count: none
+
+wrote /Users/bdecker/Local Projects/Personal/STV/data/processed/hex_seat_cartogram_triple_reserve.json (50451 cells across 51 states)
+wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/hexmap/hex_seat_cartogram_triple_reserve.json (1033 KB, geometry only)
+
+###  pipeline/build_hex_mmp_cartogram.py  exit=0  4s
+873 seats, R=0.4216 deg, sub-lattice 1/6
+   pairs placed without a clear spot: none
+   873 seats across 51 states, 31498 sub-cells
+wrote /Users/bdecker/Local Projects/Personal/STV/data/processed/hex_mmp_cartogram.json
+wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/hexmap/hex_mmp_cartogram.json (693 KB)
+
+###  pipeline/build_hex_mmp_cartogram.py --triple  exit=0  17s
+1726 seats, R=0.2999 deg, sub-lattice 1/6
+   pairs placed without a clear spot: none
+   1726 seats across 51 states, 62097 sub-cells
+wrote /Users/bdecker/Local Projects/Personal/STV/data/processed/hex_mmp_cartogram_triple.json
+wrote /Users/bdecker/Local Projects/Personal/STV/viz/public/hexmap/hex_mmp_cartogram_triple.json (1184 KB)
+
+###  viz/scripts/make_quiz_questions.py  exit=0  8s
+wrote viz/src/data/quizQuestions.json: 40 questions, 25 in the short quiz
+primary factor per item: {'F4': 20, 'F5': 13, 'F1': 4, 'F2': 3}
+
+###  analysis/efa/build_quiz_shortform.py  exit=0  81s
+refit seed 52: ARI vs production 1.0000
+[short] 25 items  R2 F1=0.976 F2=0.982 F4=0.967 F5=0.974  placement 0.856  mean top prob 0.703
+[long] 40 items  R2 F1=0.992 F2=0.992 F4=1.000 F5=0.998  placement 0.953  mean top prob 0.736
+wrote viz/src/data/quizShortform.json
+
+### TURNOUT_WEIGHT=1 TURNOUT_LAMBDA=0.05 analysis/quota_flows.py  exit=0  39s
+Loading inputs…
+  double: prepared 150 districts
+    full   double gap  0: 148/148 districts reproduce
+    full   double gap  5: 148/148 districts reproduce
+    full   double gap 10: 148/148 districts reproduce
+    full   double gap 15: 148/148 districts reproduce
+    full   double gap 20: 148/148 districts reproduce
+    full   double gap 25: 148/148 districts reproduce
+    full   double gap 30: 148/148 districts reproduce
+    top3   double gap  0: 148/148 districts reproduce
+    top3   double gap  5: 148/148 districts reproduce
+    top3   double gap 10: 148/148 districts reproduce
+    top3   double gap 15: 148/148 districts reproduce
+    top3   double gap 20: 148/148 districts reproduce
+    top3   double gap 25: 148/148 districts reproduce
+    top3   double gap 30: 148/148 districts reproduce
+    top5   double gap  0: 148/148 districts reproduce
+    top5   double gap  5: 148/148 districts reproduce
+    top5   double gap 10: 148/148 districts reproduce
+    top5   double gap 15: 148/148 districts reproduce
+    top5   double gap 20: 148/148 districts reproduce
+    top5   double gap 25: 148/148 districts reproduce
+    top5   double gap 30: 148/148 districts reproduce
+    top7   double gap  0: 148/148 districts reproduce
+    top7   double gap  5: 148/148 districts reproduce
+    top7   double gap 10: 148/148 districts reproduce
+    top7   double gap 15: 148/148 districts reproduce
+    top7   double gap 20: 148/148 districts reproduce
+    top7   double gap 25: 148/148 districts reproduce
+    top7   double gap 30: 148/148 districts reproduce
+    top10  double gap  0: 148/148 districts reproduce
+    top10  double gap  5: 148/148 districts reproduce
+    top10  double gap 10: 148/148 districts reproduce
+    top10  double gap 15: 148/148 districts reproduce
+    top10  double gap 20: 148/148 districts reproduce
+    top10  double gap 25: 148/148 districts reproduce
+    top10  double gap 30: 148/148 districts reproduce
+  triple: prepared 243 districts
+    full   triple gap  0: 241/241 districts reproduce
+    full   triple gap  5: 241/241 districts reproduce
+    full   triple gap 10: 241/241 districts reproduce
+    full   triple gap 15: 241/241 districts reproduce
+    full   triple gap 20: 241/241 districts reproduce
+    full   triple gap 25: 241/241 districts reproduce
+    full   triple gap 30: 241/241 districts reproduce
+    top3   triple gap  0: 241/241 districts reproduce
+    top3   triple gap  5: 241/241 districts reproduce
+    top3   triple gap 10: 241/241 districts reproduce
+    top3   triple gap 15: 241/241 districts reproduce
+    top3   triple gap 20: 241/241 districts reproduce
+    top3   triple gap 25: 241/241 districts reproduce
+    top3   triple gap 30: 241/241 districts reproduce
+    top5   triple gap  0: 241/241 districts reproduce
+    top5   triple gap  5: 241/241 districts reproduce
+    top5   triple gap 10: 241/241 districts reproduce
+    top5   triple gap 15: 241/241 districts reproduce
+    top5   triple gap 20: 241/241 districts reproduce
+    top5   triple gap 25: 241/241 districts reproduce
+    top5   triple gap 30: 241/241 districts reproduce
+    top7   triple gap  0: 241/241 districts reproduce
+    top7   triple gap  5: 241/241 districts reproduce
+    top7   triple gap 10: 241/241 districts reproduce
+    top7   triple gap 15: 241/241 districts reproduce
+    top7   triple gap 20: 241/241 districts reproduce
+    top7   triple gap 25: 241/241 districts reproduce
+    top7   triple gap 30: 241/241 districts reproduce
+    top10  triple gap  0: 241/241 districts reproduce
+    top10  triple gap  5: 241/241 districts reproduce
+    top10  triple gap 10: 241/241 districts reproduce
+    top10  triple gap 15: 241/241 districts reproduce
+    top10  triple gap 20: 241/241 districts reproduce
+    top10  triple gap 25: 241/241 districts reproduce
+    top10  triple gap 30: 241/241 districts reproduce
+
+Wrote viz/public/data/quotaFlows.json  (70 configurations, 217 KB)
+
+### TURNOUT_WEIGHT=1 TURNOUT_LAMBDA=0.05 analysis/quota_composition.py  exit=0  1s
+Loading inputs…
+  (skipping 04-01: Maricopa split, published bundle predates it)
+  (skipping 04-03: Maricopa split, published bundle predates it)
+
+Validation: 148/148 districts reproduce the published rank-7 seats (multiset), 2 excluded as known-stale.
+
+Wrote viz/src/data/quotaComposition.json  (873 seats decomposed)
+
+  exhaustion, two denominators:
+    party   of weight leaving it  of its voters weight
+    LBR                    21.1%                  4.9%
+    PRG                    13.1%                  7.1%
+    CON                    12.4%                  5.1%
+    CUP                    11.9%                  3.3%
+    DSA                    11.7%                 18.5%
+    OAO                    10.4%                  7.5%
+    STY                    10.4%                  3.2%
+    NAT                     6.7%                  3.9%
+    LP                     2.4%                  8.0%
+    ALL                                           5.2%  <- chamber aggregate
+
+  transfers out (share of weight leaving each party):
+    PRG  cross  85.5%  internal   1.4%  exhausted  13.1%  effN 1.80  {'LBR': 73, 'OAO': 12, 'CUP': 7, 'STY': 6}
+    NAT  cross  26.4%  internal  66.9%  exhausted   6.7%  effN 1.48  {'CON': 81, 'STY': 12, 'LP': 4, 'CUP': 3}
+    OAO  cross  88.8%  internal   0.8%  exhausted  10.4%  effN 3.29  {'STY': 37, 'CUP': 36, 'LBR': 17, 'CON': 7}
+    DSA  cross  88.3%  internal   0.0%  exhausted  11.7%  effN 1.65  {'PRG': 74, 'LBR': 24, 'STY': 2}
+    CON  cross  30.5%  internal  57.1%  exhausted  12.4%  effN 3.28  {'NAT': 44, 'CUP': 25, 'STY': 21, 'LP': 5}
+    STY  cross  57.6%  internal  32.0%  exhausted  10.4%  effN 3.62  {'CUP': 39, 'CON': 29, 'LBR': 15, 'OAO': 12}
+    CUP  cross  67.9%  internal  20.2%  exhausted  11.9%  effN 4.04  {'STY': 38, 'LBR': 22, 'CON': 19, 'OAO': 11}
+    LBR  cross  55.0%  internal  23.9%  exhausted  21.1%  effN 4.19  {'STY': 28, 'CUP': 25, 'OAO': 23, 'PRG': 20}
+    LP  cross  97.7%  internal   0.0%  exhausted   2.4%  effN 3.12  {'STY': 47, 'CON': 23, 'CUP': 22, 'NAT': 6}
+  NAT   196 seats  own  96.2%  marginal  93.6%  gap  2.6pp  | 132 districts, 43.9% multi-seat
+  DSA     4 seats  own  93.3%  marginal  93.3%  gap  0.0pp  |   4 districts,  0.0% multi-seat
+  CON   185 seats  own  85.3%  marginal  80.7%  gap  4.6pp  | 139 districts, 30.9% multi-seat
+  STY   142 seats  own  75.6%  marginal  72.3%  gap  3.3pp  | 127 districts, 11.8% multi-seat
+  LBR   134 seats  own  75.0%  marginal  73.5%  gap  1.5pp  | 126 districts,  6.3% multi-seat
+  PRG    60 seats  own  74.8%  marginal  74.4%  gap  0.4pp  |  59 districts,  1.7% multi-seat
+  CUP   117 seats  own  74.2%  marginal  73.0%  gap  1.2pp  | 111 districts,  5.4% multi-seat
+  OAO    33 seats  own  67.7%  marginal  67.7%  gap  0.0pp  |  33 districts,  0.0% multi-seat
+  LP     2 seats  own  61.0%  marginal  61.0%  gap  0.0pp  |   2 districts,  0.0% multi-seat

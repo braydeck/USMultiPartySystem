@@ -5,7 +5,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 1,AL,13,LIB,1,0.0546
 1,AL,13,NAT,2,0.1489
 1,AL,13,PRG,1,0.049
-1,AL,13,POP,1,0.0804
+1,AL,13,LP,1,0.0804
 1,AL,13,SD,1,0.0694
 1,AL,13,STY,1,0.1191
 2,AK,2,CUP,1,0.204
@@ -16,7 +16,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 4,AZ,19,LIB,2,0.0926
 4,AZ,19,NAT,3,0.1828
 4,AZ,19,PRG,2,0.1032
-4,AZ,19,POP,3,0.146
+4,AZ,19,LP,3,0.146
 4,AZ,19,SD,1,0.0733
 4,AZ,19,STY,2,0.0864
 5,AR,8,CON,2,0.1962
@@ -24,7 +24,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 5,AR,8,LIB,1,0.069
 5,AR,8,NAT,1,0.1324
 5,AR,8,PRG,1,0.0902
-5,AR,8,POP,1,0.1002
+5,AR,8,LP,1,0.1002
 5,AR,8,SD,1,0.1001
 6,CA,104,CON,11,0.1105
 6,CA,104,CUP,15,0.1411
@@ -32,7 +32,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 6,CA,104,LIB,15,0.1434
 6,CA,104,NAT,9,0.0907
 6,CA,104,PRG,12,0.1108
-6,CA,104,POP,10,0.0962
+6,CA,104,LP,10,0.0962
 6,CA,104,SD,14,0.135
 6,CA,104,STY,12,0.1149
 8,CO,15,CON,2,0.1552
@@ -41,7 +41,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 8,CO,15,LIB,2,0.1256
 8,CO,15,NAT,2,0.1275
 8,CO,15,PRG,2,0.1364
-8,CO,15,POP,2,0.1345
+8,CO,15,LP,2,0.1345
 8,CO,15,SD,1,0.0939
 8,CO,15,STY,1,0.0529
 9,CT,9,CON,2,0.1767
@@ -49,7 +49,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 9,CT,9,LIB,1,0.1338
 9,CT,9,NAT,1,0.0703
 9,CT,9,PRG,1,0.1276
-9,CT,9,POP,1,0.09
+9,CT,9,LP,1,0.09
 9,CT,9,SD,1,0.1305
 9,CT,9,STY,1,0.0887
 10,DE,3,CON,1,0.1367
@@ -63,7 +63,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 12,FL,57,LIB,5,0.0936
 12,FL,57,NAT,6,0.1055
 12,FL,57,PRG,3,0.0587
-12,FL,57,POP,5,0.0811
+12,FL,57,LP,5,0.0811
 12,FL,57,SD,6,0.0992
 12,FL,57,STY,6,0.1152
 13,GA,28,CON,5,0.1626
@@ -72,7 +72,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 13,GA,28,LIB,3,0.1098
 13,GA,28,NAT,3,0.1061
 13,GA,28,PRG,1,0.0541
-13,GA,28,POP,2,0.0858
+13,GA,28,LP,2,0.0858
 13,GA,28,SD,4,0.1258
 13,GA,28,STY,3,0.1043
 15,HI,4,CON,1,0.1782
@@ -83,14 +83,14 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 16,ID,5,CUP,1,0.1261
 16,ID,5,DSA,1,0.1037
 16,ID,5,NAT,1,0.2184
-16,ID,5,POP,1,0.1343
+16,ID,5,LP,1,0.1343
 17,IL,34,CON,5,0.1603
 17,IL,34,CUP,6,0.1679
 17,IL,34,DSA,2,0.0678
 17,IL,34,LIB,5,0.1425
 17,IL,34,NAT,3,0.0871
 17,IL,34,PRG,4,0.1042
-17,IL,34,POP,3,0.0885
+17,IL,34,LP,3,0.0885
 17,IL,34,SD,4,0.1136
 17,IL,34,STY,2,0.0681
 18,IN,18,CON,3,0.192
@@ -99,7 +99,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 18,IN,18,LIB,2,0.0894
 18,IN,18,NAT,3,0.1501
 18,IN,18,PRG,1,0.0757
-18,IN,18,POP,2,0.0912
+18,IN,18,LP,2,0.0912
 18,IN,18,SD,2,0.1062
 18,IN,18,STY,1,0.0768
 19,IA,8,CON,1,0.1782
@@ -108,7 +108,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 19,IA,8,LIB,1,0.0855
 19,IA,8,NAT,1,0.1489
 19,IA,8,PRG,1,0.0719
-19,IA,8,POP,1,0.111
+19,IA,8,LP,1,0.111
 19,IA,8,SD,1,0.1159
 20,KS,8,CON,1,0.199
 20,KS,8,CUP,1,0.1099
@@ -124,7 +124,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 21,KY,12,LIB,1,0.0678
 21,KY,12,NAT,2,0.162
 21,KY,12,PRG,1,0.0653
-21,KY,12,POP,1,0.128
+21,KY,12,LP,1,0.128
 21,KY,12,SD,1,0.0731
 21,KY,12,STY,1,0.0942
 22,LA,12,CON,2,0.1809
@@ -132,7 +132,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 22,LA,12,LIB,1,0.0604
 22,LA,12,NAT,2,0.1628
 22,LA,12,PRG,1,0.0565
-22,LA,12,POP,1,0.0759
+22,LA,12,LP,1,0.0759
 22,LA,12,SD,1,0.0757
 22,LA,12,STY,2,0.1361
 23,ME,4,CON,1,0.1525
@@ -145,7 +145,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 24,MD,16,LIB,2,0.1327
 24,MD,16,NAT,1,0.0861
 24,MD,16,PRG,2,0.1378
-24,MD,16,POP,2,0.0949
+24,MD,16,LP,2,0.0949
 24,MD,16,SD,2,0.1286
 24,MD,16,STY,2,0.0908
 25,MA,18,CON,3,0.1593
@@ -154,7 +154,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 25,MA,18,LIB,3,0.1409
 25,MA,18,NAT,1,0.085
 25,MA,18,PRG,3,0.1542
-25,MA,18,POP,1,0.0742
+25,MA,18,LP,1,0.0742
 25,MA,18,SD,2,0.112
 25,MA,18,STY,1,0.0733
 26,MI,27,CON,5,0.1931
@@ -163,7 +163,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 26,MI,27,LIB,3,0.1042
 26,MI,27,NAT,4,0.1497
 26,MI,27,PRG,3,0.1147
-26,MI,27,POP,3,0.1001
+26,MI,27,LP,3,0.1001
 26,MI,27,SD,2,0.0756
 26,MI,27,STY,2,0.0622
 27,MN,15,CON,2,0.1421
@@ -172,14 +172,14 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 27,MN,15,LIB,2,0.1522
 27,MN,15,NAT,1,0.0943
 27,MN,15,PRG,2,0.157
-27,MN,15,POP,2,0.1265
+27,MN,15,LP,2,0.1265
 27,MN,15,SD,2,0.1015
 27,MN,15,STY,1,0.0368
 28,MS,8,CON,1,0.1768
 28,MS,8,CUP,1,0.1622
 28,MS,8,LIB,1,0.0678
 28,MS,8,NAT,1,0.1098
-28,MS,8,POP,1,0.1077
+28,MS,8,LP,1,0.1077
 28,MS,8,SD,1,0.1095
 28,MS,8,STY,2,0.1851
 29,MO,16,CON,3,0.1843
@@ -188,7 +188,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 29,MO,16,LIB,1,0.0816
 29,MO,16,NAT,3,0.1539
 29,MO,16,PRG,1,0.0778
-29,MO,16,POP,1,0.065
+29,MO,16,LP,1,0.065
 29,MO,16,SD,2,0.0901
 29,MO,16,STY,2,0.1379
 30,MT,3,CON,1,0.1705
@@ -204,7 +204,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 32,NV,8,DSA,1,0.0787
 32,NV,8,NAT,1,0.1079
 32,NV,8,PRG,1,0.1137
-32,NV,8,POP,1,0.0978
+32,NV,8,LP,1,0.0978
 32,NV,8,SD,1,0.0905
 32,NV,8,STY,1,0.1384
 33,NH,4,CON,1,0.1229
@@ -217,7 +217,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 34,NJ,24,LIB,3,0.1408
 34,NJ,24,NAT,2,0.1037
 34,NJ,24,PRG,3,0.1118
-34,NJ,24,POP,2,0.0993
+34,NJ,24,LP,2,0.0993
 34,NJ,24,SD,3,0.1042
 34,NJ,24,STY,2,0.0649
 35,NM,6,CON,1,0.1422
@@ -232,7 +232,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 36,NY,53,LIB,7,0.1301
 36,NY,53,NAT,4,0.0825
 36,NY,53,PRG,6,0.1088
-36,NY,53,POP,5,0.0887
+36,NY,53,LP,5,0.0887
 36,NY,53,SD,6,0.1191
 36,NY,53,STY,5,0.0945
 37,NC,27,CON,4,0.1651
@@ -241,7 +241,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 37,NC,27,LIB,3,0.0952
 37,NC,27,NAT,4,0.1392
 37,NC,27,PRG,2,0.0866
-37,NC,27,POP,3,0.1003
+37,NC,27,LP,3,0.1003
 37,NC,27,SD,3,0.1125
 37,NC,27,STY,2,0.0943
 38,ND,2,CON,1,0.192
@@ -252,7 +252,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 39,OH,31,LIB,3,0.0945
 39,OH,31,NAT,4,0.138
 39,OH,31,PRG,2,0.0627
-39,OH,31,POP,3,0.0981
+39,OH,31,LP,3,0.0981
 39,OH,31,SD,3,0.0919
 39,OH,31,STY,3,0.0881
 40,OK,10,CON,2,0.1864
@@ -260,7 +260,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 40,OK,10,DSA,1,0.0746
 40,OK,10,LIB,1,0.0732
 40,OK,10,NAT,2,0.1754
-40,OK,10,POP,1,0.1159
+40,OK,10,LP,1,0.1159
 40,OK,10,SD,1,0.0745
 41,OR,11,CON,1,0.1178
 41,OR,11,CUP,1,0.0803
@@ -268,7 +268,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 41,OR,11,LIB,1,0.1234
 41,OR,11,NAT,2,0.1405
 41,OR,11,PRG,2,0.1757
-41,OR,11,POP,1,0.0987
+41,OR,11,LP,1,0.0987
 41,OR,11,SD,1,0.0869
 41,OR,11,STY,1,0.0562
 42,PA,34,CON,6,0.179
@@ -277,7 +277,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 42,PA,34,LIB,4,0.1151
 42,PA,34,NAT,4,0.1117
 42,PA,34,PRG,3,0.1076
-42,PA,34,POP,3,0.0875
+42,PA,34,LP,3,0.0875
 42,PA,34,SD,4,0.1161
 42,PA,34,STY,3,0.0786
 44,RI,3,CON,1,0.1546
@@ -289,7 +289,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 45,SC,13,LIB,1,0.0982
 45,SC,13,NAT,2,0.1361
 45,SC,13,PRG,1,0.0611
-45,SC,13,POP,1,0.0871
+45,SC,13,LP,1,0.0871
 45,SC,13,SD,2,0.1128
 45,SC,13,STY,1,0.1036
 46,SD,2,CON,1,0.1662
@@ -300,7 +300,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 47,TN,18,LIB,1,0.0532
 47,TN,18,NAT,3,0.179
 47,TN,18,PRG,1,0.0483
-47,TN,18,POP,2,0.0894
+47,TN,18,LP,2,0.0894
 47,TN,18,SD,1,0.0686
 47,TN,18,STY,1,0.0751
 48,TX,77,CON,13,0.1738
@@ -309,7 +309,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 48,TX,77,LIB,7,0.0841
 48,TX,77,NAT,9,0.1187
 48,TX,77,PRG,4,0.057
-48,TX,77,POP,6,0.0746
+48,TX,77,LP,6,0.0746
 48,TX,77,SD,8,0.1024
 48,TX,77,STY,10,0.133
 49,UT,9,CON,1,0.1268
@@ -318,7 +318,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 49,UT,9,LIB,1,0.0917
 49,UT,9,NAT,1,0.1135
 49,UT,9,PRG,1,0.0821
-49,UT,9,POP,1,0.1108
+49,UT,9,LP,1,0.1108
 49,UT,9,SD,1,0.1397
 49,UT,9,STY,1,0.0853
 50,VT,2,CUP,1,0.1695
@@ -329,7 +329,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 51,VA,23,LIB,3,0.1113
 51,VA,23,NAT,3,0.127
 51,VA,23,PRG,3,0.1293
-51,VA,23,POP,2,0.083
+51,VA,23,LP,2,0.083
 51,VA,23,SD,2,0.1092
 51,VA,23,STY,2,0.0679
 53,WA,20,CON,2,0.1255
@@ -338,7 +338,7 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 53,WA,20,LIB,3,0.1302
 53,WA,20,NAT,2,0.0938
 53,WA,20,PRG,3,0.1683
-53,WA,20,POP,2,0.0911
+53,WA,20,LP,2,0.0911
 53,WA,20,SD,2,0.1041
 53,WA,20,STY,1,0.0551
 54,WV,5,CON,1,0.1948
@@ -352,8 +352,8 @@ state_fips,state_abbr,total_seats,party,party_seats,vote_share
 55,WI,16,LIB,1,0.0937
 55,WI,16,NAT,2,0.1276
 55,WI,16,PRG,2,0.0996
-55,WI,16,POP,2,0.1213
+55,WI,16,LP,2,0.1213
 55,WI,16,SD,2,0.1057
 55,WI,16,STY,1,0.0826
 56,WY,2,CON,1,0.2145
-56,WY,2,POP,1,0.2069
+56,WY,2,LP,1,0.2069

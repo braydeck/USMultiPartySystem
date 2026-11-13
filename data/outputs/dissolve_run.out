@@ -1,0 +1,201 @@
+510 of 510 combinations to build on 11 processes
+  [1/510] DSA-PRG 376.7s  elapsed 6 min, eta 3197 min
+  [2/510] DSA-LBR 377.8s  elapsed 6 min, eta 1600 min
+  [3/510] STY 383.0s  elapsed 6 min, eta 1079 min
+  [4/510] DSA 385.1s  elapsed 6 min, eta 812 min
+  [5/510] LP 386.1s  elapsed 6 min, eta 650 min
+  [6/510] OAO 386.9s  elapsed 6 min, eta 542 min
+  [7/510] LBR 387.4s  elapsed 6 min, eta 464 min
+  [8/510] CON 387.8s  elapsed 6 min, eta 406 min
+  [9/510] CUP 388.0s  elapsed 6 min, eta 360 min
+  [10/510] NAT 388.8s  elapsed 6 min, eta 324 min
+  [11/510] PRG 390.3s  elapsed 7 min, eta 295 min
+  [12/510] DSA-STY 400.4s  elapsed 13 min, eta 538 min
+  [13/510] DSA-CUP 404.4s  elapsed 13 min, eta 498 min
+  [14/510] DSA-LP 403.7s  elapsed 13 min, eta 467 min
+  [15/510] DSA-CON 405.1s  elapsed 13 min, eta 435 min
+  [16/510] DSA-OAO 408.0s  elapsed 13 min, eta 407 min
+  [17/510] DSA-NAT 408.6s  elapsed 13 min, eta 385 min
+  [18/510] PRG-STY 407.6s  elapsed 13 min, eta 363 min
+  [19/510] PRG-CON 405.6s  elapsed 13 min, eta 343 min
+  [20/510] PRG-CUP 410.3s  elapsed 13 min, eta 326 min
+  [21/510] PRG-LBR 411.5s  elapsed 13 min, eta 310 min
+  [22/510] PRG-OAO 411.8s  elapsed 13 min, eta 296 min
+  [23/510] PRG-LP 414.8s  elapsed 20 min, eta 421 min
+  [24/510] PRG-NAT 414.9s  elapsed 20 min, eta 404 min
+  [25/510] LBR-CUP 411.1s  elapsed 20 min, eta 388 min
+  [26/510] LBR-STY 413.2s  elapsed 20 min, eta 374 min
+  [27/510] LBR-OAO 414.8s  elapsed 20 min, eta 360 min
+  [28/510] LBR-LP 411.8s  elapsed 20 min, eta 347 min
+  [29/510] LBR-CON 412.1s  elapsed 20 min, eta 334 min
+  [30/510] LBR-NAT 414.4s  elapsed 20 min, eta 323 min
+  [31/510] CUP-CON 411.1s  elapsed 20 min, eta 312 min
+  [32/510] CUP-STY 417.0s  elapsed 20 min, eta 303 min
+  [33/510] CUP-OAO 416.3s  elapsed 20 min, eta 293 min
+  [34/510] CUP-LP 416.2s  elapsed 27 min, eta 376 min
+  [35/510] CUP-NAT 416.8s  elapsed 27 min, eta 365 min
+  [36/510] STY-OAO 417.8s  elapsed 27 min, eta 355 min
+  [37/510] STY-CON 416.9s  elapsed 27 min, eta 345 min
+  [38/510] STY-NAT 413.1s  elapsed 27 min, eta 336 min
+  [39/510] OAO-CON 418.4s  elapsed 27 min, eta 327 min
+  [40/510] STY-LP 420.6s  elapsed 27 min, eta 319 min
+  [41/510] OAO-NAT 417.2s  elapsed 27 min, eta 311 min
+  [42/510] OAO-LP 418.9s  elapsed 27 min, eta 303 min
+  [43/510] CON-LP 418.4s  elapsed 27 min, eta 296 min
+  [44/510] CON-NAT 419.1s  elapsed 27 min, eta 289 min
+  [45/510] DSA-PRG-LBR 401.0s  elapsed 34 min, eta 347 min
+  [46/510] DSA-PRG-STY 403.1s  elapsed 34 min, eta 340 min
+  [47/510] DSA-PRG-CUP 405.7s  elapsed 34 min, eta 333 min
+  [48/510] DSA-PRG-OAO 405.3s  elapsed 34 min, eta 325 min
+  [49/510] LP-NAT 418.6s  elapsed 34 min, eta 318 min
+  [50/510] DSA-PRG-LP 402.7s  elapsed 34 min, eta 311 min
+  [51/510] DSA-LBR-CUP 400.5s  elapsed 34 min, eta 305 min
+ABORT: 1 district mismatches across configurations.
+  [52/510] DSA-PRG-CON 405.4s  elapsed 34 min, eta 298 min
+  [53/510] DSA-LBR-STY 402.4s  elapsed 34 min, eta 293 min
+  [54/510] DSA-LBR-OAO 405.7s  elapsed 34 min, eta 287 min
+  [55/510] DSA-LBR-CON 409.9s  elapsed 40 min, eta 334 min
+  [56/510] DSA-LBR-LP 408.5s  elapsed 41 min, eta 329 min
+  [57/510] DSA-LBR-NAT 408.0s  elapsed 41 min, eta 322 min
+  [58/510] DSA-CUP-OAO 405.9s  elapsed 41 min, eta 316 min
+  [59/510] DSA-CUP-CON 405.2s  elapsed 41 min, eta 310 min
+  [60/510] DSA-CUP-STY 410.5s  elapsed 41 min, eta 305 min
+  [61/510] DSA-CUP-LP 406.9s  elapsed 41 min, eta 299 min
+  [62/510] DSA-CUP-NAT 406.8s  elapsed 41 min, eta 294 min
+  [63/510] DSA-STY-OAO 406.2s  elapsed 41 min, eta 288 min
+  [64/510] DSA-STY-CON 408.4s  elapsed 41 min, eta 284 min
+  [65/510] DSA-STY-LP 408.9s  elapsed 41 min, eta 280 min
+ABORT: 4 district mismatches across configurations.
+  [66/510] DSA-OAO-LP 399.2s  elapsed 47 min, eta 318 min
+  [67/510] DSA-OAO-CON 400.0s  elapsed 47 min, eta 312 min
+ABORT: 1 district mismatches across configurations.
+  [68/510] DSA-CON-LP 398.5s  elapsed 47 min, eta 307 min
+ABORT: 2 district mismatches across configurations.
+  [69/510] DSA-CON-NAT 402.0s  elapsed 47 min, eta 302 min
+  [70/510] PRG-LBR-CUP 401.6s  elapsed 47 min, eta 298 min
+  [71/510] PRG-LBR-STY 403.6s  elapsed 47 min, eta 293 min
+  [72/510] PRG-LBR-OAO 402.4s  elapsed 47 min, eta 289 min
+ABORT: 1 district mismatches across configurations.
+  [73/510] PRG-LBR-LP 405.7s  elapsed 54 min, eta 322 min
+  [74/510] PRG-CUP-CON 401.1s  elapsed 54 min, eta 318 min
+  [75/510] PRG-LBR-NAT 404.9s  elapsed 54 min, eta 313 min
+  [76/510] PRG-CUP-OAO 406.4s  elapsed 54 min, eta 308 min
+  [77/510] PRG-CUP-LP 405.4s  elapsed 54 min, eta 304 min
+  [78/510] PRG-CUP-STY 409.3s  elapsed 54 min, eta 299 min
+  [79/510] PRG-CUP-NAT 407.2s  elapsed 54 min, eta 295 min
+  [80/510] PRG-STY-CON 407.0s  elapsed 54 min, eta 291 min
+  [81/510] PRG-STY-OAO 410.5s  elapsed 54 min, eta 287 min
+  [82/510] PRG-STY-NAT 404.1s  elapsed 54 min, eta 283 min
+  [83/510] PRG-STY-LP 406.4s  elapsed 54 min, eta 279 min
+  [84/510] PRG-OAO-CON 407.3s  elapsed 61 min, eta 307 min
+  [85/510] PRG-OAO-LP 403.4s  elapsed 61 min, eta 303 min
+ABORT: 1 district mismatches across configurations.
+  [86/510] PRG-CON-LP 403.1s  elapsed 61 min, eta 299 min
+ABORT: 2 district mismatches across configurations.
+  [87/510] PRG-CON-NAT 405.1s  elapsed 61 min, eta 295 min
+  [88/510] LBR-CUP-CON 396.1s  elapsed 61 min, eta 291 min
+ABORT: 3 district mismatches across configurations.
+ABORT: 5 district mismatches across configurations.
+  [89/510] LBR-CUP-STY 406.3s  elapsed 61 min, eta 288 min
+  [90/510] LBR-CUP-LP 400.0s  elapsed 61 min, eta 284 min
+  [91/510] LBR-STY-OAO 408.8s  elapsed 67 min, eta 310 min
+  [92/510] LBR-STY-CON 405.4s  elapsed 67 min, eta 306 min
+  [93/510] LBR-STY-LP 405.8s  elapsed 67 min, eta 303 min
+ABORT: 1 district mismatches across configurations.
+  [94/510] LBR-OAO-CON 407.1s  elapsed 68 min, eta 299 min
+  [95/510] LBR-OAO-NAT 407.8s  elapsed 68 min, eta 295 min
+  [96/510] LBR-CON-LP 404.6s  elapsed 68 min, eta 292 min
+  [97/510] LBR-LP-NAT 404.8s  elapsed 68 min, eta 288 min
+  [98/510] LBR-CON-NAT 405.1s  elapsed 68 min, eta 284 min
+  [99/510] LBR-OAO-LP 415.1s  elapsed 68 min, eta 281 min
+  [100/510] CUP-STY-OAO 409.5s  elapsed 68 min, eta 278 min
+  [101/510] CUP-STY-CON 404.7s  elapsed 74 min, eta 300 min
+  [102/510] CUP-OAO-CON 401.3s  elapsed 74 min, eta 297 min
+  [103/510] CUP-STY-LP 407.3s  elapsed 74 min, eta 293 min
+  [104/510] CUP-STY-NAT 403.6s  elapsed 74 min, eta 290 min
+  [105/510] CUP-OAO-LP 401.9s  elapsed 74 min, eta 286 min
+  [106/510] CUP-OAO-NAT 403.7s  elapsed 74 min, eta 283 min
+  [107/510] CUP-CON-LP 402.5s  elapsed 74 min, eta 280 min
+  [108/510] CUP-CON-NAT 406.6s  elapsed 74 min, eta 277 min
+  [109/510] STY-OAO-CON 405.0s  elapsed 74 min, eta 274 min
+  [110/510] CUP-LP-NAT 407.6s  elapsed 74 min, eta 271 min
+  [111/510] STY-OAO-LP 405.0s  elapsed 74 min, eta 268 min
+  [112/510] STY-OAO-NAT 407.1s  elapsed 81 min, eta 287 min
+  [113/510] STY-CON-LP 406.1s  elapsed 81 min, eta 284 min
+  [114/510] OAO-CON-LP 403.1s  elapsed 81 min, eta 281 min
+ABORT: 1 district mismatches across configurations.
+  [115/510] DSA-PRG-LBR-OAO 388.4s  elapsed 81 min, eta 278 min
+ABORT: 7 district mismatches across configurations.
+  [116/510] DSA-PRG-LBR-CUP 393.2s  elapsed 81 min, eta 275 min
+  [117/510] STY-CON-NAT 408.6s  elapsed 81 min, eta 272 min
+ABORT: 1 district mismatches across configurations.
+  [118/510] OAO-CON-NAT 405.3s  elapsed 81 min, eta 269 min
+  [119/510] CON-LP-NAT 404.5s  elapsed 81 min, eta 267 min
+ABORT: 7 district mismatches across configurations.
+ABORT: 10 district mismatches across configurations.
+  [120/510] DSA-PRG-LBR-LP 390.9s  elapsed 87 min, eta 284 min
+ABORT: 6 district mismatches across configurations.
+ABORT: 2 district mismatches across configurations.
+ABORT: 2 district mismatches across configurations.
+ABORT: 15 district mismatches across configurations.
+  [121/510] DSA-PRG-CUP-LP 390.9s  elapsed 88 min, eta 281 min
+  [122/510] DSA-PRG-STY-OAO 392.5s  elapsed 88 min, eta 279 min
+  [123/510] DSA-PRG-STY-CON 394.7s  elapsed 88 min, eta 276 min
+  [124/510] DSA-PRG-STY-LP 392.1s  elapsed 88 min, eta 273 min
+ABORT: 7 district mismatches across configurations.
+  [125/510] DSA-PRG-OAO-CON 387.6s  elapsed 94 min, eta 289 min
+ABORT: 6 district mismatches across configurations.
+  [126/510] DSA-PRG-CON-LP 389.4s  elapsed 94 min, eta 286 min
+ABORT: 14 district mismatches across configurations.
+  [127/510] DSA-PRG-OAO-LP 392.8s  elapsed 94 min, eta 283 min
+ABORT: 6 district mismatches across configurations.
+ABORT: 4 district mismatches across configurations.
+  [128/510] DSA-PRG-CON-NAT 395.4s  elapsed 94 min, eta 281 min
+  [129/510] DSA-LBR-CUP-STY 393.4s  elapsed 94 min, eta 278 min
+  [130/510] DSA-LBR-CUP-LP 386.8s  elapsed 94 min, eta 275 min
+ABORT: 8 district mismatches across configurations.
+ABORT: 2 district mismatches across configurations.
+  [131/510] DSA-LBR-STY-LP 389.5s  elapsed 100 min, eta 291 min
+  [132/510] DSA-LBR-OAO-CON 388.1s  elapsed 100 min, eta 288 min
+  [133/510] DSA-LBR-OAO-LP 389.1s  elapsed 101 min, eta 285 min
+  [134/510] DSA-LBR-CON-LP 386.9s  elapsed 101 min, eta 282 min
+  [135/510] DSA-LBR-STY-CON 393.6s  elapsed 101 min, eta 279 min
+ABORT: 4 district mismatches across configurations.
+ABORT: 5 district mismatches across configurations.
+ABORT: 7 district mismatches across configurations.
+  [136/510] DSA-LBR-CON-NAT 392.7s  elapsed 101 min, eta 277 min
+  [137/510] DSA-CUP-STY-OAO 387.7s  elapsed 107 min, eta 290 min
+  [138/510] DSA-CUP-STY-CON 389.3s  elapsed 107 min, eta 288 min
+ABORT: 16 district mismatches across configurations.
+  [139/510] DSA-CUP-STY-LP 385.8s  elapsed 107 min, eta 285 min
+ABORT: 7 district mismatches across configurations.
+  [140/510] DSA-CUP-CON-LP 384.0s  elapsed 107 min, eta 283 min
+ABORT: 13 district mismatches across configurations.
+  [141/510] DSA-CUP-OAO-LP 385.6s  elapsed 107 min, eta 280 min
+  [142/510] DSA-CUP-CON-NAT 385.5s  elapsed 107 min, eta 277 min
+ABORT: 14 district mismatches across configurations.
+  [143/510] DSA-STY-OAO-CON 387.4s  elapsed 107 min, eta 275 min
+  [144/510] DSA-STY-OAO-LP 393.1s  elapsed 113 min, eta 288 min
+ABORT: 9 district mismatches across configurations.
+  [145/510] DSA-STY-CON-NAT 389.3s  elapsed 113 min, eta 285 min
+  [146/510] DSA-OAO-CON-LP 387.4s  elapsed 113 min, eta 283 min
+  [147/510] DSA-STY-CON-LP 390.4s  elapsed 113 min, eta 280 min
+  [148/510] DSA-CON-LP-NAT 386.4s  elapsed 113 min, eta 277 min
+ABORT: 4 district mismatches across configurations.
+ABORT: 13 district mismatches across configurations.
+  [149/510] DSA-OAO-CON-NAT 391.4s  elapsed 113 min, eta 275 min
+ABORT: 12 district mismatches across configurations.
+  [150/510] PRG-LBR-CUP-STY 393.9s  elapsed 114 min, eta 273 min
+ABORT: 7 district mismatches across configurations.
+  [151/510] PRG-LBR-CUP-LP 389.4s  elapsed 120 min, eta 285 min
+ABORT: 7 district mismatches across configurations.
+ABORT: 9 district mismatches across configurations.
+  [152/510] PRG-LBR-STY-LP 388.3s  elapsed 120 min, eta 282 min
+ABORT: 7 district mismatches across configurations.
+ABORT: 7 district mismatches across configurations.
+  [153/510] PRG-LBR-OAO-LP 388.3s  elapsed 120 min, eta 280 min
+  [154/510] PRG-LBR-STY-OAO 393.5s  elapsed 120 min, eta 277 min
+ABORT: 7 district mismatches across configurations.
+ABORT: 14 district mismatches across configurations.
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/resource_tracker.py:301: UserWarning: resource_tracker: There appear to be 6 leaked semaphore objects to clean up at shutdown: {'/mp-q6qhv4gu', '/mp-oollfy15', '/mp-uf1eot_g', '/mp-n89plspr', '/mp-0tt39xxn', '/mp-13_mb2l5'}
+  warnings.warn(

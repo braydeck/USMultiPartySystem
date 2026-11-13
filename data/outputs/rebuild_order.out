@@ -1,0 +1,6 @@
+Step 14: house payloads  [2 chain(s)]
+  ok in 6s
+Step 16: viz payloads (chains the rank-7 rebuilds)  [1 chain(s)]
+  ok in 13s
+Step 17: payloads downstream of prepare_data  [19 chain(s)]
+  ok in 181s

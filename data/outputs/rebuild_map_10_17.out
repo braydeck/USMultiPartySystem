@@ -1,0 +1,13 @@
+Step 10: senate trees (24)  [24 chain(s)]
+  ok in 7s
+Step 11: primary -> presidential -> stage shares (38 trees)  [38 chain(s)]
+  ok in 13s
+Step 12: crossover chain  [27 chain(s)]
+  ok in 9s
+Step 13: profile tables  [5 chain(s)]
+  ok in 16s
+Step 14: house payloads  [2 chain(s)]
+  ok in 7s
+Step 15: bootstraps (1000 draws)  [4 chain(s)]
+  FAILED: analysis/efa/previous_years/compare/turnout_by_wave.py (+0 more; see /Users/bdecker/Local Projects/Personal/STV/data/outputs/rebuild_from_typology.log)
+exit 1
