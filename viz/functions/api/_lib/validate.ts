@@ -1,4 +1,4 @@
-export const PARTY_CODES = ['PRG', 'DSA', 'LIB', 'LBR', 'OAO', 'STY', 'CUP', 'CON', 'POP', 'NAT'] as const
+export const PARTY_CODES = ['PRG', 'DSA', 'LIB', 'LBR', 'OAO', 'STY', 'CUP', 'CON', 'LP', 'NAT'] as const
 export const VIBE_VALUES = ['fit', 'miss'] as const
 export const MAX_ANSWERS = 50
 export const MAX_BODY_BYTES = 8192

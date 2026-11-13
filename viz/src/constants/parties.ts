@@ -10,7 +10,7 @@ export const PARTY_COLORS: Record<string, string> = {
   STY: '#a78bfa',  // light violet
   CUP: '#c026d3',  // magenta
   CON: '#ef4444',  // red
-  POP: '#f59e0b',  // amber
+  LP: '#f59e0b',  // amber
   NAT: '#7f1d1d',  // maroon (rightmost)
   // Current (real) parties — muted D/R/I, rendered dashed to read as "status quo".
   DEM: '#5b7fa6',
@@ -22,7 +22,7 @@ export const PARTY_COLORS: Record<string, string> = {
 // MDS dimension of party-majority agreement over the Legislation bills (analysis/coalitions/
 // vote_agreement.py → data/processed/party_order.csv). Mirrors LEFT_RIGHT in pipeline/party_codes.py;
 // the hex cartograms read this copy. The name F5_ORDER is historical. Cluster ID 4 (DAL) holds no voters.
-export const F5_ORDER = ['DSA','PRG','LBR','CUP','STY','OAO','CON','POP','NAT'] as const;
+export const F5_ORDER = ['DSA','PRG','LBR','CUP','STY','OAO','CON','LP','NAT'] as const;
 
 // Back-compat alias (previously toggled the 10th party); now identical to F5_ORDER.
 export const F5_ORDER_WFP = F5_ORDER;
@@ -49,7 +49,7 @@ export const PARTY_NAMES: Record<string, string> = {
   CUP: 'Civic Union',
   CON: 'Conservative',
   NAT: 'Nationalist',
-  POP: 'Populist',
+  LP: 'Libertarian',
   DEM: 'Democratic',
   IND: 'Independent',
   REP: 'Republican',
@@ -65,7 +65,7 @@ export const PARTY_TAGLINES: Record<string, string> = {
   CUP: 'Socially liberal and pro-police; funds public services and resists aid paid to individuals',
   CON: 'United on borders, police, energy, and tax cuts; split on abortion, guns, and climate',
   NAT: 'Conservative on every issue at near-unanimity, and the most politically engaged right',
-  POP: 'Distrusts elections and government, opposes public spending of every kind, and wants out of foreign wars',
+  LP: 'Distrusts elections and government, opposes public spending of every kind, and wants out of foreign wars',
 };
 
 // Paragraph descriptions, copied from analysis/efa/rebuild_nine_parties/party_descriptions.md.
@@ -78,7 +78,7 @@ export const PARTY_BLURBS: Record<string, string> = {
   CUP: 'The fiscally cautious center. Socially liberal on abortion, same-sex marriage, and assault weapons, pro-police, and trusting of elections. It funds shared public services: nine in ten back infrastructure and mental-health and school-safety spending, seven in ten want more state spending on health care, schools, and roads, and eight in ten back Medicaid expansion and higher taxes on top earners. It resists aid paid to individuals: 37% back student-debt relief, 20% want more state welfare spending, and a majority would add work requirements to Medicaid. It has the most self-described moderates of any party.',
   CON: 'The mainstream right. Its members agree on order and low taxes: the wall, more police, border patrols, fossil fuels, and the 2017 tax cuts. On abortion, guns, climate, immigration status, and the Affordable Care Act they split, with a third to a half taking the liberal position. On spending and trust in elections it sits at the national average. The most Republican-identifying party.',
   NAT: 'The conservative core. It takes the right-hand position on nearly every item at near-unanimity, and it is the party most set against the health-care safety net: nine in ten would repeal the Affordable Care Act, and fewer than one in five want more state health spending. It takes the most resentful position of any party on all nine racial and gender resentment items. It is the party most attached to property and arms: older, white, rural homeowners, stockholders, and gun owners. It follows politics closely and votes almost without exception.',
-  POP: 'The disaffected right. Distrust defines it: it has the least faith in elections and state government of any party. It opposes spending on roads, police, and welfare alike, and it wants the U.S. out of Ukraine and Gaza. On abortion, the wall, and guns it sits at the national average. Younger, the most independent and religiously unaffiliated party, and the most often out of work. Three in ten follow public affairs, and a third voted in 2024 by the voter file.',
+  LP: 'The disaffected right. Distrust defines it: it has the least faith in elections and state government of any party. It opposes spending on roads, police, and welfare alike, and it wants the U.S. out of Ukraine and Gaza. On abortion, the wall, and guns it sits at the national average. Younger, the most independent and religiously unaffiliated party, and the most often out of work. Three in ten follow public affairs, and a third voted in 2024 by the voter file.',
 };
 
 export const CLUSTER_TO_PARTY: Record<string, string> = {
@@ -86,7 +86,7 @@ export const CLUSTER_TO_PARTY: Record<string, string> = {
   '1': 'LBR',
   '2': 'STY',
   '3': 'NAT',
-  '5': 'POP',
+  '5': 'LP',
   '6': 'CUP',
   '7': 'OAO',
   '8': 'DSA',
@@ -195,7 +195,7 @@ export function getFDColor(party: string, direction: 'base' | 'hi' | 'lo'): stri
   return base;
 }
 
-/** Given a code like "CON", "STY_lo_id", "CON_1", or "CON/POP", return the base party code */
+/** Given a code like "CON", "STY_lo_id", "CON_1", or "CON/LP", return the base party code */
 export function getPrimaryParty(code: string): string {
   if (!code) return '';
   return code.split('/')[0].split('_')[0];
@@ -256,7 +256,7 @@ export const SYSTEM_COLORS: Record<string, string> = {
 };
 
 /**
- * What each factor is actually made of, in policy terms. A factor name alone ("Populist
+ * What each factor is actually made of, in policy terms. A factor name alone ("Libertarian
  * Conservatism") says how the axis was scored, not which questions loaded onto it, so the
  * reader has no way to check the label against anything they hold an opinion about.
  */

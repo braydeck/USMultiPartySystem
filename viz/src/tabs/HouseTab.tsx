@@ -3,7 +3,7 @@ import { useUrlState, resetUrlParams } from '../hooks/useUrlState';
 import { usePartyHighlight } from '../hooks/usePartyHighlight';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { HouseSeat, TransferMatrix, VoteModelRow, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
+import type { HouseSeat, TransferMatrix, HouseStateEntry, ClusterProfile, FDHouseSeat, FPTPState, DistrictResult } from '../types';
 import { IdeologicalConstellation } from '../components/house/IdeologicalConstellation';
 import { HouseMap } from '../components/house/HouseMap';
 import { StateDrilldown, toGroups } from '../components/house/StateDrilldown';
@@ -111,6 +111,22 @@ import { PAGE_TITLE, CARD_HEADING, MINOR_HEADING, METRIC_VALUE, CARD_HINT } from
 import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
 import { SYSTEM_COLORS } from '../constants/parties';
 import { RepresentedByChoice } from '../components/house/RepresentedByChoice';
+import { useScenarioFiles, useLazyData, fetchJson } from '../hooks/useDissolve';
+import { loadScenario, type ByStop } from '../lib/dissolve';
+import { DissolveCompareContext, type DissolveCompare } from '../lib/dissolveCompare';
+import { DissolveMenu } from '../components/shared/DissolveMenu';
+
+// The scenario files the House tab reads for a dissolved field (see lib/dissolve.ts); the three
+// big bundles below them load lazily per depth, like their full-field counterparts.
+const HOUSE_FILES = ['houseSeats', 'houseStateMap', 'districtStvResults', 'houseSeatsTriple', 'districtStvResultsTriple',
+  'houseDepthNational', 'houseMmpNational', 'houseReserveNational', 'transferMatrix'] as const;
+type HouseFiles = {
+  houseSeats: ByStop<HouseSeat[]>; houseStateMap: ByStop<Record<string, HouseStateEntry>>;
+  districtStvResults: ByStop<Record<string, DistrictResult[]>>; houseSeatsTriple: ByStop<HouseSeat[]>;
+  districtStvResultsTriple: ByStop<Record<string, DistrictResult[]>>;
+  houseDepthNational: typeof BASE_DEPTH_NATIONAL; houseMmpNational: typeof BASE_MMP_NATIONAL;
+  houseReserveNational: ReserveNationalMap; transferMatrix: TransferMatrix;
+};
 
 // The district shape first, then the two counting rules the System toggle switches between.
 const HOUSE_RULES: Mechanism[] = [
@@ -165,19 +181,19 @@ type WyomingRule = 'double' | 'triple';
 
 // Population share by party code, stop-invariant. The pre-built houseSeats*.json bundles already
 // carry these as pctPopulation; the depth bundles carry no population field, so they read it here.
-const POP_SHARES = populationShares();
+const LP_SHARES = populationShares();
 
 /** National seat counts and their density-tier split, per ballot depth x Wyoming map x turnout
  *  stop. A 71 KB projection of housePartyList.json's national blocks, emitted by the same script
  *  in the same loop, so it cannot disagree with the 4.1 MB file it is drawn from. */
 type PartyCounts = Record<string, number>;
-const MMP_NATIONAL = mmpNational as unknown as Record<'double' | 'triple', Record<string, MmpNational>>;
+const BASE_MMP_NATIONAL = mmpNational as unknown as Record<'double' | 'triple', Record<string, MmpNational>>;
 
 type ReserveNationalMap = Record<string, Record<string, Record<string, ReserveNational>>>;
-const RESERVE_NATIONAL = reserveNational as unknown as ReserveNationalMap;
+const BASE_RESERVE_NATIONAL = reserveNational as unknown as ReserveNationalMap;
 
 type TierBlock = { urban: PartyCounts; suburban: PartyCounts; rural: PartyCounts };
-const DEPTH_NATIONAL = depthNational as unknown as Record<string, Record<string, Record<string, {
+const BASE_DEPTH_NATIONAL = depthNational as unknown as Record<string, Record<string, Record<string, {
   national: { stvSeats: PartyCounts; voteShare: PartyCounts };
   stvTiers: TierBlock;
   listTiers: TierBlock;
@@ -195,7 +211,14 @@ function tierBlockToHouseSeats(tiers: TierBlock): HouseSeat[] {
 }
 
 export function HouseTab({ seats, transfers, clusters, fptpStates, districtCountyMap, fdVariantAttraction, fdCandidatePositions, clusterSpreads, fdAttractionDrivers, stateMapTriple, districtCountyMapTriple, seatsTurnout, stateMapTurnout, districtResultsTurnout}: Props) {
-  const [scenario, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [scenarioSel, setScenario] = useUrlState<'rawMulti' | 'factorDev'>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  // With parties dissolved every payload below is that field's run (party-line only, no bootstrap).
+  const dz = useScenarioFiles<HouseFiles>(HOUSE_FILES);
+  const dzd = dz.on ? dz.data as HouseFiles : undefined;
+  const scenario = dzd ? 'rawMulti' : scenarioSel;
+  const MMP_NATIONAL = dzd?.houseMmpNational ?? BASE_MMP_NATIONAL;
+  const RESERVE_NATIONAL = dzd?.houseReserveNational ?? BASE_RESERVE_NATIONAL;
+  const DEPTH_NATIONAL = dzd?.houseDepthNational ?? BASE_DEPTH_NATIONAL;
   const [wyoming, setWyoming] = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   // Voting system: STV (default) vs a Sainte-Laguë party list on the same districts.
   const [system, setSystem] = useUrlState<'stv' | 'list' | 'mmp'>('system', 'stv', { allowed: ['stv', 'list', 'mmp'] });
@@ -211,46 +234,29 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   const [qcSort, setQcSort] = useUrlState<FlowSort>('qcsort', 'reliance', { allowed: [...FLOW_SORTS_COMPOSITION] });
   // Flow matrices across apportionment x depth x turnout. Fetched only when the deep-dive is
   // open, so a closed section costs nothing.
-  const [flowData, setFlowData] = useState<QuotaFlows | null>(null);
   const flowsOpen = useUrlState<string>('transfers', '', { allowed: ['', '1'] })[0] === '1';
-  useEffect(() => {
-    if (flowsOpen && !flowData) {
-      fetch(`${import.meta.env.BASE_URL}data/quotaFlows.json`)
-        .then(r => r.json()).then(setFlowData).catch(() => {});
-    }
-  }, [flowsOpen, flowData]);
+  const lazy = <T,>(name: string, file = name) => (dzd
+    ? () => loadScenario<T>(dz.key, file) : () => fetchJson<T>(`data/${file}.json`));
+  const lazyId = (name: string, want: boolean) => (want ? (dzd ? `${dz.key}/${name}` : name) : null);
+  const flowData = useLazyData<QuotaFlows>(lazyId('quotaFlows', flowsOpen), lazy('quotaFlows'));
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // The flow matrices follow the same three controls as the rest of the tab.
   const flowCfgKey = flowKey(depth, wyoming, part);
   // Party-list results are lazy-fetched (public static asset) only when the list flip is on.
-  const [plData, setPlData] = useState<Record<string, Record<string, Record<string, PLConfig>>> | null>(null);
-  const [mmpData, setMmpData] = useState<Record<string, Record<string, MmpConfig>> | null>(null);
-  const [reserveData, setReserveData] = useState<Record<string, Record<string, Record<string, ReserveConfig>>> | null>(null);
   const [reserve, setReserve] = useUrlState<'off' | 'on'>('reserve', 'off', { allowed: ['off', 'on'] });
-  useEffect(() => {
-    if (system === 'mmp' && !plData) {
-      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData).catch(() => {});
-    }
-    if (system === 'mmp' && !mmpData) {
-      fetch(`${import.meta.env.BASE_URL}data/houseMmp.json`).then(r => r.json()).then(setMmpData).catch(() => {});
-    }
-    if ((system === 'list' || scenario === 'rawMulti') && !plData) {
-      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData).catch(() => {});
-    }
-    if (reserve === 'on' && !reserveData) {
-      fetch(`${import.meta.env.BASE_URL}data/houseReserve.json`).then(r => r.json()).then(setReserveData).catch(() => {});
-    }
-    if (reserve === 'on' && !plData) {
-      fetch(`${import.meta.env.BASE_URL}data/housePartyList.json`).then(r => r.json()).then(setPlData).catch(() => {});
-    }
-  }, [system, scenario, plData, mmpData, reserve, reserveData]);
-  // Bill Simulator vote model, tracked across ballot depth × turnout (rank-7 default). Lazy bundle.
-  const [hvmDepth, setHvmDepth] = useState<Record<string, Record<string, VoteModelRow[]>> | null>(null);
-  useEffect(() => {
-    if (!hvmDepth) fetch(`${import.meta.env.BASE_URL}data/houseVoteModelDepth.json`).then(r => r.json()).then(setHvmDepth).catch(() => {});
-  }, [hvmDepth]);
+  // A dissolved field's two biggest bundles come split by depth: load the active depth, plus
+  // 'full' for the below-quota floor, and assemble them into the full-field bundle's shape.
+  const byDepth = <T,>(name: string) => () => Promise.all([depth, 'full'].map(dk => loadScenario<T>(dz.key, `${name}.${dk}`)))
+    .then(([a, f]) => ({ [depth]: a, full: f }) as Record<string, T>);
+  const plData = useLazyData<Record<string, Record<string, Record<string, PLConfig>>>>(
+    dzd ? `${dz.key}/housePartyList/${depth}` : (system === 'mmp' || system === 'list' || scenario === 'rawMulti' || reserve === 'on') ? 'housePartyList' : null,
+    dzd ? byDepth('housePartyList') : lazy('housePartyList'));
+  const mmpData = useLazyData<Record<string, Record<string, MmpConfig>>>(lazyId('houseMmp', system === 'mmp'), lazy('houseMmp'));
+  const reserveData = useLazyData<Record<string, Record<string, Record<string, ReserveConfig>>>>(
+    reserve !== 'on' ? null : dzd ? `${dz.key}/houseReserve/${depth}` : 'houseReserve',
+    dzd ? byDepth('houseReserve') : lazy('houseReserve'));
   const reserveConfig = reserveData?.[depth]?.[wyoming]?.[part];
   const reserveNat = RESERVE_NATIONAL?.[depth]?.[wyoming]?.[part];
   const mmpConfig = mmpData?.[wyoming]?.[part];
@@ -264,7 +270,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   );
   const mmpSeatsForChart = useMemo(
     () => seatMapToHouseSeats(MMP_NATIONAL[wyoming]?.[part]?.mmpSeats ?? {}),
-    [wyoming, part],
+    [MMP_NATIONAL, wyoming, part],
   );
   const depthEntry = DEPTH_NATIONAL[depth]?.[wyoming]?.[part];
   const listTierSeats = useMemo(
@@ -277,15 +283,15 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
   );
   // Compression stops [0,5,10,15,20,25,30] per scenario × Wyoming. Every cell now tracks the
   // slider: RawMulti/Crossover × double/triple.
-  const rmSeats    = [seatsTurnout, houseSeatsL5, houseSeatsL10, houseSeatsL15, houseSeatsL20, houseSeatsL25, houseSeatsL30][gi] as unknown as HouseSeat[];
-  const rmStateMap = [stateMapTurnout, houseStateMapL5, houseStateMapL10, houseStateMapL15, houseStateMapL20, houseStateMapL25, houseStateMapL30][gi] as unknown as Record<string, HouseStateEntry>;
-  const rmDistrict = [districtResultsTurnout, houseDistL5, houseDistL10, houseDistL15, houseDistL20, houseDistL25, houseDistL30][gi] as unknown as Record<string, DistrictResult[]>;
+  const rmSeats    = dzd?.houseSeats[part] ?? [seatsTurnout, houseSeatsL5, houseSeatsL10, houseSeatsL15, houseSeatsL20, houseSeatsL25, houseSeatsL30][gi] as unknown as HouseSeat[];
+  const rmStateMap = dzd?.houseStateMap[part] ?? [stateMapTurnout, houseStateMapL5, houseStateMapL10, houseStateMapL15, houseStateMapL20, houseStateMapL25, houseStateMapL30][gi] as unknown as Record<string, HouseStateEntry>;
+  const rmDistrict = dzd?.districtStvResults[part] ?? [districtResultsTurnout, houseDistL5, houseDistL10, houseDistL15, houseDistL20, houseDistL25, houseDistL30][gi] as unknown as Record<string, DistrictResult[]>;
   const fdSeatsGi        = [fdSeats0, fdSeats5, fdSeats10, fdSeats15, fdSeats20, fdSeats25, fdSeats30][gi] as unknown as FDHouseSeat[];
   const fdSeatsTripleGi  = [fdSeatsTri0, fdSeatsTri5, fdSeatsTri10, fdSeatsTri15, fdSeatsTri20, fdSeatsTri25, fdSeatsTri30][gi] as unknown as FDHouseSeat[];
-  const seatsTripleGi    = [seatsTri0, seatsTri5, seatsTri10, seatsTri15, seatsTri20, seatsTri25, seatsTri30][gi] as unknown as HouseSeat[];
+  const seatsTripleGi    = dzd?.houseSeatsTriple[part] ?? [seatsTri0, seatsTri5, seatsTri10, seatsTri15, seatsTri20, seatsTri25, seatsTri30][gi] as unknown as HouseSeat[];
   const fdDistrictGi       = [fdDist0, fdDist5, fdDist10, fdDist15, fdDist20, fdDist25, fdDist30][gi] as unknown as Record<string, DistrictResult[]>;
   const fdDistrictTripleGi = [fdDistTri0, fdDistTri5, fdDistTri10, fdDistTri15, fdDistTri20, fdDistTri25, fdDistTri30][gi] as unknown as Record<string, DistrictResult[]>;
-  const districtTripleGi   = [distTri0, distTri5, distTri10, distTri15, distTri20, distTri25, distTri30][gi] as unknown as Record<string, DistrictResult[]>;
+  const districtTripleGi   = dzd?.districtStvResultsTriple[part] ?? [distTri0, distTri5, distTri10, distTri15, distTri20, distTri25, distTri30][gi] as unknown as Record<string, DistrictResult[]>;
   // Sampling uncertainty at the active stop, map and depth. The default chamber (double, rank-7)
   // comes from the bundled uncertainty payloads and resolves at first paint; every other map and
   // depth has its own bootstrap in houseSeatRanges.json, fetched when the reader leaves the
@@ -297,12 +303,13 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       loadHouseRanges().then(setHouseRanges);
     }
   }, [houseRanges, wyoming, depth, reserve]);
-  const houseU = scenario === 'rawMulti' ? houseSeatsFor(houseRanges, gi, wyoming, depth) : undefined;
+  // No ranges for a dissolved field: its bootstrap would need its own re-clustered draws.
+  const houseU = scenario === 'rawMulti' && !dzd ? houseSeatsFor(houseRanges, gi, wyoming, depth) : undefined;
   // The party-list view has no Scenario control — the list is always allocated from the party-line
   // vote — so it must not inherit a stale `factorDev` from the STV view. Depth still binds: the
   // list is depth-invariant, but its STV comparison row's point estimate is not.
-  const houseUList = houseSeatsFor(houseRanges, gi, wyoming, depth);
-  const reserveU = houseSeatsFor(houseRanges, gi, houseMap(wyoming, true), depth);
+  const houseUList = dzd ? undefined : houseSeatsFor(houseRanges, gi, wyoming, depth);
+  const reserveU = dzd ? undefined : houseSeatsFor(houseRanges, gi, houseMap(wyoming, true), depth);
 
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => partyOrder().map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
@@ -380,7 +387,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     const cp = clusterByParty[party] ?? clusterByParty[party.split('_')[0]];
     return {
       id: party, label: party,
-      seats: c.seatsHouse ?? 0,
+      seats: dzSeatsByCode ? (dzSeatsByCode[party] ?? 0) : (c.seatsHouse ?? 0),
       F1: (cp?.z_F1 ?? 0),
       F2: (cp?.z_F2 ?? 0),
       F3: (cp?.z_F3 ?? 0),
@@ -412,16 +419,17 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
         // under. This held vote share until 2026-07-30 — a different quantity (Solidarity showed
         // 9.84 against a real 14.25). Vote share is now its own row in the range view, read from
         // the same populationShareRange payload as this. Do not restore.
-        pctPopulation: POP_SHARES[code]?.point ?? 0,
+        pctPopulation: LP_SHARES[code]?.point ?? 0,
       };
     }).filter(r => r.national > 0) as unknown as HouseSeat[];
-  }, [depth, scenario, wyoming, part]);
+  }, [depth, scenario, wyoming, part, DEPTH_NATIONAL]);
 
   // Per-state and per-district detail for the same run. This is the part that genuinely needs the
   // big payload, and it feeds the map and state table further down the page, where arriving a
   // moment late is not visible the way a swapped headline chart is.
   const stvDepthDetail = useMemo(() => {
-    if (depth === 'full' || scenario !== 'rawMulti') return null;
+    // A dissolved field has no full-ranking triple state map of its own, so it reads this one at every depth.
+    if ((depth === 'full' && !dzd) || scenario !== 'rawMulti') return null;
     const cfg = plData?.[depth]?.[wyoming]?.[part] as unknown as {
       national: { voteShare: Record<string, number> };
       byState: Record<string, { abbr: string; totalSeats: number; stvSeats: Record<string, number>; voteShare: Record<string, number> }>;
@@ -442,7 +450,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       stateMap[fips] = { stateAbbr: s.abbr, pluralityParty: plur, totalSeats: s.totalSeats, seats: s.stvSeats } as unknown as HouseStateEntry;
     }
     return { stateMap, districts };
-  }, [depth, scenario, plData, wyoming, part]);
+  }, [depth, scenario, plData, wyoming, part, dzd]);
 
   const activeSeats = useMemo(() => {
     if (stvDepthSeats) return stvDepthSeats;
@@ -518,6 +526,23 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
     .filter(s => s.code)
     .sort((a, b) => a.fVal - b.fVal);
 
+  // A dissolved field's chamber sizes the constellation's nodes; the full field's seats under the
+  // same settings feed the comparison bars (bundled national blocks, so nothing extra to load).
+  const dzSeatsByCode = dzd
+    ? Object.fromEntries(parliamentSeats.map(r => [CLUSTER_TO_PARTY[String(r.party)], r.national])) as Record<string, number>
+    : undefined;
+  const compare = useMemo((): DissolveCompare | null => {
+    if (!dzd) return null;
+    const nat = BASE_DEPTH_NATIONAL[depth]?.[wyoming]?.[part]?.national as { stvSeats: PartyCounts; listSeats?: PartyCounts } | undefined;
+    const res = BASE_RESERVE_NATIONAL[depth]?.[wyoming]?.[part];
+    const on = reserve === 'on';
+    return { dissolved: dz.dissolved, full: {
+      'STV': seatMapToHouseSeats((on ? res?.stv.seats : nat?.stvSeats) ?? {}),
+      'Party List': seatMapToHouseSeats((on ? res?.list.seats : nat?.listSeats) ?? {}),
+      'MMP': seatMapToHouseSeats(BASE_MMP_NATIONAL[wyoming]?.[part]?.mmpSeats ?? {}),
+    } };
+  }, [dzd, dz.dissolved, depth, wyoming, part, reserve]);
+
   // Built once and handed to whichever view is on screen, so the reader meets the same
   // card in the same slot under STV and party list.
   const chamberNode = (
@@ -567,16 +592,17 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
           return fdNodes.length > 0 ? fdNodes : [];
         }
         return clusters
-          .filter(c => c.seatsHouse > 0)
+          .filter(c => (dzSeatsByCode ? dzSeatsByCode[c.party] ?? 0 : c.seatsHouse) > 0)
           .map(c => clusterToNode(c));
       })()}
-      transfers={scenario === 'rawMulti' ? transfers : undefined}
+      transfers={scenario === 'rawMulti' ? (dzd?.transferMatrix ?? transfers) : undefined}
       clusterSpreads={clusterSpreads}
     />
   </Card>
   );
 
   return (
+    <DissolveCompareContext.Provider value={compare}>
     <div className="space-y-8">
       <div>
         <h2 className={`${PAGE_TITLE} mb-1`}>House of Representatives</h2>
@@ -594,7 +620,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
         )}
         <ToggleGroup label="System" value={system} onChange={setSystem}
           options={['stv', 'list', 'mmp'] as const} labels={HOUSE_SYSTEM_LABELS} />
-        {SHOW_CROSSOVER && system === 'stv' && (
+        {SHOW_CROSSOVER && system === 'stv' && !dzd && (
           <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
             options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />
         )}
@@ -603,6 +629,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
             options={[...DEPTH_KEYS]} labels={DEPTH_LABELS} />
         )}
         <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
+        <DissolveMenu status={dz.status} />
       </StickyControlBar>
 
       {reserve === 'on' && (system === 'list' || system === 'stv') && (reserveConfig
@@ -653,6 +680,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       <Card className="p-5">
         <FPTPvsSTV
           seats={activeSeats}
+          voteShare={scenario === 'rawMulti' ? depthEntry?.national.voteShare : undefined}
           systemLabel="STV"
           doubleSeats={rmSeats}
           wyoming={wyoming}
@@ -974,6 +1002,7 @@ export function HouseTab({ seats, transfers, clusters, fptpStates, districtCount
       )}
       </>)}
     </div>
+    </DissolveCompareContext.Provider>
   );
 }
 
@@ -1052,10 +1081,10 @@ function StvVotesVsSeatsChart({ activeSeats, fdSeats, scenario, wyoming, onWyomi
   const popShare = useMemo((): Record<string, number> | undefined => {
     if (!isNational) return undefined;
     const out: Record<string, number> = {};
-    for (const code of F5_ORDER) { const v = POP_SHARES[code]; if (v) out[code] = v.point ?? 0; }
+    for (const code of F5_ORDER) { const v = LP_SHARES[code]; if (v) out[code] = v.point ?? 0; }
     return Object.keys(out).length > 0 ? out : undefined;
   }, [isNational]);
-  const popIntervals = isNational && houseU ? POP_SHARES as Record<string, Span> : undefined;
+  const popIntervals = isNational && houseU ? LP_SHARES as Record<string, Span> : undefined;
 
   const systems = useMemo((): SystemEntry[] => {
     const entries: SystemEntry[] = [{

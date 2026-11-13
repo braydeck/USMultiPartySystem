@@ -1,6 +1,6 @@
 import { CLUSTER_TO_PARTY as CLUSTER_PARTY } from '../constants/parties';
 import { useUrlState } from '../hooks/useUrlState';
-import { useState, useEffect } from 'react';
+
 import type { VoteModelRow, CandidateVoteRow, PresidentialElection } from '../types';
 import { UnifiedBillTable } from '../components/legislation/UnifiedBillTable';
 import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
@@ -39,6 +39,9 @@ import senIrvL30 from '../data/pureMultiSenateIRVTurnoutL30.json';
 import fdSenateCondorcet from '../data/fdSenateCondorcet.json';
 import fdSenateIRV from '../data/fdSenateIRV.json';
 import { senateSeatMap } from '../components/legislation/voteBloc';
+import { useScenarioFiles, useLazyData, fetchJson } from '../hooks/useDissolve';
+import { loadScenario, type ByStop } from '../lib/dissolve';
+import { DissolveMenu } from '../components/shared/DissolveMenu';
 import { uncertaintyAt, type SeatInterval } from '../lib/uncertainty';
 import { delegationSeats } from '../lib/senateDelegations';
 import { ToggleGroup } from '../components/shared/ToggleGroup';
@@ -110,9 +113,24 @@ const RESERVE_NATIONAL = reserveNational as unknown as Record<string, Record<str
 
 const RESERVE_LABELS: Record<string, string> = { off: 'Off', on: 'On' };
 
+const LEGISLATION_FILES = ['houseVoteModel', 'senateVoteModel', 'pureMultiSenateCondorcet', 'pureMultiSenateIRV',
+  'rawMultiPresidentialElection', 'houseSeats', 'houseDepthNational', 'houseMmpNational', 'houseReserveNational'] as const;
+type LegislationFiles = {
+  houseVoteModel: ByStop<VoteModelRow[]>; senateVoteModel: ByStop<VoteModelRow[]>;
+  pureMultiSenateCondorcet: ByStop<{ senatorParty: string }[]>; pureMultiSenateIRV: ByStop<{ senatorParty: string }[]>;
+  rawMultiPresidentialElection: ByStop<PresidentialElection>; houseSeats: ByStop<{ party: number; national: number }[]>;
+  houseDepthNational: typeof DEPTH_NATIONAL; houseMmpNational: typeof MMP_NATIONAL; houseReserveNational: typeof RESERVE_NATIONAL;
+};
+
 export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElection,
                                  houseVotesTurnout, senateVotesTurnout, rawMultiElectionTurnout }: Props) {
-  const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [pipelineSel, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  // With parties dissolved every chamber, president and vote model below is that field's run
+  // (party-line only; no bootstrap, so the observed chambers stand in for the modal ones).
+  const dz = useScenarioFiles<LegislationFiles>(LEGISLATION_FILES);
+  const dzd = dz.on ? dz.data as LegislationFiles : undefined;
+  const pipeline: Pipeline = dzd ? 'rawMulti' : pipelineSel;
+  const stopsOf = <T,>(f: ByStop<T>) => GAP_STOPS.map(st => f[String(st)]);
   const [method,   setMethod]   = useUrlState<Method>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   const [wyoming,  setWyoming]  = useUrlState<WyomingRule>('wyoming', 'double', { allowed: ['double', 'triple'] });
   const [system,   setSystem]   = useUrlState<HouseSystem>('system', 'stv', { allowed: ['stv', 'list', 'mmp'] });
@@ -123,20 +141,19 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const isRawMulti = pipeline === 'rawMulti';
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
 
-  const [gd, setGd] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
-  useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/generalDepth.json`).then(r => r.json()).then(setGd).catch(() => {});
-  }, []);
-  const houseNat = DEPTH_NATIONAL[depth]?.[wyoming]?.[part]?.national;
-  const mmpNat = MMP_NATIONAL[wyoming]?.[part];
-  const reserveNat = RESERVE_NATIONAL[depth]?.[wyoming]?.[part];
+  const gd = useLazyData<Record<string, Record<string, PresidentialElection>>>(
+    dzd ? `${dz.key}/generalDepth` : 'generalDepth',
+    dzd ? () => loadScenario(dz.key, 'generalDepth') : () => fetchJson('data/generalDepth.json'));
+  const houseNat = (dzd?.houseDepthNational ?? DEPTH_NATIONAL)[depth]?.[wyoming]?.[part]?.national;
+  const mmpNat = (dzd?.houseMmpNational ?? MMP_NATIONAL)[wyoming]?.[part];
+  const reserveNat = (dzd?.houseReserveNational ?? RESERVE_NATIONAL)[depth]?.[wyoming]?.[part];
 
   // Arrays indexed by gap stop [0,5,10,15,20,25,30]: floor(Turnout) … stress ceiling.
-  const hStops = [houseVotesTurnout, houseVotesL5, houseVotesL10, houseVotesL15, houseVotesL20, houseVotesL25, houseVotesL30] as unknown as VoteModelRow[][];
-  const sStops = [senateVotesTurnout, senateVotesL5, senateVotesL10, senateVotesL15, senateVotesL20, senateVotesL25, senateVotesL30] as unknown as VoteModelRow[][];
-  const senCondStops = [pureMultiSenateCondorcetTurnout, senCondL5, senCondL10, senCondL15, senCondL20, senCondL25, senCondL30] as unknown as { senatorParty: string }[][];
-  const senIrvStops  = [pureMultiSenateIRVTurnout, senIrvL5, senIrvL10, senIrvL15, senIrvL20, senIrvL25, senIrvL30] as unknown as { senatorParty: string }[][];
-  const eStops = [rawMultiElectionTurnout, presL5, presL10, presL15, presL20, presL25, presL30] as unknown as PresidentialElection[];
+  const hStops = dzd ? stopsOf(dzd.houseVoteModel) : [houseVotesTurnout, houseVotesL5, houseVotesL10, houseVotesL15, houseVotesL20, houseVotesL25, houseVotesL30] as unknown as VoteModelRow[][];
+  const sStops = dzd ? stopsOf(dzd.senateVoteModel) : [senateVotesTurnout, senateVotesL5, senateVotesL10, senateVotesL15, senateVotesL20, senateVotesL25, senateVotesL30] as unknown as VoteModelRow[][];
+  const senCondStops = dzd ? stopsOf(dzd.pureMultiSenateCondorcet) : [pureMultiSenateCondorcetTurnout, senCondL5, senCondL10, senCondL15, senCondL20, senCondL25, senCondL30] as unknown as { senatorParty: string }[][];
+  const senIrvStops  = dzd ? stopsOf(dzd.pureMultiSenateIRV) : [pureMultiSenateIRVTurnout, senIrvL5, senIrvL10, senIrvL15, senIrvL20, senIrvL25, senIrvL30] as unknown as { senatorParty: string }[][];
+  const eStops = dzd ? stopsOf(dzd.rawMultiPresidentialElection) : [rawMultiElectionTurnout, presL5, presL10, presL15, presL20, presL25, presL30] as unknown as PresidentialElection[];
   // Every party-line stop file carries all four House columns, and the triple-Wyoming STV column is
   // computed from a fixed tree so it is identical in each — reading the stop file at triple costs
   // nothing there and is what makes the party-list column, which does move with turnout, available.
@@ -151,7 +168,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   // arithmetic must be the modal chamber too. Do not revert these to the committed per-state
   // JSONs — that puts the observed chamber on one side of the toggle and the modal one on the
   // other. Crossover has no bootstrap and keeps its own maps.
-  const unc = isRawMulti ? uncertaintyAt(gi) : undefined;
+  const unc = isRawMulti && !dzd ? uncertaintyAt(gi) : undefined;
 
   // House seat composition for the coalition seat-stack.
   // Reserve and MMP read from their bundled national data; STV/list from the depth bundle.
@@ -165,7 +182,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
     }
     if (system === 'list') return houseNat?.listSeats ?? {};
     if (useModal) return modalMap(unc!.house.seats);
-    if (isRawMulti) return houseNat?.stvSeats ?? toSeatMap(rmSeatStops[gi]);
+    if (isRawMulti) return houseNat?.stvSeats ?? toSeatMap(dzd ? dzd.houseSeats[part] : rmSeatStops[gi]);
     return toSeatMap((wyoming === 'triple' ? fdHouseSeatsTripleTurnout : fdHouseSeatsTurnout) as unknown as { party: number; national: number }[]);
   })();
 
@@ -204,7 +221,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           <ToggleGroup label="Reserve" value={reserve} onChange={setReserve}
             options={['off', 'on'] as const} labels={RESERVE_LABELS} />
         )}
-        {SHOW_CROSSOVER && system === 'stv' && (
+        {SHOW_CROSSOVER && system === 'stv' && !dzd && (
           <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
             options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />
         )}
@@ -213,6 +230,7 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
         <ToggleGroup label="Vote Model" value={voteModel} onChange={setVoteModel}
           options={['free', 'whipped'] as const} labels={VOTE_MODEL_LABELS} />
         <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
+        <DissolveMenu status={dz.status} />
       </StickyControlBar>
 
       <LegislationDivergences

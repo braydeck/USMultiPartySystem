@@ -12,7 +12,8 @@ import { submitQuizResult, submitVibe, answersToVariableMap, track } from '../ut
 import { PAGE_TITLE, CARD_HINT } from '../constants/typography';
 
 // LIB and DAL have no successor in the nine-party typology, so their old share links open the quiz.
-const RESULT_ALIASES = {};
+// POP was renamed LP (Libertarian), so its old share links land on LP.
+const RESULT_ALIASES = { POP: 'LP' };
 
 interface Props {
   questions: QuizQuestionType[];

@@ -1,4 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { useDissolved, useLazyData, fetchJson } from '../../hooks/useDissolve';
+import { dissolveKey, loadScenario } from '../../lib/dissolve';
 import { useUrlState } from '../../hooks/useUrlState';
 import { DEPTH_KEYS, type DepthKey } from '../../constants/depth';
 import { F5_ORDER, PARTY_NAMES } from '../../constants/parties';
@@ -40,7 +42,11 @@ export function RepresentedByChoice() {
   const [wyoming] = useUrlState<'double' | 'triple'>('wyoming', 'double', { allowed: ['double', 'triple'] });
   const [part] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const [reserve] = useUrlState<'off' | 'on'>('reserve', 'off', { allowed: ['off', 'on'] });
-  const [data, setData] = useState<RepByRank | null>(null);
+  // A dissolved field reads its own run of the same payload.
+  const [dissolved] = useDissolved();
+  const key = dissolveKey(dissolved);
+  const data = useLazyData<RepByRank>(key ? `rep:${key}` : 'rep:base',
+    () => (key ? loadScenario<RepByRank>(key, 'houseRepByRank') : fetchJson<RepByRank>('data/houseRepByRank.json')));
   const [tip, setTip] = useState<Tip | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const tipRef = useRef<HTMLDivElement>(null);
@@ -52,9 +58,6 @@ export function RepresentedByChoice() {
     el.style.left = `${Math.max(0, Math.min(tip.x + 12, box.clientWidth - el.offsetWidth))}px`;
   }, [tip]);
 
-  useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/houseRepByRank.json`).then(r => r.json()).then(setData).catch(() => {});
-  }, []);
 
   const stv = data?.stv[depth]?.[wyoming]?.[part]?.[reserve];
   const list = data?.list[wyoming]?.[part]?.[reserve];

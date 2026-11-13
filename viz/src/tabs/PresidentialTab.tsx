@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useUrlState } from '../hooks/useUrlState';
 import { DEPTH_KEYS, type DepthKey } from '../constants/depth';
 import type { PresidentialElection, PresidentialScenario, ClusterProfile, VoteModelRow, FDCandidateProfile, HouseStateEntry, TopTwoBundle } from '../types';
@@ -44,6 +44,11 @@ import { PAGE_TITLE, SECTION_HEADING, CARD_HEADING, GROUP_LABEL, FIELD_LABEL, CA
 import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
 import { SYSTEM_COLORS } from '../constants/parties';
 import { SIGNAL } from '../lib/bam';
+import { useScenarioFiles, useLazyData, fetchJson } from '../hooks/useDissolve';
+import { loadScenario, type ByStop } from '../lib/dissolve';
+import { DissolveMenu } from '../components/shared/DissolveMenu';
+
+const GENERAL_FILES = ['rawMultiPresidentialElection'] as const;
 
 interface Props {
   factorDev: PresidentialElection;
@@ -127,11 +132,15 @@ function PresCell({ signs, partyCode }: { signs: string | undefined; partyCode: 
 export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
                                   clusters, senateVotes, houseStateMap,
                                   controlBarExtra }: Props) {
-  const [scenario, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [scenarioSel, setScenario] = useUrlState<PresidentialScenario>('scenario', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  // With parties dissolved every payload below is that field's run (party-line only, no bootstrap).
+  const dz = useScenarioFiles<{ rawMultiPresidentialElection: ByStop<PresidentialElection> }>(GENERAL_FILES);
+  const dzd = dz.on ? dz.data.rawMultiPresidentialElection : undefined;
+  const scenario: PresidentialScenario = dzd ? 'rawMulti' : scenarioSel;
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
-  const rmStops = [rawMultiTurnout, presTL5, presTL10, presTL15, presTL20, presTL25, presTL30] as unknown as PresidentialElection[];
+  const rmStops = dzd ? GAP_STOPS.map(st => dzd[String(st)]) : [rawMultiTurnout, presTL5, presTL10, presTL15, presTL20, presTL25, presTL30] as unknown as PresidentialElection[];
   // The general is a 5-finalist IRV/Condorcet contest — voters rank all 5, so there is no ballot-
   // depth toggle here. But WHICH 5 finalists advance depends on the primary's depth setting (shared
   // with the Primary view via the 'depth' URL param), so the general reads the depth-N finalists.
@@ -140,21 +149,13 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
   // ballots — Crossover (Factor Dev) has no uncertainty payload, and the bootstrap ran only the
   // top7 depth, so at any other depth the distribution describes a different finalist field and
   // a different president than the one on screen. Same gate HouseTab uses for its whiskers.
-  const ud = scenario === 'rawMulti' && depth === 'top7' ? uncertaintyAt(gi) : undefined;
+  const ud = scenario === 'rawMulti' && depth === 'top7' && !dzd ? uncertaintyAt(gi) : undefined;
   // Top-two per-state splits, lazily loaded like generalDepth: a state's payload carries only
   // first-choice shares, so whether a voter ranked one finalist above another comes from here.
-  const [topTwo, setTopTwo] = useState<TopTwoBundle | null>(null);
-  useEffect(() => {
-    if (!topTwo) {
-      fetch(`${import.meta.env.BASE_URL}data/topTwo.json`).then(r => r.json()).then(setTopTwo).catch(() => {});
-    }
-  }, [topTwo]);
-  const [depthBundle, setDepthBundle] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
-  useEffect(() => {
-    if (depth !== 'full' && !depthBundle) {
-      fetch(`${import.meta.env.BASE_URL}data/generalDepth.json`).then(r => r.json()).then(setDepthBundle).catch(() => {});
-    }
-  }, [depth, depthBundle]);
+  const lazy = <T,>(name: string) => (dzd ? () => loadScenario<T>(dz.key, name) : () => fetchJson<T>(`data/${name}.json`));
+  const topTwo = useLazyData<TopTwoBundle>(dzd ? `${dz.key}/topTwo` : 'topTwo', lazy('topTwo'));
+  const depthBundle = useLazyData<Record<string, Record<string, PresidentialElection>>>(
+    depth === 'full' ? null : dzd ? `${dz.key}/generalDepth` : 'generalDepth', lazy('generalDepth'));
   const gd = (scenario === 'rawMulti' && depth !== 'full') ? depthBundle?.[depth]?.[part] : null;
   const rm = scenario !== 'rawMulti' ? rawMulti : (gd ?? rmStops[gi]);
   const data = scenario === 'rawMulti' ? rm : factorDev;
@@ -290,13 +291,14 @@ export function PresidentialTab({ factorDev, rawMulti, rawMultiTurnout,
 
       <StickyControlBar label="Presidency settings">
         {controlBarExtra}
-        {SHOW_CROSSOVER && (
+        {SHOW_CROSSOVER && !dzd && (
           <ToggleGroup label="Scenario" value={scenario} onChange={setScenario}
             options={PIPELINE_OPTIONS} labels={PRES_LABELS} />
         )}
         {scenario === 'rawMulti' && (
           <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
         )}
+        <DissolveMenu status={dz.status} />
       </StickyControlBar>
 
       {/* Presidential Outcomes — scenario-dependent */}

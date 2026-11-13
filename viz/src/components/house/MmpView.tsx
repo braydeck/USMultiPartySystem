@@ -231,6 +231,7 @@ export function MmpView({ config, national, wyoming, onWyomingChange, doubleConf
       <Card className="p-5">
         <FPTPvsSTV
           seats={mmpSeats}
+          voteShare={nat.voteShare}
           systemLabel="MMP"
           doubleSeats={doubleMmpSeats}
           wyoming={wyoming}

@@ -28,7 +28,7 @@ CLUSTER_TO_PARTY = {str(k): p for k, p in PARTY_BY_CLUSTER.items()}
 
 PARTY_NAMES = {
     "CON": "Conservative", "LBR": "Labor", "STY": "Solidarity",
-    "NAT": "Nationalist", "DAL": "Democratic Alliance", "POP": "Populist",
+    "NAT": "Nationalist", "DAL": "Democratic Alliance", "LP": "Libertarian",
     "CUP": "Civic Union", "OAO": "Order and Opportunity",
     "DSA": "Democratic Socialists", "PRG": "Progressive",
 }
@@ -2439,7 +2439,8 @@ def build_senate_condorcet(src_dir=None, out_name="senateCondorcet.json"):
             continue
         a_votes = float(r.get("votes_a_beats_b", 0))
         b_votes = float(r.get("votes_b_beats_a", 0))
-        margin  = float(r.get("margin_pct", 0))
+        # margin_pct is the winner's margin, always positive; sign it from A's side.
+        margin  = float(r.get("margin_pct", 0)) * (1 if a_votes >= b_votes else -1)
         # Normalize so party pair key is always alphabetically ordered
         if pa > pb:
             pa, pb = pb, pa
@@ -2656,6 +2657,26 @@ def build_fd_district_stv_results(src_dir=FD_DIR, out_name="fdDistrictStvResults
     write_json(by_state, out_name)
 
 
+def _district_counties(suffix: str) -> dict:
+    """district_id → county FIPS5 list. A county the map cuts into ZIP-area pieces is listed under
+    every district holding a piece of it, not only the one its county row names."""
+    base = Path(__file__).parent.parent.parent / "data" / "processed"
+    result: dict = {}
+    for r in read_csv(base / f"county_to_district{suffix}.csv"):
+        if str(r.get("split", "0")) == "1":
+            continue
+        result.setdefault(r["district_id"], []).append(str(r["county_fips5"]).zfill(5))
+    split_path = base / f"county_split_zcta{suffix}.csv"
+    if split_path.exists():
+        seen = set()
+        for r in read_csv(split_path):
+            key = (r["district_id"], str(r["county_fips5"]).zfill(5))
+            if key not in seen:
+                seen.add(key)
+                result.setdefault(key[0], []).append(key[1])
+    return result
+
+
 def build_district_county_map():
     """Map each district_id to its list of county FIPS5 strings."""
     path = Path(__file__).parent.parent.parent / "data" / "processed" / "county_to_district.csv"
@@ -2663,13 +2684,7 @@ def build_district_county_map():
         print(f"  Skipping districtCountyMap (not found: {path})")
         write_json({}, "districtCountyMap.json")
         return
-    rows = read_csv(path)
-    result: dict = {}
-    for r in rows:
-        did   = r["district_id"]
-        fips5 = str(r["county_fips5"]).zfill(5)
-        result.setdefault(did, []).append(fips5)
-    write_json(result, "districtCountyMap.json")
+    write_json(_district_counties(""), "districtCountyMap.json")
 
 
 def build_county_tiers():
@@ -2890,13 +2905,7 @@ def build_district_county_map_triple():
         print(f"  Skipping districtCountyMapTriple (not found: {path})")
         write_json({}, "districtCountyMapTriple.json")
         return
-    rows = read_csv(path)
-    result: dict = {}
-    for r in rows:
-        did   = r["district_id"]
-        fips5 = str(r["county_fips5"]).zfill(5)
-        result.setdefault(did, []).append(fips5)
-    write_json(result, "districtCountyMapTriple.json")
+    write_json(_district_counties("_triple"), "districtCountyMapTriple.json")
 
 
 def _national_pop_shares_10() -> dict:

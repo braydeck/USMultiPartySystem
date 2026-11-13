@@ -3,11 +3,11 @@ import { delegations, delegationSeats, SPLIT_THRESHOLD_PP } from '../../lib/sena
 import { Card } from '@/components/ui/card';
 import type { FDSenateSeat } from '../../types';
 import { PARTY_COLORS, PARTY_NAMES, F5_ORDER, getContrastText } from '../../constants/parties';
-import { BAR_HEIGHT, LABEL_MIN_WIDTH } from '../house/FPTPvsSTV';
+import { BAR_HEIGHT, LABEL_MIN_WIDTH, TODAY_BAR_HEIGHT, DEM_COLOR, GOP_COLOR } from '../house/FPTPvsSTV';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import type { MethodUncertainty } from '../../lib/uncertainty';
 import { CARD_HEADING, FOOTNOTE } from '../../constants/typography';
-import { MajorityMark } from '../shared/MajorityMark';
+import { MajorityMark, MajorityLine } from '../shared/MajorityMark';
 
 // Shared "FPTP Today vs Preferential Senate" composition card, used by both the Senate tab
 // and the Overview summary so the two charts are identical. Condorcet/IRV model one winner
@@ -39,6 +39,7 @@ function SenateCompBar({ label, seats, segments, total: totalOverride, multiplie
       </div>
       <div className="relative">
         <MajorityMark />
+        <MajorityLine />
         <div className="flex rounded-lg overflow-hidden" style={{ height: BAR_HEIGHT }}>
           {segs.map(({ party, n, color }) => {
             const pct = (n / total) * 100;
@@ -60,94 +61,111 @@ function SenateCompBar({ label, seats, segments, total: totalOverride, multiplie
   );
 }
 
-export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
-  condSeats: FDSenateSeat[];
-  irvSeats: FDSenateSeat[];
-  condU?: MethodUncertainty;
-  irvU?: MethodUncertainty;
+// 2025 Senate: 47 Democrats (independents who caucus with them included) and 53 Republicans.
+const TODAY_SENATE = { DEM: 47, GOP: 53 };
+
+/** Today's Senate at the height of the House card's two-party reference bar, so the two cards match. */
+function TodaySenateBar() {
+  const { DEM: dem, GOP: gop } = TODAY_SENATE, total = dem + gop;
+  return (
+    <div>
+      <div className="flex items-baseline gap-1.5 mb-1">
+        <span className="text-xs font-semibold text-foreground">Today's Senate</span>
+        <span className="text-xs text-muted-foreground">· {total} seats</span>
+      </div>
+      <div className="relative">
+        <MajorityMark />
+        <MajorityLine />
+        <div className="flex rounded-md overflow-hidden" style={{ height: TODAY_BAR_HEIGHT }}>
+          <div className="flex items-center justify-center" title={`Democrats: ${dem} seats`}
+            style={{ width: `${dem}%`, backgroundColor: DEM_COLOR }}>
+            <span className="text-white text-xs font-bold">Dem {dem} ({dem}%)</span>
+          </div>
+          <div className="flex items-center justify-center" title={`Republicans: ${gop} seats`}
+            style={{ width: `${gop}%`, backgroundColor: GOP_COLOR }}>
+            <span className="text-white text-xs font-bold">Rep {gop} ({gop}%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Seats per party on the 102 basis, with the split rule where resampling exists: a state whose
+ *  winner changes from sample to sample sends one senator of each party, because its two seats are
+ *  decided by two electorates six years apart. Elsewhere the single modelled winner, doubled. */
+function chamber(seats: FDSenateSeat[], u?: MethodUncertainty): { counts: Record<string, number>; total: number; split: number } {
+  if (u) {
+    const d = delegationSeats(u.states);
+    return { counts: d, total: Object.values(d).reduce((a, b) => a + b, 0),
+      split: delegations(u.states).filter(x => x.split).length };
+  }
+  const c: Record<string, number> = {};
+  for (const s of seats) {
+    const p = s.senatorParty ?? s.senatorCode.split('_')[0];
+    c[p] = (c[p] ?? 0) + 2;
+  }
+  return { counts: c, total: seats.length * 2, split: 0 };
+}
+
+interface ChamberInput { condSeats: FDSenateSeat[]; irvSeats: FDSenateSeat[]; condU?: MethodUncertainty; irvU?: MethodUncertainty }
+
+/** With `fullField`, the bars compare the full field against the dissolved one (`dissolved` names
+ *  the parties out) under each method, in place of today's FPTP chamber. */
+export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU, fullField, dissolved }: ChamberInput & {
+  fullField?: ChamberInput;
+  dissolved?: string[];
 }) {
   const [rootRef, rootWidth] = useElementWidth<HTMLDivElement>();
 
-  // Per-party seat counts under each preferential method, for the composition legend.
-  const stats = useMemo(() => {
-    const tally = (seats: FDSenateSeat[]) => {
-      const c: Record<string, number> = {};
-      for (const s of seats) {
-        const p = s.senatorParty ?? s.senatorCode.split('_')[0];
-        c[p] = (c[p] ?? 0) + 1;
-      }
-      return c;
-    };
-    // Where the resampling exists, seats come from it via the split rule: a state whose
-    // winner changes from sample to sample sends one senator of each party, because its
-    // two seats are decided by two electorates six years apart. Elsewhere fall back to
-    // the single modelled winner, doubled.
-    const condDeleg = condU ? delegationSeats(condU.states) : undefined;
-    const irvDeleg = irvU ? delegationSeats(irvU.states) : undefined;
-    const cond: Record<string, number> = condDeleg
-      ? Object.fromEntries(Object.entries(condDeleg).map(([p, n]) => [p, n / 2]))
-      : tally(condSeats);
-    const irv: Record<string, number> = irvDeleg
-      ? Object.fromEntries(Object.entries(irvDeleg).map(([p, n]) => [p, n / 2]))
-      : tally(irvSeats);
-    const parties = F5_ORDER.filter(p => (cond[p] ?? 0) > 0 || (irv[p] ?? 0) > 0);
-    // Each bar's total comes from the same data as its segments, so the label can never
-    // disagree with what the bar actually draws.
-    return {
-      // ×2: model gives one winner per state; each fills both of the state's seats.
-      rows: parties.map(p => ({ party: p, cond: (cond[p] ?? 0) * 2, irv: (irv[p] ?? 0) * 2 })),
-      condTotal: condDeleg ? Object.values(condDeleg).reduce((a, b) => a + b, 0) : condSeats.length * 2,
-      irvTotal: irvDeleg ? Object.values(irvDeleg).reduce((a, b) => a + b, 0) : irvSeats.length * 2,
-      condSplit: condU ? delegations(condU.states).filter(d => d.split).length : 0,
-      irvSplit: irvU ? delegations(irvU.states).filter(d => d.split).length : 0,
-    };
-  }, [condSeats, irvSeats, condU, irvU]);
-
-  // Parties whose sliver is too narrow for its inline label in either bar — same rule as the
-  // House card's legend, so a party present under one method but not the other (e.g. a party
-  // that wins under Condorcet but not IRV) still surfaces with an explicit 0 on the missing side.
-  const smallParties = useMemo(() => {
-    if (!rootWidth) return new Set<string>();
-    const condTotal = stats.rows.reduce((s, r) => s + r.cond, 0);
-    const irvTotal = stats.rows.reduce((s, r) => s + r.irv, 0);
-    const set = new Set<string>();
-    for (const r of stats.rows) {
-      if (r.cond > 0 && condTotal && (r.cond / condTotal) * rootWidth < LABEL_MIN_WIDTH) set.add(r.party);
-      if (r.irv > 0 && irvTotal && (r.irv / irvTotal) * rootWidth < LABEL_MIN_WIDTH) set.add(r.party);
+  const bars = useMemo(() => {
+    const cond = chamber(condSeats, condU), irv = chamber(irvSeats, irvU);
+    if (fullField && dissolved?.length) {
+      const fc = chamber(fullField.condSeats, fullField.condU), fi = chamber(fullField.irvSeats, fullField.irvU);
+      const tag = `without ${dissolved.join(', ')}`;
+      return [
+        { label: 'Condorcet · full field', ...fc }, { label: `Condorcet · ${tag}`, ...cond },
+        { label: 'IRV · full field', ...fi }, { label: `IRV · ${tag}`, ...irv },
+      ];
     }
-    return set;
-  }, [stats, rootWidth]);
-  const shownRows = stats.rows.filter(r => smallParties.has(r.party));
+    return [{ label: 'Condorcet ×2', ...cond }, { label: 'IRV ×2', ...irv }];
+  }, [condSeats, irvSeats, condU, irvU, fullField, dissolved]);
+  const comparing = bars.length === 4;
+
+  // Parties whose sliver is too narrow for its inline label in any bar, listed below with their
+  // count in every bar (an explicit 0 where a bar lacks them).
+  const shownRows = useMemo(() => {
+    if (!rootWidth) return [];
+    const small = new Set<string>();
+    for (const b of bars) for (const [p, n] of Object.entries(b.counts)) {
+      if (n > 0 && b.total && (n / b.total) * rootWidth < LABEL_MIN_WIDTH) small.add(p);
+    }
+    return F5_ORDER.filter(p => small.has(p));
+  }, [bars, rootWidth]);
 
   return (
     <Card ref={rootRef} className="p-5 space-y-3">
       <h4 className={`${CARD_HEADING} mb-1`}>
-        FPTP Today vs Preferential Senate
+        {comparing ? 'Full Field vs Dissolved Senate' : 'FPTP Today vs Preferential Senate'}
       </h4>
-      {/* FPTP Today */}
-      <SenateCompBar label="FPTP Today" segments={[
-        { party: 'DEM', n: 47, color: '#1d4ed8' },
-        { party: 'GOP', n: 53, color: '#dc2626' },
-      ]} total={100} />
-      {/* Condorcet + IRV, doubled to a full chamber */}
-      <SenateCompBar label="Condorcet ×2" total={stats.condTotal}
-        segments={stats.rows.filter(r => r.cond > 0)
-          .map(r => ({ party: r.party, n: r.cond, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
-      <SenateCompBar label="IRV ×2" total={stats.irvTotal}
-        segments={stats.rows.filter(r => r.irv > 0)
-          .map(r => ({ party: r.party, n: r.irv, color: PARTY_COLORS[r.party] ?? '#6b7280' }))} />
+      {!comparing && <TodaySenateBar />}
+      {bars.map(b => (
+        <SenateCompBar key={b.label} label={b.label} total={b.total}
+          segments={F5_ORDER.filter(p => (b.counts[p] ?? 0) > 0)
+            .map(p => ({ party: p, n: b.counts[p], color: PARTY_COLORS[p] ?? '#6b7280' }))} />
+      ))}
 
       {/* Legend — a combined row per party, shown only for slivers too narrow for their inline
           label; a plainly legible bar segment doesn't need restating below. */}
       {shownRows.length > 0 && (
         <div className="space-y-1 pt-2 border-t border-border/50">
-          <div className="text-xs font-semibold text-foreground">Condorcet / IRV</div>
+          <div className="text-xs font-semibold text-foreground">{comparing ? 'Condorcet full / dissolved · IRV full / dissolved' : 'Condorcet / IRV'}</div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            {shownRows.map(r => (
-              <span key={r.party} className="flex items-center gap-1.5" title={PARTY_NAMES[r.party] ?? r.party}>
-                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[r.party] ?? '#6b7280' }} />
-                <span className="text-xs text-foreground font-semibold">{r.party}</span>
-                <span className="text-xs text-muted-foreground">{r.cond}/{r.irv}</span>
+            {shownRows.map(p => (
+              <span key={p} className="flex items-center gap-1.5" title={PARTY_NAMES[p] ?? p}>
+                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: PARTY_COLORS[p] ?? '#6b7280' }} />
+                <span className="text-xs text-foreground font-semibold">{p}</span>
+                <span className="text-xs text-muted-foreground">{bars.map(b => b.counts[p] ?? 0).join('/')}</span>
               </span>
             ))}
           </div>
@@ -155,9 +173,11 @@ export function SenateCompositionCard({ condSeats, irvSeats, condU, irvU }: {
       )}
 
       <p className={FOOTNOTE}>
-        Two seats per state, {stats.condTotal} in all. A state splits its delegation when its
-        top two parties finish within {SPLIT_THRESHOLD_PP} points across resamples
-        {stats.condSplit > 0 && `: ${stats.condSplit} under Condorcet, ${stats.irvSplit} under IRV`}.
+        Two seats per state, {bars[0].total} in all.{' '}
+        {comparing
+          ? `In the full field a state splits its delegation when its top two parties finish within ${SPLIT_THRESHOLD_PP} points across resamples; with parties dissolved, each state's winner holds both seats.`
+          : <>A state splits its delegation when its top two parties finish within {SPLIT_THRESHOLD_PP} points across resamples
+            {bars[0].split > 0 && `: ${bars[0].split} under Condorcet, ${bars[1].split} under IRV`}.</>}
       </p>
     </Card>
   );

@@ -137,9 +137,9 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
 
     // Expand domain to fit penumbra extents in percentile space
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
-      const POP_SD_D: Record<string, number> = factorPopulationSd;
+      const LP_SD_D: Record<string, number> = factorPopulationSd;
       const r2plot = (raw: number, f: string) => {
-        const z = raw / (POP_SD_D[f] || 1);
+        const z = raw / (LP_SD_D[f] || 1);
         return scaleMode === 'percentile' ? zToPctile(z) : z;
       };
       for (const cs of clusterSpreads) {
@@ -306,9 +306,9 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
     if (clusterSpreads && xFactor !== 'seats' && yFactor !== 'seats') {
       const penumbraG = svg.append('g').attr('class', 'penumbra').attr('clip-path', `url(#${clipId})`);
       // Population stats for raw→z conversion
-      const POP_SD_P: Record<string, number> = factorPopulationSd;
+      const LP_SD_P: Record<string, number> = factorPopulationSd;
       const rawToPlot = (raw: number, f: string) => {
-        const z = raw / (POP_SD_P[f] || 1);
+        const z = raw / (LP_SD_P[f] || 1);
         return scaleMode === 'percentile' ? zToPctile(z) : z;
       };
       for (const cs of clusterSpreads) {
@@ -322,10 +322,10 @@ export function IdeologicalConstellation({ nodes: inputNodes, transfers, cluster
         const rawSdy = Number(cs[`sd_${yFactor}`] ?? 0);
         const sdx = scaleMode === 'percentile'
           ? Math.abs(rawToPlot(rawMx + rawSdx, xFactor) - mx)
-          : rawSdx / (POP_SD_P[xFactor] || 1);
+          : rawSdx / (LP_SD_P[xFactor] || 1);
         const sdy = scaleMode === 'percentile'
           ? Math.abs(rawToPlot(rawMy + rawSdy, yFactor) - my)
-          : rawSdy / (POP_SD_P[yFactor] || 1);
+          : rawSdy / (LP_SD_P[yFactor] || 1);
         if (!sdx || !sdy || isNaN(sdx) || isNaN(sdy)) continue;
 
         const covKey = `cov_${xFactor}_${yFactor}`;

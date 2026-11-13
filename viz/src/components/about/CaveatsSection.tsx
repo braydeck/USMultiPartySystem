@@ -454,8 +454,8 @@ export function CaveatsSection() {
                 A race can be unstable without either party being weak
               </div>
               <p className={`${BODY_PROSE} mb-3`}>
-                Wyoming under IRV. Conservative and Populist win almost the same share of the draws in
-                which they reach the final round. What separates them is getting there, and Populist won
+                Wyoming under IRV. Conservative and Libertarian win almost the same share of the draws in
+                which they reach the final round. What separates them is getting there, and Libertarian won
                 the observed sample by surviving that far.
               </p>
               <div className="rounded-lg border border-border p-3 mb-5">
@@ -466,7 +466,7 @@ export function CaveatsSection() {
                 ].map(row => (
                   <div key={row.k} className="grid grid-cols-[9.5rem_1fr_1fr] items-center gap-3 py-1">
                     <span className="text-xs text-muted-foreground leading-snug">{row.l}</span>
-                    {['CON', 'POP'].map(p => (
+                    {['CON', 'LP'].map(p => (
                       <span key={p} className="inline-flex items-center gap-2">
                         <span className="text-2xs font-semibold w-16 shrink-0" style={{ color: partyColor(p) }}>
                           {PARTY_NAMES[p]}

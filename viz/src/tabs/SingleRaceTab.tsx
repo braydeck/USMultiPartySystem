@@ -182,7 +182,7 @@ function SingleRace({ meta: rawMeta, voters }: { meta: SRMeta; voters: SRVoters 
   }, [office, scenarios, engine, meta, shift]);
 
   const addScenario = () => {
-    setScenarios([...scenarios, { a: scenarios[0]?.a ?? 'STY', b: 'POP' }]);
+    setScenarios([...scenarios, { a: scenarios[0]?.a ?? 'STY', b: 'LP' }]);
   };
   const removeScenario = (i: number) => setScenarios(scenarios.filter((_, idx) => idx !== i));
   const setA = (i: number, code: string) => setScenarios(scenarios.map((s, idx) => idx === i ? { ...s, a: code } : s));

@@ -78,6 +78,15 @@ import { VariantImpactChart } from '../components/house/VariantImpactChart';
 import { VariantAttractionChart } from '../components/house/VariantAttractionChart';
 import { AttractionDriverChart } from '../components/house/AttractionDriverChart';
 import { uncertaintyAt } from '../lib/uncertainty';
+import { useScenarioFiles } from '../hooks/useDissolve';
+import { DissolveMenu } from '../components/shared/DissolveMenu';
+import type { ByStop } from '../lib/dissolve';
+
+const SENATE_FILES = ['pureMultiSenateCondorcet', 'pureMultiSenateIRV', 'senateIrvRounds', 'senateCondorcet', 'senateBuckets'] as const;
+type SenateFiles = {
+  pureMultiSenateCondorcet: ByStop<FDSenateSeat[]>; pureMultiSenateIRV: ByStop<FDSenateSeat[]>;
+  senateIrvRounds: ByStop<SenateIrvRoundsData>; senateCondorcet: ByStop<unknown>; senateBuckets: ByStop<SenateWinnowData>;
+};
 import { delegationSeats } from '../lib/senateDelegations';
 import { PAGE_TITLE, CARD_HEADING, FIELD_LABEL, CARD_HINT } from '../constants/typography';
 import { MechanismStrip, type Mechanism } from '../components/shared/MechanismStrip';
@@ -127,7 +136,11 @@ const fdIrvStops  = [fdSenIrv0, fdSenIrv5, fdSenIrv10, fdSenIrv15, fdSenIrv20, f
 export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
                              clusters, fdProfiles, clusterSpreads,
                              fdVariantAttraction, fdAttractionDrivers }: Props) {
-  const [pipeline, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [pipelineSel, setPipeline] = useUrlState<'factorDev' | 'rawMulti'>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  // Dissolved fields are party-line runs: with parties dissolved the page reads those files.
+  const dz = useScenarioFiles<SenateFiles>(SENATE_FILES);
+  const dzd = dz.on ? dz.data as SenateFiles : undefined;
+  const pipeline = dzd ? 'rawMulti' : pipelineSel;
   const [method, setMethod] = useUrlState<'condorcet' | 'irv'>('method', 'condorcet', { allowed: ['condorcet', 'irv'] });
   // Participation: gap-compression stop (0 = observed 2024 turnout … 100 = full parity).
   const [part, setPart] = useUrlState<string>('part', String(DEFAULT_GAP_STOP), { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
@@ -146,19 +159,27 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
   const rmIrvStops = useMemo(
     () => [irvRawMultiTurnout, senIrvL5, senIrvL10, senIrvL15, senIrvL20, senIrvL25, senIrvL30] as unknown as FDSenateSeat[][],
     [irvRawMultiTurnout]);
-  const condRM = (rawMultiOn ? rmCondStops : fdCondStops)[gi];
-  const irvRM  = (rawMultiOn ? rmIrvStops  : fdIrvStops )[gi];
+  const condBase = (rawMultiOn ? rmCondStops : fdCondStops)[gi];
+  const irvBase  = (rawMultiOn ? rmIrvStops  : fdIrvStops )[gi];
+  const condRM = dzd ? dzd.pureMultiSenateCondorcet[part] : condBase;
+  const irvRM  = dzd ? dzd.pureMultiSenateIRV[part] : irvBase;
   // Sampling uncertainty at the active stop. Party-line only — the Crossover pipeline
-  // is not bootstrapped, so these are undefined there and every consumer degrades.
-  const unc = rawMultiOn ? uncertaintyAt(gi) : undefined;
+  // is not bootstrapped, so these are undefined there and every consumer degrades. A
+  // dissolved field has no bootstrap either.
+  const baseUnc = rawMultiOn ? uncertaintyAt(gi) : undefined;
+  const unc = dzd ? undefined : baseUnc;
   // Coalition / head-to-head / winnow at the current stop. Party-line only — the
   // Crossover pipeline has no equivalent per-state round data.
-  const irvRoundsStops = [senIrvRounds0, senIrvRounds5, senIrvRounds10, senIrvRounds15,
+  const irvRoundsBase = [senIrvRounds0, senIrvRounds5, senIrvRounds10, senIrvRounds15,
                           senIrvRounds20, senIrvRounds25, senIrvRounds30] as unknown as SenateIrvRoundsData[];
-  const condViewStops  = [senCondView0, senCondView5, senCondView10, senCondView15,
+  const condViewBase  = [senCondView0, senCondView5, senCondView10, senCondView15,
                           senCondView20, senCondView25, senCondView30];
-  const winnowStops    = [senWinnow0, senWinnow5, senWinnow10, senWinnow15,
+  const winnowBase    = [senWinnow0, senWinnow5, senWinnow10, senWinnow15,
                           senWinnow20, senWinnow25, senWinnow30] as unknown as SenateWinnowData[];
+  const fromStops = <T,>(f: ByStop<T>) => GAP_STOPS.map(st => f[String(st)]);
+  const irvRoundsStops = dzd ? fromStops(dzd.senateIrvRounds) : irvRoundsBase;
+  const condViewStops  = (dzd ? fromStops(dzd.senateCondorcet) : condViewBase) as typeof condViewBase;
+  const winnowStops    = dzd ? fromStops(dzd.senateBuckets) : winnowBase;
 
   const [parliamentFactor, setParliamentFactor] = useUrlState<string>('factor', 'F5', { allowed: [...DISPLAY_FACTORS] });
 
@@ -278,18 +299,21 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
       <MechanismStrip items={SENATE_RULES} />
 
       <StickyControlBar label="Senate settings">
-        {SHOW_CROSSOVER && (
+        {SHOW_CROSSOVER && !dzd && (
           <ToggleGroup label="Scenario" value={pipeline} onChange={setPipeline}
             options={PIPELINE_OPTIONS} labels={PIPELINE_LABELS} />
         )}
         <ToggleGroup label="Method" value={method} onChange={setMethod}
           options={['condorcet', 'irv'] as const} labels={METHOD_LABELS} />
         <ParticipationSlider value={Number(part)} onChange={v => setPart(String(v))} />
+        <DissolveMenu status={dz.status} />
       </StickyControlBar>
 
       {/* FPTP vs Preferential Senate Comparison (shared with Overview) */}
       <SenateCompositionCard condSeats={condRM} irvSeats={irvRM}
-        condU={unc?.senate.cond} irvU={unc?.senate.irv} />
+        condU={unc?.senate.cond} irvU={unc?.senate.irv}
+        dissolved={dzd ? dz.dissolved : undefined}
+        fullField={dzd ? { condSeats: condBase, irvSeats: irvBase, condU: baseUnc?.senate.cond, irvU: baseUnc?.senate.irv } : undefined} />
 
       {/* Same section, id and content as the House tab, so a reader who opened it
           there finds it open here. */}
@@ -306,7 +330,7 @@ export function SenateTab({ condorcetRawMultiTurnout, irvRawMultiTurnout,
 
       {/* Sampling range, split from the composition card above so the headline bars stay
           clean; party-line only, since Crossover has no bootstrap. */}
-      {rawMultiOn && (
+      {rawMultiOn && !dzd && (
         <SenateRangeCard condSeats={condRM}
           condU={unc?.senate.cond} irvU={unc?.senate.irv} nDraws={unc?.nDraws} />
       )}

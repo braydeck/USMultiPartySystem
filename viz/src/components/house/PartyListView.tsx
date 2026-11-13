@@ -198,6 +198,7 @@ export function PartyListView({ config, wyoming, onWyomingChange, districtCounty
       <Card className="p-5">
         <FPTPvsSTV
           seats={partyListSeats}
+          voteShare={config.national.voteShare}
           systemLabel="Party List"
           doubleSeats={doubleListSeats}
           wyoming={wyoming}

@@ -243,6 +243,7 @@ export function ReserveView({ config, national, system, wyoming, onWyomingChange
       <Card className="p-5">
         <FPTPvsSTV
           seats={heroSeats}
+          voteShare={base?.national.voteShare}
           systemLabel={sysLabel === 'Party list' ? 'Party List' : 'STV'}
           doubleSeats={doubleSeats}
           wyoming={wyoming}

@@ -13,15 +13,15 @@ const st = (dist: Record<string, number>): StateUncertainty => {
 
 describe('senate delegations', () => {
   it('gives both seats to a party that wins the state outright', () => {
-    const [d] = delegations({ '01': st({ CON: 0.83, STY: 0.11, POP: 0.06 }) });
+    const [d] = delegations({ '01': st({ CON: 0.83, STY: 0.11, LP: 0.06 }) });
     expect(d.split).toBe(false);
     expect(d.seats).toEqual(['CON', 'CON']);
   });
 
   it('splits when the runner-up is inside the threshold', () => {
-    const [d] = delegations({ '05': st({ CON: 0.282, POP: 0.243, STY: 0.2 }) });
+    const [d] = delegations({ '05': st({ CON: 0.282, LP: 0.243, STY: 0.2 }) });
     expect(d.split).toBe(true);
-    expect(d.seats).toEqual(['CON', 'POP']);
+    expect(d.seats).toEqual(['CON', 'LP']);
   });
 
   it('is inclusive at the threshold, despite float error', () => {
@@ -34,7 +34,7 @@ describe('senate delegations', () => {
     // Montana: a clear lead on under half the resamples. Virginia: a photo finish on over
     // half. A rule on the leader's level gets both of these the wrong way round.
     expect(delegations({ '30': st({ CON: 0.464, STY: 0.242, LBR: 0.16 }) })[0].split).toBe(false);
-    expect(delegations({ '51': st({ STY: 0.503, LBR: 0.474, POP: 0.019 }) })[0].split).toBe(true);
+    expect(delegations({ '51': st({ STY: 0.503, LBR: 0.474, LP: 0.019 }) })[0].split).toBe(true);
   });
 
   it('handles a state only one party ever wins', () => {

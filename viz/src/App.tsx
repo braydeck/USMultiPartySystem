@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useUrlState, resetUrlParams, urlForParams } from './hooks/useUrlState';
+import { DISSOLVE_TABS } from './hooks/useDissolve';
 import { resolveDefaultTab } from './utils/defaultTab';
 import { SenateTab } from './tabs/SenateTab';
 import { HouseTab } from './tabs/HouseTab';
@@ -121,7 +122,13 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scenariosOpen, setScenariosOpen] = useState(false);
   // Tab navigation resets the query string so a tab's filters don't follow you to the next tab.
-  const setTab = (next: TabId) => resetUrlParams({ tab: next });
+  // The one exception is a dissolve selection, which describes the election rather than a view of
+  // it, so it carries between the four tabs that rerun the counts.
+  const [dissolveRaw] = useUrlState<string>('dissolve', '');
+  const carry = (next: string): Record<string, string> =>
+    dissolveRaw && DISSOLVE_TABS.has(tab) && DISSOLVE_TABS.has(next) ? { dissolve: dissolveRaw } : {};
+  const setTab = (next: TabId) => resetUrlParams({ tab: next, ...carry(next) });
+  const tabHref = (next: string) => urlForParams({ tab: next, ...carry(next) }, true);
 
   const isScenario = SCENARIO_TABS.some(t => t.id === tab);
   const activeLabel = ALL_TABS.find(t => t.id === tab)?.label ?? 'Menu';
@@ -146,7 +153,7 @@ export default function App() {
           <div className="hidden sm:flex items-center gap-1">
             <div className="inline-flex items-center gap-1">
               {TOP_TABS.map(t => (
-                <StateLink key={t.id} href={urlForParams({ tab: t.id }, true)}
+                <StateLink key={t.id} href={tabHref(t.id)}
                   onNavigate={() => setTab(t.id)}
                   aria-current={tab === t.id ? 'page' : undefined}
                   className={navTabClass(tab === t.id)}>
@@ -175,7 +182,7 @@ export default function App() {
                     {SCENARIO_TABS.map(t => (
                       <StateLink
                         key={t.id}
-                        href={urlForParams({ tab: t.id }, true)}
+                        href={tabHref(t.id)}
                         onNavigate={() => { setTab(t.id); setScenariosOpen(false); }}
                         aria-current={tab === t.id ? 'page' : undefined}
                         className={`text-left px-3 py-2 text-sm transition-colors ${
@@ -223,7 +230,7 @@ export default function App() {
                 {TOP_TABS.map(t => (
                   <StateLink
                     key={t.id}
-                    href={urlForParams({ tab: t.id }, true)}
+                    href={tabHref(t.id)}
                     onNavigate={() => { setTab(t.id); setMenuOpen(false); }}
                     aria-current={tab === t.id ? 'page' : undefined}
                     className={`text-left px-3 py-2.5 text-sm transition-colors ${
@@ -239,7 +246,7 @@ export default function App() {
                 {SCENARIO_TABS.map(t => (
                   <StateLink
                     key={t.id}
-                    href={urlForParams({ tab: t.id }, true)}
+                    href={tabHref(t.id)}
                     onNavigate={() => { setTab(t.id); setMenuOpen(false); }}
                     aria-current={tab === t.id ? 'page' : undefined}
                     className={`text-left px-3 py-2.5 text-sm transition-colors ${

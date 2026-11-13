@@ -36,7 +36,7 @@ def _ts_map(name):
     """{CODE: value} from a simple `export const NAME ... = { CODE: '...', ... }` block in parties.ts."""
     src = (ROOT / "viz" / "src" / "constants" / "parties.ts").read_text()
     block = re.search(rf"export const {name}\b[^{{]*{{(.*?)\n}};", src, re.S).group(1)
-    return {k: v.replace("\\'", "'") for k, v in re.findall(r"^\s+([A-Z]{3}): '((?:[^'\\]|\\.)*)'", block, re.M)}
+    return {k: v.replace("\\'", "'") for k, v in re.findall(r"^\s+([A-Z]{2,3}): '((?:[^'\\]|\\.)*)'", block, re.M)}
 
 
 NAMES = {k: v for k, v in _ts_map("PARTY_NAMES").items() if k in PARTY_TO_CLUSTER}

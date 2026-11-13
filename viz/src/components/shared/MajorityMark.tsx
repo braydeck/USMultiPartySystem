@@ -12,3 +12,9 @@ export function MajorityMark() {
       }} />
   );
 }
+
+/** A dashed line at 50% down through a seat bar (and any strip above it), under the caret. Same
+ *  parent rules as MajorityMark. */
+export function MajorityLine() {
+  return <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 bottom-0 z-10 border-l border-dashed border-foreground/50" />;
+}

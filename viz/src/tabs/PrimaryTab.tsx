@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useUrlState, useUrlNumber } from '../hooks/useUrlState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,11 @@ import { CollapsibleSection } from '../components/shared/CollapsibleSection';
 import { uncertaintyAt } from '../lib/uncertainty';
 import { SlateRangeCard } from '../components/primary/SlateRangeCard';
 import { DEPTH_KEYS, DEPTH_LABELS, type DepthKey } from '../constants/depth';
+import { useScenarioFiles, useLazyData, fetchJson } from '../hooks/useDissolve';
+import { loadScenario, type ByStop } from '../lib/dissolve';
+import { DissolveMenu } from '../components/shared/DissolveMenu';
+
+const PRIMARY_FILES = ['pureMultiPrimary', 'pureMultiPrimaryBuckets', 'pureMultiPrimaryStageShares'] as const;
 // Compression stops for the primary (finalists + buckets + per-stage national shares).
 import pmPrimTurnout from '../data/pureMultiPrimaryTurnout.json';
 import pmPrimL5 from '../data/pureMultiPrimaryTurnoutL5.json';
@@ -71,29 +76,35 @@ export function PrimaryTab({
 }: Props) {
   const clusterByParty = useMemo(() => Object.fromEntries(clusters.map(c => [c.party, c])), [clusters]);
   const orderedClusters = useMemo(() => F5_ORDER.map(p => clusterByParty[p]).filter(Boolean) as ClusterProfile[], [clusterByParty]);
-  const [pipeline, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  const [pipelineSel, setPipeline] = useUrlState<Pipeline>('pipeline', 'rawMulti', { allowed: PIPELINE_OPTIONS, map: { factorDev: 'crossover', rawMulti: 'party-line' } });
+  // With parties dissolved every payload below is that field's run (party-line only, no bootstrap).
+  const dz = useScenarioFiles<{ pureMultiPrimary: ByStop<FDPrimaryData>; pureMultiPrimaryBuckets: ByStop<BucketData>;
+    pureMultiPrimaryStageShares: ByStop<Record<string, PrimaryStageShares>> }>(PRIMARY_FILES);
+  const dzd = dz.on ? dz.data : undefined;
+  const pipeline: Pipeline = dzd ? 'rawMulti' : pipelineSel;
   const [stageIdx, setStageIdx] = useUrlNumber('stage', 0);
   // Non-voter turnout: share of current non-voters who show up (0 = 2024 actual … 100 = everyone).
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   // Ballot depth: how many preferences voters rank (rawMulti only). 'full' uses static data;
   // truncated depths come from a lazy-loaded bundle. Default = top 7 (a realistic voter depth).
   const [depth, setDepth] = useUrlState<DepthKey>('depth', 'top7', { allowed: [...DEPTH_KEYS] });
-  const [depthBundle, setDepthBundle] = useState<Record<string, { primary: Record<string, FDPrimaryData>; buckets: Record<string, BucketData>; stageShares: Record<string, Record<string, PrimaryStageShares>> }> | null>(null);
-  useEffect(() => {
-    if (depth !== 'full' && !depthBundle) {
-      fetch(`${import.meta.env.BASE_URL}data/primaryDepth.json`).then(r => r.json()).then(setDepthBundle).catch(() => {});
-    }
-  }, [depth, depthBundle]);
+  type DepthFamily = { primary: Record<string, FDPrimaryData>; buckets: Record<string, BucketData>; stageShares: Record<string, Record<string, PrimaryStageShares>> };
+  // A dissolved field's bundle comes split by depth, so it loads only the active one.
+  const depthBundle = useLazyData<Record<string, DepthFamily>>(
+    depth === 'full' ? null : dzd ? `${dz.key}/primaryDepth/${depth}` : 'primaryDepth',
+    dzd ? () => loadScenario<DepthFamily>(dz.key, `primaryDepth.${depth}`).then(f => ({ [depth]: f }))
+        : () => fetchJson('data/primaryDepth.json'));
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
   // Bootstrap resample probabilities exist only for the raw multi-party pipeline at rank-7
   // ballots — Crossover (Factor Dev) has no uncertainty payload, and the bootstrap ran only the
   // top7 depth, so `observedSlate` is the top7 slate and would misclassify holders and
   // challengers against any other depth's slate. Same gate PresidentialTab/HouseTab use.
-  const su = pipeline === 'rawMulti' && depth === 'top7' ? uncertaintyAt(gi)?.primary : undefined;
+  const su = pipeline === 'rawMulti' && depth === 'top7' && !dzd ? uncertaintyAt(gi)?.primary : undefined;
   const nDraws = uncertaintyAt(gi)?.nDraws ?? 0;
-  const primStops   = [pmPrimTurnout, pmPrimL5, pmPrimL10, pmPrimL15, pmPrimL20, pmPrimL25, pmPrimL30] as unknown as FDPrimaryData[];
-  const bucketStops = [pmBktTurnout, pmBktL5, pmBktL10, pmBktL15, pmBktL20, pmBktL25, pmBktL30] as unknown as BucketData[];
-  const shareStops  = [pmShTurnout, pmShL5, pmShL10, pmShL15, pmShL20, pmShL25, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
+  const stopsOf = <T,>(f: ByStop<T>) => GAP_STOPS.map(st => f[String(st)]);
+  const primStops   = dzd?.pureMultiPrimary ? stopsOf(dzd.pureMultiPrimary) : [pmPrimTurnout, pmPrimL5, pmPrimL10, pmPrimL15, pmPrimL20, pmPrimL25, pmPrimL30] as unknown as FDPrimaryData[];
+  const bucketStops = dzd?.pureMultiPrimaryBuckets ? stopsOf(dzd.pureMultiPrimaryBuckets) : [pmBktTurnout, pmBktL5, pmBktL10, pmBktL15, pmBktL20, pmBktL25, pmBktL30] as unknown as BucketData[];
+  const shareStops  = dzd?.pureMultiPrimaryStageShares ? stopsOf(dzd.pureMultiPrimaryStageShares) : [pmShTurnout, pmShL5, pmShL10, pmShL15, pmShL20, pmShL25, pmShL30] as unknown as Record<string, PrimaryStageShares>[];
   // When a truncated depth is selected, read from the bundle keyed by [depth][part]; fall back to
   // full static data until the bundle loads (avoids a blank tab on first paint).
   const db = (depth !== 'full' && pipeline === 'rawMulti') ? depthBundle?.[depth] : null;
@@ -146,7 +157,7 @@ export function PrimaryTab({
       {/* Sticky controls */}
       <StickyControlBar label="Primary settings">
         {controlBarExtra}
-        {SHOW_CROSSOVER && (
+        {SHOW_CROSSOVER && !dzd && (
           <ToggleGroup label="Scenario"
             value={pipeline}
             onChange={(p) => { setPipeline(p); setStageIdx(0); }}
@@ -161,6 +172,7 @@ export function PrimaryTab({
           <ToggleGroup label="Ballots ranked" value={depth} onChange={setDepth}
             options={[...DEPTH_KEYS]} labels={DEPTH_LABELS} />
         )}
+        <DissolveMenu status={dz.status} />
         <div className="flex items-center gap-2">
           <span className={FIELD_LABEL}>Stage</span>
           <div className="flex gap-1">
@@ -173,9 +185,11 @@ export function PrimaryTab({
           </div>
         </div>
       </StickyControlBar>
-      <p className={CARD_HINT}>{PIPELINE_DESC[pipeline]}</p>
+      <p className={CARD_HINT}>{dzd
+        ? `The ${F5_ORDER.length - dz.dissolved.length} parties still standing field 3 intra-party candidates each (40/35/25 first-choice split). Same-party candidates share an identical position; only "popularity" differs.`
+        : PIPELINE_DESC[pipeline]}</p>
       <div className="flex flex-wrap gap-1.5">
-        {F5_ORDER.map(p => (
+        {F5_ORDER.filter(p => !(dzd && dz.dissolved.includes(p))).map(p => (
           <span
             key={p}
             className="px-1.5 py-0.5 rounded text-3xs font-semibold leading-none chip-text"

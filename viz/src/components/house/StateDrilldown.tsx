@@ -120,15 +120,13 @@ export function StateDrilldown({ fips, groups, districtCountyMap, heading = 'Dis
           <span className="text-xs text-muted-foreground">
             {d.seatCount} seat{d.seatCount === 1 ? '' : 's'}
             {d.nRespondents != null && d.densityTier !== 'STATEWIDE' && <> · {d.nRespondents} resp.</>}
-            {/* A district can hold seats without holding any counties: Maricopa's
-                population justifies ~11.6 seats but the whole-county draw gives all of it
-                to 04-01, so 04-03 has no footprint and is counted on the statewide pool.
-                Say so rather than letting the respondent count imply a local electorate. */}
+            {/* A district with no counties of its own would count the whole state. The drawn
+                map gives every district whole counties or ZIP-area pieces of one, so this is a
+                guard: if it ever shows, the respondent count is the state total. */}
             {noCounties && (
               <span className="ml-1 italic" title={
-                'This district holds no counties of its own — the whole-county draw assigned '
-                + 'them all to its neighbours. Its members are elected from the statewide pool, '
-                + 'so the respondent count above is the state total, not this district.'
+                'This district holds no counties of its own, so its members are elected from '
+                + 'the statewide pool and the respondent count above is the state total.'
               }>· statewide pool</span>
             )}
           </span>

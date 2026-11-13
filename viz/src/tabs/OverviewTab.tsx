@@ -64,7 +64,7 @@ export function OverviewTab({
   // bundles (party-list STV seats are depth-invariant only for list; STV changes), so derive them here.
   type Wasted = { list: number; stv: number };
   const [hpl, setHpl] = useState<Record<string, Record<string, Record<string, {
-    national: { stvSeats: Record<string, number>; listSeats: Record<string, number>;
+    national: { stvSeats: Record<string, number>; listSeats: Record<string, number>; voteShare?: Record<string, number>;
       unrepresented: Wasted; firstPartyShutOut?: Wasted; excess: Wasted } }>>> | null>(null);
   const [gd, setGd] = useState<Record<string, Record<string, PresidentialElection>> | null>(null);
   useEffect(() => {
@@ -165,7 +165,7 @@ export function OverviewTab({
       <div className="space-y-4">
       <h4 className={GROUP_LABEL}>The House of Representatives</h4>
       <Card className="p-5">
-        <FPTPvsSTV seats={seats} systemLabel="STV" otherSystemSeats={houseListSeats7 ?? undefined} otherSystemLabel="Party List" />
+        <FPTPvsSTV seats={seats} voteShare={wasted?.voteShare} systemLabel="STV" otherSystemSeats={houseListSeats7 ?? undefined} otherSystemLabel="Party List" />
         <div className="mt-4">
           <DiveCard label="Dive into the House →" onClick={() => onNavigate('house')} />
         </div>
