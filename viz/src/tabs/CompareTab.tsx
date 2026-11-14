@@ -864,7 +864,10 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
     return DOMAINS.filter(d => (sectionVarMap[d]?.length ?? 0) > 0 || (distBySection[d]?.length ?? 0) > 0);
   }, [sectionVarMap, distBySection]);
 
-  // Constellation nodes — all parties, always shown as the overview map.
+  // Constellation nodes: the nine parties always (unselected ones faded for context); today's
+  // DEM/IND/REP only while their chips are on, since they are opt-in everywhere else on the tab.
+  const shownCurrent = useMemo(
+    () => currentParties.filter(c => selected.includes(c.party)), [currentParties, selected]);
   const constellationNodes = useMemo((): ConstellationNode[] =>
     (F5_ORDER.filter(code => clusters.some(c => c.party === code)).map(code => {
       const c = clusters.find(x => x.party === code) as unknown as Record<string, number> & { seatsHouse?: number };
@@ -872,14 +875,14 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         id: code, label: code, seats: DEFAULT_HOUSE_SEATS[code] ?? 0,
         F1: c.z_F1 ?? 0, F2: c.z_F2 ?? 0, F3: c.z_F3 ?? 0, F4: c.z_F4 ?? 0, F5: c.z_F5 ?? 0,
       };
-    }) as ConstellationNode[]).concat(currentParties.map(c => ({
+    }) as ConstellationNode[]).concat(shownCurrent.map(c => ({
       id: c.party, label: c.party, seats: 0,
       F1: (c as unknown as Record<string, number>).z_F1 ?? 0,
       F2: (c as unknown as Record<string, number>).z_F2 ?? 0,
       F3: (c as unknown as Record<string, number>).z_F3 ?? 0,
       F4: (c as unknown as Record<string, number>).z_F4 ?? 0,
       F5: (c as unknown as Record<string, number>).z_F5 ?? 0,
-    }))), [clusters, currentParties]);
+    }))), [clusters, shownCurrent]);
 
   // Spatial map of the parties, driven by the sticky selection (highlight, not filter): all
   // parties stay on the map, the selected ones are emphasized. Rendered below the factor scores.
@@ -891,7 +894,8 @@ export function CompareTab({ clusters, fdProfiles, clusterSpreads }: Props) {
         <span className="font-medium text-foreground">overlap</span>, voters sit in shared factor space, cross-pressured between those parties.
         {selected.length > 0 && ' Selected parties are highlighted; the rest stay for context.'}
       </p>
-      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={[...clusterSpreads, ...(currentPartySpreadsData as typeof clusterSpreads)]} selection={selected} />
+      <IdeologicalConstellation nodes={constellationNodes} clusterSpreads={[...clusterSpreads, ...(currentPartySpreadsData as typeof clusterSpreads)
+        .filter(cs => selected.includes(String(cs.party)))]} selection={selected} />
     </Card>
   );
 
