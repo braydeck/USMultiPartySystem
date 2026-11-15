@@ -98,6 +98,10 @@ Displayed numbers live in `viz/src/data/*.json` (bundled) and `viz/public/data/*
 (fetched lazily). `viz/scripts/prepare_data.py` converts pipeline CSVs into most of them;
 `pipeline/build_*.py` writes the rest.
 
+`docs/AGENT_SUMMARY.md` (every headline result at the app defaults, as tables) and
+`PARTY_PROFILES.md` are generated from those payloads by `scripts/build_agent_summary.py` and
+`scripts/build_party_profiles.py`. Rerun both after any payload rebuild; never edit them by hand.
+
 **Dissolve scenarios** (`?dissolve=NAT-LP`, the Dissolve dropdown in the settings bar on Presidency,
 Senate, House, Legislation): all 510 combinations at every turnout stop, depth and map, built by
 `pipeline/build_dissolve_scenarios.py` (~9 h on 6 processes, resumable; `--check` must first reproduce
