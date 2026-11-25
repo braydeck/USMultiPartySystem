@@ -14,6 +14,7 @@ sources' useUrlState(...) calls, so a change to a default in the app moves the d
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
 from functools import lru_cache
@@ -62,7 +63,7 @@ def _url_defaults(param: str) -> set[str]:
 def app_defaults() -> dict:
     out = {}
     for key, param in [("depth", "depth"), ("stop", "part"), ("magnitude", "wyoming"),
-                       ("field", "scenario"), ("voteModel", "voteModel")]:
+                       ("field", "scenario"), ("voteModel", "voteModel"), ("senateMethod", "method")]:
         vals = _url_defaults(param)
         if len(vals) != 1:
             raise SystemExit(f"app default for '{param}' is not unique across tabs: {sorted(vals)}")
@@ -242,6 +243,103 @@ def agreement_matrices(order: list[str]) -> tuple[dict, dict]:
             position[a][c] = 100 - gap / n if n else float("nan")
             binary[a][c] = same / n * 100 if n else float("nan")
     return position, binary
+
+
+def budget_rows() -> list[dict]:
+    """The CES state-spending items (pipeline/build_budget_priorities.py), kept out of bills()."""
+    return load(src("budgetPriorities.json"))
+
+
+def coalition_segments_whipped(bill: dict, seats: dict[str, int], order: list[str]) -> dict:
+    """voteBloc.ts coalitionSegments(bill, seats, 'whipped'): every seat to the side the party's
+    majority favors, each side ordered by support (stable, so ties keep the left-right order); on a
+    pass the pivotal party is the yes party whose seats carry the running total to half the chamber."""
+    supp = lambda p: bill["parties"][p].get("observedPct") or 0  # noqa: E731
+    ps = [p for p in order if p in bill["parties"] and seats.get(p, 0) > 0]
+    total = sum(seats[p] for p in ps)
+    yes = sorted([p for p in ps if supp(p) > 50], key=lambda p: -supp(p))
+    no = sorted([p for p in ps if supp(p) <= 50], key=lambda p: -supp(p))
+    total_yes = sum(seats[p] for p in yes)
+    passed = total_yes > total / 2
+    pivotal, cum = None, 0
+    if passed:
+        for p in yes:
+            cum += seats[p]
+            if cum >= total / 2:
+                pivotal = p
+                break
+    return {"yes": yes, "no": no, "total": total, "totalYes": total_yes, "pass": passed, "pivotal": pivotal}
+
+
+def domain_coalitions(items: list[dict], seats: dict[str, int], order: list[str]) -> list[dict]:
+    """voteBloc.ts domainCoalitions: per domain, each party's share of items on the winning side
+    and share where it is pivotal, the most common winning side (ties to more seats, then first met)
+    and the items that fail."""
+    by: dict[str, list] = {}
+    for b in items:
+        by.setdefault(b["domain"], []).append(b)
+    seated = [p for p in order if seats.get(p, 0) > 0]
+    out = []
+    for dom, rows in by.items():
+        won = {p: 0 for p in seated}
+        piv = {p: 0 for p in seated}
+        sets: dict[str, dict] = {}
+        failed, passed = [], 0
+        for b in rows:
+            c = coalition_segments_whipped(b, seats, order)
+            passed += c["pass"]
+            if not c["pass"]:
+                failed.append(b)
+            winners = c["yes"] if c["pass"] else c["no"]
+            for p in winners:
+                won[p] += 1
+            if c["pivotal"]:
+                piv[c["pivotal"]] += 1
+            ordered = [p for p in order if p in winners]
+            key = ("Y:" if c["pass"] else "N:") + ",".join(ordered)
+            if key in sets:
+                sets[key]["count"] += 1
+            else:
+                sets[key] = {"parties": ordered, "pass": c["pass"], "count": 1,
+                             "seats": sum(seats.get(p, 0) for p in ordered)}
+        typical = {"parties": [], "pass": True, "count": 0, "seats": -1}
+        for v in sets.values():
+            if v["count"] > typical["count"] or (v["count"] == typical["count"] and v["seats"] > typical["seats"]):
+                typical = v
+        n = len(rows)
+        out.append({"domain": dom, "bills": rows, "passed": passed, "failed": failed,
+                    "membership": {p: won[p] / n for p in seated}, "pivot": {p: piv[p] / n for p in seated},
+                    "typical": typical})
+    return out
+
+
+def _normal_cdf(x: float) -> float:
+    """Abramowitz & Stegun 26.2.17, as voteBloc.ts normalCdf."""
+    if x > 6:
+        return 1.0
+    if x < -6:
+        return 0.0
+    t = 1 / (1 + 0.2316419 * abs(x))
+    d = 0.3989422803 * math.exp(-0.5 * x * x)
+    tail = d * t * (0.3193815 + t * (-0.3565638 + t * (1.7814779 + t * (-1.821256 + t * 1.3302744))))
+    return tail if x < 0 else 1 - tail
+
+
+def pass_probability(bill: dict, seats: dict[str, int], order: list[str]) -> float | None:
+    """voteBloc.ts passProbability: members vote independently at their party's observed support."""
+    mu = var = total = 0.0
+    for p in order:
+        s = seats.get(p, 0)
+        if not s:
+            continue
+        total += s
+        q = (bill["parties"].get(p, {}).get("observedPct") or 0) / 100
+        mu += s * q
+        var += s * q * (1 - q)
+    if not total:
+        return None
+    need = math.floor(total / 2) + 1
+    return 1 - _normal_cdf((need - 0.5 - mu) / (math.sqrt(var) if var > 0 else 1e-6))
 
 
 # ── Markdown helpers ─────────────────────────────────────────────────────────

@@ -60,7 +60,8 @@ def main() -> None:
     ], "lll"))
     w("")
     w("Sections: [Parties](#parties) · [House](#house) · [Presidency](#presidency) · "
-      "[Senate](#senate) · [Legislation](#legislation)")
+      "[Senate](#senate) · [Legislation](#legislation) · [Coalitions by domain](#coalitions-by-domain) · "
+      "[Budget priorities](#budget-priorities)")
     w("")
 
     # ── Parties ──────────────────────────────────────────────────────────────
@@ -330,6 +331,81 @@ def main() -> None:
                      s_.get("presRawMultiCondSigns", ""), s_.get("presRawMultiIRVSigns", "")])
     w(S.table(["Bill", "Nation %", "House STV", "House list", "Senate Cond", "Senate IRV", "Pres (Cond)", "Pres (IRV)"],
               rows, "lrrrrrll"))
+    w("")
+
+    # ── Coalitions by domain ─────────────────────────────────────────────────
+    meth = "cond" if d["senateMethod"] == "condorcet" else "irv"
+    chambers = [("House", h_def["stvSeats"]),
+                ("Senate", S.delegation_seats(S.uncertainty(stop)["senate"][meth]["states"]))]
+    budget = S.budget_rows()
+    w("## Coalitions by domain")
+    w("")
+    w(f"Which parties form the majority on each kind of issue, at the app defaults (House STV {mag} "
+      f"magnitude, depth {depth}, turnout {stop}%; Senate {d['senateMethod']} delegations), with every "
+      "party casting all its seats the way its majority leans (support > 50%). Port of "
+      "`domainCoalitions` / `coalitionSegments` in `viz/src/components/legislation/voteBloc.ts`, over the "
+      f"{len(S.bills())} bills plus the {len(budget)} Budget items. Each cell: % of the domain's items on "
+      "which the party is on the winning side (yes on a pass, no on a defeat), then % on which it is "
+      "pivotal (the yes party whose seats carry the running total, stacked by support, to half the chamber).")
+    w("")
+    for cname, seats in chambers:
+        total = sum(seats.get(p, 0) for p in order)
+        w(f"### {cname}: {total} seats, majority {total // 2 + 1}")
+        w("")
+        w(S.table(["Party", *order], [["Seats", *[seats.get(p, 0) for p in order]]]))
+        w("")
+        rows, typ = [], []
+        for r in S.domain_coalitions(S.bills() + budget, seats, order):
+            n = len(r["bills"])
+            rows.append([r["domain"], n, f"{r['passed']}/{n}"] + [
+                "" if p not in r["membership"] else
+                f"{r['membership'][p] * 100:.0f}" + (f" ({r['pivot'][p] * 100:.0f})" if r["pivot"][p] else "")
+                for p in order])
+            t = r["typical"]
+            typ.append([r["domain"], " ".join(t["parties"]) or "(none)", "yes" if t["pass"] else "no",
+                        f"{t['count']}/{n}", "; ".join(b["question"] for b in r["failed"]) or "none"])
+        w(S.table(["Domain", "Items", "Pass", *order], rows))
+        w("")
+        w(S.table(["Domain", "Most common winning side", "Votes", "Items", "Items that fail"], typ, "llrrl"))
+        w("")
+
+    # ── Budget priorities ────────────────────────────────────────────────────
+    w("## Budget priorities")
+    w("")
+    w("Source: `viz/src/data/budgetPriorities.json` (`pipeline/build_budget_priorities.py`), CES "
+      "CC24_443_1..5: should the respondent's state legislature increase or decrease spending on each "
+      "category. Each cell is the weighted % choosing slightly or greatly increase, against maintain or "
+      "decrease. These are state spending preferences, not federal bills; they are not in the bill set "
+      "the party order is computed from. Port of `viz/src/components/legislation/BudgetPriorities.tsx`.")
+    w("")
+    cats = [r["category"] for r in budget]
+    level = {p: sum(r["parties"][p]["observedPct"] for r in budget) / len(budget) for p in order}
+    nat = sum(r["overallPct"] for r in budget) / len(budget)
+    by_level = sorted(order, key=lambda p: -level[p])
+    w(f"### Level and share by category (% wanting more; level = mean of the {len(budget)}, national {nat:.0f})")
+    w("")
+    w(S.table(["Party", "Level", *cats],
+              [[p, f"{level[p]:.0f}", *[f"{r['parties'][p]['observedPct']:.0f}" for r in budget]] for p in by_level]
+              + [["National", f"{nat:.0f}", *[f"{r['overallPct']:.0f}" for r in budget]]]))
+    w("")
+    w("### Mix: category minus the party's own level, in points")
+    w("")
+    w(S.table(["Party", *cats],
+              [[p, *[f"{r['parties'][p]['observedPct'] - level[p]:+.0f}" for r in budget]] for p in by_level]))
+    w("")
+    w(f"### Chamber outcome at the defaults (free vote: P(pass), port of `passProbability`; whipped: pass/fail)")
+    w("")
+    rows = []
+    for r in budget:
+        row = [r["category"], f"{r['overallPct']:.0f}"]
+        for _, seats in chambers:
+            pp = S.pass_probability(r, seats, order)
+            c = S.coalition_segments_whipped(r, seats, order)
+            row += [f"{pp:.2f}", ("passes" if c["pass"] else "fails")
+                    + (f", pivotal {c['pivotal']}" if c["pivotal"] else ""), " ".join(c["yes"])]
+        rows.append(row)
+    w(S.table(["Category", "Nation %", "House free", "House whipped", "House yes side",
+               "Senate free", "Senate whipped", "Senate yes side"], rows, "lrrllrll"))
     w("")
 
     OUT.write_text("\n".join(out))

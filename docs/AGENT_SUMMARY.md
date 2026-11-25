@@ -1,6 +1,6 @@
 # Agent summary: the nine-party simulation
 
-Generated 2026-11-14 by `scripts/build_agent_summary.py` from the site's payloads. Do not edit by hand; rerun the script after the pipeline. Party order is left to right (`pipeline/party_codes.LEFT_RIGHT`, from `data/processed/party_order.csv`).
+Generated 2026-11-24 by `scripts/build_agent_summary.py` from the site's payloads. Do not edit by hand; rerun the script after the pipeline. Party order is left to right (`pipeline/party_codes.LEFT_RIGHT`, from `data/processed/party_order.csv`).
 
 | Setting | Value | Source |
 | --- | --- | --- |
@@ -18,7 +18,7 @@ Generated 2026-11-14 by `scripts/build_agent_summary.py` from the site's payload
 | Legislation bills | 37 | `viz/src/data/candidateVoteModel.json` |
 | Legislation default vote model | free | app default (`voteModel`) |
 
-Sections: [Parties](#parties) · [House](#house) · [Presidency](#presidency) · [Senate](#senate) · [Legislation](#legislation)
+Sections: [Parties](#parties) · [House](#house) · [Presidency](#presidency) · [Senate](#senate) · [Legislation](#legislation) · [Coalitions by domain](#coalitions-by-domain) · [Budget priorities](#budget-priorities)
 
 ## Parties
 
@@ -443,3 +443,106 @@ Sources: `houseVoteModelTurnoutL5.json` (houseRawMultiProbPass = STV double, hou
 | Repeal the Affordable Care Act | 38 | 0.00 | 0.00 | 0.02 | 0.07 | VETO | VETO |
 | Expand Medicaid (income <$25k individual / <$40k family) | 79 | 1.00 | 1.00 | 1.00 | 1.00 | SIGN | SIGN |
 | Build a wall between the U.S. and Mexico | 54 | 1.00 | 1.00 | 0.99 | 1.00 | VETO | VETO |
+
+## Coalitions by domain
+
+Which parties form the majority on each kind of issue, at the app defaults (House STV double magnitude, depth top7, turnout 5%; Senate condorcet delegations), with every party casting all its seats the way its majority leans (support > 50%). Port of `domainCoalitions` / `coalitionSegments` in `viz/src/components/legislation/voteBloc.ts`, over the 37 bills plus the 5 Budget items. Each cell: % of the domain's items on which the party is on the winning side (yes on a pass, no on a defeat), then % on which it is pivotal (the yes party whose seats carry the running total, stacked by support, to half the chamber).
+
+### House: 873 seats, majority 437
+
+| Party | DSA | PRG | LBR | CUP | STY | OAO | CON | LP | NAT |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Seats | 3 | 59 | 140 | 122 | 149 | 31 | 185 | 1 | 183 |
+
+| Domain | Items | Pass | DSA | PRG | LBR | CUP | STY | OAO | CON | LP | NAT |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Taxes & Economy | 5 | 4/5 | 60 | 60 | 60 | 80 | 80 (60) | 80 | 80 (20) | 40 | 60 |
+| Immigration | 5 | 4/5 | 60 | 80 | 80 | 100 (80) | 100 | 100 | 60 | 40 | 40 |
+| Police & Guns | 6 | 4/6 | 67 | 67 | 67 | 100 (17) | 83 (33) | 100 | 67 (17) | 50 | 67 |
+| Abortion | 3 | 2/3 | 67 | 67 | 67 | 67 | 100 (67) | 67 | 67 | 33 | 67 |
+| Civil Liberties | 7 | 6/7 | 29 | 43 | 43 | 57 (14) | 86 (57) | 86 | 86 (14) | 71 | 86 |
+| Environment & Climate | 6 | 5/6 | 50 | 50 | 67 | 83 (17) | 83 (67) | 83 | 50 | 33 | 50 |
+| Healthcare & Housing | 5 | 4/5 | 80 | 80 | 80 | 100 (80) | 100 | 100 | 60 | 0 | 20 |
+| Budget | 5 | 4/5 | 60 | 60 | 60 | 100 (20) | 80 (40) | 80 | 100 (20) | 20 | 60 |
+
+| Domain | Most common winning side | Votes | Items | Items that fail |
+| --- | --- | ---: | ---: | --- |
+| Taxes & Economy | DSA PRG LBR CUP STY OAO CON NAT | yes | 1/5 | Forgive up to $20k of student loan debt per person |
+| Immigration | PRG LBR CUP STY OAO CON LP NAT | yes | 1/5 | Build a wall between the U.S. and Mexico |
+| Police & Guns | DSA PRG LBR CUP STY OAO CON LP NAT | yes | 2/6 | Easier concealed-carry permits; Decrease police by 10%, increase other funding |
+| Abortion | DSA PRG LBR CUP STY OAO CON LP NAT | no | 1/3 | Prohibit women traveling to another state for abortion |
+| Civil Liberties | STY OAO CON LP NAT | yes | 3/7 | Renew post-9/11 surveillance programs |
+| Environment & Climate | DSA PRG LBR CUP STY OAO | yes | 3/6 | Halt new oil and gas leases on federal lands |
+| Healthcare & Housing | DSA PRG LBR CUP STY OAO CON | yes | 2/5 | Repeal the Affordable Care Act |
+| Budget | DSA PRG LBR CUP STY OAO CON | yes | 2/5 | Increase state spending on welfare |
+
+### Senate: 102 seats, majority 52
+
+| Party | DSA | PRG | LBR | CUP | STY | OAO | CON | LP | NAT |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Seats | 0 | 0 | 4 | 24 | 31 | 0 | 43 | 0 | 0 |
+
+| Domain | Items | Pass | DSA | PRG | LBR | CUP | STY | OAO | CON | LP | NAT |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Taxes & Economy | 5 | 4/5 |  |  | 60 | 80 | 80 (60) |  | 80 (20) |  |  |
+| Immigration | 5 | 4/5 |  |  | 80 | 100 (80) | 100 |  | 60 |  |  |
+| Police & Guns | 6 | 4/6 |  |  | 67 | 100 (17) | 83 (33) |  | 67 (17) |  |  |
+| Abortion | 3 | 2/3 |  |  | 67 | 67 | 100 (67) |  | 67 |  |  |
+| Civil Liberties | 7 | 6/7 |  |  | 43 | 57 (14) | 86 (57) |  | 86 (14) |  |  |
+| Environment & Climate | 6 | 5/6 |  |  | 67 | 83 (17) | 83 (67) |  | 50 |  |  |
+| Healthcare & Housing | 5 | 4/5 |  |  | 80 | 100 (80) | 100 |  | 60 |  |  |
+| Budget | 5 | 4/5 |  |  | 60 | 100 (20) | 80 (40) |  | 100 (20) |  |  |
+
+| Domain | Most common winning side | Votes | Items | Items that fail |
+| --- | --- | ---: | ---: | --- |
+| Taxes & Economy | LBR CUP STY CON | yes | 2/5 | Forgive up to $20k of student loan debt per person |
+| Immigration | LBR CUP STY CON | yes | 2/5 | Build a wall between the U.S. and Mexico |
+| Police & Guns | LBR CUP STY CON | yes | 2/6 | Easier concealed-carry permits; Decrease police by 10%, increase other funding |
+| Abortion | LBR CUP STY CON | no | 1/3 | Prohibit women traveling to another state for abortion |
+| Civil Liberties | STY CON | yes | 3/7 | Renew post-9/11 surveillance programs |
+| Environment & Climate | LBR CUP STY | yes | 3/6 | Halt new oil and gas leases on federal lands |
+| Healthcare & Housing | LBR CUP STY CON | yes | 2/5 | Repeal the Affordable Care Act |
+| Budget | LBR CUP STY CON | yes | 3/5 | Increase state spending on welfare |
+
+## Budget priorities
+
+Source: `viz/src/data/budgetPriorities.json` (`pipeline/build_budget_priorities.py`), CES CC24_443_1..5: should the respondent's state legislature increase or decrease spending on each category. Each cell is the weighted % choosing slightly or greatly increase, against maintain or decrease. These are state spending preferences, not federal bills; they are not in the bill set the party order is computed from. Port of `viz/src/components/legislation/BudgetPriorities.tsx`.
+
+### Level and share by category (% wanting more; level = mean of the 5, national 57)
+
+| Party | Level | Welfare | Health care | Education | Law enforcement | Transportation & infrastructure |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| OAO | 89 | 68 | 100 | 98 | 88 | 92 |
+| PRG | 79 | 81 | 100 | 99 | 24 | 93 |
+| DSA | 77 | 94 | 100 | 100 | 0 | 94 |
+| LBR | 65 | 55 | 89 | 88 | 16 | 79 |
+| CUP | 58 | 19 | 71 | 70 | 60 | 69 |
+| CON | 55 | 15 | 57 | 59 | 83 | 63 |
+| STY | 52 | 39 | 69 | 64 | 37 | 51 |
+| NAT | 38 | 1 | 18 | 29 | 84 | 59 |
+| LP | 15 | 11 | 18 | 17 | 11 | 20 |
+| National | 57 | 33 | 64 | 65 | 55 | 66 |
+
+### Mix: category minus the party's own level, in points
+
+| Party | Welfare | Health care | Education | Law enforcement | Transportation & infrastructure |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| OAO | -21 | +11 | +9 | -1 | +3 |
+| PRG | +2 | +20 | +19 | -56 | +14 |
+| DSA | +16 | +22 | +22 | -77 | +17 |
+| LBR | -11 | +24 | +23 | -49 | +13 |
+| CUP | -38 | +13 | +12 | +2 | +11 |
+| CON | -41 | +2 | +3 | +27 | +8 |
+| STY | -13 | +17 | +12 | -15 | -1 |
+| NAT | -37 | -20 | -9 | +46 | +21 |
+| LP | -5 | +3 | +2 | -4 | +5 |
+
+### Chamber outcome at the defaults (free vote: P(pass), port of `passProbability`; whipped: pass/fail)
+
+| Category | Nation % | House free | House whipped | House yes side | Senate free | Senate whipped | Senate yes side |
+| --- | ---: | ---: | --- | --- | ---: | --- | --- |
+| Welfare | 33 | 0.00 | fails | DSA PRG OAO LBR | 0.00 | fails | LBR |
+| Health care | 64 | 1.00 | passes, pivotal STY | DSA OAO PRG LBR CUP STY CON | 1.00 | passes, pivotal STY | LBR CUP STY CON |
+| Education | 65 | 1.00 | passes, pivotal STY | DSA PRG OAO LBR CUP STY CON | 1.00 | passes, pivotal STY | LBR CUP STY CON |
+| Law enforcement | 55 | 1.00 | passes, pivotal CUP | OAO NAT CON CUP | 0.99 | passes, pivotal CUP | CON CUP |
+| Transportation & infrastructure | 66 | 1.00 | passes, pivotal CON | DSA PRG OAO LBR CUP CON NAT STY | 0.99 | passes, pivotal CON | LBR CUP CON STY |
