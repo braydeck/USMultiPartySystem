@@ -118,6 +118,7 @@ def steps(draws, procs):
             ("pipeline/build_primary_depth_bundle.py",), ("pipeline/build_top_two_bundle.py",),
             ("pipeline/build_party_factor_ellipses.py",), ("pipeline/build_cross_party_affinity.py",),
             ("pipeline/build_cluster_spreads.py",),
+            ("pipeline/build_budget_priorities.py",),
             ("pipeline/build_single_race_data.py",),
             ("pipeline/build_hex_seat_cartogram.py",), ("pipeline/build_hex_seat_cartogram.py", "--triple"),
             ("pipeline/build_hex_seat_cartogram.py", "--reserve"),

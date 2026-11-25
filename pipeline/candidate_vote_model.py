@@ -99,6 +99,28 @@ def logistic(x):
     return 1.0 / (1.0 + np.exp(-x))
 
 
+def fit_factor_logit(y, w, Fmat):
+    """Weighted logit of a 0/1 item on the factor scores. Returns (beta, n, McFadden pseudo-R²),
+    beta = [b0, b_F1..]. NaN rows of y are dropped."""
+    fit_mask = ~np.isnan(y)
+    const = sm.add_constant(Fmat, has_constant="add")
+    res = sm.GLM(y[fit_mask], const[fit_mask], family=sm.families.Binomial(),
+                 freq_weights=w[fit_mask]).fit()
+    pr2 = float(1.0 - res.llf / res.llnull) if res.llnull != 0 else np.nan
+    return res.params, int(fit_mask.sum()), pr2
+
+
+def score_profile(beta, profile):
+    """P(yes) at a factor profile (a party centroid, or any point in factor space)."""
+    return float(logistic(beta[0] + float(np.dot(beta[1:], profile))))
+
+
+def party_centroids(F, w, cl):
+    """Weighted mean of each factor within each party: the candidate a party fields."""
+    return {party: np.array([wmean(F[f], w, cl == cluster) for f in FACTORS])
+            for party, cluster in PARTY_TO_CLUSTER.items()}
+
+
 def main():
 
     bills = pd.read_csv(VOTE_MODEL)[["variable", "domain", "question"]]
@@ -128,9 +150,7 @@ def main():
     # read candidate_factor_centroids.csv, which carries stale cluster labels
     # (REF/CTR for LP/CUP). The file is used only as a cross-check
     # where its labels still match the current taxonomy.
-    pure = {}
-    for party, cluster in PARTY_TO_CLUSTER.items():
-        pure[party] = np.array([wmean(F[f], w, cl == cluster) for f in FACTORS])
+    pure = party_centroids(F, w, cl)
 
     # ── Validation gate B: cross-check against centroids file where labels match ─
     print("\n── Validation B: centroid cross-check vs candidate_factor_centroids ──")
@@ -156,7 +176,6 @@ def main():
     out_rows = []
     param_rows = []
     maxdev_a = 0.0
-    const = sm.add_constant(Fmat, has_constant="add")  # [1, F1..F5]
 
     for _, brow in bills.iterrows():
         var, domain, question = brow["variable"], brow["domain"], brow["question"]
@@ -174,27 +193,17 @@ def main():
                     if dev > 0.6:
                         print(f"  ⚠ {var} c{cluster}: observed {obs:.2f} vs recode {rec:.2f} (Δ{dev:.2f})")
 
-        # Fit weighted logit on non-NaN rows
-        fit_mask = ~np.isnan(y)
-        model = sm.GLM(y[fit_mask], const[fit_mask],
-                       family=sm.families.Binomial(),
-                       freq_weights=w[fit_mask])
-        res = model.fit()
-        beta = res.params  # [b0, b_F1..b_F5]
-        # McFadden pseudo-R²
-        pr2 = float(1.0 - res.llf / res.llnull) if res.llnull != 0 else np.nan
+        beta, n_fit, pr2 = fit_factor_logit(y, w, Fmat)
         param_rows.append({
             "variable": var, "intercept": round(float(beta[0]), 5),
             **{f"b_{FACTORS[k]}": round(float(beta[k + 1]), 5) for k in range(len(FACTORS))},
-            "n": int(fit_mask.sum()), "pseudo_r2": round(pr2, 4),
+            "n": n_fit, "pseudo_r2": round(pr2, 4),
         })
 
         for party, cluster in PARTY_TO_CLUSTER.items():
             if party not in pure:
                 continue
-            c = pure[party]
-            lin = beta[0] + float(np.dot(beta[1:], c))
-            p_yes = logistic(lin)
+            p_yes = score_profile(beta, pure[party])
             observed = stats.loc[var, f"c{cluster}"] if var in stats.index else np.nan
             delta = (observed - p_yes * 100.0) if not np.isnan(observed) else np.nan
             out_rows.append({

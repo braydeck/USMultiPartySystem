@@ -1,5 +1,5 @@
 {
-  "commit": "d4773ca6",
+  "commit": "5ecdaf4b",
   "inputs": {
     "data/outputs/canonical/ballots_checkpoint.parquet": "7172e7307079657d",
     "data/outputs/canonical/district_apportionment.csv": "2b68b63fa58c47d9",
@@ -9,6 +9,7 @@
     "data/outputs/canonical_triple/district_apportionment.csv": "c3401b4e5faf1018",
     "data/outputs/canonical_triple_reserve/ballots_checkpoint.parquet": "bc1758bd14f09f6c",
     "data/outputs/canonical_triple_reserve/district_apportionment.csv": "312dc7230bbe3731",
+    "data/outputs/profiles/cluster_stats.csv": "5b5d706bfbbfdad6",
     "data/outputs/pure_multi/presidential_ballots.csv": "7d41d90a749a34eb",
     "data/outputs/pure_multi/state_candidate_profiles.csv": "5ed6276dc4838391",
     "data/outputs/pure_multi/state_pod_assignments.csv": "723a470ffec9d685",
@@ -25,6 +26,7 @@
     "data/processed/turnout_propensity.csv": "16e05f239a0c3a0f",
     "data/processed/typology_cluster_assignments.csv": "08d224f739b1e1f9",
     "data/processed/voter_county_fips.csv": "7fe8c50ec52fb763",
+    "pipeline/build_budget_priorities.py": "90ce012a3769945f",
     "pipeline/build_hex_mmp_cartogram.py": "b9bd628bc5a3de9b",
     "pipeline/build_hex_seat_cartogram.py": "cc149353de20a6f9",
     "pipeline/build_house_mmp.py": "f6a16677636e87b1",
@@ -35,6 +37,7 @@
     "pipeline/build_party_factor_ellipses.py": "13f8758a82a03bc8",
     "pipeline/build_reserve_checkpoints.py": "2eeba02e871ed3b6",
     "pipeline/build_senate_rank7.py": "97fbe5ad8f5a0601",
+    "pipeline/candidate_vote_model.py": "0068d5c5a99e34f7",
     "pipeline/district_assign.py": "3a47039f58a31470",
     "pipeline/draw_geographic_districts.py": "4cd344546ab8a052",
     "pipeline/generate_factor_deviation_ballots.py": "89b2243e7d40fbf4",
@@ -59,5 +62,5 @@
     "viz/src/data/districtStvResultsTriple.json": "ee72be566c7cdc63"
   },
   "note": "Written by pipeline/check_stale.py --regenerate. Records the inputs as they stood when every committed output last reproduced. Commit this with the regenerated outputs.",
-  "verified_at": "2026-11-13T23:29:23Z"
+  "verified_at": "2026-11-25T05:03:35Z"
 }
