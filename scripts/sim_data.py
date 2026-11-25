@@ -315,27 +315,15 @@ def domain_coalitions(items: list[dict], seats: dict[str, int], order: list[str]
     return out
 
 
-def agreement_line(rows: list[dict], order: list[str], mode: str) -> tuple[dict[str, float], float]:
-    """viz/src/lib/agreementLine.ts: classical MDS on 1 - agreement (whipped: same-side share;
-    free: 1 - mean support gap), first dimension, signed to rise with the left-right order.
-    Returns positions and the line's share of the positive eigenvalues."""
-    import numpy as np
-    n = len(order)
-    A = np.ones((n, n))
-    for i, a in enumerate(order):
-        for k, b in enumerate(order):
-            vals = []
-            for r in rows:
-                va, vb = r["parties"][a]["observedPct"] or 0, r["parties"][b]["observedPct"] or 0
-                vals.append(((va > 50) == (vb > 50)) if mode == "whipped" else 1 - abs(va - vb) / 100)
-            A[i, k] = float(np.mean(vals))
-    J = np.eye(n) - 1 / n
-    ev, V = np.linalg.eigh(-0.5 * J @ ((1 - A) ** 2) @ J)
-    top = int(ev.argmax())
-    x = V[:, top] * np.sqrt(max(ev[top], 0))
-    if np.corrcoef(x, np.arange(n))[0, 1] < 0:
-        x = -x
-    return {p: float(v) for p, v in zip(order, x)}, float(max(ev[top], 0) / ev[ev > 0].sum())
+def voting_groups(rows: list[dict], order: list[str]) -> list[list[str]]:
+    """voteBloc.ts votingGroups: parties whose majorities land on the same side of every item."""
+    groups: dict[str, list[str]] = {}
+    for p in order:
+        if not all(p in b["parties"] for b in rows):
+            continue
+        sig = "".join("1" if (b["parties"][p].get("observedPct") or 0) > 50 else "0" for b in rows)
+        groups.setdefault(sig, []).append(p)
+    return list(groups.values())
 
 
 def _normal_cdf(x: float) -> float:
