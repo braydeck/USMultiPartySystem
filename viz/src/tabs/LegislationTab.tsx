@@ -4,7 +4,11 @@ import { useUrlState } from '../hooks/useUrlState';
 import type { VoteModelRow, CandidateVoteRow, PresidentialElection } from '../types';
 import { UnifiedBillTable } from '../components/legislation/UnifiedBillTable';
 import { LegislationDivergences } from '../components/legislation/LegislationDivergences';
-import { CoalitionMap } from '../components/legislation/CoalitionMap';
+import { CoalitionMap, type Chamber } from '../components/legislation/CoalitionMap';
+import { CoalitionsByDomain } from '../components/legislation/CoalitionsByDomain';
+import { BudgetPriorities, type BudgetRow } from '../components/legislation/BudgetPriorities';
+import budgetPriorities from '../data/budgetPriorities.json';
+import { useMemo, useState } from 'react';
 import { PartyAgreement } from '../components/legislation/PartyAgreement';
 import { Card } from '@/components/ui/card';
 // House seat composition per scenario, for the coalition seat-stack (mirrors the tab's controls).
@@ -107,6 +111,9 @@ const MMP_NATIONAL = mmpNational as unknown as Record<'double' | 'triple', Recor
 const RESERVE_NATIONAL = reserveNational as unknown as Record<string, Record<string, Record<string, ReserveNational>>>;
 
 const RESERVE_LABELS: Record<string, string> = { off: 'Off', on: 'On' };
+// State-spending survey items, kept out of the 37-bill set (stv_config.BILL_VARS) and so out of
+// the party order, the bill table, the agreement matrix and the divergences.
+const BUDGET_ROWS = budgetPriorities as unknown as BudgetRow[];
 
 const LEGISLATION_FILES = ['houseVoteModel', 'senateVoteModel', 'pureMultiSenateCondorcet', 'pureMultiSenateIRV',
   'rawMultiPresidentialElection', 'houseSeats', 'houseDepthNational', 'houseMmpNational', 'houseReserveNational'] as const;
@@ -134,6 +141,9 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
   const [part, setPart] = useUrlState<string>('part', '5', { allowed: ['0', '5', '10', '15', '20', '25', '30'] });
   const [voteModel, setVoteModel] = useUrlState<VoteMode>('voteModel', 'free', { allowed: ['free', 'whipped'] });
   const isRawMulti = pipeline === 'rawMulti';
+  const [coalitionChamber, setCoalitionChamber] = useState<Chamber>('house');
+  const [coalitionDomain, setCoalitionDomain] = useState<string | null>(null);
+  const coalitionItems = useMemo(() => [...candidateVotes, ...BUDGET_ROWS], [candidateVotes]);
   const gi = Math.max(0, GAP_STOPS.indexOf(Number(part) as typeof GAP_STOPS[number]));
 
   const gd = useLazyData<Record<string, Record<string, PresidentialElection>>>(
@@ -285,13 +295,45 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
 
       <Card className="p-4">
         <h4 className={`${CARD_HEADING} mb-1`}>
-          Who Passes Each Bill
+          Coalitions by Domain
+        </h4>
+        <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
+          Which parties form the majority on each kind of issue in this chamber, with each party casting
+          every seat the way its majority leans. Seats follow the controls above; Budget is the five
+          state-spending items below.
+        </p>
+        <CoalitionsByDomain bills={coalitionItems} houseSeats={houseSeats} senateSeats={senateSeats}
+          chamber={coalitionChamber} onChamberChange={setCoalitionChamber}
+          domain={coalitionDomain} onDomainChange={setCoalitionDomain} />
+      </Card>
+
+      <Card className="p-4">
+        <h4 className={`${CARD_HEADING} mb-1`}>
+          Who Passes Each Bill{coalitionDomain ? `: ${coalitionDomain}` : ''}
         </h4>
         <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
           For every bill, parties are stacked and sized by their seats; the coalition to the left of the
           majority line is what carries it. Toggle House / Senate; seat weighting follows the controls above.
+          {coalitionDomain && (
+            <> <button type="button" className="underline underline-offset-2" onClick={() => setCoalitionDomain(null)}>Show every domain</button></>
+          )}
         </p>
-        <CoalitionMap candidateVotes={candidateVotes} houseSeats={houseSeats} senateSeats={senateSeats} voteModel={voteModel} />
+        <CoalitionMap candidateVotes={coalitionItems} houseSeats={houseSeats} senateSeats={senateSeats} voteModel={voteModel}
+          chamber={coalitionChamber} onChamberChange={setCoalitionChamber} domain={coalitionDomain} />
+      </Card>
+
+      <Card className="p-4">
+        <h4 className={`${CARD_HEADING} mb-1`}>
+          Budget Priorities
+        </h4>
+        <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
+          The CES asks whether each respondent's state legislature should increase or decrease spending
+          on five categories. These are state spending preferences from survey items, not federal
+          appropriations bills, and no budget is passed here. "More spending" is a direction, not an
+          amount: the share choosing slightly or greatly increase, against keeping spending the same
+          or cutting it.
+        </p>
+        <BudgetPriorities rows={BUDGET_ROWS} houseSeats={houseSeats} senateSeats={senateSeats} voteModel={voteModel} />
       </Card>
     </div>
   );

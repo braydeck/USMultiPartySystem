@@ -3,7 +3,7 @@ import type { CandidateVoteRow } from '../../types';
 import { F5_ORDER, PARTY_NAMES, getPartyColor } from '../../constants/parties';
 import type { VoteMode } from '../../constants/labels';
 import { ToggleGroup } from '../shared/ToggleGroup';
-import type { SeatMap } from './voteBloc';
+import { coalitionSegments, type SeatMap } from './voteBloc';
 import { TABLE_HEADER, FOOTNOTE } from '../../constants/typography';
 
 // Who combines to pass each bill. Every bill is a row; parties are stacked left→right, each
@@ -14,50 +14,10 @@ import { TABLE_HEADER, FOOTNOTE } from '../../constants/typography';
 //     sides (solid yes chunk left of the line, faded no chunk right of it).
 // Seat weighting follows the scenario controls above.
 
-type Chamber = 'house' | 'senate';
-type Seg = { party: string; w: number; yes: boolean; key: string };
-
-function segmentsFor(bill: CandidateVoteRow, seats: SeatMap, mode: VoteMode) {
-  const parties = F5_ORDER.filter((p) => bill.parties[p] && (seats[p] ?? 0) > 0);
-  const supp = (p: string) => bill.parties[p].observedPct ?? 0;
-  const py = (p: string) => bill.parties[p].pYes ?? supp(p) / 100;
-  let total = 0;
-  for (const p of parties) total += seats[p] ?? 0;
-
-  const yesSegs: Seg[] = [];
-  const noSegs: Seg[] = [];
-  if (mode === 'whipped') {
-    for (const p of parties) {
-      const s = seats[p] ?? 0;
-      (supp(p) > 50 ? yesSegs : noSegs).push({ party: p, w: s, yes: supp(p) > 50, key: p });
-    }
-    yesSegs.sort((a, b) => supp(b.party) - supp(a.party));
-    noSegs.sort((a, b) => supp(b.party) - supp(a.party));
-  } else {
-    for (const p of parties) {
-      const s = seats[p] ?? 0;
-      const yesW = s * py(p);
-      const noW = s - yesW;
-      if (yesW > 0.5) yesSegs.push({ party: p, w: yesW, yes: true, key: p + '-y' });
-      if (noW > 0.5) noSegs.push({ party: p, w: noW, yes: false, key: p + '-n' });
-    }
-    yesSegs.sort((a, b) => py(b.party) - py(a.party));
-    noSegs.sort((a, b) => py(b.party) - py(a.party));
-  }
-
-  const totalYes = yesSegs.reduce((s, x) => s + x.w, 0);
-  const pass = totalYes > total / 2;
-  // Pivotal only exists on a pass — the yes-segment whose seats carry the coalition over the line.
-  let pivotalKey: string | null = null;
-  if (pass) {
-    let cum = 0;
-    for (const seg of yesSegs) { cum += seg.w; if (cum >= total / 2) { pivotalKey = seg.key; break; } }
-  }
-  return { segs: [...yesSegs, ...noSegs], total, totalYes, pass, pivotalKey };
-}
+export type Chamber = 'house' | 'senate';
 
 function CoalitionRow({ bill, seats, mode }: { bill: CandidateVoteRow; seats: SeatMap; mode: VoteMode }) {
-  const { segs, total, pass, pivotalKey } = segmentsFor(bill, seats, mode);
+  const { segs, total, pass, pivotalKey } = coalitionSegments(bill, seats, mode);
 
   return (
     <div className="grid grid-cols-[minmax(140px,1.3fr)_2fr] gap-3 items-center py-1.5 border-t border-border/40">
@@ -98,13 +58,20 @@ function CoalitionRow({ bill, seats, mode }: { bill: CandidateVoteRow; seats: Se
   );
 }
 
-export function CoalitionMap({ candidateVotes, houseSeats, senateSeats, voteModel }: {
+export function CoalitionMap({ candidateVotes, houseSeats, senateSeats, voteModel, chamber: chamberProp, onChamberChange, domain }: {
   candidateVotes: CandidateVoteRow[];
   houseSeats: SeatMap;
   senateSeats: SeatMap;
   voteModel: VoteMode;
+  /** Controlled chamber, when a view above shares the toggle. */
+  chamber?: Chamber;
+  onChamberChange?: (c: Chamber) => void;
+  /** Show only this domain's bills. */
+  domain?: string | null;
 }) {
-  const [chamber, setChamber] = useState<Chamber>('house');
+  const [chamberState, setChamberState] = useState<Chamber>('house');
+  const chamber = chamberProp ?? chamberState;
+  const setChamber = onChamberChange ?? setChamberState;
   const seats = chamber === 'house' ? houseSeats : senateSeats;
 
   // Group by domain, not by runs of adjacent rows. Bills arrive in CES variable order, which
@@ -113,12 +80,13 @@ export function CoalitionMap({ candidateVotes, houseSeats, senateSeats, voteMode
   const groups = useMemo(() => {
     const byDomain = new Map<string, CandidateVoteRow[]>();
     for (const b of candidateVotes) {
+      if (domain && b.domain !== domain) continue;
       const rows = byDomain.get(b.domain);
       if (rows) rows.push(b);
       else byDomain.set(b.domain, [b]);
     }
     return [...byDomain].map(([domain, rows]) => ({ domain, rows }));
-  }, [candidateVotes]);
+  }, [candidateVotes, domain]);
 
   return (
     <div>
