@@ -134,17 +134,18 @@ export type DomainCoalition = {
   passed: number;
   /** Per party with seats: share of the domain's bills on which its whipped vote is on the winning side. */
   membership: Record<string, number>;
-  /** Per party with seats: share of the domain's bills on which coalitionSegments marks it pivotal. */
-  pivot: Record<string, number>;
+  /** Per party with seats: share of the domain's items that pass but would fail without its seats. */
+  needed: Record<string, number>;
   /** The most common set of parties on the winning side (yes on a pass, no on a defeat), in F5_ORDER. */
   typical: { parties: string[]; pass: boolean; count: number };
   failed: CandidateVoteRow[];
 };
 
 /** Which parties end up in the majority across one policy domain, under whipped (party-line)
- *  votes. Membership and the pivotal party come from coalitionSegments, so the grid agrees with
- *  the per-bill view. Domains keep their first-appearance order. Typical-coalition ties go to the
- *  set covering more seats, then the one met first. */
+ *  votes, counted from coalitionSegments so the grid agrees with the per-bill view. A party is
+ *  needed on an item when the yes side passes with its seats and falls to half or less without
+ *  them. Domains keep their first-appearance order. Typical-coalition ties go to the set covering
+ *  more seats, then the one met first. */
 export function domainCoalitions(bills: CandidateVoteRow[], seats: SeatMap): DomainCoalition[] {
   const byDomain = new Map<string, CandidateVoteRow[]>();
   for (const b of bills) {
@@ -154,17 +155,17 @@ export function domainCoalitions(bills: CandidateVoteRow[], seats: SeatMap): Dom
   }
   const seated = F5_ORDER.filter((p) => (seats[p] ?? 0) > 0);
   return [...byDomain].map(([domain, rows]) => {
-    const won: Record<string, number> = {}, piv: Record<string, number> = {};
-    for (const p of seated) { won[p] = 0; piv[p] = 0; }
+    const won: Record<string, number> = {}, need: Record<string, number> = {};
+    for (const p of seated) { won[p] = 0; need[p] = 0; }
     const sets = new Map<string, { parties: string[]; pass: boolean; count: number; seats: number }>();
     const failed: CandidateVoteRow[] = [];
     let passed = 0;
     for (const b of rows) {
-      const { segs, pass, pivotalKey } = coalitionSegments(b, seats, 'whipped');
+      const { segs, pass, total, totalYes } = coalitionSegments(b, seats, 'whipped');
       if (pass) passed++; else failed.push(b);
       const winners = segs.filter((s) => s.yes === pass).map((s) => s.party);
       for (const p of winners) won[p]++;
-      if (pivotalKey) piv[pivotalKey]++;
+      if (pass) for (const p of winners) if (totalYes - (seats[p] ?? 0) <= total / 2) need[p]++;
       const ordered = F5_ORDER.filter((p) => winners.includes(p));
       const key = `${pass ? 'Y' : 'N'}:${ordered.join(',')}`;
       const cur = sets.get(key);
@@ -179,7 +180,7 @@ export function domainCoalitions(bills: CandidateVoteRow[], seats: SeatMap): Dom
     return {
       domain, bills: rows, passed, failed,
       membership: Object.fromEntries(seated.map((p) => [p, won[p] / n])),
-      pivot: Object.fromEntries(seated.map((p) => [p, piv[p] / n])),
+      needed: Object.fromEntries(seated.map((p) => [p, need[p] / n])),
       typical: { parties: typical.parties, pass: typical.pass, count: typical.count },
     };
   });

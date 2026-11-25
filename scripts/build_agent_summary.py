@@ -345,8 +345,9 @@ def main() -> None:
       "party casting all its seats the way its majority leans (support > 50%). Port of "
       "`domainCoalitions` / `coalitionSegments` in `viz/src/components/legislation/voteBloc.ts`, over the "
       f"{len(S.bills())} bills plus the {len(budget)} Budget items. Each cell: % of the domain's items on "
-      "which the party is on the winning side (yes on a pass, no on a defeat), then % on which it is "
-      "pivotal (the yes party whose seats carry the running total, stacked by support, to half the chamber).")
+      "which the party is on the winning side (yes on a pass, no on a defeat), then in brackets % that pass "
+      "only with its seats (without them the yes side falls to half the chamber or less). The grid always "
+      "counts party-line votes, whatever the Vote Model toggle says.")
     w("")
     for cname, seats in chambers:
         total = sum(seats.get(p, 0) for p in order)
@@ -359,7 +360,7 @@ def main() -> None:
             n = len(r["bills"])
             rows.append([r["domain"], n, f"{r['passed']}/{n}"] + [
                 "" if p not in r["membership"] else
-                f"{r['membership'][p] * 100:.0f}" + (f" ({r['pivot'][p] * 100:.0f})" if r["pivot"][p] else "")
+                f"{r['membership'][p] * 100:.0f}" + (f" ({r['needed'][p] * 100:.0f})" if r["needed"][p] else "")
                 for p in order])
             t = r["typical"]
             typ.append([r["domain"], " ".join(t["parties"]) or "(none)", "yes" if t["pass"] else "no",

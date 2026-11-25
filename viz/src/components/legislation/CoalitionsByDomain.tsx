@@ -7,11 +7,11 @@ import { domainCoalitions, type SeatMap } from './voteBloc';
 import type { Chamber } from './CoalitionMap';
 import { FOOTNOTE, TABLE_HEADER } from '../../constants/typography';
 
-// The committee-level view of CoalitionMap: per policy domain, how often each party's whipped vote
-// lands on the winning side, and how often its seats are the ones that carry a pass. Counted with
+// The committee-level view of CoalitionMap: per policy domain, how often each party's party-line vote
+// lands on the winning side, and how often a pass needs its seats. Counted with
 // domainCoalitions → coalitionSegments, the function the per-bill rows below draw from.
 
-const PIVOT_RING = 'inset 0 0 0 1.5px #fff, inset 0 0 0 3px rgba(15,23,42,0.85)';
+const NEEDED_RING = 'inset 0 0 0 1.5px #fff, inset 0 0 0 3px rgba(15,23,42,0.85)';
 const pct = (v: number) => `${Math.round(v * 100)}`;
 
 function Chips({ parties }: { parties: string[] }) {
@@ -73,14 +73,14 @@ export function CoalitionsByDomain({ bills, houseSeats, senateSeats, chamber, on
                 {F5_ORDER.map((p) => {
                   const m = r.membership[p];
                   if (m == null) return <span key={p} className="h-9 rounded-[2px] bg-muted/30 flex items-center justify-center text-4xs text-muted-foreground">–</span>;
-                  const pv = r.pivot[p] ?? 0;
+                  const nd = r.needed[p] ?? 0;
                   const bg = cividisForFrac(m);
                   return (
                     <span key={p} className="h-9 rounded-[2px] flex flex-col items-center justify-center tabular-nums leading-none"
-                      style={{ backgroundColor: bg, color: cividisText(bg), boxShadow: pv > 0 ? PIVOT_RING : 'none' }}
-                      title={`${PARTY_NAMES[p] ?? p}, ${r.domain}: on the winning side of ${Math.round(m * r.bills.length)} of ${r.bills.length}; pivotal on ${Math.round(pv * r.bills.length)}`}>
+                      style={{ backgroundColor: bg, color: cividisText(bg), boxShadow: nd > 0 ? NEEDED_RING : 'none' }}
+                      title={`${PARTY_NAMES[p] ?? p}, ${r.domain}: on the winning side of ${Math.round(m * r.bills.length)} of ${r.bills.length}; needed to pass ${Math.round(nd * r.bills.length)}`}>
                       <span className="text-3xs font-semibold">{pct(m)}</span>
-                      {pv > 0 && <span className="text-4xs mt-0.5">{pct(pv)}</span>}
+                      {nd > 0 && <span className="text-4xs mt-0.5">{pct(nd)}</span>}
                     </span>
                   );
                 })}
@@ -97,8 +97,8 @@ export function CoalitionsByDomain({ bills, houseSeats, senateSeats, chamber, on
           % of the domain's items on the winning side
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-4 h-3.5 rounded-sm bg-muted-foreground/30" style={{ boxShadow: PIVOT_RING }} />
-          ringed, with a second number: % of items where the party is pivotal
+          <span className="w-4 h-3.5 rounded-sm bg-muted-foreground/30" style={{ boxShadow: NEEDED_RING }} />
+          ringed, second number: % of items that pass only with this party
         </span>
       </div>
 

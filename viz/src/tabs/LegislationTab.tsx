@@ -298,9 +298,8 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           Coalitions by Domain
         </h4>
         <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
-          Which parties form the majority on each kind of issue in this chamber, with each party casting
-          every seat the way its majority leans. Seats follow the controls above; Budget is the five
-          state-spending items below.
+          How often each party ends up in the majority on each kind of issue, voting party-line
+          (this grid ignores the Vote Model toggle). Click a domain to filter the bills below.
         </p>
         <CoalitionsByDomain bills={coalitionItems} houseSeats={houseSeats} senateSeats={senateSeats}
           chamber={coalitionChamber} onChamberChange={setCoalitionChamber}
@@ -327,11 +326,8 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
           Budget Priorities
         </h4>
         <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
-          The CES asks whether each respondent's state legislature should increase or decrease spending
-          on five categories. These are state spending preferences from survey items, not federal
-          appropriations bills, and no budget is passed here. "More spending" is a direction, not an
-          amount: the share choosing slightly or greatly increase, against keeping spending the same
-          or cutting it.
+          Share of each party that wants its state to spend more on each category. CES survey items,
+          not federal bills.
         </p>
         <BudgetPriorities rows={BUDGET_ROWS} houseSeats={houseSeats} senateSeats={senateSeats} voteModel={voteModel} />
       </Card>

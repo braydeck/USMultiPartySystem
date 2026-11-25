@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coalitionSegments, domainCoalitions } from './voteBloc';
+import { domainCoalitions } from './voteBloc';
 import type { CandidateVoteRow, ClusterProfile } from '../../types';
 import candidateVotes from '../../data/candidateVoteModel.json';
 import budget from '../../data/budgetPriorities.json';
@@ -34,16 +34,18 @@ describe('domainCoalitions', () => {
     expect(rows.reduce((s, r) => s + r.bills.length, 0)).toBe(items.length);
     expect(rows.map(r => r.domain)).toContain('Budget');
   });
-  it('agrees with the per-bill pivotal party', () => {
+  it('marks a party needed only when the pass fails without its seats', () => {
     for (const r of rows) {
       const n = r.bills.length;
-      const piv: Record<string, number> = {};
+      const need: Record<string, number> = {};
       for (const b of r.bills) {
-        const k = coalitionSegments(b, seats, 'whipped').pivotalKey;
-        if (k) piv[k] = (piv[k] ?? 0) + 1;
+        const yes = Object.keys(seats).filter(p => (seats[p] ?? 0) > 0 && (b.parties[p]?.observedPct ?? 0) > 50);
+        const tot = Object.keys(seats).filter(p => b.parties[p]).reduce((s, p) => s + (seats[p] ?? 0), 0);
+        const ys = yes.reduce((s, p) => s + seats[p], 0);
+        if (ys <= tot / 2) continue;
+        for (const p of yes) if (ys - seats[p] <= tot / 2) need[p] = (need[p] ?? 0) + 1;
       }
-      for (const [p, v] of Object.entries(r.pivot)) expect(v * n).toBeCloseTo(piv[p] ?? 0);
-      expect(Object.values(r.pivot).reduce((s, v) => s + v * n, 0)).toBeCloseTo(r.passed);
+      for (const [p, v] of Object.entries(r.needed)) expect(v * n).toBeCloseTo(need[p] ?? 0);
     }
   });
   it('leaves parties without seats out of the grid', () => {

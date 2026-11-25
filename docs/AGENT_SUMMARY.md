@@ -446,7 +446,7 @@ Sources: `houseVoteModelTurnoutL5.json` (houseRawMultiProbPass = STV double, hou
 
 ## Coalitions by domain
 
-Which parties form the majority on each kind of issue, at the app defaults (House STV double magnitude, depth top7, turnout 5%; Senate condorcet delegations), with every party casting all its seats the way its majority leans (support > 50%). Port of `domainCoalitions` / `coalitionSegments` in `viz/src/components/legislation/voteBloc.ts`, over the 37 bills plus the 5 Budget items. Each cell: % of the domain's items on which the party is on the winning side (yes on a pass, no on a defeat), then % on which it is pivotal (the yes party whose seats carry the running total, stacked by support, to half the chamber).
+Which parties form the majority on each kind of issue, at the app defaults (House STV double magnitude, depth top7, turnout 5%; Senate condorcet delegations), with every party casting all its seats the way its majority leans (support > 50%). Port of `domainCoalitions` / `coalitionSegments` in `viz/src/components/legislation/voteBloc.ts`, over the 37 bills plus the 5 Budget items. Each cell: % of the domain's items on which the party is on the winning side (yes on a pass, no on a defeat), then in brackets % that pass only with its seats (without them the yes side falls to half the chamber or less). The grid always counts party-line votes, whatever the Vote Model toggle says.
 
 ### House: 873 seats, majority 437
 
@@ -456,14 +456,14 @@ Which parties form the majority on each kind of issue, at the app defaults (Hous
 
 | Domain | Items | Pass | DSA | PRG | LBR | CUP | STY | OAO | CON | LP | NAT |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Taxes & Economy | 5 | 4/5 | 60 | 60 | 60 | 80 | 80 (60) | 80 | 80 (20) | 40 | 60 |
-| Immigration | 5 | 4/5 | 60 | 80 | 80 | 100 (80) | 100 | 100 | 60 | 40 | 40 |
-| Police & Guns | 6 | 4/6 | 67 | 67 | 67 | 100 (17) | 83 (33) | 100 | 67 (17) | 50 | 67 |
-| Abortion | 3 | 2/3 | 67 | 67 | 67 | 67 | 100 (67) | 67 | 67 | 33 | 67 |
-| Civil Liberties | 7 | 6/7 | 29 | 43 | 43 | 57 (14) | 86 (57) | 86 | 86 (14) | 71 | 86 |
-| Environment & Climate | 6 | 5/6 | 50 | 50 | 67 | 83 (17) | 83 (67) | 83 | 50 | 33 | 50 |
-| Healthcare & Housing | 5 | 4/5 | 80 | 80 | 80 | 100 (80) | 100 | 100 | 60 | 0 | 20 |
-| Budget | 5 | 4/5 | 60 | 60 | 60 | 100 (20) | 80 (40) | 80 | 100 (20) | 20 | 60 |
+| Taxes & Economy | 5 | 4/5 | 60 | 60 | 60 (20) | 80 (20) | 80 (40) | 80 | 80 (20) | 40 | 60 (20) |
+| Immigration | 5 | 4/5 | 60 | 80 | 80 (20) | 100 (20) | 100 (20) | 100 | 60 | 40 | 40 |
+| Police & Guns | 6 | 4/6 | 67 | 67 | 67 (17) | 100 (33) | 83 (17) | 100 | 67 (17) | 50 | 67 (17) |
+| Abortion | 3 | 2/3 | 67 | 67 | 67 (33) | 67 (33) | 100 (67) | 67 | 67 (33) | 33 | 67 (33) |
+| Civil Liberties | 7 | 6/7 | 29 | 43 | 43 (14) | 57 (29) | 86 (57) | 86 | 86 (57) | 71 | 86 (57) |
+| Environment & Climate | 6 | 5/6 | 50 | 50 | 67 (50) | 83 (50) | 83 (67) | 83 | 50 (17) | 33 | 50 (17) |
+| Healthcare & Housing | 5 | 4/5 | 80 | 80 | 80 (20) | 100 (20) | 100 (20) | 100 | 60 | 0 | 20 |
+| Budget | 5 | 4/5 | 60 | 60 | 60 | 100 (20) | 80 | 80 | 100 (20) | 20 | 60 (20) |
 
 | Domain | Most common winning side | Votes | Items | Items that fail |
 | --- | --- | ---: | ---: | --- |
@@ -484,14 +484,14 @@ Which parties form the majority on each kind of issue, at the app defaults (Hous
 
 | Domain | Items | Pass | DSA | PRG | LBR | CUP | STY | OAO | CON | LP | NAT |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Taxes & Economy | 5 | 4/5 |  |  | 60 | 80 | 80 (60) |  | 80 (20) |  |  |
-| Immigration | 5 | 4/5 |  |  | 80 | 100 (80) | 100 |  | 60 |  |  |
-| Police & Guns | 6 | 4/6 |  |  | 67 | 100 (17) | 83 (33) |  | 67 (17) |  |  |
-| Abortion | 3 | 2/3 |  |  | 67 | 67 | 100 (67) |  | 67 |  |  |
-| Civil Liberties | 7 | 6/7 |  |  | 43 | 57 (14) | 86 (57) |  | 86 (14) |  |  |
-| Environment & Climate | 6 | 5/6 |  |  | 67 | 83 (17) | 83 (67) |  | 50 |  |  |
-| Healthcare & Housing | 5 | 4/5 |  |  | 80 | 100 (80) | 100 |  | 60 |  |  |
-| Budget | 5 | 4/5 |  |  | 60 | 100 (20) | 80 (40) |  | 100 (20) |  |  |
+| Taxes & Economy | 5 | 4/5 |  |  | 60 | 80 (20) | 80 (40) |  | 80 (20) |  |  |
+| Immigration | 5 | 4/5 |  |  | 80 | 100 (20) | 100 (20) |  | 60 |  |  |
+| Police & Guns | 6 | 4/6 |  |  | 67 | 100 (33) | 83 (17) |  | 67 (17) |  |  |
+| Abortion | 3 | 2/3 |  |  | 67 | 67 (33) | 100 (67) |  | 67 (33) |  |  |
+| Civil Liberties | 7 | 6/7 |  |  | 43 | 57 (29) | 86 (57) |  | 86 (57) |  |  |
+| Environment & Climate | 6 | 5/6 |  |  | 67 | 83 (50) | 83 (67) |  | 50 (17) |  |  |
+| Healthcare & Housing | 5 | 4/5 |  |  | 80 | 100 (20) | 100 (20) |  | 60 |  |  |
+| Budget | 5 | 4/5 |  |  | 60 | 100 (20) | 80 |  | 100 (20) |  |  |
 
 | Domain | Most common winning side | Votes | Items | Items that fail |
 | --- | --- | ---: | ---: | --- |

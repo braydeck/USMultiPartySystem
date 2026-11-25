@@ -273,8 +273,8 @@ def coalition_segments_whipped(bill: dict, seats: dict[str, int], order: list[st
 
 def domain_coalitions(items: list[dict], seats: dict[str, int], order: list[str]) -> list[dict]:
     """voteBloc.ts domainCoalitions: per domain, each party's share of items on the winning side
-    and share where it is pivotal, the most common winning side (ties to more seats, then first met)
-    and the items that fail."""
+    and share that pass only with its seats (needed), the most common winning side (ties to more
+    seats, then first met) and the items that fail."""
     by: dict[str, list] = {}
     for b in items:
         by.setdefault(b["domain"], []).append(b)
@@ -282,7 +282,7 @@ def domain_coalitions(items: list[dict], seats: dict[str, int], order: list[str]
     out = []
     for dom, rows in by.items():
         won = {p: 0 for p in seated}
-        piv = {p: 0 for p in seated}
+        need = {p: 0 for p in seated}
         sets: dict[str, dict] = {}
         failed, passed = [], 0
         for b in rows:
@@ -293,8 +293,10 @@ def domain_coalitions(items: list[dict], seats: dict[str, int], order: list[str]
             winners = c["yes"] if c["pass"] else c["no"]
             for p in winners:
                 won[p] += 1
-            if c["pivotal"]:
-                piv[c["pivotal"]] += 1
+            if c["pass"]:
+                for p in winners:
+                    if c["totalYes"] - seats[p] <= c["total"] / 2:
+                        need[p] += 1
             ordered = [p for p in order if p in winners]
             key = ("Y:" if c["pass"] else "N:") + ",".join(ordered)
             if key in sets:
@@ -308,7 +310,7 @@ def domain_coalitions(items: list[dict], seats: dict[str, int], order: list[str]
                 typical = v
         n = len(rows)
         out.append({"domain": dom, "bills": rows, "passed": passed, "failed": failed,
-                    "membership": {p: won[p] / n for p in seated}, "pivot": {p: piv[p] / n for p in seated},
+                    "membership": {p: won[p] / n for p in seated}, "needed": {p: need[p] / n for p in seated},
                     "typical": typical})
     return out
 
