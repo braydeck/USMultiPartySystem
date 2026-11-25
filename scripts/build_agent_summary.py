@@ -340,6 +340,16 @@ def main() -> None:
     budget = S.budget_rows()
     w("## Coalitions by domain")
     w("")
+    w("### Parties that vote the same way on every item in the domain (port of `votingGroups`)")
+    w("")
+    doms: dict[str, list] = {}
+    for b in S.bills() + budget:
+        doms.setdefault(b["domain"], []).append(b)
+    w(S.table(["Domain", "Items", "Groups"],
+              [[dm, len(rs), " | ".join(" ".join(g) for g in S.voting_groups(rs, order))] for dm, rs in doms.items()], "lrl"))
+    w("")
+    w("### Winning side and needed, by chamber")
+    w("")
     w(f"Which parties form the majority on each kind of issue, at the app defaults (House STV {mag} "
       f"magnitude, depth {depth}, turnout {stop}%; Senate {d['senateMethod']} delegations), with every "
       "party casting all its seats the way its majority leans (support > 50%). Port of "

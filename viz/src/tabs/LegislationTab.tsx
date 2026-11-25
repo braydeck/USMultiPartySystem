@@ -295,14 +295,14 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
 
       <Card className="p-4">
         <h4 className={`${CARD_HEADING} mb-1`}>
-          Coalitions by Domain
+          Issue Coalitions by Domain
         </h4>
         <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
-          How often each party ends up in the majority on each kind of issue, voting party-line
-          (this grid ignores the Vote Model toggle). Click a domain to filter the bills below.
+          Which parties vote together on each kind of issue. Click a domain to compare every pair and
+          filter the bills below.
         </p>
         <CoalitionsByDomain bills={coalitionItems} houseSeats={houseSeats} senateSeats={senateSeats}
-          chamber={coalitionChamber} onChamberChange={setCoalitionChamber}
+          chamber={coalitionChamber} voteModel={voteModel}
           domain={coalitionDomain} onDomainChange={setCoalitionDomain} />
       </Card>
 

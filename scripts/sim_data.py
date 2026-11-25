@@ -315,6 +315,17 @@ def domain_coalitions(items: list[dict], seats: dict[str, int], order: list[str]
     return out
 
 
+def voting_groups(rows: list[dict], order: list[str]) -> list[list[str]]:
+    """voteBloc.ts votingGroups: parties whose majorities land on the same side of every item."""
+    groups: dict[str, list[str]] = {}
+    for p in order:
+        if not all(p in b["parties"] for b in rows):
+            continue
+        sig = "".join("1" if (b["parties"][p].get("observedPct") or 0) > 50 else "0" for b in rows)
+        groups.setdefault(sig, []).append(p)
+    return list(groups.values())
+
+
 def _normal_cdf(x: float) -> float:
     """Abramowitz & Stegun 26.2.17, as voteBloc.ts normalCdf."""
     if x > 6:

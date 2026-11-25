@@ -446,6 +446,21 @@ Sources: `houseVoteModelTurnoutL5.json` (houseRawMultiProbPass = STV double, hou
 
 ## Coalitions by domain
 
+### Parties that vote the same way on every item in the domain (port of `votingGroups`)
+
+| Domain | Items | Groups |
+| --- | ---: | --- |
+| Taxes & Economy | 5 | DSA PRG LBR | CUP | STY OAO | CON | LP | NAT |
+| Immigration | 5 | DSA | PRG LBR | CUP STY OAO | CON | LP NAT |
+| Police & Guns | 6 | DSA PRG LBR | CUP OAO | STY | CON NAT | LP |
+| Abortion | 3 | DSA PRG LBR CUP OAO | STY | CON NAT | LP |
+| Civil Liberties | 7 | DSA | PRG LBR | CUP | STY | OAO | CON NAT | LP |
+| Environment & Climate | 6 | DSA PRG | LBR | CUP | STY OAO | CON NAT | LP |
+| Healthcare & Housing | 5 | DSA PRG LBR | CUP STY OAO | CON | LP | NAT |
+| Budget | 5 | DSA PRG LBR | CUP CON | STY | OAO | LP | NAT |
+
+### Winning side and needed, by chamber
+
 Which parties form the majority on each kind of issue, at the app defaults (House STV double magnitude, depth top7, turnout 5%; Senate condorcet delegations), with every party casting all its seats the way its majority leans (support > 50%). Port of `domainCoalitions` / `coalitionSegments` in `viz/src/components/legislation/voteBloc.ts`, over the 37 bills plus the 5 Budget items. Each cell: % of the domain's items on which the party is on the winning side (yes on a pass, no on a defeat), then in brackets % that pass only with its seats (without them the yes side falls to half the chamber or less). The grid always counts party-line votes, whatever the Vote Model toggle says.
 
 ### House: 873 seats, majority 437
