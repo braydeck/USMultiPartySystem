@@ -446,18 +446,20 @@ Sources: `houseVoteModelTurnoutL5.json` (houseRawMultiProbPass = STV double, hou
 
 ## Coalitions by domain
 
-### Parties that vote the same way on every item in the domain (port of `votingGroups`)
+### Where parties stand, by domain (port of `domainPositions`)
 
-| Domain | Items | Bundles |
-| --- | ---: | --- |
-| Taxes & Economy | 5 | DSA PRG LBR | CUP | STY OAO | CON | LP | NAT |
-| Immigration | 5 | DSA | PRG LBR | CUP STY OAO | CON | LP NAT |
-| Police & Guns | 6 | DSA PRG LBR | CUP OAO | STY | CON NAT | LP |
-| Abortion | 3 | DSA PRG LBR CUP OAO | STY | CON NAT | LP |
-| Civil Liberties | 7 | DSA | PRG LBR | CUP | STY | OAO | CON NAT | LP |
-| Environment & Climate | 6 | DSA PRG | LBR | CUP | STY OAO | CON NAT | LP |
-| Healthcare & Housing | 5 | DSA PRG LBR | CUP STY OAO | CON | LP | NAT |
-| Budget | 5 | DSA PRG LBR | CUP CON | STY | OAO | LP | NAT |
+0-100 between each domain's end labels (`viz/src/constants/domains.ts`): across the domain's items, the average share of a party's members taking the side at the 100 end. Item directions come from the data (sign of each item's loading on the first principal axis of party support).
+
+| Domain | 0 end | 100 end | Parties, 0 to 100 |
+| --- | --- | --- | --- |
+| Taxes & Economy | Tax and spend more | Tax and spend less | PRG 3, DSA 4, LBR 13, OAO 20, CUP 32, STY 36, CON 60, LP 63, NAT 82 |
+| Immigration | More permissive | More restrictive | DSA 1, PRG 18, LBR 19, OAO 44, STY 46, CUP 51, LP 58, CON 79, NAT 90 |
+| Police & Guns | More gun limits, less policing | Fewer gun limits, more policing | DSA 2, PRG 10, LBR 13, OAO 33, CUP 33, STY 33, LP 46, CON 52, NAT 71 |
+| Abortion | Protect access | Restrict access | DSA 1, PRG 3, LBR 5, CUP 19, OAO 30, LP 38, STY 39, CON 47, NAT 58 |
+| Civil Liberties | Fewer restrictions | More restrictions | DSA 11, PRG 21, LBR 29, LP 45, CUP 46, STY 60, OAO 60, CON 70, NAT 77 |
+| Environment & Climate | More climate rules | More fossil fuels | DSA 5, PRG 8, LBR 17, OAO 32, CUP 35, STY 42, LP 59, CON 75, NAT 95 |
+| Healthcare & Housing | Larger public role | Smaller public role | DSA 10, PRG 11, LBR 18, OAO 23, STY 32, CUP 33, CON 51, LP 53, NAT 72 |
+| Budget | More social spending | Less social spending, more law enforcement | DSA 3, PRG 10, LBR 21, OAO 26, STY 43, CUP 46, CON 58, LP 69, NAT 75 |
 
 ### Winning side and needed, by chamber
 

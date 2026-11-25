@@ -315,15 +315,28 @@ def domain_coalitions(items: list[dict], seats: dict[str, int], order: list[str]
     return out
 
 
-def voting_groups(rows: list[dict], order: list[str]) -> list[list[str]]:
-    """voteBloc.ts votingGroups: parties whose majorities land on the same side of every item."""
-    groups: dict[str, list[str]] = {}
-    for p in order:
-        if not all(p in b["parties"] for b in rows):
-            continue
-        sig = "".join("1" if (b["parties"][p].get("observedPct") or 0) > 50 else "0" for b in rows)
-        groups.setdefault(sig, []).append(p)
-    return list(groups.values())
+DOMAINS_TS = ROOT / "viz" / "src" / "constants" / "domains.ts"
+
+
+def domain_poles() -> dict[str, tuple[str, str]]:
+    """constants/domains.ts DOMAIN_POLES: each domain's [0 end, 100 end] labels."""
+    return {m.group(1): (m.group(2), m.group(3)) for m in
+            re.finditer(r"'([^']+)':\s*\['([^']+)',\s*'([^']+)'\]", DOMAINS_TS.read_text())}
+
+
+def domain_positions(rows: list[dict], order: list[str]) -> dict[str, float]:
+    """lib/domainPosition.ts: each item points toward the 100 end when its loading on the first
+    principal axis of party support is positive (axis signed to rise with the left-right order);
+    a party's position is the mean share of its members taking the 100-end side."""
+    import numpy as np
+    X = np.array([[r["parties"][p]["observedPct"] or 0 for r in rows] for p in order])
+    Xc = X - X.mean(0)
+    ev, V = np.linalg.eigh(Xc.T @ Xc)
+    load = V[:, int(ev.argmax())]
+    if np.corrcoef(Xc @ load, np.arange(len(order)))[0, 1] < 0:
+        load = -load
+    O = np.where(load > 0, X, 100 - X)
+    return {p: float(O[i].mean()) for i, p in enumerate(order)}
 
 
 def _normal_cdf(x: float) -> float:

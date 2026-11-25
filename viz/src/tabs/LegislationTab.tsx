@@ -295,11 +295,11 @@ export function LegislationTab({ candidateVotes, houseVotes, senateVotes, fdElec
 
       <Card className="p-4">
         <h4 className={`${CARD_HEADING} mb-1`}>
-          Issue Coalitions by Domain
+          Where Parties Stand, by Domain
         </h4>
         <p className={`${CARD_HINT} mb-4 max-w-3xl`}>
-          Which parties vote together on each kind of issue. Click a domain to compare every pair and
-          filter the bills below.
+          Each party's position on each kind of issue. Click a domain to see how often each pair votes the
+          same way there and to filter the bills below.
         </p>
         <CoalitionsByDomain bills={coalitionItems} houseSeats={houseSeats} senateSeats={senateSeats}
           chamber={coalitionChamber} voteModel={voteModel}

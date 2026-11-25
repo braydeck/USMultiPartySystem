@@ -340,13 +340,21 @@ def main() -> None:
     budget = S.budget_rows()
     w("## Coalitions by domain")
     w("")
-    w("### Parties that vote the same way on every item in the domain (port of `votingGroups`)")
+    w("### Where parties stand, by domain (port of `domainPositions`)")
     w("")
+    w("0-100 between each domain's end labels (`viz/src/constants/domains.ts`): across the domain's items, "
+      "the average share of a party's members taking the side at the 100 end. Item directions come from "
+      "the data (sign of each item's loading on the first principal axis of party support).")
+    w("")
+    poles = S.domain_poles()
     doms: dict[str, list] = {}
     for b in S.bills() + budget:
         doms.setdefault(b["domain"], []).append(b)
-    w(S.table(["Domain", "Items", "Bundles"],
-              [[dm, len(rs), " | ".join(" ".join(g) for g in S.voting_groups(rs, order))] for dm, rs in doms.items()], "lrl"))
+    rows = []
+    for dm, rs in doms.items():
+        pos = S.domain_positions(rs, order)
+        rows.append([dm, poles[dm][0], poles[dm][1], ", ".join(f"{p} {pos[p]:.0f}" for p in sorted(order, key=pos.get))])
+    w(S.table(["Domain", "0 end", "100 end", "Parties, 0 to 100"], rows, "llll"))
     w("")
     w("### Winning side and needed, by chamber")
     w("")
