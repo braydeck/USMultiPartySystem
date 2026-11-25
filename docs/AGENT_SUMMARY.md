@@ -446,18 +446,20 @@ Sources: `houseVoteModelTurnoutL5.json` (houseRawMultiProbPass = STV double, hou
 
 ## Coalitions by domain
 
-### Parties that vote the same way on every item in the domain (port of `votingGroups`)
+### Agreement line by domain (port of `agreementLine`, free vote, the app default)
 
-| Domain | Items | Groups |
-| --- | ---: | --- |
-| Taxes & Economy | 5 | DSA PRG LBR | CUP | STY OAO | CON | LP | NAT |
-| Immigration | 5 | DSA | PRG LBR | CUP STY OAO | CON | LP NAT |
-| Police & Guns | 6 | DSA PRG LBR | CUP OAO | STY | CON NAT | LP |
-| Abortion | 3 | DSA PRG LBR CUP OAO | STY | CON NAT | LP |
-| Civil Liberties | 7 | DSA | PRG LBR | CUP | STY | OAO | CON NAT | LP |
-| Environment & Climate | 6 | DSA PRG | LBR | CUP | STY OAO | CON NAT | LP |
-| Healthcare & Housing | 5 | DSA PRG LBR | CUP STY OAO | CON | LP | NAT |
-| Budget | 5 | DSA PRG LBR | CUP CON | STY | OAO | LP | NAT |
+Parties close together vote alike on that domain. Positions share one scale across domains; fit is the share of the domain's agreement pattern one line captures.
+
+| Domain | Items | Fit | Parties, low to high |
+| --- | ---: | ---: | --- |
+| Taxes & Economy | 5 | 91% | PRG -0.32, DSA -0.31, LBR -0.22, OAO -0.15, CUP -0.02, STY +0.01, CON +0.25, LP +0.27, NAT +0.48 |
+| Immigration | 5 | 93% | DSA -0.44, PRG -0.27, LBR -0.26, OAO -0.01, STY +0.01, CUP +0.06, LP +0.13, CON +0.34, NAT +0.46 |
+| Police & Guns | 6 | 86% | DSA -0.30, PRG -0.22, LBR -0.19, OAO -0.01, CUP -0.00, STY +0.01, LP +0.13, CON +0.19, NAT +0.39 |
+| Abortion | 3 | 96% | DSA -0.26, PRG -0.23, LBR -0.21, CUP -0.08, OAO +0.04, LP +0.11, STY +0.12, CON +0.21, NAT +0.31 |
+| Civil Liberties | 7 | 86% | DSA -0.35, PRG -0.25, LBR -0.17, CUP -0.02, LP +0.00, STY +0.13, OAO +0.13, CON +0.24, NAT +0.30 |
+| Environment & Climate | 6 | 97% | DSA -0.36, PRG -0.33, LBR -0.24, OAO -0.09, CUP -0.06, STY +0.00, LP +0.18, CON +0.34, NAT +0.54 |
+| Healthcare & Housing | 5 | 93% | DSA -0.24, PRG -0.22, LBR -0.16, OAO -0.11, STY -0.02, CUP -0.01, CON +0.17, LP +0.20, NAT +0.38 |
+| Budget | 5 | 73% | DSA -0.33, PRG -0.28, OAO -0.23, LBR -0.14, STY +0.05, CUP +0.06, CON +0.16, NAT +0.35, LP +0.35 |
 
 ### Winning side and needed, by chamber
 

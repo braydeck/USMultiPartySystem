@@ -185,17 +185,3 @@ export function domainCoalitions(bills: CandidateVoteRow[], seats: SeatMap): Dom
     };
   });
 }
-
-/** Parties whose majorities (support > 50%) land on the same side of every item in `rows`. Seats
- *  play no part, as in PartyAgreement. Groups are ordered by their first member in F5_ORDER. */
-export function votingGroups(rows: CandidateVoteRow[]): string[][] {
-  const groups = new Map<string, string[]>();
-  for (const p of F5_ORDER) {
-    if (!rows.every((b) => b.parties[p])) continue;
-    const sig = rows.map((b) => ((b.parties[p].observedPct ?? 0) > 50 ? '1' : '0')).join('');
-    const g = groups.get(sig);
-    if (g) g.push(p);
-    else groups.set(sig, [p]);
-  }
-  return [...groups.values()];
-}

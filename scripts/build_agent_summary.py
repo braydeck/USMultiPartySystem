@@ -340,13 +340,19 @@ def main() -> None:
     budget = S.budget_rows()
     w("## Coalitions by domain")
     w("")
-    w("### Parties that vote the same way on every item in the domain (port of `votingGroups`)")
+    w(f"### Agreement line by domain (port of `agreementLine`, {d['voteModel']} vote, the app default)")
+    w("")
+    w("Parties close together vote alike on that domain. Positions share one scale across domains; "
+      "fit is the share of the domain's agreement pattern one line captures.")
     w("")
     doms: dict[str, list] = {}
     for b in S.bills() + budget:
         doms.setdefault(b["domain"], []).append(b)
-    w(S.table(["Domain", "Items", "Groups"],
-              [[dm, len(rs), " | ".join(" ".join(g) for g in S.voting_groups(rs, order))] for dm, rs in doms.items()], "lrl"))
+    rows = []
+    for dm, rs in doms.items():
+        x, fit = S.agreement_line(rs, order, d["voteModel"])
+        rows.append([dm, len(rs), f"{fit * 100:.0f}%", ", ".join(f"{p} {x[p]:+.2f}" for p in sorted(order, key=x.get))])
+    w(S.table(["Domain", "Items", "Fit", "Parties, low to high"], rows, "lrrl"))
     w("")
     w("### Winning side and needed, by chamber")
     w("")

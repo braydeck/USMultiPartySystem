@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { domainCoalitions, votingGroups } from './voteBloc';
+import { domainCoalitions } from './voteBloc';
 import type { CandidateVoteRow, ClusterProfile } from '../../types';
 import candidateVotes from '../../data/candidateVoteModel.json';
 import budget from '../../data/budgetPriorities.json';
@@ -54,14 +54,3 @@ describe('domainCoalitions', () => {
   });
 });
 
-describe('votingGroups', () => {
-  it('puts every party in exactly one group, and grouped parties never split', () => {
-    for (const r of domainCoalitions([...bills, ...budgetRows], seats)) {
-      const groups = votingGroups(r.bills);
-      expect(groups.flat().sort()).toEqual(Object.keys(r.bills[0].parties).sort());
-      for (const g of groups) for (const b of r.bills) {
-        expect(new Set(g.map(p => (b.parties[p].observedPct ?? 0) > 50)).size).toBe(1);
-      }
-    }
-  });
-});
